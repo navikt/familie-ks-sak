@@ -306,7 +306,7 @@ class BehandlingService(
             }
 
         if (erNyeAndeler) {
-            throw Feil("Fant framtidig opphør med flere andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.")
+            throw Feil("Fant framtidig opphør med nye andeler. Disse skal følges opp manuelt. Feiler tasken med vilje.")
         }
 
         return erNyeAndeler
