@@ -253,9 +253,7 @@ class AutovedtakLovendringTest(
             assertThrows<Feil> {
                 autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)
             }
-        assertThat(exception.message).isEqualTo(
-            "Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes",
-        )
+        assertThat(exception.message).contains("LOVENDRING_2024_ANDEL_I_AUGUST")
 
         verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
         verify(exactly = 0) { brevklient.genererBrev(any(), any()) }
