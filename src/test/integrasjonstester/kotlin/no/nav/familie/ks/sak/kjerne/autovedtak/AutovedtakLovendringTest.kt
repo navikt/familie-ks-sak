@@ -275,7 +275,7 @@ class AutovedtakLovendringTest(
         lagTilkjentytelseMedAndelForBarn(
             fødselsdatoBarn = fødselsdatoBarn,
             stønadFom = stønadFom,
-            stønadTom = stønadTom.minusMonths(2)
+            stønadTom = stønadTom.minusMonths(2),
         )
         lagVedtak()
         opprettVedtaksperiodeMedBegrunnelser(begrunnelser = listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS))

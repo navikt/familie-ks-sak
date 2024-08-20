@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import java.time.Period
-import java.time.YearMonth
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
@@ -55,6 +53,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Period
+import java.time.YearMonth
 
 @Service
 class BehandlingService(
@@ -310,14 +310,16 @@ class BehandlingService(
 
             if (erOpphørIAugustForForrigeUtbetaling && erOpphørISeptemberForNåværendeUtbetaling) {
                 throw Feil(
-                    "Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes"
+                    "Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes",
                 )
             }
 
-            val antallMånederMellomForrigeOgNåværendeUtbetalinger = Period.between(
-                sisteForrigeUtbetalingForAktør.toLocalDate(),
-                sisteNåværendeUtbetalingForAktør.toLocalDate(),
-            ).months
+            val antallMånederMellomForrigeOgNåværendeUtbetalinger =
+                Period
+                    .between(
+                        sisteForrigeUtbetalingForAktør.toLocalDate(),
+                        sisteNåværendeUtbetalingForAktør.toLocalDate(),
+                    ).months
 
             if (antallMånederMellomForrigeOgNåværendeUtbetalinger > 1) {
                 throw Feil("Antall måneder differanse mellom forrige og nåværende utbetaling overstiger 1")
