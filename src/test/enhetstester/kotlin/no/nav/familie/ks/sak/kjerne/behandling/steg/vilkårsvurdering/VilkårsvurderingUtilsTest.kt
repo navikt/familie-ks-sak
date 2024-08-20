@@ -316,7 +316,7 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
-        val resultat = listOf(vilkårResultat).forkortHvisSkalForkortesEtterRegelverkEndring()
+        val resultat = listOf(vilkårResultat).justerTomTilRiktigLengde()
 
         assertEquals(LocalDate.of(2024, 12, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
@@ -331,7 +331,7 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
-        val resultat = listOf(vilkårResultat).forkortHvisSkalForkortesEtterRegelverkEndring()
+        val resultat = listOf(vilkårResultat).justerTomTilRiktigLengde()
 
         assertEquals(LocalDate.of(2024, 7, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
@@ -346,7 +346,7 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
-        val resultat = listOf(vilkårResultat).forkortHvisSkalForkortesEtterRegelverkEndring()
+        val resultat = listOf(vilkårResultat).justerTomTilRiktigLengde()
 
         assertEquals(LocalDate.of(2025, 3, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
