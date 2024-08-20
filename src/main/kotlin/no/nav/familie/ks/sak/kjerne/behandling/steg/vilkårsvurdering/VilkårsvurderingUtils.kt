@@ -394,27 +394,28 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
         val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
             when (vilkårType) {
                 Vilkår.BARNEHAGEPLASS -> {
-                        /* *
-                         * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
-                         * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
-                         *
-                         * kopierer ikke med eksplisitt avslag på søknad for dette ikke vil validere med
-                         * validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag ved revurdering av
-                         * en sak som har hatt eksplisitt avslag i forrige behandling.
-                         * */
+                    /* *
+                     * Ønsker å dra med vilkårresultatene som er avslått og opphørt i forrige behandling
+                     * for barnehagevilkåret fordi vi krever at alle peridene skal være vurdert, også de med opphør
+                     *
+                     * kopierer ikke med eksplisitt avslag på søknad for dette ikke vil validere med
+                     * validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag ved revurdering av
+                     * en sak som har hatt eksplisitt avslag i forrige behandling.
+                     * */
                     vilkårResultaterAvSammeTypeIForrigeBehandling.filter { it.erEksplisittAvslagPåSøknad == true && it.vilkårType == Vilkår.BARNEHAGEPLASS }.forEach { it.erEksplisittAvslagPåSøknad = null }
                     vilkårResultaterAvSammeTypeIForrigeBehandling
                 }
 
                 Vilkår.BARNETS_ALDER -> {
-                        /* *
-                         * Barnets alder vilkåret settes automatisk og bør ikke endres med midre det er snakk om adopsjon.
-                         * Kopierer derfor kun vilkåret ved adopsjon og tar med som er generert på denne behandlingen ellers.
-                         * På denne måten kan vi få med regelendringer som endrer vilkåret på revurderinger.
-                         * */
+                    /* *
+                     * Barnets alder vilkåret settes automatisk og bør ikke endres med mindre det er snakk om adopsjon.
+                     * Kopierer derfor kun vilkåret ved adopsjon og tar med som er generert på denne behandlingen ellers.
+                     * På denne måten kan vi få med regelendringer som endrer vilkåret på revurderinger.
+                     * */
                     vilkårResultaterAvSammeTypeIForrigeBehandling
                         .filter { it.erAdopsjonOppfylt() }
                         .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                        .forkortHvisSkalForkortesEtterRegelverkEndring()
                         .splittOppOmKrysserRegelverksendring()
                 }
 
@@ -433,15 +434,29 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
 
 fun Collection<VilkårResultat>.splittOppOmKrysserRegelverksendring(): List<VilkårResultat> =
     this.flatMap {
-        val krysserRegelendring =
-            (it.periodeFom ?: TIDENES_MORGEN).isBefore(DATO_LOVENDRING_2024) &&
-                (it.periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024)
-
-        if (krysserRegelendring) {
+        if (it.krysserRegelendring()) {
             listOf(
                 it.kopier(periodeTom = DATO_LOVENDRING_2024.minusDays(1)),
                 it.kopier(periodeFom = DATO_LOVENDRING_2024),
             )
+        } else {
+            listOf(it)
+        }
+    }
+
+private fun VilkårResultat.krysserRegelendring() =
+    (periodeFom ?: TIDENES_MORGEN).isBefore(DATO_LOVENDRING_2024) &&
+        (periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024)
+
+fun Collection<VilkårResultat>.forkortHvisSkalForkortesEtterRegelverkEndring(): List<VilkårResultat> =
+    this.flatMap {
+        it.periodeFom ?: throw IllegalStateException("Barnets alder vilkår kan ikke begynne tidenes morgen")
+        it.periodeTom ?: throw IllegalStateException("Barnets alder vilkår kan ikke ende tidenes ende")
+
+        val lengdePåPeriode = it.periodeFom!!.until(it.periodeTom).toTotalMonths()
+
+        if (lengdePåPeriode > 7 && (it.krysserRegelendring() || it.periodeFom!! >= DATO_LOVENDRING_2024)) {
+            listOf(it.kopier(periodeTom = it.periodeFom!!.plusMonths(7)))
         } else {
             listOf(it)
         }
