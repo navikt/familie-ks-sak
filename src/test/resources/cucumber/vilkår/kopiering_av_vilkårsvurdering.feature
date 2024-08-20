@@ -44,7 +44,7 @@ Egenskap: opprettVilkårsvurdering - tester for kopiering av vilkårresultater f
       | 2       | BARNETS_ALDER                                          | 17.01.2024 | 31.07.2024 | OPPFYLT  |                  |              | Ja                    |
       | 2       | BARNETS_ALDER                                          | 01.08.2024 | 17.08.2024 | OPPFYLT  |                  |              | Ja                    |
 
-  Scenario: Ved revurdering av adopsjonsak, skal barnets aldervilkår skal splittes på regelendringsdato, men datoer skal ikke endres
+  Scenario: Ved revurdering av adopsjonsak, skal barnets aldervilkår splittes på regelendringsdato, og datoer skal endres hvis de er lengre enn 7 mnd
     Og følgende dagens dato 27.06.2024
 
     Og følgende vilkårresultater for behandling 1
@@ -64,7 +64,7 @@ Egenskap: opprettVilkårsvurdering - tester for kopiering av vilkårresultater f
       | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER,BOSATT_I_RIKET |                  | 17.01.2023 |            | OPPFYLT  | NASJONALE_REGLER |              |
       | 2       | BARNEHAGEPLASS                                         |                  | 17.01.2023 |            | OPPFYLT  |                  |              |
       | 2       | BARNETS_ALDER                                          | ADOPSJON         | 17.01.2024 | 31.07.2024 | OPPFYLT  |                  |              |
-      | 2       | BARNETS_ALDER                                          | ADOPSJON         | 01.08.2024 | 17.01.2025 | OPPFYLT  |                  |              |
+      | 2       | BARNETS_ALDER                                          | ADOPSJON         | 01.08.2024 | 17.08.2024 | OPPFYLT  |                  |              |
 
   Scenario: Ved kopiering av vilkårresultater skal avslag og opphør for barnehageplassvilkåret beholdes fra forrige behanlding
     Og følgende dagens dato 27.06.2024
