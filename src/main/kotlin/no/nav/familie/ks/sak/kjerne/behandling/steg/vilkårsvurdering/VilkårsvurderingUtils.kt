@@ -415,7 +415,7 @@ private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeB
                     vilkårResultaterAvSammeTypeIForrigeBehandling
                         .filter { it.erAdopsjonOppfylt() }
                         .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
-                        .justerTomTilRiktigLengde()
+                        .forkortTomTilGyldigLengde()
                         .splittOppOmKrysserRegelverksendring()
                 }
 
@@ -448,7 +448,7 @@ private fun VilkårResultat.krysserRegelendring() =
     (periodeFom ?: TIDENES_MORGEN).isBefore(DATO_LOVENDRING_2024) &&
         (periodeTom ?: TIDENES_ENDE).erSammeEllerEtter(DATO_LOVENDRING_2024)
 
-fun Collection<VilkårResultat>.justerTomTilRiktigLengde(): List<VilkårResultat> =
+fun Collection<VilkårResultat>.forkortTomTilGyldigLengde(): List<VilkårResultat> =
     this.flatMap {
         it.periodeFom ?: throw IllegalStateException("Barnets alder vilkår kan ikke begynne tidenes morgen")
         it.periodeTom ?: throw IllegalStateException("Barnets alder vilkår kan ikke ende ved tidenes ende")
