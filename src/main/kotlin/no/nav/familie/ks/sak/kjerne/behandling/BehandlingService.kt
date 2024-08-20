@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.mapper.BehandlingMapper.lagPersonerMedAndelTilk
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -31,6 +32,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.Refusjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilEndretUtbetalingAndelResponsDto
@@ -51,6 +53,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Period
+import java.time.YearMonth
 
 @Service
 class BehandlingService(
@@ -290,13 +294,6 @@ class BehandlingService(
         val fagsakId = behandling.fagsak.id
         val sisteIverksatteBehandling = hentSisteBehandlingSomErIverksatt(fagsakId) ?: throw Feil("Fant ingen iverksatt behandling for fagsak $fagsakId")
 
-        val vedtakForSisteIverksatteBehandling = vedtakRepository.findByBehandlingAndAktiv(sisteIverksatteBehandling.id)
-        val forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse = vedtaksperiodeService.vedtakInneholderFremtidigOpphørBegrunnelse(vedtakForSisteIverksatteBehandling)
-
-        if (!forrigeBehandlingHaddeFramtidigOpphørsbegrunnelse) {
-            return false
-        }
-
         val andelerNåværendeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
         val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
 
@@ -304,9 +301,29 @@ class BehandlingService(
 
         return aktører.any { aktør ->
             val sisteNåværendeUtbetalingForAktør =
-                andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: return@any false
+                andelerNåværendeBehandling.filter<AndelTilkjentYtelse> { it.aktør == aktør }.maxOfOrNull<AndelTilkjentYtelse, YearMonth> { it.stønadTom } ?: return@any false
             val sisteForrigeUtbetalingForAktør =
                 andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+
+            val erOpphørIAugustForForrigeUtbetaling = sisteForrigeUtbetalingForAktør == YearMonth.of(2024, 7)
+            val erOpphørISeptemberForNåværendeUtbetaling = sisteNåværendeUtbetalingForAktør == YearMonth.of(2024, 8)
+
+            if (erOpphørIAugustForForrigeUtbetaling && erOpphørISeptemberForNåværendeUtbetaling) {
+                throw Feil(
+                    "Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes",
+                )
+            }
+
+            val antallMånederMellomForrigeOgNåværendeUtbetalinger =
+                Period
+                    .between(
+                        sisteForrigeUtbetalingForAktør.toLocalDate(),
+                        sisteNåværendeUtbetalingForAktør.toLocalDate(),
+                    ).months
+
+            if (antallMånederMellomForrigeOgNåværendeUtbetalinger > 1) {
+                throw Feil("Antall måneder differanse mellom forrige og nåværende utbetaling overstiger 1")
+            }
 
             sisteForrigeUtbetalingForAktør < sisteNåværendeUtbetalingForAktør
         }
