@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
@@ -16,6 +17,8 @@ import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -44,8 +47,13 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus.LØPENDE
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -260,6 +268,80 @@ class AutovedtakLovendringTest(
     }
 
     @Test
+    fun `automatisk revurdering av fagsak som har fremtidig opphør kaster en exception hvis det er nye andeler i august og barn med færre andeler`() {
+        // arrange
+        val fødselsdatoBarnMedFremtidigOpphør = LocalDate.of(2023, 4, 1)
+        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
+        val stønadFom = fødselsdatoBarnMedFremtidigOpphør.plusYears(1).plusMonths(1).toYearMonth()
+        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
+
+        val fødselsdatoBarnUtenFremtidigOpphør = LocalDate.of(2023, 4, 1)
+        val vilkårOppfyltForBarnUtenFremtidigOpphørFom = fødselsdatoBarnUtenFremtidigOpphør.plusYears(1)
+        val vilkårOppfyltForBarnUtenFremtidigOpphørTom = fødselsdatoBarnUtenFremtidigOpphør.plusYears(2)
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarnMedFremtidigOpphør)
+
+        val barnUtenFremtidigOpphørAktør = lagreAktør(randomAktør())
+
+        val barnUtenFremtidigOpphør =
+            lagrePerson(
+                Person(
+                    aktør = barnUtenFremtidigOpphørAktør,
+                    type = PersonType.BARN,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    fødselsdato = fødselsdatoBarnUtenFremtidigOpphør,
+                    navn = "",
+                    kjønn = Kjønn.KVINNE,
+                ).also { søker ->
+                    søker.statsborgerskap =
+                        mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                    søker.bostedsadresser = mutableListOf()
+                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+                },
+            )
+
+        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarnMedFremtidigOpphør, datoForBarnehageplass)
+        lagVilkårResultaterForBarn(
+            barnFødselsdato = fødselsdatoBarnUtenFremtidigOpphør,
+            behandlingId = behandling.id,
+            barnehageplassPerioder = emptyList(),
+            personResultat =
+                lagPersonResultat(
+                    aktør = barnUtenFremtidigOpphør.aktør,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = vilkårOppfyltForBarnUtenFremtidigOpphørFom,
+                    periodeTom = vilkårOppfyltForBarnUtenFremtidigOpphørTom,
+                    vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)!!,
+                ),
+        )
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarnMedFremtidigOpphør, stønadFom = stønadFom, stønadTom = stønadTom)
+        lagTilkjentytelseMedAndelForBarn(
+            fødselsdatoBarn = fødselsdatoBarnUtenFremtidigOpphør,
+            stønadFom = vilkårOppfyltForBarnUtenFremtidigOpphørFom.plusMonths(1).toYearMonth(),
+            stønadTom = vilkårOppfyltForBarnUtenFremtidigOpphørTom.minusMonths(1).toYearMonth(),
+            aktør = barnUtenFremtidigOpphør.aktør,
+        )
+        lagVedtak()
+        opprettVedtaksperiodeMedBegrunnelser(begrunnelser = listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS))
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        // act & assert
+        val exception =
+            assertThrows<Feil> {
+                autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)
+            }
+        assertThat(exception.message).contains("LOVENDRING_2024_FLERE_BARN")
+
+        verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify(exactly = 0) { brevklient.genererBrev(any(), any()) }
+    }
+
+    @Test
     fun `automatisk revurdering av fagsak som har fremtidig opphør kaster en exception hvis det er mer enn en ny andel`() {
         // arrange
         val fødselsdatoBarn = LocalDate.of(2023, 4, 1)
@@ -406,6 +488,7 @@ class AutovedtakLovendringTest(
         fødselsdatoBarn: LocalDate = LocalDate.now(),
         stønadFom: YearMonth = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
         stønadTom: YearMonth = fødselsdatoBarn.plusYears(1).plusMonths(11).toYearMonth(), // 11 måneder som i gammelt regelverk
+        aktør: Aktør = barn,
     ) {
         lagTilkjentYtelse()
         tilkjentYtelse.andelerTilkjentYtelse.add(
@@ -413,7 +496,7 @@ class AutovedtakLovendringTest(
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelse,
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = aktør,
                     stønadFom = stønadFom,
                     stønadTom = stønadTom,
                 ),

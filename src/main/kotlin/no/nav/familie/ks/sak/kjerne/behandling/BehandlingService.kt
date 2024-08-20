@@ -299,11 +299,7 @@ class BehandlingService(
 
         val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
 
-        // Finn endringer i andeler per person
-        // Hvis et barn får ny andel i august OG annet barn får endring i andeler -> kast feil
-        // Hvis et barn får ny andel i august -> kast feil
-
-        val erBarnSomFåNyrAndelIAugust =
+        val erBarnSomFåNyAndelIAugust =
             aktører.any { aktør ->
                 val sisteNåværendeUtbetalingForAktør =
                     andelerNåværendeBehandling.filter<AndelTilkjentYtelse> { it.aktør == aktør }.maxOfOrNull<AndelTilkjentYtelse, YearMonth> { it.stønadTom } ?: return@any false
@@ -330,18 +326,18 @@ class BehandlingService(
         val erBarnSomMisterAndel =
             aktører.any { aktør ->
                 val sisteNåværendeUtbetalingForAktør =
-                    andelerNåværendeBehandling.filter<AndelTilkjentYtelse> { it.aktør == aktør }.maxOfOrNull<AndelTilkjentYtelse, YearMonth> { it.stønadTom } ?: return@any false
+                    andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
                 val sisteForrigeUtbetalingForAktør =
                     andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
 
                 sisteNåværendeUtbetalingForAktør < sisteForrigeUtbetalingForAktør
             }
 
-        if (erBarnSomFåNyrAndelIAugust && erBarnSomMisterAndel) {
+        if (erBarnSomFåNyAndelIAugust && erBarnSomMisterAndel) {
             throw Feil("LOVENDRING_2024_FLERE_BARN: Det finnes et barn som får ny andel i august og et annet barn som mister minst en andel")
         }
 
-        if (erBarnSomFåNyrAndelIAugust) {
+        if (erBarnSomFåNyAndelIAugust) {
             throw Feil(
                 "LOVENDRING_2024_ANDEL_I_AUGUST: Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes",
             )
