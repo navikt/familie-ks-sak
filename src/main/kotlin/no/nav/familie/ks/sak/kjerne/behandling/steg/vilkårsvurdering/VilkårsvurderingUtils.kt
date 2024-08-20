@@ -454,10 +454,17 @@ fun Collection<VilkårResultat>.forkortTomTilGyldigLengde(): List<VilkårResulta
         it.periodeTom ?: throw IllegalStateException("Barnets alder vilkår kan ikke ende ved tidenes ende")
 
         val lengdePåPeriode = it.periodeFom!!.until(it.periodeTom).toTotalMonths()
+        val fomTilLovendringsDato = it.periodeFom!!.until(DATO_LOVENDRING_2024).toTotalMonths()
 
-        if (lengdePåPeriode > 7 && it.periodeTom!! >= DATO_LOVENDRING_2024) {
-            listOf(it.kopier(periodeTom = it.periodeFom!!.plusMonths(7)))
-        } else {
-            listOf(it)
+        when {
+            fomTilLovendringsDato < 7 && lengdePåPeriode > 7 && it.periodeTom!! >= DATO_LOVENDRING_2024 -> {
+                listOf(it.kopier(periodeTom = it.periodeFom!!.plusMonths(7)))
+            }
+            fomTilLovendringsDato > 7 && it.periodeTom!! >= DATO_LOVENDRING_2024 -> {
+                listOf(it.kopier(periodeTom = DATO_LOVENDRING_2024.minusDays(1)))
+            }
+            else -> {
+                listOf(it)
+            }
         }
     }
