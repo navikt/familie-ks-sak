@@ -72,6 +72,7 @@ class BeregningService(
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
                 .filter {
                     when {
+                        behandling.skalBehandlesAutomatisk() -> true
                         endretUtbetalingAndel != null -> it.id == endretUtbetalingAndel.id || it.andelerTilkjentYtelse.isNotEmpty()
                         else -> it.andelerTilkjentYtelse.isNotEmpty()
                     }
