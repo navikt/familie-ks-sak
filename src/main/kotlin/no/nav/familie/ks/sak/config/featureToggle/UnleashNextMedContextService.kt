@@ -32,6 +32,19 @@ class UnleashNextMedContextService(
         )
     }
 
+    fun isEnabledForFagsak(
+        fagsakId: Long,
+        toggleId: String,
+    ): Boolean {
+        return unleashService.isEnabled(
+            toggleId,
+            properties =
+                mapOf(
+                    UnleashContextFields.FAGSAK_ID to fagsakId.toString(),
+                ),
+        )
+    }
+
     fun isEnabled(toggleId: String): Boolean =
         unleashService.isEnabled(
             toggleId,

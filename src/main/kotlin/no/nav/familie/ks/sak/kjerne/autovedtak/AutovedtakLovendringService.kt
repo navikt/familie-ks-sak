@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.autovedtak
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettPåMaskinellVentÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.SnikeIKøenService
@@ -29,6 +31,7 @@ class AutovedtakLovendringService(
     private val stegService: StegService,
     private val vedtakService: VedtakService,
     private val behandlingService: BehandlingService,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -37,7 +40,7 @@ class AutovedtakLovendringService(
         fagsakId: Long,
         erFremtidigOpphør: Boolean = false,
     ): Behandling? =
-        if (behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
+        if (!unleashNextMedContextService.isEnabledForFagsak(fagsakId, FeatureToggleConfig.KAN_KJORE_LOVENDRING_FLERE_GANGER) && behandlingRepository.finnBehandlinger(fagsakId).any { it.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 }) {
             logger.info("Lovendring 2024 allerede kjørt for fagsakId=$fagsakId")
             null
         } else {

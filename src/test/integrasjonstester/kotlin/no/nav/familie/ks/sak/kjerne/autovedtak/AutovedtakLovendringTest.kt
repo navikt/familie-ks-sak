@@ -596,8 +596,8 @@ class AutovedtakLovendringTest(
         aktør: Aktør = barn,
         prosent: BigDecimal = BigDecimal.valueOf(100),
         sats: Int = maksBeløp(),
-        kalkulertUtbetalingsbeløp: Int = prosent.toDouble().div(100).times(sats).toInt(),
-        nasjonaltPeriodebeløp: Int = prosent.toDouble().div(100).times(sats).toInt(),
+        kalkulertUtbetalingsbeløp: Int = (prosent.toDouble() / 100 * sats).toInt(),
+        nasjonaltPeriodebeløp: Int = (prosent.toDouble() / 100 * sats).toInt(),
     ) {
         tilkjentYtelse.andelerTilkjentYtelse.add(
             andelTilkjentYtelseRepository.save(
