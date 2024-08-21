@@ -123,6 +123,7 @@ class AutovedtakLovendringTest(
         justRun { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) }
         justRun { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
         every { unleashNextMedContextService.isEnabled(any()) } returns true
+        every { unleashNextMedContextService.isEnabledForFagsak(any(), any()) } returns false
         every { personService.lagPerson(any(), any(), any(), any(), any()) } answers {
             val aktør = firstArg<Aktør>()
             personRepository.findByAktør(aktør).first()
