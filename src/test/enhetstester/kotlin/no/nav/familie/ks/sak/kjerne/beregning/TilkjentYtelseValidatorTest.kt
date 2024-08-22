@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
@@ -43,7 +44,7 @@ internal class TilkjentYtelseValidatorTest {
             søkerAktør = søker.aktør,
             barnAktør = listOf(barn.aktør, barn2.aktør),
         )
-    val vilkårsvurdering = lagVilkårsvurdering(søkerAktør = søker.aktør, behandling = behandling, resultat = Resultat.OPPFYLT, søkerPeriodeFom = LocalDate.of(2021, 1, 1))
+    var vilkårsvurdering = lagVilkårsvurdering(søkerAktør = søker.aktør, behandling = behandling, resultat = Resultat.OPPFYLT, søkerPeriodeFom = LocalDate.of(2021, 1, 1))
     private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
 
     @Test
@@ -78,7 +79,7 @@ internal class TilkjentYtelseValidatorTest {
                 )
             }
         val feilmelding =
-            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
+            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale 12 måneder for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
@@ -126,7 +127,7 @@ internal class TilkjentYtelseValidatorTest {
                 )
             }
         val feilmelding =
-            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barnFødtIJanuar2023.aktør.aktivFødselsnummer()}. " +
+            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale 8 måneder for barn med fnr ${barnFødtIJanuar2023.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
@@ -166,7 +167,7 @@ internal class TilkjentYtelseValidatorTest {
                 )
             }
         val feilmelding =
-            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${barnFødtIAugust2022.aktør.aktivFødselsnummer()}. " +
+            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale 12 måneder for barn med fnr ${barnFødtIAugust2022.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
@@ -501,5 +502,123 @@ internal class TilkjentYtelseValidatorTest {
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
         assertEquals(0, aktørerMedUgyldigEtterbetalingsperiode.size)
+    }
+
+    @Test
+    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder`() {
+        val andeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = barn.aktør,
+                    stønadFom = YearMonth.of(2024, 3),
+                    stønadTom = YearMonth.of(2024, 9),
+                    sats = 5000,
+                ),
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
+
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2023, 2, 1))
+        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+
+        assertDoesNotThrow {
+            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                tilkjentYtelse = tilkjentYtelse,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+            )
+        }
+    }
+
+    @Test
+    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med gammelt regelverk`() {
+        val andeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = barn.aktør,
+                    stønadFom = YearMonth.of(2023, 9),
+                    stønadTom = YearMonth.of(2024, 7),
+                    sats = 5000,
+                ),
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
+
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2022, 8, 1))
+        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+
+        assertDoesNotThrow {
+            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                tilkjentYtelse = tilkjentYtelse,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+            )
+        }
+    }
+
+    @Test
+    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med nytt regelverk`() {
+        val andeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = barn.aktør,
+                    stønadFom = YearMonth.of(2024, 8),
+                    stønadTom = YearMonth.of(2025, 2),
+                    sats = 5000,
+                ),
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
+
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2023, 7, 1))
+        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+
+        assertDoesNotThrow {
+            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                tilkjentYtelse = tilkjentYtelse,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+            )
+        }
+    }
+
+    @Test
+    fun `Validering ved adopsjonssaker skal være ugyldig dersom mer enn 7 mnd`() {
+        val andeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = barn.aktør,
+                    stønadFom = YearMonth.of(2024, 2),
+                    stønadTom = YearMonth.of(2024, 9),
+                    sats = 5000,
+                ),
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
+
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandling = behandling, fødselsdato = LocalDate.of(2023, 1, 1))
+        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+
+        val feil =
+            assertThrows<FunksjonellFeil> {
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+                )
+            }
+        assertEquals(
+            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale 8 måneder for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
+                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+            feil.melding,
+        )
     }
 }

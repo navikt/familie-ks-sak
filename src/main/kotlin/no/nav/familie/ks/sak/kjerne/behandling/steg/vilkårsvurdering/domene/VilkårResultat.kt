@@ -134,6 +134,7 @@ class VilkårResultat(
         resultat: Resultat = this.resultat,
         periodeTom: LocalDate? = this.periodeTom,
         begrunnelse: String = this.begrunnelse,
+        utdypendeVilkårsvurderinger: List<UtdypendeVilkårsvurdering> = this.utdypendeVilkårsvurderinger,
     ) = VilkårResultat(
         personResultat = personResultat ?: this.personResultat,
         erAutomatiskVurdert = this.erAutomatiskVurdert,
@@ -147,7 +148,7 @@ class VilkårResultat(
         regelOutput = this.regelOutput,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         vurderesEtter = this.vurderesEtter,
-        utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger,
+        utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
         antallTimer = this.antallTimer,
         søkerHarMeldtFraOmBarnehageplass = this.søkerHarMeldtFraOmBarnehageplass,
     )

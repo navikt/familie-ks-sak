@@ -51,7 +51,13 @@ object TilkjentYtelseValidator {
 
             val relevantBarn = barna.single { it.aktør == aktør }
 
-            val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
+            val vilkårLovverkInformasjonForBarn =
+                if (alleBarnetsAlderVilkårResultater.any { it.erAdopsjonOppfylt() }) {
+                    VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato, stønadFom, stønadTom)
+                } else {
+                    VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
+                }
+
             val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
 
             val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -61,7 +67,7 @@ object TilkjentYtelseValidator {
 
             if (antallMånederUtbetalt > maksAntallMånederMedUtbetaling) {
                 val feilmelding =
-                    "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale mer enn dette for barn med fnr ${aktør.aktivFødselsnummer()}. " +
+                    "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                         "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
             }
