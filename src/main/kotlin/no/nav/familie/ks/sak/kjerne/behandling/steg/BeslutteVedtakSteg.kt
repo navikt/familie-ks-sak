@@ -46,6 +46,17 @@ class BeslutteVedtakSteg(
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val behandling = behandlingService.hentBehandling(behandlingId)
 
+        if (behandling.erTekniskEndring() &&
+            !unleashService.isEnabled(
+                FeatureToggleConfig.TEKNISK_ENDRING,
+                behandling.id,
+            )
+        ) {
+            throw FunksjonellFeil(
+                "Du har ikke tilgang til å beslutte en behandling med årsak=${behandling.opprettetÅrsak.visningsnavn}. Ta kontakt med teamet dersom dette ikke stemmer.",
+            )
+        }
+
         validerAtBehandlingKanBesluttes(behandling)
 
         val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
