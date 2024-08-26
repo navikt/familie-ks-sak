@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.Properties
+import java.util.UUID
 
 @Service
 @TaskStepBeskrivelse(
@@ -22,8 +23,8 @@ class GrensesnittavstemmingTask(
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val taskData = objectMapper.readValue(task.payload, GrensesnittavstemmingTaskDto::class.java)
-        logger.info("Kjører $TASK_STEP_TYPE for fom=${taskData.fom}, tom=${taskData.tom}")
-        avstemmingService.sendGrensesnittavstemming(taskData.fom, taskData.tom)
+        logger.info("Kjører $TASK_STEP_TYPE for fom=${taskData.fom}, tom=${taskData.tom}, avstemmingId=${taskData.avstemmingId}")
+        avstemmingService.sendGrensesnittavstemming(fom = taskData.fom, tom = taskData.tom, avstemmingId = taskData.avstemmingId)
     }
 
     companion object {
@@ -32,14 +33,16 @@ class GrensesnittavstemmingTask(
         fun opprettTask(
             fom: LocalDateTime,
             tom: LocalDateTime,
+            avstemmingId: UUID = UUID.randomUUID(),
         ) = Task(
             type = TASK_STEP_TYPE,
-            payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom)),
+            payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom, avstemmingId)),
             properties =
                 Properties().apply {
                     // la til denne i properties slik at de kan vises i familie-prosessering
                     this["fom"] = fom.toString()
                     this["tom"] = tom.toString()
+                    this["avstemmingId"] = avstemmingId.toString()
                 },
         )
 

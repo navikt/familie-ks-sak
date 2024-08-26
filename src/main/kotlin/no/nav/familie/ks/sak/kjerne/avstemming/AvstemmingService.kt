@@ -20,8 +20,9 @@ class AvstemmingService(
     fun sendGrensesnittavstemming(
         fom: LocalDateTime,
         tom: LocalDateTime,
+        avstemmingId: UUID?,
     ) {
-        oppdragKlient.sendGrensesnittavstemmingTilOppdrag(fom, tom)
+        oppdragKlient.sendGrensesnittavstemmingTilOppdrag(fom = fom, tom = tom, avstemmingId = avstemmingId)
     }
 
     fun sendKonsistensavstemmingStartMelding(
