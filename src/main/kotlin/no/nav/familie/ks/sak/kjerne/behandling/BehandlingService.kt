@@ -55,6 +55,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Period
+import java.time.YearMonth
 
 @Service
 class BehandlingService(
@@ -298,6 +300,50 @@ class BehandlingService(
         val andelerForrigeBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
 
         val aktører = (andelerNåværendeBehandling.map { it.aktør } + andelerForrigeBehandling.map { it.aktør }).distinct()
+
+        val erBarnSomFåNyAndelIAugust =
+            aktører.any { aktør ->
+                val sisteNåværendeUtbetalingForAktør =
+                    andelerNåværendeBehandling.filter<AndelTilkjentYtelse> { it.aktør == aktør }.maxOfOrNull<AndelTilkjentYtelse, YearMonth> { it.stønadTom } ?: return@any false
+                val sisteForrigeUtbetalingForAktør =
+                    andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+
+                val antallMånederMellomForrigeOgNåværendeUtbetalinger =
+                    Period
+                        .between(
+                            sisteForrigeUtbetalingForAktør.toLocalDate(),
+                            sisteNåværendeUtbetalingForAktør.toLocalDate(),
+                        ).months
+
+                if (antallMånederMellomForrigeOgNåværendeUtbetalinger > 1) {
+                    throw Feil("Antall måneder differanse mellom forrige og nåværende utbetaling overstiger 1")
+                }
+
+                val erOpphørIAugustForForrigeUtbetaling = sisteForrigeUtbetalingForAktør == YearMonth.of(2024, 7)
+                val erOpphørISeptemberForNåværendeUtbetaling = sisteNåværendeUtbetalingForAktør == YearMonth.of(2024, 8)
+
+                erOpphørIAugustForForrigeUtbetaling && erOpphørISeptemberForNåværendeUtbetaling
+            }
+
+        val erBarnSomMisterAndel =
+            aktører.any { aktør ->
+                val sisteNåværendeUtbetalingForAktør =
+                    andelerNåværendeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+                val sisteForrigeUtbetalingForAktør =
+                    andelerForrigeBehandling.filter { it.aktør == aktør }.maxOfOrNull { it.stønadTom } ?: TIDENES_MORGEN.toYearMonth()
+
+                sisteNåværendeUtbetalingForAktør < sisteForrigeUtbetalingForAktør
+            }
+
+        if (erBarnSomFåNyAndelIAugust && erBarnSomMisterAndel) {
+            throw Feil("LOVENDRING_2024_FLERE_BARN: Det finnes et barn som får ny andel i august og et annet barn som mister minst en andel")
+        }
+
+        if (erBarnSomFåNyAndelIAugust) {
+            throw Feil(
+                "LOVENDRING_2024_ANDEL_I_AUGUST: Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes",
+            )
+        }
 
         return aktører.any { aktør ->
             val sisteNåværendeUtbetalingForAktør =

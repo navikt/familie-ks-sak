@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 internal class GrensesnittavstemmingSchedulerTest {
@@ -190,6 +191,6 @@ internal class GrensesnittavstemmingSchedulerTest {
         tom: LocalDate,
     ) = Task(
         type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-        payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay())),
+        payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay(), UUID.randomUUID())),
     )
 }

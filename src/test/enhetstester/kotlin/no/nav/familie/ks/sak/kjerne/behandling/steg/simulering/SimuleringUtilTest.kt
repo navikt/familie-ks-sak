@@ -119,6 +119,20 @@ class SimuleringUtilTest {
         Assertions.assertEquals(BigDecimal.valueOf(3), hentResultatIPeriode(økonomiSimuleringPosteringer))
     }
 
+    @Test
+    fun `hentManuellPosteringIPeriode skal returnere sum av manuelle posteringer`() {
+        val økonomiSimuleringPosteringer =
+            listOf(
+                mockVedtakSimuleringPostering(beløp = 2000, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE),
+                mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+            )
+
+        Assertions.assertEquals(BigDecimal.valueOf(600), hentManuellPosteringIPeriode(økonomiSimuleringPosteringer))
+    }
+
     private val økonomiSimuleringPosteringerMedNegativFeilutbetaling =
         listOf(
             mockVedtakSimuleringPostering(beløp = -500, posteringType = PosteringType.FEILUTBETALING),

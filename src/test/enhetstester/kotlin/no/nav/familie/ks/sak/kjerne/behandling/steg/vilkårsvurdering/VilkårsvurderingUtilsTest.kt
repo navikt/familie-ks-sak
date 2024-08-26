@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -303,5 +304,65 @@ class VilkårsvurderingUtilsTest {
 
         val personResultaterBarn2 = vilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == personIdentBarn2 }
         personResultaterBarn2.vilkårResultater.forEach { assertEquals(dødsdatoBarn2, it.periodeTom) }
+    }
+
+    @Test
+    fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter hvis periode krysser lovendringsdato`() {
+        val vilkårResultat =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNETS_ALDER,
+                periodeFom = LocalDate.of(2024, 5, 1),
+                periodeTom = LocalDate.of(2025, 5, 1),
+                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+            )
+
+        val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
+
+        assertEquals(LocalDate.of(2024, 12, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
+    }
+
+    @Test
+    fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter ikke hvis periode ikke krysser lovendringsdato`() {
+        val vilkårResultat =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNETS_ALDER,
+                periodeFom = LocalDate.of(2023, 7, 1),
+                periodeTom = LocalDate.of(2024, 7, 1),
+                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+            )
+
+        val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
+
+        assertEquals(LocalDate.of(2024, 7, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
+    }
+
+    @Test
+    fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter hvis periode er laget etter nytt lovverk og er lengre enn 7 mnd`() {
+        val vilkårResultat =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNETS_ALDER,
+                periodeFom = LocalDate.of(2024, 8, 1),
+                periodeTom = LocalDate.of(2025, 7, 1),
+                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+            )
+
+        val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
+
+        assertEquals(LocalDate.of(2025, 3, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
+    }
+
+    @Test
+    fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter til lovendringsdato hvis den forkortes under 7 mnder`() {
+        val vilkårResultat =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNETS_ALDER,
+                periodeFom = LocalDate.of(2023, 10, 15),
+                periodeTom = LocalDate.of(2024, 9, 15),
+                utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
+            )
+
+        val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
+
+        assertEquals(LocalDate.of(2024, 7, 31), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
 }

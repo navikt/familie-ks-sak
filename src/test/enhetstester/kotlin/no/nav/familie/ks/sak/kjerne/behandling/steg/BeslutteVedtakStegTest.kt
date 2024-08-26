@@ -180,4 +180,20 @@ class BeslutteVedtakStegTest {
         verify(exactly = 1) { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) }
         verify(exactly = 1) { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) }
     }
+
+    @Test
+    fun `Skal kaste feil dersom saksbehandler uten tilgang til teknisk endring prøve å godkjenne en behandling med årsak=teknisk endring`() {
+        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING, any()) } returns false
+
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
+        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, null)
+
+        every { behandlingService.hentBehandling(any()) } returns behandling
+
+        val feil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(behandling.id, besluttVedtakDto) }
+        assertThat(
+            feil.melding,
+            Is("Du har ikke tilgang til å beslutte en behandling med årsak=Teknisk endring. Ta kontakt med teamet dersom dette ikke stemmer."),
+        )
+    }
 }

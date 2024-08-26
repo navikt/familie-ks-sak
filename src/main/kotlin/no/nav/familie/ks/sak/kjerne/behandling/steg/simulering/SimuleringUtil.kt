@@ -72,6 +72,24 @@ fun hentResultatIPeriode(periode: List<ØkonomiSimuleringPostering>): BigDecimal
     }
 }
 
+fun hentManuellPosteringIPeriode(periode: List<ØkonomiSimuleringPostering>): BigDecimal {
+    val sumManuellePosteringer =
+        periode
+            .filter { it.posteringType == PosteringType.YTELSE }
+            .filter { it.erManuellPostering }
+            .sumOf { it.beløp }
+
+    val manuellFeilutbetaling = hentManuellFeilutbetalingIPeriode(periode)
+
+    return sumManuellePosteringer - manuellFeilutbetaling
+}
+
+private fun hentManuellFeilutbetalingIPeriode(periode: List<ØkonomiSimuleringPostering>) =
+    periode
+        .filter { it.posteringType == PosteringType.FEILUTBETALING }
+        .filter { it.erManuellPostering }
+        .sumOf { it.beløp }
+
 fun hentEtterbetalingIPeriode(
     periode: List<ØkonomiSimuleringPostering>,
     tidSimuleringHentet: LocalDate?,

@@ -309,6 +309,26 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
     }
 
+    @PostMapping("/automatisk-revurdering-lovendring")
+    @Operation(
+        summary = "Oppretter en AutovedtakLovendringTask",
+        description = "Oppretter en AutovedtakLovendringTask som trigger en lovendring på en liste med fagsaker. Det er ingen validering som stopper lovendring-revurdering på dette endepunktet",
+    )
+    fun opprettAutomatiskLovendringRevurderingFlereFagsaker(
+        @RequestBody fagsakListe: List<Long>,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "opprette automatisk revurdering",
+        )
+
+        fagsakListe.forEach {
+            AutovedtakLovendringTask.opprettTask(it).apply { taskService.save(this) }
+        }
+
+        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
+    }
+
     @PostMapping("/automatisk-revurdering-lovendring-ikke-fremtidig-opphor/{limit}")
     @Operation(
         summary = "Oppretter AutovedtakLovendringIkkeFremtidigOpphørTask for løpende saker uten fremtidig opphør",

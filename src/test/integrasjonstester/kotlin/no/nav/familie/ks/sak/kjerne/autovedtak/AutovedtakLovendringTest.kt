@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
@@ -14,8 +15,11 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.data.lagLogg
 import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -38,14 +42,23 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus.LØPENDE
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -62,6 +75,7 @@ import java.time.YearMonth
 class AutovedtakLovendringTest(
     @Autowired private val autovedtakLovendringService: AutovedtakLovendringService,
     @Autowired private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    @Autowired private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     @Autowired private val personRepository: PersonRepository,
     @Autowired private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     @Autowired private val behandlingRepository: BehandlingRepository,
@@ -109,6 +123,7 @@ class AutovedtakLovendringTest(
         justRun { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) }
         justRun { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
         every { unleashNextMedContextService.isEnabled(any()) } returns true
+        every { unleashNextMedContextService.isEnabledForFagsak(any(), any()) } returns false
         every { personService.lagPerson(any(), any(), any(), any(), any()) } answers {
             val aktør = firstArg<Aktør>()
             personRepository.findByAktør(aktør).first()
@@ -253,9 +268,81 @@ class AutovedtakLovendringTest(
             assertThrows<Feil> {
                 autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)
             }
-        assertThat(exception.message).isEqualTo(
-            "Forrige behandling har opphør i august. Nåværende behandling har opphør i september. Disse tilfellene skal ikke revurderes",
+        assertThat(exception.message).contains("LOVENDRING_2024_ANDEL_I_AUGUST")
+
+        verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify(exactly = 0) { brevklient.genererBrev(any(), any()) }
+    }
+
+    @Test
+    fun `automatisk revurdering av fagsak som har fremtidig opphør kaster en exception hvis det er nye andeler i august og barn med færre andeler`() {
+        // arrange
+        val fødselsdatoBarnMedFremtidigOpphør = LocalDate.of(2023, 4, 1)
+        val datoForBarnehageplass = LocalDate.of(2024, 8, 1)
+        val stønadFom = fødselsdatoBarnMedFremtidigOpphør.plusYears(1).plusMonths(1).toYearMonth()
+        val stønadTom = datoForBarnehageplass.minusMonths(1).toYearMonth()
+
+        val fødselsdatoBarnUtenFremtidigOpphør = LocalDate.of(2023, 4, 1)
+        val vilkårOppfyltForBarnUtenFremtidigOpphørFom = fødselsdatoBarnUtenFremtidigOpphør.plusYears(1)
+        val vilkårOppfyltForBarnUtenFremtidigOpphørTom = fødselsdatoBarnUtenFremtidigOpphør.plusYears(2)
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarnMedFremtidigOpphør)
+
+        val barnUtenFremtidigOpphørAktør = lagreAktør(randomAktør())
+
+        val barnUtenFremtidigOpphør =
+            lagrePerson(
+                Person(
+                    aktør = barnUtenFremtidigOpphørAktør,
+                    type = PersonType.BARN,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    fødselsdato = fødselsdatoBarnUtenFremtidigOpphør,
+                    navn = "",
+                    kjønn = Kjønn.KVINNE,
+                ).also { søker ->
+                    søker.statsborgerskap =
+                        mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                    søker.bostedsadresser = mutableListOf()
+                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+                },
+            )
+
+        lagVilkårsvurderingMedFremtidigOpphør(fødselsdatoBarnMedFremtidigOpphør, datoForBarnehageplass)
+        lagVilkårResultaterForBarn(
+            barnFødselsdato = fødselsdatoBarnUtenFremtidigOpphør,
+            behandlingId = behandling.id,
+            barnehageplassPerioder = emptyList(),
+            personResultat =
+                lagPersonResultat(
+                    aktør = barnUtenFremtidigOpphør.aktør,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = vilkårOppfyltForBarnUtenFremtidigOpphørFom,
+                    periodeTom = vilkårOppfyltForBarnUtenFremtidigOpphørTom,
+                    vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)!!,
+                ),
         )
+        lagTilkjentytelseMedAndelForBarn(fødselsdatoBarn = fødselsdatoBarnMedFremtidigOpphør, stønadFom = stønadFom, stønadTom = stønadTom)
+        lagTilkjentytelseMedAndelForBarn(
+            fødselsdatoBarn = fødselsdatoBarnUtenFremtidigOpphør,
+            stønadFom = vilkårOppfyltForBarnUtenFremtidigOpphørFom.plusMonths(1).toYearMonth(),
+            stønadTom = vilkårOppfyltForBarnUtenFremtidigOpphørTom.minusMonths(1).toYearMonth(),
+            aktør = barnUtenFremtidigOpphør.aktør,
+        )
+        lagVedtak()
+        opprettVedtaksperiodeMedBegrunnelser(begrunnelser = listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS))
+
+        every { brevklient.genererBrev(any(), any()) } returns "brev".toByteArray()
+        every { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) } returns emptyList()
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        // act & assert
+        val exception =
+            assertThrows<Feil> {
+                autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id, erFremtidigOpphør = true)
+            }
+        assertThat(exception.message).contains("LOVENDRING_2024_FLERE_BARN")
 
         verify(exactly = 0) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
         verify(exactly = 0) { brevklient.genererBrev(any(), any()) }
@@ -275,7 +362,7 @@ class AutovedtakLovendringTest(
         lagTilkjentytelseMedAndelForBarn(
             fødselsdatoBarn = fødselsdatoBarn,
             stønadFom = stønadFom,
-            stønadTom = stønadTom.minusMonths(2)
+            stønadTom = stønadTom.minusMonths(2),
         )
         lagVedtak()
         opprettVedtaksperiodeMedBegrunnelser(begrunnelser = listOf(OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS))
@@ -337,6 +424,84 @@ class AutovedtakLovendringTest(
                 .single { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.harMeldtBarnehageplassOgErFulltidIBarnehage() }
 
         assertThat(vilkårResultatRevurdering.periodeFom).isEqualTo(datoForBarnehageplass)
+
+        verify(inverse = true) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
+        verify(inverse = true) { brevklient.genererBrev(any(), any()) }
+
+        assertTotrinnskontroll(nyBehandling)
+    }
+
+    @Test
+    fun `automatisk revurdering av fagsak som har endete utbetalinger i forrige behandling får endrete utbetalinger i ny behandling`() {
+        // arrange
+        val fødselsdatoBarn = LocalDate.of(2023, 1, 1)
+        val stønadFom = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth()
+        val stønadTomGammeltRegelverk = fødselsdatoBarn.plusYears(2).minusMonths(1).toYearMonth()
+        val stønadTomNyttRegelverk = fødselsdatoBarn.plusYears(1).plusMonths(7).toYearMonth()
+        val sats = maksBeløp()
+
+        opprettSøkerFagsakOgBehandling(fagsakStatus = LØPENDE, behandlingStatus = AVSLUTTET, behandlingResultat = INNVILGET)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = fødselsdatoBarn)
+        lagVilkårsvurderingEtterGammeltRegelverk(fødselsdatoBarn)
+
+        lagTilkjentYtelse()
+        leggTilAndelTilkjentYtelse(
+            stønadFom = stønadFom,
+            stønadTom = stønadFom.plusMonths(2),
+            prosent = BigDecimal.ZERO,
+            sats = sats,
+        )
+        leggTilAndelTilkjentYtelse(
+            stønadFom = stønadFom.plusMonths(3),
+            stønadTom = stønadTomGammeltRegelverk,
+            sats = sats,
+        )
+        endretUtbetalingAndelRepository.saveAndFlush(
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                person = personRepository.findByAktør(barn).first(),
+                prosent = BigDecimal.ZERO,
+                periodeFom = stønadFom,
+                periodeTom = stønadFom.plusMonths(2),
+                årsak = Årsak.ETTERBETALING_3MND,
+                avtaletidspunktDeltBosted = null,
+            ),
+        )
+
+        every { localDateProvider.now() } returns LocalDate.of(2024, 8, 1)
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(fagsak.id) } returns behandling
+
+        // act
+        val nyBehandling = autovedtakLovendringService.revurderFagsak(fagsakId = fagsak.id)!!
+
+        // assert
+        assertThat(nyBehandling.opprettetÅrsak).isEqualTo(LOVENDRING_2024)
+        assertThat(nyBehandling.steg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+
+        val andelTilkjentYtelseNy = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(nyBehandling.id)
+        assertThat(andelTilkjentYtelseNy)
+            .hasSize(2)
+            .anySatisfy {
+                assertThat(it.stønadFom).isEqualTo(stønadFom)
+                assertThat(it.stønadTom).isEqualTo(stønadFom.plusMonths(2))
+                assertThat(it.prosent).isEqualTo(BigDecimal.ZERO)
+                assertThat(it.kalkulertUtbetalingsbeløp).isEqualTo(0)
+            }.anySatisfy {
+                assertThat(it.stønadFom).isEqualTo(stønadFom.plusMonths(3))
+                assertThat(it.stønadTom).isEqualTo(stønadTomNyttRegelverk)
+                assertThat(it.prosent).isEqualTo(BigDecimal.valueOf(100))
+                assertThat(it.sats).isEqualTo(sats)
+                assertThat(it.kalkulertUtbetalingsbeløp).isEqualTo(sats)
+            }
+
+        val endreteUtbetalingerNy = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(nyBehandling.id)
+        assertThat(endreteUtbetalingerNy)
+            .hasSize(1)
+            .anySatisfy {
+                assertThat(it.fom).isEqualTo(stønadFom)
+                assertThat(it.tom).isEqualTo(stønadFom.plusMonths(2))
+                assertThat(it.prosent).isEqualTo(BigDecimal.ZERO)
+            }
 
         verify(inverse = true) { simuleringService.oppdaterSimuleringPåBehandling(any<Long>()) }
         verify(inverse = true) { brevklient.genererBrev(any(), any()) }
@@ -408,6 +573,7 @@ class AutovedtakLovendringTest(
         fødselsdatoBarn: LocalDate = LocalDate.now(),
         stønadFom: YearMonth = fødselsdatoBarn.plusYears(1).plusMonths(1).toYearMonth(),
         stønadTom: YearMonth = fødselsdatoBarn.plusYears(1).plusMonths(11).toYearMonth(), // 11 måneder som i gammelt regelverk
+        aktør: Aktør = barn,
     ) {
         lagTilkjentYtelse()
         tilkjentYtelse.andelerTilkjentYtelse.add(
@@ -415,9 +581,37 @@ class AutovedtakLovendringTest(
                 lagAndelTilkjentYtelse(
                     tilkjentYtelse = tilkjentYtelse,
                     behandling = behandling,
-                    aktør = barn,
+                    aktør = aktør,
                     stønadFom = stønadFom,
                     stønadTom = stønadTom,
+                ),
+            ),
+        )
+    }
+
+    private fun leggTilAndelTilkjentYtelse(
+        tilkjentYtelse: TilkjentYtelse = this.tilkjentYtelse,
+        behandling: Behandling = this.behandling,
+        stønadFom: YearMonth = YearMonth.now(),
+        stønadTom: YearMonth = YearMonth.now(),
+        aktør: Aktør = barn,
+        prosent: BigDecimal = BigDecimal.valueOf(100),
+        sats: Int = maksBeløp(),
+        kalkulertUtbetalingsbeløp: Int = (prosent.toDouble() / 100 * sats).toInt(),
+        nasjonaltPeriodebeløp: Int = (prosent.toDouble() / 100 * sats).toInt(),
+    ) {
+        tilkjentYtelse.andelerTilkjentYtelse.add(
+            andelTilkjentYtelseRepository.save(
+                lagAndelTilkjentYtelse(
+                    tilkjentYtelse = tilkjentYtelse,
+                    behandling = behandling,
+                    aktør = aktør,
+                    stønadFom = stønadFom,
+                    stønadTom = stønadTom,
+                    prosent = prosent,
+                    sats = sats,
+                    kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
+                    nasjonaltPeriodebeløp = nasjonaltPeriodebeløp,
                 ),
             ),
         )

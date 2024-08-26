@@ -205,33 +205,23 @@ enum class Behandlingsresultat(
     INNVILGET_OG_OPPHØRT(displayName = "Innvilget og opphørt", BehandlingType.values().toList()),
     INNVILGET_OG_ENDRET(displayName = "Innvilget og endret", BehandlingType.values().toList()),
     INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Innvilget, endret og opphørt", BehandlingType.values().toList()),
-
     DELVIS_INNVILGET(displayName = "Delvis innvilget", BehandlingType.values().toList()),
     DELVIS_INNVILGET_OG_OPPHØRT(displayName = "Delvis innvilget og opphørt", BehandlingType.values().toList()),
     DELVIS_INNVILGET_OG_ENDRET(displayName = "Delvis innvilget og endret", BehandlingType.values().toList()),
-    DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(
-        displayName = "Delvis innvilget, endret og opphørt",
-        BehandlingType.values().toList(),
-    ),
-
+    DELVIS_INNVILGET_ENDRET_OG_OPPHØRT(displayName = "Delvis innvilget, endret og opphørt", BehandlingType.values().toList()),
     AVSLÅTT(displayName = "Avslått", BehandlingType.values().toList()),
     AVSLÅTT_OG_OPPHØRT(displayName = "Avslått og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
     AVSLÅTT_OG_ENDRET(displayName = "Avslått og endret", listOf(REVURDERING, TEKNISK_ENDRING)),
     AVSLÅTT_ENDRET_OG_OPPHØRT(displayName = "Avslått, endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
-
-    // Revurdering uten søknad
     ENDRET_UTBETALING(displayName = "Endret utbetaling", listOf(REVURDERING, TEKNISK_ENDRING)),
     ENDRET_UTEN_UTBETALING(displayName = "Endret, uten endret utbetaling", listOf(REVURDERING, TEKNISK_ENDRING)),
     ENDRET_OG_OPPHØRT(displayName = "Endret og opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
     OPPHØRT(displayName = "Opphørt", BehandlingType.values().toList()),
     FORTSATT_OPPHØRT(displayName = "Fortsatt opphørt", listOf(REVURDERING, TEKNISK_ENDRING)),
     FORTSATT_INNVILGET(displayName = "Fortsatt innvilget", listOf(REVURDERING, TEKNISK_ENDRING)),
-
-    // Henlagt
     HENLAGT_FEILAKTIG_OPPRETTET(displayName = "Henlagt feilaktig opprettet", BehandlingType.values().toList()),
     HENLAGT_SØKNAD_TRUKKET(displayName = "Henlagt søknad trukket", BehandlingType.values().toList()),
     HENLAGT_TEKNISK_VEDLIKEHOLD(displayName = "Henlagt teknisk vedlikehold", BehandlingType.values().toList()),
-
     IKKE_VURDERT(displayName = "Ikke vurdert", emptyList()),
     ;
 
