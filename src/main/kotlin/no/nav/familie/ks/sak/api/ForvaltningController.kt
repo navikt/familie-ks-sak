@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.api
 
-import io.swagger.v3.oas.annotations.Operation
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
@@ -25,9 +24,6 @@ import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringFremtidigOpphørTask
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringIkkeFremtidigOpphørTask
-import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakLovendringTask
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
@@ -289,104 +285,6 @@ class ForvaltningController(
             handling = "hentValutakurs",
         )
         return ResponseEntity.ok(ecbService.hentValutakurs(valuta, dato))
-    }
-
-    @PostMapping("/automatisk-revurdering-lovendring/{fagsakId}")
-    @Operation(
-        summary = "Oppretter en AutovedtakLovendringTask",
-        description = "Oppretter en AutovedtakLovendringTask som trigger en lovendring på fagsak. Det er ingen validering som stopper lovendring-revurdering på dette endepunktet",
-    )
-    fun opprettAutomatiskLovendringRevurdering(
-        @PathVariable fagsakId: Long,
-    ): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "opprette automatisk revurdering",
-        )
-
-        AutovedtakLovendringTask.opprettTask(fagsakId).apply { taskService.save(this) }
-
-        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
-    }
-
-    @PostMapping("/automatisk-revurdering-lovendring")
-    @Operation(
-        summary = "Oppretter en AutovedtakLovendringTask",
-        description = "Oppretter en AutovedtakLovendringTask som trigger en lovendring på en liste med fagsaker. Det er ingen validering som stopper lovendring-revurdering på dette endepunktet",
-    )
-    fun opprettAutomatiskLovendringRevurderingFlereFagsaker(
-        @RequestBody fagsakListe: List<Long>,
-    ): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "opprette automatisk revurdering",
-        )
-
-        fagsakListe.forEach {
-            AutovedtakLovendringTask.opprettTask(it).apply { taskService.save(this) }
-        }
-
-        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
-    }
-
-    @PostMapping("/automatisk-revurdering-lovendring-ikke-fremtidig-opphor/{limit}")
-    @Operation(
-        summary = "Oppretter AutovedtakLovendringIkkeFremtidigOpphørTask for løpende saker uten fremtidig opphør",
-        description = "Oppretter en AutovedtakLovendringIkkeFremtidigOpphørTask som trigger en lovendring på fagsak. Det er kun løpende saker uten fremtidig opphør som kan bruke dette endepunktet",
-    )
-    fun opprettAutomatiskLovendringIkkeFremtidigOpphør(
-        @PathVariable limit: Long,
-    ): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "opprette automatisk revurdering",
-        )
-
-        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendring().take(limit.toInt()).forEach {
-            AutovedtakLovendringIkkeFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
-        }
-
-        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
-    }
-
-    @GetMapping("/automatisk-revurdering-lovendring-fremtidig-opphor")
-    fun hentAlleFagsakSomSkalRevurderesFramtidigOpphør(): List<Long> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "hent automatisk revurdering framtidig opphør",
-        )
-
-        return behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør()
-    }
-
-    @PostMapping("/automatisk-revurdering-lovendring-fremtidig-opphor/{limit}")
-    fun opprettAutomatiskLovendringFremtidigOpphør(
-        @PathVariable limit: Long,
-    ): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "opprette automatisk revurdering",
-        )
-
-        behandlingRepository.finnBehandlingerSomSkalRekjøresLovendringForFremtidigOpphør().take(limit.toInt()).forEach {
-            AutovedtakLovendringFremtidigOpphørTask.opprettTask(it).apply { taskService.save(this) }
-        }
-
-        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering opprettet"))
-    }
-
-    @PostMapping("/automatisk-revurdering-lovendring-framtidig-opphor/{fagsakId}")
-    fun opprettAutomatiskLovendringRevurderingFramtidigOpphør(
-        @PathVariable fagsakId: Long,
-    ): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "opprette automatisk revurdering framtidig opphør på fagsak",
-        )
-
-        AutovedtakLovendringFremtidigOpphørTask.opprettTask(fagsakId).apply { taskService.save(this) }
-
-        return ResponseEntity.ok(Ressurs.success("Automatisk revurdering på framtidig opphør opprettet"))
     }
 
     @GetMapping(path = ["/behandling/{behandlingId}/begrunnelsetest"])
