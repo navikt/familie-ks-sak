@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Verdi
@@ -84,7 +83,7 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
-            else -> throw Feil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+            else -> throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
         }
     }
 
