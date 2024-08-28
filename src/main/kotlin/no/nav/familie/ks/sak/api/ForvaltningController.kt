@@ -23,7 +23,6 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
-import no.nav.familie.ks.sak.internal.kontantstøtteInfobrevJuli2024.DistribuerInformasjonsbrevKontantstøtteJuli2024
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
@@ -76,7 +75,6 @@ class ForvaltningController(
     private val ecbService: ECBService,
     private val behandlingRepository: BehandlingRepository,
     private val testVerktøyService: TestVerktøyService,
-    private val distribuerInformasjonsbrevKontantstøtteJuli2024: DistribuerInformasjonsbrevKontantstøtteJuli2024,
     private val envService: EnvService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -301,29 +299,6 @@ class ForvaltningController(
         return testVerktøyService
             .hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
-    }
-
-    @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-juli-2024"])
-    fun sendInformasjonsBrevJuli2024TilFagsakSomErTruffet() {
-        tilgangService.validerTilgangTilHandling(
-            handling = "Send informasjonsbrev til alle fagsak som skal motta informasjonsbrev juli 2024",
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-        )
-
-        logger.info("Kaller kjor-send-informasjonsbrev-juli-2024")
-        distribuerInformasjonsbrevKontantstøtteJuli2024.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevKontantstøttJuli2024()
-    }
-
-    @PostMapping(path = ["/fagsaker/hent-fagsak-id-send-informasjonsbrev-juli-2024"])
-    fun hentAlleFagsakIdSomDetSkalSendesBrevTil(): Set<Long> {
-        tilgangService.validerTilgangTilHandling(
-            handling = "Henter alle fagsak som skal motta informasjonsbrev juli 2024",
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-        )
-
-        logger.info("Kaller fagsaker/hent-personer-informasjonsbrev-endring-kontantstotte-infotrygd")
-
-        return distribuerInformasjonsbrevKontantstøtteJuli2024.hentAlleFagsakIdSomDetSkalSendesBrevTil().toSet()
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")
