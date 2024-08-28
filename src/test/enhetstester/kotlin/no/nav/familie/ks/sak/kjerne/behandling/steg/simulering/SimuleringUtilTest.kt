@@ -411,4 +411,18 @@ class SimuleringUtilTest {
         assertThat(oppsummering.feilutbetaling).isEqualTo(0.toBigDecimal())
         assertThat(oppsummering.etterbetaling).isEqualTo(20_068.toBigDecimal()) // 1 686 hvis revurderingen ble gjort nov 2021, ikke "i dag"
     }
+
+    @Test
+    fun `hentManuellPosteringIPeriode skal returnere sum av manuelle posteringer`() {
+        val økonomiSimuleringPosteringer =
+            listOf(
+                mockVedtakSimuleringPostering(beløp = 2000, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE),
+                mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+            )
+
+        Assertions.assertEquals(BigDecimal.valueOf(600), hentManuellPosteringIPeriode(økonomiSimuleringPosteringer))
+    }
 }
