@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
@@ -209,7 +209,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
                 endringAvOpplysningerBegrunnelse = "",
             )
 
-        assertThrows<Feil> {
+        assertThrows<FunksjonellFeil> {
             registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))
         }
     }
