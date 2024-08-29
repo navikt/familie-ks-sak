@@ -77,20 +77,20 @@ data class EndringVedtakData(
     override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
     data class Delmaler(
-        val signaturVedtak: SignaturVedtak,
-        val etterbetaling: Etterbetaling?,
-        val feilutbetaling: Boolean,
+        override val signaturVedtak: SignaturVedtak,
+        override val etterbetaling: Etterbetaling?,
+        override val feilutbetaling: Boolean,
+        override val klage: Boolean,
+        override val korrigertVedtak: KorrigertVedtakData?,
+        override val informasjonOmAarligKontroll: Boolean,
+        override val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
+        override val refusjonEosAvklart: RefusjonEøsAvklart?,
+        override val refusjonEosUavklart: RefusjonEøsUavklart?,
+        override val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        override val duMaaMeldeFraOmEndringer: Boolean,
+        override val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
         val hjemmeltekst: Hjemmeltekst,
-        val klage: Boolean,
-        val korrigertVedtak: KorrigertVedtakData?,
-        val informasjonOmAarligKontroll: Boolean,
-        val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
-        val refusjonEosAvklart: RefusjonEøsAvklart?,
-        val refusjonEosUavklart: RefusjonEøsUavklart?,
-        val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
-        val duMaaMeldeFraOmEndringer: Boolean,
-        val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
-    )
+    ) : EndringVedtakDelmaler
 }
 
 interface EndringVedtakDelmaler {
@@ -100,10 +100,10 @@ interface EndringVedtakDelmaler {
     val klage: Boolean
     val korrigertVedtak: KorrigertVedtakData?
     val informasjonOmAarligKontroll: Boolean
-    val forMyeUtbetaltBarnetrygd: FeilutbetaltValuta?
+    val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?
     val refusjonEosAvklart: RefusjonEøsAvklart?
     val refusjonEosUavklart: RefusjonEøsUavklart?
     val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean
     val duMaaMeldeFraOmEndringer: Boolean
-    val informasjonOmUtbetaling: Boolean
+    val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean
 }

@@ -55,7 +55,7 @@ class GenererBrevServiceTest {
             sammensattKontrollsakService = mockk<SammensattKontrollsakService>(),
             opprettGrunnlagOgSignaturDataService = mockk<OpprettGrunnlagOgSignaturDataService>(),
             etterbetalingService = mockk<EtterbetalingService>(),
-            meldepliktService = mockk<MeldepliktService>(),
+            søkersMeldepliktService = mockk<SøkersMeldepliktService>(),
             opprettSammensattKontrollsakBrevDtoService = mockk<OpprettSammensattKontrollsakBrevDtoService>(),
             brevmalService = mockk<BrevmalService>(),
         )

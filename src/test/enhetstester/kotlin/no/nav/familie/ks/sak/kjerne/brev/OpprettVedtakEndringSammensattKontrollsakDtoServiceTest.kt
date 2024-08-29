@@ -2,25 +2,21 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagSammensattKontrollsak
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.YearMonth
 
 class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
-    private val mockedAndelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
-    private val mockedMeldepliktService: MeldepliktService = mockk()
+    private val mockedSøkersMeldepliktService: SøkersMeldepliktService = mockk()
     private val mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService = mockk()
     private val mockedEtterbetalingService: EtterbetalingService = mockk()
     private val mockedSimuleringService: SimuleringService = mockk()
@@ -29,8 +25,7 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
     private val mockedBrevPeriodeService: BrevPeriodeService = mockk()
     private val opprettVedtakEndringSammensattKontrollsakDtoService: OpprettVedtakEndringSammensattKontrollsakDtoService =
         OpprettVedtakEndringSammensattKontrollsakDtoService(
-            andelTilkjentYtelseRepository = mockedAndelTilkjentYtelseRepository,
-            meldepliktService = mockedMeldepliktService,
+            søkersMeldepliktService = mockedSøkersMeldepliktService,
             opprettVedtakFellesfelterSammensattKontrollsakDtoService = mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService,
             etterbetalingService = mockedEtterbetalingService,
             simuleringService = mockedSimuleringService,
@@ -40,7 +35,7 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
         )
 
     @Test
-    fun `skal opprette VedtakEndringSammensattKontrollsak hvor det er løpende differanse på utbetalingen for behandlingen og feilutbetalt valuta periode`() {
+    fun `skal opprette VedtakEndringSammensattKontrollsak hvor søker har meldt fra om barnehageplass og det er feilutbetalt valuta periode`() {
         // Arrange
         val vedtak = lagVedtak()
 
@@ -49,30 +44,14 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
                 behandlingId = vedtak.behandling.id,
             )
 
-        val andelTilkjentYtelser =
-            listOf(
-                lagAndelTilkjentYtelse(
-                    behandling = vedtak.behandling,
-                    differanseberegnetPeriodebeløp = null,
-                    stønadFom = YearMonth.now().minusMonths(2),
-                    stønadTom = YearMonth.now().minusMonths(1),
-                ),
-                lagAndelTilkjentYtelse(
-                    behandling = vedtak.behandling,
-                    differanseberegnetPeriodebeløp = 100,
-                    stønadFom = YearMonth.now().minusMonths(1),
-                    stønadTom = YearMonth.now().plusMonths(1),
-                ),
+        every {
+            mockedSøkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
+                vedtak = vedtak
             )
+        } returns true
 
         every {
-            mockedAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(
-                behandlingId = vedtak.behandling.id,
-            )
-        } returns andelTilkjentYtelser
-
-        every {
-            mockedMeldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(
+            mockedSøkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(
                 vedtak = vedtak,
             )
         } returns false
@@ -154,14 +133,14 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.korrigertVedtak).isNull()
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.informasjonOmAarligKontroll).isFalse()
         assertThat(
-            vedtakEndringSammensattKontrollsak.data.delmalData.forMyeUtbetaltBarnetrygd
+            vedtakEndringSammensattKontrollsak.data.delmalData.forMyeUtbetaltKontantstotte
                 ?.perioderMedForMyeUtbetalt,
         ).containsOnly("22. august 2024")
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.refusjonEosAvklart).isEqualTo(refusjonEøsAvklart)
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.refusjonEosUavklart).isEqualTo(refusjonEøsUavklart)
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaMeldeFraOmEndringerEosSelvstendigRett).isFalse()
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaMeldeFraOmEndringer).isTrue()
-        assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.informasjonOmUtbetaling).isTrue()
+        assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass).isFalse()
         assertThat(vedtakEndringSammensattKontrollsak.data.flettefelter.navn).containsOnly("søkerNavn")
         assertThat(vedtakEndringSammensattKontrollsak.data.flettefelter.fodselsnummer).containsOnly("søkerFødselsnummer")
         assertThat(vedtakEndringSammensattKontrollsak.data.flettefelter.brevOpprettetDato).isNotNull()
@@ -170,7 +149,7 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
     }
 
     @Test
-    fun `skal opprette VedtakEndringSammensattKontrollsak hvor det ikke er løpende differanse på utbetalingen for behandlingen og ingen feilutbetalt valuta periode`() {
+    fun `skal opprette VedtakEndringSammensattKontrollsak hvor søker olle har meldt fra om barnehageplass og det ikke er feilutbetalt valuta periode`() {
         // Arrange
         val vedtak = lagVedtak()
 
@@ -179,30 +158,14 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
                 behandlingId = vedtak.behandling.id,
             )
 
-        val andelTilkjentYtelser =
-            listOf(
-                lagAndelTilkjentYtelse(
-                    behandling = vedtak.behandling,
-                    differanseberegnetPeriodebeløp = 100,
-                    stønadFom = YearMonth.now().minusMonths(5),
-                    stønadTom = YearMonth.now().minusMonths(4),
-                ),
-                lagAndelTilkjentYtelse(
-                    behandling = vedtak.behandling,
-                    differanseberegnetPeriodebeløp = null,
-                    stønadFom = YearMonth.now().minusMonths(3),
-                    stønadTom = YearMonth.now().plusMonths(2),
-                ),
+        every {
+            mockedSøkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
+                vedtak = vedtak
             )
+        } returns false
 
         every {
-            mockedAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(
-                behandlingId = vedtak.behandling.id,
-            )
-        } returns andelTilkjentYtelser
-
-        every {
-            mockedMeldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(
+            mockedSøkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(
                 vedtak = vedtak,
             )
         } returns false
@@ -284,14 +247,14 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.korrigertVedtak).isNull()
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.informasjonOmAarligKontroll).isFalse()
         assertThat(
-            vedtakEndringSammensattKontrollsak.data.delmalData.forMyeUtbetaltBarnetrygd
+            vedtakEndringSammensattKontrollsak.data.delmalData.forMyeUtbetaltKontantstotte
                 ?.perioderMedForMyeUtbetalt,
         ).isNull()
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.refusjonEosAvklart).isEqualTo(refusjonEøsAvklart)
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.refusjonEosUavklart).isEqualTo(refusjonEøsUavklart)
         assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaMeldeFraOmEndringerEosSelvstendigRett).isFalse()
-        assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaMeldeFraOmEndringer).isTrue()
-        assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.informasjonOmUtbetaling).isFalse()
+        assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaMeldeFraOmEndringer).isFalse()
+        assertThat(vedtakEndringSammensattKontrollsak.data.delmalData.duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass).isTrue()
         assertThat(vedtakEndringSammensattKontrollsak.data.flettefelter.navn).containsOnly("søkerNavn")
         assertThat(vedtakEndringSammensattKontrollsak.data.flettefelter.fodselsnummer).containsOnly("søkerFødselsnummer")
         assertThat(vedtakEndringSammensattKontrollsak.data.flettefelter.brevOpprettetDato).isNotNull()

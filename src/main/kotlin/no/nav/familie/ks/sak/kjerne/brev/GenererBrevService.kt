@@ -66,7 +66,7 @@ class GenererBrevService(
     private val etterbetalingService: EtterbetalingService,
     private val simuleringService: SimuleringService,
     private val opprettSammensattKontrollsakBrevDtoService: OpprettSammensattKontrollsakBrevDtoService,
-    private val meldepliktService: MeldepliktService,
+    private val søkersMeldepliktService: SøkersMeldepliktService,
     private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
     private val brevmalService: BrevmalService,
 ) {
@@ -143,7 +143,7 @@ class GenererBrevService(
         val vedtaksbrevmal = brevmalService.hentVedtaksbrevmal(behandling)
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
         val etterbetaling = etterbetalingService.hentEtterbetaling(vedtak)
-        val søkerHarMeldtFraOmBarnehagePlass = sjekkOmSøkerHarMeldtFraOmBarnehagePlass(vedtak)
+        val søkerHarMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
 
         return when (vedtaksbrevmal) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -152,7 +152,7 @@ class GenererBrevService(
                     etterbetaling = etterbetaling,
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
-                    duMaaMeldeFraOmEndringerEosSelvstendigRett = meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMaaMeldeFraOmEndringerEosSelvstendigRett = søkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
@@ -175,7 +175,7 @@ class GenererBrevService(
                             },
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
-                    duMaaMeldeFraOmEndringerEosSelvstendigRett = meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMaaMeldeFraOmEndringerEosSelvstendigRett = søkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
@@ -203,20 +203,11 @@ class GenererBrevService(
                     informasjonOmAarligKontroll = vedtaksperiodeService.skalHaÅrligKontroll(vedtak),
                     refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak),
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
-                    duMåMeldeFraOmEndringerEøsSelvstendigRett = meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
+                    duMåMeldeFraOmEndringerEøsSelvstendigRett = søkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                 )
 
             else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${vedtaksbrevmal.visningsTekst}")
         }
-    }
-
-    private fun sjekkOmSøkerHarMeldtFraOmBarnehagePlass(vedtak: Vedtak): Boolean {
-        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(vedtak.behandling.id)
-        val vilkårResultaterIBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
-
-        val søkerHarMeldtFraOmBarnehagePlass = vilkårResultaterIBehandling.any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
-
-        return søkerHarMeldtFraOmBarnehagePlass
     }
 
     fun lagDataForVedtaksbrev(vedtak: Vedtak): FellesdataForVedtaksbrev {

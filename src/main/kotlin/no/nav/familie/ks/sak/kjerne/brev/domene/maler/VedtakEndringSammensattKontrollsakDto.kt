@@ -18,7 +18,7 @@ data class VedtakEndringSammensattKontrollsakDto(
         refusjonEosUavklart: RefusjonEøsUavklart? = null,
         duMåMeldeFraOmEndringer: Boolean = true,
         duMåMeldeFraOmEndringerEøsSelvstendigRett: Boolean = false,
-        informasjonOmUtbetaling: Boolean = false,
+        duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean = false,
     ) :
         this(
             mal = mal,
@@ -37,12 +37,12 @@ data class VedtakEndringSammensattKontrollsakDto(
                             feilutbetaling = erFeilutbetalingPåBehandling,
                             korrigertVedtak = vedtakFellesfelter.korrigertVedtakData,
                             informasjonOmAarligKontroll = informasjonOmAarligKontroll,
-                            forMyeUtbetaltBarnetrygd = feilutbetaltValuta,
+                            forMyeUtbetaltKontantstotte = feilutbetaltValuta,
                             refusjonEosAvklart = refusjonEosAvklart,
                             refusjonEosUavklart = refusjonEosUavklart,
                             duMaaMeldeFraOmEndringerEosSelvstendigRett = duMåMeldeFraOmEndringerEøsSelvstendigRett,
                             duMaaMeldeFraOmEndringer = duMåMeldeFraOmEndringer,
-                            informasjonOmUtbetaling = informasjonOmUtbetaling,
+                            duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass,
                         ),
                     flettefelter =
                         FlettefelterForDokumentDtoImpl(
@@ -66,11 +66,11 @@ data class EndringVedtakSammensattKontrollsakDataDto(
         override val klage: Boolean,
         override val korrigertVedtak: KorrigertVedtakData?,
         override val informasjonOmAarligKontroll: Boolean,
-        override val forMyeUtbetaltBarnetrygd: FeilutbetaltValuta?,
+        override val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
         override val refusjonEosAvklart: RefusjonEøsAvklart?,
         override val refusjonEosUavklart: RefusjonEøsUavklart?,
         override val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean,
         override val duMaaMeldeFraOmEndringer: Boolean,
-        override val informasjonOmUtbetaling: Boolean,
+        override val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
     ) : EndringVedtakDelmaler
 }

@@ -5,17 +5,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakEndringSammensattKontrollsakDto
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.YearMonth
 
 @Service
 class OpprettVedtakEndringSammensattKontrollsakDtoService(
-    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
-    private val meldepliktService: MeldepliktService,
+    private val søkersMeldepliktService: SøkersMeldepliktService,
     private val opprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService,
     private val etterbetalingService: EtterbetalingService,
     private val simuleringService: SimuleringService,
@@ -31,14 +28,8 @@ class OpprettVedtakEndringSammensattKontrollsakDtoService(
     ): VedtakEndringSammensattKontrollsakDto {
         logger.debug("Oppretter ${VedtakEndringSammensattKontrollsakDto::class.simpleName} for vedtak ${vedtak.id}")
 
-        val erLøpendeDifferanseUtbetalingPåBehandling =
-            andelTilkjentYtelseRepository
-                .finnAndelerTilkjentYtelseForBehandling(behandlingId = vedtak.behandling.id)
-                .filter { it.differanseberegnetPeriodebeløp != null }
-                .any { it.erLøpende(YearMonth.now()) }
-
-        val skalMeldeFraOmEndringerEøsSelvstendigRett =
-            meldepliktService.skalMeldeFraOmEndringerEøsSelvstendigRett(
+        val søkerHarMeldtFraOmBarnehagePlass =
+            søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
                 vedtak = vedtak,
             )
 
@@ -59,9 +50,9 @@ class OpprettVedtakEndringSammensattKontrollsakDtoService(
             feilutbetaltValuta = feilutbetaltValuta,
             refusjonEosAvklart = brevPeriodeService.beskrivPerioderMedAvklartRefusjonEøs(vedtak = vedtak),
             refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak = vedtak),
-            duMåMeldeFraOmEndringer = !skalMeldeFraOmEndringerEøsSelvstendigRett,
-            duMåMeldeFraOmEndringerEøsSelvstendigRett = skalMeldeFraOmEndringerEøsSelvstendigRett,
-            informasjonOmUtbetaling = erLøpendeDifferanseUtbetalingPåBehandling,
+            duMåMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
+            duMåMeldeFraOmEndringerEøsSelvstendigRett = søkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(vedtak = vedtak),
+            duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
         )
     }
 }

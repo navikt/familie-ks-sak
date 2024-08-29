@@ -8,10 +8,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import org.springframework.stereotype.Service
 
 @Service
-class MeldepliktService(
+class SøkersMeldepliktService(
     private val vilkårsvurderingService: VilkårsvurderingService,
 ) {
-    fun skalMeldeFraOmEndringerEøsSelvstendigRett(vedtak: Vedtak): Boolean {
+    fun skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(
+        vedtak: Vedtak
+    ): Boolean {
         val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
             vilkårsvurderingService
                 .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
@@ -35,4 +37,13 @@ class MeldepliktService(
 
         return annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket && passendeBehandlingsresultat
     }
+
+    fun harSøkerMeldtFraOmBarnehagePlass(
+        vedtak: Vedtak
+    ): Boolean =
+        vilkårsvurderingService
+            .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
+            .personResultater
+            .flatMap { it.vilkårResultater }
+            .any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
 }
