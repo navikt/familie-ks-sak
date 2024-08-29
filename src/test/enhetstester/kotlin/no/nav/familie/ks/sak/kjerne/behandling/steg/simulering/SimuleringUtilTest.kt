@@ -419,10 +419,12 @@ class SimuleringUtilTest {
                 mockVedtakSimuleringPostering(beløp = 2000, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE),
                 mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
                 mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.YTELSE, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_MANUELT),
                 mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
                 mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT),
+                mockVedtakSimuleringPostering(beløp = 200, posteringType = PosteringType.FEILUTBETALING, fagOmrådeKode = FagOmrådeKode.KONTANTSTØTTE_MANUELT),
             )
 
-        Assertions.assertEquals(BigDecimal.valueOf(600), hentManuellPosteringIPeriode(økonomiSimuleringPosteringer))
+        Assertions.assertEquals(BigDecimal.valueOf(900), hentManuellPosteringIPeriode(økonomiSimuleringPosteringer))
     }
 }
