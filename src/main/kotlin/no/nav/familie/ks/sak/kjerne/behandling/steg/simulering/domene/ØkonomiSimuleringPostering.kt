@@ -82,7 +82,5 @@ data class ØkonomiSimuleringPostering(
             ")"
 
     val erManuellPostering: Boolean
-        get() {
-            return this.fagOmrådeKode == FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT
-        }
+        get() = this.fagOmrådeKode in listOf(FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT, FagOmrådeKode.KONTANTSTØTTE_MANUELT)
 }
