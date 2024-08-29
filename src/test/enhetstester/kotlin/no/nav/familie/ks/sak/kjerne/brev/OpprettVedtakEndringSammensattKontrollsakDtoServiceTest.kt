@@ -46,7 +46,7 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
 
         every {
             mockedSøkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                vedtak = vedtak
+                vedtak = vedtak,
             )
         } returns true
 
@@ -160,7 +160,7 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
 
         every {
             mockedSøkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                vedtak = vedtak
+                vedtak = vedtak,
             )
         } returns false
 

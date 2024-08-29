@@ -12,7 +12,7 @@ class SøkersMeldepliktService(
     private val vilkårsvurderingService: VilkårsvurderingService,
 ) {
     fun skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(
-        vedtak: Vedtak
+        vedtak: Vedtak,
     ): Boolean {
         val annenForelderOmfattetAvNorskLovgivningErSattPåBosattIRiket =
             vilkårsvurderingService
@@ -39,7 +39,7 @@ class SøkersMeldepliktService(
     }
 
     fun harSøkerMeldtFraOmBarnehagePlass(
-        vedtak: Vedtak
+        vedtak: Vedtak,
     ): Boolean =
         vilkårsvurderingService
             .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
