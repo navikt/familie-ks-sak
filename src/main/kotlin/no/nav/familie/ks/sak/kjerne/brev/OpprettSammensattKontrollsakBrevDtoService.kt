@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service
 @Service
 class OpprettSammensattKontrollsakBrevDtoService(
     private val brevmalService: BrevmalService,
-    private val opprettOpphørtSammensattKontrollsakService: OpprettOpphørtSammensattKontrollsakService,
-    private val opprettOpphørMedEndringSammensattKontrollsakService: OpprettOpphørMedEndringSammensattKontrollsakService,
-    private val opprettVedtakEndringSammensattKontrollsakService: OpprettVedtakEndringSammensattKontrollsakService,
+    private val opprettOpphørtSammensattKontrollsakDtoService: OpprettOpphørtSammensattKontrollsakDtoService,
+    private val opprettOpphørMedEndringSammensattKontrollsakDtoService: OpprettOpphørMedEndringSammensattKontrollsakDtoService,
+    private val opprettVedtakEndringSammensattKontrollsakDtoService: OpprettVedtakEndringSammensattKontrollsakDtoService,
 ) {
     private val logger = LoggerFactory.getLogger(OpprettSammensattKontrollsakBrevDtoService::class.java)
 
@@ -24,19 +24,19 @@ class OpprettSammensattKontrollsakBrevDtoService(
         logger.debug("Oppretter sammensatt kontrollsak ${BrevDto::class.simpleName} for vedtak ${vedtak.id}")
         return when (val brevmal = brevmalService.hentVedtaksbrevmal(behandling = vedtak.behandling)) {
             Brevmal.VEDTAK_OPPHØRT ->
-                opprettOpphørtSammensattKontrollsakService.opprett(
+                opprettOpphørtSammensattKontrollsakDtoService.opprett(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
 
             Brevmal.VEDTAK_OPPHØR_MED_ENDRING ->
-                opprettOpphørMedEndringSammensattKontrollsakService.opprett(
+                opprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
 
             Brevmal.VEDTAK_ENDRING ->
-                opprettVedtakEndringSammensattKontrollsakService.opprett(
+                opprettVedtakEndringSammensattKontrollsakDtoService.opprett(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )

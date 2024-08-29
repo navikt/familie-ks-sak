@@ -5,7 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagSammensattKontrollsak
 import no.nav.familie.ks.sak.data.lagVedtak
-import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsak
+import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
@@ -18,20 +18,20 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
 
-class OpprettVedtakEndringSammensattKontrollsakServiceTest {
+class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
     private val mockedAndelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
     private val mockedMeldepliktService: MeldepliktService = mockk()
-    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakService: OpprettVedtakFellesfelterSammensattKontrollsakService = mockk()
+    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService = mockk()
     private val mockedEtterbetalingService: EtterbetalingService = mockk()
     private val mockedSimuleringService: SimuleringService = mockk()
     private val mockedVedtaksperiodeService: VedtaksperiodeService = mockk()
     private val mockedFeilutbetaltValutaService: FeilutbetaltValutaService = mockk()
     private val mockedBrevPeriodeService: BrevPeriodeService = mockk()
-    private val opprettVedtakEndringSammensattKontrollsakService: OpprettVedtakEndringSammensattKontrollsakService =
-        OpprettVedtakEndringSammensattKontrollsakService(
+    private val opprettVedtakEndringSammensattKontrollsakDtoService: OpprettVedtakEndringSammensattKontrollsakDtoService =
+        OpprettVedtakEndringSammensattKontrollsakDtoService(
             andelTilkjentYtelseRepository = mockedAndelTilkjentYtelseRepository,
             meldepliktService = mockedMeldepliktService,
-            opprettVedtakFellesfelterSammensattKontrollsakService = mockedOpprettVedtakFellesfelterSammensattKontrollsakService,
+            opprettVedtakFellesfelterSammensattKontrollsakDtoService = mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService,
             etterbetalingService = mockedEtterbetalingService,
             simuleringService = mockedSimuleringService,
             vedtaksperiodeService = mockedVedtaksperiodeService,
@@ -78,11 +78,11 @@ class OpprettVedtakEndringSammensattKontrollsakServiceTest {
         } returns false
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakService.opprett(
+            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns lagVedtakFellesfelterSammensattKontrollsak()
+        } returns lagVedtakFellesfelterSammensattKontrollsakDto()
 
         val etterbetaling = Etterbetaling("1000")
 
@@ -138,7 +138,7 @@ class OpprettVedtakEndringSammensattKontrollsakServiceTest {
 
         // Act
         val vedtakEndringSammensattKontrollsak =
-            opprettVedtakEndringSammensattKontrollsakService.opprett(
+            opprettVedtakEndringSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
@@ -208,11 +208,11 @@ class OpprettVedtakEndringSammensattKontrollsakServiceTest {
         } returns false
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakService.opprett(
+            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns lagVedtakFellesfelterSammensattKontrollsak()
+        } returns lagVedtakFellesfelterSammensattKontrollsakDto()
 
         val etterbetaling = Etterbetaling("1000")
 
@@ -268,7 +268,7 @@ class OpprettVedtakEndringSammensattKontrollsakServiceTest {
 
         // Act
         val vedtakEndringSammensattKontrollsak =
-            opprettVedtakEndringSammensattKontrollsakService.opprett(
+            opprettVedtakEndringSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )

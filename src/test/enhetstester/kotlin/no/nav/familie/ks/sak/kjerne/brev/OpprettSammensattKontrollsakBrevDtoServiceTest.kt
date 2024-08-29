@@ -8,13 +8,13 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagSammensattKontrollsak
 import no.nav.familie.ks.sak.data.lagVedtak
-import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsak
+import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.OpphørMedEndringSammensattKontrollsak
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.OpphørtSammensattKontrollsak
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakEndringSammensattKontrollsak
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.OpphørMedEndringSammensattKontrollsakDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.OpphørtSammensattKontrollsakDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakEndringSammensattKontrollsakDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -23,15 +23,15 @@ import org.junit.jupiter.params.provider.EnumSource
 
 class OpprettSammensattKontrollsakBrevDtoServiceTest {
     private val mockedBrevmalService: BrevmalService = mockk()
-    private val mockedOpprettOpphørtSammensattKontrollsakService: OpprettOpphørtSammensattKontrollsakService = mockk()
-    private val mockedOpprettOpphørMedEndringSammensattKontrollsakService: OpprettOpphørMedEndringSammensattKontrollsakService = mockk()
-    private val mockedOpprettVedtakEndringSammensattKontrollsakService: OpprettVedtakEndringSammensattKontrollsakService = mockk()
+    private val mockedOpprettOpphørtSammensattKontrollsakDtoService: OpprettOpphørtSammensattKontrollsakDtoService = mockk()
+    private val mockedOpprettOpphørMedEndringSammensattKontrollsakDtoService: OpprettOpphørMedEndringSammensattKontrollsakDtoService = mockk()
+    private val mockedOpprettVedtakEndringSammensattKontrollsakDtoService: OpprettVedtakEndringSammensattKontrollsakDtoService = mockk()
     private val opprettSammensattKontrollsakBrevDtoService =
         OpprettSammensattKontrollsakBrevDtoService(
             brevmalService = mockedBrevmalService,
-            opprettOpphørtSammensattKontrollsakService = mockedOpprettOpphørtSammensattKontrollsakService,
-            opprettOpphørMedEndringSammensattKontrollsakService = mockedOpprettOpphørMedEndringSammensattKontrollsakService,
-            opprettVedtakEndringSammensattKontrollsakService = mockedOpprettVedtakEndringSammensattKontrollsakService,
+            opprettOpphørtSammensattKontrollsakDtoService = mockedOpprettOpphørtSammensattKontrollsakDtoService,
+            opprettOpphørMedEndringSammensattKontrollsakDtoService = mockedOpprettOpphørMedEndringSammensattKontrollsakDtoService,
+            opprettVedtakEndringSammensattKontrollsakDtoService = mockedOpprettVedtakEndringSammensattKontrollsakDtoService,
         )
 
     @Test
@@ -44,9 +44,9 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
                 behandlingId = vedtak.behandling.id,
             )
 
-        val opphørtSammensattKontrollsak =
-            OpphørtSammensattKontrollsak(
-                vedtakFellesfelterSammensattKontrollsak = lagVedtakFellesfelterSammensattKontrollsak(),
+        val opphørtSammensattKontrollsakDto =
+            OpphørtSammensattKontrollsakDto(
+                vedtakFellesfelterSammensattKontrollsakDto = lagVedtakFellesfelterSammensattKontrollsakDto(),
                 erFeilutbetalingPåBehandling = false,
             )
 
@@ -57,11 +57,11 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
         } returns Brevmal.VEDTAK_OPPHØRT
 
         every {
-            mockedOpprettOpphørtSammensattKontrollsakService.opprett(
+            mockedOpprettOpphørtSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns opphørtSammensattKontrollsak
+        } returns opphørtSammensattKontrollsakDto
 
         // Act
         val brevDto =
@@ -71,9 +71,9 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
             )
 
         // Assert
-        assertThat(brevDto).isEqualTo(opphørtSammensattKontrollsak)
-        verify { mockedOpprettOpphørMedEndringSammensattKontrollsakService wasNot called }
-        verify { mockedOpprettVedtakEndringSammensattKontrollsakService wasNot called }
+        assertThat(brevDto).isEqualTo(opphørtSammensattKontrollsakDto)
+        verify { mockedOpprettOpphørMedEndringSammensattKontrollsakDtoService wasNot called }
+        verify { mockedOpprettVedtakEndringSammensattKontrollsakDtoService wasNot called }
     }
 
     @Test
@@ -86,9 +86,9 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
                 behandlingId = vedtak.behandling.id,
             )
 
-        val opphørMedEndringSammensattKontrollsak =
-            OpphørMedEndringSammensattKontrollsak(
-                vedtakFellesfelter = lagVedtakFellesfelterSammensattKontrollsak(),
+        val opphørMedEndringSammensattKontrollsakDto =
+            OpphørMedEndringSammensattKontrollsakDto(
+                vedtakFellesfelter = lagVedtakFellesfelterSammensattKontrollsakDto(),
                 erFeilutbetalingPåBehandling = false,
                 erKlage = false,
             )
@@ -100,11 +100,11 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
         } returns Brevmal.VEDTAK_OPPHØR_MED_ENDRING
 
         every {
-            mockedOpprettOpphørMedEndringSammensattKontrollsakService.opprett(
+            mockedOpprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns opphørMedEndringSammensattKontrollsak
+        } returns opphørMedEndringSammensattKontrollsakDto
 
         // Act
         val brevDto =
@@ -114,9 +114,9 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
             )
 
         // Assert
-        assertThat(brevDto).isEqualTo(opphørMedEndringSammensattKontrollsak)
-        verify { mockedOpprettOpphørtSammensattKontrollsakService wasNot called }
-        verify { mockedOpprettVedtakEndringSammensattKontrollsakService wasNot called }
+        assertThat(brevDto).isEqualTo(opphørMedEndringSammensattKontrollsakDto)
+        verify { mockedOpprettOpphørtSammensattKontrollsakDtoService wasNot called }
+        verify { mockedOpprettVedtakEndringSammensattKontrollsakDtoService wasNot called }
     }
 
     @Test
@@ -136,9 +136,9 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
                 behandlingId = vedtak.behandling.id,
             )
 
-        val vedtakEndringSammensattKontrollsak =
-            VedtakEndringSammensattKontrollsak(
-                vedtakFellesfelter = lagVedtakFellesfelterSammensattKontrollsak(),
+        val vedtakEndringSammensattKontrollsakDto =
+            VedtakEndringSammensattKontrollsakDto(
+                vedtakFellesfelter = lagVedtakFellesfelterSammensattKontrollsakDto(),
                 erFeilutbetalingPåBehandling = false,
                 erKlage = false,
                 informasjonOmAarligKontroll = false,
@@ -151,11 +151,11 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
         } returns Brevmal.VEDTAK_ENDRING
 
         every {
-            mockedOpprettVedtakEndringSammensattKontrollsakService.opprett(
+            mockedOpprettVedtakEndringSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns vedtakEndringSammensattKontrollsak
+        } returns vedtakEndringSammensattKontrollsakDto
 
         // Act
         val brevDto =
@@ -165,9 +165,9 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
             )
 
         // Assert
-        assertThat(brevDto).isEqualTo(vedtakEndringSammensattKontrollsak)
-        verify { mockedOpprettOpphørtSammensattKontrollsakService wasNot called }
-        verify { mockedOpprettOpphørMedEndringSammensattKontrollsakService wasNot called }
+        assertThat(brevDto).isEqualTo(vedtakEndringSammensattKontrollsakDto)
+        verify { mockedOpprettOpphørtSammensattKontrollsakDtoService wasNot called }
+        verify { mockedOpprettOpphørMedEndringSammensattKontrollsakDtoService wasNot called }
     }
 
     @ParameterizedTest
@@ -206,8 +206,8 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
         assertThat(exception.message).isEqualTo(
             "Brevmalen $brevmal er ikke støttet for sammensatte kontrollsaker",
         )
-        verify { mockedOpprettOpphørtSammensattKontrollsakService wasNot called }
-        verify { mockedOpprettOpphørMedEndringSammensattKontrollsakService wasNot called }
-        verify { mockedOpprettVedtakEndringSammensattKontrollsakService wasNot called }
+        verify { mockedOpprettOpphørtSammensattKontrollsakDtoService wasNot called }
+        verify { mockedOpprettOpphørMedEndringSammensattKontrollsakDtoService wasNot called }
+        verify { mockedOpprettVedtakEndringSammensattKontrollsakDtoService wasNot called }
     }
 }

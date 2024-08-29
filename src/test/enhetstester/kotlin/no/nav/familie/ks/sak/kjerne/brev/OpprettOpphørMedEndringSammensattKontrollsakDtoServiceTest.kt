@@ -5,7 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagSammensattKontrollsak
 import no.nav.familie.ks.sak.data.lagVedtak
-import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsak
+import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -15,14 +15,14 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class OpprettOpphørMedEndringSammensattKontrollsakServiceTest {
-    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakService: OpprettVedtakFellesfelterSammensattKontrollsakService = mockk()
+class OpprettOpphørMedEndringSammensattKontrollsakDtoServiceTest {
+    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService = mockk()
     private val mockedEtterbetalingService: EtterbetalingService = mockk()
     private val mockedSimuleringService: SimuleringService = mockk()
     private val mockedBrevPeriodeService: BrevPeriodeService = mockk()
-    private val opprettOpphørMedEndringSammensattKontrollsakService: OpprettOpphørMedEndringSammensattKontrollsakService =
-        OpprettOpphørMedEndringSammensattKontrollsakService(
-            opprettVedtakFellesfelterSammensattKontrollsakService = mockedOpprettVedtakFellesfelterSammensattKontrollsakService,
+    private val opprettOpphørMedEndringSammensattKontrollsakDtoService: OpprettOpphørMedEndringSammensattKontrollsakDtoService =
+        OpprettOpphørMedEndringSammensattKontrollsakDtoService(
+            opprettVedtakFellesfelterSammensattKontrollsakDtoService = mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService,
             etterbetalingService = mockedEtterbetalingService,
             simuleringService = mockedSimuleringService,
             brevPeriodeService = mockedBrevPeriodeService,
@@ -43,11 +43,11 @@ class OpprettOpphørMedEndringSammensattKontrollsakServiceTest {
             )
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakService.opprett(
+            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns lagVedtakFellesfelterSammensattKontrollsak()
+        } returns lagVedtakFellesfelterSammensattKontrollsakDto()
 
         val etterbetaling = Etterbetaling("100")
 
@@ -91,7 +91,7 @@ class OpprettOpphørMedEndringSammensattKontrollsakServiceTest {
 
         // Act
         val opphørMedEndringSammensattKontrollsak =
-            opprettOpphørMedEndringSammensattKontrollsakService.opprett(
+            opprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
@@ -129,11 +129,11 @@ class OpprettOpphørMedEndringSammensattKontrollsakServiceTest {
             )
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakService.opprett(
+            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns lagVedtakFellesfelterSammensattKontrollsak()
+        } returns lagVedtakFellesfelterSammensattKontrollsakDto()
 
         val etterbetaling = Etterbetaling("100")
 
@@ -177,7 +177,7 @@ class OpprettOpphørMedEndringSammensattKontrollsakServiceTest {
 
         // Act
         val opphørMedEndringSammensattKontrollsak =
-            opprettOpphørMedEndringSammensattKontrollsakService.opprett(
+            opprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )

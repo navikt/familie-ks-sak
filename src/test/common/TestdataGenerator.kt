@@ -68,7 +68,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsak
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
@@ -1217,14 +1217,14 @@ fun lagSammensattKontrollsak(
         fritekst,
     )
 
-fun lagVedtakFellesfelterSammensattKontrollsak(
+fun lagVedtakFellesfelterSammensattKontrollsakDto(
     enhet: String = "enhet",
     saksbehandler: String = "saksbehandler",
     beslutter: String = "beslutter",
     søkerNavn: String = "søkerNavn",
     søkerFødselsnummer: String = "søkerFødselsnummer",
     sammensattKontrollsakFritekst: String = "sammensattKontrollsakFritekst",
-) = VedtakFellesfelterSammensattKontrollsak(
+) = VedtakFellesfelterSammensattKontrollsakDto(
     "enhet",
     "saksbehandler",
     "beslutter",

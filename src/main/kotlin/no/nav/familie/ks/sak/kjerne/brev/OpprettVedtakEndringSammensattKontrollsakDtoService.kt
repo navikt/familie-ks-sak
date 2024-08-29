@@ -7,29 +7,29 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakEndringSammensattKontrollsak
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakEndringSammensattKontrollsakDto
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.YearMonth
 
 @Service
-class OpprettVedtakEndringSammensattKontrollsakService(
+class OpprettVedtakEndringSammensattKontrollsakDtoService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val meldepliktService: MeldepliktService,
-    private val opprettVedtakFellesfelterSammensattKontrollsakService: OpprettVedtakFellesfelterSammensattKontrollsakService,
+    private val opprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService,
     private val etterbetalingService: EtterbetalingService,
     private val simuleringService: SimuleringService,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val brevPeriodeService: BrevPeriodeService,
 ) {
-    private val logger = LoggerFactory.getLogger(OpprettVedtakEndringSammensattKontrollsakService::class.java)
+    private val logger = LoggerFactory.getLogger(OpprettVedtakEndringSammensattKontrollsakDtoService::class.java)
 
     fun opprett(
         vedtak: Vedtak,
         sammensattKontrollsak: SammensattKontrollsak,
-    ): VedtakEndringSammensattKontrollsak {
-        logger.debug("Oppretter ${VedtakEndringSammensattKontrollsak::class.simpleName} for vedtak ${vedtak.id}")
+    ): VedtakEndringSammensattKontrollsakDto {
+        logger.debug("Oppretter ${VedtakEndringSammensattKontrollsakDto::class.simpleName} for vedtak ${vedtak.id}")
 
         val erLøpendeDifferanseUtbetalingPåBehandling =
             andelTilkjentYtelseRepository
@@ -50,8 +50,8 @@ class OpprettVedtakEndringSammensattKontrollsakService(
                     FeilutbetaltValuta(perioderMedForMyeUtbetalt = it)
                 }
 
-        return VedtakEndringSammensattKontrollsak(
-            vedtakFellesfelter = opprettVedtakFellesfelterSammensattKontrollsakService.opprett(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak),
+        return VedtakEndringSammensattKontrollsakDto(
+            vedtakFellesfelter = opprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak),
             etterbetaling = etterbetalingService.hentEtterbetaling(vedtak = vedtak),
             erKlage = vedtak.behandling.erKlage(),
             erFeilutbetalingPåBehandling = simuleringService.erFeilutbetalingPåBehandling(behandlingId = vedtak.behandling.id),

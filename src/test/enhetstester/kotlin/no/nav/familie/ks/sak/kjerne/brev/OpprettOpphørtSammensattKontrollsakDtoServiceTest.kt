@@ -4,18 +4,18 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagSammensattKontrollsak
 import no.nav.familie.ks.sak.data.lagVedtak
-import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsak
+import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class OpprettOpphørtSammensattKontrollsakServiceTest {
-    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakService: OpprettVedtakFellesfelterSammensattKontrollsakService = mockk()
+class OpprettOpphørtSammensattKontrollsakDtoServiceTest {
+    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService = mockk()
     private val mockedSimuleringService: SimuleringService = mockk()
-    private val opprettOpphørtSammensattKontrollsakService: OpprettOpphørtSammensattKontrollsakService =
-        OpprettOpphørtSammensattKontrollsakService(
-            opprettVedtakFellesfelterSammensattKontrollsakService = mockedOpprettVedtakFellesfelterSammensattKontrollsakService,
+    private val opprettOpphørtSammensattKontrollsakDtoService: OpprettOpphørtSammensattKontrollsakDtoService =
+        OpprettOpphørtSammensattKontrollsakDtoService(
+            opprettVedtakFellesfelterSammensattKontrollsakDtoService = mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService,
             simuleringService = mockedSimuleringService,
         )
 
@@ -29,11 +29,11 @@ class OpprettOpphørtSammensattKontrollsakServiceTest {
             )
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakService.opprett(
+            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
-        } returns lagVedtakFellesfelterSammensattKontrollsak()
+        } returns lagVedtakFellesfelterSammensattKontrollsakDto()
 
         every {
             mockedSimuleringService.erFeilutbetalingPåBehandling(
@@ -43,7 +43,7 @@ class OpprettOpphørtSammensattKontrollsakServiceTest {
 
         // Act
         val opphørtSammensattKontrollsak =
-            opprettOpphørtSammensattKontrollsakService.opprett(
+            opprettOpphørtSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )

@@ -2,13 +2,13 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndringDelmaler
 
-data class OpphørMedEndringSammensattKontrollsak(
+data class OpphørMedEndringSammensattKontrollsakDto(
     override val mal: Brevmal,
-    override val data: OpphørMedEndringSammensattKontrollsakData,
+    override val data: OpphørMedEndringSammensattKontrollsakDataDto,
 ) : BrevDto {
     constructor(
         mal: Brevmal = Brevmal.VEDTAK_OPPHØR_MED_ENDRING,
-        vedtakFellesfelter: VedtakFellesfelterSammensattKontrollsak,
+        vedtakFellesfelter: VedtakFellesfelterSammensattKontrollsakDto,
         etterbetaling: Etterbetaling? = null,
         erFeilutbetalingPåBehandling: Boolean,
         refusjonEosAvklart: RefusjonEøsAvklart? = null,
@@ -18,9 +18,9 @@ data class OpphørMedEndringSammensattKontrollsak(
         this(
             mal = mal,
             data =
-                OpphørMedEndringSammensattKontrollsakData(
+                OpphørMedEndringSammensattKontrollsakDataDto(
                     delmalData =
-                        OpphørMedEndringSammensattKontrollsakData.Delmaler(
+                        OpphørMedEndringSammensattKontrollsakDataDto.Delmaler(
                             signaturVedtak =
                                 SignaturVedtak(
                                     enhet = vedtakFellesfelter.enhet,
@@ -44,11 +44,11 @@ data class OpphørMedEndringSammensattKontrollsak(
         )
 }
 
-data class OpphørMedEndringSammensattKontrollsakData(
+data class OpphørMedEndringSammensattKontrollsakDataDto(
     override val delmalData: Delmaler,
     override val flettefelter: FlettefelterForDokumentDto,
     override val sammensattKontrollsakFritekst: String,
-) : VedtaksbrevSammensattKontrollsak {
+) : VedtaksbrevSammensattKontrollsakDto {
     data class Delmaler(
         override val signaturVedtak: SignaturVedtak,
         override val feilutbetaling: Boolean,

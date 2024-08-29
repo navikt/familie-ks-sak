@@ -11,12 +11,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class OpprettVedtakFellesfelterSammensattKontrollsakServiceTest {
+class OpprettVedtakFellesfelterSammensattKontrollsakDtoServiceTest {
     private val mockedOpprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService = mockk()
     private val mockedKorrigertVedtakService: KorrigertVedtakService = mockk()
 
-    private val opprettVedtakFellesfelterSammensattKontrollsakService: OpprettVedtakFellesfelterSammensattKontrollsakService =
-        OpprettVedtakFellesfelterSammensattKontrollsakService(
+    private val opprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService =
+        OpprettVedtakFellesfelterSammensattKontrollsakDtoService(
             opprettGrunnlagOgSignaturDataService = mockedOpprettGrunnlagOgSignaturDataService,
             korrigertVedtakService = mockedKorrigertVedtakService,
         )
@@ -63,7 +63,7 @@ class OpprettVedtakFellesfelterSammensattKontrollsakServiceTest {
 
         // Act
         val vedtakFellesfelterSammensattKontrollsak =
-            opprettVedtakFellesfelterSammensattKontrollsakService.opprett(
+            opprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
