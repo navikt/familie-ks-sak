@@ -113,6 +113,24 @@ fun hentTotalFeilutbetaling(
         .filter { fomDatoNestePeriode == null || it.fom < fomDatoNestePeriode }
         .sumOf { it.feilutbetaling }
 
+fun hentManuellPosteringIPeriode(periode: List<ØkonomiSimuleringPostering>): BigDecimal {
+    val sumManuellePosteringer =
+        periode
+            .filter { it.posteringType == PosteringType.YTELSE }
+            .filter { it.erManuellPostering }
+            .sumOf { it.beløp }
+
+    val manuellFeilutbetaling = hentManuellFeilutbetalingIPeriode(periode)
+
+    return sumManuellePosteringer - manuellFeilutbetaling
+}
+
+private fun hentManuellFeilutbetalingIPeriode(periode: List<ØkonomiSimuleringPostering>) =
+    periode
+        .filter { it.posteringType == PosteringType.FEILUTBETALING }
+        .filter { it.erManuellPostering }
+        .sumOf { it.beløp }
+
 fun SimuleringMottaker.tilBehandlingSimuleringMottaker(behandling: Behandling): ØkonomiSimuleringMottaker {
     val behandlingSimuleringMottaker =
         ØkonomiSimuleringMottaker(

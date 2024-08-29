@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSi
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.filterBortIrrelevanteVedtakSimuleringPosteringer
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentEtterbetalingIPeriode
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentManuellPosteringIPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentNyttBeløpIPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentPositivFeilbetalingIPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.hentResultatIPeriode
@@ -70,6 +71,7 @@ object SimuleringMapper {
                 resultat = hentResultatIPeriode(posteringListe),
                 feilutbetaling = hentPositivFeilbetalingIPeriode(posteringListe),
                 etterbetaling = hentEtterbetalingIPeriode(posteringListe, tidSimuleringHentet),
+                manuellPostering = hentManuellPosteringIPeriode(posteringListe),
             )
         }
     }
