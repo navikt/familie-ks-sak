@@ -4,7 +4,7 @@ plugins {
     val kotlinVersion = "2.0.20"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.3.2"
+    id("org.springframework.boot") version "3.3.3"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -52,7 +52,7 @@ dependencies {
     val fellesKontrakterVersion = "3.0_20240829084024_9af69d0"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240806120744_a042aa1"
-    val tokenValidationSpringVersion = "5.0.1"
+    val tokenValidationSpringVersion = "5.0.2"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240809130157_d33fbc4"
     val restAssuredVersion = "5.5.0"
@@ -79,7 +79,7 @@ dependencies {
 
     // ---------- DB ---------- \\
     implementation("org.flywaydb:flyway-core")
-    implementation("org.postgresql:postgresql:42.7.3")
+    implementation("org.postgresql:postgresql:42.7.4")
 
     // ---------- Apache ---------- \\
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
@@ -145,7 +145,7 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc:$restAssuredVersion")
     testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
     testImplementation("org.testcontainers:postgresql:1.20.1")
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.8")
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.9")
     testImplementation("no.nav.security:token-validation-test-support:2.0.5")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenValidationSpringVersion")
     testImplementation("nav-foedselsnummer:testutils:1.0-SNAPSHOT.6")
