@@ -106,8 +106,8 @@ class RegistrereSøknadSteg(
             val datoBarnFyller1År = barnFødselsdato.plusYears(1)
 
             if (datoBarnFyller1År > sisteDagIInneværendeMåned) {
-                throw Feil(
-                    message = "Det er ikke mulig å behandle barn som fyller 1 år senere enn inneværende måned.",
+                throw FunksjonellFeil(
+                    melding = "Det er ikke mulig å behandle barn som fyller 1 år senere enn inneværende måned.",
                     frontendFeilmelding = "Det er søkt for tidlig for barn ${barn.personnummer ?: "uten ident"}. Søknaden kan tidligst behandles ${datoBarnFyller1År.tilMånedÅr()}.",
                 )
             }

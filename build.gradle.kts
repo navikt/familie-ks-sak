@@ -13,7 +13,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 
     // ------------- SLSA -------------- //
-    id("org.cyclonedx.bom") version "1.9.0"
+    id("org.cyclonedx.bom") version "1.10.0"
 }
 
 configurations {
@@ -46,15 +46,15 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.6.0"
-    val sentryVersion = "7.12.1"
-    val navFellesVersion = "3.20240715145751_fc025c1"
+    val sentryVersion = "7.14.0"
+    val navFellesVersion = "3.20240806111424_fff2930"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240801145104_f611578"
+    val fellesKontrakterVersion = "3.0_20240829084024_9af69d0"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240806120744_a042aa1"
     val tokenValidationSpringVersion = "5.0.1"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20240603145215_c56e179"
+    val prosesseringVersion = "2.20240809130157_d33fbc4"
     val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
     val utbetalingsgeneratorVersion = "1.0_20240729145155_57174aa"
@@ -86,13 +86,13 @@ dependencies {
     implementation("org.apache.httpcomponents:httpcore:4.4.16")
 
     // ----------- AVRO ---------\\
-    implementation("org.apache.avro:avro:1.11.3")
+    implementation("org.apache.avro:avro:1.12.0")
     implementation("io.confluent:kafka-avro-serializer:7.7.0")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
 
-    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+    testImplementation(platform("org.junit:junit-bom:5.11.0"))
     testImplementation(platform("io.cucumber:cucumber-bom:7.18.1"))
 
     testImplementation("io.cucumber:cucumber-java")
