@@ -80,4 +80,7 @@ data class ØkonomiSimuleringPostering(
             "forfallsdato=$forfallsdato, " +
             "utenInntrekk=$utenInntrekk" +
             ")"
+
+    val erManuellPostering: Boolean
+        get() = this.fagOmrådeKode in listOf(FagOmrådeKode.KONTANTSTØTTE_INFOTRYGD_MANUELT, FagOmrådeKode.KONTANTSTØTTE_MANUELT)
 }
