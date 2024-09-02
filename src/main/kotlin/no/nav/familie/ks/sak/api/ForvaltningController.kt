@@ -12,6 +12,7 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
+import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
@@ -23,6 +24,7 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
+import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
@@ -76,6 +78,7 @@ class ForvaltningController(
     private val behandlingRepository: BehandlingRepository,
     private val testVerktøyService: TestVerktøyService,
     private val envService: EnvService,
+    private val autovedtakService: AutovedtakService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -299,6 +302,30 @@ class ForvaltningController(
         return testVerktøyService
             .hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
+    }
+
+    @PostMapping("/opprettAutovedtakBehandlingPaaFagsak")
+    fun opprettAutovedtakBehandlingPåFagsak(
+        @RequestBody opprettAutovedtakBehandlingPåFagsakDto: OpprettAutovedtakBehandlingPåFagsakDto,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Opprett autovedtak behandling på fagsak",
+        )
+
+        val fagsakId = opprettAutovedtakBehandlingPåFagsakDto.fagsakId
+
+        autovedtakService.opprettAutovedtakBehandlingPåFagsak(
+            fagsakId = fagsakId,
+            behandlingÅrsak = opprettAutovedtakBehandlingPåFagsakDto.behandlingsÅrsak,
+            behandlingType = opprettAutovedtakBehandlingPåFagsakDto.behandlingType,
+        )
+
+        return ResponseEntity.ok(
+            Ressurs.success(
+                "Automatisk revurdering på fagsak $fagsakId opprettet OK",
+            ),
+        )
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")

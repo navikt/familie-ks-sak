@@ -223,7 +223,7 @@ class StegService(
             else -> IVERKSETT_MOT_OPPDRAG
         }
 
-    private fun erEndringIUtbetaling(behandling: Behandling): Boolean {
+    fun erEndringIUtbetaling(behandling: Behandling): Boolean {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
         val andelerForrigeBehandling =
             forrigeBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
