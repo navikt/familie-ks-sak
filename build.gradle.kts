@@ -57,7 +57,7 @@ dependencies {
     val prosesseringVersion = "2.20240809130157_d33fbc4"
     val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
-    val utbetalingsgeneratorVersion = "1.0_20240729145155_57174aa"
+    val utbetalingsgeneratorVersion = "1.0_20240902095239_88c7bc0"
 
     // ---------- Spring ---------- \\
     implementation("org.springframework.boot:spring-boot-starter")
