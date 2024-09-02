@@ -1,7 +1,7 @@
 kubectl config use-context dev-gcp
 PODNAVN=$(kubectl -n teamfamilie get pods --field-selector=status.phase==Running -o name | grep familie-ks-sak | grep -v "frontend" |  sed "s/^.\{4\}//" | head -n 1);
 
-PODVARIABLER="$(kubectl -n teamfamilie exec -c familie-ks-sak -it "$PODNAVN" -- env)"
+PODVARIABLER="$(kubectl -n teamfamilie exec -c familie-ks-sak -it "$PODNAVN" -- printenv)"
 UNLEASH_VARIABLER="$(kubectl -n teamfamilie get secret familie-ks-sak-unleash-api-token -o json | jq '.data | map_values(@base64d)')"
 
 AZURE_APP_CLIENT_ID="$(echo "$PODVARIABLER" | grep "AZURE_APP_CLIENT_ID" | tr -d '\r' )"
