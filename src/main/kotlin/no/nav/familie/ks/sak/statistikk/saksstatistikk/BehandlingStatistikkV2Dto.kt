@@ -4,17 +4,17 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 
-data class BehandlingStatistikkDto(
+data class BehandlingStatistikkV2Dto(
     // Tidspunkt for siste endring på behandlingen.
-    val funksjoneltTidspunkt: OffsetDateTime,
+    val funksjoneltTidspunkt: ZonedDateTime,
     // Tidspunktet da fagsystemet legger hendelsen på grensesnittet/topicen
-    val tekniskTidspunkt: OffsetDateTime? = null,
+    val tekniskTidspunkt: ZonedDateTime? = null,
     // Tidspunktet da behandlingen oppstår (eks søknadstidspunkt, inntektsmelding, etc). Det er ønskelig å måle brukers opplevde ventetid. Ved elektronisk kontakt regner vi med at denne er lik registrertTid
-    val mottattTid: OffsetDateTime? = null,
+    val mottattTid: ZonedDateTime? = null,
     // Tidspunkt for når system/saksbehandler oppretter behandlingen
-    val registrertTid: OffsetDateTime,
+    val registrertTid: ZonedDateTime,
     val saksnummer: Long,
     val behandlingID: Long,
     val behandlingType: BehandlingType,
@@ -30,6 +30,6 @@ data class BehandlingStatistikkDto(
 )
 
 data class SattPåVent(
-    val frist: OffsetDateTime,
+    val frist: ZonedDateTime,
     val aarsak: String,
 )

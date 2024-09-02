@@ -59,7 +59,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -413,7 +413,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
         verify(exactly = 1) { avsluttBehandlingSteg.utførSteg(any()) }
         verify(exactly = 1) { taskService.save(capture(taskSlot)) }
-        assertTrue { taskSlot.captured.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }
+        assertTrue { taskSlot.captured.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
         assertBehandlingHarSteg(oppdatertBehandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)

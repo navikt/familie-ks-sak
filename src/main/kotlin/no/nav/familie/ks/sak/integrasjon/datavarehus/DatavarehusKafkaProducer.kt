@@ -4,7 +4,8 @@ import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.KafkaConfig
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV1Dto
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkDto
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -12,12 +13,18 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 interface KafkaProducer {
+    @Deprecated("Kan slettes når siste task for å sende er kjørt")
     fun sendBehandlingsTilstand(
         behandlingId: String,
-        request: BehandlingStatistikkDto,
+        request: BehandlingStatistikkV1Dto,
     )
 
-    fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto)
+    fun sendBehandlingsTilstand(
+        behandlingId: String,
+        request: BehandlingStatistikkV2Dto,
+    )
+
+    fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkV2Dto)
 
     fun sendMessageForTopicVedtak(vedtak: VedtakDVH)
 
@@ -33,7 +40,20 @@ class DatavarehusKafkaProducer(
 
     override fun sendBehandlingsTilstand(
         behandlingId: String,
-        request: BehandlingStatistikkDto,
+        request: BehandlingStatistikkV1Dto,
+    ) {
+        sendKafkamelding(
+            topic = KafkaConfig.BEHANDLING_TOPIC,
+            key = request.behandlingID.toString(),
+            request = request,
+            behandlingId = behandlingId,
+            fagsakId = request.saksnummer.toString(),
+        )
+    }
+
+    override fun sendBehandlingsTilstand(
+        behandlingId: String,
+        request: BehandlingStatistikkV2Dto,
     ) {
         sendKafkamelding(
             topic = KafkaConfig.BEHANDLING_TOPIC,
@@ -54,7 +74,7 @@ class DatavarehusKafkaProducer(
         )
     }
 
-    override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto) {
+    override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkV2Dto) {
         sendKafkamelding(
             topic = KafkaConfig.SISTE_TILSTAND_BEHANDLING_TOPIC,
             key = request.behandlingID.toString(),
@@ -100,12 +120,19 @@ class DatavarehusKafkaProducer(
 class DummyDatavarehusKafkaProducer : KafkaProducer {
     override fun sendBehandlingsTilstand(
         behandlingId: String,
-        request: BehandlingStatistikkDto,
+        request: BehandlingStatistikkV1Dto,
     ) {
         log.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
     }
 
-    override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkDto) {
+    override fun sendBehandlingsTilstand(
+        behandlingId: String,
+        request: BehandlingStatistikkV2Dto,
+    ) {
+        log.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
+    }
+
+    override fun sendSisteBehandlingsTilstand(request: BehandlingStatistikkV2Dto) {
         log.info("Skipper sending av saksstatistikk for behandling ${request.behandlingID} fordi kafka ikke er enablet")
     }
 

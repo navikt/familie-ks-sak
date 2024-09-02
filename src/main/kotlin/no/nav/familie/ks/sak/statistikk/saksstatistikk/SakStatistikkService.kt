@@ -18,9 +18,7 @@ import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Properties
 import java.util.UUID
@@ -47,13 +45,13 @@ class SakStatistikkService(
                 "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
                 "for behandling $behandlingId"
 
-        val tilstand = hentBehandlingensTilstand(behandlingId)
-        opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhTask.TASK_TYPE)
+        val tilstand = hentBehandlingensTilstandV2(behandlingId)
+        opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhV2Task.TASK_TYPE)
     }
 
     private fun opprettProsessTask(
         behandlingId: Long,
-        behandlingTilstand: BehandlingStatistikkDto,
+        behandlingTilstand: BehandlingStatistikkV2Dto,
         hendelsesbeskrivelse: String,
         type: String,
     ) {
@@ -69,7 +67,7 @@ class SakStatistikkService(
         taskService.save(task)
     }
 
-    fun hentBehandlingensTilstand(behandlingId: Long): BehandlingStatistikkDto {
+    fun hentBehandlingensTilstandV2(behandlingId: Long): BehandlingStatistikkV2Dto {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
         val ansvarligEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId)
@@ -80,11 +78,11 @@ class SakStatistikkService(
 
         val mottattTid = behandling.søknadMottattDato ?: behandling.opprettetTidspunkt
 
-        return BehandlingStatistikkDto(
+        return BehandlingStatistikkV2Dto(
             saksnummer = behandling.fagsak.id,
             behandlingID = behandling.id,
-            mottattTid = mottattTid.tilOffset(),
-            registrertTid = behandling.opprettetTidspunkt.tilOffset(),
+            mottattTid = mottattTid.atZone(TIMEZONE),
+            registrertTid = behandling.opprettetTidspunkt.atZone(TIMEZONE),
             behandlingType = behandling.type,
             utenlandstilsnitt = behandling.kategori.name,
             behandlingStatus = behandling.status,
@@ -94,15 +92,15 @@ class SakStatistikkService(
             ansvarligSaksbehandler = totrinnskontroll?.saksbehandlerId ?: behandling.endretAv,
             // TODO er alltid det frem til vi kobler på søknadsdialogen
             behandlingErManueltOpprettet = true,
-            funksjoneltTidspunkt = behandling.endretTidspunkt.tilOffset(),
+            funksjoneltTidspunkt = behandling.endretTidspunkt.atZone(TIMEZONE),
             sattPaaVent =
                 behandlingPåVent?.årsak?.name?.let {
                     SattPåVent(
                         frist =
-                            OffsetDateTime.of(
+                            ZonedDateTime.of(
                                 behandlingPåVent.frist,
                                 java.time.LocalTime.now(),
-                                ZoneOffset.UTC,
+                                TIMEZONE,
                             ),
                         aarsak = it,
                     )
@@ -114,7 +112,7 @@ class SakStatistikkService(
     fun sendAlleBehandlingerTilDVH() {
         fagsakRepository.findAll().forEach { fagsak ->
             behandlingRepository.finnBehandlinger(fagsakId = fagsak.id).forEach { behandling ->
-                val tilstand = hentBehandlingensTilstand(behandling.id)
+                val tilstand = hentBehandlingensTilstandV2(behandling.id)
                 opprettProsessTask(
                     tilstand.behandlingID,
                     tilstand,
@@ -124,12 +122,6 @@ class SakStatistikkService(
             }
         }
     }
-
-    fun LocalDateTime.tilOffset(): OffsetDateTime =
-        OffsetDateTime.of(
-            this,
-            ZoneOffset.UTC,
-        )
 
     fun mapTilSakDvh(fagsakId: Long): SakStatistikkDto {
         val fagsak = fagsakService.hentFagsak(fagsakId)
@@ -174,5 +166,9 @@ class SakStatistikkService(
                 aktør,
             )
         }
+    }
+
+    companion object {
+        val TIMEZONE: ZoneId = ZoneId.systemDefault()
     }
 }
