@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Flettefelt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
@@ -63,7 +62,6 @@ data class VedtakEndring(
                         ),
                     flettefelter =
                         object : FlettefelterForDokumentDto {
-                            val perioderMedForMyeUtbetalt: Flettefelt = feilutbetaltValuta?.perioderMedForMyeUtbetalt
                             override val navn = flettefelt(fellesdataForVedtaksbrev.søkerNavn)
                             override val fodselsnummer = flettefelt(fellesdataForVedtaksbrev.søkerFødselsnummer)
                             override val brevOpprettetDato = flettefelt(LocalDate.now().tilDagMånedÅr())
@@ -79,18 +77,33 @@ data class EndringVedtakData(
     override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
     data class Delmaler(
-        val signaturVedtak: SignaturVedtak,
-        val etterbetaling: Etterbetaling?,
-        val feilutbetaling: Boolean,
+        override val signaturVedtak: SignaturVedtak,
+        override val etterbetaling: Etterbetaling?,
+        override val feilutbetaling: Boolean,
+        override val klage: Boolean,
+        override val korrigertVedtak: KorrigertVedtakData?,
+        override val informasjonOmAarligKontroll: Boolean,
+        override val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
+        override val refusjonEosAvklart: RefusjonEøsAvklart?,
+        override val refusjonEosUavklart: RefusjonEøsUavklart?,
+        override val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
+        override val duMaaMeldeFraOmEndringer: Boolean,
+        override val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
         val hjemmeltekst: Hjemmeltekst,
-        val klage: Boolean,
-        val korrigertVedtak: KorrigertVedtakData?,
-        val informasjonOmAarligKontroll: Boolean,
-        val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?,
-        val refusjonEosAvklart: RefusjonEøsAvklart?,
-        val refusjonEosUavklart: RefusjonEøsUavklart?,
-        val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean = false,
-        val duMaaMeldeFraOmEndringer: Boolean,
-        val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean,
-    )
+    ) : EndringVedtakDelmaler
+}
+
+interface EndringVedtakDelmaler {
+    val signaturVedtak: SignaturVedtak
+    val etterbetaling: Etterbetaling?
+    val feilutbetaling: Boolean
+    val klage: Boolean
+    val korrigertVedtak: KorrigertVedtakData?
+    val informasjonOmAarligKontroll: Boolean
+    val forMyeUtbetaltKontantstotte: FeilutbetaltValuta?
+    val refusjonEosAvklart: RefusjonEøsAvklart?
+    val refusjonEosUavklart: RefusjonEøsUavklart?
+    val duMaaMeldeFraOmEndringerEosSelvstendigRett: Boolean
+    val duMaaMeldeFraOmEndringer: Boolean
+    val duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass: Boolean
 }

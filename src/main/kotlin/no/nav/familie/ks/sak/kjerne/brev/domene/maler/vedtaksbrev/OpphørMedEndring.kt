@@ -66,13 +66,23 @@ data class OpphørMedEndringData(
     override val perioder: List<BrevPeriodeDto>,
 ) : VedtaksbrevData {
     data class Delmaler(
-        val signaturVedtak: SignaturVedtak,
-        val feilutbetaling: Boolean,
-        val etterbetaling: Etterbetaling?,
+        override val signaturVedtak: SignaturVedtak,
+        override val feilutbetaling: Boolean,
+        override val etterbetaling: Etterbetaling?,
+        override val korrigertVedtak: KorrigertVedtakData?,
+        override val refusjonEosAvklart: RefusjonEøsAvklart?,
+        override val refusjonEosUavklart: RefusjonEøsUavklart?,
+        override val klage: Boolean,
         val hjemmeltekst: Hjemmeltekst,
-        val korrigertVedtak: KorrigertVedtakData?,
-        val refusjonEosAvklart: RefusjonEøsAvklart?,
-        val refusjonEosUavklart: RefusjonEøsUavklart?,
-        val klage: Boolean,
-    )
+    ) : OpphørMedEndringDelmaler
+}
+
+interface OpphørMedEndringDelmaler {
+    val signaturVedtak: SignaturVedtak
+    val feilutbetaling: Boolean
+    val etterbetaling: Etterbetaling?
+    val korrigertVedtak: KorrigertVedtakData?
+    val refusjonEosAvklart: RefusjonEøsAvklart?
+    val refusjonEosUavklart: RefusjonEøsUavklart?
+    val klage: Boolean
 }
