@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
@@ -101,6 +102,13 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         assertEquals(
             behandling.endretTidspunkt.truncatedTo(ChronoUnit.SECONDS),
             tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS),
+        )
+
+        assertTrue(
+            tilstand.funksjoneltTidspunkt
+                .nano
+                .toString()
+                .endsWith("000000"),
         )
     }
 }
