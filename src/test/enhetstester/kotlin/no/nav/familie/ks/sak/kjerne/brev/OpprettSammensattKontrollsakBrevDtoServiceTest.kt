@@ -180,7 +180,7 @@ class OpprettSammensattKontrollsakBrevDtoServiceTest {
         ],
         mode = EnumSource.Mode.EXCLUDE,
     )
-    fun `skal kaste feil for brevmaler som ikke er søtttet`(brevmal: Brevmal) {
+    fun `skal kaste feil for brevmaler som ikke er støttet`(brevmal: Brevmal) {
         // Arrange
         val vedtak = lagVedtak()
 

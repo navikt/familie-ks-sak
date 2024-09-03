@@ -1225,12 +1225,12 @@ fun lagVedtakFellesfelterSammensattKontrollsakDto(
     søkerFødselsnummer: String = "søkerFødselsnummer",
     sammensattKontrollsakFritekst: String = "sammensattKontrollsakFritekst",
 ) = VedtakFellesfelterSammensattKontrollsakDto(
-    "enhet",
-    "saksbehandler",
-    "beslutter",
-    "søkerNavn",
-    "søkerFødselsnummer",
-    "sammensattKontrollsakFritekst",
+    enhet,
+    saksbehandler,
+    beslutter,
+    søkerNavn,
+    søkerFødselsnummer,
+    sammensattKontrollsakFritekst,
 )
 
 fun lagKorrigertVedtak(

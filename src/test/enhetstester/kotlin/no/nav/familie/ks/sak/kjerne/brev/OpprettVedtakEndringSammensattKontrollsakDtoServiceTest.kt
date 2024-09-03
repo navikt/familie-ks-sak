@@ -149,7 +149,7 @@ class OpprettVedtakEndringSammensattKontrollsakDtoServiceTest {
     }
 
     @Test
-    fun `skal opprette VedtakEndringSammensattKontrollsak hvor søker olle har meldt fra om barnehageplass og det ikke er feilutbetalt valuta periode`() {
+    fun `skal opprette VedtakEndringSammensattKontrollsak hvor søker ikke har meldt fra om barnehageplass og det ikke er feilutbetalt valuta periode`() {
         // Arrange
         val vedtak = lagVedtak()
 
