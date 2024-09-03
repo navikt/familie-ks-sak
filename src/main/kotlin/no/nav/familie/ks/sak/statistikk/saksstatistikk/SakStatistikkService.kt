@@ -143,9 +143,10 @@ class SakStatistikkService(
                 listOf(AktørDVH(fagsak.aktør.aktørId.toLong(), PersonType.SØKER.name))
             }
 
+        val now = ZonedDateTime.now()
         return SakStatistikkDto(
-            funksjonellTid = ZonedDateTime.now(),
-            tekniskTid = ZonedDateTime.now(),
+            funksjonellTid = now,
+            tekniskTid = now,
             opprettetDato = LocalDate.now(),
             funksjonellId = UUID.randomUUID().toString(),
             sakId = fagsakId.toString(),
