@@ -183,7 +183,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                     opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
                 ),
             )
-        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(revurderingBehandling.id))
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = revurderingBehandling.id))
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         assertDoesNotThrow { stegService.utførSteg(revurderingBehandling.id, REGISTRERE_PERSONGRUNNLAG) }
 

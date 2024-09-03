@@ -22,7 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.brev.hentBrevmal
+import no.nav.familie.ks.sak.kjerne.brev.BrevmalService
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -41,6 +41,7 @@ class JournalførVedtaksbrevSteg(
     private val fagsakService: FagsakService,
     private val brevmottakerService: BrevmottakerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val brevmalService: BrevmalService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 
@@ -81,7 +82,7 @@ class JournalførVedtaksbrevSteg(
                 DistribuerBrevDto(
                     behandlingId = vedtak.behandling.id,
                     journalpostId = journalpostId,
-                    brevmal = hentBrevmal(vedtak.behandling),
+                    brevmal = brevmalService.hentBrevmal(vedtak.behandling),
                     erManueltSendt = false,
                     manuellAdresseInfo = mottaker.manuellAdresseInfo,
                 )
