@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
@@ -22,7 +23,10 @@ class SendSisteBehandlingstilstandTilDvhTask(
 
     override fun doTask(task: Task) {
         log.info("SendSisteBehandlingstilstandTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
-        val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto = objectMapper.readValue(task.payload)
+        val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto =
+            objectMapper
+                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+                .readValue(task.payload)
         kafkaProducer.sendSisteBehandlingsTilstand(
             behandlingStatistikkV1Dto.copy(tekniskTidspunkt = ZonedDateTime.now()),
         )
