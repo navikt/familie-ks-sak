@@ -54,7 +54,7 @@ dependencies {
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240806120744_a042aa1"
     val tokenValidationSpringVersion = "5.0.3"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20240809130157_d33fbc4"
+    val prosesseringVersion = "2.20240902084316_04f17df"
     val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.8.1"
     val utbetalingsgeneratorVersion = "1.0_20240729145155_57174aa"
