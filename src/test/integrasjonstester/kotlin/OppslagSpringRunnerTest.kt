@@ -5,7 +5,7 @@ import ch.qos.logback.core.read.ListAppender
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.nimbusds.jose.JOSEObjectType
-import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
+import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.config.DbContainerInitializer
@@ -184,7 +184,7 @@ abstract class OppslagSpringRunnerTest {
                 søker.statsborgerskap =
                     mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
                 søker.bostedsadresser = mutableListOf()
-                søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+                søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
             },
         )
 
@@ -207,7 +207,7 @@ abstract class OppslagSpringRunnerTest {
                             ),
                         )
                     søker.bostedsadresser = mutableListOf()
-                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
                 },
             )
         }

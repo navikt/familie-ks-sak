@@ -11,7 +11,7 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
-import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTAND
+import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
@@ -174,7 +174,7 @@ fun lagPersonopplysningGrunnlag(
             søker.statsborgerskap =
                 mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
             søker.bostedsadresser = mutableListOf()
-            søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.GIFT, person = søker))
+            søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
         }
 
     søkerDødsDato?.let {
@@ -196,7 +196,7 @@ fun lagPersonopplysningGrunnlag(
                 barn.statsborgerskap =
                     mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = barn))
                 barn.bostedsadresser = mutableListOf()
-                barn.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.UGIFT, person = barn))
+                barn.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.UGIFT, person = barn))
                 barn.dødsfall =
                     barnasDødsfallDatoer.getOrNull(index)?.let {
                         Dødsfall(
@@ -371,7 +371,7 @@ fun lagBostedsadresse(): Bostedsadresse =
             ),
     )
 
-fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTAND.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
+fun lagSivilstand(): Sivilstand = Sivilstand(type = SIVILSTANDTYPE.UGIFT, gyldigFraOgMed = LocalDate.of(2004, 12, 2))
 
 fun lagStatsborgerskap(land: String = "NOR"): Statsborgerskap =
     Statsborgerskap(
@@ -459,7 +459,7 @@ fun tilfeldigPerson(
         kjønn = kjønn,
         målform = Målform.NB,
         dødsfall = dødsfall,
-    ).apply { sivilstander = mutableListOf(GrSivilstand(type = SIVILSTAND.UGIFT, person = this)) }
+    ).apply { sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.UGIFT, person = this)) }
 
 fun lagVilkårsvurderingMedSøkersVilkår(
     søkerAktør: Aktør,
