@@ -45,7 +45,7 @@ class SakStatistikkService(
                 "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
                 "for behandling $behandlingId"
 
-        val tilstand = hentBehandlingensTilstandV2(behandlingId)
+        val tilstand = hentBehandlingensTilstandV2(behandlingId, false)
         opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhV2Task.TASK_TYPE)
     }
 
@@ -67,7 +67,10 @@ class SakStatistikkService(
         taskService.save(task)
     }
 
-    fun hentBehandlingensTilstandV2(behandlingId: Long): BehandlingStatistikkV2Dto {
+    fun hentBehandlingensTilstandV2(
+        behandlingId: Long,
+        brukEndretTidspunktSomFunksjonellTidspunkt: Boolean,
+    ): BehandlingStatistikkV2Dto {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
         val ansvarligEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId)
@@ -92,7 +95,7 @@ class SakStatistikkService(
             ansvarligSaksbehandler = totrinnskontroll?.saksbehandlerId ?: behandling.endretAv,
             // TODO er alltid det frem til vi kobler på søknadsdialogen
             behandlingErManueltOpprettet = true,
-            funksjoneltTidspunkt = ZonedDateTime.now(),
+            funksjoneltTidspunkt = if (brukEndretTidspunktSomFunksjonellTidspunkt) behandling.endretTidspunkt.atZone(TIMEZONE) else ZonedDateTime.now(),
             sattPaaVent =
                 behandlingPåVent?.årsak?.name?.let {
                     SattPåVent(
@@ -112,7 +115,7 @@ class SakStatistikkService(
     fun sendAlleBehandlingerTilDVH() {
         fagsakRepository.findAll().forEach { fagsak ->
             behandlingRepository.finnBehandlinger(fagsakId = fagsak.id).forEach { behandling ->
-                val tilstand = hentBehandlingensTilstandV2(behandling.id)
+                val tilstand = hentBehandlingensTilstandV2(behandling.id, true)
                 opprettProsessTask(
                     tilstand.behandlingID,
                     tilstand,

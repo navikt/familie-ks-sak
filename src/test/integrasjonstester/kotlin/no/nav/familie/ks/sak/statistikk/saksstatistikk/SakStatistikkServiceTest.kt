@@ -84,7 +84,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
 
-        val tilstand = service.hentBehandlingensTilstandV2(behandling.id)
+        val tilstand = service.hentBehandlingensTilstandV2(behandling.id, false)
         assertEquals(behandling.fagsak.id, tilstand.saksnummer)
         assertEquals(behandling.id, tilstand.behandlingID)
         assertEquals(behandling.status, tilstand.behandlingStatus)
