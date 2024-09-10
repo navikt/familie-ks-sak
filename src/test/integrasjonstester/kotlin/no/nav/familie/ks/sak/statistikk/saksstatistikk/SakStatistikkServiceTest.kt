@@ -12,16 +12,15 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhTask
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
@@ -50,7 +49,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         assertEquals(
             1,
-            taskService.findAll().count { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE },
+            taskService.findAll().count { it.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE },
         )
     }
 
@@ -62,16 +61,16 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
-        taskService.findAll().filter { it.type == SendBehandlinghendelseTilDvhTask.TASK_TYPE }.first().let {
-            val behandlingStatistikkDto: BehandlingStatistikkDto =
+        taskService.findAll().filter { it.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE }.first().let {
+            val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto =
                 no.nav.familie.kontrakter.felles.objectMapper
                     .readValue(it.payload)
             val tekniskTid =
-                OffsetDateTime.of(
+                ZonedDateTime.of(
                     LocalDateTime.now(),
-                    ZoneOffset.UTC,
+                    SakStatistikkService.TIMEZONE,
                 )
-            val funksjonellTid = behandlingStatistikkDto.funksjoneltTidspunkt
+            val funksjonellTid = behandlingStatistikkV1Dto.funksjoneltTidspunkt
             assertEquals(true, tekniskTid.isAfter(funksjonellTid))
         }
     }
@@ -85,7 +84,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
 
-        val tilstand = service.hentBehandlingensTilstand(behandling.id)
+        val tilstand = service.hentBehandlingensTilstandV2(behandling.id, false)
         assertEquals(behandling.fagsak.id, tilstand.saksnummer)
         assertEquals(behandling.id, tilstand.behandlingID)
         assertEquals(behandling.status, tilstand.behandlingStatus)

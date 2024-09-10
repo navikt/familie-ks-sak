@@ -31,7 +31,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkDto
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -42,10 +42,10 @@ class JsonGenerator {
     @Test
     fun genererSkjemaTilDatavarehus() {
         val jsonSchemaGenerator = JsonSchemaGenerator(objectMapper)
-        val behandlingstilstandSchema: JsonNode = jsonSchemaGenerator.generateJsonSchema(BehandlingStatistikkDto::class.java)
+        val behandlingstilstandSchema: JsonNode = jsonSchemaGenerator.generateJsonSchema(BehandlingStatistikkV2Dto::class.java)
         // val vedtaksoppsummeringSchema: JsonNode = jsonSchemaGenerator.generateJsonSchema(Vedtaksoppsummering::class.java)
 
-        File("Behandlingtilstand.json").writeText(objectMapper.writeValueAsString(behandlingstilstandSchema))
+        File("Behandlingtilstandv2.json").writeText(objectMapper.writeValueAsString(behandlingstilstandSchema))
         // File("vedtaksoppsummering.json").writeText(objectMapper.writeValueAsString(vedtaksoppsummeringSchema))
     }
 }
@@ -60,7 +60,7 @@ class JsonSchemaGenerator(
     private val customType2FormatMapping =
         mapOf(
             "java.time.LocalDateTime" to "datetime-local",
-            "java.time.OffsetDateTime" to "datetime",
+            "java.time.ZonedDateTime" to "datetime",
             "java.time.LocalDate" to "date",
         )
 

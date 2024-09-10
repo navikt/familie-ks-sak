@@ -297,6 +297,8 @@ class StegService(
         behandlingStegTilstand.årsak = årsak
         behandlingStegTilstand.behandlingStegStatus = BehandlingStegStatus.VENTER
         behandlingRepository.saveAndFlush(behandling)
+        // Send data til Dvh
+        sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandling.id, behandling.steg)
     }
 
     fun oppdaterBehandlingstegFristOgÅrsak(
@@ -323,6 +325,9 @@ class StegService(
         behandlingStegTilstand.frist = frist
         behandlingStegTilstand.årsak = årsak
         behandlingRepository.saveAndFlush(behandling)
+
+        // Send data til Dvh
+        sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandling.id, behandling.steg)
 
         return gammelFrist
     }

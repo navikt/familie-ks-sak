@@ -74,6 +74,7 @@ class StegServiceUnitTest {
 
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
         every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
+        every { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
         val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
@@ -90,6 +91,8 @@ class StegServiceUnitTest {
         assertEquals(BehandlingStegStatus.VENTER, behandlingStegTilstand.behandlingStegStatus)
         assertEquals(frist, behandlingStegTilstand.frist)
         assertEquals(VenteÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
+
+        verify(exactly = 1) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
     }
 
     @Test
@@ -99,6 +102,7 @@ class StegServiceUnitTest {
         every { behandlingRepository.saveAndFlush(capture(behandlingSlot)) } returns mockk()
         every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
+        every { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
         val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
@@ -126,6 +130,7 @@ class StegServiceUnitTest {
         assertEquals(VenteÅrsak.AVVENTER_DOKUMENTASJON, behandlingStegTilstand.årsak)
 
         assertEquals(frist, gammelFrist)
+        verify(exactly = 2) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
     }
 
     @Test
@@ -133,6 +138,7 @@ class StegServiceUnitTest {
         every { behandlingRepository.saveAndFlush(any()) } returns mockk()
         every { loggService.opprettSettPåVentLogg(any(), any()) } just runs
         every { loggService.opprettOppdaterVentingLogg(any(), any(), any()) } just runs
+        every { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
         val årsak = VenteÅrsak.AVVENTER_DOKUMENTASJON
@@ -158,6 +164,7 @@ class StegServiceUnitTest {
         )
 
         verify(exactly = 1) { behandlingRepository.saveAndFlush(any()) }
+        verify(exactly = 1) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }
     }
 
     @Test
