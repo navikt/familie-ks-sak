@@ -276,6 +276,14 @@ fun lagBehandling(
     status: BehandlingStatus = BehandlingStatus.UTREDES,
     id: Long = nesteBehandlingId(),
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+    lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
+        setOf(
+            BehandlingStegTilstand(
+                behandling = it,
+                behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
+            ),
+        )
+    },
 ): Behandling {
     val behandling =
         Behandling(
@@ -287,26 +295,26 @@ fun lagBehandling(
             resultat = resultat,
             aktiv = aktiv,
             status = status,
-        ).initBehandlingStegTilstand()
+        )
+    behandling.behandlingStegTilstand.addAll(lagBehandlingStegTilstander(behandling))
     behandling.endretTidspunkt = endretTidspunkt
     return behandling
 }
 
 fun lagBehandlingStegTilstand(
     behandling: Behandling,
-    behandlingSteg: BehandlingSteg,
-    behandlingStegStatus: BehandlingStegStatus,
+    behandlingSteg: BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
+    behandlingStegStatus: BehandlingStegStatus = BehandlingStegStatus.KLAR,
     frist: LocalDate? = null,
     årsak: VenteÅrsak? = null,
-) = behandling.behandlingStegTilstand.add(
+): BehandlingStegTilstand =
     BehandlingStegTilstand(
         behandling = behandling,
         behandlingSteg = behandlingSteg,
         behandlingStegStatus = behandlingStegStatus,
         frist = frist,
         årsak = årsak,
-    ),
-)
+    )
 
 fun lagArbeidsfordelingPåBehandling(
     id: Long = 123,

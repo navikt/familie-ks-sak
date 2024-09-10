@@ -75,7 +75,9 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                 behandlendeEnhetNavn = "test",
             ),
         )
-        lagBehandlingStegTilstand(behandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
+        behandling.behandlingStegTilstand.add(
+            lagBehandlingStegTilstand(behandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR),
+        )
         lagreBehandling(behandling)
 
         every { integrasjonClient.hentLand(any()) } returns "Norge"
@@ -140,19 +142,31 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     fun `endreVilkår - skal endre vilkår og tilbakefører behandling til vilkårsvurdering`() {
         val behandlingForOppdatering = behandlingRepository.hentAktivBehandling(behandling.id)
         behandlingForOppdatering.behandlingStegTilstand.clear()
+        behandlingForOppdatering.behandlingStegTilstand.addAll(
+            setOf(
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.VILKÅRSVURDERING,
+                    BehandlingStegStatus.UTFØRT,
+                ),
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.BEHANDLINGSRESULTAT,
+                    BehandlingStegStatus.UTFØRT,
+                ),
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.SIMULERING,
+                    BehandlingStegStatus.UTFØRT,
+                ),
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.VEDTAK,
+                    BehandlingStegStatus.KLAR,
+                ),
+            ),
+        )
 
-        lagBehandlingStegTilstand(
-            behandlingForOppdatering,
-            BehandlingSteg.VILKÅRSVURDERING,
-            BehandlingStegStatus.UTFØRT,
-        )
-        lagBehandlingStegTilstand(
-            behandlingForOppdatering,
-            BehandlingSteg.BEHANDLINGSRESULTAT,
-            BehandlingStegStatus.UTFØRT,
-        )
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.SIMULERING, BehandlingStegStatus.UTFØRT)
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.VEDTAK, BehandlingStegStatus.KLAR)
         lagreBehandling(behandlingForOppdatering)
 
         lagVedtakOgVedtaksperiode()
@@ -281,18 +295,31 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     fun `opprettNyttVilkår - skal opprette nytt vilkår og tilbakefører behandling til vilkårsvurdering steg`() {
         val behandlingForOppdatering = behandlingRepository.hentAktivBehandling(behandling.id)
         behandlingForOppdatering.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(
-            behandlingForOppdatering,
-            BehandlingSteg.VILKÅRSVURDERING,
-            BehandlingStegStatus.UTFØRT,
+        behandlingForOppdatering.behandlingStegTilstand.addAll(
+            setOf(
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.VILKÅRSVURDERING,
+                    BehandlingStegStatus.UTFØRT,
+                ),
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.BEHANDLINGSRESULTAT,
+                    BehandlingStegStatus.UTFØRT,
+                ),
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.SIMULERING,
+                    BehandlingStegStatus.UTFØRT,
+                ),
+                lagBehandlingStegTilstand(
+                    behandlingForOppdatering,
+                    BehandlingSteg.VEDTAK,
+                    BehandlingStegStatus.KLAR,
+                ),
+            ),
         )
-        lagBehandlingStegTilstand(
-            behandlingForOppdatering,
-            BehandlingSteg.BEHANDLINGSRESULTAT,
-            BehandlingStegStatus.UTFØRT,
-        )
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.SIMULERING, BehandlingStegStatus.UTFØRT)
-        lagBehandlingStegTilstand(behandlingForOppdatering, BehandlingSteg.VEDTAK, BehandlingStegStatus.KLAR)
+
         lagreBehandling(behandlingForOppdatering)
 
         lagVedtakOgVedtaksperiode()
