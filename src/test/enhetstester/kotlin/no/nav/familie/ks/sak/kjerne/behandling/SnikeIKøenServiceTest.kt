@@ -25,7 +25,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 import java.time.LocalDateTime
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 
 class SnikeIKøenServiceTest {
     private val localDateTimeProvider: LocalDateTimeProvider = mockk()
