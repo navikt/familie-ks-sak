@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
 import java.util.Properties
 import java.util.UUID
 
@@ -93,7 +92,7 @@ class SakStatistikkService(
             ansvarligSaksbehandler = totrinnskontroll?.saksbehandlerId ?: behandling.endretAv,
             // TODO er alltid det frem til vi kobler på søknadsdialogen
             behandlingErManueltOpprettet = true,
-            funksjoneltTidspunkt = behandling.endretTidspunkt.atZone(TIMEZONE).truncatedTo(ChronoUnit.MILLIS),
+            funksjoneltTidspunkt = ZonedDateTime.now(),
             sattPaaVent =
                 behandlingPåVent?.årsak?.name?.let {
                     SattPåVent(
