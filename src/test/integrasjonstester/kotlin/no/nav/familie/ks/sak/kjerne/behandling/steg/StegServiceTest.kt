@@ -311,8 +311,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal videresende behandling fra BESLUTTE_VEDTAK til IVERKSETT_MOT_OPPDRAG steg når SB godkjenner`() {
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT)
-        lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT))
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR))
 
         behandling.status = BehandlingStatus.FATTER_VEDTAK
         lagreBehandling(behandling)
@@ -343,7 +343,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "IVERKSETT_MOT_OPPDRAG", "JOURNALFØR_VEDTAKSBREV", "AVSLUTT_BEHANDLING"])
     fun `utførSteg skal kaste feil dersom vi forsøker å utføre et allerede utført steg fra og med BESLUTTE_VEDTAK-steget`(behandlingSteg: BehandlingSteg) {
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, behandlingSteg, UTFØRT)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, behandlingSteg, UTFØRT))
 
         lagreBehandling(behandling)
 
@@ -364,7 +364,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.behandlingStegTilstand.clear()
 
         BehandlingSteg.entries.forEach {
-            lagBehandlingStegTilstand(behandling, it, UTFØRT)
+            behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, it, UTFØRT))
         }
 
         behandling.status = BehandlingStatus.AVSLUTTET
@@ -385,8 +385,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal tilbakeføre behandling fra BESLUTTE_VEDTAK til VEDTAK steg når SB underkjenner vedtaket`() {
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT)
-        lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT))
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR))
 
         behandling.status = BehandlingStatus.FATTER_VEDTAK
         lagreBehandling(behandling)
@@ -404,8 +404,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     fun `utførStegEtterIverksettelseAutomatisk skal utføre AVSLUTT_BEHANDLING steg automatisk`() {
         val taskSlot = slot<Task>()
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
-        lagBehandlingStegTilstand(behandling, AVSLUTT_BEHANDLING, KLAR)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, UTFØRT))
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, AVSLUTT_BEHANDLING, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
 
@@ -424,8 +424,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     fun `utførStegEtterIverksettelseAutomatisk skal opprette task for å utføre JOURNALFØR_VEDTAKSBREV steg automatisk`() {
         val taskSlot = slot<Task>()
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
-        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT))
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
@@ -439,8 +439,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførStegEtterIverksettelseAutomatisk skal opprette tilbakekreving task for revurdering`() {
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
-        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT))
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
@@ -461,8 +461,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     fun `utførStegEtterIverksettelseAutomatisk skal ikke opprette tilbakekreving task for revurdering med valg IGNORER_TILBAKEKREVING`() {
         val taskSlot = slot<Task>()
         behandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT)
-        lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR)
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT))
+        behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
@@ -490,7 +490,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         tekniskEndringBehandling.resultat = Behandlingsresultat.ENDRET_UTEN_UTBETALING
         tekniskEndringBehandling.status = BehandlingStatus.FATTER_VEDTAK
         tekniskEndringBehandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR)
+        tekniskEndringBehandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR))
         lagreBehandling(tekniskEndringBehandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = tekniskEndringBehandling, vedtaksdato = LocalDateTime.now()))
 
@@ -521,7 +521,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         tekniskEndringBehandling.resultat = Behandlingsresultat.ENDRET_UTBETALING
         tekniskEndringBehandling.status = BehandlingStatus.FATTER_VEDTAK
         tekniskEndringBehandling.behandlingStegTilstand.clear()
-        lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR)
+        tekniskEndringBehandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR))
         lagreBehandling(tekniskEndringBehandling)
         vedtakRepository.saveAndFlush(Vedtak(behandling = tekniskEndringBehandling, vedtaksdato = LocalDateTime.now()))
 

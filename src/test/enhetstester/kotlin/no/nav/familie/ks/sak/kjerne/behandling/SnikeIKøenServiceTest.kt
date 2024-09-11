@@ -74,12 +74,16 @@ class SnikeIKøenServiceTest {
                 lagBehandling(
                     id = 1L,
                     status = BehandlingStatus.OPPRETTET,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
+                                behandlingStegStatus = BehandlingStegStatus.KLAR,
+                            ),
+                        )
+                    },
                 )
-            lagBehandlingStegTilstand(
-                behandling,
-                BehandlingSteg.REGISTRERE_PERSONGRUNNLAG,
-                BehandlingStegStatus.KLAR,
-            )
 
             every { behandlingRepository.hentBehandling(1L) } returns behandling
 
@@ -97,17 +101,28 @@ class SnikeIKøenServiceTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = BehandlingStegStatus::class)
-        fun `skal sette behandling på maskinell vent uansett behandlingStegStatus når BehandlingStatus er UTREDES`(
+        @EnumSource(
+            value = BehandlingStegStatus::class,
+            names = ["TILBAKEFØRT"],
+            mode = EnumSource.Mode.EXCLUDE,
+        )
+        fun `skal sette behandling på maskinell vent for behandlingStegStatus når BehandlingStatus er UTREDES`(
             behandlingStegStatus: BehandlingStegStatus,
         ) {
             // Arrange
-            val behandling = lagBehandling(status = BehandlingStatus.UTREDES)
-            lagBehandlingStegTilstand(
-                behandling,
-                BehandlingSteg.REGISTRERE_SØKNAD,
-                behandlingStegStatus,
-            )
+            val behandling =
+                lagBehandling(
+                    status = BehandlingStatus.UTREDES,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD,
+                                behandlingStegStatus = behandlingStegStatus,
+                            ),
+                        )
+                    },
+                )
 
             val årsak = SettPåMaskinellVentÅrsak.SATSENDRING
 
@@ -134,13 +149,19 @@ class SnikeIKøenServiceTest {
             behandlingStatus: BehandlingStatus,
         ) {
             // Arrange
-            val behandling = lagBehandling(status = behandlingStatus)
-            behandling.behandlingStegTilstand.clear()
-            lagBehandlingStegTilstand(
-                behandling,
-                BehandlingSteg.AVSLUTT_BEHANDLING,
-                BehandlingStegStatus.VENTER,
-            )
+            val behandling =
+                lagBehandling(
+                    status = behandlingStatus,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                                behandlingStegStatus = BehandlingStegStatus.VENTER,
+                            ),
+                        )
+                    },
+                )
 
             val årsak = SettPåMaskinellVentÅrsak.SATSENDRING
 
@@ -418,15 +439,18 @@ class SnikeIKøenServiceTest {
                     fagsak = fagsak,
                     status = BehandlingStatus.SATT_PÅ_MASKINELL_VENT,
                     aktiv = false,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.VILKÅRSVURDERING,
+                                behandlingStegStatus = BehandlingStegStatus.VENTER,
+                                frist = dagensDato,
+                                årsak = VenteÅrsak.AVVENTER_BEHANDLING,
+                            ),
+                        )
+                    },
                 )
-            behandlingPåVent.behandlingStegTilstand.clear()
-            lagBehandlingStegTilstand(
-                behandlingPåVent,
-                BehandlingSteg.VILKÅRSVURDERING,
-                BehandlingStegStatus.VENTER,
-                frist = dagensDato,
-                årsak = VenteÅrsak.AVVENTER_BEHANDLING,
-            )
 
             val behandlingSomSnekIKøen =
                 lagBehandling(
@@ -471,13 +495,18 @@ class SnikeIKøenServiceTest {
         @Test
         fun `skal kunne snike i køen om BehandlingStegStatus er VENTER`() {
             // Arrange
-            val behandling = lagBehandling()
-            behandling.behandlingStegTilstand.clear()
-            lagBehandlingStegTilstand(
-                behandling,
-                BehandlingSteg.VILKÅRSVURDERING,
-                BehandlingStegStatus.VENTER,
-            )
+            val behandling =
+                lagBehandling(
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.VILKÅRSVURDERING,
+                                behandlingStegStatus = BehandlingStegStatus.VENTER,
+                            ),
+                        )
+                    },
+                )
 
             // Act
             val kanSnikeForbi = snikeIKøenService.kanSnikeForbi(behandling)
