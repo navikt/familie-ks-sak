@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.springframework.cache.CacheManager
@@ -21,6 +22,7 @@ class TilgangService(
     private val personidentService: PersonidentService,
     private val cacheManager: CacheManager,
     private val auditLogger: AuditLogger,
+    private val fagsakRepository: FagsakRepository,
 ) {
     /**
      * Sjekk om saksbehandler har tilgang til å gjøre en gitt handling.
@@ -110,18 +112,22 @@ class TilgangService(
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
         val harTilgang =
             harSaksbehandlerTilgang("validerTilgangTilFagsak", fagsakId) {
-                val aktør = fagsakService.hentFagsak(fagsakId).aktør
-                val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-                val personIdenterIFagsak =
-                    behandlinger
-                        .flatMap { behandling ->
-                            val personopplysningGrunnlag =
-                                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-                            personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
-                        }.distinct()
-                        .ifEmpty { listOf(aktør.aktivFødselsnummer()) }
-                loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
-                harTilgangTilPersoner(personIdenterIFagsak)
+                val fagsak = fagsakRepository.finnFagsak(fagsakId)
+                if (fagsak == null) {
+                    return@harSaksbehandlerTilgang true
+                } else {
+                    val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
+                    val personIdenterIFagsak =
+                        behandlinger
+                            .flatMap { behandling ->
+                                val personopplysningGrunnlag =
+                                    personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                                personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
+                            }.distinct()
+                            .ifEmpty { listOf(fagsak.aktør.aktivFødselsnummer()) }
+                    loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
+                    harTilgangTilPersoner(personIdenterIFagsak)
+                }
             }
         if (!harTilgang) {
             throw RolleTilgangskontrollFeil(
