@@ -16,7 +16,8 @@ import java.util.UUID
 @TaskStepBeskrivelse(
     taskStepType = GrensesnittavstemmingTask.TASK_STEP_TYPE,
     beskrivelse = "Grensesnittavstemming mot oppdrag",
-    maxAntallFeil = 3,
+    maxAntallFeil = 2,
+    triggerTidVedFeilISekunder = 60 * 5,
 )
 class GrensesnittavstemmingTask(
     private val avstemmingService: AvstemmingService,
@@ -24,7 +25,11 @@ class GrensesnittavstemmingTask(
     override fun doTask(task: Task) {
         val taskData = objectMapper.readValue(task.payload, GrensesnittavstemmingTaskDto::class.java)
         logger.info("Kjører $TASK_STEP_TYPE for fom=${taskData.fom}, tom=${taskData.tom}, avstemmingId=${taskData.avstemmingId}")
-        avstemmingService.sendGrensesnittavstemming(fom = taskData.fom, tom = taskData.tom, avstemmingId = taskData.avstemmingId)
+        try {
+            avstemmingService.sendGrensesnittavstemming(fom = taskData.fom, tom = taskData.tom, avstemmingId = taskData.avstemmingId)
+        } catch (e: Exception) {
+            throw IllegalStateException("Sjekk callid i kibana for å sjekke om avstemming ble kjørt ok i familie-oppdrag. Hvis avstemming kjørte ok, så kan tasken rekjøres uten at ny trigges.", e)
+        }
     }
 
     companion object {
