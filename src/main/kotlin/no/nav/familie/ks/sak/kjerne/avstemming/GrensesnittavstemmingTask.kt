@@ -16,8 +16,8 @@ import java.util.UUID
 @TaskStepBeskrivelse(
     taskStepType = GrensesnittavstemmingTask.TASK_STEP_TYPE,
     beskrivelse = "Grensesnittavstemming mot oppdrag",
-    // Rekjører kun 1 gang siden avstemming kan ha kjørt OK selv om tasken har feilet, så en autoretry kan trigge flere like grensesnittavstemminger. Som kan skape problemer hvis de kjøres umiddelbart etter hverandre.
-    maxAntallFeil = 1,
+    maxAntallFeil = 2,
+    triggerTidVedFeilISekunder = 60 * 5,
 )
 class GrensesnittavstemmingTask(
     private val avstemmingService: AvstemmingService,
