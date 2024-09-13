@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import org.slf4j.LoggerFactory
@@ -28,7 +27,7 @@ class OppgaveService(
     private val integrasjonClient: IntegrasjonClient,
     private val oppgaveRepository: OppgaveRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
+    private val navIdentOgEnhetsnummerService: NavIdentOgEnhetsnummerService,
 ) {
     fun opprettOppgave(
         behandlingId: Long,
@@ -48,13 +47,11 @@ class OppgaveService(
             )
             return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
-        val arbeidsfordelingsenhet =
-            arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
-
-        if (arbeidsfordelingsenhet == null) {
-            logger.warn("Fant ikke behandlende enhet på behandling ${behandling.id} ved opprettelse av $oppgavetype-oppgave.")
-        }
-
+        val navIdentOgEnhetsnummer =
+            navIdentOgEnhetsnummerService.hentNavIdentOgEnhetsnummer(
+                behandlingId = behandlingId,
+                navIdent = tilordnetNavIdent,
+            )
         val opprettOppgaveRequest =
             OpprettOppgaveRequest(
                 ident = OppgaveIdentV2(ident = behandling.fagsak.aktør.aktørId, gruppe = IdentGruppe.AKTOERID),
@@ -63,12 +60,12 @@ class OppgaveService(
                 oppgavetype = oppgavetype,
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-                enhetsnummer = arbeidsfordelingsenhet?.behandlendeEnhetId,
+                enhetsnummer = navIdentOgEnhetsnummer.enhetsnummer,
                 // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
                 behandlingstema = null,
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-                tilordnetRessurs = tilordnetNavIdent,
+                tilordnetRessurs = navIdentOgEnhetsnummer.navIdent,
             )
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 

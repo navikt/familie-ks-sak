@@ -4,6 +4,8 @@ import io.mockk.mockk
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
+import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.enhet.EnhetTilgang
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
@@ -330,6 +332,17 @@ fun lagArbeidsfordelingPåBehandling(
         behandlendeEnhetNavn = behandlendeEnhetNavn,
         manueltOverstyrt = manueltOverstyrt,
     )
+
+fun lagEnhetTilgang(
+    enheter: List<Enhet> = emptyList(),
+): EnhetTilgang =
+    EnhetTilgang(
+        enheter,
+    )
+
+fun lagEnhet(
+    enhetsnummer: String,
+): Enhet = Enhet(enhetsnummer = enhetsnummer)
 
 fun lagRegistrerSøknadDto() =
     RegistrerSøknadDto(

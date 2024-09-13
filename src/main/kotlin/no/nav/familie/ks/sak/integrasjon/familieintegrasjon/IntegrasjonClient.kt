@@ -15,6 +15,7 @@ import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
+import no.nav.familie.kontrakter.felles.enhet.EnhetTilgang
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
@@ -231,6 +232,18 @@ class IntegrasjonClient(
             formål = "Hent behandlende enhet",
         ) {
             postForEntity(uri, mapOf("ident" to ident))
+        }
+    }
+
+    fun hentEnhetTilgang(navIdent: String): EnhetTilgang {
+        val uri = URI.create("$integrasjonUri/enhettilgang/$navIdent")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "axsys/noe-annet", // TODO: Finn ut hvilken tjeneste vi skal gå mot.
+            uri = uri,
+            formål = "Hent enheter en NAV-ident har tilgang til",
+        ) {
+            getForEntity(uri)
         }
     }
 
