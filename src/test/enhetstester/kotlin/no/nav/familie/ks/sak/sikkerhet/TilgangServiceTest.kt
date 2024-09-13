@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -54,6 +55,9 @@ class TilgangServiceTest {
 
     @MockK
     private lateinit var mockFagsakService: FagsakService
+
+    @MockK
+    private lateinit var mockFagsakRepository: FagsakRepository
 
     @MockK
     private lateinit var personidentService: PersonidentService
@@ -98,6 +102,7 @@ class TilgangServiceTest {
                 cacheManager = cacheManager,
                 auditLogger = auditLogger,
                 personidentService = personidentService,
+                fagsakRepository = mockFagsakRepository,
             )
     }
 
@@ -107,7 +112,7 @@ class TilgangServiceTest {
         clearCache(cacheManager)
         MDC.put(MDCConstants.MDC_CALL_ID, "00001111")
         mockBrukerContext(groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
-        every { mockFagsakService.hentFagsak(fagsak.id) } returns fagsak
+        every { mockFagsakRepository.finnFagsak(fagsak.id) } returns fagsak
         every { mockBehandlingRepository.hentBehandling(any()) } returns behandling
         every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
         every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
@@ -444,6 +449,18 @@ class TilgangServiceTest {
             BehandlerRolle.SAKSBEHANDLER,
             "hente behandling",
         )
+    }
+
+    @Test
+    internal fun `skal ikke feile når fagsak ikke eksisterer`() {
+        every { mockFagsakRepository.finnFagsak(fagsak.id) } returns null
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsak.id,
+            AuditLoggerEvent.ACCESS,
+            BehandlerRolle.SAKSBEHANDLER,
+            "hente behandling",
+        )
+        verify(exactly = 0) { mockBehandlingRepository.finnBehandlinger(fagsak.id) }
     }
 
     @Test
