@@ -87,7 +87,7 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.12.0")
-    implementation("io.confluent:kafka-avro-serializer:7.7.0")
+    implementation("io.confluent:kafka-avro-serializer:7.7.1")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
