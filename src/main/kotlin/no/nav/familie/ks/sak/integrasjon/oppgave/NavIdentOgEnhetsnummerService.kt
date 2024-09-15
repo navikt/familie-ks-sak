@@ -19,7 +19,7 @@ class NavIdentOgEnhetsnummerService(
     ): NavIdentOgEnhetsnummer {
         val behandlendeEnhetId =
             arbeidsfordelingPåBehandlingRepository
-                .hentArbeidsfordelingPåBehandling(behandlingId = behandlingId)
+                .hentArbeidsfordelingPåBehandling(behandlingId)
                 .behandlendeEnhetId
         return when (behandlendeEnhetId) {
             MIDLERTIDIG_ENHET_4863 -> håndterMidlertidigEnhet4863(navIdent)
@@ -28,14 +28,15 @@ class NavIdentOgEnhetsnummerService(
         }
     }
 
-    private fun håndterMidlertidigEnhet4863(navIdent: String?): NavIdentOgEnhetsnummer {
+    private fun håndterMidlertidigEnhet4863(
+        navIdent: String?,
+    ): NavIdentOgEnhetsnummer {
         if (navIdent == null) {
-            throw Feil("Kan ikke sette midlertidig enhet 4863 om man mangler nav-ident")
+            throw Feil("Kan ikke sette midlertidig enhet 4863 om man mangler NAV-ident")
         }
         val enhetsnummerSaksbehandlerHarTilgangTil =
             integrasjonClient
-                .hentEnhetTilgang(navIdent)
-                .enheter
+                .hentEnheterSomNavIdentHarTilgangTil(navIdent)
                 .map { it.enhetsnummer }
                 .filter { it != MIDLERTIDIG_ENHET_4863 }
                 .filter { it != VIKAFOSSEN_ENHET_2103 }
@@ -46,14 +47,15 @@ class NavIdentOgEnhetsnummerService(
         return NavIdentOgEnhetsnummer(navIdent, enhetsnummerSaksbehandlerHarTilgangTil.first())
     }
 
-    private fun håndterVikafossenEnhet2103(navIdent: String?): NavIdentOgEnhetsnummer {
+    private fun håndterVikafossenEnhet2103(
+        navIdent: String?,
+    ): NavIdentOgEnhetsnummer {
         if (navIdent == null) {
-            throw Feil("Kan ikke sette Vikafossen enhet 2103 om man mangler nav-ident")
+            throw Feil("Kan ikke sette Vikafossen enhet 2103 om man mangler NAV-ident")
         }
         val harTilgangTilVikafossenEnhet2103 =
             integrasjonClient
-                .hentEnhetTilgang(navIdent)
-                .enheter
+                .hentEnheterSomNavIdentHarTilgangTil(navIdent)
                 .any { it.enhetsnummer == VIKAFOSSEN_ENHET_2103 }
         if (!harTilgangTilVikafossenEnhet2103) {
             return NavIdentOgEnhetsnummer(null, VIKAFOSSEN_ENHET_2103)
@@ -71,18 +73,17 @@ class NavIdentOgEnhetsnummerService(
         }
         val enheterNavIdentHarTilgangerTil =
             integrasjonClient
-                .hentEnhetTilgang(navIdent)
-                .enheter
+                .hentEnheterSomNavIdentHarTilgangTil(navIdent)
                 .map { it.enhetsnummer }
                 .filter { it != MIDLERTIDIG_ENHET_4863 }
                 .filter { it != VIKAFOSSEN_ENHET_2103 }
         if (enheterNavIdentHarTilgangerTil.isEmpty()) {
-            throw Feil("Fant ingen passende enhetsnummer for nav-ident $navIdent")
+            throw Feil("Fant ingen passende enhetsnummer for NAV-ident $navIdent")
         }
         val harTilgangTilBehandledeEnhet = enheterNavIdentHarTilgangerTil.contains(behandlendeEnhetId)
         if (!harTilgangTilBehandledeEnhet) {
             // Velger bare det første enhetsnummeret i tilfeller hvor man har flere, avklart med fag
-            return NavIdentOgEnhetsnummer(null, enheterNavIdentHarTilgangerTil.first())
+            return NavIdentOgEnhetsnummer(navIdent, enheterNavIdentHarTilgangerTil.first())
         }
         return NavIdentOgEnhetsnummer(navIdent, behandlendeEnhetId)
     }
@@ -91,4 +92,10 @@ class NavIdentOgEnhetsnummerService(
 data class NavIdentOgEnhetsnummer(
     val navIdent: String?,
     val enhetsnummer: String,
-)
+) {
+    init {
+        if (enhetsnummer.length != 4) {
+            throw IllegalArgumentException("Enhetsnummer må være 4 siffer")
+        }
+    }
+}
