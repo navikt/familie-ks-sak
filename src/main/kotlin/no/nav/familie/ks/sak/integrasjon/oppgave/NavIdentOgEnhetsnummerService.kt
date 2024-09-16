@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.integrasjon.oppgave
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import org.springframework.stereotype.Service
 
 private const val MIDLERTIDIG_ENHET_4863 = "4863"

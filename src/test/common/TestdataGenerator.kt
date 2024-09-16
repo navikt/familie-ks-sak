@@ -318,7 +318,7 @@ fun lagBehandlingStegTilstand(
     )
 
 fun lagArbeidsfordelingPåBehandling(
-    id: Long = 123,
+    id: Long = 0,
     behandlingId: Long,
     behandlendeEnhetId: String = "4321",
     behandlendeEnhetNavn: String = "Test enhet",
