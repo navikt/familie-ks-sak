@@ -308,7 +308,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .post(WireMock.urlEqualTo("/enhet/$navIdent"))
+                .post(WireMock.urlEqualTo("/axsys/enheter"))
                 .willReturn(WireMock.okJson(readFile("enheterNavIdentHarTilgangTilResponse.json"))),
         )
 
