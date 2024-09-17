@@ -23,10 +23,7 @@ class BarnetsVilkårValidator(
         val funksjonelleFeil = mutableListOf<String>()
 
         barna.map { barn ->
-            val vilkårsResultaterForBarn =
-                vilkårsvurdering.personResultater
-                    .flatMap { it.vilkårResultater }
-                    .filter { it.personResultat?.aktør == barn.aktør }
+            val vilkårsResultaterForBarn = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.filter { it.personResultat?.aktør == barn.aktør }
 
             vilkårsResultaterForBarn.forEach { vilkårResultat ->
                 val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
@@ -34,26 +31,36 @@ class BarnetsVilkårValidator(
                 if (vilkårResultat.resultat == Resultat.OPPFYLT && vilkårResultat.periodeFom == null) {
                     funksjonelleFeil.add("Vilkår $vilkårType for barn med fødselsdato $fødselsdato mangler fom dato.")
                 }
-                if (vilkårResultat.periodeFom != null &&
-                    vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER &&
-                    vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)
-                ) {
+                if (vilkårResultat.periodeFom != null && vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER && vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)) {
                     funksjonelleFeil.add(
-                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " +
-                            "har fom dato før barnets fødselsdato.",
+                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " + "har fom dato før barnets fødselsdato.",
                     )
                 }
             }
 
-            val barnetsAlderVilkårSomSkalValideres =
-                vilkårsResultaterForBarn
-                    .filter { it.vilkårType == Vilkår.BARNETS_ALDER }
-                    .filter { it.periodeFom != null }
-                    .filter { it.erEksplisittAvslagPåSøknad != true }
+            val barnetsAlderVilkårPåBarn = vilkårsResultaterForBarn.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+
+            val finnesUoppfyltBarnetsAlderVilkårForBarnUtenFomOgTom =
+                barnetsAlderVilkårPåBarn.any {
+                    it.resultat == Resultat.IKKE_OPPFYLT && it.periodeFom == null && it.periodeTom == null && it.vilkårType == Vilkår.BARNETS_ALDER
+                }
+            val finnesOppfyltBarnetsAlderVilkår =
+                barnetsAlderVilkårPåBarn
+                    .filter {
+                        it.resultat == Resultat.OPPFYLT && it.vilkårType == Vilkår.BARNETS_ALDER
+                    }.isNotEmpty()
+
+            if (finnesUoppfyltBarnetsAlderVilkårForBarnUtenFomOgTom && finnesOppfyltBarnetsAlderVilkår) {
+                throw FunksjonellFeil(
+                    "Det må være registrert fom og tom periode på avslaget på barnets alder vilkåret dersom det finnes andre perioder som er oppfylt i barnets alder. Dette gjelder barn med fødselsdato: ${barn.fødselsdato}",
+                )
+            }
+
+            val barnetsAlderVilkårSomSkalValideresVidere = barnetsAlderVilkårPåBarn.filter { it.periodeFom != null }.filter { it.erEksplisittAvslagPåSøknad != true }
 
             val funksjonelleFeilBarnetsAlder =
                 barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
-                    barnetsAlderVilkårSomSkalValideres.map { it.lagOgValiderPeriodeFraVilkår() },
+                    barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
                     barn,
                 )
             funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)

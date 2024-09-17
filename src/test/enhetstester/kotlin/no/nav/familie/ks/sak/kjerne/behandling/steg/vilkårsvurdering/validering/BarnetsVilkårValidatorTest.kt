@@ -445,4 +445,48 @@ class BarnetsVilkårValidatorTest {
             )
         }
     }
+
+    @Test
+    fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil dersom det finnes avslag i barnets alder vilkår uten fom og tom samtidig som det finnes oppfylte barnets alder vilkår`() {
+        val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012312345"))
+        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
+        val vilkårResultaterForBarn =
+            setOf(
+                VilkårResultat(
+                    id = 0,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = barnFødtAugust22.fødselsdato.plusYears(1),
+                    periodeTom = barnFødtAugust22.fødselsdato.plusYears(2),
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    erEksplisittAvslagPåSøknad = true,
+                ),
+                VilkårResultat(
+                    id = 1,
+                    personResultat = personResultatForBarn,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.IKKE_OPPFYLT,
+                    periodeFom = null,
+                    begrunnelse = "begrunnelse",
+                    behandlingId = behandling.id,
+                    erEksplisittAvslagPåSøknad = true,
+                ),
+            )
+        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+        val exception =
+            org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
+                barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
+                    vilkårsvurdering,
+                    barna = listOf(barnFødtAugust22),
+                )
+            }
+        assertEquals(
+            "Det må være registrert fom og tom periode på avslaget på barnets alder vilkåret dersom det finnes andre perioder som er oppfylt i barnets alder. Dette gjelder barn med fødselsdato: 2023-01-01",
+            exception.message,
+        )
+    }
 }
