@@ -23,7 +23,10 @@ class BarnetsVilkårValidator(
         val funksjonelleFeil = mutableListOf<String>()
 
         barna.map { barn ->
-            val vilkårsResultaterForBarn = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.filter { it.personResultat?.aktør == barn.aktør }
+            val vilkårsResultaterForBarn =
+                vilkårsvurdering.personResultater
+                    .flatMap { it.vilkårResultater }
+                    .filter { it.personResultat?.aktør == barn.aktør }
 
             vilkårsResultaterForBarn.forEach { vilkårResultat ->
                 val fødselsdato = barn.fødselsdato.tilDagMånedÅr()
@@ -33,7 +36,7 @@ class BarnetsVilkårValidator(
                 }
                 if (vilkårResultat.periodeFom != null && vilkårType != Vilkår.MEDLEMSKAP_ANNEN_FORELDER && vilkårResultat.lagOgValiderPeriodeFraVilkår().fom.isBefore(barn.fødselsdato)) {
                     funksjonelleFeil.add(
-                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato " + "har fom dato før barnets fødselsdato.",
+                        "Vilkår $vilkårType for barn med fødselsdato $fødselsdato har fom dato før barnets fødselsdato.",
                     )
                 }
             }
@@ -42,13 +45,16 @@ class BarnetsVilkårValidator(
 
             val finnesUoppfyltBarnetsAlderVilkårForBarnUtenFomOgTom =
                 barnetsAlderVilkårPåBarn.any {
-                    it.resultat == Resultat.IKKE_OPPFYLT && it.periodeFom == null && it.periodeTom == null && it.vilkårType == Vilkår.BARNETS_ALDER
+                    it.resultat == Resultat.IKKE_OPPFYLT &&
+                        it.periodeFom == null &&
+                        it.periodeTom == null &&
+                        it.vilkårType == Vilkår.BARNETS_ALDER
                 }
+
             val finnesOppfyltBarnetsAlderVilkår =
-                barnetsAlderVilkårPåBarn
-                    .filter {
-                        it.resultat == Resultat.OPPFYLT && it.vilkårType == Vilkår.BARNETS_ALDER
-                    }.isNotEmpty()
+                barnetsAlderVilkårPåBarn.any {
+                    it.resultat == Resultat.OPPFYLT && it.vilkårType == Vilkår.BARNETS_ALDER
+                }
 
             if (finnesUoppfyltBarnetsAlderVilkårForBarnUtenFomOgTom && finnesOppfyltBarnetsAlderVilkår) {
                 throw FunksjonellFeil(

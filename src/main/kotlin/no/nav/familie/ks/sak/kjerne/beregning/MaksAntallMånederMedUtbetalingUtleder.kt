@@ -17,14 +17,17 @@ fun utledMaksAntallMånederMedUtbetaling(
         -> 7L
 
         VilkårLovverk.LOVVERK_2021 -> {
-            val førsteBarnetsAlderVilkårResultatFom = barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.firstOrNull()?.periodeFom!!
+            val førsteBarnetsAlderVilkårResultatFom = barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom!!
             val sisteBarnetsAlderVilkårResultatTom = barnetsAlderVilkårResultater.sortedBy { it.periodeTom }.last().periodeTom!!
             val minstAvTomEllerLovEndringDato = minOf(sisteBarnetsAlderVilkårResultatTom, DATO_LOVENDRING_2024)
             val dagenFørLovendring = DATO_LOVENDRING_2024.minusDays(1)
 
+            val toÅrsdagTilBarnetErIkkeLikDagenFørLovendring = vilkårLovverkInformasjonForBarn.fødselsdato.plusYears(2) != dagenFørLovendring
             val sisteMuligeUtbetaling =
                 when {
-                    vilkårLovverkInformasjonForBarn.fødselsdato.plusYears(2) != dagenFørLovendring && sisteBarnetsAlderVilkårResultatTom == dagenFørLovendring -> minstAvTomEllerLovEndringDato
+                    toÅrsdagTilBarnetErIkkeLikDagenFørLovendring &&
+                        sisteBarnetsAlderVilkårResultatTom
+                        == dagenFørLovendring -> minstAvTomEllerLovEndringDato
 
                     else -> minstAvTomEllerLovEndringDato.minusMonths(1)
                 }
