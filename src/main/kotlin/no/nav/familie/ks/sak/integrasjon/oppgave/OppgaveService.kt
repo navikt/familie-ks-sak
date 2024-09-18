@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave
 
+import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
@@ -13,6 +14,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import org.slf4j.LoggerFactory
@@ -27,7 +30,8 @@ class OppgaveService(
     private val integrasjonClient: IntegrasjonClient,
     private val oppgaveRepository: OppgaveRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val navIdentOgEnhetsnummerService: NavIdentOgEnhetsnummerService,
+    private val navIdentOgEnhetService: NavIdentOgEnhetService,
+    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
 ) {
     fun opprettOppgave(
         behandlingId: Long,
@@ -47,11 +51,16 @@ class OppgaveService(
             )
             return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
-        val navIdentOgEnhetsnummer =
-            navIdentOgEnhetsnummerService.hentNavIdentOgEnhetsnummer(
-                behandlingId = behandlingId,
-                navIdent = tilordnetNavIdent,
+        val arbeidsfordelingPåBehandling =
+            arbeidsfordelingPåBehandlingRepository
+                .hentArbeidsfordelingPåBehandling(behandlingId)
+
+        val navIdentOgEnhet =
+            navIdentOgEnhetService.hentNavIdentOgEnhet(
+                arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
+                navIdent = tilordnetNavIdent?.let { NavIdent(it) },
             )
+
         val opprettOppgaveRequest =
             OpprettOppgaveRequest(
                 ident = OppgaveIdentV2(ident = behandling.fagsak.aktør.aktørId, gruppe = IdentGruppe.AKTOERID),
@@ -60,12 +69,12 @@ class OppgaveService(
                 oppgavetype = oppgavetype,
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-                enhetsnummer = navIdentOgEnhetsnummer.enhetsnummer,
+                enhetsnummer = navIdentOgEnhet.enhetsnummer,
                 // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
                 behandlingstema = null,
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-                tilordnetRessurs = navIdentOgEnhetsnummer.navIdent,
+                tilordnetRessurs = navIdentOgEnhet.navIdent?.ident,
             )
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
@@ -153,8 +162,8 @@ class OppgaveService(
 
                 else -> {
                     val nyFrist = LocalDate.parse(gammelOppgave.fristFerdigstillelse).plus(forlengelse)
-                    val nyOppgave = gammelOppgave.copy(fristFerdigstillelse = nyFrist?.toString())
-                    integrasjonClient.oppdaterOppgave(nyOppgave.id!!, nyOppgave)
+                    val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist?.toString())
+                    integrasjonClient.oppdaterOppgave(oppgaveOppdatering)
                 }
             }
         }
@@ -176,8 +185,8 @@ class OppgaveService(
                     logger.warn("Oppgave ${dbOppgave.gsakId} er allerede avsluttet. Frist ikke satt.")
 
                 else -> {
-                    val nyOppgave = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
-                    integrasjonClient.oppdaterOppgave(nyOppgave.id!!, nyOppgave)
+                    val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
+                    integrasjonClient.oppdaterOppgave(oppgaveOppdatering = oppgaveOppdatering)
                 }
             }
         }
@@ -190,7 +199,8 @@ class OppgaveService(
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
             val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
             logger.info("Oppdaterer enhet fra ${oppgave.tildeltEnhetsnr} til $nyEnhet på oppgave ${oppgave.id}")
-            integrasjonClient.tilordneEnhetForOppgave(oppgaveId = oppgave.id!!, nyEnhet = nyEnhet)
+            val oppgaveOppdatering = Oppgave(id = oppgave.id, tildeltEnhetsnr = nyEnhet, tilordnetRessurs = null, mappeId = null)
+            integrasjonClient.oppdaterOppgave(oppgaveOppdatering = oppgaveOppdatering)
         }
     }
 

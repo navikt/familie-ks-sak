@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockkObject
+import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
@@ -304,7 +305,7 @@ internal class IntegrasjonClientTest {
     @Test
     fun `hentEnheterSomNavIdentHarTilgangTil - skal hente enheter som NAV-ident har tilgang til`() {
         // Arrange
-        val navIdent = "1"
+        val navIdent = NavIdent("1")
 
         wiremockServerItem.stubFor(
             WireMock

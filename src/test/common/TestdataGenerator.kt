@@ -334,7 +334,8 @@ fun lagArbeidsfordelingPåBehandling(
 
 fun lagEnhet(
     enhetsnummer: String,
-): Enhet = Enhet(enhetsnummer = enhetsnummer)
+    enhetsnavn: String = "Navn",
+): Enhet = Enhet(enhetsnummer = enhetsnummer, enhetsnavn = enhetsnavn)
 
 fun lagRegistrerSøknadDto() =
     RegistrerSøknadDto(

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Fagsystem
+import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
@@ -16,6 +17,7 @@ import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
 import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.enhet.HentEnheterNavIdentHarTilgangTilRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
@@ -235,14 +237,14 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentEnheterSomNavIdentHarTilgangTil(navIdent: String): List<Enhet> {
-        val uri = URI.create("$integrasjonUri/axsys/enheter")
+    fun hentEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
+        val uri = URI.create("$integrasjonUri/enhetstilganger")
         return kallEksternTjenesteRessurs(
-            tjeneste = "enhetstilgang",
+            tjeneste = "enhetstilganger",
             uri = uri,
             formål = "Hent enheter en NAV-ident har tilgang til",
         ) {
-            postForEntity(uri, mapOf("ident" to navIdent))
+            postForEntity(uri, HentEnheterNavIdentHarTilgangTilRequest(navIdent, Tema.KON))
         }
     }
 
@@ -276,17 +278,16 @@ class IntegrasjonClient(
     }
 
     fun oppdaterOppgave(
-        oppgaveId: Long,
-        oppdatertOppgave: Oppgave,
+        oppgaveOppdatering: Oppgave,
     ) {
-        val uri = URI.create("$integrasjonUri/oppgave/$oppgaveId/oppdater")
+        val uri = URI.create("$integrasjonUri/oppgave/${oppgaveOppdatering.id}/oppdater")
 
         kallEksternTjenesteUtenRespons(
             tjeneste = "oppgave",
             uri = uri,
             formål = "Oppdater oppgave",
         ) {
-            patchForEntity<Ressurs<OppgaveResponse>>(uri, oppdatertOppgave)
+            patchForEntity<Ressurs<OppgaveResponse>>(uri, oppgaveOppdatering)
         }
     }
 
