@@ -309,7 +309,7 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .post(WireMock.urlEqualTo("/axsys/enheter"))
+                .post(WireMock.urlEqualTo("/enhetstilganger"))
                 .willReturn(WireMock.okJson(readFile("enheterNavIdentHarTilgangTilResponse.json"))),
         )
 
@@ -320,9 +320,11 @@ internal class IntegrasjonClientTest {
         assertThat(enheter).hasSize(2)
         assertThat(enheter).anySatisfy {
             assertThat(it.enhetsnummer).isEqualTo("1234")
+            assertThat(it.enhetsnavn).isEqualTo("Enhetsnavn1")
         }
         assertThat(enheter).anySatisfy {
             assertThat(it.enhetsnummer).isEqualTo("4321")
+            assertThat(it.enhetsnavn).isEqualTo("Enhetsnavn2")
         }
     }
 
