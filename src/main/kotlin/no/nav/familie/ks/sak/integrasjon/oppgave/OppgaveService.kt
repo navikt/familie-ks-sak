@@ -81,6 +81,18 @@ class OppgaveService(
         val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
         oppgaveRepository.save(oppgave)
 
+        val erEnhetsnummerEndret = arbeidsfordelingPåBehandling.behandlendeEnhetId != navIdentOgEnhet.enhetsnummer
+
+        if (erEnhetsnummerEndret) {
+            arbeidsfordelingPåBehandlingRepository.save(
+                arbeidsfordelingPåBehandling.copy(
+                    behandlendeEnhetId = navIdentOgEnhet.enhetsnummer,
+                    behandlendeEnhetNavn = navIdentOgEnhet.enhetsnavn,
+                    manueltOverstyrt = false,
+                ),
+            )
+        }
+
         return opprettetOppgaveId
     }
 
