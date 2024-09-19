@@ -17,6 +17,6 @@ enum class KontantstøtteEnhet(
     companion object {
         private val GYLDIGE_BEHANDLENDE_BARNETRYGD_ENHETER = listOf(VIKAFOSSEN, DRAMMEN, VADSØ, OSLO, STORD, STEINKJER, BERGEN)
 
-        fun erGyldigBehandlendeBarnetrygdEnhet(enhetsnummer: String): Boolean = GYLDIGE_BEHANDLENDE_BARNETRYGD_ENHETER.any { it.enhetsnummer == enhetsnummer }
+        fun erGyldigBehandlendeKontantstøtteEnhet(enhetsnummer: String): Boolean = GYLDIGE_BEHANDLENDE_BARNETRYGD_ENHETER.any { it.enhetsnummer == enhetsnummer }
     }
 }

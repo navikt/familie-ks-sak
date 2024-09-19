@@ -381,7 +381,7 @@ class NavIdentOgEnhetServiceTest {
     }
 
     @Nested
-    inner class NavIdentOgEnhetsnummerTest {
+    inner class NavIdentOgEnhetTest {
         @Test
         fun `skal kaste exception om enhetsnummer blir satt til mindre enn 4 siffer`() {
             // Act & assert
