@@ -30,14 +30,14 @@ class OppgaveServiceTest {
     private val mockedIntegrasjonClient: IntegrasjonClient = mockk()
     private val mockedOppgaveRepository: OppgaveRepository = mockk()
     private val mockedBehandlingRepository: BehandlingRepository = mockk()
-    private val mockedNavIdentOgEnhetService: NavIdentOgEnhetService = mockk()
+    private val mockedOppgaveArbeidsfordelingService: OppgaveArbeidsfordelingService = mockk()
     private val mockedArbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository = mockk()
     private val oppgaveService: OppgaveService =
         OppgaveService(
             integrasjonClient = mockedIntegrasjonClient,
             oppgaveRepository = mockedOppgaveRepository,
             behandlingRepository = mockedBehandlingRepository,
-            navIdentOgEnhetService = mockedNavIdentOgEnhetService,
+            oppgaveArbeidsfordelingService = mockedOppgaveArbeidsfordelingService,
             arbeidsfordelingPåBehandlingRepository = mockedArbeidsfordelingPåBehandlingRepository,
         )
 
@@ -72,8 +72,8 @@ class OppgaveServiceTest {
                     manueltOverstyrt = true,
                 )
 
-            val navIdentOgEnhet =
-                NavIdentOgEnhet(
+            val oppgaveArbeidsfordeling =
+                OppgaveArbeidsfordeling(
                     navIdent = navIdent,
                     enhetsnummer = KontantstøtteEnhet.OSLO.enhetsnummer,
                     enhetsnavn = KontantstøtteEnhet.OSLO.enhetsnavn,
@@ -97,11 +97,11 @@ class OppgaveServiceTest {
             } returns arbeidsfordelingPåBehandling
 
             every {
-                mockedNavIdentOgEnhetService.hentNavIdentOgEnhet(
+                mockedOppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
                     arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                     navIdent = navIdent,
                 )
-            } returns navIdentOgEnhet
+            } returns oppgaveArbeidsfordeling
 
             val opprettOppgaveRequestSlot = slot<OpprettOppgaveRequest>()
             every {
@@ -142,7 +142,7 @@ class OppgaveServiceTest {
             assertThat(capturedOpprettOppgaveRequest.oppgavetype).isEqualTo(oppgavetype)
             assertThat(capturedOpprettOppgaveRequest.fristFerdigstillelse).isEqualTo(fristForFerdigstillelse)
             assertThat(capturedOpprettOppgaveRequest.beskrivelse).contains("https://ks.intern.nav.no/fagsak/${fagsak.id}")
-            assertThat(capturedOpprettOppgaveRequest.enhetsnummer).isEqualTo(navIdentOgEnhet.enhetsnummer)
+            assertThat(capturedOpprettOppgaveRequest.enhetsnummer).isEqualTo(oppgaveArbeidsfordeling.enhetsnummer)
             assertThat(capturedOpprettOppgaveRequest.behandlingstema).isNull()
             assertThat(capturedOpprettOppgaveRequest.aktivFra).isBeforeOrEqualTo(LocalDate.now())
             assertThat(capturedOpprettOppgaveRequest.behandlesAvApplikasjon).isNull()
@@ -150,8 +150,8 @@ class OppgaveServiceTest {
             val capturedArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingSlot.captured
             assertThat(capturedArbeidsfordelingPåBehandling.id).isEqualTo(0)
             assertThat(capturedArbeidsfordelingPåBehandling.behandlingId).isEqualTo(behandlingId)
-            assertThat(capturedArbeidsfordelingPåBehandling.behandlendeEnhetId).isEqualTo(navIdentOgEnhet.enhetsnummer)
-            assertThat(capturedArbeidsfordelingPåBehandling.behandlendeEnhetNavn).isEqualTo(navIdentOgEnhet.enhetsnavn)
+            assertThat(capturedArbeidsfordelingPåBehandling.behandlendeEnhetId).isEqualTo(oppgaveArbeidsfordeling.enhetsnummer)
+            assertThat(capturedArbeidsfordelingPåBehandling.behandlendeEnhetNavn).isEqualTo(oppgaveArbeidsfordeling.enhetsnavn)
             assertThat(capturedArbeidsfordelingPåBehandling.manueltOverstyrt).isFalse()
             verify(exactly = 1) { mockedOppgaveRepository.save(any()) }
             verify(exactly = 1) { mockedArbeidsfordelingPåBehandlingRepository.save(any()) }
@@ -186,8 +186,8 @@ class OppgaveServiceTest {
                     manueltOverstyrt = true,
                 )
 
-            val navIdentOgEnhet =
-                NavIdentOgEnhet(
+            val oppgaveArbeidsfordeling =
+                OppgaveArbeidsfordeling(
                     navIdent = navIdent,
                     enhetsnummer = arbeidsfordelingPåBehandling.behandlendeEnhetId,
                     enhetsnavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
@@ -211,11 +211,11 @@ class OppgaveServiceTest {
             } returns arbeidsfordelingPåBehandling
 
             every {
-                mockedNavIdentOgEnhetService.hentNavIdentOgEnhet(
+                mockedOppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
                     arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                     navIdent = navIdent,
                 )
-            } returns navIdentOgEnhet
+            } returns oppgaveArbeidsfordeling
 
             val opprettOppgaveRequestSlot = slot<OpprettOppgaveRequest>()
             every {
@@ -249,7 +249,7 @@ class OppgaveServiceTest {
             assertThat(capturedOpprettOppgaveRequest.oppgavetype).isEqualTo(oppgavetype)
             assertThat(capturedOpprettOppgaveRequest.fristFerdigstillelse).isEqualTo(fristForFerdigstillelse)
             assertThat(capturedOpprettOppgaveRequest.beskrivelse).contains("https://ks.intern.nav.no/fagsak/${fagsak.id}")
-            assertThat(capturedOpprettOppgaveRequest.enhetsnummer).isEqualTo(navIdentOgEnhet.enhetsnummer)
+            assertThat(capturedOpprettOppgaveRequest.enhetsnummer).isEqualTo(oppgaveArbeidsfordeling.enhetsnummer)
             assertThat(capturedOpprettOppgaveRequest.behandlingstema).isNull()
             assertThat(capturedOpprettOppgaveRequest.aktivFra).isBeforeOrEqualTo(LocalDate.now())
             assertThat(capturedOpprettOppgaveRequest.behandlesAvApplikasjon).isNull()
@@ -286,8 +286,8 @@ class OppgaveServiceTest {
                     manueltOverstyrt = true,
                 )
 
-            val navIdentOgEnhet =
-                NavIdentOgEnhet(
+            val oppgaveArbeidsfordeling =
+                OppgaveArbeidsfordeling(
                     navIdent = null,
                     enhetsnummer = arbeidsfordelingPåBehandling.behandlendeEnhetId,
                     enhetsnavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
@@ -311,11 +311,11 @@ class OppgaveServiceTest {
             } returns arbeidsfordelingPåBehandling
 
             every {
-                mockedNavIdentOgEnhetService.hentNavIdentOgEnhet(
+                mockedOppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
                     arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                     navIdent = null,
                 )
-            } returns navIdentOgEnhet
+            } returns oppgaveArbeidsfordeling
 
             val opprettOppgaveRequestSlot = slot<OpprettOppgaveRequest>()
             every {
@@ -348,7 +348,7 @@ class OppgaveServiceTest {
             assertThat(capturedOpprettOppgaveRequest.oppgavetype).isEqualTo(oppgavetype)
             assertThat(capturedOpprettOppgaveRequest.fristFerdigstillelse).isEqualTo(fristForFerdigstillelse)
             assertThat(capturedOpprettOppgaveRequest.beskrivelse).contains("https://ks.intern.nav.no/fagsak/${fagsak.id}")
-            assertThat(capturedOpprettOppgaveRequest.enhetsnummer).isEqualTo(navIdentOgEnhet.enhetsnummer)
+            assertThat(capturedOpprettOppgaveRequest.enhetsnummer).isEqualTo(oppgaveArbeidsfordeling.enhetsnummer)
             assertThat(capturedOpprettOppgaveRequest.behandlingstema).isNull()
             assertThat(capturedOpprettOppgaveRequest.aktivFra).isBeforeOrEqualTo(LocalDate.now())
             assertThat(capturedOpprettOppgaveRequest.behandlesAvApplikasjon).isNull()

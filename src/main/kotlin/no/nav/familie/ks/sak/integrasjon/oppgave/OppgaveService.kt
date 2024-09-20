@@ -30,7 +30,7 @@ class OppgaveService(
     private val integrasjonClient: IntegrasjonClient,
     private val oppgaveRepository: OppgaveRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val navIdentOgEnhetService: NavIdentOgEnhetService,
+    private val oppgaveArbeidsfordelingService: OppgaveArbeidsfordelingService,
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
 ) {
     fun opprettOppgave(
@@ -55,8 +55,8 @@ class OppgaveService(
             arbeidsfordelingPåBehandlingRepository
                 .hentArbeidsfordelingPåBehandling(behandlingId)
 
-        val navIdentOgEnhet =
-            navIdentOgEnhetService.hentNavIdentOgEnhet(
+        val oppgaveArbeidsfordeling =
+            oppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
                 arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                 navIdent = tilordnetNavIdent?.let { NavIdent(it) },
             )
@@ -69,25 +69,25 @@ class OppgaveService(
                 oppgavetype = oppgavetype,
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-                enhetsnummer = navIdentOgEnhet.enhetsnummer,
+                enhetsnummer = oppgaveArbeidsfordeling.enhetsnummer,
                 // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
                 behandlingstema = null,
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-                tilordnetRessurs = navIdentOgEnhet.navIdent?.ident,
+                tilordnetRessurs = oppgaveArbeidsfordeling.navIdent?.ident,
             )
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
         val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
         oppgaveRepository.save(oppgave)
 
-        val erEnhetsnummerEndret = arbeidsfordelingPåBehandling.behandlendeEnhetId != navIdentOgEnhet.enhetsnummer
+        val erEnhetsnummerEndret = arbeidsfordelingPåBehandling.behandlendeEnhetId != oppgaveArbeidsfordeling.enhetsnummer
 
         if (erEnhetsnummerEndret) {
             arbeidsfordelingPåBehandlingRepository.save(
                 arbeidsfordelingPåBehandling.copy(
-                    behandlendeEnhetId = navIdentOgEnhet.enhetsnummer,
-                    behandlendeEnhetNavn = navIdentOgEnhet.enhetsnavn,
+                    behandlendeEnhetId = oppgaveArbeidsfordeling.enhetsnummer,
+                    behandlendeEnhetNavn = oppgaveArbeidsfordeling.enhetsnavn,
                     manueltOverstyrt = false,
                 ),
             )
