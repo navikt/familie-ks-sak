@@ -41,8 +41,13 @@ class OppgaveService(
         beskrivelse: String? = null,
     ): String {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
+
         val eksisterendeIkkeFerdigstiltOppgave =
-            oppgaveRepository.findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(oppgavetype, behandling)
+            oppgaveRepository.findByOppgavetypeAndBehandlingAndIkkeFerdigstilt(
+                oppgavetype,
+                behandling,
+            )
+
         if (eksisterendeIkkeFerdigstiltOppgave != null && oppgavetype != Oppgavetype.Journalføring) {
             logger.warn(
                 "Fant eksisterende oppgave $eksisterendeIkkeFerdigstiltOppgave med " +
@@ -51,6 +56,7 @@ class OppgaveService(
             )
             return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
+
         val arbeidsfordelingPåBehandling =
             arbeidsfordelingPåBehandlingRepository
                 .hentArbeidsfordelingPåBehandling(behandlingId)
