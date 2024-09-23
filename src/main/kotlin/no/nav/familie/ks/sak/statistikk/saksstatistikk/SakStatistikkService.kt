@@ -96,6 +96,7 @@ class SakStatistikkService(
             // TODO er alltid det frem til vi kobler på søknadsdialogen
             behandlingErManueltOpprettet = true,
             funksjoneltTidspunkt = if (brukEndretTidspunktSomFunksjonellTidspunkt) behandling.endretTidspunkt.atZone(TIMEZONE) else ZonedDateTime.now(),
+            automatiskBehandlet = behandling.skalBehandlesAutomatisk(),
             sattPaaVent =
                 behandlingPåVent?.årsak?.name?.let {
                     SattPåVent(

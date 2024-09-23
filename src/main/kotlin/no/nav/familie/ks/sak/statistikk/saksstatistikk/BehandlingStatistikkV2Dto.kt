@@ -27,6 +27,7 @@ data class BehandlingStatistikkV2Dto(
     val ansvarligSaksbehandler: String,
     val ansvarligBeslutter: String?,
     val behandlingOpprettetÅrsak: BehandlingÅrsak?,
+    val automatiskBehandlet: Boolean,
 )
 
 data class SattPåVent(
