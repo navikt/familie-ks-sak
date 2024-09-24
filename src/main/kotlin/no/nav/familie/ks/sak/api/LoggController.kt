@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.common.util.RessursUtils.badRequest
+import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
@@ -39,7 +39,7 @@ class LoggController(
             .runCatching { loggService.hentLoggForBehandling(behandlingId) }
             .fold(
                 onSuccess = { ResponseEntity.ok(Ressurs.success(it)) },
-                onFailure = { badRequest("Henting av logg feilet", it) },
+                onFailure = { illegalState("Henting av logg feilet", it) },
             )
     }
 }
