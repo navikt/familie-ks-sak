@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonEnkel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -100,6 +101,11 @@ class PersonopplysningGrunnlagService(
     fun hentSøker(behandlingId: Long): Person? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
 
     fun hentBarna(behandlingId: Long): List<Person>? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
+
+    fun hentSøkerOgBarnPåFagsak(fagsakId: Long): Set<PersonEnkel>? =
+        personopplysningGrunnlagRepository
+            .finnSøkerOgBarnAktørerTilFagsak(fagsakId)
+            .takeIf { it.isNotEmpty() }
 
     fun hentSøkersMålform(behandlingId: Long) = hentSøker(behandlingId)?.målform ?: Målform.NB
 

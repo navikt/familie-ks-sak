@@ -75,7 +75,7 @@ class PersonidentService(
         return aktør
     }
 
-    private fun opprettPersonIdent(
+    fun opprettPersonIdent(
         aktør: Aktør,
         fødselsnummer: String,
         skalLagre: Boolean = true,
