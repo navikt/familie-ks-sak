@@ -4,7 +4,11 @@ import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.*
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivFødselsnummer
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktørIder
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentFødselsnumre
 import no.nav.familie.ks.sak.integrasjon.pdl.tilPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository

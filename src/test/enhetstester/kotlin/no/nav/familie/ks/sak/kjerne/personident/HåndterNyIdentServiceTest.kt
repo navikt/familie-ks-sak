@@ -1,13 +1,22 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
-import io.mockk.*
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.slot
+import io.mockk.verify
 import no.nav.familie.ba.sak.cucumber.mock.mockTaskService
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle.FORELDER
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.PersonInfoQuery
-import no.nav.familie.ks.sak.data.*
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.data.tilPersonEnkel
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlFødselsDato
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
@@ -81,7 +90,7 @@ internal class HåndterNyIdentServiceTest {
                     behandlingId = gammelBehandling.id,
                     personer = mutableSetOf(gammelPerson),
                 )
-            mockkObject(PatchMergetIdentTask.Companion)
+            mockkObject(PatchMergetIdentTask)
             every { PatchMergetIdentTask.opprettTask(any()) } returns Task("", "")
         }
 
