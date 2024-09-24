@@ -96,6 +96,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         assertEquals(true, tilstand.behandlingErManueltOpprettet)
         assertEquals(behandling.resultat, tilstand.behandlingsResultat)
         assertEquals(behandling.type, tilstand.behandlingType)
+        assertEquals(behandling.skalBehandlesAutomatisk(), tilstand.automatiskBehandlet)
 
         // sjekk at datoer er konvertert riktig til offest
         assertEquals(
