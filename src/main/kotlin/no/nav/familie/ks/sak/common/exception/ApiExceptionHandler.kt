@@ -45,6 +45,13 @@ class ApiExceptionHandler {
         return RessursUtils.forbidden(mostSpecificCause.message ?: "Ikke tilgang")
     }
 
+    @ExceptionHandler(HttpClientErrorException.BadRequest::class)
+    fun handleBadRequest(badRequestException: HttpClientErrorException.BadRequest): ResponseEntity<Ressurs<Nothing>> {
+        val mostSpecificCause = NestedExceptionUtils.getMostSpecificCause(badRequestException)
+
+        return RessursUtils.badRequest(mostSpecificCause.message ?: "Ugyldig request", badRequestException)
+    }
+
     @ExceptionHandler(IntegrasjonException::class)
     fun handleIntegrasjonException(integrasjonException: IntegrasjonException): ResponseEntity<Ressurs<Nothing>> = RessursUtils.illegalState(integrasjonException.message.toString(), integrasjonException)
 

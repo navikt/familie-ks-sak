@@ -19,7 +19,16 @@ object RessursUtils {
     fun <T> badRequest(
         errorMessage: String,
         throwable: Throwable,
-    ): ResponseEntity<Ressurs<T>> = errorResponse(HttpStatus.BAD_REQUEST, errorMessage, throwable)
+    ): ResponseEntity<Ressurs<T>> {
+        val className = "[${throwable::class.java.name}] "
+
+        secureLogger.warn("$className En \"bad request\" har oppstått: $errorMessage", throwable)
+        logger.warn("$className En \"bad request\" har oppstått. Se securelogs for detaljer.")
+
+        return ResponseEntity.status(
+            HttpStatus.BAD_REQUEST,
+        ).body(Ressurs.failure(errorMessage))
+    }
 
     fun <T> forbidden(errorMessage: String): ResponseEntity<Ressurs<T>> = ikkeTilgangResponse(errorMessage)
 
