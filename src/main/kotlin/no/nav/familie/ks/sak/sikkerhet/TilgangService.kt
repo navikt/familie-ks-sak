@@ -152,8 +152,10 @@ class TilgangService(
         handling: String,
     ) {
         val aktør = personidentService.hentOgLagreAktør(personIdent, true)
-        val fagsakId = fagsakService.hentFagsakForPerson(aktør).id
-        validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
+        val fagsakId = fagsakRepository.finnFagsakForAktør(aktør)?.id
+        if (fagsakId != null) {
+            validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
+        }
     }
 
     private fun harTilgangTilPersoner(personIdenter: List<String>): Boolean =
