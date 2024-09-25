@@ -374,9 +374,11 @@ class BegrunnelserForPeriodeContext(
                         vilkårSluttetMånedenFørVedtaksperioden
                     }
 
+                val vilkårSomIkkeErOppfyltForrigeMåned = vilkårResultaterForrigeMåned.filter { !it.erOppfylt() }
+
                 val vilkårSomIkkeErOppfyltFraOgMedDennePerioden = personResultater.find { it.aktør == person.aktør }?.vilkårResultater?.filter { it.periodeFom?.toYearMonth() == vedtaksperiode.fom.toYearMonth() } ?: emptyList()
 
-                val vilkårSomIkkeErOppfyltEllerSlutterMånedenFør = vilkårSomSlutterMånedenFørDenneVedtaksperioden + vilkårSomIkkeErOppfyltFraOgMedDennePerioden
+                val vilkårSomIkkeErOppfyltEllerSlutterMånedenFør = vilkårSomIkkeErOppfyltForrigeMåned + vilkårSomSlutterMånedenFørDenneVedtaksperioden + vilkårSomIkkeErOppfyltFraOgMedDennePerioden
 
                 if (vilkårSomIkkeErOppfyltEllerSlutterMånedenFør.isNotEmpty()) {
                     Pair(person, vilkårSomIkkeErOppfyltEllerSlutterMånedenFør)
