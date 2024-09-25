@@ -4,7 +4,7 @@ plugins {
     val kotlinVersion = "2.0.20"
     kotlin("jvm") version kotlinVersion
 
-    id("org.springframework.boot") version "3.3.3"
+    id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -47,7 +47,7 @@ dependencies {
 
     val springdocVersion = "2.6.0"
     val sentryVersion = "7.14.0"
-    val navFellesVersion = "3.20240806111424_fff2930"
+    val navFellesVersion = "3.20240913110742_adb42f8"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20240917154356_c550f90"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -56,7 +56,7 @@ dependencies {
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
     val prosesseringVersion = "2.20240902084316_04f17df"
     val restAssuredVersion = "5.5.0"
-    val kotlinxVersion = "1.8.1"
+    val kotlinxVersion = "1.9.0"
     val utbetalingsgeneratorVersion = "1.0_20240902095239_88c7bc0"
 
     // ---------- Spring ---------- \\
@@ -87,13 +87,13 @@ dependencies {
 
     // ----------- AVRO ---------\\
     implementation("org.apache.avro:avro:1.12.0")
-    implementation("io.confluent:kafka-avro-serializer:7.7.0")
+    implementation("io.confluent:kafka-avro-serializer:7.7.1")
     implementation("org.eclipse.jetty:jetty-server")
 
     // ---- Junit og Cucumber ---- \\
 
     testImplementation(platform("org.junit:junit-bom:5.11.0"))
-    testImplementation(platform("io.cucumber:cucumber-bom:7.18.1"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.19.0"))
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")

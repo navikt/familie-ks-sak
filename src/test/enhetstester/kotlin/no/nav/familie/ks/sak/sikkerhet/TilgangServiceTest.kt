@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
@@ -52,9 +51,6 @@ class TilgangServiceTest {
 
     @MockK
     private lateinit var mockBehandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var mockFagsakService: FagsakService
 
     @MockK
     private lateinit var mockFagsakRepository: FagsakRepository
@@ -97,7 +93,6 @@ class TilgangServiceTest {
                 integrasjonService = mockIntegrasjonService,
                 behandlingRepository = mockBehandlingRepository,
                 personopplysningGrunnlagRepository = mockPersonopplysningGrunnlagRepository,
-                fagsakService = mockFagsakService,
                 rolleConfig = rolleConfig,
                 cacheManager = cacheManager,
                 auditLogger = auditLogger,
@@ -536,7 +531,7 @@ class TilgangServiceTest {
                 ),
             )
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
-        every { mockFagsakService.hentFagsakForPerson(aktør) } returns fagsak
+        every { mockFagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
 
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
@@ -561,7 +556,7 @@ class TilgangServiceTest {
                 ),
             )
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
-        every { mockFagsakService.hentFagsakForPerson(aktør) } returns fagsak
+        every { mockFagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
 
         tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
             "12345678910",
@@ -573,7 +568,6 @@ class TilgangServiceTest {
 
     @Test
     fun `validerTilgangTilFagsak - skal kaste feil dersom søker eller et eller flere av barna har diskresjonskode og saksbehandler mangler tilgang`() {
-        every { mockFagsakService.hentFagsak(fagsak.id) }.returns(fagsak)
         every { mockBehandlingRepository.finnBehandlinger(fagsak.id) }.returns(listOf(behandling))
         every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }.returns(
             PersonopplysningGrunnlag(
