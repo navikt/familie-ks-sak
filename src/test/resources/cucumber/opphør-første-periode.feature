@@ -159,3 +159,52 @@ Egenskap: Opphør første periode
       | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
       | OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR              | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
       | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
+
+  Scenario: Når et vilkår ikke er oppfylt måneden før vedtaksperioden ønsker vi å få begrunnelser knyttet til vilkåret
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 16.04.1997  |
+      | 1            | 2       | BARN       | 02.05.2023  |
+      | 2            | 1       | SØKER      | 16.04.1997  |
+      | 2            | 2       | BARN       | 02.05.2023  |
+
+
+    Og følgende dagens dato 25.09.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 04.11.2021 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 31.05.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 02.05.2023 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 02.05.2023 | 31.07.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 02.05.2024 | 31.07.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 31.05.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.08.2024 |            | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 40           |
+      | 2       | BARNETS_ALDER                |                  | 01.08.2024 | 02.12.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 04.11.2021 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 31.05.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET |                  | 02.05.2023 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 31.05.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 02.05.2023 | 05.05.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 06.05.2024 |            | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 40           |
+      | 2       | BARNETS_ALDER                |                  | 02.05.2024 | 31.07.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 01.08.2024 | 02.12.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Og vedtaksperioder er laget for behandling 2
+
+    Så forvent følgende vedtaksperioder på behandling 2
+      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
+      | 01.06.2024 | 31.08.2024 | OPPHØR             |           |
+
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                           | Ugyldige begrunnelser |
+      | 01.06.2024 | 31.08.2024 | OPPHØR             |                                | OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE |                       |
