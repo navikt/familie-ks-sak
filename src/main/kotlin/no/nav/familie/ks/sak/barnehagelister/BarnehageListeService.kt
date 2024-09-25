@@ -38,8 +38,6 @@ class BarnehageListeService(
     fun erBarnehagelisteMottattTidligere(meldingId: String): Boolean =
         barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
 
-    fun lesBarnehagelisteMottattMeldingXml(xml: String?): Melding = xmlDeserializer.readValue(xml, Melding::class.java)
-
     fun hentUarkiverteBarnehagelisteUuider(): List<String> = barnehagelisteMottattRepository.findAllIds()
 
     @Transactional
@@ -78,4 +76,6 @@ class BarnehageListeService(
         )
         return barnehagelisteMottatt
     }
+
+    private fun lesBarnehagelisteMottattMeldingXml(xml: String?): Melding = xmlDeserializer.readValue(xml, Melding::class.java)
 }

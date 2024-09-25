@@ -15,9 +15,6 @@ import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattReposit
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
@@ -142,10 +139,11 @@ class BarnehagelisteServiceTest {
                 mottatTid = LocalDateTime.now(),
             )
         val barnehagelisteMottattArkivSlot = slot<BarnehagelisteMottattArkiv>()
+        val barnehagebarnListSlot = slot<List<Barnehagebarn>>()
 
         every { mockBarnehagelisteMottattRepository.findByIdOrNull(eksisterendeUUID) } returns barnehagelisteMottatt
         every { mockBarnehagelisteMottattArkivRepository.save(capture(barnehagelisteMottattArkivSlot)) } returns mockk()
-        every { mockBarnehagebarnRepository.saveAll(any<List<Barnehagebarn>>()) } returns mockk()
+        every { mockBarnehagebarnRepository.saveAll(capture(barnehagebarnListSlot)) } returns mockk()
         every { mockBarnehagelisteMottattRepository.deleteById(barnehagelisteMottatt.id) } just runs
 
         // Act
@@ -159,48 +157,23 @@ class BarnehagelisteServiceTest {
         assertThat(capturedBarnehagelisteMottattArkiv.mottatTid).isEqualTo(barnehagelisteMottatt.mottatTid)
         assertThat(capturedBarnehagelisteMottattArkiv.meldingId).isEqualTo(barnehagelisteMottatt.meldingId)
 
+        val capturedBarnehagebarnList = barnehagebarnListSlot.captured
+
+        val barnMedIdent123456789 = capturedBarnehagebarnList.single { it.ident == "123456789" }
+
+        assertThat(barnMedIdent123456789.ident).isEqualTo("123456789")
+        assertThat(barnMedIdent123456789.fom).isEqualTo(LocalDate.of(2023, 9, 6))
+        assertThat(barnMedIdent123456789.tom).isNull()
+        assertThat(barnMedIdent123456789.antallTimerIBarnehage).isEqualTo(47.5)
+        assertThat(barnMedIdent123456789.endringstype).isEqualTo("barnStartet")
+        assertThat(barnMedIdent123456789.kommuneNavn).isEqualTo("Oslo")
+        assertThat(barnMedIdent123456789.kommuneNr).isEqualTo("0301")
+        assertThat(barnMedIdent123456789.arkivReferanse).isEqualTo("1234")
+
         verify(exactly = 1) { mockBarnehagelisteMottattRepository.findByIdOrNull(eksisterendeUUID) }
         verify(exactly = 1) { mockBarnehagelisteMottattArkivRepository.save(capturedBarnehagelisteMottattArkiv) }
         verify(exactly = 1) { mockBarnehagebarnRepository.saveAll(any<List<Barnehagebarn>>()) }
         verify(exactly = 1) { mockBarnehagelisteMottattRepository.deleteById(barnehagelisteMottatt.id) }
-    }
-
-    @Test
-    fun `lesBarnehagelisteMottattMeldingXml skal deserialisere xml til objekt`() {
-        val melding = barnehageListeService.lesBarnehagelisteMottattMeldingXml(barnehagelisteXml)
-        assertNotNull(melding)
-        assertEquals("Oslo", melding.skjema.listeopplysninger.kommuneNavn)
-        assertEquals("0301", melding.skjema.listeopplysninger.kommuneNr)
-        assertEquals(2, melding.skjema.barnInfolinjer.size)
-        assertEquals(
-            "123456789",
-            melding.skjema.barnInfolinjer
-                .get(0)
-                .barn.fodselsnummer,
-        )
-        assertEquals(
-            47.5,
-            melding.skjema.barnInfolinjer
-                .get(0)
-                .avtaltOppholdstidTimer,
-        )
-        assertEquals(
-            "barnStartet",
-            melding.skjema.barnInfolinjer
-                .get(0)
-                .endringstype,
-        )
-        assertEquals(
-            LocalDate.parse("2023-09-06"),
-            melding.skjema.barnInfolinjer
-                .get(0)
-                .startdato,
-        )
-        assertNull(
-            melding.skjema.barnInfolinjer
-                .get(0)
-                .sluttdato,
-        )
     }
 
     companion object {
