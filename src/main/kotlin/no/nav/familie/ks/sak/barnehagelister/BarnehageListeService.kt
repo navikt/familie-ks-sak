@@ -30,7 +30,10 @@ class BarnehageListeService(
             JacksonXmlModule().apply {
                 setDefaultUseWrapper(false)
             },
-        ).registerKotlinModule().configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).registerModule(JavaTimeModule())
+        ).registerKotlinModule()
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(JavaTimeModule())
 
     fun erBarnehagelisteMottattTidligere(meldingId: String): Boolean =
         barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
