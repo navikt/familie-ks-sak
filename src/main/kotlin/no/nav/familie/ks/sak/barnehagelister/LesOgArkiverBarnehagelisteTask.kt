@@ -18,7 +18,7 @@ class LesOgArkiverBarnehagelisteTask(
     val barnehageListeService: BarnehageListeService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        barnehageListeService.lesOgArkiver(UUID.fromString(task.payload))
+        barnehageListeService.lesOgArkiverBarnehageliste(UUID.fromString(task.payload))
         logger.info("Leser og arkiverer barnehageliste med id ${task.payload}")
     }
 
