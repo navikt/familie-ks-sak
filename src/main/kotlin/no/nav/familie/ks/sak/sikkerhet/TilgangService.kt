@@ -153,6 +153,8 @@ class TilgangService(
         val fagsakId = fagsakRepository.finnFagsakForAktør(aktør)?.id
         if (fagsakId != null) {
             validerTilgangTilHandlingOgFagsak(fagsakId, event, minimumBehandlerRolle, handling)
+        } else {
+            validerTilgangTilHandlingOgPersoner(listOf(personIdent), event, minimumBehandlerRolle, handling)
         }
     }
 
