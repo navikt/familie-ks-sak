@@ -21,6 +21,8 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.TilgangsstyrtJournalpost
+import no.nav.familie.ks.sak.integrasjon.mottak.MottakClient
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
@@ -32,6 +34,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Søknadsinfo
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,8 +48,10 @@ class InnkommendeJournalføringService(
     private val journalføringRepository: JournalføringRepository,
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
+    private val mottakClient: MottakClient,
+    private val saksbehandlerContext: SaksbehandlerContext,
 ) {
-    fun hentJournalposterForBruker(brukerId: String): List<Journalpost> =
+    fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
         integrasjonClient.hentJournalposterForBruker(
             JournalposterForBrukerRequest(
                 antall = 1000,
@@ -57,7 +62,21 @@ class InnkommendeJournalføringService(
                     ),
                 tema = listOf(Tema.KON),
             ),
-        )
+        ).map {
+            val (harTilgang, adressebeskyttelsegradering) =
+                if (it.erDigitalSøknad()) {
+                    val strengesteAdressebeskyttelsegradering = mottakClient.hentStrengesteAdressebeskyttelsegraderingIDigitalSøknad(it.journalpostId)
+                    val harTilgang = saksbehandlerContext.harTilgang(adressebeskyttelsegradering = strengesteAdressebeskyttelsegradering)
+                    Pair(harTilgang, strengesteAdressebeskyttelsegradering)
+                } else {
+                    Pair(true, null)
+                }
+            TilgangsstyrtJournalpost(
+                journalpost = it,
+                harTilgang = harTilgang,
+                adressebeskyttelsegradering = adressebeskyttelsegradering,
+            )
+        }
 
     fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
@@ -243,7 +262,9 @@ class InnkommendeJournalføringService(
     }
 
     companion object {
-        private const val NAV_NO = "NAV_NO"
-        private const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
+        const val NAV_NO = "NAV_NO"
+        const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
     }
 }
+
+fun Journalpost.erDigitalSøknad() = this.kanal == InnkommendeJournalføringService.NAV_NO && this.dokumenter?.any { dokument -> InnkommendeJournalføringService.SØKNADSKODE_KONTANTSTØTTE == dokument.brevkode } ?: false
