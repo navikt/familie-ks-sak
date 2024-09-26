@@ -1,3 +1,4 @@
+
 package no.nav.familie.ks.sak.kjerne.personident
 
 import no.nav.familie.kontrakter.felles.PersonIdent
