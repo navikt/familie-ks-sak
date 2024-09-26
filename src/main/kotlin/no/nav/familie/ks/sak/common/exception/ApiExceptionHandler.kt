@@ -29,6 +29,8 @@ class ApiExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleException(exception: Exception): ResponseEntity<Ressurs<Nothing>> {
         val mostSpecificCause = NestedExceptionUtils.getMostSpecificCause(exception)
+        // log stacktrace med den generelle feilen
+        secureLogger.info("Mottok en ukjent exception. Original stacktrace er:", exception)
 
         return RessursUtils.illegalState(mostSpecificCause.message.toString(), mostSpecificCause)
     }
