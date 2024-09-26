@@ -52,31 +52,32 @@ class InnkommendeJournalføringService(
     private val saksbehandlerContext: SaksbehandlerContext,
 ) {
     fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
-        integrasjonClient.hentJournalposterForBruker(
-            JournalposterForBrukerRequest(
-                antall = 1000,
-                brukerId =
-                    Bruker(
-                        id = brukerId,
-                        type = BrukerIdType.FNR,
-                    ),
-                tema = listOf(Tema.KON),
-            ),
-        ).map {
-            val (harTilgang, adressebeskyttelsegradering) =
-                if (it.erDigitalSøknad()) {
-                    val strengesteAdressebeskyttelsegradering = mottakClient.hentStrengesteAdressebeskyttelsegraderingIDigitalSøknad(it.journalpostId)
-                    val harTilgang = saksbehandlerContext.harTilgang(adressebeskyttelsegradering = strengesteAdressebeskyttelsegradering)
-                    Pair(harTilgang, strengesteAdressebeskyttelsegradering)
-                } else {
-                    Pair(true, null)
-                }
-            TilgangsstyrtJournalpost(
-                journalpost = it,
-                harTilgang = harTilgang,
-                adressebeskyttelsegradering = adressebeskyttelsegradering,
-            )
-        }
+        integrasjonClient
+            .hentJournalposterForBruker(
+                JournalposterForBrukerRequest(
+                    antall = 1000,
+                    brukerId =
+                        Bruker(
+                            id = brukerId,
+                            type = BrukerIdType.FNR,
+                        ),
+                    tema = listOf(Tema.KON),
+                ),
+            ).map {
+                val (harTilgang, adressebeskyttelsegradering) =
+                    if (it.erDigitalSøknad()) {
+                        val strengesteAdressebeskyttelsegradering = mottakClient.hentStrengesteAdressebeskyttelsegraderingIDigitalSøknad(it.journalpostId)
+                        val harTilgang = saksbehandlerContext.harTilgang(adressebeskyttelsegradering = strengesteAdressebeskyttelsegradering)
+                        Pair(harTilgang, strengesteAdressebeskyttelsegradering)
+                    } else {
+                        Pair(true, null)
+                    }
+                TilgangsstyrtJournalpost(
+                    journalpost = it,
+                    harTilgang = harTilgang,
+                    adressebeskyttelsegradering = adressebeskyttelsegradering,
+                )
+            }
 
     fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
