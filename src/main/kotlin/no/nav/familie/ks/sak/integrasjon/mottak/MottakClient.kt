@@ -16,9 +16,9 @@ class MottakClient(
     @Value("\${FAMILIE_BAKS_MOTTAK_URL}") val mottakBaseUrl: URI,
     @Qualifier("azure") val restTemplate: RestOperations,
 ) : AbstractRestClient(restTemplate, "baks-mottak") {
-    fun hentStrengesteAdressebeskyttelsegraderingIDigitalSøknad(journalpostId: String): ADRESSEBESKYTTELSEGRADERING {
+    fun hentStrengesteAdressebeskyttelsegraderingIDigitalSøknad(journalpostId: String): ADRESSEBESKYTTELSEGRADERING? {
         val uri = UriUtil.uri(mottakBaseUrl, "soknad/adressebeskyttelse/${Tema.KON.name}/$journalpostId")
-        return kallEksternTjeneste<ADRESSEBESKYTTELSEGRADERING>(
+        return kallEksternTjeneste<ADRESSEBESKYTTELSEGRADERING?>(
             tjeneste = "baks-mottak",
             uri = uri,
             formål = "Hente strengeste adressebeskyttelsegradering i digital søknad",
