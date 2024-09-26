@@ -10,6 +10,7 @@ import io.restassured.module.kotlin.extensions.When
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteServiceTest
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -43,7 +44,7 @@ class BarnehagelisteControllerTest(
             )
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         Assertions.assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
-        barnehageListeService.lesOgArkiver(barnehagelisteMottatt.id)
+        barnehageListeService.lesOgArkiverBarnehageliste(barnehagelisteMottatt.id)
         every { tilgangService.validerTilgangTilHandling(any(), any()) }
 
         Given {
