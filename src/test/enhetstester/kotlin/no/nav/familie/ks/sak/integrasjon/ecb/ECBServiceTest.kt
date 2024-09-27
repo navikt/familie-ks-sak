@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.unmockkAll
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCache
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCacheRepository
 import no.nav.familie.valutakurs.Frequency
@@ -17,6 +18,9 @@ import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
 import no.nav.familie.valutakurs.domene.ECBExchangeRatesDataSet
 import no.nav.familie.valutakurs.domene.ECBExchangeRatesForCurrency
 import no.nav.familie.valutakurs.domene.toExchangeRates
+import no.nav.familie.valutakurs.exception.IngenValutakursException
+import no.nav.familie.valutakurs.exception.ValutakursException
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -66,7 +70,7 @@ class ECBServiceTest {
     }
 
     @Test
-    fun `Test at ECBService kaster ESBServiceException dersom de returnerte kursene ikke inneholder kurs for forespurt valuta`() {
+    fun `Test at ECBService kaster ECBServiceException dersom de returnerte kursene ikke inneholder kurs for forespurt valuta`() {
         val valutakursDato = LocalDate.of(2022, 7, 22)
         val ecbExchangeRatesData =
             createECBResponse(
@@ -86,7 +90,27 @@ class ECBServiceTest {
     }
 
     @Test
-    fun `Test at ECBService kaster ESBServiceException dersom de returnerte kursene ikke inneholder kurser med forespurt dato`() {
+    fun `Test at ECBService kaster FunksjonellFeil dersom ValutakursRestClient kaster IngenValutakursException`() {
+        val valutakursDato = LocalDate.of(2024, 3, 29)
+        every { evbValutakursCacheRepository.findByValutakodeAndValutakursdato(any(), any()) } returns null
+        every { ecbClient.hentValutakurs(any(), any(), any()) } throws IngenValutakursException(message = "Fant ikke valutakurser", cause = null)
+
+        val feil = assertThrows<FunksjonellFeil> { ecbService.hentValutakurs("SEK", valutakursDato) }
+        assertThat(feil.frontendFeilmelding).startsWith("Fant ikke valutakurser")
+    }
+
+    @Test
+    fun `Test at ECBService kaster ECBServiceException dersom ValutakursRestClient kaster ValutakursException`() {
+        val valutakursDato = LocalDate.of(2024, 3, 29)
+        every { evbValutakursCacheRepository.findByValutakodeAndValutakursdato(any(), any()) } returns null
+        every { ecbClient.hentValutakurs(any(), any(), any()) } throws ValutakursException(message = "En feil har skjedd", cause = null)
+
+        val feil = assertThrows<ECBServiceException> { ecbService.hentValutakurs("SEK", valutakursDato) }
+        assertThat(feil.message).startsWith("En feil har skjedd")
+    }
+
+    @Test
+    fun `Test at ECBService kaster ECBServiceException dersom de returnerte kursene ikke inneholder kurser med forespurt dato`() {
         val valutakursDato = LocalDate.of(2022, 7, 20)
         val ecbExchangeRatesData =
             createECBResponse(
