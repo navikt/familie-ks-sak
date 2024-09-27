@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
@@ -18,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.unleash.UnleashService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -32,6 +34,7 @@ class OppgaveService(
     private val behandlingRepository: BehandlingRepository,
     private val oppgaveArbeidsfordelingService: OppgaveArbeidsfordelingService,
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
+    private val unleashService: UnleashService,
 ) {
     fun opprettOppgave(
         behandlingId: Long,
@@ -75,12 +78,22 @@ class OppgaveService(
                 oppgavetype = oppgavetype,
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-                enhetsnummer = oppgaveArbeidsfordeling.enhetsnummer,
+                enhetsnummer =
+                    if (unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)) {
+                        oppgaveArbeidsfordeling.enhetsnummer
+                    } else {
+                        arbeidsfordelingPåBehandling.behandlendeEnhetId
+                    },
                 // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
                 behandlingstema = null,
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-                tilordnetRessurs = oppgaveArbeidsfordeling.navIdent?.ident,
+                tilordnetRessurs =
+                    if (unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)) {
+                        oppgaveArbeidsfordeling.navIdent?.ident
+                    } else {
+                        tilordnetNavIdent
+                    },
             )
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
@@ -89,7 +102,7 @@ class OppgaveService(
 
         val erEnhetsnummerEndret = arbeidsfordelingPåBehandling.behandlendeEnhetId != oppgaveArbeidsfordeling.enhetsnummer
 
-        if (erEnhetsnummerEndret) {
+        if (erEnhetsnummerEndret && unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)) {
             arbeidsfordelingPåBehandlingRepository.save(
                 arbeidsfordelingPåBehandling.copy(
                     behandlendeEnhetId = oppgaveArbeidsfordeling.enhetsnummer,
