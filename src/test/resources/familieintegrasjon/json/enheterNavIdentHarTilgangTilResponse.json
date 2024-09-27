@@ -1,0 +1,14 @@
+{
+  "data": [
+    {
+      "enhetsnummer": "1234",
+      "enhetsnavn": "Enhetsnavn1"
+    },
+    {
+      "enhetsnummer": "4321",
+      "enhetsnavn": "Enhetsnavn2"
+    }
+  ],
+  "status": "SUKSESS",
+  "melding": "Fant enheter"
+}
