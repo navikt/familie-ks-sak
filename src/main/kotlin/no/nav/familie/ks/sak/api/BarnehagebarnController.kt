@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
-import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnInfotrygdDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class BarnehagebarnController(
-    private val barnehageListeService: BarnehageListeService,
+    private val barnehagebarnService: BarnehagebarnService,
     private val tilgangService: TilgangService,
 ) {
     @PostMapping(
@@ -37,7 +37,7 @@ class BarnehagebarnController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente ut alle barnehagebarn",
         )
-        val alleBarnehagebarnPage = barnehageListeService.hentAlleBarnehagebarnPage(barnehagebarnRequestParams)
+        val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
 
@@ -53,7 +53,7 @@ class BarnehagebarnController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente ut alle barnehagebarn",
         )
-        val alleBarnehagebarnPage = barnehageListeService.hentAlleBarnehagebarnInfotrygd(barnehagebarnRequestParams)
+        val alleBarnehagebarnPage = barnehagebarnService.hentBarnehagebarnInfotrygd(barnehagebarnRequestParams)
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
 }

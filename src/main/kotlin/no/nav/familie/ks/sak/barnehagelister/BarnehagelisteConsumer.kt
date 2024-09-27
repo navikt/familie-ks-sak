@@ -33,7 +33,7 @@ class BarnehagelisteConsumer(
         logger.info("Barnehageliste mottatt på kafka med key $key")
 
         // Sjekk at vi ikke har mottat meldingen tidligere
-        if (barnehageListeService.erListenMottattTidligere(key)) {
+        if (barnehageListeService.erBarnehagelisteMottattTidligere(key)) {
             logger.info("Barnehageliste med key $key er mottatt tidligere. Hopper over")
             ack.acknowledge()
             return

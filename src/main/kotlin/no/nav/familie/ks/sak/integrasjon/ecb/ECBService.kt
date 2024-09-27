@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.ecb
 
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.del
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCache
@@ -8,7 +9,8 @@ import no.nav.familie.valutakurs.Frequency
 import no.nav.familie.valutakurs.ValutakursRestClient
 import no.nav.familie.valutakurs.domene.ExchangeRate
 import no.nav.familie.valutakurs.domene.exchangeRateForCurrency
-import no.nav.familie.valutakurs.exception.ValutakursClientException
+import no.nav.familie.valutakurs.exception.IngenValutakursException
+import no.nav.familie.valutakurs.exception.ValutakursException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Import
@@ -59,8 +61,10 @@ class ECBService(
                     ),
                 )
                 return beregnValutakurs(valutakursUtenlandskValuta.exchangeRate, valutakursNOK.exchangeRate)
-            } catch (e: ValutakursClientException) {
+            } catch (e: ValutakursException) {
                 throw ECBServiceException(e.message, e)
+            } catch (e: IngenValutakursException) {
+                throw FunksjonellFeil(e.message)
             }
         }
         logger.info("Valutakurs ble hentet fra cache for $utenlandskValuta på $kursDato")

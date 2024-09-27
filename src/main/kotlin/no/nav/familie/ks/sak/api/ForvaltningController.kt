@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -79,6 +80,7 @@ class ForvaltningController(
     private val testVerktøyService: TestVerktøyService,
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
+    private val barnehagebarnService: BarnehagebarnService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -244,7 +246,7 @@ class ForvaltningController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "teste lesing og arkivering av barnehageliste",
         )
-        barnehageListeService.lesOgArkiver(UUID.fromString(uuid))
+        barnehageListeService.lesOgArkiverBarnehageliste(UUID.fromString(uuid))
         return ResponseEntity.ok(Ressurs.success(":)", "Barnehagliste lest og arkivert"))
     }
 
@@ -271,7 +273,7 @@ class ForvaltningController(
             handling = "hente ut alle barnehagebarn",
         )
 
-        val alleBarnehagebarnPage = barnehageListeService.hentAlleBarnehagebarnPage(barnehagebarnRequestParams)
+        val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
 
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
