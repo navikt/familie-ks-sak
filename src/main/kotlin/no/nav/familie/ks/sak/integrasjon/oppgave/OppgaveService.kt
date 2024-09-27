@@ -64,13 +64,21 @@ class OppgaveService(
             arbeidsfordelingPåBehandlingRepository
                 .hentArbeidsfordelingPåBehandling(behandlingId)
 
-        val oppgaveArbeidsfordeling =
-            oppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
-                arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
-                navIdent = tilordnetNavIdent?.let { NavIdent(it) },
-            )
-
         val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)
+
+        val oppgaveArbeidsfordeling =
+            if (opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
+                oppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
+                    arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
+                    navIdent = tilordnetNavIdent?.let { NavIdent(it) },
+                )
+            } else {
+                OppgaveArbeidsfordeling(
+                    navIdent = tilordnetNavIdent?.let { NavIdent(it) },
+                    enhetsnummer = arbeidsfordelingPåBehandling.behandlendeEnhetId,
+                    enhetsnavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
+                )
+            }
 
         val opprettOppgaveRequest =
             OpprettOppgaveRequest(
@@ -80,23 +88,14 @@ class OppgaveService(
                 oppgavetype = oppgavetype,
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-                enhetsnummer =
-                    if (opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
-                        oppgaveArbeidsfordeling.enhetsnummer
-                    } else {
-                        arbeidsfordelingPåBehandling.behandlendeEnhetId
-                    },
+                enhetsnummer = oppgaveArbeidsfordeling.enhetsnummer,
                 // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
                 behandlingstema = null,
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-                tilordnetRessurs =
-                    if (opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
-                        oppgaveArbeidsfordeling.navIdent?.ident
-                    } else {
-                        tilordnetNavIdent
-                    },
+                tilordnetRessurs = oppgaveArbeidsfordeling.navIdent?.ident,
             )
+
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
         val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
