@@ -70,6 +70,8 @@ class OppgaveService(
                 navIdent = tilordnetNavIdent?.let { NavIdent(it) },
             )
 
+        val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)
+
         val opprettOppgaveRequest =
             OpprettOppgaveRequest(
                 ident = OppgaveIdentV2(ident = behandling.fagsak.aktør.aktørId, gruppe = IdentGruppe.AKTOERID),
@@ -79,7 +81,7 @@ class OppgaveService(
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
                 enhetsnummer =
-                    if (unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)) {
+                    if (opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
                         oppgaveArbeidsfordeling.enhetsnummer
                     } else {
                         arbeidsfordelingPåBehandling.behandlendeEnhetId
@@ -89,7 +91,7 @@ class OppgaveService(
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
                 tilordnetRessurs =
-                    if (unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)) {
+                    if (opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
                         oppgaveArbeidsfordeling.navIdent?.ident
                     } else {
                         tilordnetNavIdent
@@ -102,7 +104,7 @@ class OppgaveService(
 
         val erEnhetsnummerEndret = arbeidsfordelingPåBehandling.behandlendeEnhetId != oppgaveArbeidsfordeling.enhetsnummer
 
-        if (erEnhetsnummerEndret && unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER)) {
+        if (erEnhetsnummerEndret && opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
             arbeidsfordelingPåBehandlingRepository.save(
                 arbeidsfordelingPåBehandling.copy(
                     behandlendeEnhetId = oppgaveArbeidsfordeling.enhetsnummer,
