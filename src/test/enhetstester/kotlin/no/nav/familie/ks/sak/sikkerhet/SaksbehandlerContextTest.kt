@@ -1,15 +1,21 @@
 package no.nav.familie.ks.sak.sikkerhet
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
+import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
-
 class SaksbehandlerContextTest {
     private val saksbehandlerContext = SaksbehandlerContext("kode6", kode7GruppeId = "kode7")
+
+    @AfterEach
+    fun afterEach() {
+        clearBrukerContext()
+    }
 
     @Test
     fun `skal returnere true når det ikke finnes adressebeskyttelsegradering`() {
