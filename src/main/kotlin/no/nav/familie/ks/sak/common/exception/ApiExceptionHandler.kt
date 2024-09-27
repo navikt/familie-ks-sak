@@ -48,7 +48,6 @@ class ApiExceptionHandler {
     @ExceptionHandler(HttpClientErrorException.BadRequest::class)
     fun handleBadRequest(badRequestException: HttpClientErrorException.BadRequest): ResponseEntity<Ressurs<Nothing>> {
         val mostSpecificCause = NestedExceptionUtils.getMostSpecificCause(badRequestException)
-
         return RessursUtils.badRequest(mostSpecificCause.message ?: "Ugyldig request", badRequestException)
     }
 
