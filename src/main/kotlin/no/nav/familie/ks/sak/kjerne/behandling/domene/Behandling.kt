@@ -242,9 +242,36 @@ enum class Behandlingsresultat(
 
 fun Behandlingsresultat.tilDokumenttype() =
     when (this) {
+        Behandlingsresultat.INNVILGET,
+        Behandlingsresultat.INNVILGET_OG_OPPHØRT,
+        Behandlingsresultat.INNVILGET_OG_ENDRET,
+        Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.DELVIS_INNVILGET,
+        Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
+        Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
+        Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
+        Behandlingsresultat.AVSLÅTT_OG_ENDRET,
+        Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.FORTSATT_INNVILGET,
+        -> Dokumenttype.KONTANTSTØTTE_VEDTAK
+
         Behandlingsresultat.AVSLÅTT -> Dokumenttype.KONTANTSTØTTE_VEDTAK_AVSLAG
-        Behandlingsresultat.OPPHØRT -> Dokumenttype.KONTANTSTØTTE_OPPHØR
-        else -> Dokumenttype.KONTANTSTØTTE_VEDTAK_INNVILGELSE
+
+        Behandlingsresultat.ENDRET_UTBETALING,
+        Behandlingsresultat.ENDRET_UTEN_UTBETALING,
+        Behandlingsresultat.ENDRET_OG_OPPHØRT,
+        -> Dokumenttype.KONTANTSTØTTE_VEDTAK_AVSLAG
+
+        Behandlingsresultat.OPPHØRT,
+        Behandlingsresultat.FORTSATT_OPPHØRT,
+        -> Dokumenttype.KONTANTSTØTTE_OPPHØR
+
+        HENLAGT_FEILAKTIG_OPPRETTET,
+        HENLAGT_SØKNAD_TRUKKET,
+        HENLAGT_TEKNISK_VEDLIKEHOLD,
+        IKKE_VURDERT,
+        -> throw Feil("Behandlingsresultat $this støtter ikke utsendelse av journalpost.")
     }
 
 /**

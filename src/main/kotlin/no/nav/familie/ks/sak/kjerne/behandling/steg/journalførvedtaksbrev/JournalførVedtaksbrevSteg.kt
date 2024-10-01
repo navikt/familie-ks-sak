@@ -14,9 +14,6 @@ import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.tilDokumenttype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -117,22 +114,21 @@ class JournalførVedtaksbrevSteg(
                 if (søkersMålform == Målform.NB) KONTANTSTØTTE_VEDTAK_BOKMÅL_VEDLEGG_FILNAVN else KONTANTSTØTTE_VEDTAK_NYNORSK_VEDLEGG_FILNAVN,
             )
 
+        val dokumenttype = vedtak.behandling.resultat.tilDokumenttype()
+
         val brev =
             listOf(
                 Dokument(
                     vedtak.stønadBrevPdf!!,
                     filtype = Filtype.PDFA,
-                    dokumenttype = vedtak.behandling.resultat.tilDokumenttype(),
-                    tittel = hentOverstyrtDokumenttittel(vedtak.behandling),
+                    dokumenttype = dokumenttype,
                 ),
             )
 
         logger.info(
             "Journalfører vedtaksbrev ${
                 if (tilVergeEllerFullmektig) "til verge/fullmektig" else ""
-            } for behandling ${vedtak.behandling.id} med tittel ${
-                hentOverstyrtDokumenttittel(vedtak.behandling)
-            }",
+            } for behandling ${vedtak.behandling.id} med dokumenttype $dokumenttype",
         )
 
         val vedlegg =
@@ -156,25 +152,6 @@ class JournalførVedtaksbrevSteg(
             avsenderMottaker = avsenderMottaker,
         )
     }
-
-    fun hentOverstyrtDokumenttittel(behandling: Behandling): String? =
-        if (behandling.type == BehandlingType.REVURDERING) {
-            when (behandling.resultat) {
-                Behandlingsresultat.INNVILGET, Behandlingsresultat.DELVIS_INNVILGET,
-                Behandlingsresultat.INNVILGET_OG_ENDRET,
-                -> "Vedtak om endret kontantstøtte"
-
-                Behandlingsresultat.INNVILGET_OG_OPPHØRT,
-                Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
-                Behandlingsresultat.ENDRET_OG_OPPHØRT,
-                -> "Vedtak om opphørt kontantstøtte"
-
-                Behandlingsresultat.FORTSATT_INNVILGET -> "Vedtak om fortsatt kontantstøtte"
-                else -> null
-            }
-        } else {
-            null
-        }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(JournalførVedtaksbrevSteg::class.java)
