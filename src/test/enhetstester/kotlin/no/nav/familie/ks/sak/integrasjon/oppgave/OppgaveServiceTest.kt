@@ -33,7 +33,7 @@ class OppgaveServiceTest {
     private val mockedIntegrasjonClient: IntegrasjonClient = mockk()
     private val mockedOppgaveRepository: OppgaveRepository = mockk()
     private val mockedBehandlingRepository: BehandlingRepository = mockk()
-    private val mockedOppgaveArbeidsfordelingService: OppgaveArbeidsfordelingService = mockk()
+    private val mockedTilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
     private val mockedArbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository = mockk()
     private val mockedUnleashService: UnleashService = mockk()
     private val oppgaveService: OppgaveService =
@@ -41,7 +41,7 @@ class OppgaveServiceTest {
             integrasjonClient = mockedIntegrasjonClient,
             oppgaveRepository = mockedOppgaveRepository,
             behandlingRepository = mockedBehandlingRepository,
-            oppgaveArbeidsfordelingService = mockedOppgaveArbeidsfordelingService,
+            tilpassArbeidsfordelingService = mockedTilpassArbeidsfordelingService,
             arbeidsfordelingPåBehandlingRepository = mockedArbeidsfordelingPåBehandlingRepository,
             unleashService = mockedUnleashService,
         )
@@ -107,7 +107,7 @@ class OppgaveServiceTest {
             } returns arbeidsfordelingPåBehandling
 
             every {
-                mockedOppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
+                mockedTilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                     arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                     navIdent = navIdent,
                 )
@@ -221,7 +221,7 @@ class OppgaveServiceTest {
             } returns arbeidsfordelingPåBehandling
 
             every {
-                mockedOppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
+                mockedTilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                     arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                     navIdent = navIdent,
                 )
@@ -321,7 +321,7 @@ class OppgaveServiceTest {
             } returns arbeidsfordelingPåBehandling
 
             every {
-                mockedOppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
+                mockedTilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                     arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
                     navIdent = null,
                 )

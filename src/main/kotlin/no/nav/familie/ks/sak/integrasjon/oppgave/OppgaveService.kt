@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.tilArbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.unleash.UnleashService
@@ -32,7 +33,7 @@ class OppgaveService(
     private val integrasjonClient: IntegrasjonClient,
     private val oppgaveRepository: OppgaveRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val oppgaveArbeidsfordelingService: OppgaveArbeidsfordelingService,
+    private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
     private val unleashService: UnleashService,
 ) {
@@ -60,24 +61,19 @@ class OppgaveService(
             return eksisterendeIkkeFerdigstiltOppgave.gsakId
         }
 
-        val arbeidsfordelingPåBehandling =
+        val arbeidsfordelingsenhet =
             arbeidsfordelingPåBehandlingRepository
                 .hentArbeidsfordelingPåBehandling(behandlingId)
+                .tilArbeidsfordelingsenhet()
 
         val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)
 
-        val oppgaveArbeidsfordeling =
+        val navIdent = tilordnetNavIdent?.let { NavIdent(it) }
+        val tilordnetRessurs =
             if (opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
-                oppgaveArbeidsfordelingService.finnArbeidsfordelingForOppgave(
-                    arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
-                    navIdent = tilordnetNavIdent?.let { NavIdent(it) },
-                )
+                tilpassArbeidsfordelingService.bestemTilordnetRessursPåOppgave(arbeidsfordelingsenhet, navIdent)
             } else {
-                OppgaveArbeidsfordeling(
-                    navIdent = tilordnetNavIdent?.let { NavIdent(it) },
-                    enhetsnummer = arbeidsfordelingPåBehandling.behandlendeEnhetId,
-                    enhetsnavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
-                )
+                navIdent
             }
 
         val opprettOppgaveRequest =
@@ -88,30 +84,18 @@ class OppgaveService(
                 oppgavetype = oppgavetype,
                 fristFerdigstillelse = fristForFerdigstillelse,
                 beskrivelse = lagOppgaveTekst(behandling.fagsak.id, beskrivelse),
-                enhetsnummer = oppgaveArbeidsfordeling.enhetsnummer,
+                enhetsnummer = arbeidsfordelingsenhet.enhetId,
                 // behandlingstema brukes ikke i kombinasjon med behandlingstype for kontantstøtte
                 behandlingstema = null,
                 // TODO - må diskuteres hva det kan være for KS-EØS
                 behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
-                tilordnetRessurs = oppgaveArbeidsfordeling.navIdent?.ident,
+                tilordnetRessurs = tilordnetRessurs?.ident,
             )
 
         val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
         val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
         oppgaveRepository.save(oppgave)
-
-        val erEnhetsnummerEndret = arbeidsfordelingPåBehandling.behandlendeEnhetId != oppgaveArbeidsfordeling.enhetsnummer
-
-        if (erEnhetsnummerEndret && opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå) {
-            arbeidsfordelingPåBehandlingRepository.save(
-                arbeidsfordelingPåBehandling.copy(
-                    behandlendeEnhetId = oppgaveArbeidsfordeling.enhetsnummer,
-                    behandlendeEnhetNavn = oppgaveArbeidsfordeling.enhetsnavn,
-                    manueltOverstyrt = false,
-                ),
-            )
-        }
 
         return opprettetOppgaveId
     }

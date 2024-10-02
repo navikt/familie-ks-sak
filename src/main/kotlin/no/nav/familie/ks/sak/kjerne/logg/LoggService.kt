@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -71,7 +71,7 @@ class LoggService(
 
     fun opprettBehandlendeEnhetEndret(
         behandling: Behandling,
-        fraEnhet: ArbeidsfordelingsEnhet,
+        fraEnhet: Arbeidsfordelingsenhet,
         tilEnhet: ArbeidsfordelingPåBehandling,
         manuellOppdatering: Boolean,
         begrunnelse: String,

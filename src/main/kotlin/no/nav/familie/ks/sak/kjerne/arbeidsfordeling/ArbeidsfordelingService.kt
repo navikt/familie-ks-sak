@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADE
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -86,8 +86,8 @@ class ArbeidsfordelingService(
     ) {
         val aktivArbeidsfordelingPåBehandling = hentArbeidsfordelingPåBehandling(behandling.id)
 
-        val aktivArbeidsfordelingsEnhet =
-            ArbeidsfordelingsEnhet(
+        val aktivArbeidsfordelingsenhet =
+            Arbeidsfordelingsenhet(
                 enhetId = aktivArbeidsfordelingPåBehandling.behandlendeEnhetId,
                 enhetNavn = aktivArbeidsfordelingPåBehandling.behandlendeEnhetNavn,
             )
@@ -103,14 +103,14 @@ class ArbeidsfordelingService(
 
         settBehandlendeEnhet(
             behandling = behandling,
-            aktivArbeidsfordelingEnhet = aktivArbeidsfordelingsEnhet,
+            aktivArbeidsfordelingEnhet = aktivArbeidsfordelingsenhet,
             oppdatertArbeidsfordelingPåBehandling = oppdatertArbeidsfordelingPåBehandling,
             manuellOppdatering = true,
             begrunnelse = endreBehandlendeEnhet.begrunnelse,
         )
     }
 
-    fun hentArbeidsfordelingsEnhet(behandling: Behandling): ArbeidsfordelingsEnhet {
+    fun hentArbeidsfordelingsEnhet(behandling: Behandling): Arbeidsfordelingsenhet {
         val søker = identMedAdressebeskyttelse(behandling.fagsak.aktør)
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
 
@@ -127,7 +127,7 @@ class ArbeidsfordelingService(
     fun hentArbeidsfordelingsenhetPåIdenter(
         søkerIdent: String,
         barnIdenter: List<String>,
-    ): ArbeidsfordelingsEnhet {
+    ): Arbeidsfordelingsenhet {
         val identerLagtSammen = barnIdenter + søkerIdent
 
         val identTilAdresseBeskyttelseGraderingMap =
@@ -162,7 +162,7 @@ class ArbeidsfordelingService(
 
     private fun settBehandlendeEnhet(
         behandling: Behandling,
-        aktivArbeidsfordelingEnhet: ArbeidsfordelingsEnhet,
+        aktivArbeidsfordelingEnhet: Arbeidsfordelingsenhet,
         oppdatertArbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
         manuellOppdatering: Boolean,
         begrunnelse: String = "",
