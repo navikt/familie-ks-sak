@@ -47,9 +47,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeContext
@@ -97,6 +99,10 @@ class StepDefinition {
     var vedtakslister = mutableListOf<Vedtak>()
 
     var dagensDato: LocalDate = LocalDate.now()
+
+    val oppdaterAndelerMedEndretUtbetalingService = OppdaterAndelerMedEndretUtbetalingService()
+    val regelverkFørFebruar2025AndelGeneratorGammel = RegelverkFørFebruar2025AndelGeneratorGammel()
+    val tilkjentYtelseService = TilkjentYtelseService(oppdaterAndelerMedEndretUtbetalingService, regelverkFørFebruar2025AndelGeneratorGammel)
 
     /**
      * Mulige verdier: | FagsakId |
@@ -213,7 +219,7 @@ class StepDefinition {
         behandlingId: Long,
     ) {
         val andelerFørDifferanseberegning =
-            TilkjentYtelseUtils
+            tilkjentYtelseService
                 .beregnTilkjentYtelse(
                     vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                     personopplysningGrunnlag = persongrunnlag[behandlingId]!!,

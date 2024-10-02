@@ -19,12 +19,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
+import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -54,6 +55,14 @@ internal class TilkjentYtelseUtilsTest {
     private val maksBeløp = maksBeløp()
 
     private lateinit var vilkårsvurdering: Vilkårsvurdering
+
+    private val oppdaterAndelerMedEndretUtbetalingService = OppdaterAndelerMedEndretUtbetalingService()
+    private val regelverkFørFebruar2025AndelGeneratorGammel = RegelverkFørFebruar2025AndelGeneratorGammel()
+    private val tilkjentYtelseService =
+        TilkjentYtelseService(
+            regelverkFørFebruar2025AndelGeneratorGammel = regelverkFørFebruar2025AndelGeneratorGammel,
+            oppdaterAndelerMedEndretUtbetalingService = oppdaterAndelerMedEndretUtbetalingService,
+        )
 
     @BeforeEach
     fun init() {
@@ -88,7 +97,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -121,7 +130,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -160,7 +169,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -205,7 +214,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -250,7 +259,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -308,7 +317,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -358,9 +367,10 @@ internal class TilkjentYtelseUtilsTest {
         vilkårResultaterForBarn.add(fullBarnehageplassVilkår)
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater += personResultatForBarn
+        vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -401,7 +411,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -448,7 +458,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -495,7 +505,7 @@ internal class TilkjentYtelseUtilsTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
@@ -544,7 +554,7 @@ internal class TilkjentYtelseUtilsTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            oppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
             )
@@ -604,7 +614,7 @@ internal class TilkjentYtelseUtilsTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel2, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            oppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
             )

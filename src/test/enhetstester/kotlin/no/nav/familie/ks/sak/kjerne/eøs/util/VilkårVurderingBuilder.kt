@@ -21,7 +21,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -32,6 +34,10 @@ data class VilkårsvurderingBuilder(
 ) {
     val personresultater: MutableSet<PersonResultat> = mutableSetOf()
     val personer: MutableSet<Person> = mutableSetOf()
+
+    private val oppdaterAndelerMedEndretUtbetalingService = OppdaterAndelerMedEndretUtbetalingService()
+    private val regelverkFørFebruar2025AndelGeneratorGammel = RegelverkFørFebruar2025AndelGeneratorGammel()
+    private val tilkjentYtelseService = TilkjentYtelseService(oppdaterAndelerMedEndretUtbetalingService, regelverkFørFebruar2025AndelGeneratorGammel)
 
     fun forPerson(
         person: Person,
@@ -88,6 +94,12 @@ data class VilkårsvurderingBuilder(
             return vilkårsvurderingBuilder
         }
     }
+
+    fun byggTilkjentYtelse() =
+        tilkjentYtelseService.beregnTilkjentYtelse(
+            vilkårsvurdering = this.byggVilkårsvurdering(),
+            personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
+        )
 }
 
 internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(personResultat: PersonResultat): Collection<VilkårResultat> =
@@ -103,12 +115,6 @@ internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(per
             utdypendeVilkårsvurderinger = this.verdi.utdypendeVilkårsvurderinger,
             behandlingId = personResultat.vilkårsvurdering.behandling.id,
         ),
-    )
-
-fun VilkårsvurderingBuilder.byggTilkjentYtelse() =
-    TilkjentYtelseUtils.beregnTilkjentYtelse(
-        vilkårsvurdering = this.byggVilkårsvurdering(),
-        personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
     )
 
 data class UtdypendeVilkårRegelverkResultat(

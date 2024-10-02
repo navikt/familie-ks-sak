@@ -3,8 +3,8 @@ package no.nav.familie.ks.sak.kjerne.eøs.util
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.jan
@@ -59,9 +59,9 @@ data class DeltBosted(
     override var behandlingId: Long = 0
 }
 
-fun DeltBostedBuilder.oppdaterTilkjentYtelse(): TilkjentYtelse {
+fun DeltBostedBuilder.oppdaterTilkjentYtelse(oppdaterAndelerMedEndretUtbetalingService: OppdaterAndelerMedEndretUtbetalingService): TilkjentYtelse {
     val andelerTilkjentYtelserEtterEUA =
-        TilkjentYtelseUtils.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+        oppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
             tilkjentYtelse.andelerTilkjentYtelse.toList(),
             bygg().tilEndreteUtebetalingAndeler(),
         )

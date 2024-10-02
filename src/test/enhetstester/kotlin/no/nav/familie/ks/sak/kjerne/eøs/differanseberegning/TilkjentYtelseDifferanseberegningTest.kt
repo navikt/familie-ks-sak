@@ -11,12 +11,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.LOVLIG_OPPHOLD
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.MEDLEMSKAP
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår.MEDLEMSKAP_ANNEN_FORELDER
+import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
 import no.nav.familie.ks.sak.kjerne.eøs.util.DeltBostedBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.TilkjentYtelseBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.ValutakursBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.VilkårsvurderingBuilder
-import no.nav.familie.ks.sak.kjerne.eøs.util.byggTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.eøs.util.oppdaterTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
@@ -31,6 +31,8 @@ import java.time.LocalDate
  */
 class TilkjentYtelseDifferanseberegningTest {
     private fun Int.jan(år: Int): LocalDate = LocalDate.of(år, 1, this)
+
+    private val oppdaterAndelerMedEndretUtbetalingService = OppdaterAndelerMedEndretUtbetalingService()
 
     @Test
     fun `skal gjøre differanseberegning på en tilkjent ytelse med endringsperioder`() {
@@ -63,7 +65,7 @@ class TilkjentYtelseDifferanseberegningTest {
 
         DeltBostedBuilder(startMåned, tilkjentYtelse)
             .medDeltBosted(" //////00000000001111>", barn1, barn2)
-            .oppdaterTilkjentYtelse()
+            .oppdaterTilkjentYtelse(oppdaterAndelerMedEndretUtbetalingService)
 
         val forventetTilkjentYtelseMedDelt =
             TilkjentYtelseBuilder(startMåned, behandling)
