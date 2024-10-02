@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class TilkjentYtelseService(
-    private val oppdaterAndelerMedEndretUtbetalingService: OppdaterAndelerMedEndretUtbetalingService,
-    private val regelverkFørFebruar2025AndelGeneratorGammel: RegelverkFørFebruar2025AndelGeneratorGammel,
-) {
+class TilkjentYtelseService {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -27,15 +24,18 @@ class TilkjentYtelseService(
             )
         val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.person?.type == PersonType.BARN }
 
+        // TODO start
+        //  Her må vi kalle på en "Overordnet"-service som sjekker feature-toggle og som kjører gammel løype hvis toggle er av og ny løype dersom toggle er på. RegelverkFørFebruar2025AndelGeneratorGammel, representerer den gamle løypa.
         val andelerTilkjentYtelseBarnaUtenEndringer =
-            regelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(
+            RegelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 vilkårsvurdering = vilkårsvurdering,
                 tilkjentYtelse = tilkjentYtelse,
             )
+        // TODO end
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
-            oppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            OppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
                 andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
                 endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
             )

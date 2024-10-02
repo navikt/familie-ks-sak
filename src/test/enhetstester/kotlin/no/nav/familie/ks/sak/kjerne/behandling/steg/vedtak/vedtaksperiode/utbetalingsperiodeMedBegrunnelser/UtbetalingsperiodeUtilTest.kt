@@ -23,8 +23,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -46,9 +44,7 @@ internal class UtbetalingsperiodeUtilTest {
     private val barn1 = personopplysningGrunnlag.barna[0]
     private val barn2 = personopplysningGrunnlag.barna[1]
 
-    private val oppdaterAndelerMedEndretUtbetalingService = OppdaterAndelerMedEndretUtbetalingService()
-    private val regelverkFørFebruar2025AndelGeneratorGammel = RegelverkFørFebruar2025AndelGeneratorGammel()
-    private val tilkjentYtelseService = TilkjentYtelseService(oppdaterAndelerMedEndretUtbetalingService, regelverkFørFebruar2025AndelGeneratorGammel)
+    private val tilkjentYtelseService = TilkjentYtelseService()
 
     @Test
     fun `hentPerioderMedUtbetaling skal beholde split i andel tilkjent ytelse`() {

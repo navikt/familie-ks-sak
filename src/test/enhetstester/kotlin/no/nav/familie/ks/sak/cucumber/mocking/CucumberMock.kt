@@ -22,8 +22,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
-import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.OppdaterAndelerMedEndretUtbetalingService
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
@@ -64,13 +62,7 @@ class CucumberMock(
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
 
-    val oppdaterAndelerMedEndretUtbetalingService = OppdaterAndelerMedEndretUtbetalingService()
-    val regelverkFørFebruar2025AndelGeneratorGammel = RegelverkFørFebruar2025AndelGeneratorGammel()
-    val tilkjentYtelseService =
-        TilkjentYtelseService(
-            oppdaterAndelerMedEndretUtbetalingService = oppdaterAndelerMedEndretUtbetalingService,
-            regelverkFørFebruar2025AndelGeneratorGammel = regelverkFørFebruar2025AndelGeneratorGammel,
-        )
+    val tilkjentYtelseService = TilkjentYtelseService()
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

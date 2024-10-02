@@ -422,8 +422,6 @@ fun lagBrevPeriodeContext(
 ): BrevPeriodeContext {
     val barnIBehandling = personerIBehandling.filter { it.personType == PersonType.BARN }
 
-    val regelverkFørFebruar2025AndelGeneratorGammel = RegelverkFørFebruar2025AndelGeneratorGammel()
-
     val persongrunnlag =
         lagPersonopplysningGrunnlag(
             barnasIdenter = barnIBehandling.map { randomFnr() },
@@ -455,7 +453,7 @@ fun lagBrevPeriodeContext(
     every { vilkårsvurdering.personResultater } returns personResultater.toSet()
 
     val andelerTilkjentYtelse =
-        regelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(
+        RegelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(
             personopplysningGrunnlag = persongrunnlag,
             vilkårsvurdering = vilkårsvurdering,
             tilkjentYtelse = mockk(),

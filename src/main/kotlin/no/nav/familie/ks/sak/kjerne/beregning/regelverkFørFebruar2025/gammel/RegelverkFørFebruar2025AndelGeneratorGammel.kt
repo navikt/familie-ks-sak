@@ -18,11 +18,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import org.springframework.stereotype.Service
 import java.math.RoundingMode
 
-@Service
-class RegelverkFørFebruar2025AndelGeneratorGammel {
+object RegelverkFørFebruar2025AndelGeneratorGammel {
     fun beregnAndelerTilkjentYtelseForBarna(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,

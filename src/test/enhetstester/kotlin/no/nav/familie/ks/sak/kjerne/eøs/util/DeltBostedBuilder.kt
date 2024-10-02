@@ -59,9 +59,9 @@ data class DeltBosted(
     override var behandlingId: Long = 0
 }
 
-fun DeltBostedBuilder.oppdaterTilkjentYtelse(oppdaterAndelerMedEndretUtbetalingService: OppdaterAndelerMedEndretUtbetalingService): TilkjentYtelse {
+fun DeltBostedBuilder.oppdaterTilkjentYtelse(): TilkjentYtelse {
     val andelerTilkjentYtelserEtterEUA =
-        oppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+        OppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
             tilkjentYtelse.andelerTilkjentYtelse.toList(),
             bygg().tilEndreteUtebetalingAndeler(),
         )
