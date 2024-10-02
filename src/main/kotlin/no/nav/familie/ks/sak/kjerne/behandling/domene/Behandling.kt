@@ -261,7 +261,7 @@ fun Behandlingsresultat.tilDokumenttype() =
         Behandlingsresultat.ENDRET_UTBETALING,
         Behandlingsresultat.ENDRET_UTEN_UTBETALING,
         Behandlingsresultat.ENDRET_OG_OPPHØRT,
-        -> Dokumenttype.KONTANTSTØTTE_VEDTAK_AVSLAG
+        -> Dokumenttype.KONTANTSTØTTE_VEDTAK_ENDRET
 
         Behandlingsresultat.OPPHØRT,
         Behandlingsresultat.FORTSATT_OPPHØRT,
