@@ -59,7 +59,7 @@ class OppdaterAndelerMedEndretUtbetalingServiceTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            OppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
             )
@@ -119,7 +119,7 @@ class OppdaterAndelerMedEndretUtbetalingServiceTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel2, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            OppdaterAndelerMedEndretUtbetalingService.oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
             )

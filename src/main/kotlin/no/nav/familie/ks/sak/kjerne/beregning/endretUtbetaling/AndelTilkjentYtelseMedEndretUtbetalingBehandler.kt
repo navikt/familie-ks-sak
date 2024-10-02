@@ -13,8 +13,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.medEndring
 import java.math.BigDecimal
 import java.time.YearMonth
 
-object OppdaterAndelerMedEndretUtbetalingService {
-    fun oppdaterTilkjentYtelseMedEndretUtbetalingAndeler(
+object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
+    fun oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
         andelTilkjentYtelserUtenEndringer: List<AndelTilkjentYtelse>,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
     ): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {
