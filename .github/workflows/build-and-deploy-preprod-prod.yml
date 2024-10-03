@@ -25,7 +25,10 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build
+          SONAR_PROJECTKEY: ${{ secrets.SONAR_PROJECTKEY }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew build jacocoTestReport jacocoIntegrationTestReport sonar
 
   bygg-og-push-til-github:
     name: Bygg app/image, push til github
