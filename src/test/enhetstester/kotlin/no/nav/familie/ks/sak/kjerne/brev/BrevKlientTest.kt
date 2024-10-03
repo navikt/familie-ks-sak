@@ -56,7 +56,7 @@ class BrevKlientTest {
         }
 
         @Test
-        fun `skal kaste funksjonell feil ved bad request response`() {
+        fun `skal kaste funksjonell feil ved bad request exception`() {
             // Arrange
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
@@ -83,6 +83,34 @@ class BrevKlientTest {
             assertThat(exception.message).isEqualTo(
                 "Begrunnelsen passer ikke vedtaksperiode. Hvis du mener dette er feil ta kontakt med team BAKS.",
             )
+        }
+
+        @Test
+        fun `skal ikke konvertere andre exceptions enn bad request exception til funksjonell feil`() {
+            // Arrange
+            val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
+
+            every {
+                mockedRestOperations.exchange<String>(
+                    eq(URI("$baseUri/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/")),
+                    eq(HttpMethod.POST),
+                    any<HttpEntity<NasjonalOgFellesBegrunnelseDataDto>>(),
+                )
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.FORBIDDEN,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<HttpClientErrorException.Forbidden> {
+                    brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
+                }
+            assertThat(exception.message).isEqualTo("403 text")
         }
     }
 }
