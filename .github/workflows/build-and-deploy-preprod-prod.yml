@@ -22,7 +22,12 @@ jobs:
         with:
           java-version: "21"
           distribution: 'temurin'
-
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Bygg med gradle
         env:
           GITHUB_USERNAME: x-access-token
