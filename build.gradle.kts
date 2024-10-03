@@ -51,7 +51,7 @@ dependencies {
     val sentryVersion = "7.14.0"
     val navFellesVersion = "3.20240913110742_adb42f8"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
-    val fellesKontrakterVersion = "3.0_20240919121839_57daa74"
+    val fellesKontrakterVersion = "3.0_20241002091252_adfb53f"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240806120744_a042aa1"
     val tokenValidationSpringVersion = "5.0.5"
