@@ -4,6 +4,7 @@ import io.mockk.mockk
 import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
+import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
@@ -320,7 +321,7 @@ fun lagBehandlingStegTilstand(
     )
 
 fun lagArbeidsfordelingPåBehandling(
-    id: Long = 123,
+    id: Long = 0,
     behandlingId: Long,
     behandlendeEnhetId: String = "4321",
     behandlendeEnhetNavn: String = "Test enhet",
@@ -333,6 +334,11 @@ fun lagArbeidsfordelingPåBehandling(
         behandlendeEnhetNavn = behandlendeEnhetNavn,
         manueltOverstyrt = manueltOverstyrt,
     )
+
+fun lagEnhet(
+    enhetsnummer: String,
+    enhetsnavn: String = "Navn",
+): Enhet = Enhet(enhetsnummer = enhetsnummer, enhetsnavn = enhetsnavn)
 
 fun lagRegistrerSøknadDto() =
     RegistrerSøknadDto(
