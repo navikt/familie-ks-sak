@@ -1,11 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -31,29 +28,30 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 class BeregningServiceTest {
-    @MockK
-    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
+    private val tilkjentYtelseRepository: TilkjentYtelseRepository = mockk()
 
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
 
-    @MockK
-    private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
 
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
+    private val behandlingRepository: BehandlingRepository = mockk()
 
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService = mockk()
 
-    @MockK
-    private lateinit var fagsakService: FagsakService
+    private val fagsakService: FagsakService = mockk()
 
-    @MockK
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
+    private val tilkjentYtelseService: TilkjentYtelseService = mockk()
 
-    @InjectMockKs
-    private lateinit var beregningService: BeregningService
+    private val beregningService: BeregningService =
+        BeregningService(
+            tilkjentYtelseRepository = tilkjentYtelseRepository,
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            behandlingRepository = behandlingRepository,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            fagsakService = fagsakService,
+            tilkjentYtelseService = tilkjentYtelseService,
+        )
 
     @Test
     fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere når tom liste når det ikke finnes en andel tilkjent ytelse`() {

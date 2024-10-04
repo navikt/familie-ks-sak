@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
@@ -60,6 +61,8 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
+
+    val tilkjentYtelseService = TilkjentYtelseService()
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(
@@ -109,6 +112,7 @@ class CucumberMock(
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             fagsakService = fagsakService,
             tilkjentYtelseEndretAbonnenter = listOf(tilpassDifferanseberegningEtterTilkjentYtelseService),
+            tilkjentYtelseService = tilkjentYtelseService,
         )
 
     val personopplysningGrunnlagService =

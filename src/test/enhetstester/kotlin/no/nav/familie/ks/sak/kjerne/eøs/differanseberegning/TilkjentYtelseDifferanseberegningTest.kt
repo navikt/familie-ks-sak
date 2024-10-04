@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.util.TilkjentYtelseBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.ValutakursBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.VilkårsvurderingBuilder
-import no.nav.familie.ks.sak.kjerne.eøs.util.byggTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.eøs.util.oppdaterTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat

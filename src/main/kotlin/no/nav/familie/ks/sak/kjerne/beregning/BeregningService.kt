@@ -28,6 +28,7 @@ class BeregningService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val fagsakService: FagsakService,
     private val tilkjentYtelseEndretAbonnenter: List<TilkjentYtelseEndretAbonnent> = emptyList(),
+    private val tilkjentYtelseService: TilkjentYtelseService,
 ) {
     /**
      * Henter alle barn på behandlingen som har minst en periode med tilkjentytelse.
@@ -80,7 +81,7 @@ class BeregningService(
         slettTilkjentYtelseForBehandling(behandling)
 
         val tilkjentYtelse =
-            TilkjentYtelseUtils.beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering,
                 personopplysningGrunnlag,
                 endreteUtbetalingAndeler,
