@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import java.math.RoundingMode
 
 object RegelverkFørFebruar2025AndelGeneratorGammel {
+    @Deprecated(message = "Skal slettes")
     fun beregnAndelerTilkjentYtelseForBarna(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
