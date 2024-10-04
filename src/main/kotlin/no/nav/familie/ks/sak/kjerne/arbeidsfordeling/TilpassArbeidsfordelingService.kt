@@ -1,11 +1,10 @@
-package no.nav.familie.ks.sak.integrasjon.oppgave
+package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.Companion.erGyldigBehandlendeKontantstøtteEnhet
 import org.springframework.stereotype.Service
 

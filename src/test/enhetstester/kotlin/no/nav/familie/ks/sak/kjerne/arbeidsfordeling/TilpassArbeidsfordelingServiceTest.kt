@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.integrasjon.oppgave
+package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import io.mockk.every
 import io.mockk.mockk
@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagEnhet
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -25,8 +24,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal kaste feil om arbeidsfordeling returnerer midlertidig enhet 4863 og NAV-ident er null`() {
             // Arrange
-            val behandlingId = 1L
-
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
                     enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
@@ -47,7 +44,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal kaste feil om arbeidsfordeling returnerer midlertidig enhet 4863 og NAV-ident ikke har tilgang til noen andre enheter enn 4863 og 2103`() {
             // Arrange
-            val behandlingId = 1L
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.MIDLERTIDIG_ENHET
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
@@ -88,7 +84,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere NAV-ident og første enhetsnummer som NAV-identen har tilgang til når arbeidsfordeling returnerer midlertidig enhet 4863`() {
             // Arrange
-            val behandlingId = 1L
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.MIDLERTIDIG_ENHET
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
@@ -160,7 +155,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere Vikafossen 2103 uten NAV-ident om arbeidsfordeling returnerer Vikafossen 2103 og NAV-ident ikke har tilgang til Vikafossen 2103`() {
             // Arrange
-            val behandlingId = 1L
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.STEINKJER
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VADSØ
@@ -202,7 +196,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere Vikafossen 2103 med NAV-ident om arbeidsfordeling returnerer Vikafossen 2103 og NAV-ident har tilgang til Vikafossen 2103`() {
             // Arrange
-            val behandlingId = 1L
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.BERGEN
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
@@ -244,8 +237,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere enhetId uten NAV-ident om arbeidsfordeling ikke returnere 2103 eller 4863 og NAV-ident er null`() {
             // Arrange
-            val behandlingId = 1L
-
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
                     enhetId = KontantstøtteEnhet.STEINKJER.enhetsnummer,
@@ -267,7 +258,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal kaste feil om arbeidsfordeling ikke returnerer 2103 eller 4863 og NAV-ident ikke har tilgang til noen enheter`() {
             // Arrange
-            val behandlingId = 1L
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.MIDLERTIDIG_ENHET
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
@@ -308,7 +298,6 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere NAV-ident og første enhet NAV-ident har tilgang om arbeidsfordeling ikke returnere 2103 eller 4863 og NAV-ident ikke har tilgang arbeidsfordeling enheten`() {
             // Arrange
-            val behandlingId = 1L
             val navIdent = NavIdent("1")
 
             val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.OSLO
