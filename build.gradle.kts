@@ -234,6 +234,7 @@ sonar {
         property("sonar.organization", "navikt")
         property("sonar.host.url", System.getenv("SONAR_HOST_URL"))
         property("sonar.token", System.getenv("SONAR_TOKEN"))
+        property("sonar.sources", "src/main")
     }
 }
 
