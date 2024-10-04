@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevSteg.Companion.KONTANTSTØTTE_VEDTAK_BOKMÅL_VEDLEGG_FILNAVN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevSteg.Companion.KONTANTSTØTTE_VEDTAK_NYNORSK_VEDLEGG_FILNAVN
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevSteg.Companion.KONTANTSTØTTE_VEDTAK_VEDLEGG_TITTEL
@@ -64,7 +65,7 @@ class JournalførVedtaksbrevStegTest {
         every { personopplysningGrunnlagService.hentSøkersMålform(behandlingId = any()) } returns Målform.NB
         every { utgåendeJournalføringService.journalførDokument(any(), any(), any(), any(), capture(dokumentListeSlot), any(), any(), any(), any()) } returns "Test"
 
-        val vedtak = lagVedtak(behandling = lagBehandling(), stønadBrevPdF = ByteArray(5))
+        val vedtak = lagVedtak(behandling = lagBehandling(resultat = Behandlingsresultat.INNVILGET), stønadBrevPdF = ByteArray(5))
         val bokmålDokument = hentDokument(KONTANTSTØTTE_VEDTAK_BOKMÅL_VEDLEGG_FILNAVN)
 
         // Act
@@ -92,7 +93,7 @@ class JournalførVedtaksbrevStegTest {
         every { personopplysningGrunnlagService.hentSøkersMålform(behandlingId = any()) } returns Målform.NN
         every { utgåendeJournalføringService.journalførDokument(any(), any(), any(), any(), capture(dokumentListeSlot), any(), any(), any(), any()) } returns "Test"
 
-        val vedtak = lagVedtak(behandling = lagBehandling(), stønadBrevPdF = ByteArray(5))
+        val vedtak = lagVedtak(behandling = lagBehandling(resultat = Behandlingsresultat.INNVILGET), stønadBrevPdF = ByteArray(5))
 
         // Act
         journalførVedtaksbrevSteg.journalførVedtaksbrev(
