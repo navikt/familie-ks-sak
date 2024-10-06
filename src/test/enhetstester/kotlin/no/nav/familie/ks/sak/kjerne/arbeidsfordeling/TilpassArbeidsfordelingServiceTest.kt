@@ -38,7 +38,7 @@ class TilpassArbeidsfordelingServiceTest {
                         navIdent = null,
                     )
                 }
-            assertThat(exception.message).isEqualTo("Kan ikke sette ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident")
+            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident")
         }
 
         @Test
@@ -149,7 +149,7 @@ class TilpassArbeidsfordelingServiceTest {
                         navIdent = null,
                     )
                 }
-            assertThat(exception.message).isEqualTo("Kan ikke sette ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident")
+            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident")
         }
 
         @Test

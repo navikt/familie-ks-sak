@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
@@ -18,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -26,29 +25,36 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class ArbeidsfordelingServiceTest {
-    @MockK
-    private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
+    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository = mockk()
 
-    @MockK
-    private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
 
-    @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
+    private val integrasjonClient: IntegrasjonClient = mockk()
 
-    @MockK
-    private lateinit var personOpplysningerService: PersonOpplysningerService
+    private val personOpplysningerService: PersonOpplysningerService = mockk()
 
-    @MockK
-    private lateinit var oppgaveService: OppgaveService
+    private val oppgaveService: OppgaveService = mockk()
 
-    @MockK
-    private lateinit var loggService: LoggService
+    private val loggService: LoggService = mockk()
 
-    @MockK
-    private lateinit var personidentService: PersonidentService
+    private val personidentService: PersonidentService = mockk()
 
-    @InjectMockKs
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
+    private val unleashService: UnleashService = mockk()
+
+    private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
+
+    private val arbeidsfordelingService: ArbeidsfordelingService =
+        ArbeidsfordelingService(
+            arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            integrasjonClient = integrasjonClient,
+            personOpplysningerService = personOpplysningerService,
+            oppgaveService = oppgaveService,
+            loggService = loggService,
+            personidentService = personidentService,
+            tilpassArbeidsfordelingService = tilpassArbeidsfordelingService,
+            unleashService = unleashService,
+        )
 
     @Test
     fun `finnArbeidsfordelingPåBehandling skal kaste exception dersom behandling ikke har tilknyttet arbeidsfordeling`() {
