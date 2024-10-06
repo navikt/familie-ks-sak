@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.tilArbeidsfordelingsenhet
@@ -27,7 +27,7 @@ class ArbeidsfordelingService(
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val integrasjonClient: IntegrasjonClient,
-    private val personOpplysningerService: PersonOpplysningerService,
+    private val personopplysningerService: PersonopplysningerService,
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService,
     private val personidentService: PersonidentService,
@@ -41,7 +41,7 @@ class ArbeidsfordelingService(
         arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
             ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
 
-    fun fastsettBehandledeEnhet(
+    fun fastsettBehandlendeEnhet(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling? = null,
     ) {
@@ -210,13 +210,13 @@ class ArbeidsfordelingService(
     }
 
     private fun identMedAdressebeskyttelse(aktør: Aktør) =
-        aktør.aktivFødselsnummer() to personOpplysningerService.hentPersoninfoEnkel(aktør).adressebeskyttelseGradering
+        aktør.aktivFødselsnummer() to personopplysningerService.hentPersoninfoEnkel(aktør).adressebeskyttelseGradering
 
     private fun identMedAdressebeskyttelse(ident: String) =
         IdentMedAdressebeskyttelse(
             ident = ident,
             adressebeskyttelsegradering =
-                personOpplysningerService
+                personopplysningerService
                     .hentPersoninfoEnkel(
                         personidentService.hentAktør(ident),
                     ).adressebeskyttelseGradering,

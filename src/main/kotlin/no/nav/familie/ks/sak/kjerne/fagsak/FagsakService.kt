@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -45,7 +45,7 @@ import java.time.Period
 class FagsakService(
     private val personidentService: PersonidentService,
     private val integrasjonService: IntegrasjonService,
-    private val personopplysningerService: PersonOpplysningerService,
+    private val personopplysningerService: PersonopplysningerService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,

@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.brev.mottaker
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 class ValiderBrevmottakerService(
     private val brevmottakerRepository: BrevmottakerRepository,
     private val persongrunnlagService: PersonopplysningGrunnlagService,
-    private val personOpplysningerService: PersonOpplysningerService,
+    private val personOpplysningerService: PersonopplysningerService,
     private val fagsakRepository: FagsakRepository,
 ) {
     fun validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(

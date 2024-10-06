@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag
 
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.filtrerUtKunNorskeBostedsadresser
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class PersonService(
-    private val personOpplysningerService: PersonOpplysningerService,
+    private val personOpplysningerService: PersonopplysningerService,
     private val statsborgerskapService: StatsborgerskapService,
 ) {
     fun lagPerson(

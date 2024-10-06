@@ -154,7 +154,7 @@ class PersonopplysningGrunnlagService(
              * For sikkerhetsskyld fastsetter vi alltid behandlende enhet når nytt personopplysningsgrunnlag opprettes.
              * Dette gjør vi fordi det kan ha blitt introdusert personer med fortrolig adresse.
              */
-            arbeidsfordelingService.fastsettBehandledeEnhet(behandling)
+            arbeidsfordelingService.fastsettBehandlendeEnhet(behandling)
         }
     }
 

@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagEnhet
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -380,6 +381,64 @@ class TilpassArbeidsfordelingServiceTest {
             // Assert
             assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(arbeidsfordelingEnhet.enhetsnummer)
             assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(arbeidsfordelingEnhet.enhetsnavn)
+        }
+    }
+
+    @Nested
+    inner class BestemTilordnetRessursPåOppgave {
+        @Test
+        fun `skal returnere navIdent dersom navIdent har tilgang til arbeidsfordelingsenhet`() {
+            // Arrange
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer, enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            val navIdent = NavIdent("1")
+
+            every { mockedIntegrasjonClient.hentEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
+                listOf(
+                    Enhet(
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
+                    ),
+                )
+
+            // Act
+            val tilordnetRessurs = tilpassArbeidsfordelingService.bestemTilordnetRessursPåOppgave(arbeidsfordelingsenhet, navIdent)
+
+            // Assert
+            assertThat(tilordnetRessurs).isEqualTo(navIdent)
+        }
+
+        @Test
+        fun `skal returnere null dersom navIdent ikke har tilgang til arbeidsfordelingsenhet`() {
+            // Arrange
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer, enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            val navIdent = NavIdent("1")
+
+            every { mockedIntegrasjonClient.hentEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
+                listOf(
+                    Enhet(
+                        enhetsnummer = KontantstøtteEnhet.OSLO.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.OSLO.enhetsnavn,
+                    ),
+                )
+
+            // Act
+            val tilordnetRessurs = tilpassArbeidsfordelingService.bestemTilordnetRessursPåOppgave(arbeidsfordelingsenhet, navIdent)
+
+            // Assert
+            assertThat(tilordnetRessurs).isNull()
+        }
+
+        @Test
+        fun `skal returnere null dersom navIdent er null`() {
+            // Arrange
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer, enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            val navIdent = null
+
+            // Act
+            val tilordnetRessurs = tilpassArbeidsfordelingService.bestemTilordnetRessursPåOppgave(arbeidsfordelingsenhet, navIdent)
+
+            // Assert
+            assertThat(tilordnetRessurs).isNull()
         }
     }
 }

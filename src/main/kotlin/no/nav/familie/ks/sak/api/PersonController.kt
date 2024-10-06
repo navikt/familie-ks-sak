@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class PersonController(
     val personidentService: PersonidentService,
-    val personOpplysningerService: PersonOpplysningerService,
+    val personOpplysningerService: PersonopplysningerService,
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     val integrasjonService: IntegrasjonService,
     val tilgangService: TilgangService,

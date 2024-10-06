@@ -3,25 +3,34 @@ package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.unleash.UnleashService
-import org.hamcrest.MatcherAssert.assertThat
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 internal class ArbeidsfordelingServiceTest {
@@ -31,7 +40,7 @@ internal class ArbeidsfordelingServiceTest {
 
     private val integrasjonClient: IntegrasjonClient = mockk()
 
-    private val personOpplysningerService: PersonOpplysningerService = mockk()
+    private val personopplysningerService: PersonopplysningerService = mockk()
 
     private val oppgaveService: OppgaveService = mockk()
 
@@ -48,7 +57,7 @@ internal class ArbeidsfordelingServiceTest {
             arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
             integrasjonClient = integrasjonClient,
-            personOpplysningerService = personOpplysningerService,
+            personopplysningerService = personopplysningerService,
             oppgaveService = oppgaveService,
             loggService = loggService,
             personidentService = personidentService,
@@ -63,7 +72,7 @@ internal class ArbeidsfordelingServiceTest {
         val feil =
             assertThrows<IllegalStateException> { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(404) }
 
-        assertThat(feil.message, Is("Finner ikke tilknyttet arbeidsfordeling på behandling med id 404"))
+        assertThat(feil.message).isEqualTo("Finner ikke tilknyttet arbeidsfordeling på behandling med id 404")
     }
 
     @Test
@@ -73,7 +82,7 @@ internal class ArbeidsfordelingServiceTest {
 
         val finnArbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(200)
 
-        assertThat(finnArbeidsfordelingPåBehandling, Is(mockedArbeidsfordelingPåBehandling))
+        assertThat(finnArbeidsfordelingPåBehandling).isEqualTo(mockedArbeidsfordelingPåBehandling)
     }
 
     @Test
@@ -91,7 +100,7 @@ internal class ArbeidsfordelingServiceTest {
                 )
             }
 
-        assertThat(feil.message, Is("Finner ikke tilknyttet arbeidsfordeling på behandling med id ${behandling.id}"))
+        assertThat(feil.message).isEqualTo("Finner ikke tilknyttet arbeidsfordeling på behandling med id ${behandling.id}")
     }
 
     @Test
@@ -128,5 +137,66 @@ internal class ArbeidsfordelingServiceTest {
         verify(exactly = 1) { integrasjonClient.hentNavKontorEnhet("testId") }
         verify(exactly = 1) { mockedArbeidsfordelingPåBehandling.copy(0, 0, "testId", "testNavn", true) }
         verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) }
+    }
+
+    @Nested
+    inner class FastsettBehandlendeEnhet {
+        @Test
+        fun `skal overstyre behandlende enhet fra NORG dersom enhet fra finnArbeidsfordelingForOppgave er en annen`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val søker = lagPerson(personType = PersonType.SØKER, aktør = behandling.fagsak.aktør)
+            val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
+                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
+                )
+
+            val oppdatertArbeidsfordelingPåBehandling = mockk<ArbeidsfordelingPåBehandling>()
+
+            every {
+                arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
+            } returns null
+
+            every {
+                unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)
+            } returns true
+
+            every { personopplysningerService.hentPersoninfoEnkel(any()).adressebeskyttelseGradering } returns null
+
+            every {
+                personopplysningGrunnlagRepository
+                    .findByBehandlingAndAktiv(behandling.id)
+            } returns lagPersonopplysningGrunnlag(søkerPersonIdent = søker.aktør.aktivFødselsnummer())
+
+            every { integrasjonClient.hentBehandlendeEnheter(søker.aktør.aktivFødselsnummer()) } returns
+                listOf(
+                    arbeidsfordelingsenhet,
+                )
+
+            every {
+                tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                    arbeidsfordelingsenhet = arbeidsfordelingsenhet,
+                    navIdent = NavIdent(SikkerhetContext.hentSaksbehandler()),
+                )
+            } returns Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.OSLO.enhetsnummer, enhetNavn = KontantstøtteEnhet.OSLO.enhetsnavn)
+
+            val arbeidsfordelingPåBehandlingSlot = slot<ArbeidsfordelingPåBehandling>()
+
+            every {
+                arbeidsfordelingPåBehandlingRepository.save(capture(arbeidsfordelingPåBehandlingSlot))
+            } returns oppdatertArbeidsfordelingPåBehandling
+
+            every { oppdatertArbeidsfordelingPåBehandling.toSecureString() } returns ""
+
+            // Act
+            arbeidsfordelingService.fastsettBehandlendeEnhet(behandling, null)
+
+            // Assert
+            val arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingSlot.captured
+            assertThat(arbeidsfordelingPåBehandling.behandlendeEnhetId).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnummer)
+            assertThat(arbeidsfordelingPåBehandling.behandlendeEnhetNavn).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnavn)
+        }
     }
 }
