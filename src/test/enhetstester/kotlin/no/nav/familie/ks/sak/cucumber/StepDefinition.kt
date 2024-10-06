@@ -47,7 +47,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelseMedEndreteUtbetalinger
@@ -213,7 +212,8 @@ class StepDefinition {
         behandlingId: Long,
     ) {
         val andelerFørDifferanseberegning =
-            TilkjentYtelseUtils
+            CucumberMock(this)
+                .tilkjentYtelseService
                 .beregnTilkjentYtelse(
                     vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
                     personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
