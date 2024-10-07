@@ -8,8 +8,6 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ba.sak.cucumber.mock.mockTaskService
 import no.nav.familie.kontrakter.felles.PersonIdent
-import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
-import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle.FORELDER
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -24,6 +22,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.prosessering.domene.Task
@@ -83,7 +82,7 @@ internal class HåndterNyIdentServiceTest {
             every { personIdentService.hentIdenter(any(), true) } returns identInformasjonFraPdl
             every { aktørRepository.findByAktørId(nyAktør.aktørId) } returns null
             every { aktørRepository.findByAktørId(gammelAktør.aktørId) } returns gammelAktør
-            every { fagsakService.hentFagsakDeltagere(any()) } returns listOf(FagsakDeltagerResponsDto(rolle = FORELDER, fagsakId = 0))
+            every { fagsakService.hentFagsakerPåPerson(any()) } returns listOf(Fagsak(id = 0, aktør = gammelAktør))
             every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns gammelBehandling
             every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns
                 PersonopplysningGrunnlag(
@@ -97,20 +96,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent dropper merging av identer når det ikke eksisterer en fagsak for identer`() {
             // arrange
-            every { fagsakService.hentFagsakDeltagere(any()) } returns emptyList()
-
-            // act
-            val aktør = håndterNyIdentService.håndterNyIdent(PersonIdent(nyttFnr))
-
-            // assert
-            verify(exactly = 0) { PatchMergetIdentTask.opprettTask(any()) }
-            assertThat(aktør).isNull()
-        }
-
-        @Test
-        fun `håndterNyIdent dropper merging av identer når det eksisterer en fagsak uten fagsakId for identer`() {
-            // arrange
-            every { fagsakService.hentFagsakDeltagere(any()) } returns listOf(FagsakDeltagerResponsDto(rolle = FORELDER))
+            every { fagsakService.hentFagsakerPåPerson(any()) } returns emptyList()
 
             // act
             val aktør = håndterNyIdentService.håndterNyIdent(PersonIdent(nyttFnr))
@@ -123,10 +109,10 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent kaster Feil når det eksisterer flere fagsaker for identer`() {
             // arrange
-            every { fagsakService.hentFagsakDeltagere(any()) } returns
+            every { fagsakService.hentFagsakerPåPerson(any()) } returns
                 listOf(
-                    FagsakDeltagerResponsDto(rolle = FORELDER, fagsakId = 1),
-                    FagsakDeltagerResponsDto(rolle = FORELDER, fagsakId = 2),
+                    Fagsak(id = 1, aktør = gammelAktør),
+                    Fagsak(id = 2, aktør = gammelAktør),
                 )
 
             // act & assert
@@ -223,7 +209,7 @@ internal class HåndterNyIdentServiceTest {
         private val personidentRepository: PersonidentRepository = mockk()
 
         private val personidentAktiv = randomFnr()
-        private val aktørIdAktiv = randomAktør(personidentAktiv)
+        private val aktørAktiv = randomAktør(personidentAktiv)
         private val personidentHistorisk = randomFnr()
 
         private val personIdentSlot = slot<Personident>()
@@ -253,7 +239,7 @@ internal class HåndterNyIdentServiceTest {
             clearMocks(answers = true, firstMock = aktørRepository)
             clearMocks(answers = true, firstMock = personidentRepository)
 
-            every { fagsakService.hentFagsakDeltagere(any()) } returns listOf(FagsakDeltagerResponsDto(rolle = FORELDER, fagsakId = 0))
+            every { fagsakService.hentFagsakerPåPerson(any()) } returns listOf(Fagsak(id = 0, aktør = aktørAktiv))
 
             every { personidentRepository.saveAndFlush(capture(personIdentSlot)) } answers {
                 personIdentSlot.captured
@@ -265,13 +251,13 @@ internal class HåndterNyIdentServiceTest {
 
             every { pdlClient.hentIdenter(personidentAktiv, false) } answers {
                 listOf(
-                    PdlIdent(aktørIdAktiv.aktørId, false, "AKTORID"),
+                    PdlIdent(aktørAktiv.aktørId, false, "AKTORID"),
                     PdlIdent(personidentAktiv, false, "FOLKEREGISTERIDENT"),
                 )
             }
             every { pdlClient.hentIdenter(personidentHistorisk, false) } answers {
                 listOf(
-                    PdlIdent(aktørIdAktiv.aktørId, false, "AKTORID"),
+                    PdlIdent(aktørAktiv.aktørId, false, "AKTORID"),
                     PdlIdent(personidentAktiv, false, "FOLKEREGISTERIDENT"),
                 )
             }
