@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -41,11 +42,16 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             .map { it.verdi }
 
     return vilkårResultatListeMedNullverdierForHullITidslinje
-        .fold(emptyList()) { acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
+        .foldIndexed(emptyList()) { index, acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
             val vilkårResultatIForrigePeriode = acc.lastOrNull()
 
+
+
             val graderingsforskjellMellomDenneOgForrigePeriode =
-                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(vilkårResultatIForrigePeriode)
+                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                    erFørsteVilkårsperiode = index == 0,
+                    vilkårResultatForrigePeriode = vilkårResultatIForrigePeriode,
+                )
 
             val accMedForrigeOppdatert =
                 if (vilkårResultatIForrigePeriode == null) {
@@ -66,6 +72,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 }
 
 private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
+    erFørsteVilkårsperiode: Boolean,
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
@@ -73,6 +80,8 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2
             ?: BigDecimal.ZERO
     val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
     return when {
+        graderingDennePerioden == BigDecimal.ZERO && graderingForrigePeriode == BigDecimal(100) -> Graderingsforskjell.REDUKSJON_FRA_INGEN_BARNEHAGEPLASS_TIL_FULLTID_BARNEHAGEPLASS
+        !erFørsteVilkårsperiode && graderingForrigePeriode == BigDecimal.ZERO && graderingDennePerioden == BigDecimal(100) -> Graderingsforskjell.ØKNING_FRA_FULLTID_BARNEHAGEPLASS_TIL_INGEN_BARNEHAGEPLASS
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.REDUKSJON
         graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.ØKNING
         else -> Graderingsforskjell.LIK
@@ -92,8 +101,14 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell2024(graderin
 
             Graderingsforskjell.ØKNING,
             -> tomDato.sisteDagIMåned()
+            Graderingsforskjell.ØKNING_FRA_FULLTID_BARNEHAGEPLASS_TIL_INGEN_BARNEHAGEPLASS,
+            -> tomDato.sisteDagIMåned()
 
-            Graderingsforskjell.REDUKSJON -> tomDato.plusDays(1).sisteDagIMåned()
+            Graderingsforskjell.REDUKSJON,
+            -> tomDato.plusDays(1).sisteDagIMåned()
+
+            Graderingsforskjell.REDUKSJON_FRA_INGEN_BARNEHAGEPLASS_TIL_FULLTID_BARNEHAGEPLASS,
+            -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
         }
     }
 
@@ -105,6 +120,9 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell2024(graderin
             -> fomDato.førsteDagIInneværendeMåned()
 
             Graderingsforskjell.REDUKSJON,
-            -> fomDato.plusMonths(1).førsteDagIInneværendeMåned()
+            Graderingsforskjell.REDUKSJON_FRA_INGEN_BARNEHAGEPLASS_TIL_FULLTID_BARNEHAGEPLASS,
+            -> fomDato.førsteDagINesteMåned()
+            Graderingsforskjell.ØKNING_FRA_FULLTID_BARNEHAGEPLASS_TIL_INGEN_BARNEHAGEPLASS,
+            -> fomDato.minusDays(1).førsteDagINesteMåned()
         }
     }

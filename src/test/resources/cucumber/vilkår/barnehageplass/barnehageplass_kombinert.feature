@@ -36,7 +36,7 @@ Egenskap: Overgang fra barnehageplass kombinert
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.03.2024 | 28.02.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
-  Scenario: Kontantstøtte skal innvilges i juli dersom barnet slutter i juni i gammelt regelsett, og kontantstøtten opphører i oktober dersom barnet begynner i barnehage i midten av september i nytt regelverk
+  Scenario: Kontantstøtte skal innvilges i juli dersom barnet slutter i juni i gammelt regelsett, og kontantstøtten opphører i september dersom barnet begynner i barnehage i midten av september i nytt regelverk
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -59,7 +59,7 @@ Egenskap: Overgang fra barnehageplass kombinert
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.07.2024 | 30.09.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.07.2024 | 31.08.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
   Scenario: Kontatstøtte skal innvilges i juni dersom barnet ikke har barnehageplass i mai i gammelt lovverk, reduseres fra samme måned i gammelt lovverk, reduseres måneden etter i nytt lovverk
     Og følgende persongrunnlag

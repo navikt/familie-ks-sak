@@ -13,7 +13,7 @@ Egenskap: Overgang fra barnehageplass
       | 1            | 1        |                     | SØKNAD           | NASJONAL            |
 
 
-  Scenario: Kontantstøtte skal innvilges i oktober dersom barnet slutter i fulltids barnehageplass 15 oktober.
+  Scenario: Kontantstøtte skal innvilges i november dersom barnet slutter i fulltids barnehageplass 15 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -36,7 +36,7 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.10.2024 | 31.03.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.11.2024 | 31.03.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
   Scenario: Kontantstøtte skal innvilges i november dersom barnet slutter i fulltids barnehageplass 31 oktober.
     Og følgende persongrunnlag
