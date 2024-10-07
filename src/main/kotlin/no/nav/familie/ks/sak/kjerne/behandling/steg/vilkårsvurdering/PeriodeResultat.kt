@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.beregning
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje

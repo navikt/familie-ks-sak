@@ -27,7 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseUtils
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
@@ -453,7 +453,7 @@ fun lagBrevPeriodeContext(
     every { vilkårsvurdering.personResultater } returns personResultater.toSet()
 
     val andelerTilkjentYtelse =
-        TilkjentYtelseUtils.beregnAndelerTilkjentYtelseForBarna(
+        RegelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(
             personopplysningGrunnlag = persongrunnlag,
             vilkårsvurdering = vilkårsvurdering,
             tilkjentYtelse = mockk(),
