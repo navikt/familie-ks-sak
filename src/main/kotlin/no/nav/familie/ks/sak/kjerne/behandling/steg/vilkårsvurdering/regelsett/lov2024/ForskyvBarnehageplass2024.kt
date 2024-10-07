@@ -45,8 +45,6 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
         .foldIndexed(emptyList()) { index, acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
             val vilkårResultatIForrigePeriode = acc.lastOrNull()
 
-
-
             val graderingsforskjellMellomDenneOgForrigePeriode =
                 vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
                     erFørsteVilkårsperiode = index == 0,
