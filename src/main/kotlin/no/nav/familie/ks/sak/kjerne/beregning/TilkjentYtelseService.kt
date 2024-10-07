@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class TilkjentYtelseService(private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService) {
+class TilkjentYtelseService(
+    private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService,
+) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
         personopplysningGrunnlag: PersonopplysningGrunnlag,

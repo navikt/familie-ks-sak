@@ -13,7 +13,5 @@ class RegelverkFørFebruar2025AndelGenerator {
         barn: Person,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
-    ): List<AndelTilkjentYtelse> {
-        return emptyList()
-    }
+    ): List<AndelTilkjentYtelse> = emptyList()
 }

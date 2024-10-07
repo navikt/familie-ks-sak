@@ -24,8 +24,8 @@ class GenererAndelTilkjentYtelseService(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
-    ): List<AndelTilkjentYtelse> {
-        return if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false)) {
+    ): List<AndelTilkjentYtelse> =
+        if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false)) {
             personopplysningGrunnlag.barna.flatMap { barn ->
                 genererAndelerForBarn(
                     søker = personopplysningGrunnlag.søker,
@@ -37,7 +37,6 @@ class GenererAndelTilkjentYtelseService(
         } else {
             RegelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(personopplysningGrunnlag = personopplysningGrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
         }
-    }
 
     private fun genererAndelerForBarn(
         søker: Person,
