@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.GenererAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -62,7 +63,8 @@ class CucumberMock(
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
 
-    val tilkjentYtelseService = TilkjentYtelseService()
+    val genererAndelTilkjentYtelseService = GenererAndelTilkjentYtelseService(mockUnleashService(isEnabledDefault = false))
+    val tilkjentYtelseService = TilkjentYtelseService(genererAndelTilkjentYtelseService)
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

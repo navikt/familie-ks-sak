@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -50,7 +51,9 @@ internal class TilkjentYtelseServiceTest {
 
     private lateinit var vilkårsvurdering: Vilkårsvurdering
 
-    private val tilkjentYtelseService = TilkjentYtelseService()
+    private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService = GenererAndelTilkjentYtelseService(mockUnleashService(false))
+
+    private val tilkjentYtelseService = TilkjentYtelseService(genererAndelTilkjentYtelseService)
 
     @BeforeEach
     fun init() {

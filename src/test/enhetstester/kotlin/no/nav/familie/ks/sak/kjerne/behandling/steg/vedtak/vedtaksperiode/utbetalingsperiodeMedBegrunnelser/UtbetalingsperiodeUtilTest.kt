@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
@@ -21,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.GenererAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
@@ -43,8 +45,6 @@ internal class UtbetalingsperiodeUtilTest {
     private val søker = personopplysningGrunnlag.søker
     private val barn1 = personopplysningGrunnlag.barna[0]
     private val barn2 = personopplysningGrunnlag.barna[1]
-
-    private val tilkjentYtelseService = TilkjentYtelseService()
 
     @Test
     fun `hentPerioderMedUtbetaling skal beholde split i andel tilkjent ytelse`() {
@@ -323,6 +323,8 @@ internal class UtbetalingsperiodeUtilTest {
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )
         vilkårsvurdering.personResultater = personResultater
+
+        val tilkjentYtelseService = TilkjentYtelseService(GenererAndelTilkjentYtelseService(mockUnleashService(false)))
 
         val tilkjentYtelse =
             tilkjentYtelseService.beregnTilkjentYtelse(
