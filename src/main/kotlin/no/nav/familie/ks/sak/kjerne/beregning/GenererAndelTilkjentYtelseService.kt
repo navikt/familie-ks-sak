@@ -15,7 +15,11 @@ import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 
 @Service
-class GenererAndelTilkjentYtelseService(private val unleashService: UnleashService) {
+class GenererAndelTilkjentYtelseService(
+    private val regelverkLovendringFebruar2025AndelGenerator: RegelverkLovendringFebruar2025AndelGenerator,
+    private val regelverkFørFebruar2025AndelGenerator: RegelverkFørFebruar2025AndelGenerator,
+    private val unleashService: UnleashService,
+) {
     fun genererAndelerTilkjentYtelse(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
@@ -44,8 +48,8 @@ class GenererAndelTilkjentYtelseService(private val unleashService: UnleashServi
         val regelverk = RegelverkUtleder.utledRegelverkForBarn(fødselsdato = barn.fødselsdato)
         val andeler =
             when (regelverk) {
-                Regelverk.LOVENDRING_FEBRUAR_2025 -> RegelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
-                Regelverk.FØR_LOVENDRING_2025 -> RegelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
+                Regelverk.LOVENDRING_FEBRUAR_2025 -> regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
+                Regelverk.FØR_LOVENDRING_2025 -> regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
             }
         return andeler
     }

@@ -22,6 +22,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -51,8 +53,12 @@ internal class TilkjentYtelseServiceTest {
 
     private lateinit var vilkårsvurdering: Vilkårsvurdering
 
-    private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService = GenererAndelTilkjentYtelseService(mockUnleashService(false))
-
+    private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService =
+        GenererAndelTilkjentYtelseService(
+            regelverkLovendringFebruar2025AndelGenerator = RegelverkLovendringFebruar2025AndelGenerator(),
+            regelverkFørFebruar2025AndelGenerator = RegelverkFørFebruar2025AndelGenerator(),
+            unleashService = mockUnleashService(false),
+        )
     private val tilkjentYtelseService = TilkjentYtelseService(genererAndelTilkjentYtelseService)
 
     @BeforeEach

@@ -23,6 +23,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.GenererAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
@@ -63,7 +65,12 @@ class CucumberMock(
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
 
-    val genererAndelTilkjentYtelseService = GenererAndelTilkjentYtelseService(mockUnleashService(isEnabledDefault = false))
+    val genererAndelTilkjentYtelseService =
+        GenererAndelTilkjentYtelseService(
+            regelverkLovendringFebruar2025AndelGenerator = RegelverkLovendringFebruar2025AndelGenerator(),
+            regelverkFørFebruar2025AndelGenerator = RegelverkFørFebruar2025AndelGenerator(),
+            unleashService = mockUnleashService(isEnabledDefault = false),
+        )
     val tilkjentYtelseService = TilkjentYtelseService(genererAndelTilkjentYtelseService)
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =

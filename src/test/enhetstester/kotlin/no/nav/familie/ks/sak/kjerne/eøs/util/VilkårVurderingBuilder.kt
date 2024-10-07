@@ -25,6 +25,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.GenererAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -93,7 +95,14 @@ data class VilkårsvurderingBuilder(
     }
 
     fun byggTilkjentYtelse(): TilkjentYtelse {
-        val tilkjentYtelseService = TilkjentYtelseService(GenererAndelTilkjentYtelseService(mockUnleashService(false)))
+        val tilkjentYtelseService =
+            TilkjentYtelseService(
+                GenererAndelTilkjentYtelseService(
+                    regelverkLovendringFebruar2025AndelGenerator = RegelverkLovendringFebruar2025AndelGenerator(),
+                    regelverkFørFebruar2025AndelGenerator = RegelverkFørFebruar2025AndelGenerator(),
+                    unleashService = mockUnleashService(false),
+                ),
+            )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
             vilkårsvurdering = this.byggVilkårsvurdering(),
