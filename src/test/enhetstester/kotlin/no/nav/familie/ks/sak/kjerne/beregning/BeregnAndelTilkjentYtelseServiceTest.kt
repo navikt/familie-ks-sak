@@ -16,12 +16,12 @@ import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class GenererAndelTilkjentYtelseServiceTest {
+class BeregnAndelTilkjentYtelseServiceTest {
     private val regelverkLovendringFebruar2025AndelGenerator: RegelverkLovendringFebruar2025AndelGenerator = mockk()
     private val regelverkFørFebruar2025AndelGenerator: RegelverkFørFebruar2025AndelGenerator = mockk()
     private val unleashService: UnleashService = mockk()
-    private val genererAndelTilkjentYtelseService =
-        GenererAndelTilkjentYtelseService(
+    private val beregnAndelTilkjentYtelseService =
+        BeregnAndelTilkjentYtelseService(
             regelverkLovendringFebruar2025AndelGenerator = regelverkLovendringFebruar2025AndelGenerator,
             regelverkFørFebruar2025AndelGenerator = regelverkFørFebruar2025AndelGenerator,
             unleashService = unleashService,
@@ -40,11 +40,11 @@ class GenererAndelTilkjentYtelseServiceTest {
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns false
 
         // Act
-        genererAndelTilkjentYtelseService.genererAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
+        beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
 
         // Assert
-        verify(exactly = 0) { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) }
-        verify(exactly = 0) { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) }
+        verify(exactly = 0) { regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
+        verify(exactly = 0) { regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
     }
 
     @Test
@@ -56,14 +56,14 @@ class GenererAndelTilkjentYtelseServiceTest {
         every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 12, 31)))
 
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns true
-        every { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
+        every { regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 
         // Act
-        genererAndelTilkjentYtelseService.genererAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
+        beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
 
         // Assert
-        verify(exactly = 1) { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) }
-        verify(exactly = 0) { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) }
+        verify(exactly = 1) { regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
+        verify(exactly = 0) { regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
     }
 
     @Test
@@ -75,14 +75,14 @@ class GenererAndelTilkjentYtelseServiceTest {
         every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør(), fødselsdato = RegelverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025))
 
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns true
-        every { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
+        every { regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 
         // Act
-        genererAndelTilkjentYtelseService.genererAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
+        beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
 
         // Assert
-        verify(exactly = 0) { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) }
-        verify(exactly = 1) { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) }
+        verify(exactly = 0) { regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
+        verify(exactly = 1) { regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
     }
 
     @Test
@@ -97,14 +97,14 @@ class GenererAndelTilkjentYtelseServiceTest {
         every { personopplysningGrunnlag.barna } returns listOf(barnFødtFørLovendring2025, barnFødtEtterLovendring2025)
 
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns true
-        every { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
-        every { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
+        every { regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
+        every { regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 
         // Act
-        genererAndelTilkjentYtelseService.genererAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
+        beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
 
         // Assert
-        verify(exactly = 1) { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(søker, barnFødtFørLovendring2025, any(), any()) }
-        verify(exactly = 1) { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(søker, barnFødtEtterLovendring2025, any(), any()) }
+        verify(exactly = 1) { regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(søker, barnFødtFørLovendring2025, any(), any()) }
+        verify(exactly = 1) { regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(søker, barnFødtEtterLovendring2025, any(), any()) }
     }
 }

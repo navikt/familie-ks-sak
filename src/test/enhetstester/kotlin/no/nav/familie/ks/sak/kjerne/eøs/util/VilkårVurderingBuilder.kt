@@ -22,7 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.beregning.GenererAndelTilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
@@ -97,7 +97,7 @@ data class VilkårsvurderingBuilder(
     fun byggTilkjentYtelse(): TilkjentYtelse {
         val tilkjentYtelseService =
             TilkjentYtelseService(
-                GenererAndelTilkjentYtelseService(
+                BeregnAndelTilkjentYtelseService(
                     regelverkLovendringFebruar2025AndelGenerator = RegelverkLovendringFebruar2025AndelGenerator(),
                     regelverkFørFebruar2025AndelGenerator = RegelverkFørFebruar2025AndelGenerator(),
                     unleashService = mockUnleashService(false),

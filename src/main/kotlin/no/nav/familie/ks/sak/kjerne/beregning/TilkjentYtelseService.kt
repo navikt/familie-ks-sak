@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 @Service
 class TilkjentYtelseService(
-    private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService,
+    private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
 ) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
@@ -26,7 +26,7 @@ class TilkjentYtelseService(
         val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.person?.type == PersonType.BARN }
 
         val andelerTilkjentYtelseBarnaUtenEndringer =
-            genererAndelTilkjentYtelseService.genererAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
+            beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
             AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(

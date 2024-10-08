@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class RegelverkLovendringFebruar2025AndelGenerator {
-    fun genererAndelerForBarn(
+    fun beregnAndelerForBarn(
         søker: Person,
         barn: Person,
         vilkårsvurdering: Vilkårsvurdering,

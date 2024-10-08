@@ -47,19 +47,18 @@ internal class TilkjentYtelseServiceTest {
             barnAktør = listOf(barn1),
         )
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
-    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
     private val maksBeløp = maksBeløp()
 
     private lateinit var vilkårsvurdering: Vilkårsvurdering
 
-    private val genererAndelTilkjentYtelseService: GenererAndelTilkjentYtelseService =
-        GenererAndelTilkjentYtelseService(
+    private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService =
+        BeregnAndelTilkjentYtelseService(
             regelverkLovendringFebruar2025AndelGenerator = RegelverkLovendringFebruar2025AndelGenerator(),
             regelverkFørFebruar2025AndelGenerator = RegelverkFørFebruar2025AndelGenerator(),
             unleashService = mockUnleashService(false),
         )
-    private val tilkjentYtelseService = TilkjentYtelseService(genererAndelTilkjentYtelseService)
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)
 
     @BeforeEach
     fun init() {

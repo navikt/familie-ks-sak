@@ -15,19 +15,19 @@ import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 
 @Service
-class GenererAndelTilkjentYtelseService(
+class BeregnAndelTilkjentYtelseService(
     private val regelverkLovendringFebruar2025AndelGenerator: RegelverkLovendringFebruar2025AndelGenerator,
     private val regelverkFørFebruar2025AndelGenerator: RegelverkFørFebruar2025AndelGenerator,
     private val unleashService: UnleashService,
 ) {
-    fun genererAndelerTilkjentYtelse(
+    fun beregnAndelerTilkjentYtelse(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> =
         if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false)) {
             personopplysningGrunnlag.barna.flatMap { barn ->
-                genererAndelerForBarn(
+                beregnAndelerForBarn(
                     søker = personopplysningGrunnlag.søker,
                     barn = barn,
                     vilkårsvurdering = vilkårsvurdering,
@@ -38,7 +38,7 @@ class GenererAndelTilkjentYtelseService(
             RegelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(personopplysningGrunnlag = personopplysningGrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
         }
 
-    private fun genererAndelerForBarn(
+    private fun beregnAndelerForBarn(
         søker: Person,
         barn: Person,
         vilkårsvurdering: Vilkårsvurdering,
@@ -47,8 +47,8 @@ class GenererAndelTilkjentYtelseService(
         val regelverk = RegelverkUtleder.utledRegelverkForBarn(fødselsdato = barn.fødselsdato)
         val andeler =
             when (regelverk) {
-                Regelverk.LOVENDRING_FEBRUAR_2025 -> regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
-                Regelverk.FØR_LOVENDRING_2025 -> regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
+                Regelverk.LOVENDRING_FEBRUAR_2025 -> regelverkLovendringFebruar2025AndelGenerator.beregnAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
+                Regelverk.FØR_LOVENDRING_2025 -> regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
             }
         return andeler
     }
