@@ -81,7 +81,7 @@ class BrevKlientTest {
                     brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
                 }
             assertThat(exception.message).isEqualTo(
-                "Begrunnelsen passer ikke vedtaksperiode. Hvis du mener dette er feil ta kontakt med team BAKS.",
+                "Begrunnelsen passer ikke vedtaksperioden. Hvis du mener dette er feil ta kontakt med team BAKS.",
             )
         }
 
