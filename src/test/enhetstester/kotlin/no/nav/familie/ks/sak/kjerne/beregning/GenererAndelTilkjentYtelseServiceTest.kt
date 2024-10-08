@@ -29,6 +29,7 @@ class GenererAndelTilkjentYtelseServiceTest {
 
     @Test
     fun `skal bruke utdatert funksjon for generering av andeler dersom toggle er skrudd av`() {
+        // Arrange
         val personopplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
         val vilkårsvurdering = mockk<Vilkårsvurdering>()
         val tilkjentYtelse = mockk<TilkjentYtelse>()
@@ -36,7 +37,6 @@ class GenererAndelTilkjentYtelseServiceTest {
         every { vilkårsvurdering.personResultater } returns emptySet()
         every { personopplysningGrunnlag.søker } returns lagPerson(aktør = randomAktør())
         every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør()))
-        // Arrange
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns false
 
         // Act
@@ -99,6 +99,7 @@ class GenererAndelTilkjentYtelseServiceTest {
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns true
         every { regelverkFørFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
         every { regelverkLovendringFebruar2025AndelGenerator.genererAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
+
         // Act
         genererAndelTilkjentYtelseService.genererAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
 
