@@ -14,6 +14,7 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -319,12 +320,12 @@ internal class IntegrasjonClientTest {
         // Assert
         assertThat(enheter).hasSize(2)
         assertThat(enheter).anySatisfy {
-            assertThat(it.enhetsnummer).isEqualTo("1234")
-            assertThat(it.enhetsnavn).isEqualTo("Enhetsnavn1")
+            assertThat(it.enhetsnummer).isEqualTo(KontantstøtteEnhet.VADSØ.enhetsnummer)
+            assertThat(it.enhetsnavn).isEqualTo(KontantstøtteEnhet.VADSØ.enhetsnavn)
         }
         assertThat(enheter).anySatisfy {
-            assertThat(it.enhetsnummer).isEqualTo("4321")
-            assertThat(it.enhetsnavn).isEqualTo("Enhetsnavn2")
+            assertThat(it.enhetsnummer).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnummer)
+            assertThat(it.enhetsnavn).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnavn)
         }
     }
 

@@ -62,10 +62,6 @@ class TilpassArbeidsfordelingServiceTest {
             } returns
                 listOf(
                     lagEnhet(
-                        enhetsnummer = enhetNavIdentHarTilgangTil1.enhetsnummer,
-                        enhetsnavn = enhetNavIdentHarTilgangTil1.enhetsnavn,
-                    ),
-                    lagEnhet(
                         enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
                         enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
                     ),
@@ -86,7 +82,6 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal returnere NAV-ident og første enhetsnummer som NAV-identen har tilgang til når arbeidsfordeling returnerer midlertidig enhet 4863`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.MIDLERTIDIG_ENHET
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
             val enhetNavIdentHarTilgangTil3 = KontantstøtteEnhet.OSLO
             val enhetNavIdentHarTilgangTil4 = KontantstøtteEnhet.DRAMMEN
@@ -103,10 +98,6 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    lagEnhet(
-                        enhetsnummer = enhetNavIdentHarTilgangTil1.enhetsnummer,
-                        enhetsnavn = enhetNavIdentHarTilgangTil1.enhetsnavn,
-                    ),
                     lagEnhet(
                         enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
                         enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
@@ -260,7 +251,6 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal kaste feil om arbeidsfordeling ikke returnerer 2103 eller 4863 og NAV-ident ikke har tilgang til noen enheter`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.MIDLERTIDIG_ENHET
             val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
 
             val arbeidsfordelingsenhet =
@@ -275,10 +265,6 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    lagEnhet(
-                        enhetsnummer = enhetNavIdentHarTilgangTil1.enhetsnummer,
-                        enhetsnavn = enhetNavIdentHarTilgangTil1.enhetsnavn,
-                    ),
                     lagEnhet(
                         enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
                         enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
