@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -45,7 +45,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
     @MockkBean(relaxed = true)
-    private lateinit var personOpplysningerService: PersonOpplysningerService
+    private lateinit var personOpplysningerService: PersonopplysningerService
 
     @MockkBean
     private lateinit var arbeidsfordelingService: ArbeidsfordelingService
@@ -60,14 +60,14 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     fun init() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
-        every { arbeidsfordelingService.fastsettBehandledeEnhet(any()) } just runs
+        every { arbeidsfordelingService.fastsettBehandlendeEnhet(any()) } just runs
         every { endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(any(), any()) } just runs
     }
 
     @Test
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for FGB`() {
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(behandling.id) }
-        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(behandling) }
+        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(behandling.fagsak.aktør) }
 
         val personopplysningGrunnlag =
@@ -123,7 +123,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         verify(atLeast = 1) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) }
-        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(revurdering) }
+        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(revurdering) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(revurdering.fagsak.aktør) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(barnAktør) }
         verify(atMost = 1) {
@@ -197,7 +197,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         verify(atLeast = 1) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(behandling.id) }
-        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(revurdering) }
+        verify(atLeast = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(revurdering) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(revurdering.fagsak.aktør) }
         verify(atMost = 1) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(barnAktør) }
 

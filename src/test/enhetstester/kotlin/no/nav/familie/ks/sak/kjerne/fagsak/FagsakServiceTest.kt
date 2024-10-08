@@ -23,7 +23,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -57,7 +57,7 @@ class FagsakServiceTest {
     private lateinit var integrasjonService: IntegrasjonService
 
     @MockK
-    private lateinit var personopplysningerService: PersonOpplysningerService
+    private lateinit var personopplysningerService: PersonopplysningerService
 
     @MockK
     private lateinit var fagsakRepository: FagsakRepository

@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 
 @Entity(name = "ArbeidsfordelingPåBehandling")
 @Table(name = "ARBEIDSFORDELING_PA_BEHANDLING")
@@ -32,3 +33,9 @@ data class ArbeidsfordelingPåBehandling(
 
     fun toSecureString(): String = "ArbeidsfordelingPåBehandling(id=$id, behandlendeEnhetId=$behandlendeEnhetId, behandlendeEnhetNavn=$behandlendeEnhetNavn, manueltOverstyrt=$manueltOverstyrt)"
 }
+
+fun ArbeidsfordelingPåBehandling.tilArbeidsfordelingsenhet(): Arbeidsfordelingsenhet =
+    Arbeidsfordelingsenhet(
+        enhetId = this.behandlendeEnhetId,
+        enhetNavn = this.behandlendeEnhetNavn,
+    )

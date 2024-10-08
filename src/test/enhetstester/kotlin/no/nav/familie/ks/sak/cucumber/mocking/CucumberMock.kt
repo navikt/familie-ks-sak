@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -52,7 +52,7 @@ class CucumberMock(
     val loggServiceMock = mockLoggService()
 
     val personService = mockk<PersonService>()
-    val personopplysningerServiceMock = mockk<PersonOpplysningerService>()
+    val personopplysningerServiceMock = mockk<PersonopplysningerService>()
     val aktørRepositoryMock = mockk<AktørRepository>()
     val pdlClientMock = mockk<PdlClient>()
     val personidentRepositoryMock = mockk<PersonidentRepository>()

@@ -117,7 +117,7 @@ class OpprettBehandlingService(
     ): Behandling {
         aktivBehandling?.let { behandlingRepository.saveAndFlush(aktivBehandling.also { it.aktiv = false }) }
         return lagreEllerOppdater(nyBehandling).also {
-            arbeidsfordelingService.fastsettBehandledeEnhet(
+            arbeidsfordelingService.fastsettBehandlendeEnhet(
                 it,
                 sisteVedtattBehandling,
             )

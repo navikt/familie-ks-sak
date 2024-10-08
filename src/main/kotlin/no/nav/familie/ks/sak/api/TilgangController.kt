@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.TilgangRequestDto
 import no.nav.familie.ks.sak.api.dto.TilgangResponsDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
 @ProtectedWithClaims(issuer = "azuread")
 class TilgangController(
-    private val personOpplysningerService: PersonOpplysningerService,
+    private val personOpplysningerService: PersonopplysningerService,
     private val personidentService: PersonidentService,
     private val integrasjonService: IntegrasjonService,
 ) {

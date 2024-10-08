@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -99,7 +99,7 @@ class LoggServiceTest {
             )
 
         val aktivArbeidsfordelingenhet =
-            ArbeidsfordelingsEnhet(
+            Arbeidsfordelingsenhet(
                 enhetId = arbeidsFordelingEnhet.behandlendeEnhetId,
                 enhetNavn = arbeidsFordelingEnhet.behandlendeEnhetNavn,
             )

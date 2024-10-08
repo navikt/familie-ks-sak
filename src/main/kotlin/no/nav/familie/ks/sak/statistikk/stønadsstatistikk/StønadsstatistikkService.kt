@@ -11,7 +11,7 @@ import no.nav.familie.eksterne.kontrakter.UtbetalingsperiodeDVH
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -33,7 +33,7 @@ class StønadsstatistikkService(
     private val behandlingService: BehandlingService,
     private val kompetanseService: KompetanseService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val personOpplysningerService: PersonOpplysningerService,
+    private val personOpplysningerService: PersonopplysningerService,
     private val vedtakService: VedtakService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val vilkårsvurderingService: VilkårsvurderingService,
