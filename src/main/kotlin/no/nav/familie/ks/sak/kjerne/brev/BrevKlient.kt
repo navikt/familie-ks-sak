@@ -55,7 +55,7 @@ class BrevKlient(
             log.warn("En bad request oppstod ved henting av begrunnelsestekst. Se SecureLogs for detaljer.")
             secureLogger.warn("En bad request oppstod ved henting av begrunnelsestekst", exception)
             throw FunksjonellFeil(
-                "Begrunnelsen passer ikke vedtaksperioden. Hvis du mener dette er feil ta kontakt med team BAKS.",
+                "Begrunnelsen '${begrunnelseData.apiNavn}' passer ikke vedtaksperioden. Hvis du mener dette er feil ta kontakt med team BAKS.",
             )
         }
     }
