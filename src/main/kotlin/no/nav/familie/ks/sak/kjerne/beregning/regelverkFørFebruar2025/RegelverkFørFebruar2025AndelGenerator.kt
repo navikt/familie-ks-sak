@@ -13,5 +13,8 @@ class RegelverkFørFebruar2025AndelGenerator {
         barn: Person,
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
-    ): List<AndelTilkjentYtelse> = emptyList()
+    ): List<AndelTilkjentYtelse> {
+        // TODO: Skrive logikk for å generere andeler etter gammelt regelverk
+        return emptyList()
+    }
 }
