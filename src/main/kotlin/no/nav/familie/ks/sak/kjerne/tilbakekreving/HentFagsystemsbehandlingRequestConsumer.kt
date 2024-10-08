@@ -14,7 +14,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("!integrasjonstest & !dev-postgres-preprod")
+@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class HentFagsystemsbehandlingRequestConsumer(
     private val fagsystemsbehandlingService: FagsystemsbehandlingService,
 ) {

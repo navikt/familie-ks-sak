@@ -19,7 +19,7 @@ interface KafkaProducer {
 }
 
 @Service
-@Profile("!integrasjonstest & !dev-postgres-preprod")
+@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class InfotrygdFeedKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) : KafkaProducer {
@@ -68,7 +68,7 @@ class InfotrygdFeedKafkaProducer(
 }
 
 @Service
-@Profile("postgres", "integrasjonstest", "dev-postgres-preprod")
+@Profile("postgres", "integrasjonstest", "dev-postgres-preprod", "postgres")
 class DummyInfotrygdFeedKafkaProducer : KafkaProducer {
     override fun sendStartBehandlingHendelseTilInfotrygd(startBehandlingDto: StartBehandlingDto) {
         secureLogger.info(
