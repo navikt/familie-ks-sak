@@ -111,8 +111,14 @@ class PdlClient(
     fun hentPerson(
         aktør: Aktør,
         personInfoQuery: PersonInfoQuery,
+    ): PdlPersonData = hentPerson(aktør.aktivFødselsnummer(), personInfoQuery)
+
+    @Cacheable("personopplysninger", cacheManager = "shortCache")
+    fun hentPerson(
+        fødselsnummer: String,
+        personInfoQuery: PersonInfoQuery,
     ): PdlPersonData {
-        val pdlPersonRequest = lagPdlPersonRequest(aktør.aktivFødselsnummer(), personInfoQuery.query)
+        val pdlPersonRequest = lagPdlPersonRequest(fødselsnummer, personInfoQuery.query)
 
         val pdlRespons: PdlBaseRespons<PdlHentPersonResponse> =
             kallEksternTjeneste(
@@ -126,7 +132,7 @@ class PdlClient(
                     httpHeaders(),
                 )
             }
-        return feilsjekkOgReturnerData(ident = aktør.aktivFødselsnummer(), pdlRespons = pdlRespons) { pdlPerson ->
+        return feilsjekkOgReturnerData(ident = fødselsnummer, pdlRespons = pdlRespons) { pdlPerson ->
             pdlPerson.person?.validerOmPersonKanBehandlesIFagsystem() ?: throw PdlNotFoundException()
             pdlPerson.person
         }

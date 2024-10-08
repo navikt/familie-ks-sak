@@ -9,6 +9,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Opphold
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
+import no.nav.person.pdl.aktor.v2.Type
 
 data class PdlBaseRespons<T>(
     val data: T,
@@ -61,6 +62,14 @@ data class PdlIdent(
 
 fun List<PdlIdent>.hentAktivAktørId(): String =
     this.singleOrNull { it.gruppe == "AKTORID" && !it.historisk }?.ident
+        ?: throw Error("Finner ikke aktørId i Pdl")
+
+fun List<PdlIdent>.hentAktørIder(): List<String> = filter { it.gruppe == Type.AKTORID.name }.map { it.ident }
+
+fun List<PdlIdent>.hentFødselsnumre(): List<String> = filter { it.gruppe == Type.FOLKEREGISTERIDENT.name }.map { it.ident }
+
+fun List<PdlIdent>.hentAktivFødselsnummer(): String =
+    this.singleOrNull { it.gruppe == Type.FOLKEREGISTERIDENT.name && !it.historisk }?.ident
         ?: throw Error("Finner ikke aktørId i Pdl")
 
 class PdlAdressebeskyttelseResponse(
