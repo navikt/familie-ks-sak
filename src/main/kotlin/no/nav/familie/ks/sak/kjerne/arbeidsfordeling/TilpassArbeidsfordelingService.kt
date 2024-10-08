@@ -1,11 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import no.nav.familie.kontrakter.felles.NavIdent
-import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.Companion.erGyldigBehandlendeKontantstøtteEnhet
 import org.springframework.stereotype.Service
 
 @Service
@@ -38,14 +36,10 @@ class TilpassArbeidsfordelingService(
         navIdent: NavIdent?,
     ): Boolean =
         navIdent?.let {
-            hentGyldigeBehandlendeKontantstøtteEnheter(navIdent = navIdent)
+            integrasjonClient
+                .hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
                 .any { it.enhetsnummer == enhetId }
         } ?: false
-
-    private fun hentGyldigeBehandlendeKontantstøtteEnheter(navIdent: NavIdent): List<Enhet> =
-        integrasjonClient
-            .hentEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
-            .filter { erGyldigBehandlendeKontantstøtteEnhet(it.enhetsnummer) }
 
     private fun håndterMidlertidigEnhet4863(
         navIdent: NavIdent?,
@@ -54,7 +48,8 @@ class TilpassArbeidsfordelingService(
             throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident")
         }
         val enheterNavIdentHarTilgangTil =
-            hentGyldigeBehandlendeKontantstøtteEnheter(navIdent)
+            integrasjonClient
+                .hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
                 .filter { it.enhetsnummer != KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer }
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
             throw Feil("Fant ingen passende enhetsnummer for nav-ident $navIdent")
@@ -91,7 +86,8 @@ class TilpassArbeidsfordelingService(
             )
         }
         val enheterNavIdentHarTilgangTil =
-            hentGyldigeBehandlendeKontantstøtteEnheter(navIdent)
+            integrasjonClient
+                .hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
                 .filter { it.enhetsnummer != KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer }
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
             throw Feil("Fant ingen passende enhetsnummer for NAV-ident $navIdent")

@@ -34,6 +34,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordel
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.Companion.erGyldigBehandlendeKontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -237,15 +238,15 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
+    fun hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
         val uri = URI.create("$integrasjonUri/enhetstilganger")
-        return kallEksternTjenesteRessurs(
+        return kallEksternTjenesteRessurs<List<Enhet>>(
             tjeneste = "enhetstilganger",
             uri = uri,
             formål = "Hent enheter en NAV-ident har tilgang til",
         ) {
             postForEntity(uri, HentEnheterNavIdentHarTilgangTilRequest(navIdent, Tema.KON))
-        }
+        }.filter { erGyldigBehandlendeKontantstøtteEnhet(it.enhetsnummer) }
     }
 
     @Cacheable("enhet", cacheManager = "kodeverkCache")

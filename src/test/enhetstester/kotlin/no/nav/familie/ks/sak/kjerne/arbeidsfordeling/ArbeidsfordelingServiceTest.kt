@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -12,7 +11,6 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -30,9 +28,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 internal class ArbeidsfordelingServiceTest {
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository = mockk()
 
@@ -146,14 +142,11 @@ internal class ArbeidsfordelingServiceTest {
             // Arrange
             val behandling = lagBehandling()
             val søker = lagPerson(personType = PersonType.SØKER, aktør = behandling.fagsak.aktør)
-            val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
                     enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
                     enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
                 )
-
-            val oppdatertArbeidsfordelingPåBehandling = mockk<ArbeidsfordelingPåBehandling>()
 
             every {
                 arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
@@ -186,9 +179,7 @@ internal class ArbeidsfordelingServiceTest {
 
             every {
                 arbeidsfordelingPåBehandlingRepository.save(capture(arbeidsfordelingPåBehandlingSlot))
-            } returns oppdatertArbeidsfordelingPåBehandling
-
-            every { oppdatertArbeidsfordelingPåBehandling.toSecureString() } returns ""
+            } returnsArgument 0
 
             // Act
             arbeidsfordelingService.fastsettBehandlendeEnhet(behandling, null)

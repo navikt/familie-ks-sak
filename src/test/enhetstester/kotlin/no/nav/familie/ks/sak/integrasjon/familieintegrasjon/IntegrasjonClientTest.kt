@@ -314,7 +314,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val enheter = integrasjonClient.hentEnheterSomNavIdentHarTilgangTil(navIdent)
+        val enheter = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent)
 
         // Assert
         assertThat(enheter).hasSize(2)
