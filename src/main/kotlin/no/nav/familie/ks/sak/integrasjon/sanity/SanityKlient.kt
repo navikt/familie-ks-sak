@@ -15,7 +15,7 @@ class SanityKlient(
     @Value("\${SANITY_BASE_URL}") private val sanityBaseUrl: String,
     restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "sanity") {
-    fun hentBegrunnelser(datasett: String = "ks-test"): List<SanityBegrunnelse> {
+    fun hentBegrunnelser(datasett: String = "ks-brev"): List<SanityBegrunnelse> {
         val uri = lagHentUri(datasett, HENT_BEGRUNNELSER)
 
         val restSanityBegrunnelser =
