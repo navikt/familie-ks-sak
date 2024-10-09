@@ -13,7 +13,7 @@ Egenskap: Overgang til barnehageplass
       | 1            | 1        |                     | SØKNAD           | NASJONAL            |
 
 
-  Scenario: Kontantstøtten skal opphøre fra og med november dersom barn starter i fulltids barnehage 15 oktober.
+  Scenario: Kontantstøtten skal opphøre fra og med oktober dersom barn starter i fulltids barnehage 15 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -35,9 +35,9 @@ Egenskap: Overgang til barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.09.2024 | 31.10.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.09.2024 | 30.09.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
-  Scenario: Kontantstøtten skal opphøre fra og med november dersom barn starter i fulltids barnehage 1 oktober.
+  Scenario: Kontantstøtten skal opphøre fra og med oktober dersom barn starter i fulltids barnehage 1 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -59,7 +59,7 @@ Egenskap: Overgang til barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.09.2024 | 31.10.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.09.2024 | 30.09.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
   Scenario: Kontantstøtten skal reduseres fra og med november dersom barn starter i deltids barnehage 15 oktober.
     Og følgende persongrunnlag
