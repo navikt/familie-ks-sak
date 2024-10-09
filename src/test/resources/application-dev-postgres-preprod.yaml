@@ -91,6 +91,15 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
+      familie-baks-mottak-onbehalfof:
+        resource-url: ${FAMILIE_BAKS_MOTTAK_URL}
+        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: ${FAMILIE_BAKS_MOTTAK_SCOPE}
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
 
 prosessering.fixedDelayString.in.milliseconds: 2000
 prosessering.rolle: "928636f4-fd0d-4149-978e-a6fb68bb19de"
@@ -151,6 +160,8 @@ FAMILIE_OPPDRAG_SCOPE: api://dev-fss.teamfamilie.familie-oppdrag/.default
 FAMILIE_BREV_API_URL: https://familie-brev.intern.dev.nav.no
 FAMILIE_TILBAKE_API_URL: https://familie-tilbake.intern.dev.nav.no/api
 FAMILIE_TILBAKE_API_URL_SCOPE: api://dev-gcp.teamfamilie.familie-tilbake/.default
+FAMILIE_BAKS_MOTTAK_URL: https://familie-baks-mottak.intern.dev.nav.no/api
+FAMILIE_BAKS_MOTTAK_SCOPE: api://dev-gcp.teamfamilie.familie-baks-mottak/.default
 
 FAMILIE_KLAGE_URL: https://familie-klage-backend.intern.dev.nav.no
 

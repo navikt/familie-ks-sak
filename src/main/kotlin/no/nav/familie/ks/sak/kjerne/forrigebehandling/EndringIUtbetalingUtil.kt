@@ -1,4 +1,4 @@
-package no.nav.familie.ba.sak.kjerne.forrigebehandling
+package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
