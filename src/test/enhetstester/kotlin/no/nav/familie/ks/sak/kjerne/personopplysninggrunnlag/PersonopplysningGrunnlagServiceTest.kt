@@ -68,7 +68,7 @@ internal class PersonopplysningGrunnlagServiceTest {
 
     @BeforeEach
     fun init() {
-        every { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) } just runs
+        every { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) } just runs
     }
 
     @Test
@@ -90,7 +90,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         verify(atMost = 0, atLeast = 0) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(any()) }
         verify(atMost = 1) { personService.lagPerson(any(), any(), any(), any(), any()) }
         verify(atMost = 2) { personopplysningGrunnlagRepository.save(any()) }
-        verify(atMost = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) }
+        verify(atMost = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
 
         assertEquals(1, personopplysningGrunnlag.personer.size)
     }
@@ -143,7 +143,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         verify(atMost = 2) { personService.lagPerson(any(), any(), any(), any(), any()) }
         verify(atMost = 2) { personopplysningGrunnlagRepository.save(any()) }
         verify(atMost = 1) { personopplysningGrunnlagRepository.saveAndFlush(any()) }
-        verify(atMost = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) }
+        verify(atMost = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
 
         assertEquals(2, personopplysningGrunnlag.personer.size)
     }
@@ -373,7 +373,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         verify(exactly = 2) { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }
         verify(exactly = 2) { personopplysningGrunnlagRepository.save(any()) } // opprett ny og så oppdaterer det med barn
         verify(exactly = 1) { personopplysningGrunnlagRepository.saveAndFlush(any()) } // deaktiverer eksisterende
-        verify(exactly = 1) { arbeidsfordelingService.fastsettBehandledeEnhet(behandling) }
+        verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
         verify(exactly = 3) { personService.lagPerson(any(), any(), any(), any(), any()) }
         verify(exactly = 1) { loggService.opprettBarnLagtTilLogg(any(), any()) }
     }

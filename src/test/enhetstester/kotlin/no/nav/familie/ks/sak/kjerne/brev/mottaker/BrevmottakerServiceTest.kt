@@ -14,7 +14,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -34,7 +34,7 @@ internal class BrevmottakerServiceTest {
     private lateinit var personidentService: PersonidentService
 
     @MockK
-    private lateinit var personopplysningerService: PersonOpplysningerService
+    private lateinit var personopplysningerService: PersonopplysningerService
 
     @MockK
     private lateinit var validerBrevmottakerService: ValiderBrevmottakerService

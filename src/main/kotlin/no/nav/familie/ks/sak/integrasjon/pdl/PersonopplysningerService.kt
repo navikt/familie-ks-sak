@@ -17,7 +17,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.stereotype.Service
 
 @Service
-class PersonOpplysningerService(
+class PersonopplysningerService(
     private val pdlClient: PdlClient,
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,

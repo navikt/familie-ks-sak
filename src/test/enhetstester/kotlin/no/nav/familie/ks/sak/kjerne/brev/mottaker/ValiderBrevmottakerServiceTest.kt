@@ -6,7 +6,7 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.tilfeldigPerson
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 class ValiderBrevmottakerServiceTest {
     private val brevmottakerRepository = mockk<BrevmottakerRepository>()
     private val persongrunnlagService = mockk<PersonopplysningGrunnlagService>()
-    private val personOpplysningerService = mockk<PersonOpplysningerService>()
+    private val personOpplysningerService = mockk<PersonopplysningerService>()
     private val fagsakRepository = mockk<FagsakRepository>()
     val validerBrevmottakerService =
         ValiderBrevmottakerService(

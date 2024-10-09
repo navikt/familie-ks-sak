@@ -29,6 +29,7 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -68,7 +69,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -88,6 +91,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonEnkel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
@@ -213,6 +217,9 @@ fun lagPersonopplysningGrunnlag(
     }
     return personopplysningGrunnlag
 }
+
+fun Person.tilPersonEnkel() =
+    PersonEnkel(this.type, this.aktør, this.fødselsdato, this.dødsfall?.dødsfallDato, this.målform)
 
 fun lagFagsak(
     aktør: Aktør = randomAktør(randomFnr()),
@@ -1344,3 +1351,32 @@ fun lagPersonResultat(
     personResultat.andreVurderinger.addAll(lagAnnenVurdering(personResultat))
     return personResultat
 }
+
+fun lagNasjonalOgFellesBegrunnelseDataDto(
+    vedtakBegrunnelseType: BegrunnelseType = BegrunnelseType.INNVILGET,
+    apiNavn: String = "innvilgetIkkeBarnehage",
+    sanityBegrunnelseType: SanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
+    gjelderSoker: Boolean = false,
+    gjelderAndreForelder: Boolean = true,
+    barnasFodselsdatoer: LocalDate = LocalDate.now(),
+    antallBarn: Int = 1,
+    maanedOgAarBegrunnelsenGjelderFor: YearMonth = YearMonth.now(),
+    maalform: String = "bokmaal",
+    belop: Int = 7500,
+    antallTimerBarnehageplass: Int = 0,
+    soknadstidspunkt: LocalDate = LocalDate.now(),
+): NasjonalOgFellesBegrunnelseDataDto =
+    NasjonalOgFellesBegrunnelseDataDto(
+        vedtakBegrunnelseType = vedtakBegrunnelseType,
+        apiNavn = apiNavn,
+        sanityBegrunnelseType = sanityBegrunnelseType,
+        gjelderSoker = gjelderSoker,
+        gjelderAndreForelder = gjelderAndreForelder,
+        barnasFodselsdatoer = barnasFodselsdatoer.tilKortString(),
+        antallBarn = antallBarn,
+        maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor.tilKortString(),
+        maalform = maalform,
+        belop = belop.toString(),
+        antallTimerBarnehageplass = antallTimerBarnehageplass.toString(),
+        soknadstidspunkt = soknadstidspunkt.tilKortString(),
+    )

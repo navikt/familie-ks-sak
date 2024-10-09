@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class OppgaveController(
     private val oppgaveService: OppgaveService,
-    private val personOpplysningerService: PersonOpplysningerService,
+    private val personOpplysningerService: PersonopplysningerService,
     private val personidentService: PersonidentService,
     private val fagsakService: FagsakService,
     private val integrasjonService: IntegrasjonService,

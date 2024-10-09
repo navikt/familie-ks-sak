@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene
 
-data class ArbeidsfordelingsEnhet(
+data class Arbeidsfordelingsenhet(
     val enhetId: String,
     val enhetNavn: String,
 )

@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
-@Profile("!integrasjonstest & !dev-postgres-preprod")
+@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class IdenthendelseV2Consumer(
     val personidentService: PersonidentService,
 ) {

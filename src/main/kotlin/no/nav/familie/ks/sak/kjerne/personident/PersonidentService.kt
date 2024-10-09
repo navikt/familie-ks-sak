@@ -8,7 +8,6 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -19,27 +18,6 @@ class PersonidentService(
     private val taskService: TaskService,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
-
-    @Transactional
-    fun håndterNyIdent(nyIdent: PersonIdent): Aktør? {
-        logger.info("Håndterer ny ident")
-        secureLogger.info("Håndterer ny ident ${nyIdent.ident}")
-        val identerFraPdl = hentIdenter(nyIdent.ident, true)
-
-        val aktørId = identerFraPdl.hentAktivAktørId()
-
-        validerOmAktørIdErMerget(identerFraPdl)
-
-        val aktør = aktørRepository.findByAktørId(aktørId)
-
-        return if (aktør?.harIdent(fødselsnummer = nyIdent.ident) == false) {
-            logger.info("Legger til ny ident")
-            secureLogger.info("Legger til ny ident ${nyIdent.ident} på aktør ${aktør.aktørId}")
-            opprettPersonIdent(aktør, nyIdent.ident)
-        } else {
-            aktør
-        }
-    }
 
     fun hentOgLagreAktør(
         personIdentEllerAktørId: String,
@@ -75,7 +53,7 @@ class PersonidentService(
         return aktør
     }
 
-    private fun opprettPersonIdent(
+    fun opprettPersonIdent(
         aktør: Aktør,
         fødselsnummer: String,
         skalLagre: Boolean = true,
