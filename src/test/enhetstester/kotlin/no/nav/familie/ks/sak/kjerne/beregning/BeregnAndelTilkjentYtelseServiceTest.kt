@@ -15,10 +15,10 @@ import java.time.LocalDate
 
 class BeregnAndelTilkjentYtelseServiceTest {
     private val unleashService: UnleashService = mockk()
-    private val andelGeneratorFactory: AndelGeneratorFactory = mockk()
+    private val andelGeneratorFactory: AndelGenerator.Lookup = mockk()
     private val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorFactory = andelGeneratorFactory,
+            andelGeneratorLookup = andelGeneratorFactory,
             unleashService = unleashService,
         )
 

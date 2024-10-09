@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class BeregnAndelTilkjentYtelseService(
-    private val andelGeneratorFactory: AndelGeneratorFactory,
+    private val andelGeneratorLookup: AndelGenerator.Lookup,
     private val unleashService: UnleashService,
 ) {
     fun beregnAndelerTilkjentYtelse(
@@ -41,7 +41,7 @@ class BeregnAndelTilkjentYtelseService(
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> {
         val regelverk = RegelverkUtleder.utledRegelverkForBarn(fødselsdato = barn.fødselsdato)
-        val andelGenerator = andelGeneratorFactory.hentGeneratorForRegelverk(regelverk)
+        val andelGenerator = andelGeneratorLookup.hentGeneratorForRegelverk(regelverk)
         val andeler = andelGenerator.beregnAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
         return andeler
     }

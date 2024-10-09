@@ -21,7 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
-import no.nav.familie.ks.sak.kjerne.beregning.AndelGeneratorFactory
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
@@ -330,7 +330,7 @@ internal class UtbetalingsperiodeUtilTest {
         val tilkjentYtelseService =
             TilkjentYtelseService(
                 BeregnAndelTilkjentYtelseService(
-                    andelGeneratorFactory = AndelGeneratorFactory(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+                    andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
                     unleashService = mockUnleashService(false),
                 ),
             )

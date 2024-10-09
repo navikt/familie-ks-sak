@@ -18,7 +18,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.beregning.AndelGeneratorFactory
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -63,11 +63,11 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
-    val andelGeneratorFactory = AndelGeneratorFactory(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator()))
+    val andelGeneratorFactory = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator()))
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorFactory = andelGeneratorFactory,
+            andelGeneratorLookup = andelGeneratorFactory,
             unleashService = mockUnleashService(isEnabledDefault = false),
         )
     val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)

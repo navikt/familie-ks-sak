@@ -54,7 +54,7 @@ internal class TilkjentYtelseServiceTest {
 
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorFactory = AndelGeneratorFactory(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(false),
         )
     private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)
