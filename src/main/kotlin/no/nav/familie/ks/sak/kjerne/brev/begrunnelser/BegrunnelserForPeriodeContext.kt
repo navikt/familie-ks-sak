@@ -374,14 +374,25 @@ class BegrunnelserForPeriodeContext(
                         vilkårSluttetMånedenFørVedtaksperioden
                     }
 
-                val vilkårSomIkkeErOppfyltForrigeMåned = vilkårResultaterForrigeMåned.filter { !it.erOppfylt() }
+                val vilkårResultaterPåPerson = personResultater.find { it.aktør == person.aktør }?.vilkårResultater ?: emptyList()
 
-                val vilkårSomIkkeErOppfyltFraOgMedDennePerioden = personResultater.find { it.aktør == person.aktør }?.vilkårResultater?.filter { it.periodeFom?.toYearMonth() == vedtaksperiode.fom.toYearMonth() } ?: emptyList()
+                val senesteVilkårSomIkkeErOppfyltPåPersonPerVilkårType =
+                    vilkårResultaterPåPerson
+                        .groupBy { it.vilkårType }
+                        .map { (_, vilkår) -> vilkår.maxBy { it.periodeFom ?: TIDENES_MORGEN } }
+                        .filter { !it.erOppfylt() }
 
-                val vilkårSomIkkeErOppfyltEllerSlutterMånedenFør = vilkårSomIkkeErOppfyltForrigeMåned + vilkårSomSlutterMånedenFørDenneVedtaksperioden + vilkårSomIkkeErOppfyltFraOgMedDennePerioden
+                val senesteVilkårSomIkkeErOppfyltForrigeEllerDennePerioden =
+                    senesteVilkårSomIkkeErOppfyltPåPersonPerVilkårType.filter {
+                        val fomPåVilkår = it.periodeFom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
 
-                if (vilkårSomIkkeErOppfyltEllerSlutterMånedenFør.isNotEmpty()) {
-                    Pair(person, vilkårSomIkkeErOppfyltEllerSlutterMånedenFør)
+                        fomPåVilkår <= vedtaksperiode.fom.toYearMonth()
+                    }
+
+                val vilkårSomIkkeErOppfyltForrigeEllerDennePeriodenOgVilkårSomSlutterMånedenFør = senesteVilkårSomIkkeErOppfyltForrigeEllerDennePerioden + vilkårSomSlutterMånedenFørDenneVedtaksperioden
+
+                if (vilkårSomIkkeErOppfyltForrigeEllerDennePeriodenOgVilkårSomSlutterMånedenFør.isNotEmpty()) {
+                    Pair(person, vilkårSomIkkeErOppfyltForrigeEllerDennePeriodenOgVilkårSomSlutterMånedenFør)
                 } else {
                     null
                 }
