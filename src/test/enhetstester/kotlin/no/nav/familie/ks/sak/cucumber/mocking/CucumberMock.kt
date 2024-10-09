@@ -63,11 +63,10 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
-    val andelGeneratorFactory = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator()))
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = andelGeneratorFactory,
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(isEnabledDefault = false),
         )
     val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)

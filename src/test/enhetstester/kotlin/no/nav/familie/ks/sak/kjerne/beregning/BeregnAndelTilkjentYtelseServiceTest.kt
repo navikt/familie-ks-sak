@@ -15,10 +15,10 @@ import java.time.LocalDate
 
 class BeregnAndelTilkjentYtelseServiceTest {
     private val unleashService: UnleashService = mockk()
-    private val andelGeneratorFactory: AndelGenerator.Lookup = mockk()
+    private val andelGeneratorLookup: AndelGenerator.Lookup = mockk()
     private val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = andelGeneratorFactory,
+            andelGeneratorLookup = andelGeneratorLookup,
             unleashService = unleashService,
         )
 
@@ -38,7 +38,7 @@ class BeregnAndelTilkjentYtelseServiceTest {
         beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
 
         // Assert
-        verify(exactly = 0) { andelGeneratorFactory.hentGeneratorForRegelverk(any()) }
+        verify(exactly = 0) { andelGeneratorLookup.hentGeneratorForRegelverk(any()) }
     }
 
     @Test
@@ -51,14 +51,14 @@ class BeregnAndelTilkjentYtelseServiceTest {
         every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 12, 31)))
 
         every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns true
-        every { andelGeneratorFactory.hentGeneratorForRegelverk(any()) } returns andelGenerator
+        every { andelGeneratorLookup.hentGeneratorForRegelverk(any()) } returns andelGenerator
         every { andelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 
         // Act
         beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, mockk<Vilkårsvurdering>(), mockk<TilkjentYtelse>())
 
         // Assert
-        verify(exactly = 1) { andelGeneratorFactory.hentGeneratorForRegelverk(any()) }
+        verify(exactly = 1) { andelGeneratorLookup.hentGeneratorForRegelverk(any()) }
         verify(exactly = 1) { andelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) }
     }
 }
