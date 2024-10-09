@@ -32,7 +32,7 @@ interface KafkaProducer {
 }
 
 @Service
-@Profile("!integrasjonstest & !dev-postgres-preprod")
+@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class DatavarehusKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) : KafkaProducer {
@@ -116,7 +116,7 @@ class DatavarehusKafkaProducer(
 }
 
 @Service
-@Profile("postgres", "integrasjonstest", "dev-postgres-preprod")
+@Profile("postgres", "integrasjonstest", "dev-postgres-preprod", "postgres")
 class DummyDatavarehusKafkaProducer : KafkaProducer {
     override fun sendBehandlingsTilstand(
         behandlingId: String,
