@@ -23,25 +23,6 @@ class BeregnAndelTilkjentYtelseServiceTest {
         )
 
     @Test
-    fun `skal bruke utdatert funksjon for generering av andeler dersom toggle er skrudd av`() {
-        // Arrange
-        val personopplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
-        val vilkårsvurdering = mockk<Vilkårsvurdering>()
-        val tilkjentYtelse = mockk<TilkjentYtelse>()
-
-        every { vilkårsvurdering.personResultater } returns emptySet()
-        every { personopplysningGrunnlag.søker } returns lagPerson(aktør = randomAktør())
-        every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør()))
-        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns false
-
-        // Act
-        beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
-
-        // Assert
-        verify(exactly = 0) { andelGeneratorLookup.hentGeneratorForRegelverk(any()) }
-    }
-
-    @Test
     fun `skal hente andel generator og beregne andeler dersom toggle er skrudd på`() {
         // Arrange
         val personopplysningGrunnlag = mockk<PersonopplysningGrunnlag>()

@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVedtaksbegrunnelse
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
@@ -26,8 +27,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.gammel.RegelverkFørFebruar2025AndelGeneratorGammel
+import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
@@ -452,12 +457,14 @@ fun lagBrevPeriodeContext(
     val vilkårsvurdering = mockk<Vilkårsvurdering>(relaxed = true)
     every { vilkårsvurdering.personResultater } returns personResultater.toSet()
 
+    val tilkjentYtelse = mockk<TilkjentYtelse>()
+    every { tilkjentYtelse.behandling.id } returns 1
+
     val andelerTilkjentYtelse =
-        RegelverkFørFebruar2025AndelGeneratorGammel.beregnAndelerTilkjentYtelseForBarna(
-            personopplysningGrunnlag = persongrunnlag,
-            vilkårsvurdering = vilkårsvurdering,
-            tilkjentYtelse = mockk(),
-        )
+        BeregnAndelTilkjentYtelseService(
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkFørFebruar2025AndelGenerator(), RegelverkLovendringFebruar2025AndelGenerator())),
+            unleashService = mockUnleashService(false),
+        ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
 
     val vedtaksperiodeMedBegrunnelser =
         lagVedtaksperiodeMedBegrunnelser(
