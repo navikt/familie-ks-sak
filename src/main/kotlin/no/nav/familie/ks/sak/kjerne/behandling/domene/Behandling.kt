@@ -185,6 +185,8 @@ data class Behandling(
 
     fun erLovendring() = opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
 
+    fun erKompensasjonsordning() = opprettetÅrsak == BehandlingÅrsak.KOMPENSASJONSORDNING_2024
+
     fun skalBehandlesAutomatisk(): Boolean = this.opprettetÅrsak in listOf(BehandlingÅrsak.LOVENDRING_2024)
 
     fun erRedigerbar() = status in setOf(OPPRETTET, UTREDES, SATT_PÅ_MASKINELL_VENT)
@@ -294,6 +296,7 @@ enum class BehandlingÅrsak(
     SATSENDRING("Satsendring", listOf(REVURDERING)),
     BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING)),
     LOVENDRING_2024("Lovendring 2024", listOf(REVURDERING)),
+    KOMPENSASJONSORDNING_2024("Kompensasjonsordning 2024", listOf(REVURDERING)),
 }
 
 enum class BehandlingType(

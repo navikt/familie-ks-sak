@@ -41,6 +41,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -60,6 +61,7 @@ class VilkårsvurderingStegTest {
     private val søknadGrunnlagService: SøknadGrunnlagService = mockk()
     private val beregningService: BeregningService = mockk()
     private val kompetanseService: KompetanseService = mockk()
+    private val kompensasjonAndelService: KompensasjonAndelService = mockk()
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
@@ -83,6 +85,7 @@ class VilkårsvurderingStegTest {
             beregningService,
             kompetanseService,
             barnetsVilkårValidator,
+            kompensasjonAndelService,
         )
 
     private val søker = randomAktør()
@@ -787,5 +790,21 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 0) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
+    }
+
+    @Test
+    fun `utførSteg - skal opprette tom kompensasjonAndel dersom behandling har årsak KOMPENSASJONSORDNING_2024 og det ikke eksisterer noen kompensasjonandeler`() {
+        val behandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.KOMPENSASJONSORDNING_2024)
+        every { behandlingService.hentBehandling(behandling.id) } returns behandling
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns Vilkårsvurdering(behandling = behandling)
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns emptyList()
+        every { kompensasjonAndelService.opprettTomKompensasjonAndel(any()) } returns mockk()
+        every { kompetanseService.hentKompetanser(any()) } returns emptyList()
+
+        vilkårsvurderingSteg.utførSteg(behandling.id)
+
+        verify(exactly = 1) { kompensasjonAndelService.opprettTomKompensasjonAndel(any()) }
     }
 }

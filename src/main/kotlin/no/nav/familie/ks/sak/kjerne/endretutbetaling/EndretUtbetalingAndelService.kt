@@ -25,7 +25,6 @@ class EndretUtbetalingAndelService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
 ) {
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
@@ -92,13 +91,6 @@ class EndretUtbetalingAndelService(
             vilkårsvurdering,
             endretUtbetalingAndel,
         )
-
-        endretUtbetalingAndelOppdatertAbonnementer.forEach {
-            it.endretUtbetalingAndelerOppdatert(
-                behandlingId = behandling.id,
-                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
-            )
-        }
     }
 
     @Transactional
@@ -118,13 +110,6 @@ class EndretUtbetalingAndelService(
             personopplysningGrunnlag,
             vilkårsvurdering,
         )
-
-        endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
-            abonnent.endretUtbetalingAndelerOppdatert(
-                behandlingId = behandling.id,
-                endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id),
-            )
-        }
     }
 
     @Transactional
@@ -140,11 +125,4 @@ class EndretUtbetalingAndelService(
             it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false)
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
     }
-}
-
-interface EndretUtbetalingAndelerOppdatertAbonnent {
-    fun endretUtbetalingAndelerOppdatert(
-        behandlingId: Long,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
-    )
 }
