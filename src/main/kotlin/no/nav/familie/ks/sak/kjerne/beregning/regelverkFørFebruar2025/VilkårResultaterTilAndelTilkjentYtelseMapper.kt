@@ -6,20 +6,18 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.SatsPeriode
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.math.RoundingMode
 
 fun Periode<List<VilkårResultat>>.tilAndelTilkjentYtelse(
-    vilkårsvurdering: Vilkårsvurdering,
     tilkjentYtelse: TilkjentYtelse,
-    barn: Person,
+    barnAktør: Aktør,
 ): AndelTilkjentYtelse {
     val erDeltBosted =
         this.verdi.any {
@@ -37,14 +35,14 @@ fun Periode<List<VilkårResultat>>.tilAndelTilkjentYtelse(
             stønadTom = tom!!.toYearMonth(),
         )
 
-    validerBeregnetPeriode(beløpsperiode = satsperiode, behandlingId = vilkårsvurdering.behandling.id)
+    validerBeregnetPeriode(beløpsperiode = satsperiode, behandlingId = tilkjentYtelse.behandling.id)
 
     val kalkulertUtbetalingsbeløp = satsperiode.sats.prosent(satsperiode.prosent)
 
     return AndelTilkjentYtelse(
-        behandlingId = vilkårsvurdering.behandling.id,
+        behandlingId = tilkjentYtelse.behandling.id,
         tilkjentYtelse = tilkjentYtelse,
-        aktør = barn.aktør,
+        aktør = barnAktør,
         stønadFom = satsperiode.fom,
         stønadTom = satsperiode.tom,
         kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,

@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
@@ -12,7 +10,7 @@ import no.nav.familie.ks.sak.kjerne.regelverk.Regelverk
 import org.springframework.stereotype.Component
 
 @Component
-class RegelverkFørFebruar2025AndelGenerator : AndelGenerator {
+class RegelverkFørFebruar2025AndelGenerator : AndelGenerator() {
     override val regelverk = Regelverk.FØR_LOVENDRING_2025
 
     override fun beregnAndelerForBarn(
@@ -29,21 +27,11 @@ class RegelverkFørFebruar2025AndelGenerator : AndelGenerator {
         val barnetsVilkårResultaterForskjøvetTidslinje =
             vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
 
-        val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
-            barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(
-                søkersVilkårResultaterForskjøvetTidslinje,
-            ) { barnPeriode, søkerPeriode ->
-                søkerPeriode?.let { barnPeriode }
-            }
-
-        return barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt
-            .tilPerioderIkkeNull()
-            .map { vilkårResultaterPeriode ->
-                vilkårResultaterPeriode.tilAndelTilkjentYtelse(
-                    vilkårsvurdering = vilkårsvurdering,
-                    tilkjentYtelse = tilkjentYtelse,
-                    barn = barn,
-                )
-            }
+        return kombinerOgLagAndeler(
+            barnAktør = barn.aktør,
+            tilkjentYtelse = tilkjentYtelse,
+            søkersVilkårResultaterForskjøvetTidslinje = søkersVilkårResultaterForskjøvetTidslinje,
+            barnetsVilkårResultaterForskjøvetTidslinje = barnetsVilkårResultaterForskjøvetTidslinje,
+        )
     }
 }
