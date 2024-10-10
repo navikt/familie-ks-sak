@@ -1,6 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
 
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -18,7 +21,29 @@ class RegelverkFørFebruar2025AndelGenerator : AndelGenerator {
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> {
-        // TODO: Skrive logikk for å generere andeler etter gammelt regelverk
-        return emptyList()
+        val søkersVilkårResultaterForskjøvetTidslinje =
+            vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
+                søker,
+            )
+
+        val barnetsVilkårResultaterForskjøvetTidslinje =
+            vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
+
+        val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
+            barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(
+                søkersVilkårResultaterForskjøvetTidslinje,
+            ) { barnPeriode, søkerPeriode ->
+                søkerPeriode?.let { barnPeriode }
+            }
+
+        return barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt
+            .tilPerioderIkkeNull()
+            .map { vilkårResultaterPeriode ->
+                vilkårResultaterPeriode.tilAndelTilkjentYtelse(
+                    vilkårsvurdering = vilkårsvurdering,
+                    tilkjentYtelse = tilkjentYtelse,
+                    barn = barn,
+                )
+            }
     }
 }
