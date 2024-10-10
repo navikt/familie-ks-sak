@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.slf4j.Logger
@@ -44,6 +45,7 @@ class VilkårsvurderingSteg(
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
     private val barnetsVilkårValidator: BarnetsVilkårValidator,
+    private val kompensasjonAndelService: KompensasjonAndelService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -59,6 +61,13 @@ class VilkårsvurderingSteg(
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
+
+        val harIkkeKompensasjonAndelerPåBehandling by lazy {
+            kompensasjonAndelService.hentKompensasjonAndeler(behandlingId).isEmpty()
+        }
+        if (behandling.erKompensasjonsordning() && harIkkeKompensasjonAndelerPåBehandling) {
+            kompensasjonAndelService.opprettTomKompensasjonAndel(behandling)
+        }
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
 
