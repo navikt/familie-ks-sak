@@ -30,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -456,11 +457,14 @@ fun lagBrevPeriodeContext(
     val vilkårsvurdering = mockk<Vilkårsvurdering>(relaxed = true)
     every { vilkårsvurdering.personResultater } returns personResultater.toSet()
 
+    val tilkjentYtelse = mockk<TilkjentYtelse>()
+    every { tilkjentYtelse.behandling.id } returns 1
+
     val andelerTilkjentYtelse =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkFørFebruar2025AndelGenerator(), RegelverkLovendringFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(false),
-        ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = mockk())
+        ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
 
     val vedtaksperiodeMedBegrunnelser =
         lagVedtaksperiodeMedBegrunnelser(
