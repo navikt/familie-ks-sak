@@ -791,4 +791,20 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 0) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
     }
+
+    @Test
+    fun `utførSteg - skal opprette tom kompensasjonAndel dersom behandling har årsak KOMPENSASJONSORDNING_2024 og det ikke eksisterer noen kompensasjonandeler`() {
+        val behandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.KOMPENSASJONSORDNING_2024)
+        every { behandlingService.hentBehandling(behandling.id) } returns behandling
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns Vilkårsvurdering(behandling = behandling)
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns emptyList()
+        every { kompensasjonAndelService.opprettTomKompensasjonAndel(any()) } returns mockk()
+        every { kompetanseService.hentKompetanser(any()) } returns emptyList()
+
+        vilkårsvurderingSteg.utførSteg(behandling.id)
+
+        verify(exactly = 1) { kompensasjonAndelService.opprettTomKompensasjonAndel(any()) }
+    }
 }
