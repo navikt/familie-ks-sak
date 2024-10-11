@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.klage.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.FagsystemType
 import no.nav.familie.kontrakter.felles.klage.FagsystemVedtak
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
+import no.nav.familie.kontrakter.felles.klage.Klagebehandlingsårsak
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.kontrakter.felles.klage.Stønadstype
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -56,6 +57,7 @@ class KlageService(
                 fagsystem = Fagsystem.KS,
                 klageMottatt = kravMottattDato,
                 behandlendeEnhet = enhetId,
+                behandlingsårsak = Klagebehandlingsårsak.ORDINÆR,
             ),
         )
     }

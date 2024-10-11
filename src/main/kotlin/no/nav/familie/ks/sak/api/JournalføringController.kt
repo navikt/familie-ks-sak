@@ -3,11 +3,11 @@ package no.nav.familie.ks.sak.api
 import jakarta.validation.Valid
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
-import no.nav.familie.ks.sak.integrasjon.journalføring.domene.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
