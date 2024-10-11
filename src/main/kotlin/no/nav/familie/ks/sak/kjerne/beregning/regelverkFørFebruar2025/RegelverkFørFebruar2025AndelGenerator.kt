@@ -3,6 +3,8 @@ package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator.Companion.kombinerForskjøvedeTidslinjerTilOppfyltTidslinje
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator.Companion.lagAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -27,11 +29,12 @@ class RegelverkFørFebruar2025AndelGenerator : AndelGenerator {
         val barnetsVilkårResultaterForskjøvetTidslinje =
             vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
 
-        return kombinerOgLagAndeler(
-            barnAktør = barn.aktør,
+        val oppfyltTidslinje = kombinerForskjøvedeTidslinjerTilOppfyltTidslinje(søkersVilkårResultaterForskjøvetTidslinje, barnetsVilkårResultaterForskjøvetTidslinje)
+
+        return lagAndelerTilkjentYtelse(
+            oppfyltTidslinje = oppfyltTidslinje,
             tilkjentYtelse = tilkjentYtelse,
-            søkersVilkårResultaterForskjøvetTidslinje = søkersVilkårResultaterForskjøvetTidslinje,
-            barnetsVilkårResultaterForskjøvetTidslinje = barnetsVilkårResultaterForskjøvetTidslinje,
+            barnAktør = barn.aktør,
         )
     }
 }

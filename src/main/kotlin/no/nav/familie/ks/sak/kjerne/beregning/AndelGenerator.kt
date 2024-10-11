@@ -23,27 +23,30 @@ interface AndelGenerator {
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse>
 
-    fun kombinerOgLagAndeler(
-        barnAktør: Aktør,
-        tilkjentYtelse: TilkjentYtelse,
-        søkersVilkårResultaterForskjøvetTidslinje: Tidslinje<List<VilkårResultat>>,
-        barnetsVilkårResultaterForskjøvetTidslinje: Tidslinje<List<VilkårResultat>>,
-    ): List<AndelTilkjentYtelse> {
-        val barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt =
+    companion object {
+        fun kombinerForskjøvedeTidslinjerTilOppfyltTidslinje(
+            søkersVilkårResultaterForskjøvetTidslinje: Tidslinje<List<VilkårResultat>>,
+            barnetsVilkårResultaterForskjøvetTidslinje: Tidslinje<List<VilkårResultat>>,
+        ) =
             barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(
                 søkersVilkårResultaterForskjøvetTidslinje,
             ) { barnPeriode, søkerPeriode ->
                 søkerPeriode?.let { barnPeriode }
             }
 
-        return barnVilkårResultaterForskjøvetBådeBarnOgSøkerHarAlleOppfylt
-            .tilPerioderIkkeNull()
-            .map { vilkårResultaterPeriode ->
-                vilkårResultaterPeriode.tilAndelTilkjentYtelse(
-                    tilkjentYtelse = tilkjentYtelse,
-                    barnAktør = barnAktør,
-                )
-            }
+        fun lagAndelerTilkjentYtelse(
+            oppfyltTidslinje: Tidslinje<List<VilkårResultat>>,
+            tilkjentYtelse: TilkjentYtelse,
+            barnAktør: Aktør,
+        ) =
+            oppfyltTidslinje
+                .tilPerioderIkkeNull()
+                .map { vilkårResultaterPeriode ->
+                    vilkårResultaterPeriode.tilAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        barnAktør = barnAktør,
+                    )
+                }
     }
 
     @Component
