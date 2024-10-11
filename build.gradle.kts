@@ -11,6 +11,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.noarg") version kotlinVersion
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
+    id("org.sonarqube") version "5.1.0.4882"
+    id("jacoco") // Built in to gradle
 
     // ------------- SLSA -------------- //
     id("org.cyclonedx.bom") version "1.10.0"
@@ -209,6 +211,33 @@ tasks.register<JavaExec>("ktlintFormat") {
     )
 }
 
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    executionData(fileTree(layout.buildDirectory).include("/jacoco/test.exec"))
+    reports {
+        xml.required = true
+    }
+}
+
+tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    dependsOn(":integrationTest")
+    sourceSets(sourceSets.main.get())
+    executionData(fileTree(layout.buildDirectory).include("/jacoco/integrationTest.exec"))
+    reports {
+        xml.required = true
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", System.getenv("SONAR_PROJECTKEY"))
+        property("sonar.organization", "navikt")
+        property("sonar.host.url", System.getenv("SONAR_HOST_URL"))
+        property("sonar.token", System.getenv("SONAR_TOKEN"))
+        property("sonar.sources", "src/main")
+    }
+}
+
 allprojects {
     plugins.withId("java") {
         this@allprojects.tasks {
@@ -218,6 +247,7 @@ allprojects {
                     useJUnitPlatform {
                         excludeTags("integrationTest")
                     }
+                    finalizedBy(jacocoTestReport)
                 }
             val integrationTest =
                 register<Test>("integrationTest") {
@@ -225,6 +255,7 @@ allprojects {
                         includeTags("integrationTest")
                     }
                     shouldRunAfter(test)
+                    finalizedBy(":jacocoIntegrationTestReport")
                 }
             "check" {
                 dependsOn(integrationTest)

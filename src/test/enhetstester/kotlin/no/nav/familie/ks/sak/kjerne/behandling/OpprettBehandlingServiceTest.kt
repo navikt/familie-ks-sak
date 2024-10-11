@@ -91,7 +91,7 @@ class OpprettBehandlingServiceTest {
         every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
         every { behandlingRepository.saveAndFlush(any()) } returns behandling
         every { behandlingRepository.save(any()) } returns behandling
-        every { arbeidsfordelingService.fastsettBehandledeEnhet(any(), any()) } just runs
+        every { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) } just runs
 
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any()) } just runs
         every { loggService.opprettBehandlingLogg(any()) } just runs

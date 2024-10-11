@@ -31,10 +31,11 @@ import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.ArbeidsfordelingsEnhet
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.Companion.erGyldigBehandlendeKontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -238,7 +239,7 @@ class IntegrasjonClient(
     }
 
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
-    fun hentBehandlendeEnheter(ident: String): List<ArbeidsfordelingsEnhet> {
+    fun hentBehandlendeEnheter(ident: String): List<Arbeidsfordelingsenhet> {
         val uri =
             UriComponentsBuilder
                 .fromUri(integrasjonUri)
@@ -255,15 +256,15 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
+    fun hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
         val uri = URI.create("$integrasjonUri/enhetstilganger")
-        return kallEksternTjenesteRessurs(
+        return kallEksternTjenesteRessurs<List<Enhet>>(
             tjeneste = "enhetstilganger",
             uri = uri,
             formål = "Hent enheter en NAV-ident har tilgang til",
         ) {
             postForEntity(uri, HentEnheterNavIdentHarTilgangTilRequest(navIdent, Tema.KON))
-        }
+        }.filter { erGyldigBehandlendeKontantstøtteEnhet(it.enhetsnummer) }
     }
 
     @Cacheable("enhet", cacheManager = "kodeverkCache")
@@ -443,7 +444,7 @@ class IntegrasjonClient(
     }
 
     @Cacheable("behandlendeEnhetForPersonMedRelasjon", cacheManager = "shortCache")
-    fun hentBehandlendeEnhetForPersonIdentMedRelasjoner(ident: String): ArbeidsfordelingsEnhet {
+    fun hentBehandlendeEnhetForPersonIdentMedRelasjoner(ident: String): Arbeidsfordelingsenhet {
         val uri =
             UriComponentsBuilder
                 .fromUri(integrasjonUri)
@@ -451,7 +452,7 @@ class IntegrasjonClient(
                 .build()
                 .toUri()
 
-        return kallEksternTjenesteRessurs<List<ArbeidsfordelingsEnhet>>(
+        return kallEksternTjenesteRessurs<List<Arbeidsfordelingsenhet>>(
             tjeneste = "arbeidsfordeling",
             uri = uri,
             formål = "Hent strengeste behandlende enhet for person og alle relasjoner til personen",

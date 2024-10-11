@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.cucumber.mocking
 import io.mockk.mockk
 import no.nav.familie.ba.sak.cucumber.mock.mockEndretUtbetalingAndelRepository
 import no.nav.familie.ba.sak.cucumber.mock.mockFagsakRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockKompetanseRepository
 import no.nav.familie.ba.sak.cucumber.mock.mockLoggService
 import no.nav.familie.ba.sak.cucumber.mock.mockPersonopplysningGrunnlagRepository
 import no.nav.familie.ba.sak.cucumber.mock.mockTaskService
@@ -15,12 +14,17 @@ import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonOpplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
+import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
@@ -40,7 +44,6 @@ class CucumberMock(
     val vilkårsvurderingRepositoryMock = mockVilkårsvurderingRepository(stepDefinition)
     val andelTilkjentYtelseRepositoryMock = mockAndelTilkjentYtelseRepository(stepDefinition)
     val valutakursRepositoryMock = mockValutakursRepository(stepDefinition)
-    val kompetanseRepositoryMock = mockKompetanseRepository(stepDefinition)
     val utenlandskPeriodebeløpRepositoryMock = mockUtenlandskPeriodebeløpRepository(stepDefinition)
     val tilkjentYtelseRepositoryMock = mockTilkjentYtelseRepository(stepDefinition)
     val personopplysningGrunnlagRepositoryMock = mockPersonopplysningGrunnlagRepository(stepDefinition)
@@ -51,7 +54,7 @@ class CucumberMock(
     val loggServiceMock = mockLoggService()
 
     val personService = mockk<PersonService>()
-    val personopplysningerServiceMock = mockk<PersonOpplysningerService>()
+    val personopplysningerServiceMock = mockk<PersonopplysningerService>()
     val aktørRepositoryMock = mockk<AktørRepository>()
     val pdlClientMock = mockk<PdlClient>()
     val personidentRepositoryMock = mockk<PersonidentRepository>()
@@ -60,6 +63,13 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
+
+    val beregnAndelTilkjentYtelseService =
+        BeregnAndelTilkjentYtelseService(
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+            unleashService = mockUnleashService(isEnabledDefault = false),
+        )
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(
@@ -109,6 +119,7 @@ class CucumberMock(
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             fagsakService = fagsakService,
             tilkjentYtelseEndretAbonnenter = listOf(tilpassDifferanseberegningEtterTilkjentYtelseService),
+            tilkjentYtelseService = tilkjentYtelseService,
         )
 
     val personopplysningGrunnlagService =
