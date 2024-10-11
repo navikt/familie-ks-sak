@@ -13,10 +13,10 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.regelverk.Regelverk
 import org.springframework.stereotype.Component
 
-abstract class AndelGenerator {
-    abstract val regelverk: Regelverk
+interface AndelGenerator {
+    val regelverk: Regelverk
 
-    abstract fun beregnAndelerForBarn(
+    fun beregnAndelerForBarn(
         søker: Person,
         barn: Person,
         vilkårsvurdering: Vilkårsvurdering,

@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.kjerne.regelverk.Regelverk
 import org.springframework.stereotype.Component
 
 @Component
-class RegelverkFørFebruar2025AndelGenerator : AndelGenerator() {
+class RegelverkFørFebruar2025AndelGenerator : AndelGenerator {
     override val regelverk = Regelverk.FØR_LOVENDRING_2025
 
     override fun beregnAndelerForBarn(
