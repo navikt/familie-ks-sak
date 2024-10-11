@@ -249,5 +249,3 @@ class InnkommendeJournalføringService(
         const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
     }
 }
-
-fun Journalpost.erDigitalSøknad() = this.kanal == InnkommendeJournalføringService.NAV_NO && this.dokumenter?.any { dokument -> InnkommendeJournalføringService.SØKNADSKODE_KONTANTSTØTTE == dokument.brevkode } ?: false
