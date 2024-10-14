@@ -41,9 +41,7 @@ class KompensasjonAndelController(
         @PathVariable kompensasjonAndelId: Long,
         @RequestBody kompensasjonAndelDto: KompensasjonAndelDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        if (!unleashNextMedContextService.isEnabled(KOMPENSASJONSORDNING)) {
-            throw FunksjonellFeil("Behandling med årsak kompensasjonsordning er ikke tilgjengelig")
-        }
+        validerAtKompensasjonsordningToggleErPå()
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
@@ -70,9 +68,7 @@ class KompensasjonAndelController(
         @PathVariable behandlingId: Long,
         @PathVariable kompensasjonAndelId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        if (!unleashNextMedContextService.isEnabled(KOMPENSASJONSORDNING)) {
-            throw FunksjonellFeil("Behandling med årsak kompensasjonsordning er ikke tilgjengelig")
-        }
+        validerAtKompensasjonsordningToggleErPå()
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
@@ -97,9 +93,7 @@ class KompensasjonAndelController(
     fun opprettTomKompensasjonAndel(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        if (!unleashNextMedContextService.isEnabled(KOMPENSASJONSORDNING)) {
-            throw FunksjonellFeil("Behandling med årsak kompensasjonsordning er ikke tilgjengelig")
-        }
+        validerAtKompensasjonsordningToggleErPå()
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
@@ -119,5 +113,11 @@ class KompensasjonAndelController(
         tilbakestillBehandlingService.tilbakestillBehandlingTilBehandlingsresultat(behandlingId = behandling.id)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
+    }
+
+    private fun validerAtKompensasjonsordningToggleErPå() {
+        if (!unleashNextMedContextService.isEnabled(KOMPENSASJONSORDNING)) {
+            throw FunksjonellFeil("Behandling med årsak kompensasjonsordning er ikke tilgjengelig")
+        }
     }
 }
