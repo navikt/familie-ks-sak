@@ -10,7 +10,7 @@ class RegelverkUtlederTest {
         val fødselsdato = RegelverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusDays(1)
 
         // Act & Assert
-        assertThat(RegelverkUtleder.utledRegelverkForBarn(fødselsdato)).isEqualTo(Regelverk.FØR_LOVENDRING_2025)
+        assertThat(RegelverkUtleder.utledRegelverkForBarn(fødselsdato, true)).isEqualTo(Regelverk.FØR_LOVENDRING_2025)
     }
 
     @Test
@@ -19,7 +19,7 @@ class RegelverkUtlederTest {
         val fødselsdato = RegelverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.plusDays(1)
 
         // Act & Assert
-        assertThat(RegelverkUtleder.utledRegelverkForBarn(fødselsdato)).isEqualTo(Regelverk.LOVENDRING_FEBRUAR_2025)
+        assertThat(RegelverkUtleder.utledRegelverkForBarn(fødselsdato, true)).isEqualTo(Regelverk.LOVENDRING_FEBRUAR_2025)
     }
 
     @Test
@@ -28,6 +28,6 @@ class RegelverkUtlederTest {
         val fødselsdato = RegelverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025
 
         // Act & Assert
-        assertThat(RegelverkUtleder.utledRegelverkForBarn(fødselsdato)).isEqualTo(Regelverk.LOVENDRING_FEBRUAR_2025)
+        assertThat(RegelverkUtleder.utledRegelverkForBarn(fødselsdato, true)).isEqualTo(Regelverk.LOVENDRING_FEBRUAR_2025)
     }
 }
