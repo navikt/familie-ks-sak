@@ -95,7 +95,7 @@ class ApiExceptionHandler {
                 valideringFeil.bindingResult.fieldErrors
                     .map { fieldError ->
                         fieldError.defaultMessage
-                    }.joinToString(" ,"),
+                    }.joinToString(", "),
             ),
         )
 }

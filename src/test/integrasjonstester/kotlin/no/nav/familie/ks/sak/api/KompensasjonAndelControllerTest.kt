@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.YearMonth
+import org.hamcrest.CoreMatchers.containsString as Contains
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class KompensasjonAndelControllerTest : OppslagSpringRunnerTest() {
@@ -71,6 +72,41 @@ class KompensasjonAndelControllerTest : OppslagSpringRunnerTest() {
 
     @Nested
     inner class OppdaterKompensasjonAndelOgOppdaterTilkjentYtelse {
+        @Test
+        fun `skal kaste feil hvis body er feil`() {
+            val kompensasjonAndel = KompensasjonAndel(id = 0, behandlingId = behandling.id)
+            kompensasjonAndelRepository.saveAndFlush(kompensasjonAndel)
+
+            val ugyldigKompensasjonAndelDto =
+                """
+                {
+                    "id": 999951,
+                    "personIdent": "0101545030",
+                    "prosent": 110,
+                    "fom": "2024-03",
+                    "tom": "2024-01"
+                }
+                """.trimIndent()
+
+            val tomFomFeilmelding = "Til og med-dato kan ikke være før fra og med-dato"
+            val personidentFeilmelding = "Personident må være elleve siffer"
+            val prosentFeilmelding = "Prosent må være mellom 0 og 100"
+
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+                body(ugyldigKompensasjonAndelDto)
+            } When {
+                put("$kompensasjonAndelControllerUrl/${behandling.id}/${kompensasjonAndel.id}")
+            } Then {
+                statusCode(400)
+                body("status", Is("FEILET"))
+                body("melding", Contains(tomFomFeilmelding))
+                body("melding", Contains(personidentFeilmelding))
+                body("melding", Contains(prosentFeilmelding))
+            }
+        }
+
         @Test
         fun `skal oppdatere kompensasjonAndel`() {
             val kompensasjonAndel = KompensasjonAndel(id = 0, behandlingId = behandling.id)

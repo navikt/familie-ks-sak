@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import jakarta.validation.Valid
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.KompensasjonAndelDto
@@ -39,7 +40,7 @@ class KompensasjonAndelController(
     fun oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse(
         @PathVariable behandlingId: Long,
         @PathVariable kompensasjonAndelId: Long,
-        @RequestBody kompensasjonAndelDto: KompensasjonAndelDto,
+        @Valid @RequestBody kompensasjonAndelDto: KompensasjonAndelDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         validerAtKompensasjonsordningToggleErPå()
 
