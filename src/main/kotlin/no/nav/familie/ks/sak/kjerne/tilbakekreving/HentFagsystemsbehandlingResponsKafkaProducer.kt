@@ -19,7 +19,7 @@ interface KafkaProducer {
 }
 
 @Service
-@Profile("!integrasjonstest & !dev-postgres-preprod")
+@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class HentFagsystemsbehandlingResponsKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) : KafkaProducer {
@@ -53,7 +53,7 @@ class HentFagsystemsbehandlingResponsKafkaProducer(
 }
 
 @Service
-@Profile("postgres", "integrasjonstest", "dev-postgres-preprod")
+@Profile("postgres", "integrasjonstest", "dev-postgres-preprod", "postgres")
 class DummyHentFagsystemsbehandlingResponsKafkaProducer : KafkaProducer {
     override fun sendFagsystemsbehandlingRespons(
         melding: HentFagsystemsbehandlingRespons,

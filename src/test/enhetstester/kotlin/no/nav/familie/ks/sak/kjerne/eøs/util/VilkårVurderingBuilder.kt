@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.tilfeldigPerson
@@ -21,7 +22,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -32,8 +38,6 @@ data class VilkårsvurderingBuilder(
 ) {
     val personresultater: MutableSet<PersonResultat> = mutableSetOf()
     val personer: MutableSet<Person> = mutableSetOf()
-
-    private val tilkjentYtelseService = TilkjentYtelseService()
 
     fun forPerson(
         person: Person,
@@ -91,11 +95,20 @@ data class VilkårsvurderingBuilder(
         }
     }
 
-    fun byggTilkjentYtelse() =
-        tilkjentYtelseService.beregnTilkjentYtelse(
+    fun byggTilkjentYtelse(): TilkjentYtelse {
+        val tilkjentYtelseService =
+            TilkjentYtelseService(
+                BeregnAndelTilkjentYtelseService(
+                    andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+                    unleashService = mockUnleashService(false),
+                ),
+            )
+
+        return tilkjentYtelseService.beregnTilkjentYtelse(
             vilkårsvurdering = this.byggVilkårsvurdering(),
             personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
         )
+    }
 }
 
 internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(personResultat: PersonResultat): Collection<VilkårResultat> =

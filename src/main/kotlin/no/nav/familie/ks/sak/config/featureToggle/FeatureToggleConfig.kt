@@ -12,5 +12,7 @@ class FeatureToggleConfig {
 
         // Ikke operasjonelle
         const val OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER = "familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"
+
+        const val BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER = "familie-ks-sak.bruk-ny-loype-for-generering-av-andeler"
     }
 }
