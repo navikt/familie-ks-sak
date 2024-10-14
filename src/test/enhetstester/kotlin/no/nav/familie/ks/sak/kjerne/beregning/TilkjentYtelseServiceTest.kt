@@ -1,8 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -24,6 +27,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -31,6 +36,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 
 internal class TilkjentYtelseServiceTest {
     private val søker = randomAktør()
@@ -57,7 +63,10 @@ internal class TilkjentYtelseServiceTest {
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(false),
         )
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)
+
+    private val kompensasjonAndelService: KompensasjonAndelService = mockk()
+
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelService)
 
     @BeforeEach
     fun init() {
@@ -69,6 +78,82 @@ internal class TilkjentYtelseServiceTest {
                 søkerPeriodeFom = LocalDate.of(1987, 1, 1),
                 søkerPeriodeTom = null,
             )
+
+        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns emptyList()
+    }
+
+    @Test
+    fun `beregnTilkjentYtelse skal generere kompensasjonAndeler`() {
+        // arrange
+        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns
+            listOf(
+                KompensasjonAndel(
+                    id = 1,
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    prosent = BigDecimal(100),
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 10),
+                ),
+                KompensasjonAndel(
+                    id = 2,
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    prosent = BigDecimal(50),
+                    fom = YearMonth.of(2024, 12),
+                    tom = YearMonth.of(2025, 1),
+                ),
+            )
+
+        // act
+        val tilkjentYtelse =
+            tilkjentYtelseService.beregnTilkjentYtelse(
+                vilkårsvurdering = vilkårsvurdering,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+            )
+
+        // assert
+        assertTilkjentYtelse(tilkjentYtelse, 2)
+        assertAndelTilkjentYtelse(
+            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 9) },
+            prosent = BigDecimal(100),
+            periodeFom = YearMonth.of(2024, 9).toLocalDate(),
+            periodeTom = YearMonth.of(2024, 10).toLocalDate(),
+            type = YtelseType.KOMPENSASJONSORDNING_2024,
+        )
+        assertAndelTilkjentYtelse(
+            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 12) },
+            prosent = BigDecimal(50),
+            periodeFom = YearMonth.of(2024, 12).toLocalDate(),
+            periodeTom = YearMonth.of(2025, 1).toLocalDate(),
+            type = YtelseType.KOMPENSASJONSORDNING_2024,
+        )
+    }
+
+    @Test
+    fun `beregnTilkjentYtelse tar ikke med tom kompensasjonandel`() {
+        // arrange
+        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns
+            listOf(
+                KompensasjonAndel(
+                    id = 1,
+                    behandlingId = behandling.id,
+                    person = null,
+                    prosent = null,
+                    fom = null,
+                    tom = null,
+                ),
+            )
+
+        // act
+        val tilkjentYtelse =
+            tilkjentYtelseService.beregnTilkjentYtelse(
+                vilkårsvurdering = vilkårsvurdering,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+            )
+
+        // assert
+        assertTrue(tilkjentYtelse.andelerTilkjentYtelse.isEmpty())
     }
 
     @Test
@@ -533,9 +618,10 @@ internal class TilkjentYtelseServiceTest {
         prosent: BigDecimal,
         periodeFom: LocalDate,
         periodeTom: LocalDate,
+        type: YtelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
     ) {
         assertEquals(barn1, andelTilkjentYtelse.aktør)
-        assertEquals(YtelseType.ORDINÆR_KONTANTSTØTTE, andelTilkjentYtelse.type)
+        assertEquals(type, andelTilkjentYtelse.type)
         assertEquals(prosent, andelTilkjentYtelse.prosent)
         assertEquals(periodeFom.toYearMonth(), andelTilkjentYtelse.stønadFom)
         assertEquals(periodeTom.toYearMonth(), andelTilkjentYtelse.stønadTom)

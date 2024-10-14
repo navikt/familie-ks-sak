@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
+import io.mockk.mockk
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
@@ -98,10 +99,12 @@ data class VilkårsvurderingBuilder(
     fun byggTilkjentYtelse(): TilkjentYtelse {
         val tilkjentYtelseService =
             TilkjentYtelseService(
-                BeregnAndelTilkjentYtelseService(
-                    andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-                    unleashService = mockUnleashService(false),
-                ),
+                beregnAndelTilkjentYtelseService =
+                    BeregnAndelTilkjentYtelseService(
+                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+                        unleashService = mockUnleashService(false),
+                    ),
+                kompensasjonAndelService = mockk(),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(

@@ -63,6 +63,12 @@ data class KompensasjonAndel(
     override fun hashCode(): Int = id.hashCode()
 }
 
+fun KompensasjonAndel.erObligatoriskeFelterUtfylt(): Boolean =
+    this.person != null &&
+        this.fom != null &&
+        this.tom != null &&
+        this.prosent != null
+
 fun KompensasjonAndel.tilKompensasjonAndelDto(): KompensasjonAndelDto =
     KompensasjonAndelDto(
         id = this.id,

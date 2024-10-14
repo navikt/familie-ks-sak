@@ -33,14 +33,21 @@ class KompensasjonAndelService(
         val kompensasjonAndel = finnKompensasjonAndel(kompensasjonAndelId)
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person = personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == kompensasjonAndelRequestDto.personIdent }
+        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
         kompensasjonAndel.fraKompenasjonAndelDto(kompensasjonAndelRequestDto, person)
 
         // TODO: Validering
 
+        // TODO: Slå sammen kompensasjonAndeler som er like og etterfølgende
+
         kompensasjonAndelRepository.saveAndFlush(kompensasjonAndel)
 
-        // TODO: Oppdater tilkjent ytelse med endret kompensasjonsandel
+        beregningService.oppdaterTilkjentYtelsePåBehandling(
+            behandling,
+            personopplysningGrunnlag,
+            vilkårsvurdering,
+        )
     }
 
     @Transactional

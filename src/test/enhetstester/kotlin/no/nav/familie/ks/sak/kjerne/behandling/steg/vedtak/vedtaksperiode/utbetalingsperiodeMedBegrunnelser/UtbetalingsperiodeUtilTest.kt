@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
 import apr
+import io.mockk.mockk
 import mars
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -329,10 +330,12 @@ internal class UtbetalingsperiodeUtilTest {
 
         val tilkjentYtelseService =
             TilkjentYtelseService(
-                BeregnAndelTilkjentYtelseService(
-                    andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-                    unleashService = mockUnleashService(false),
-                ),
+                beregnAndelTilkjentYtelseService =
+                    BeregnAndelTilkjentYtelseService(
+                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+                        unleashService = mockUnleashService(false),
+                    ),
+                kompensasjonAndelService = mockk(),
             )
 
         val tilkjentYtelse =
