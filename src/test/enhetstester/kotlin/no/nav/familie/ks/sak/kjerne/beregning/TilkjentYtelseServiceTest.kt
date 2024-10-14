@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -21,6 +22,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -44,13 +47,17 @@ internal class TilkjentYtelseServiceTest {
             barnAktør = listOf(barn1),
         )
     private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
-    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
 
     private val maksBeløp = maksBeløp()
 
     private lateinit var vilkårsvurdering: Vilkårsvurdering
 
-    private val tilkjentYtelseService = TilkjentYtelseService()
+    private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService =
+        BeregnAndelTilkjentYtelseService(
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+            unleashService = mockUnleashService(false),
+        )
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)
 
     @BeforeEach
     fun init() {

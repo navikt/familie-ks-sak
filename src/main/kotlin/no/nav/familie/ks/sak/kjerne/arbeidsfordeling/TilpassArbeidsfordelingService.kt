@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.SYSTEM_FORKORTELSE
 import org.springframework.stereotype.Service
 
 @Service
@@ -23,13 +24,16 @@ class TilpassArbeidsfordelingService(
     fun bestemTilordnetRessursPåOppgave(
         arbeidsfordelingsenhet: Arbeidsfordelingsenhet,
         navIdent: NavIdent?,
-    ): NavIdent? =
-        if (harSaksbehandlerTilgangTilEnhet(enhetId = arbeidsfordelingsenhet.enhetId, navIdent = navIdent)
-        ) {
+    ): NavIdent? {
+        if (navIdent?.erSystemIdent() == true) {
+            return null
+        }
+        return if (harSaksbehandlerTilgangTilEnhet(enhetId = arbeidsfordelingsenhet.enhetId, navIdent = navIdent)) {
             navIdent
         } else {
             null
         }
+    }
 
     private fun harSaksbehandlerTilgangTilEnhet(
         enhetId: String,
@@ -78,7 +82,7 @@ class TilpassArbeidsfordelingService(
         navIdent: NavIdent?,
         arbeidsfordelingsenhet: Arbeidsfordelingsenhet,
     ): Arbeidsfordelingsenhet {
-        if (navIdent == null) {
+        if (navIdent == null || navIdent.erSystemIdent()) {
             // navIdent er null ved automatisk journalføring
             return Arbeidsfordelingsenhet(
                 arbeidsfordelingsenhet.enhetId,
@@ -109,4 +113,6 @@ class TilpassArbeidsfordelingService(
             arbeidsfordelingsenhet.enhetNavn,
         )
     }
+
+    private fun NavIdent.erSystemIdent(): Boolean = this.ident == SYSTEM_FORKORTELSE
 }
