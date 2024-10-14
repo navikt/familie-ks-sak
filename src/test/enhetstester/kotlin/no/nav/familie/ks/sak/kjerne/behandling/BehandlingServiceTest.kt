@@ -42,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -122,6 +123,9 @@ class BehandlingServiceTest {
     @MockK
     private lateinit var brevmottakerService: BrevmottakerService
 
+    @MockK
+    private lateinit var kompensasjonAndelService: KompensasjonAndelService
+
     @InjectMockKs
     private lateinit var behandlingService: BehandlingService
 
@@ -192,6 +196,7 @@ class BehandlingServiceTest {
         every { valutakursRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) } returns null
         every { brevmottakerService.hentBrevmottakere(any()) } returns emptyList()
+        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns emptyList()
     }
 
     @Test
@@ -214,6 +219,7 @@ class BehandlingServiceTest {
         }
         verify(exactly = 1) { kompetanseRepository.findByBehandlingId(behandling.id) }
         verify(exactly = 1) { brevmottakerService.hentBrevmottakere(behandling.id) }
+        verify(exactly = 1) { kompensasjonAndelService.hentKompensasjonAndeler(behandling.id) }
 
         assertTrue { behandlingResponsDto.personer.isNotEmpty() }
         assertEquals(1, behandlingResponsDto.personer.size)

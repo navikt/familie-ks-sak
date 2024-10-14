@@ -40,6 +40,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.tilKompensasjonAndelDto
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -79,6 +81,7 @@ class BehandlingService(
     private val refusjonEøsService: RefusjonEøsService,
     private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
+    private val kompensasjonAndelService: KompensasjonAndelService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -155,6 +158,8 @@ class BehandlingService(
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
                 .map { it.tilEndretUtbetalingAndelResponsDto() }
 
+        val kompensasjonAndeler = kompensasjonAndelService.hentKompensasjonAndeler(behandlingId).map { it.tilKompensasjonAndelDto() }
+
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
@@ -195,6 +200,7 @@ class BehandlingService(
             vedtak,
             totrinnskontroll,
             endreteUtbetalingerMedAndeler,
+            kompensasjonAndeler,
             endringstidspunkt,
             tilbakekreving,
             sisteVedtaksperiodeVisningDato,
