@@ -170,7 +170,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             } Then {
                 statusCode(200)
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("frontendFeilmelding", Is("Behandling med årsak overgangsordningsordning er ikke tilgjengelig"))
+                body("frontendFeilmelding", Is("Behandling med årsak overgangsordning er ikke tilgjengelig"))
             }
         }
 
@@ -188,7 +188,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             } Then {
                 statusCode(200)
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("frontendFeilmelding", Is("Behandlingen har ikke årsak 'Overgangsordningsordning 2024'"))
+                body("frontendFeilmelding", Is("Behandlingen har ikke årsak 'Overgangsordning 2024'"))
             }
         }
 
