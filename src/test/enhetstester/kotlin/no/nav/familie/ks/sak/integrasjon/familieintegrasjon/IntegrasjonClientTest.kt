@@ -169,18 +169,18 @@ internal class IntegrasjonClientTest {
     }
 
     @Test
-    fun `tilordneEnhetForOppgave skal returnere tildelt oppgave ved OK fordelelse av enhet`() {
+    fun `tilordneEnhetOgRessursForOppgave skal returnere tildelt oppgave ved OK fordelelse av enhet`() {
         // Arrange
         val nyEnhet = "testenhet"
 
         wiremockServerItem.stubFor(
             WireMock
-                .patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true"))
+                .patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true&nullstillTilordnetRessurs=true"))
                 .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.tilordneEnhetForOppgave(200, nyEnhet)
+        val fordeltOppgave = integrasjonClient.tilordneEnhetOgRessursForOppgave(200, nyEnhet)
 
         // Assert
         assertThat(fordeltOppgave.oppgaveId).isEqualTo(200)
