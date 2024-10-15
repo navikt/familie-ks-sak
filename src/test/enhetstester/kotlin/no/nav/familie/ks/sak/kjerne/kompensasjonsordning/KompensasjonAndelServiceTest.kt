@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndel
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.fraKompenasjonAndelDto
@@ -42,9 +41,6 @@ class KompensasjonAndelServiceTest {
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
     @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
     @InjectMockKs
@@ -56,6 +52,8 @@ class KompensasjonAndelServiceTest {
     fun setup() {
         every { kompensasjonAndelRepository.save(any()) } answers { KompensasjonAndel(behandlingId = firstArg<KompensasjonAndel>().behandlingId) }
         every { kompensasjonAndelRepository.saveAndFlush(any()) } answers { KompensasjonAndel(behandlingId = firstArg<KompensasjonAndel>().behandlingId) }
+        every { kompensasjonAndelRepository.saveAllAndFlush(any<Collection<KompensasjonAndel>>()) } answers { firstArg<List<KompensasjonAndel>>().map { KompensasjonAndel(behandlingId = it.behandlingId) } }
+        every { kompensasjonAndelRepository.deleteAll(any()) } just runs
         every { kompensasjonAndelRepository.deleteById(any()) } just runs
         every { kompensasjonAndelRepository.hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(søkerAktør = søker.aktør)
@@ -103,10 +101,14 @@ class KompensasjonAndelServiceTest {
                 )
 
             every { kompensasjonAndelRepository.finnKompensasjonAndel(any()) } returns gammelKompensasjonAndel
+            every { kompensasjonAndelRepository.hentKompensasjonAndelerForBehandling(any()) } returns listOf(gammelKompensasjonAndel)
 
             kompensasjonAndelService.oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse(behandling, 0, kompensasjonAndelDto)
 
-            verify(exactly = 1) { kompensasjonAndelRepository.saveAndFlush(gammelKompensasjonAndel.fraKompenasjonAndelDto(kompensasjonAndelDto, søker)) }
+            verify(exactly = 1) {
+                kompensasjonAndelRepository.deleteAll(any())
+                kompensasjonAndelRepository.saveAllAndFlush(listOf(gammelKompensasjonAndel.fraKompenasjonAndelDto(kompensasjonAndelDto, søker)))
+            }
         }
 
         @Test

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
@@ -29,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -104,7 +106,7 @@ data class VilkårsvurderingBuilder(
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
                         unleashService = mockUnleashService(false),
                     ),
-                kompensasjonAndelRepository = mockk(),
+                kompensasjonAndelRepository = mockKompensasjonAndelRepository(),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
@@ -112,6 +114,11 @@ data class VilkårsvurderingBuilder(
             personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
         )
     }
+
+    private fun mockKompensasjonAndelRepository(): KompensasjonAndelRepository =
+        mockk<KompensasjonAndelRepository>().apply {
+            every { hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
+        }
 }
 
 internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(personResultat: PersonResultat): Collection<VilkårResultat> =

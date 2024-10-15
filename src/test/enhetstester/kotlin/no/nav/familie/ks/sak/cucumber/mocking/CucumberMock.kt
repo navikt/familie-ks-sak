@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.cucumber.mocking
 import io.mockk.mockk
 import no.nav.familie.ba.sak.cucumber.mock.mockEndretUtbetalingAndelRepository
 import no.nav.familie.ba.sak.cucumber.mock.mockFagsakRepository
+import no.nav.familie.ba.sak.cucumber.mock.mockKompensasjonAndelRepository
 import no.nav.familie.ba.sak.cucumber.mock.mockLoggService
 import no.nav.familie.ba.sak.cucumber.mock.mockPersonopplysningGrunnlagRepository
 import no.nav.familie.ba.sak.cucumber.mock.mockTaskService
@@ -27,7 +28,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.Regelverk
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -49,6 +49,7 @@ class CucumberMock(
     val tilkjentYtelseRepositoryMock = mockTilkjentYtelseRepository(stepDefinition)
     val personopplysningGrunnlagRepositoryMock = mockPersonopplysningGrunnlagRepository(stepDefinition)
     val endretUtbetalingAndelRepositoryMock = mockEndretUtbetalingAndelRepository(stepDefinition)
+    val kompensasjonAndelRepositoryMock = mockKompensasjonAndelRepository(stepDefinition)
     val fagsakRepositoryMock = mockFagsakRepository(stepDefinition)
     val vedtakRepositoryMock = mockVedtakRepository(stepDefinition)
     val taskServiceMock = mockTaskService()
@@ -64,7 +65,6 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
-    val kompensasjonAndelRepositoryMock = mockk<KompensasjonAndelRepository>()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
