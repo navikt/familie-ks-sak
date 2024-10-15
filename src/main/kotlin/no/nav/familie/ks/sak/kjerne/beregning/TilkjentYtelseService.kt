@@ -8,7 +8,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.erObligatoriskeFelterUtfylt
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.UtfyltKompensasjonAndel
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.tilIKompensasjonAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.springframework.stereotype.Service
@@ -44,17 +45,18 @@ class TilkjentYtelseService(
         val kompensasjonAndelerSomAndelTilkjentYtelse =
             kompensasjonAndelRepository
                 .hentKompensasjonAndelerForBehandling(vilkårsvurdering.behandling.id)
-                .filter { it.erObligatoriskeFelterUtfylt() }
+                .map { it.tilIKompensasjonAndel() }
+                .filterIsInstance<UtfyltKompensasjonAndel>()
                 .map { kompensasjonAndel ->
                     AndelTilkjentYtelse(
                         behandlingId = vilkårsvurdering.behandling.id,
                         tilkjentYtelse = tilkjentYtelse,
-                        aktør = kompensasjonAndel.person!!.aktør,
-                        prosent = kompensasjonAndel.prosent!!,
-                        stønadFom = kompensasjonAndel.fom!!,
-                        stønadTom = kompensasjonAndel.tom!!,
-                        kalkulertUtbetalingsbeløp = maksBeløp().prosent(kompensasjonAndel.prosent!!),
-                        nasjonaltPeriodebeløp = maksBeløp().prosent(kompensasjonAndel.prosent!!), // TODO: se på om dette er riktig
+                        aktør = kompensasjonAndel.person.aktør,
+                        prosent = kompensasjonAndel.prosent,
+                        stønadFom = kompensasjonAndel.fom,
+                        stønadTom = kompensasjonAndel.tom,
+                        kalkulertUtbetalingsbeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
+                        nasjonaltPeriodebeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
                         type = YtelseType.KOMPENSASJONSORDNING_2024,
                         sats = maksBeløp(),
                     )
