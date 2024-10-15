@@ -71,7 +71,7 @@ class CucumberMock(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(isEnabledDefault = false),
         )
-    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock)
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock, mockUnleashService())
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

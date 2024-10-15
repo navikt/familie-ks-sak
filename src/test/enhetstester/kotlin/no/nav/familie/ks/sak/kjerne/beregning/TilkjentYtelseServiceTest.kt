@@ -66,7 +66,7 @@ internal class TilkjentYtelseServiceTest {
 
     private val kompensasjonAndelRepositoryMock: KompensasjonAndelRepository = mockk()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock)
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock, mockUnleashService(true))
 
     @BeforeEach
     fun init() {

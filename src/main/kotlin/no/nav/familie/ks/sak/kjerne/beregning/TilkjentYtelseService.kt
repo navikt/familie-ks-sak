@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.KOMPENSASJONSORDNING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -12,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.UtfyltKompensasj
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.tilIKompensasjonAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -19,6 +21,7 @@ import java.time.LocalDate
 class TilkjentYtelseService(
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
     private val kompensasjonAndelRepository: KompensasjonAndelRepository,
+    private val unleashService: UnleashService,
 ) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
@@ -43,10 +46,14 @@ class TilkjentYtelseService(
             )
 
         val kompensasjonAndelerSomAndelTilkjentYtelse =
-            genererAndelerTilkjentYtelseFraKompensasjonAndeler(
-                behandlingId = vilkårsvurdering.behandling.id,
-                tilkjentYtelse = tilkjentYtelse,
-            )
+            if (unleashService.isEnabled(KOMPENSASJONSORDNING)) {
+                genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+                    behandlingId = vilkårsvurdering.behandling.id,
+                    tilkjentYtelse = tilkjentYtelse,
+                )
+            } else {
+                emptyList()
+            }
 
         val alleAndelerTilkjentYtelse = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } + kompensasjonAndelerSomAndelTilkjentYtelse
 

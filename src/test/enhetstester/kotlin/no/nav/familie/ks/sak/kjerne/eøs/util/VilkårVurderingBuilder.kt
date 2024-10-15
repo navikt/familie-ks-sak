@@ -107,6 +107,7 @@ data class VilkårsvurderingBuilder(
                         unleashService = mockUnleashService(false),
                     ),
                 kompensasjonAndelRepository = mockKompensasjonAndelRepository(),
+                unleashService = mockUnleashService(true),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
