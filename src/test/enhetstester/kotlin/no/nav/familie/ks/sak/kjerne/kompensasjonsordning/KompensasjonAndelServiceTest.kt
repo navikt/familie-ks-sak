@@ -130,7 +130,7 @@ class KompensasjonAndelServiceTest {
 
         every { kompensasjonAndelRepository.hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
 
-        kompensasjonAndelService.fjernKompensasjongAndelOgOppdaterTilkjentYtelse(behandling, 200)
+        kompensasjonAndelService.fjernKompensasjonAndelOgOppdaterTilkjentYtelse(behandling, 200)
 
         verify(exactly = 1) { kompensasjonAndelRepository.deleteById(200) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }

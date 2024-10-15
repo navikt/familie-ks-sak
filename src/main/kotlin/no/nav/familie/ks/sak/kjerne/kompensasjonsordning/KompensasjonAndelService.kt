@@ -58,7 +58,7 @@ class KompensasjonAndelService(
     }
 
     @Transactional
-    fun fjernKompensasjongAndelOgOppdaterTilkjentYtelse(
+    fun fjernKompensasjonAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
         kompensasjonAndelId: Long,
     ) {

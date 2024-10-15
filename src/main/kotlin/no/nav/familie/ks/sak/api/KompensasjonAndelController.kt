@@ -80,7 +80,7 @@ class KompensasjonAndelController(
 
         val behandling = behandlingService.hentBehandling(behandlingId)
 
-        kompensasjonAndelService.fjernKompensasjongAndelOgOppdaterTilkjentYtelse(
+        kompensasjonAndelService.fjernKompensasjonAndelOgOppdaterTilkjentYtelse(
             behandling,
             kompensasjonAndelId,
         )
