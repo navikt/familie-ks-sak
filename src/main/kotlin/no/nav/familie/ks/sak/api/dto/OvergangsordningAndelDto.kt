@@ -4,7 +4,7 @@ import jakarta.validation.constraints.AssertTrue
 import java.math.BigDecimal
 import java.time.YearMonth
 
-data class KompensasjonAndelDto(
+data class OvergangsordningAndelDto(
     val id: Long,
     val personIdent: String?,
     val prosent: BigDecimal?,

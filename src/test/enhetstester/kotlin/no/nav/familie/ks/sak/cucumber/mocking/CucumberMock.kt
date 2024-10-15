@@ -39,7 +39,7 @@ class CucumberMock(
     val tilkjentYtelseRepositoryMock = mockTilkjentYtelseRepository(stepDefinition)
     val personopplysningGrunnlagRepositoryMock = mockPersonopplysningGrunnlagRepository(stepDefinition)
     val endretUtbetalingAndelRepositoryMock = mockEndretUtbetalingAndelRepository(stepDefinition)
-    val kompensasjonAndelRepositoryMock = mockKompensasjonAndelRepository(stepDefinition)
+    val overgangsordningAndelRepositoryMock = mockOvergangsordningAndelRepository(stepDefinition)
     val fagsakRepositoryMock = mockFagsakRepository(stepDefinition)
     val vedtakRepositoryMock = mockVedtakRepository(stepDefinition)
     val taskServiceMock = mockTaskService()
@@ -61,7 +61,7 @@ class CucumberMock(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(isEnabledDefault = false),
         )
-    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock, mockUnleashService())
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, mockUnleashService())
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

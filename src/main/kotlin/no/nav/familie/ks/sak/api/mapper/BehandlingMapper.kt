@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
-import no.nav.familie.ks.sak.api.dto.KompensasjonAndelDto
+import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.RefusjonEøsDto
@@ -52,7 +52,7 @@ object BehandlingMapper {
         vedtak: VedtakDto?,
         totrinnskontroll: TotrinnskontrollDto?,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelResponsDto>,
-        kompensasjonAndeler: List<KompensasjonAndelDto>,
+        overgangsordningAndeler: List<OvergangsordningAndelDto>,
         endringstidspunkt: LocalDate,
         tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
@@ -98,7 +98,7 @@ object BehandlingMapper {
         vedtak = vedtak,
         totrinnskontroll = totrinnskontroll,
         endretUtbetalingAndeler = endretUtbetalingAndeler,
-        kompensasjonAndeler = kompensasjonAndeler,
+        overgangsordningAndeler = overgangsordningAndeler,
         endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
         tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
         sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,

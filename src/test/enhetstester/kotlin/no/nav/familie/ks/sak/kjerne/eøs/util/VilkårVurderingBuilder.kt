@@ -30,7 +30,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -106,7 +106,7 @@ data class VilkårsvurderingBuilder(
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
                         unleashService = mockUnleashService(false),
                     ),
-                kompensasjonAndelRepository = mockKompensasjonAndelRepository(),
+                overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
                 unleashService = mockUnleashService(true),
             )
 
@@ -116,9 +116,9 @@ data class VilkårsvurderingBuilder(
         )
     }
 
-    private fun mockKompensasjonAndelRepository(): KompensasjonAndelRepository =
-        mockk<KompensasjonAndelRepository>().apply {
-            every { hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
+    private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
+        mockk<OvergangsordningAndelRepository>().apply {
+            every { hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
         }
 }
 

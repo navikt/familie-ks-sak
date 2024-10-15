@@ -33,7 +33,7 @@ class BrevmalService {
             BehandlingÅrsak.SATSENDRING,
             BehandlingÅrsak.BARNEHAGELISTE,
             BehandlingÅrsak.LOVENDRING_2024,
-            BehandlingÅrsak.KOMPENSASJONSORDNING_2024,
+            BehandlingÅrsak.OVERGANGSORDNING_2024,
             -> hentVedtaksbrevmal(behandling)
         }
 

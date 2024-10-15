@@ -158,12 +158,12 @@ enum class YtelseType(
     val klassifisering: String,
 ) {
     ORDINÆR_KONTANTSTØTTE("KS"),
-    KOMPENSASJONSORDNING_2024("KO_2024"),
+    OVERGANGSORDNING_2024("KO_2024"),
     ;
 
     fun tilYtelseType(): YtelsetypeKS =
         when (this) {
             ORDINÆR_KONTANTSTØTTE -> YtelsetypeKS.ORDINÆR_KONTANTSTØTTE
-            KOMPENSASJONSORDNING_2024 -> YtelsetypeKS.ORDINÆR_KONTANTSTØTTE
+            OVERGANGSORDNING_2024 -> YtelsetypeKS.ORDINÆR_KONTANTSTØTTE
         }
 }

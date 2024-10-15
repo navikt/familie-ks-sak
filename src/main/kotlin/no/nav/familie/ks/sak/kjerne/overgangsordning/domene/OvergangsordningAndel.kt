@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene
+package no.nav.familie.ks.sak.kjerne.overgangsordning.domene
 
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import no.nav.familie.ks.sak.api.dto.KompensasjonAndelDto
+import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
@@ -18,14 +18,14 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
 import java.time.YearMonth
 
-@Entity(name = "KompensasjonAndel")
-@Table(name = "KOMPENSASJON_ANDEL")
-data class KompensasjonAndel(
+@Entity(name = "OvergangsordningAndel")
+@Table(name = "OVERGANGSORDNING_ANDEL")
+data class OvergangsordningAndel(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "kompensasjon_andel_seq_generator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "overgangsordning_andel_seq_generator")
     @SequenceGenerator(
-        name = "kompensasjon_andel_seq_generator",
-        sequenceName = "kompensasjon_andel_seq",
+        name = "overgangsordning_andel_seq_generator",
+        sequenceName = "overgangsordning_andel_seq",
         allocationSize = 50,
     )
     val id: Long = 0,
@@ -44,7 +44,7 @@ data class KompensasjonAndel(
     var tom: YearMonth? = null,
 ) : BaseEntitet() {
     override fun toString(): String =
-        "KompensasjonAndel(" +
+        "OvergangsordningAndel(" +
             "id=$id, " +
             "behandling=$behandlingId, " +
             "person=${person?.aktør}, " +
@@ -56,7 +56,7 @@ data class KompensasjonAndel(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as KompensasjonAndel
+        other as OvergangsordningAndel
 
         return id == other.id
     }
@@ -64,43 +64,43 @@ data class KompensasjonAndel(
     override fun hashCode(): Int = id.hashCode()
 }
 
-interface IKompensasjonAndel {
+interface IOvergangsordningAndel {
     val id: Long
     val behandlingId: Long
 }
 
-class UtfyltKompensasjonAndel(
+class UtfyltOvergangsordningAndel(
     override val id: Long,
     override val behandlingId: Long,
     val person: Person,
     val prosent: BigDecimal,
     val fom: YearMonth,
     val tom: YearMonth,
-) : IKompensasjonAndel
+) : IOvergangsordningAndel
 
-class TomKompensasjonAndel(
+class TomOvergangsordningAndel(
     override val id: Long,
     override val behandlingId: Long,
-) : IKompensasjonAndel
+) : IOvergangsordningAndel
 
-fun KompensasjonAndel.tilIKompensasjonAndel(): IKompensasjonAndel =
+fun OvergangsordningAndel.tilIOvergangsordningAndel(): IOvergangsordningAndel =
     if (erObligatoriskeFelterUtfylt()) {
-        UtfyltKompensasjonAndel(id, behandlingId, person!!, prosent!!, fom!!, tom!!)
+        UtfyltOvergangsordningAndel(id, behandlingId, person!!, prosent!!, fom!!, tom!!)
     } else {
-        TomKompensasjonAndel(id, behandlingId)
+        TomOvergangsordningAndel(id, behandlingId)
     }
 
-data class KompensasjonAndelPeriode(
+data class OvergangsordningAndelPeriode(
     val behandlingId: Long,
     val person: Person,
     val prosent: BigDecimal,
 )
 
-fun KompensasjonAndelPeriode.tilKompensasjonAndel(
+fun OvergangsordningAndelPeriode.tilOvergangsordningAndel(
     fom: YearMonth,
     tom: YearMonth,
-): KompensasjonAndel =
-    KompensasjonAndel(
+): OvergangsordningAndel =
+    OvergangsordningAndel(
         behandlingId = behandlingId,
         person = person,
         prosent = prosent,
@@ -108,18 +108,18 @@ fun KompensasjonAndelPeriode.tilKompensasjonAndel(
         tom = tom,
     )
 
-fun List<UtfyltKompensasjonAndel>.tilPerioder(): List<Periode<KompensasjonAndelPeriode>> = map { it.tilPeriode() }
+fun List<UtfyltOvergangsordningAndel>.tilPerioder(): List<Periode<OvergangsordningAndelPeriode>> = map { it.tilPeriode() }
 
-private fun UtfyltKompensasjonAndel.tilPeriode(): Periode<KompensasjonAndelPeriode> = Periode(KompensasjonAndelPeriode(behandlingId, person, prosent), fom.atDay(1), tom.atEndOfMonth())
+private fun UtfyltOvergangsordningAndel.tilPeriode(): Periode<OvergangsordningAndelPeriode> = Periode(OvergangsordningAndelPeriode(behandlingId, person, prosent), fom.atDay(1), tom.atEndOfMonth())
 
-fun KompensasjonAndel.erObligatoriskeFelterUtfylt(): Boolean =
+fun OvergangsordningAndel.erObligatoriskeFelterUtfylt(): Boolean =
     this.person != null &&
         this.fom != null &&
         this.tom != null &&
         this.prosent != null
 
-fun KompensasjonAndel.tilKompensasjonAndelDto(): KompensasjonAndelDto =
-    KompensasjonAndelDto(
+fun OvergangsordningAndel.tilOvergangsordningAndelDto(): OvergangsordningAndelDto =
+    OvergangsordningAndelDto(
         id = this.id,
         personIdent = this.person?.aktør?.aktivFødselsnummer(),
         prosent = this.prosent,
@@ -127,14 +127,14 @@ fun KompensasjonAndel.tilKompensasjonAndelDto(): KompensasjonAndelDto =
         tom = this.tom,
     )
 
-fun KompensasjonAndel.fraKompenasjonAndelDto(
-    kompensasjonAndelDto: KompensasjonAndelDto,
+fun OvergangsordningAndel.fraOvergangsordningAndelDto(
+    overgangsordningAndelDto: OvergangsordningAndelDto,
     person: Person,
-): KompensasjonAndel {
+): OvergangsordningAndel {
     this.person = person
-    this.prosent = kompensasjonAndelDto.prosent
-    this.fom = kompensasjonAndelDto.fom
-    this.tom = kompensasjonAndelDto.tom
+    this.prosent = overgangsordningAndelDto.prosent
+    this.fom = overgangsordningAndelDto.fom
+    this.tom = overgangsordningAndelDto.tom
 
     return this
 }
