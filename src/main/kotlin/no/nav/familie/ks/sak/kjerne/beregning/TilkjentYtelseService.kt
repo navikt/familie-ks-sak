@@ -79,7 +79,7 @@ class TilkjentYtelseService(
                     stønadTom = overgangsordningAndel.tom,
                     kalkulertUtbetalingsbeløp = maksBeløp().prosent(overgangsordningAndel.prosent),
                     nasjonaltPeriodebeløp = maksBeløp().prosent(overgangsordningAndel.prosent),
-                    type = YtelseType.OVERGANGSORDNING_2024,
+                    type = YtelseType.OVERGANGSORDNING,
                     sats = maksBeløp(),
                 )
             }

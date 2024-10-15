@@ -119,14 +119,14 @@ internal class TilkjentYtelseServiceTest {
             prosent = BigDecimal(100),
             periodeFom = YearMonth.of(2024, 9).toLocalDate(),
             periodeTom = YearMonth.of(2024, 10).toLocalDate(),
-            type = YtelseType.OVERGANGSORDNING_2024,
+            type = YtelseType.OVERGANGSORDNING,
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 12) },
             prosent = BigDecimal(50),
             periodeFom = YearMonth.of(2024, 12).toLocalDate(),
             periodeTom = YearMonth.of(2025, 1).toLocalDate(),
-            type = YtelseType.OVERGANGSORDNING_2024,
+            type = YtelseType.OVERGANGSORDNING,
         )
     }
 
