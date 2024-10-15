@@ -51,9 +51,9 @@ class KompensasjonAndelService(
         slåSammenOgOppdaterKompensasjonAndeler(behandling)
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(
-            behandling,
-            personopplysningGrunnlag,
-            vilkårsvurdering,
+            behandling = behandling,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            vilkårsvurdering = vilkårsvurdering,
         )
     }
 
@@ -68,9 +68,9 @@ class KompensasjonAndelService(
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(
-            behandling,
-            personopplysningGrunnlag,
-            vilkårsvurdering,
+            behandling = behandling,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            vilkårsvurdering = vilkårsvurdering,
         )
     }
 

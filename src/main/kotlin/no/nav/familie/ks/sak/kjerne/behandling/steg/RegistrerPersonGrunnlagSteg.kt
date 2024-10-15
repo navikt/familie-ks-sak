@@ -40,13 +40,13 @@ class RegistrerPersonGrunnlagSteg(
 
         if (sisteVedtattBehandling != null) {
             endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(
-                behandling,
-                sisteVedtattBehandling,
+                behandling = behandling,
+                forrigeBehandling = sisteVedtattBehandling,
             )
 
             kompensasjonAndelService.kopierKompensasjonAndelFraForrigeBehandling(
-                behandling,
-                sisteVedtattBehandling,
+                behandling = behandling,
+                forrigeBehandling = sisteVedtattBehandling,
             )
 
             eøsSkjemaerForNyBehandlingService.kopierEøsSkjemaer(
