@@ -12,6 +12,7 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.api.dto.KompensasjonAndelDto
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.math.BigDecimal
@@ -62,6 +63,54 @@ data class KompensasjonAndel(
 
     override fun hashCode(): Int = id.hashCode()
 }
+
+interface IKompensasjonAndel {
+    val id: Long
+    val behandlingId: Long
+}
+
+class UtfyltKompensasjonAndel(
+    override val id: Long,
+    override val behandlingId: Long,
+    val person: Person,
+    val prosent: BigDecimal,
+    val fom: YearMonth,
+    val tom: YearMonth,
+) : IKompensasjonAndel
+
+class TomKompensasjonAndel(
+    override val id: Long,
+    override val behandlingId: Long,
+) : IKompensasjonAndel
+
+fun KompensasjonAndel.tilIKompensasjonAndel(): IKompensasjonAndel =
+    if (erObligatoriskeFelterUtfylt()) {
+        UtfyltKompensasjonAndel(id, behandlingId, person!!, prosent!!, fom!!, tom!!)
+    } else {
+        TomKompensasjonAndel(id, behandlingId)
+    }
+
+data class KompensasjonAndelPeriode(
+    val behandlingId: Long,
+    val person: Person,
+    val prosent: BigDecimal,
+)
+
+fun KompensasjonAndelPeriode.tilKompensasjonAndel(
+    fom: YearMonth,
+    tom: YearMonth,
+): KompensasjonAndel =
+    KompensasjonAndel(
+        behandlingId = behandlingId,
+        person = person,
+        prosent = prosent,
+        fom = fom,
+        tom = tom,
+    )
+
+fun List<UtfyltKompensasjonAndel>.tilPerioder(): List<Periode<KompensasjonAndelPeriode>> = map { it.tilPeriode() }
+
+private fun UtfyltKompensasjonAndel.tilPeriode(): Periode<KompensasjonAndelPeriode> = Periode(KompensasjonAndelPeriode(behandlingId, person, prosent), fom.atDay(1), tom.atEndOfMonth())
 
 fun KompensasjonAndel.erObligatoriskeFelterUtfylt(): Boolean =
     this.person != null &&
