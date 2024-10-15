@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.erObligatoriskeFelterUtfylt
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -17,7 +17,7 @@ import java.time.LocalDate
 @Service
 class TilkjentYtelseService(
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
-    private val kompensasjonAndelService: KompensasjonAndelService,
+    private val kompensasjonAndelRepository: KompensasjonAndelRepository,
 ) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
@@ -42,8 +42,8 @@ class TilkjentYtelseService(
             )
 
         val kompensasjonAndelerSomAndelTilkjentYtelse =
-            kompensasjonAndelService
-                .hentKompensasjonAndeler(vilkårsvurdering.behandling.id)
+            kompensasjonAndelRepository
+                .hentKompensasjonAndelerForBehandling(vilkårsvurdering.behandling.id)
                 .filter { it.erObligatoriskeFelterUtfylt() }
                 .map { kompensasjonAndel ->
                     AndelTilkjentYtelse(

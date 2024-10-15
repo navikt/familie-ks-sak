@@ -27,8 +27,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndel
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -64,9 +64,9 @@ internal class TilkjentYtelseServiceTest {
             unleashService = mockUnleashService(false),
         )
 
-    private val kompensasjonAndelService: KompensasjonAndelService = mockk()
+    private val kompensasjonAndelRepositoryMock: KompensasjonAndelRepository = mockk()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelService)
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock)
 
     @BeforeEach
     fun init() {
@@ -79,13 +79,13 @@ internal class TilkjentYtelseServiceTest {
                 søkerPeriodeTom = null,
             )
 
-        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns emptyList()
+        every { kompensasjonAndelRepositoryMock.hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
     }
 
     @Test
     fun `beregnTilkjentYtelse skal generere kompensasjonAndeler`() {
         // arrange
-        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns
+        every { kompensasjonAndelRepositoryMock.hentKompensasjonAndelerForBehandling(any()) } returns
             listOf(
                 KompensasjonAndel(
                     id = 1,
@@ -133,7 +133,7 @@ internal class TilkjentYtelseServiceTest {
     @Test
     fun `beregnTilkjentYtelse tar ikke med tom kompensasjonandel`() {
         // arrange
-        every { kompensasjonAndelService.hentKompensasjonAndeler(any()) } returns
+        every { kompensasjonAndelRepositoryMock.hentKompensasjonAndelerForBehandling(any()) } returns
             listOf(
                 KompensasjonAndel(
                     id = 1,

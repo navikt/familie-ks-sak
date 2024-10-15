@@ -104,7 +104,7 @@ data class VilkårsvurderingBuilder(
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
                         unleashService = mockUnleashService(false),
                     ),
-                kompensasjonAndelService = mockk(),
+                kompensasjonAndelRepository = mockk(),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
