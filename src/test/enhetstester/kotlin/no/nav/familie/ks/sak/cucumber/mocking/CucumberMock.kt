@@ -27,7 +27,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.Regelverk
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -64,14 +64,14 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
-    val kompensasjonAndelServiceMock = mockk<KompensasjonAndelService>()
+    val kompensasjonAndelRepositoryMock = mockk<KompensasjonAndelRepository>()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(isEnabledDefault = false),
         )
-    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelServiceMock)
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock)
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

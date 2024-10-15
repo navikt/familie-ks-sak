@@ -335,7 +335,7 @@ internal class UtbetalingsperiodeUtilTest {
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
                         unleashService = mockUnleashService(false),
                     ),
-                kompensasjonAndelService = mockk(),
+                kompensasjonAndelRepository = mockk(),
             )
 
         val tilkjentYtelse =
