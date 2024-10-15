@@ -1,15 +1,6 @@
 package no.nav.familie.ks.sak.cucumber.mocking
 
 import io.mockk.mockk
-import no.nav.familie.ba.sak.cucumber.mock.mockEndretUtbetalingAndelRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockFagsakRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockLoggService
-import no.nav.familie.ba.sak.cucumber.mock.mockPersonopplysningGrunnlagRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockTaskService
-import no.nav.familie.ba.sak.cucumber.mock.mockTilkjentYtelseRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockUtenlandskPeriodebeløpRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockValutakursRepository
-import no.nav.familie.ba.sak.cucumber.mock.mockVedtakRepository
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
@@ -48,6 +39,7 @@ class CucumberMock(
     val tilkjentYtelseRepositoryMock = mockTilkjentYtelseRepository(stepDefinition)
     val personopplysningGrunnlagRepositoryMock = mockPersonopplysningGrunnlagRepository(stepDefinition)
     val endretUtbetalingAndelRepositoryMock = mockEndretUtbetalingAndelRepository(stepDefinition)
+    val kompensasjonAndelRepositoryMock = mockKompensasjonAndelRepository(stepDefinition)
     val fagsakRepositoryMock = mockFagsakRepository(stepDefinition)
     val vedtakRepositoryMock = mockVedtakRepository(stepDefinition)
     val taskServiceMock = mockTaskService()
@@ -69,7 +61,7 @@ class CucumberMock(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(isEnabledDefault = false),
         )
-    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService)
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock, mockUnleashService())
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

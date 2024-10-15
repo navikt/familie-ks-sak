@@ -1,16 +1,27 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.KOMPENSASJONSORDNING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
+import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.UtfyltKompensasjonAndel
+import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.tilIKompensasjonAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class TilkjentYtelseService(
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
+    private val kompensasjonAndelRepository: KompensasjonAndelRepository,
+    private val unleashService: UnleashService,
 ) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
@@ -33,7 +44,43 @@ class TilkjentYtelseService(
                 andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
                 endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
             )
-        tilkjentYtelse.andelerTilkjentYtelse.addAll(andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel })
+
+        val kompensasjonAndelerSomAndelTilkjentYtelse =
+            if (unleashService.isEnabled(KOMPENSASJONSORDNING)) {
+                genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+                    behandlingId = vilkårsvurdering.behandling.id,
+                    tilkjentYtelse = tilkjentYtelse,
+                )
+            } else {
+                emptyList()
+            }
+
+        val alleAndelerTilkjentYtelse = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } + kompensasjonAndelerSomAndelTilkjentYtelse
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(alleAndelerTilkjentYtelse)
         return tilkjentYtelse
     }
+
+    private fun genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+        behandlingId: Long,
+        tilkjentYtelse: TilkjentYtelse,
+    ): List<AndelTilkjentYtelse> =
+        kompensasjonAndelRepository
+            .hentKompensasjonAndelerForBehandling(behandlingId)
+            .map { it.tilIKompensasjonAndel() }
+            .filterIsInstance<UtfyltKompensasjonAndel>()
+            .map { kompensasjonAndel ->
+                AndelTilkjentYtelse(
+                    behandlingId = behandlingId,
+                    tilkjentYtelse = tilkjentYtelse,
+                    aktør = kompensasjonAndel.person.aktør,
+                    prosent = kompensasjonAndel.prosent,
+                    stønadFom = kompensasjonAndel.fom,
+                    stønadTom = kompensasjonAndel.tom,
+                    kalkulertUtbetalingsbeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
+                    nasjonaltPeriodebeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
+                    type = YtelseType.KOMPENSASJONSORDNING_2024,
+                    sats = maksBeløp(),
+                )
+            }
 }

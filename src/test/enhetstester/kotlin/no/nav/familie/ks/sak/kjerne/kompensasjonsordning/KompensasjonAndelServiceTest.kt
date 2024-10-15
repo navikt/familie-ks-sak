@@ -16,13 +16,13 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndel
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
 import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.fraKompenasjonAndelDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -41,9 +41,6 @@ class KompensasjonAndelServiceTest {
     private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
 
     @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
     @InjectMockKs
@@ -55,7 +52,10 @@ class KompensasjonAndelServiceTest {
     fun setup() {
         every { kompensasjonAndelRepository.save(any()) } answers { KompensasjonAndel(behandlingId = firstArg<KompensasjonAndel>().behandlingId) }
         every { kompensasjonAndelRepository.saveAndFlush(any()) } answers { KompensasjonAndel(behandlingId = firstArg<KompensasjonAndel>().behandlingId) }
+        every { kompensasjonAndelRepository.saveAllAndFlush(any<Collection<KompensasjonAndel>>()) } answers { firstArg<List<KompensasjonAndel>>().map { KompensasjonAndel(behandlingId = it.behandlingId) } }
+        every { kompensasjonAndelRepository.deleteAll(any()) } just runs
         every { kompensasjonAndelRepository.deleteById(any()) } just runs
+        every { kompensasjonAndelRepository.hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagPersonopplysningGrunnlag(søkerAktør = søker.aktør)
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any()) } just runs
@@ -76,45 +76,52 @@ class KompensasjonAndelServiceTest {
         verify(exactly = 1) { kompensasjonAndelRepository.save(any()) }
     }
 
-    @Test
-    fun `oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse - skal oppdatere en KompensasjonAndel og oppdatere tilkjent ytelse`() {
-        val behandling = lagBehandling()
-        val gammelKompensasjonAndel =
-            KompensasjonAndel(
-                id = 0,
-                behandlingId = behandling.id,
-                person = søker,
-                prosent = BigDecimal(100),
-                fom = YearMonth.of(2023, 1),
-                tom = YearMonth.of(2023, 3),
-            )
+    @Nested
+    inner class OppdaterKompensasjonAndelOgOppdaterTilkjentYtelse {
+        @Test
+        fun `skal oppdatere en KompensasjonAndel og oppdatere tilkjent ytelse`() {
+            val behandling = lagBehandling()
+            val gammelKompensasjonAndel =
+                KompensasjonAndel(
+                    id = 0,
+                    behandlingId = behandling.id,
+                    person = søker,
+                    prosent = BigDecimal(100),
+                    fom = YearMonth.of(2023, 1),
+                    tom = YearMonth.of(2023, 3),
+                )
 
-        val kompensasjonAndelDto =
-            KompensasjonAndelDto(
-                id = 1,
-                personIdent = søker.aktør.aktivFødselsnummer(),
-                prosent = BigDecimal(100),
-                fom = YearMonth.of(2024, 2),
-                tom = YearMonth.of(2024, 4),
-            )
+            val kompensasjonAndelDto =
+                KompensasjonAndelDto(
+                    id = 1,
+                    personIdent = søker.aktør.aktivFødselsnummer(),
+                    prosent = BigDecimal(100),
+                    fom = YearMonth.of(2024, 2),
+                    tom = YearMonth.of(2024, 4),
+                )
 
-        every { kompensasjonAndelRepository.finnKompensasjonAndel(any()) } returns gammelKompensasjonAndel
+            every { kompensasjonAndelRepository.finnKompensasjonAndel(any()) } returns gammelKompensasjonAndel
+            every { kompensasjonAndelRepository.hentKompensasjonAndelerForBehandling(any()) } returns listOf(gammelKompensasjonAndel)
 
-        kompensasjonAndelService.oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse(behandling, 0, kompensasjonAndelDto)
+            kompensasjonAndelService.oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse(behandling, 0, kompensasjonAndelDto)
 
-        verify(exactly = 1) { kompensasjonAndelRepository.saveAndFlush(gammelKompensasjonAndel.fraKompenasjonAndelDto(kompensasjonAndelDto, søker)) }
-    }
-
-    @Test
-    fun `oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse - skal kaste FunksjonellFeil hvis kompensasjonsandel ikke finnes`() {
-        every { kompensasjonAndelRepository.finnKompensasjonAndel(any()) } returns null
-
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                kompensasjonAndelService.oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse(mockk(), 0, mockk())
+            verify(exactly = 1) {
+                kompensasjonAndelRepository.deleteAll(any())
+                kompensasjonAndelRepository.saveAllAndFlush(listOf(gammelKompensasjonAndel.fraKompenasjonAndelDto(kompensasjonAndelDto, søker)))
             }
+        }
 
-        assertThat(exception.melding).isEqualTo("Fant ikke kompensasjonsandel med id 0")
+        @Test
+        fun `skal kaste FunksjonellFeil hvis kompensasjonsandel ikke finnes`() {
+            every { kompensasjonAndelRepository.finnKompensasjonAndel(any()) } returns null
+
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    kompensasjonAndelService.oppdaterKompensasjonAndelOgOppdaterTilkjentYtelse(mockk(), 0, mockk())
+                }
+
+            assertThat(exception.melding).isEqualTo("Fant ikke kompensasjonsandel med id 0")
+        }
     }
 
     @Test
@@ -123,7 +130,7 @@ class KompensasjonAndelServiceTest {
 
         every { kompensasjonAndelRepository.hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
 
-        kompensasjonAndelService.fjernKompensasjongAndelOgOppdaterTilkjentYtelse(behandling, 200)
+        kompensasjonAndelService.fjernKompensasjonAndelOgOppdaterTilkjentYtelse(behandling, 200)
 
         verify(exactly = 1) { kompensasjonAndelRepository.deleteById(200) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
