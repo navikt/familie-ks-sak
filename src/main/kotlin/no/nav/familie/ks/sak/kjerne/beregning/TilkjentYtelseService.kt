@@ -43,28 +43,37 @@ class TilkjentYtelseService(
             )
 
         val kompensasjonAndelerSomAndelTilkjentYtelse =
-            kompensasjonAndelRepository
-                .hentKompensasjonAndelerForBehandling(vilkårsvurdering.behandling.id)
-                .map { it.tilIKompensasjonAndel() }
-                .filterIsInstance<UtfyltKompensasjonAndel>()
-                .map { kompensasjonAndel ->
-                    AndelTilkjentYtelse(
-                        behandlingId = vilkårsvurdering.behandling.id,
-                        tilkjentYtelse = tilkjentYtelse,
-                        aktør = kompensasjonAndel.person.aktør,
-                        prosent = kompensasjonAndel.prosent,
-                        stønadFom = kompensasjonAndel.fom,
-                        stønadTom = kompensasjonAndel.tom,
-                        kalkulertUtbetalingsbeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
-                        nasjonaltPeriodebeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
-                        type = YtelseType.KOMPENSASJONSORDNING_2024,
-                        sats = maksBeløp(),
-                    )
-                }
+            genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+                behandlingId = vilkårsvurdering.behandling.id,
+                tilkjentYtelse = tilkjentYtelse,
+            )
 
         val alleAndelerTilkjentYtelse = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } + kompensasjonAndelerSomAndelTilkjentYtelse
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(alleAndelerTilkjentYtelse)
         return tilkjentYtelse
     }
+
+    private fun genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+        behandlingId: Long,
+        tilkjentYtelse: TilkjentYtelse,
+    ): List<AndelTilkjentYtelse> =
+        kompensasjonAndelRepository
+            .hentKompensasjonAndelerForBehandling(behandlingId)
+            .map { it.tilIKompensasjonAndel() }
+            .filterIsInstance<UtfyltKompensasjonAndel>()
+            .map { kompensasjonAndel ->
+                AndelTilkjentYtelse(
+                    behandlingId = behandlingId,
+                    tilkjentYtelse = tilkjentYtelse,
+                    aktør = kompensasjonAndel.person.aktør,
+                    prosent = kompensasjonAndel.prosent,
+                    stønadFom = kompensasjonAndel.fom,
+                    stønadTom = kompensasjonAndel.tom,
+                    kalkulertUtbetalingsbeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
+                    nasjonaltPeriodebeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
+                    type = YtelseType.KOMPENSASJONSORDNING_2024,
+                    sats = maksBeløp(),
+                )
+            }
 }
