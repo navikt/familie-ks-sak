@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.api
 import jakarta.validation.Valid
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.kontrakter.felles.journalpost.Journalpost
+import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -31,7 +31,7 @@ class JournalføringController(
     @PostMapping(path = ["/bruker"])
     fun hentJournalposterForBruker(
         @RequestBody personIdentBody: PersonIdent,
-    ): ResponseEntity<Ressurs<List<Journalpost>>> =
+    ): ResponseEntity<Ressurs<List<TilgangsstyrtJournalpost>>> =
         ResponseEntity.ok(
             Ressurs.success(
                 innkommendeJournalføringService.hentJournalposterForBruker(
