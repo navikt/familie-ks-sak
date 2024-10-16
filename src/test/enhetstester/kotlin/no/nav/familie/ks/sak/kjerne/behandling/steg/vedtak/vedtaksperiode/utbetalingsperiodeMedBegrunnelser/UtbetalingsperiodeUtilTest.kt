@@ -31,7 +31,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
@@ -337,7 +337,7 @@ internal class UtbetalingsperiodeUtilTest {
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
                         unleashService = mockUnleashService(false),
                     ),
-                kompensasjonAndelRepository = mockKompensasjonAndelRepository(),
+                overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
                 unleashService = mockUnleashService(true),
             )
 
@@ -371,8 +371,8 @@ internal class UtbetalingsperiodeUtilTest {
             personType = PersonType.SØKER,
         )
 
-    private fun mockKompensasjonAndelRepository(): KompensasjonAndelRepository =
-        mockk<KompensasjonAndelRepository>().apply {
-            every { hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
+    private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
+        mockk<OvergangsordningAndelRepository>().apply {
+            every { hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
         }
 }

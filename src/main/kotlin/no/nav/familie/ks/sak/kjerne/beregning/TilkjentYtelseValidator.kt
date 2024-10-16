@@ -47,7 +47,7 @@ object TilkjentYtelseValidator {
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
 
-            // TODO: Valider KOMPENSASJONSORDNING
+            // TODO: Valider OVERGANGSORDNING
 
             val ordinæreAndeler = andeler.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
 

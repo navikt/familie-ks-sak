@@ -14,7 +14,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.EøsSkjemaerForNyBehandlingService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpService
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursService
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.junit.jupiter.api.Test
 
@@ -23,7 +23,7 @@ class RegistrerPersongrunnlagEnhetTest {
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk(relaxed = true)
     private val vilkårsvurderingService: VilkårsvurderingService = mockk(relaxed = true)
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService = mockk(relaxed = true)
-    private val kompensasjonAndelService: KompensasjonAndelService = mockk(relaxed = true)
+    private val overgangsordningAndelService: OvergangsordningAndelService = mockk(relaxed = true)
     private val kompetanseService: KompetanseService = mockk(relaxed = true)
     private val valutakursService: ValutakursService = mockk(relaxed = true)
     private val utenlandskPeriodebeløpService: UtenlandskPeriodebeløpService = mockk(relaxed = true)
@@ -34,7 +34,7 @@ class RegistrerPersongrunnlagEnhetTest {
             vilkårsvurderingService = vilkårsvurderingService,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             endretUtbetalingAndelService = endretUtbetalingAndelService,
-            kompensasjonAndelService = kompensasjonAndelService,
+            overgangsordningAndelService = overgangsordningAndelService,
             eøsSkjemaerForNyBehandlingService =
                 EøsSkjemaerForNyBehandlingService(
                     kompetanseService = kompetanseService,
@@ -70,7 +70,7 @@ class RegistrerPersongrunnlagEnhetTest {
                 behandling = behandling2,
                 forrigeBehandling = sisteVedtatteBehandling,
             )
-            kompensasjonAndelService.kopierKompensasjonAndelFraForrigeBehandling(
+            overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(
                 behandling = behandling2,
                 forrigeBehandling = sisteVedtatteBehandling,
             )
@@ -104,7 +104,7 @@ class RegistrerPersongrunnlagEnhetTest {
                 behandling = behandling2,
                 forrigeBehandling = sisteVedtatteBehandling,
             )
-            kompensasjonAndelService.kopierKompensasjonAndelFraForrigeBehandling(
+            overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(
                 behandling = behandling2,
                 forrigeBehandling = sisteVedtatteBehandling,
             )

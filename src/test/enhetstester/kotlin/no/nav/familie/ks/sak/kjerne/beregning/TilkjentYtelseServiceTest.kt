@@ -27,8 +27,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndel
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -64,9 +64,9 @@ internal class TilkjentYtelseServiceTest {
             unleashService = mockUnleashService(false),
         )
 
-    private val kompensasjonAndelRepositoryMock: KompensasjonAndelRepository = mockk()
+    private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, kompensasjonAndelRepositoryMock, mockUnleashService(true))
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, mockUnleashService(true))
 
     @BeforeEach
     fun init() {
@@ -79,15 +79,15 @@ internal class TilkjentYtelseServiceTest {
                 søkerPeriodeTom = null,
             )
 
-        every { kompensasjonAndelRepositoryMock.hentKompensasjonAndelerForBehandling(any()) } returns emptyList()
+        every { overgangsordningAndelRepositoryMock.hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
     }
 
     @Test
-    fun `beregnTilkjentYtelse skal generere kompensasjonAndeler`() {
+    fun `beregnTilkjentYtelse skal generere overgangsordningAndeler`() {
         // arrange
-        every { kompensasjonAndelRepositoryMock.hentKompensasjonAndelerForBehandling(any()) } returns
+        every { overgangsordningAndelRepositoryMock.hentOvergangsordningAndelerForBehandling(any()) } returns
             listOf(
-                KompensasjonAndel(
+                OvergangsordningAndel(
                     id = 1,
                     behandlingId = behandling.id,
                     person = barnPerson,
@@ -95,7 +95,7 @@ internal class TilkjentYtelseServiceTest {
                     fom = YearMonth.of(2024, 9),
                     tom = YearMonth.of(2024, 10),
                 ),
-                KompensasjonAndel(
+                OvergangsordningAndel(
                     id = 2,
                     behandlingId = behandling.id,
                     person = barnPerson,
@@ -119,23 +119,23 @@ internal class TilkjentYtelseServiceTest {
             prosent = BigDecimal(100),
             periodeFom = YearMonth.of(2024, 9).toLocalDate(),
             periodeTom = YearMonth.of(2024, 10).toLocalDate(),
-            type = YtelseType.KOMPENSASJONSORDNING_2024,
+            type = YtelseType.OVERGANGSORDNING,
         )
         assertAndelTilkjentYtelse(
             andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 12) },
             prosent = BigDecimal(50),
             periodeFom = YearMonth.of(2024, 12).toLocalDate(),
             periodeTom = YearMonth.of(2025, 1).toLocalDate(),
-            type = YtelseType.KOMPENSASJONSORDNING_2024,
+            type = YtelseType.OVERGANGSORDNING,
         )
     }
 
     @Test
-    fun `beregnTilkjentYtelse tar ikke med tom kompensasjonandel`() {
+    fun `beregnTilkjentYtelse tar ikke med tom overgangsordningandel`() {
         // arrange
-        every { kompensasjonAndelRepositoryMock.hentKompensasjonAndelerForBehandling(any()) } returns
+        every { overgangsordningAndelRepositoryMock.hentOvergangsordningAndelerForBehandling(any()) } returns
             listOf(
-                KompensasjonAndel(
+                OvergangsordningAndel(
                     id = 1,
                     behandlingId = behandling.id,
                     person = null,

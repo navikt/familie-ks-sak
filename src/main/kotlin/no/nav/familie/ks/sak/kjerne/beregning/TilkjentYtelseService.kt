@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.KOMPENSASJONSORDNING
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.OVERGANGSORDNING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -8,9 +8,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.KompensasjonAndelRepository
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.UtfyltKompensasjonAndel
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.tilIKompensasjonAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilIOvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.unleash.UnleashService
@@ -20,7 +20,7 @@ import java.time.LocalDate
 @Service
 class TilkjentYtelseService(
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
-    private val kompensasjonAndelRepository: KompensasjonAndelRepository,
+    private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
     private val unleashService: UnleashService,
 ) {
     fun beregnTilkjentYtelse(
@@ -45,9 +45,9 @@ class TilkjentYtelseService(
                 endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
             )
 
-        val kompensasjonAndelerSomAndelTilkjentYtelse =
-            if (unleashService.isEnabled(KOMPENSASJONSORDNING)) {
-                genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+        val overgangsordningAndelerSomAndelTilkjentYtelse =
+            if (unleashService.isEnabled(OVERGANGSORDNING)) {
+                genererAndelerTilkjentYtelseFraOvergangsordningAndeler(
                     behandlingId = vilkårsvurdering.behandling.id,
                     tilkjentYtelse = tilkjentYtelse,
                 )
@@ -55,31 +55,31 @@ class TilkjentYtelseService(
                 emptyList()
             }
 
-        val alleAndelerTilkjentYtelse = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } + kompensasjonAndelerSomAndelTilkjentYtelse
+        val alleAndelerTilkjentYtelse = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } + overgangsordningAndelerSomAndelTilkjentYtelse
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(alleAndelerTilkjentYtelse)
         return tilkjentYtelse
     }
 
-    private fun genererAndelerTilkjentYtelseFraKompensasjonAndeler(
+    private fun genererAndelerTilkjentYtelseFraOvergangsordningAndeler(
         behandlingId: Long,
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> =
-        kompensasjonAndelRepository
-            .hentKompensasjonAndelerForBehandling(behandlingId)
-            .map { it.tilIKompensasjonAndel() }
-            .filterIsInstance<UtfyltKompensasjonAndel>()
-            .map { kompensasjonAndel ->
+        overgangsordningAndelRepository
+            .hentOvergangsordningAndelerForBehandling(behandlingId)
+            .map { it.tilIOvergangsordningAndel() }
+            .filterIsInstance<UtfyltOvergangsordningAndel>()
+            .map { overgangsordningAndel ->
                 AndelTilkjentYtelse(
                     behandlingId = behandlingId,
                     tilkjentYtelse = tilkjentYtelse,
-                    aktør = kompensasjonAndel.person.aktør,
-                    prosent = kompensasjonAndel.prosent,
-                    stønadFom = kompensasjonAndel.fom,
-                    stønadTom = kompensasjonAndel.tom,
-                    kalkulertUtbetalingsbeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
-                    nasjonaltPeriodebeløp = maksBeløp().prosent(kompensasjonAndel.prosent),
-                    type = YtelseType.KOMPENSASJONSORDNING_2024,
+                    aktør = overgangsordningAndel.person.aktør,
+                    prosent = overgangsordningAndel.prosent,
+                    stønadFom = overgangsordningAndel.fom,
+                    stønadTom = overgangsordningAndel.tom,
+                    kalkulertUtbetalingsbeløp = maksBeløp().prosent(overgangsordningAndel.prosent),
+                    nasjonaltPeriodebeløp = maksBeløp().prosent(overgangsordningAndel.prosent),
+                    type = YtelseType.OVERGANGSORDNING,
                     sats = maksBeløp(),
                 )
             }
