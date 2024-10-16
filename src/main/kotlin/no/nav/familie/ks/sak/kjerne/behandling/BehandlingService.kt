@@ -40,10 +40,10 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.KompensasjonAndelService
-import no.nav.familie.ks.sak.kjerne.kompensasjonsordning.domene.tilKompensasjonAndelDto
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilOvergangsordningAndelDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
@@ -81,7 +81,7 @@ class BehandlingService(
     private val refusjonEøsService: RefusjonEøsService,
     private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
-    private val kompensasjonAndelService: KompensasjonAndelService,
+    private val overgangsordningAndelService: OvergangsordningAndelService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -158,7 +158,7 @@ class BehandlingService(
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
                 .map { it.tilEndretUtbetalingAndelResponsDto() }
 
-        val kompensasjonAndeler = kompensasjonAndelService.hentKompensasjonAndeler(behandlingId).map { it.tilKompensasjonAndelDto() }
+        val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId).map { it.tilOvergangsordningAndelDto() }
 
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
@@ -200,7 +200,7 @@ class BehandlingService(
             vedtak,
             totrinnskontroll,
             endreteUtbetalingerMedAndeler,
-            kompensasjonAndeler,
+            overgangsordningAndeler,
             endringstidspunkt,
             tilbakekreving,
             sisteVedtaksperiodeVisningDato,

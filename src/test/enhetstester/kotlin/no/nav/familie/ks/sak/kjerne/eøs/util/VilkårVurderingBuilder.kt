@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
@@ -28,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.time.YearMonth
@@ -98,10 +101,13 @@ data class VilkårsvurderingBuilder(
     fun byggTilkjentYtelse(): TilkjentYtelse {
         val tilkjentYtelseService =
             TilkjentYtelseService(
-                BeregnAndelTilkjentYtelseService(
-                    andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-                    unleashService = mockUnleashService(false),
-                ),
+                beregnAndelTilkjentYtelseService =
+                    BeregnAndelTilkjentYtelseService(
+                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
+                        unleashService = mockUnleashService(false),
+                    ),
+                overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
+                unleashService = mockUnleashService(true),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
@@ -109,6 +115,11 @@ data class VilkårsvurderingBuilder(
             personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
         )
     }
+
+    private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
+        mockk<OvergangsordningAndelRepository>().apply {
+            every { hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
+        }
 }
 
 internal fun Periode<UtdypendeVilkårRegelverkResultat>.tilVilkårResultater(personResultat: PersonResultat): Collection<VilkårResultat> =
