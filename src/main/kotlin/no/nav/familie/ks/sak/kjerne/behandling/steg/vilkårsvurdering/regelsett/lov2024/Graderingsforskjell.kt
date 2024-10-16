@@ -3,5 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 enum class Graderingsforskjell {
     ØKNING,
     REDUKSJON,
+    REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
     LIK,
 }

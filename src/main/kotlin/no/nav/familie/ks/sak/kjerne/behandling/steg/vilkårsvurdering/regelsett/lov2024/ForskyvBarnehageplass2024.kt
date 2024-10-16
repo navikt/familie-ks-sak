@@ -69,10 +69,17 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
-        vilkårResultatForrigePeriode?.vilkårResultat?.let { hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer) }
-            ?: BigDecimal.ZERO
-    val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
+        vilkårResultatForrigePeriode?.vilkårResultat?.let {
+            hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer)
+        } ?: BigDecimal.ZERO
+    val graderingDennePerioden =
+        this?.let {
+            hentProsentForAntallTimer(this.antallTimer)
+        } ?: BigDecimal.ZERO
     return when {
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0))
+        -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS
+
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.REDUKSJON
         graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.ØKNING
         else -> Graderingsforskjell.LIK
@@ -88,12 +95,14 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell2024(graderin
     this?.let { tomDato ->
         when (graderingsforskjellMellomDenneOgNestePeriode) {
             Graderingsforskjell.LIK,
-            -> tomDato.minusMonths(1).sisteDagIMåned()
+            Graderingsforskjell.REDUKSJON,
+            -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
 
             Graderingsforskjell.ØKNING,
             -> tomDato.sisteDagIMåned()
 
-            Graderingsforskjell.REDUKSJON -> tomDato.plusDays(1).sisteDagIMåned()
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
+            -> tomDato.plusDays(1).sisteDagIMåned()
         }
     }
 
@@ -102,9 +111,8 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell2024(graderin
         when (graderingsforskjellMellomDenneOgForrigePeriode) {
             Graderingsforskjell.LIK,
             Graderingsforskjell.ØKNING,
-            -> fomDato.førsteDagIInneværendeMåned()
-
             Graderingsforskjell.REDUKSJON,
-            -> fomDato.plusMonths(1).førsteDagIInneværendeMåned()
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
+            -> fomDato.førsteDagIInneværendeMåned()
         }
     }
