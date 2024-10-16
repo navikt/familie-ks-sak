@@ -48,7 +48,7 @@ repositories {
 dependencies {
 
     val springdocVersion = "2.6.0"
-    val sentryVersion = "7.14.0"
+    val sentryVersion = "7.15.0"
     val navFellesVersion = "3.20240913110742_adb42f8"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20241002091252_adfb53f"
@@ -56,7 +56,7 @@ dependencies {
     val familieKontrakterStønadsstatistikkKsVersion = "2.0_20240806120744_a042aa1"
     val tokenValidationSpringVersion = "5.0.5"
     val navFoedselsnummerVersion = "1.0-SNAPSHOT.6"
-    val prosesseringVersion = "2.20240902084316_04f17df"
+    val prosesseringVersion = "2.20241011144712_deb1f2c"
     val restAssuredVersion = "5.5.0"
     val kotlinxVersion = "1.9.0"
     val utbetalingsgeneratorVersion = "1.0_20240902095239_88c7bc0"
@@ -95,7 +95,7 @@ dependencies {
     // ---- Junit og Cucumber ---- \\
 
     testImplementation(platform("org.junit:junit-bom:5.11.2"))
-    testImplementation(platform("io.cucumber:cucumber-bom:7.19.0"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.20.1"))
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
