@@ -407,6 +407,22 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorVurderingIkkeMedlemIFolketrygdenEllerEosI5Aar"
     },
+    OPPHØR_ANNEN_FORELDER_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorAnnenForelderIkkeMedlemFolketrygdenIFemAar"
+    },
+    OPPHØR_ANNEN_FORELDER_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EØS_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorAnnenForelderIkkeMedlemFolketrygdenEllerEOSIFemAar"
+    },
+    OPPHØR_VURDERING_ANNEN_FORELDER_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingAnnenForelderIkkeMedlemFolketrygdenIFemAar"
+    },
+    OPPHØR_VURDERING_ANNEN_FORELDER_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EØS_I_FEM_ÅR {
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+        override val sanityApiNavn = "opphorVurderingAnnenForelderIkkeMedlemFolketrygdenEllerEOSIFemAar"
+    },
     OPPHØR_IKKE_OPPHOLDSTILLATELSE_EØS_BORGER {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorIkkeOppholdsrettEOSBorger"
@@ -723,8 +739,7 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     AVSLAG_MOTTATT_I_7_MÅNEDER_0824 {
         override val sanityApiNavn = "avslagMottattI7Maaneder0824"
         override val begrunnelseType = BegrunnelseType.AVSLAG
-    },
-    ;
+    }, ;
 
     @JsonValue
     override fun enumnavnTilString() = NasjonalEllerFellesBegrunnelse::class.simpleName + "$" + this.name
