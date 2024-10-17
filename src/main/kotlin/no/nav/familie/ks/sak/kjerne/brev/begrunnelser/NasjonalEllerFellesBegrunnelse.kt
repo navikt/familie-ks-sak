@@ -739,7 +739,8 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     AVSLAG_MOTTATT_I_7_MÅNEDER_0824 {
         override val sanityApiNavn = "avslagMottattI7Maaneder0824"
         override val begrunnelseType = BegrunnelseType.AVSLAG
-    }, ;
+    },
+    ;
 
     @JsonValue
     override fun enumnavnTilString() = NasjonalEllerFellesBegrunnelse::class.simpleName + "$" + this.name
