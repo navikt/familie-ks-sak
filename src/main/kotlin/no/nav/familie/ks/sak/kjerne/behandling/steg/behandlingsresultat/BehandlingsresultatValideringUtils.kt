@@ -86,13 +86,6 @@ object BehandlingsresultatValideringUtils {
         behandlingsresultat: Behandlingsresultat,
     ) {
         when {
-            behandling.type !in behandlingsresultat.gyldigeBehandlingstyper -> {
-                val feilmelding =
-                    "Behandlingsresultatet ${behandlingsresultat.displayName.lowercase()} " +
-                        "er ugyldig i kombinasjon med behandlingstype '${behandling.type.visningsnavn}'."
-                throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
-            }
-
             behandlingsresultat.erAvslått() && behandling.erKlage() -> {
                 val feilmelding =
                     "Behandlingsårsak ${behandling.opprettetÅrsak.visningsnavn.lowercase()} " +
