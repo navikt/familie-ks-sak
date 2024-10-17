@@ -73,4 +73,164 @@ class ForskyvBarnehageplass2024KtTest {
         assertThat(forskyvBarnehageplassVilkår2024[3].fom).isEqualTo(LocalDate.of(2024, 11, 1))
         assertThat(forskyvBarnehageplassVilkår2024[3].tom).isNull()
     }
+
+    @Test
+    fun `reduksjon skal skje i september når man går fra ingen barnehageplass til gradert barnehageplass i september`() {
+        // Arrange
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(0),
+                periodeFom = null,
+                periodeTom = LocalDate.of(2024, 9, 15),
+            )
+
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(20),
+                periodeFom = LocalDate.of(2024, 9, 16),
+                periodeTom = null,
+            )
+
+        val vilkårresultater =
+            listOf(
+                vilkårResultat1,
+                vilkårResultat2,
+            )
+
+        // Act
+        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+
+        // Assert
+        assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
+
+        assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
+        assertThat(forskyvBarnehageplassVilkår2024[0].fom).isNull()
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 8, 31))
+
+        assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 9, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
+    }
+
+    @Test
+    fun `reduksjon skal skje i september når man går fra gradert barnehageplass til gradert barnehageplass i september`() {
+        // Arrange
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(10),
+                periodeFom = null,
+                periodeTom = LocalDate.of(2024, 9, 15),
+            )
+
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(20),
+                periodeFom = LocalDate.of(2024, 9, 16),
+                periodeTom = null,
+            )
+
+        val vilkårresultater =
+            listOf(
+                vilkårResultat1,
+                vilkårResultat2,
+            )
+
+        // Act
+        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+
+        // Assert
+        assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
+
+        assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
+        assertThat(forskyvBarnehageplassVilkår2024[0].fom).isNull()
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 8, 31))
+
+        assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 9, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
+    }
+
+    @Test
+    fun `reduksjon skal skje i oktober når man går fra ingen barnehageplass til full barnehageplass i september`() {
+        // Arrange
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(0),
+                periodeFom = null,
+                periodeTom = LocalDate.of(2024, 9, 15),
+            )
+
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(40),
+                periodeFom = LocalDate.of(2024, 9, 16),
+                periodeTom = null,
+            )
+
+        val vilkårresultater =
+            listOf(
+                vilkårResultat1,
+                vilkårResultat2,
+            )
+
+        // Act
+        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+
+        // Assert
+        assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
+
+        assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
+        assertThat(forskyvBarnehageplassVilkår2024[0].fom).isNull()
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 9, 30))
+
+        assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 10, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
+    }
+
+    @Test
+    fun `reduksjon skal skje i oktober når man går fra gradert barnehageplass til full barnehageplass i september`() {
+        // Arrange
+        val vilkårResultat1 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(20),
+                periodeFom = null,
+                periodeTom = LocalDate.of(2024, 9, 15),
+            )
+
+        val vilkårResultat2 =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                antallTimer = BigDecimal(40),
+                periodeFom = LocalDate.of(2024, 9, 16),
+                periodeTom = null,
+            )
+
+        val vilkårresultater =
+            listOf(
+                vilkårResultat1,
+                vilkårResultat2,
+            )
+
+        // Act
+        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+
+        // Assert
+        assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
+
+        assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
+        assertThat(forskyvBarnehageplassVilkår2024[0].fom).isNull()
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 9, 30))
+
+        assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 10, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
+    }
 }
