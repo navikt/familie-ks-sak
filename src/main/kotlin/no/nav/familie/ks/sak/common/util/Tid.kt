@@ -10,7 +10,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-val nbLocale = Locale("nb", "Norway")
+val nbLocale = Locale.of("nb", "Norway")
 
 val TIDENES_MORGEN = LocalDate.MIN
 val TIDENES_ENDE = LocalDate.MAX

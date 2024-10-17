@@ -4,7 +4,6 @@ import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.KafkaConfig
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV1Dto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkDto
 import org.slf4j.LoggerFactory
@@ -13,12 +12,6 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 interface KafkaProducer {
-    @Deprecated("Kan slettes når siste task for å sende er kjørt")
-    fun sendBehandlingsTilstand(
-        behandlingId: String,
-        request: BehandlingStatistikkV1Dto,
-    )
-
     fun sendBehandlingsTilstand(
         behandlingId: String,
         request: BehandlingStatistikkV2Dto,
@@ -37,19 +30,6 @@ class DatavarehusKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) : KafkaProducer {
     private val log = LoggerFactory.getLogger(this::class.java)
-
-    override fun sendBehandlingsTilstand(
-        behandlingId: String,
-        request: BehandlingStatistikkV1Dto,
-    ) {
-        sendKafkamelding(
-            topic = KafkaConfig.BEHANDLING_TOPIC,
-            key = request.behandlingID.toString(),
-            request = request,
-            behandlingId = behandlingId,
-            fagsakId = request.saksnummer.toString(),
-        )
-    }
 
     override fun sendBehandlingsTilstand(
         behandlingId: String,
@@ -118,13 +98,6 @@ class DatavarehusKafkaProducer(
 @Service
 @Profile("postgres", "integrasjonstest", "dev-postgres-preprod", "postgres")
 class DummyDatavarehusKafkaProducer : KafkaProducer {
-    override fun sendBehandlingsTilstand(
-        behandlingId: String,
-        request: BehandlingStatistikkV1Dto,
-    ) {
-        log.info("Skipper sending av saksstatistikk for behandling $behandlingId fordi kafka ikke er enablet")
-    }
-
     override fun sendBehandlingsTilstand(
         behandlingId: String,
         request: BehandlingStatistikkV2Dto,
