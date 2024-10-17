@@ -155,7 +155,7 @@ class ForskyvBarnehageplass2024KtTest {
     }
 
     @Test
-    fun `reduksjon skal skje i oktober når man går fra ingen barnehageplass til full barnehageplass i september`() {
+    fun `reduksjon til full barnehageplass skal skje i oktober når man går fra ingen barnehageplass til full barnehageplass i september`() {
         // Arrange
         val vilkårResultat1 =
             lagVilkårResultat(
@@ -195,7 +195,7 @@ class ForskyvBarnehageplass2024KtTest {
     }
 
     @Test
-    fun `reduksjon skal skje i oktober når man går fra gradert barnehageplass til full barnehageplass i september`() {
+    fun `reduksjon til full barnehageplass skal skje i oktober når man går fra gradert barnehageplass til full barnehageplass i september`() {
         // Arrange
         val vilkårResultat1 =
             lagVilkårResultat(
