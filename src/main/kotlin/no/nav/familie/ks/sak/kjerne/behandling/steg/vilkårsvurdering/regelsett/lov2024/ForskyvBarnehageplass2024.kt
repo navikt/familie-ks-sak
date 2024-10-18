@@ -134,8 +134,7 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell2024(graderin
             Graderingsforskjell.REDUKSJON,
             Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_13_MND_BARN,
             -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
-            // 15.08 -> 16.08 -> 16.07 -> 31.07
-            // 16.08 -> 01.08
+
             Graderingsforskjell.ØKNING,
             -> tomDato.sisteDagIMåned()
 
