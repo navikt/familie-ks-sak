@@ -29,6 +29,7 @@ fun forskyvBarnehageplassVilkår2024(
 
     val barnetsAlderEr13månederEller1År =
         barnetsAlderVilkår
+            .ifEmpty { return emptyList() }
             .minOf { it.periodeFom ?: throw Feil("Mangler fom på barnets alder vilkår") }
             .toYearMonth()
 

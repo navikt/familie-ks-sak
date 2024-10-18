@@ -182,7 +182,7 @@ class VedtaksperiodeService(
                     .flatMap { (vilkårType, vilkårResultater) ->
                         forskyvVilkårResultater(
                             vilkårType,
-                            personResultat.vilkårResultater.toList()
+                            personResultat.vilkårResultater.toList(),
                         ).tilTidslinje().tilPerioderIkkeNull()
                     }.mapNotNull { it.verdi.periodeTom }
                     .maxOfOrNull { it }

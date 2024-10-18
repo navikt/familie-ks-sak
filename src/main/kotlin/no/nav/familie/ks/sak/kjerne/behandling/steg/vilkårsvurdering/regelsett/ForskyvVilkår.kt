@@ -65,8 +65,8 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
             .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
     val forskjøvedeVilkårResultater =
-        vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultater, vilkårResultaterForAktør.toList()).tilTidslinje()
+        vilkårResultaterForAktørMap.map { (vilkårType, _) ->
+            forskyvVilkårResultater(vilkårType, vilkårResultaterForAktør.toList()).tilTidslinje()
         }
     return forskjøvedeVilkårResultater
 }
