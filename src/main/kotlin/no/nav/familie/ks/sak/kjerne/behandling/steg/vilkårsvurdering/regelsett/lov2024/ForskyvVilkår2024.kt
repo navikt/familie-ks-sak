@@ -18,6 +18,6 @@ fun forskyvEtterLovgivning2024(
     Vilkår.BOR_MED_SØKER,
     Vilkår.BARNETS_ALDER,
     -> {
-        forskyvAndreVilkår(vilkårType, alleVilkårResultater)
+        forskyvAndreVilkår2024(vilkårType, alleVilkårResultater)
     }
 }

@@ -29,7 +29,7 @@ fun forskyvBarnehageplassVilkår2024(
         vilkårResultat
             .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS }
             .groupBy { it.vilkårType }
-            .map { forskyvAndreVilkår(it.key, it.value).tilTidslinje() }
+            .map { forskyvAndreVilkår2024(it.key, it.value).tilTidslinje() }
             .kombiner { alleAndreVilkårOppfyltEllerNull(it, PersonType.BARN) }
             .tilPerioderIkkeNull()
             .mapNotNull { it.fom }
