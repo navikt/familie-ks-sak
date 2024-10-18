@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
@@ -10,14 +11,36 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 
-fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<VilkårResultat>> =
-    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024()
+fun forskyvBarnehageplassVilkår2024(
+    vilkårResultat: List<VilkårResultat>,
+): List<Periode<VilkårResultat>> {
+    val barnehageplassVilkår = vilkårResultat.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+    val barnetsAlderVilkår = vilkårResultat.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
+
+    val antallPerioder = barnetsAlderVilkår.size
+
+    val barnetsAlderEr13månederEller1År =
+        barnetsAlderVilkår
+            .minOf { it.periodeFom ?: throw Feil("Mangler fom på barnets alder vilkår") }
+            .toYearMonth()
+
+    val månedBarnetBlir13MånedGammel =
+        if (antallPerioder > 1) {
+            barnetsAlderEr13månederEller1År.plusMonths(1)
+        } else {
+            barnetsAlderEr13månederEller1År
+        }
+
+    return barnehageplassVilkår
+        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(månedBarnetBlir13MånedGammel)
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -30,27 +53,28 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<Vilk�
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioderMedMaksGradering()
+}
 
 fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = this?.tilForskøvetTomBasertPåGraderingsforskjell2024(Graderingsforskjell.REDUKSJON)?.toYearMonth()
 
-private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
+private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(
+    månedBarnetBlir13MånedGammel: YearMonth,
+): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
         this
             .tilTidslinje()
             .tilPerioder()
             .map { it.verdi }
 
-    val månedBarnetBlir13MånedGammel =
-        this
-            .minOfOrNull { it.periodeFom ?: throw IllegalStateException("Det eksisterer ikke fom på noe vilkår") }
-            ?.plusMonths(13) ?: TIDENES_ENDE
-
     return vilkårResultatListeMedNullverdierForHullITidslinje
         .fold(emptyList()) { acc: List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>>, vilkårResultat ->
             val vilkårResultatIForrigePeriode = acc.lastOrNull()
 
             val graderingsforskjellMellomDenneOgForrigePeriode =
-                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(vilkårResultatIForrigePeriode, månedBarnetBlir13MånedGammel)
+                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                    vilkårResultatIForrigePeriode,
+                    månedBarnetBlir13MånedGammel,
+                )
 
             val accMedForrigeOppdatert =
                 if (vilkårResultatIForrigePeriode == null) {
@@ -72,18 +96,19 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 
 private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
-    månedBarnetBlir13MånedGammel: LocalDate,
+    månedBarnetBlir13MånedGammel: YearMonth,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
         vilkårResultatForrigePeriode?.vilkårResultat?.let {
             hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer)
         } ?: BigDecimal.ZERO
+
     val graderingDennePerioden =
         this?.let {
             hentProsentForAntallTimer(this.antallTimer)
         } ?: BigDecimal.ZERO
 
-    val fomErSammeMånedSomBarnetBlir13MånedGammel = månedBarnetBlir13MånedGammel.toYearMonth() == this?.periodeFom?.toYearMonth()
+    val fomErSammeMånedSomBarnetBlir13MånedGammel = månedBarnetBlir13MånedGammel == this?.periodeFom?.toYearMonth()
 
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomBarnetBlir13MånedGammel -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_13_MND_BARN
@@ -106,16 +131,15 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell2024(graderin
         when (graderingsforskjellMellomDenneOgNestePeriode) {
             Graderingsforskjell.LIK,
             Graderingsforskjell.REDUKSJON,
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_13_MND_BARN,
             -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
-
+            // 15.08 -> 16.08 -> 16.07 -> 31.07
+            // 16.08 -> 01.08
             Graderingsforskjell.ØKNING,
             -> tomDato.sisteDagIMåned()
 
             Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
             -> tomDato.plusDays(1).sisteDagIMåned()
-
-            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_13_MND_BARN,
-            -> TIDENES_MORGEN
         }
     }
 

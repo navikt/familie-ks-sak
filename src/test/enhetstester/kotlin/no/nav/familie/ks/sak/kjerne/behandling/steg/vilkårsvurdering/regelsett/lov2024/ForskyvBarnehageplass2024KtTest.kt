@@ -52,7 +52,7 @@ class ForskyvBarnehageplass2024KtTest {
             )
 
         // Act
-        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+        val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
 
         // Assert
         assertThat(forskyvBarnehageplassVilkår2024).hasSize(4)
@@ -100,7 +100,7 @@ class ForskyvBarnehageplass2024KtTest {
             )
 
         // Act
-        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+        val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
 
         // Assert
         assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
@@ -140,7 +140,7 @@ class ForskyvBarnehageplass2024KtTest {
             )
 
         // Act
-        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+        val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
 
         // Assert
         assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
@@ -180,7 +180,7 @@ class ForskyvBarnehageplass2024KtTest {
             )
 
         // Act
-        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+        val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
 
         // Assert
         assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)
@@ -220,7 +220,7 @@ class ForskyvBarnehageplass2024KtTest {
             )
 
         // Act
-        val forskyvBarnehageplassVilkår2024 = vilkårresultater.forskyvBarnehageplassVilkår2024()
+        val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
 
         // Assert
         assertThat(forskyvBarnehageplassVilkår2024).hasSize(2)

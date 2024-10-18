@@ -20,14 +20,12 @@ object EndringIVilkårsvurderingUtil {
             Vilkår.entries.map { vilkår ->
                 val vilkårTidslinje =
                     lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
-                        nåværendeOppfylteVilkårResultaterForPerson =
+                        nåværendeVilkårResultaterForPerson =
                             nåværendePersonResultaterForPerson
-                                .flatMap { it.vilkårResultater }
-                                .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
-                        forrigeOppfylteVilkårResultaterForPerson =
+                                .flatMap { it.vilkårResultater },
+                        forrigeVilkårResultaterForPerson =
                             forrigePersonResultater
-                                .flatMap { it.vilkårResultater }
-                                .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
+                                .flatMap { it.vilkårResultater },
                         vilkår = vilkår,
                     )
                 vilkårTidslinje
@@ -45,12 +43,21 @@ object EndringIVilkårsvurderingUtil {
     // 2. Endringer i regelverk
     // 3. Splitt i vilkårsvurderingen
     private fun lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
-        nåværendeOppfylteVilkårResultaterForPerson: List<VilkårResultat>,
-        forrigeOppfylteVilkårResultaterForPerson: List<VilkårResultat>,
+        nåværendeVilkårResultaterForPerson: List<VilkårResultat>,
+        forrigeVilkårResultaterForPerson: List<VilkårResultat>,
         vilkår: Vilkår,
     ): Tidslinje<Boolean> {
-        val nåværendeVilkårResultatTidslinje = forskyvVilkårResultater(vilkår, nåværendeOppfylteVilkårResultaterForPerson).tilTidslinje()
-        val tidligereVilkårResultatTidslinje = forskyvVilkårResultater(vilkår, forrigeOppfylteVilkårResultaterForPerson).tilTidslinje()
+        val nåværendeVilkårResultatTidslinje =
+            forskyvVilkårResultater(
+                vilkår,
+                nåværendeVilkårResultaterForPerson.filter { it.resultat == Resultat.OPPFYLT },
+            ).tilTidslinje()
+
+        val tidligereVilkårResultatTidslinje =
+            forskyvVilkårResultater(
+                vilkår,
+                forrigeVilkårResultaterForPerson.filter { it.resultat == Resultat.OPPFYLT },
+            ).tilTidslinje()
 
         val endringIVilkårResultat =
             nåværendeVilkårResultatTidslinje.kombinerMed(tidligereVilkårResultatTidslinje) { nåværende, forrige ->

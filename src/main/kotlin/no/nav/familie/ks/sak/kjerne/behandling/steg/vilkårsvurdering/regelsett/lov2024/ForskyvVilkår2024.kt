@@ -14,10 +14,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.
 
 fun forskyvEtterLovgivning2024(
     vilkårType: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ) = when (vilkårType) {
     Vilkår.BARNEHAGEPLASS -> {
-        vilkårResultater.forskyvBarnehageplassVilkår2024()
+        forskyvBarnehageplassVilkår2024(alleVilkårResultater)
     }
 
     Vilkår.BOSATT_I_RIKET,
@@ -27,7 +27,8 @@ fun forskyvEtterLovgivning2024(
     Vilkår.BOR_MED_SØKER,
     Vilkår.BARNETS_ALDER,
     -> {
-        vilkårResultater
+        alleVilkårResultater
+            .filter { it.vilkårType == vilkårType }
             .filter { it.erOppfylt() || it.erIkkeAktuelt() }
             .sortedBy { it.periodeFom }
             .mapTilTilknyttetVilkårResultater()

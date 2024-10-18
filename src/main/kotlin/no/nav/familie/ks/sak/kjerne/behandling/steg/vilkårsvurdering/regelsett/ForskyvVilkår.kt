@@ -66,7 +66,7 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
 
     val forskjøvedeVilkårResultater =
         vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+            forskyvVilkårResultater(vilkårType, vilkårResultater, vilkårResultaterForAktør.toList()).tilTidslinje()
         }
     return forskjøvedeVilkårResultater
 }
@@ -84,11 +84,19 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
 
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2021 =
+        forskyvEtterLovgivning2021(
+            vilkårType,
+            alleVilkårResultater.filter { it.vilkårType == vilkårType },
+        ).tilTidslinje()
 
-    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2024 =
+        forskyvEtterLovgivning2024(
+            vilkårType,
+            alleVilkårResultater,
+        ).tilTidslinje()
 
     val klippetTidslinje2021 =
         forskjøvetVilkårResultaterTidslinje2021.klipp(

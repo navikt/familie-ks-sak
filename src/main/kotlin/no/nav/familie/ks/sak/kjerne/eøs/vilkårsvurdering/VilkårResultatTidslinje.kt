@@ -19,11 +19,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.
  */
 fun tilVilkårRegelverkResultatTidslinje(
     vilkår: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ): Tidslinje<VilkårRegelverkResultat> {
-    val oppfyltEllerIkkeAktueltVilkårer = vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
-
-    val forskjøvetVilkårResultatPerioder = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
+    val forskjøvetVilkårResultatPerioder =
+        forskyvVilkårResultater(
+            vilkår,
+            alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() },
+        )
 
     return forskjøvetVilkårResultatPerioder.map { it.tilVilkårRegelverkResultatPeriode() }.tilTidslinje()
 }

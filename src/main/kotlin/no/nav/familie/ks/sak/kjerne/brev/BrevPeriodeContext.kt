@@ -643,9 +643,10 @@ class BrevPeriodeContext(
         personResultater.associate { personResultat ->
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
+            // TODO : maybe fix me, unused variable, maybe simplifie?
             personResultat.aktør to
-                vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
-                    forskyvVilkårResultater(vilkår, vilkårResultater).tilTidslinje()
+                vilkårTilVilkårResultaterMap.mapValues { (vilkår, _) ->
+                    forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
                 }
         }
 

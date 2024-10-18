@@ -288,9 +288,10 @@ class BegrunnelserForPeriodeContext(
         personResultater.flatMap { personResultat ->
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
+            // TODO : Unused variable, maybe simplifie
             vilkårTilVilkårResultaterMap
-                .mapValues { (vilkår, vilkårResultater) ->
-                    forskyvVilkårResultater(vilkår, vilkårResultater)
+                .mapValues { (vilkår, _) ->
+                    forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList())
                         .filter { it.fom == vedtaksperiode.fom }
                         .map { it.verdi.id }
                 }.filterValues { it.isNotEmpty() }
@@ -301,9 +302,10 @@ class BegrunnelserForPeriodeContext(
         personResultater.flatMap { personResultat ->
             val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
 
+            // TODO : Unused variable, maybe simplifie
             vilkårTilVilkårResultaterMap
-                .mapValues { (vilkår, vilkårResultater) ->
-                    forskyvVilkårResultater(vilkår, vilkårResultater)
+                .mapValues { (vilkår, _) ->
+                    forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList())
                         .filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
                         .map { it.verdi.id }
                 }.filterValues { it.isNotEmpty() }
