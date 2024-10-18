@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
@@ -18,30 +17,26 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 
 fun forskyvBarnehageplassVilkår2024(
     vilkårResultat: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
     val barnehageplassVilkår = vilkårResultat.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
-    val barnetsAlderVilkår = vilkårResultat.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
-
-    val antallPerioder = barnetsAlderVilkår.size
-
-    val barnetsAlderEr13månederEller1År =
-        barnetsAlderVilkår
-            .ifEmpty { return emptyList() }
-            .minOf { it.periodeFom ?: throw Feil("Mangler fom på barnets alder vilkår") }
-            .toYearMonth()
-
-    val månedBarnetBlir13MånedGammel =
-        if (antallPerioder > 1) {
-            barnetsAlderEr13månederEller1År.plusMonths(1)
-        } else {
-            barnetsAlderEr13månederEller1År
-        }
+    val andreVilkår =
+        vilkårResultat
+            .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS }
+            .groupBy { it.vilkårType }
+            .map { forskyvAndreVilkår(it.key, it.value).tilTidslinje() }
+            .kombiner { alleAndreVilkårOppfyltEllerNull(it, PersonType.BARN) }
+            .tilPerioderIkkeNull()
+            .mapNotNull { it.fom }
+            .map { it.toYearMonth() }
 
     return barnehageplassVilkår
-        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(månedBarnetBlir13MånedGammel)
+        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(andreVilkår)
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -59,7 +54,7 @@ fun forskyvBarnehageplassVilkår2024(
 fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = this?.tilForskøvetTomBasertPåGraderingsforskjell2024(Graderingsforskjell.REDUKSJON)?.toYearMonth()
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(
-    månedBarnetBlir13MånedGammel: YearMonth,
+    test: List<YearMonth>,
 ): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
         this
@@ -74,7 +69,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             val graderingsforskjellMellomDenneOgForrigePeriode =
                 vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
                     vilkårResultatIForrigePeriode,
-                    månedBarnetBlir13MånedGammel,
+                    test,
                 )
 
             val accMedForrigeOppdatert =
@@ -97,7 +92,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 
 private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
-    månedBarnetBlir13MånedGammel: YearMonth,
+    test: List<YearMonth>,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
         vilkårResultatForrigePeriode?.vilkårResultat?.let {
@@ -109,7 +104,7 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2
             hentProsentForAntallTimer(this.antallTimer)
         } ?: BigDecimal.ZERO
 
-    val fomErSammeMånedSomBarnetBlir13MånedGammel = månedBarnetBlir13MånedGammel == this?.periodeFom?.toYearMonth()
+    val fomErSammeMånedSomBarnetBlir13MånedGammel = this?.periodeFom?.toYearMonth() in test
 
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomBarnetBlir13MånedGammel -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_13_MND_BARN
@@ -154,3 +149,28 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell2024(graderin
             -> fomDato.førsteDagIInneværendeMåned()
         }
     }
+
+fun alleAndreVilkårOppfyltEllerNull(
+    vilkårResultater: Iterable<VilkårResultat?>,
+    personType: PersonType,
+): List<VilkårResultat>? {
+    val skalHenteEøsSpesifikkeVilkår = vilkårResultater.any { it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET }
+    val vilkårForPerson = Vilkår.hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår).filter { it != Vilkår.BARNEHAGEPLASS }.toSet()
+
+    return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
+        vilkårResultater.filterNotNull()
+    } else {
+        null
+    }
+}
+
+private fun erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(
+    vilkårForPerson: Set<Vilkår>,
+    vilkårResultater: Iterable<VilkårResultat?>,
+) = vilkårForPerson.all { vilkår ->
+    vilkårResultater.any {
+        val erOppfyltEllerIkkeAktuelt = it?.resultat == Resultat.OPPFYLT || it?.resultat == Resultat.IKKE_AKTUELT
+
+        erOppfyltEllerIkkeAktuelt && it?.vilkårType == vilkår
+    }
+}

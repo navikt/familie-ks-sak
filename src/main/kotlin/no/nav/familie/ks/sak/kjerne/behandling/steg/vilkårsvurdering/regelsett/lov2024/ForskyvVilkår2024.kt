@@ -1,16 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.mapTilTilknyttetVilkårResultater
 
 fun forskyvEtterLovgivning2024(
     vilkårType: Vilkår,
@@ -27,27 +18,6 @@ fun forskyvEtterLovgivning2024(
     Vilkår.BOR_MED_SØKER,
     Vilkår.BARNETS_ALDER,
     -> {
-        alleVilkårResultater
-            .filter { it.vilkårType == vilkårType }
-            .filter { it.erOppfylt() || it.erIkkeAktuelt() }
-            .sortedBy { it.periodeFom }
-            .mapTilTilknyttetVilkårResultater()
-            .map {
-                Periode(
-                    verdi = it.gjeldende,
-                    fom = it.gjeldende.periodeFom?.førsteDagIInneværendeMåned(),
-                    tom =
-                        when (it.gjeldendeSlutterDagenFørNeste()) {
-                            true -> it.gjeldende.periodeTom
-                            false -> it.gjeldende.periodeTom?.sisteDagIMåned()
-                        },
-                )
-            }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
-            .filtrerBortOverlappendePerioder()
+        forskyvAndreVilkår(vilkårType, alleVilkårResultater)
     }
 }
-
-private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioder() =
-    map { listOf(it).tilTidslinje() }
-        .kombiner { vilkårResultater -> vilkårResultater.minByOrNull { it.periodeFom ?: TIDENES_MORGEN } }
-        .tilPerioderIkkeNull()
