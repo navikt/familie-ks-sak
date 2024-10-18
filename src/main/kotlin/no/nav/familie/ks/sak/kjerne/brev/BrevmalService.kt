@@ -85,14 +85,14 @@ class BrevmalService {
             Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
             Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
             Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
+            Behandlingsresultat.AVSLÅTT_OG_ENDRET,
+            Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
+            Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
             -> Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
 
             Behandlingsresultat.AVSLÅTT,
             -> Brevmal.VEDTAK_AVSLAG
 
-            Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
-            Behandlingsresultat.AVSLÅTT_OG_ENDRET,
-            Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
             Behandlingsresultat.ENDRET_UTBETALING,
             Behandlingsresultat.ENDRET_UTEN_UTBETALING,
             Behandlingsresultat.ENDRET_OG_OPPHØRT,
