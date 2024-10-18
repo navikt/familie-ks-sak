@@ -47,8 +47,12 @@ object TilkjentYtelseValidator {
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
 
-            val stønadFom = andeler.minOf { it.stønadFom }
-            val stønadTom = andeler.maxOf { it.stønadTom }
+            // TODO: Valider OVERGANGSORDNING
+
+            val ordinæreAndeler = andeler.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+
+            val stønadFom = ordinæreAndeler.minOf { it.stønadFom }
+            val stønadTom = ordinæreAndeler.maxOf { it.stønadTom }
 
             val relevantBarn = barna.single { it.aktør == aktør }
 

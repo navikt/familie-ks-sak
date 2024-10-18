@@ -42,6 +42,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilOvergangsordningAndelDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
@@ -79,6 +81,7 @@ class BehandlingService(
     private val refusjonEøsService: RefusjonEøsService,
     private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
+    private val overgangsordningAndelService: OvergangsordningAndelService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -155,6 +158,8 @@ class BehandlingService(
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
                 .map { it.tilEndretUtbetalingAndelResponsDto() }
 
+        val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId).map { it.tilOvergangsordningAndelDto() }
+
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
@@ -195,6 +200,7 @@ class BehandlingService(
             vedtak,
             totrinnskontroll,
             endreteUtbetalingerMedAndeler,
+            overgangsordningAndeler,
             endringstidspunkt,
             tilbakekreving,
             sisteVedtaksperiodeVisningDato,

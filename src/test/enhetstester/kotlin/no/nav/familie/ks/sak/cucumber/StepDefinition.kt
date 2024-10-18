@@ -66,6 +66,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -88,6 +89,7 @@ class StepDefinition {
     var valutakurs = mutableMapOf<Long, List<Valutakurs>>()
     var utenlandskPeriodebeløp = mutableMapOf<Long, List<UtenlandskPeriodebeløp>>()
     var endredeUtbetalinger = mutableMapOf<Long, List<EndretUtbetalingAndel>>()
+    var overgangsordningAndeler = mutableMapOf<Long, List<OvergangsordningAndel>>()
     var andelerTilkjentYtelse = mutableMapOf<Long, List<AndelTilkjentYtelse>>()
     var overstyrteEndringstidspunkt = mutableMapOf<Long, LocalDate>()
     var uregistrerteBarn = mutableMapOf<Long, List<BarnMedOpplysningerDto>>()

@@ -7,9 +7,16 @@ object RegelverkUtleder {
     val FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025 = LocalDate.of(2024, 1, 1)
 
     // TODO: Legg inn støtte for adopsjon
-    fun utledRegelverkForBarn(fødselsdato: LocalDate): Regelverk =
-        when {
+    fun utledRegelverkForBarn(
+        fødselsdato: LocalDate,
+        skalBestemmeRegelverkBasertPåFødselsdato: Boolean,
+    ): Regelverk {
+        if (!skalBestemmeRegelverkBasertPåFødselsdato) {
+            return Regelverk.FØR_LOVENDRING_2025
+        }
+        return when {
             fødselsdato.isBefore(FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025) -> Regelverk.FØR_LOVENDRING_2025
             else -> Regelverk.LOVENDRING_FEBRUAR_2025
         }
+    }
 }

@@ -6,10 +6,10 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.familie.ba.sak.cucumber.mock.mockTaskService
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.PersonInfoQuery
+import no.nav.familie.ks.sak.cucumber.mocking.mockTaskService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
