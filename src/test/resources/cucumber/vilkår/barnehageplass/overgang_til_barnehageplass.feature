@@ -134,3 +134,52 @@ Egenskap: Overgang til barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats |
+
+  Scenario: Det skal ikke innvilges kontantstøtte dersom man starter i barnehage samme måned som andre vilkår blir innvilget
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 19.06.1988  |
+      | 1            | 2       | BARN       | 05.05.2023  |
+
+    Og følgende dagens dato 11.06.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                  | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Antall timer |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP               |                  | 19.06.1988 |            | OPPFYLT      | Nei                  |                      |                |              |
+      | 1       | LOVLIG_OPPHOLD                          |                  | 19.06.1988 |            | OPPFYLT      | Nei                  |                      |                |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER |                  | 05.01.2023 |            | OPPFYLT      | Nei                  |                      |                |              |
+      | 2       | BOSATT_I_RIKET                          |                  | 15.08.2024 |            | OPPFYLT      | Nei                  |                      |                |              |
+      | 2       | BARNEHAGEPLASS                          |                  | 05.07.2023 | 14.08.2024 | OPPFYLT      | Nei                  |                      |                |              |
+      | 2       | BARNEHAGEPLASS                          |                  | 15.08.2024 |            | IKKE_OPPFYLT | Nei                  |                      |                | 40           |
+      | 2       | BARNETS_ALDER                           |                  | 05.05.2024 | 05.03.2025 | OPPFYLT      | Nei                  |                      |                |              |
+
+    Og andeler er beregnet for behandling 1
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 1
+      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats |
+
+  Scenario: Det skal innvilges kontantstøtte dersom man starter i barnehage måneden etter alle andre vilkår er innvilget, og opphøres måneden etter.
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 19.06.1988  |
+      | 1            | 2       | BARN       | 05.05.2023  |
+
+    Og følgende dagens dato 11.06.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                  | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter | Antall timer |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP               |                  | 19.06.1988 |            | OPPFYLT      | Nei                  |                      |                |              |
+      | 1       | LOVLIG_OPPHOLD                          |                  | 19.06.1988 |            | OPPFYLT      | Nei                  |                      |                |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER |                  | 05.01.2023 |            | OPPFYLT      | Nei                  |                      |                |              |
+      | 2       | BOSATT_I_RIKET                          |                  | 15.08.2024 |            | OPPFYLT      | Nei                  |                      |                |              |
+      | 2       | BARNEHAGEPLASS                          |                  | 05.07.2023 | 14.09.2024 | OPPFYLT      | Nei                  |                      |                |              |
+      | 2       | BARNEHAGEPLASS                          |                  | 15.09.2024 |            | IKKE_OPPFYLT | Nei                  |                      |                | 40           |
+      | 2       | BARNETS_ALDER                           |                  | 05.05.2024 | 05.03.2025 | OPPFYLT      | Nei                  |                      |                |              |
+
+    Og andeler er beregnet for behandling 1
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 1
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
+      | 2       | 01.08.2024 | 30.09.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
