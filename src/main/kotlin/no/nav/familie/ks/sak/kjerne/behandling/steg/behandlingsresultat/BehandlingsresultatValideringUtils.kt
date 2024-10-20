@@ -80,18 +80,4 @@ object BehandlingsresultatValideringUtils {
             throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
         }
     }
-
-    fun validerUtledetBehandlingsresultat(
-        behandling: Behandling,
-        behandlingsresultat: Behandlingsresultat,
-    ) {
-        when {
-            behandlingsresultat.erAvslått() && behandling.erKlage() -> {
-                val feilmelding =
-                    "Behandlingsårsak ${behandling.opprettetÅrsak.visningsnavn.lowercase()} " +
-                        "er ugyldig i kombinasjon med resultat '${behandlingsresultat.displayName.lowercase()}'."
-                throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
-            }
-        }
-    }
 }

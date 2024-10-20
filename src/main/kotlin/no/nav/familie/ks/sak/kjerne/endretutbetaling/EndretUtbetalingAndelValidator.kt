@@ -76,14 +76,15 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
-            Årsak.ETTERBETALING_3MND -> {
+            Årsak.ETTERBETALING_3MND ->
                 validerEtterbetaling3Måned(
                     endretUtbetalingAndel = endretUtbetalingAndel,
                     kravDato = vilkårsvurdering?.behandling?.opprettetTidspunkt ?: LocalDateTime.now(),
                 )
-            }
 
-            else -> throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel)
+
+            else -> throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!")
         }
     }
 
@@ -213,6 +214,12 @@ object EndretUtbetalingAndelValidator {
             throw FunksjonellFeil(
                 "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid.",
             )
+        }
+    }
+
+    private fun validerAlleredeUtbetalt(endretUtbetalingAndel: EndretUtbetalingAndel) {
+        if (endretUtbetalingAndel.tom?.isAfter(YearMonth.now()) == true) {
+            throw FunksjonellFeil("Du har valgt årsaken allerede utbetalt. Du kan ikke velge denne årsaken og en til og med dato frem i tid. Ta kontakt med superbruker om du er usikker på hva du skal gjøre.")
         }
     }
 
