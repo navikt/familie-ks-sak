@@ -119,7 +119,7 @@ class IntegrasjonClient(
         }
     }
 
-    fun tilordneEnhetForOppgave(
+    fun tilordneEnhetOgRessursForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
     ): OppgaveResponse {
@@ -128,6 +128,7 @@ class IntegrasjonClient(
             UriComponentsBuilder
                 .fromUri(baseUri)
                 .queryParam("fjernMappeFraOppgave", true)
+                .queryParam("nullstillTilordnetRessurs", true)
                 .build()
                 .toUri() // fjerner alltid mappe fra Kontantstøtte siden hver enhet har sin mappestruktur
 
