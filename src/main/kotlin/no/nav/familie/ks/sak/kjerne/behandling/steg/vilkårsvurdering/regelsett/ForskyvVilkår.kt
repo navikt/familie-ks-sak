@@ -119,12 +119,17 @@ fun forskyvVilkårResultater(
 private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
-private fun alleVilkårOppfyltEllerNull(
+fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
     personType: PersonType,
+    vilkårSomIkkeSkalSjekkesPå: List<Vilkår> = emptyList(),
 ): List<VilkårResultat>? {
     val skalHenteEøsSpesifikkeVilkår = vilkårResultater.any { it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET }
-    val vilkårForPerson = Vilkår.hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
+    val vilkårForPerson =
+        Vilkår
+            .hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
+            .filter { it !in vilkårSomIkkeSkalSjekkesPå }
+            .toSet()
 
     return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()

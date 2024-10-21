@@ -8,10 +8,9 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.alleVilkårOppfyltEllerNull
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.forskyvAndreVilkår2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -29,8 +28,13 @@ fun forskyvBarnehageplassVilkår2024(
             .groupBy { it.vilkårType }
             .map { forskyvAndreVilkår2024(it.key, it.value) }
             .map { it.tilTidslinje() }
-            .kombiner { alleAndreVilkårOppfyltEllerNullForBarn(it) }
-            .tilPerioderIkkeNull()
+            .kombiner {
+                alleVilkårOppfyltEllerNull(
+                    vilkårResultater = it,
+                    personType = PersonType.BARN,
+                    vilkårSomIkkeSkalSjekkesPå = listOf(Vilkår.BARNEHAGEPLASS),
+                )
+            }.tilPerioderIkkeNull()
             .mapNotNull { it.fom?.toYearMonth() }
             .minOfOrNull { it }
 
@@ -98,35 +102,3 @@ private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMak
     map { listOf(it).tilTidslinje() }
         .kombiner { vilkårResultater -> vilkårResultater.minByOrNull { it.antallTimer ?: BigDecimal.ZERO } }
         .tilPerioderIkkeNull()
-
-private fun alleAndreVilkårOppfyltEllerNullForBarn(
-    vilkårResultater: Iterable<VilkårResultat?>,
-): List<VilkårResultat>? {
-    val skalHenteEøsSpesifikkeVilkår =
-        vilkårResultater.any {
-            it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET
-        }
-
-    val vilkårForPerson =
-        Vilkår
-            .hentVilkårFor(PersonType.BARN, skalHenteEøsSpesifikkeVilkår)
-            .filter { it != Vilkår.BARNEHAGEPLASS }
-            .toSet()
-
-    return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
-        vilkårResultater.filterNotNull()
-    } else {
-        null
-    }
-}
-
-private fun erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(
-    vilkårForPerson: Set<Vilkår>,
-    vilkårResultater: Iterable<VilkårResultat?>,
-) = vilkårForPerson.all { vilkår ->
-    vilkårResultater.any {
-        val erOppfyltEllerIkkeAktuelt = it?.resultat == Resultat.OPPFYLT || it?.resultat == Resultat.IKKE_AKTUELT
-
-        erOppfyltEllerIkkeAktuelt && it?.vilkårType == vilkår
-    }
-}
