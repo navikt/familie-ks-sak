@@ -168,7 +168,6 @@ Egenskap: Opphør første periode
       | 2            | 1       | SØKER      | 16.04.1997  |
       | 2            | 2       | BARN       | 02.05.2023  |
 
-
     Og følgende dagens dato 25.09.2024
 
     Og følgende vilkårresultater for behandling 1
@@ -203,11 +202,11 @@ Egenskap: Opphør første periode
 
     Så forvent følgende vedtaksperioder på behandling 2
       | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.06.2024 | 31.07.2024 | OPPHØR             |           |
+      | 01.06.2024 | 31.08.2024 | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                           | Ugyldige begrunnelser |
-      | 01.06.2024 | 31.07.2024 | OPPHØR             |                                | OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE |                       |
+      | 01.06.2024 | 31.08.2024 | OPPHØR             |                                | OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE |                       |
 
 
   Scenario: Ved opphør fra start langt tilbake før vedtaksperioden så skal vi få opp begrunnelser knyttet til utgjørende vilkår

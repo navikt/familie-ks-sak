@@ -9,7 +9,7 @@ import java.time.YearMonth
 fun hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
     vilkårResultat: VilkårResultat?,
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
-    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth,
+    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
         vilkårResultatForrigePeriode?.vilkårResultat?.let {
@@ -21,7 +21,9 @@ fun hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
             hentProsentForAntallTimer(vilkårResultat.antallTimer)
         } ?: BigDecimal.ZERO
 
-    val fomErSammeMånedSomAlleAndreVilkårBlirOppfylt = vilkårResultat?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
+    val fomErSammeMånedSomAlleAndreVilkårBlirOppfylt =
+        tidligsteÅrMånedAlleAndreVilkårErOppfylt != null &&
+            vilkårResultat?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
 
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomAlleAndreVilkårBlirOppfylt -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT

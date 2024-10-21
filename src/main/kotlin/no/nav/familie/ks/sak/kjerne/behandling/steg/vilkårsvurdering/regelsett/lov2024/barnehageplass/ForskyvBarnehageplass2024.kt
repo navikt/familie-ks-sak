@@ -32,7 +32,7 @@ fun forskyvBarnehageplassVilkår2024(
             .kombiner { alleAndreVilkårOppfyltEllerNullForBarn(it) }
             .tilPerioderIkkeNull()
             .mapNotNull { it.fom?.toYearMonth() }
-            .minOf { it }
+            .minOfOrNull { it }
 
     return barnehageplassVilkår
         .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(tidligsteÅrMånedAlleAndreVilkårErOppfylt)
@@ -57,7 +57,7 @@ fun forskyvBarnehageplassVilkår2024(
 fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = forskyvTomBasertPåGraderingsforskjell2024(this, Graderingsforskjell.REDUKSJON)?.toYearMonth()
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(
-    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth,
+    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
 ): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
         this
