@@ -641,13 +641,13 @@ class BrevPeriodeContext(
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> =
         personResultater.associate { personResultat ->
-            val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
-
-            // TODO : maybe fix me, unused variable, maybe simplifie?
-            personResultat.aktør to
-                vilkårTilVilkårResultaterMap.mapValues { (vilkår, _) ->
-                    forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
-                }
+            val vilkårTilTidslinje =
+                personResultat.vilkårResultater
+                    .groupBy { it.vilkårType }
+                    .mapValues { (vilkår) ->
+                        forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
+                    }
+            personResultat.aktør to vilkårTilTidslinje
         }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {

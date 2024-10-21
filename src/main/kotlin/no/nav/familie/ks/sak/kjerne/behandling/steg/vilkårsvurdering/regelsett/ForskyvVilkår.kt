@@ -64,11 +64,11 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
             .groupByTo(mutableMapOf()) { it.vilkårType }
             .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
-    // TODO : Simplify this? Unused parameter
     val forskjøvedeVilkårResultater =
-        vilkårResultaterForAktørMap.map { (vilkårType, _) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultaterForAktør.toList()).tilTidslinje()
+        vilkårResultaterForAktørMap.map {
+            forskyvVilkårResultater(it.key, vilkårResultaterForAktør.toList()).tilTidslinje()
         }
+
     return forskjøvedeVilkårResultater
 }
 

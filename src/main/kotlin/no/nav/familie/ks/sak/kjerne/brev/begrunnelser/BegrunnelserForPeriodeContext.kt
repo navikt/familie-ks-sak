@@ -286,30 +286,24 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnVilkårResultaterSomStarterSamtidigSomPeriode() =
         personResultater.flatMap { personResultat ->
-            val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
-
-            // TODO : Unused variable, maybe simplifie
-            vilkårTilVilkårResultaterMap
-                .mapValues { (vilkår, _) ->
+            personResultat.vilkårResultater
+                .groupBy { it.vilkårType }
+                .flatMap { (vilkår) ->
                     forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList())
                         .filter { it.fom == vedtaksperiode.fom }
                         .map { it.verdi.id }
-                }.filterValues { it.isNotEmpty() }
-                .flatMap { it.value }
+                }
         }
 
     private fun finnVilkårResultaterSomSlutterFørPeriode() =
         personResultater.flatMap { personResultat ->
-            val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
-
-            // TODO : Unused variable, maybe simplifie
-            vilkårTilVilkårResultaterMap
-                .mapValues { (vilkår, _) ->
+            personResultat.vilkårResultater
+                .groupBy { it.vilkårType }
+                .flatMap { (vilkår) ->
                     forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList())
                         .filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
                         .map { it.verdi.id }
-                }.filterValues { it.isNotEmpty() }
-                .flatMap { it.value }
+                }
         }
 
     private fun hentVilkårResultaterSomOverlapperVedtaksperiode(
