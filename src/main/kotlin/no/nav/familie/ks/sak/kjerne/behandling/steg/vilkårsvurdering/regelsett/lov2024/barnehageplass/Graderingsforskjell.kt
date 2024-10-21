@@ -20,21 +20,23 @@ fun utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
     tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
-        vilkårResultatForrigePerioden?.let {
-            hentProsentForAntallTimer(it.antallTimer)
-        } ?: BigDecimal.ZERO
+        when (vilkårResultatForrigePerioden != null) {
+            true -> hentProsentForAntallTimer(vilkårResultatForrigePerioden.antallTimer)
+            false -> BigDecimal.ZERO
+        }
 
     val graderingDennePerioden =
-        vilkårResultatDennePerioden?.let {
-            hentProsentForAntallTimer(it.antallTimer)
-        } ?: BigDecimal.ZERO
+        when (vilkårResultatDennePerioden != null) {
+            true -> hentProsentForAntallTimer(vilkårResultatDennePerioden.antallTimer)
+            false -> BigDecimal.ZERO
+        }
 
-    val fomErSammeMånedSomAlleAndreVilkårBlirOppfylt =
+    val fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt =
         tidligsteÅrMånedAlleAndreVilkårErOppfylt != null &&
             vilkårResultatDennePerioden?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
 
     return when {
-        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomAlleAndreVilkårBlirOppfylt
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt
         -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
 
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0))
