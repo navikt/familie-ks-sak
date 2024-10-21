@@ -4,16 +4,18 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import java.time.LocalDate
 
 fun forskyvFomBasertPåGraderingsforskjell2024(
-    localDate: LocalDate?,
+    fomDato: LocalDate?,
     graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell,
-) =
-    localDate?.let { fomDato ->
-        when (graderingsforskjellMellomDenneOgForrigePeriode) {
-            Graderingsforskjell.LIK,
-            Graderingsforskjell.ØKNING,
-            Graderingsforskjell.REDUKSJON,
-            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
-            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
-            -> fomDato.førsteDagIInneværendeMåned()
-        }
+): LocalDate? {
+    if (fomDato == null) {
+        return null
     }
+    return when (graderingsforskjellMellomDenneOgForrigePeriode) {
+        Graderingsforskjell.LIK,
+        Graderingsforskjell.ØKNING,
+        Graderingsforskjell.REDUKSJON,
+        Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
+        Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+        -> fomDato.førsteDagIInneværendeMåned()
+    }
+}
