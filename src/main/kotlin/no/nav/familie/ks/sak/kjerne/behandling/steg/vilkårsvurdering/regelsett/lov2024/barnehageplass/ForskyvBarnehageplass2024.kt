@@ -21,10 +21,13 @@ import java.time.YearMonth
 fun forskyvBarnehageplassVilkår2024(
     vilkårResultat: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val barnehageplassVilkår = vilkårResultat.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+    val (
+        barnehageplassVilkår,
+        andreVilkår,
+    ) = vilkårResultat.partition { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+
     val tidligsteÅrMånedAlleAndreVilkårErOppfylt =
-        vilkårResultat
-            .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS }
+        andreVilkår
             .groupBy { it.vilkårType }
             .map { forskyvAndreVilkår2024(it.key, it.value) }
             .map { it.tilTidslinje() }
