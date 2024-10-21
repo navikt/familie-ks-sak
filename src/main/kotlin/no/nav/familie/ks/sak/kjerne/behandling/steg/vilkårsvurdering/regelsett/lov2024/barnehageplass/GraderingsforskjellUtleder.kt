@@ -7,31 +7,34 @@ import java.math.BigDecimal
 import java.time.YearMonth
 
 fun hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
-    vilkårResultat: VilkårResultat?,
-    vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
+    vilkårResultatDennePerioden: VilkårResultat?,
+    antallTimerForrigePeriode: BigDecimal?,
     tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
 ): Graderingsforskjell {
-    val graderingForrigePeriode =
-        vilkårResultatForrigePeriode?.vilkårResultat?.let {
-            hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer)
-        } ?: BigDecimal.ZERO
+    val graderingForrigePeriode = hentProsentForAntallTimer(antallTimerForrigePeriode)
 
     val graderingDennePerioden =
-        vilkårResultat?.let {
-            hentProsentForAntallTimer(vilkårResultat.antallTimer)
+        vilkårResultatDennePerioden?.let {
+            hentProsentForAntallTimer(it.antallTimer)
         } ?: BigDecimal.ZERO
 
     val fomErSammeMånedSomAlleAndreVilkårBlirOppfylt =
         tidligsteÅrMånedAlleAndreVilkårErOppfylt != null &&
-            vilkårResultat?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
+            vilkårResultatDennePerioden?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
 
     return when {
-        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomAlleAndreVilkårBlirOppfylt -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomAlleAndreVilkårBlirOppfylt ->
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
 
-        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) ->
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS
 
-        graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.REDUKSJON
-        graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.ØKNING
+        graderingForrigePeriode > graderingDennePerioden ->
+            Graderingsforskjell.REDUKSJON
+
+        graderingForrigePeriode < graderingDennePerioden ->
+            Graderingsforskjell.ØKNING
+
         else -> Graderingsforskjell.LIK
     }
 }

@@ -72,7 +72,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             val graderingsforskjellMellomDenneOgForrigePeriode =
                 hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
                     vilkårResultat,
-                    vilkårResultatIForrigePeriode,
+                    vilkårResultatIForrigePeriode?.vilkårResultat?.antallTimer,
                     tidligsteÅrMånedAlleAndreVilkårErOppfylt,
                 )
 
