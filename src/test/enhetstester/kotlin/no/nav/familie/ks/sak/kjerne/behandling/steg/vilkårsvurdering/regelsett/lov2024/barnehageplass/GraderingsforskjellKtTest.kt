@@ -31,7 +31,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 vilkårResultatDennePeriode,
                 tidligsteÅrMånedAlleAndreVilkårErOppfylt,
@@ -65,7 +65,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 vilkårResultatDennePeriode,
                 tidligsteÅrMånedAlleAndreVilkårErOppfylt,
@@ -90,7 +90,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 null,
                 null,
@@ -122,7 +122,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 vilkårResultatDennePeriode,
                 null,
@@ -154,7 +154,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 vilkårResultatDennePeriode,
                 null,
@@ -179,7 +179,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 null,
                 vilkårResultatDennePeriode,
                 null,
@@ -212,7 +212,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 vilkårResultatDennePeriode,
                 null,
@@ -244,7 +244,7 @@ class GraderingsforskjellKtTest {
 
         // Act
         val graderingsforskjell =
-            utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
                 vilkårResultatForrigePeriode,
                 vilkårResultatDennePeriode,
                 null,

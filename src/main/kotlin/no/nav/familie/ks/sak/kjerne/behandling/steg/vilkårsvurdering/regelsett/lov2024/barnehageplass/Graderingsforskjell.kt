@@ -14,7 +14,7 @@ enum class Graderingsforskjell {
     LIK,
 }
 
-fun utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+fun finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
     vilkårResultatForrigePerioden: VilkårResultat?,
     vilkårResultatDennePerioden: VilkårResultat?,
     tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
