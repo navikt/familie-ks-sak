@@ -25,17 +25,19 @@ fun forskyvBarnehageplassVilkår2024(
     vilkårResultat: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
     val barnehageplassVilkår = vilkårResultat.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
-    val årMånedAlleAndreVilkårErOppfylt =
+    val tidligsteÅrMånedAlleAndreVilkårErOppfylt =
         vilkårResultat
             .filter { it.vilkårType != Vilkår.BARNEHAGEPLASS }
             .groupBy { it.vilkårType }
-            .map { forskyvAndreVilkår2024(it.key, it.value).tilTidslinje() }
-            .kombiner { alleAndreVilkårOppfyltEllerNull(it, PersonType.BARN) }
+            .map { forskyvAndreVilkår2024(it.key, it.value) }
+            .map { it.tilTidslinje() }
+            .kombiner { alleAndreVilkårOppfyltEllerNullForBarn(it) }
             .tilPerioderIkkeNull()
             .mapNotNull { it.fom?.toYearMonth() }
+            .minOf { it }
 
     return barnehageplassVilkår
-        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(årMånedAlleAndreVilkårErOppfylt)
+        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(tidligsteÅrMånedAlleAndreVilkårErOppfylt)
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -53,7 +55,7 @@ fun forskyvBarnehageplassVilkår2024(
 fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = this?.tilForskøvetTomBasertPåGraderingsforskjell2024(Graderingsforskjell.REDUKSJON)?.toYearMonth()
 
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(
-    årMånedAlleAndreVilkårErOppfylt: List<YearMonth>,
+    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth,
 ): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
         this
@@ -68,7 +70,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             val graderingsforskjellMellomDenneOgForrigePeriode =
                 vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
                     vilkårResultatIForrigePeriode,
-                    årMånedAlleAndreVilkårErOppfylt,
+                    tidligsteÅrMånedAlleAndreVilkårErOppfylt,
                 )
 
             val accMedForrigeOppdatert =
@@ -91,7 +93,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 
 private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
-    test: List<YearMonth>,
+    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
         vilkårResultatForrigePeriode?.vilkårResultat?.let {
@@ -103,10 +105,10 @@ private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2
             hentProsentForAntallTimer(this.antallTimer)
         } ?: BigDecimal.ZERO
 
-    val fomErSammeMånedSomAlleAndreVilkårBlirOppfylt = this?.periodeFom?.toYearMonth() in test
+    val fomErSammeMånedSomAlleAndreVilkårBlirOppfylt = this?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
 
     return when {
-        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomAlleAndreVilkårBlirOppfylt -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_BLIR_OPPFYLT
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomErSammeMånedSomAlleAndreVilkårBlirOppfylt -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
 
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS
 
@@ -126,7 +128,7 @@ private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell2024(graderin
         when (graderingsforskjellMellomDenneOgNestePeriode) {
             Graderingsforskjell.LIK,
             Graderingsforskjell.REDUKSJON,
-            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_BLIR_OPPFYLT,
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
             -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
 
             Graderingsforskjell.ØKNING,
@@ -144,17 +146,24 @@ private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell2024(graderin
             Graderingsforskjell.ØKNING,
             Graderingsforskjell.REDUKSJON,
             Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
-            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_BLIR_OPPFYLT,
+            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
             -> fomDato.førsteDagIInneværendeMåned()
         }
     }
 
-fun alleAndreVilkårOppfyltEllerNull(
+private fun alleAndreVilkårOppfyltEllerNullForBarn(
     vilkårResultater: Iterable<VilkårResultat?>,
-    personType: PersonType,
 ): List<VilkårResultat>? {
-    val skalHenteEøsSpesifikkeVilkår = vilkårResultater.any { it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET }
-    val vilkårForPerson = Vilkår.hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår).filter { it != Vilkår.BARNEHAGEPLASS }.toSet()
+    val skalHenteEøsSpesifikkeVilkår =
+        vilkårResultater.any {
+            it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET
+        }
+
+    val vilkårForPerson =
+        Vilkår
+            .hentVilkårFor(PersonType.BARN, skalHenteEøsSpesifikkeVilkår)
+            .filter { it != Vilkår.BARNEHAGEPLASS }
+            .toSet()
 
     return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()
