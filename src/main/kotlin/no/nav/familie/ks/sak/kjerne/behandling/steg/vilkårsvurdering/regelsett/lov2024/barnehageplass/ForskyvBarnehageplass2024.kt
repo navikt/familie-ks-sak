@@ -74,9 +74,9 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             val vilkårResultatIForrigePeriode = acc.lastOrNull()
 
             val graderingsforskjellMellomDenneOgForrigePeriode =
-                hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                utledGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                    vilkårResultatIForrigePeriode?.vilkårResultat,
                     vilkårResultat,
-                    vilkårResultatIForrigePeriode?.vilkårResultat?.antallTimer,
                     tidligsteÅrMånedAlleAndreVilkårErOppfylt,
                 )
 
