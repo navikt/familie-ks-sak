@@ -180,10 +180,7 @@ class VedtaksperiodeService(
 
                 vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
                     .flatMap { (vilkårType, vilkårResultater) ->
-                        forskyvVilkårResultater(
-                            vilkårType,
-                            personResultat.vilkårResultater.toList(),
-                        ).tilTidslinje().tilPerioderIkkeNull()
+                        forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
                     }.mapNotNull { it.verdi.periodeTom }
                     .maxOfOrNull { it }
             }.maxOfOrNull { it }
