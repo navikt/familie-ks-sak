@@ -19,12 +19,12 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 fun forskyvBarnehageplassVilkår2024(
-    vilkårResultat: List<VilkårResultat>,
+    alleVilkårResultat: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
     val (
         barnehageplassVilkår,
         andreVilkår,
-    ) = vilkårResultat.partition { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+    ) = alleVilkårResultat.partition { it.vilkårType == Vilkår.BARNEHAGEPLASS }
 
     val tidligsteÅrMånedAlleAndreVilkårErOppfylt =
         andreVilkår
