@@ -1,9 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.barnehageplass
 
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import java.time.LocalDate
 
-fun forskyvFomBasertPåGraderingsforskjell2024(localDate: LocalDate?, graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell) =
+fun forskyvFomBasertPåGraderingsforskjell2024(
+    localDate: LocalDate?,
+    graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell,
+) =
     localDate?.let { fomDato ->
         when (graderingsforskjellMellomDenneOgForrigePeriode) {
             Graderingsforskjell.LIK,
