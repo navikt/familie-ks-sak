@@ -56,8 +56,6 @@ class BehandlingsresultatSteg(
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)
 
-        // valider om behandlingsresultat samsvarer med Behandlingstype
-        BehandlingsresultatValideringUtils.validerUtledetBehandlingsresultat(behandling, resultat)
         val behandlingMedOppdatertResultat = behandlingService.oppdaterBehandlingsresultat(behandlingId, resultat)
 
         val erLovendringOgFremtidigOpphørOgNyAndelIAugust2024 = behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)
