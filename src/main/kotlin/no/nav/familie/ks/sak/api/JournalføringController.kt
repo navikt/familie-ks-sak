@@ -3,12 +3,13 @@ package no.nav.familie.ks.sak.api
 import jakarta.validation.Valid
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
+import no.nav.familie.unleash.UnleashService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -27,18 +28,24 @@ import org.springframework.web.bind.annotation.RestController
 class JournalføringController(
     private val innkommendeJournalføringService: InnkommendeJournalføringService,
     private val tilgangService: TilgangService,
+    private val unleashService: UnleashService,
 ) {
     @PostMapping(path = ["/bruker"])
     fun hentJournalposterForBruker(
         @RequestBody personIdentBody: PersonIdent,
-    ): ResponseEntity<Ressurs<List<TilgangsstyrtJournalpost>>> =
-        ResponseEntity.ok(
-            Ressurs.success(
-                innkommendeJournalføringService.hentJournalposterForBruker(
-                    personIdentBody.ident,
-                ),
-            ),
-        )
+    ): ResponseEntity<Ressurs<List<Any>>> {
+        val tilgangsstyrteJournalposter =
+            innkommendeJournalføringService.hentJournalposterForBruker(
+                personIdentBody.ident,
+            )
+        val response =
+            if (unleashService.isEnabled(FeatureToggleConfig.BRUK_NYTT_RETUR_OBJEKT_FOR_JOURNALPOSTER, false)) {
+                tilgangsstyrteJournalposter
+            } else {
+                tilgangsstyrteJournalposter.map { it.journalpost }
+            }
+        return ResponseEntity.ok(Ressurs.success(response))
+    }
 
     @GetMapping("/{journalpostId}/dokument/{dokumentId}")
     fun hentDokumentIJournalpost(
