@@ -234,6 +234,9 @@ class BrevmalServiceTest {
                 "DELVIS_INNVILGET_OG_ENDRET",
                 "DELVIS_INNVILGET_ENDRET_OG_OPPHØRT",
                 "AVSLÅTT",
+                "AVSLÅTT_OG_OPPHØRT",
+                "AVSLÅTT_OG_ENDRET",
+                "AVSLÅTT_ENDRET_OG_OPPHØRT",
             ],
             mode = EnumSource.Mode.EXCLUDE,
         )
