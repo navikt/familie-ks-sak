@@ -1,7 +1,6 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.barnehageplass
 
 import no.nav.familie.ks.sak.data.lagVilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -233,83 +232,5 @@ class ForskyvBarnehageplass2024KtTest {
         assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
         assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 10, 1))
         assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
-    }
-
-    @Test
-    fun `asdf`() {
-        // Arrange
-        val vilkårResultat1 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                antallTimer = BigDecimal(20),
-                periodeFom = null,
-                periodeTom = LocalDate.of(2024, 9, 15),
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårResultat2 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                antallTimer = BigDecimal(40),
-                periodeFom = LocalDate.of(2024, 9, 16),
-                periodeTom = null,
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårResultat3 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = LocalDate.of(2023, 9, 16),
-                periodeTom = null,
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårResultat4 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.MEDLEMSKAP,
-                periodeFom = LocalDate.of(2023, 9, 16),
-                periodeTom = null,
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårResultat5 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                periodeFom = LocalDate.of(2023, 9, 16),
-                periodeTom = null,
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårResultat6 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                periodeFom = LocalDate.of(2023, 9, 16),
-                periodeTom = null,
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårResultat7 =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOSATT_I_RIKET,
-                periodeFom = LocalDate.of(2023, 11, 16),
-                periodeTom = null,
-                resultat = Resultat.OPPFYLT,
-            )
-
-        val vilkårresultater =
-            listOf(
-                vilkårResultat1,
-                vilkårResultat2,
-                vilkårResultat3,
-                vilkårResultat4,
-                vilkårResultat5,
-                vilkårResultat6,
-                vilkårResultat7,
-            )
-
-        // Act
-        val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
-
-        // Assert
     }
 }
