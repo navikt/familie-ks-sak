@@ -10,10 +10,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.alleVilkårOppfyltEllerNull
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.forskyvAndreVilkår2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -27,19 +24,9 @@ fun forskyvBarnehageplassVilkår2024(
     ) = alleVilkårResultat.partition { it.vilkårType == Vilkår.BARNEHAGEPLASS }
 
     val tidligsteÅrMånedAlleAndreVilkårErOppfylt =
-        andreVilkår
-            .groupBy { it.vilkårType }
-            .map { forskyvAndreVilkår2024(it.key, it.value) }
-            .map { it.tilTidslinje() }
-            .kombiner {
-                alleVilkårOppfyltEllerNull(
-                    vilkårResultater = it,
-                    personType = PersonType.BARN,
-                    vilkårSomIkkeSkalSjekkesPå = listOf(Vilkår.BARNEHAGEPLASS),
-                )
-            }.tilPerioderIkkeNull()
-            .mapNotNull { it.fom?.toYearMonth() }
-            .minOfOrNull { it }
+        utledTidligsteÅrMånedAlleAndreVilkårErOppfylt(
+            andreVilkår,
+        )
 
     return barnehageplassVilkår
         .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(tidligsteÅrMånedAlleAndreVilkårErOppfylt)
