@@ -5,11 +5,14 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockkObject
+import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
+import no.nav.familie.kontrakter.felles.journalpost.Bruker
+import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
@@ -327,6 +330,27 @@ internal class IntegrasjonClientTest {
             assertThat(it.enhetsnummer).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnummer)
             assertThat(it.enhetsnavn).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnavn)
         }
+    }
+
+    @Test
+    fun `hentTilgangsstyrteJournalposterForBruker - skal hente tilgangsstyrte journalposter for bruker`() {
+        // Arrange
+        wiremockServerItem.stubFor(
+            WireMock
+                .post(WireMock.urlEqualTo("/journalpost/tilgangsstyrt/baks"))
+                .willReturn(WireMock.okJson(readFile("hentTilgangsstyrteJournalposterForBruker.json"))),
+        )
+
+        // Act
+        val tilgangsstyrteJournalposter = integrasjonClient.hentTilgangsstyrteJournalposterForBruker(JournalposterForBrukerRequest(brukerId = Bruker(id = "12345678910", type = BrukerIdType.FNR), antall = 100, tema = listOf(Tema.KON)))
+
+        // Assert
+        assertThat(tilgangsstyrteJournalposter).hasSize(1)
+        val tilgangsstyrtJournalpost = tilgangsstyrteJournalposter.single()
+        assertThat(tilgangsstyrtJournalpost.journalpost.journalpostId).isEqualTo("453492634")
+        assertThat(tilgangsstyrtJournalpost.journalpost.tema).isEqualTo(Tema.KON.name)
+        assertThat(tilgangsstyrtJournalpost.journalpost.kanal).isEqualTo("NAV_NO")
+        assertThat(tilgangsstyrtJournalpost.harTilgang).isTrue
     }
 
     private fun readFile(filnavn: String): String = this::class.java.getResource("/familieintegrasjon/json/$filnavn").readText()

@@ -10,6 +10,7 @@ import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalstatus
 import no.nav.familie.kontrakter.felles.journalpost.Sak
+import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
 import no.nav.familie.ks.sak.api.dto.JournalpostDokumentDto
@@ -46,18 +47,19 @@ class InnkommendeJournalføringService(
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
 ) {
-    fun hentJournalposterForBruker(brukerId: String): List<Journalpost> =
-        integrasjonClient.hentJournalposterForBruker(
-            JournalposterForBrukerRequest(
-                antall = 1000,
-                brukerId =
-                    Bruker(
-                        id = brukerId,
-                        type = BrukerIdType.FNR,
-                    ),
-                tema = listOf(Tema.KON),
-            ),
-        )
+    fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
+        integrasjonClient
+            .hentTilgangsstyrteJournalposterForBruker(
+                JournalposterForBrukerRequest(
+                    antall = 1000,
+                    brukerId =
+                        Bruker(
+                            id = brukerId,
+                            type = BrukerIdType.FNR,
+                        ),
+                    tema = listOf(Tema.KON),
+                ),
+            )
 
     fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
@@ -243,7 +245,7 @@ class InnkommendeJournalføringService(
     }
 
     companion object {
-        private const val NAV_NO = "NAV_NO"
-        private const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
+        const val NAV_NO = "NAV_NO"
+        const val SØKNADSKODE_KONTANTSTØTTE = "NAV 34-00.08"
     }
 }

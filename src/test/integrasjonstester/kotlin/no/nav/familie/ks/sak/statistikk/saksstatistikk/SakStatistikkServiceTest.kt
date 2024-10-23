@@ -16,6 +16,8 @@ import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.internal.TaskService
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -99,9 +101,6 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         assertEquals(behandling.skalBehandlesAutomatisk(), tilstand.automatiskBehandlet)
 
         // sjekk at datoer er konvertert riktig til offest
-        assertEquals(
-            behandling.endretTidspunkt.truncatedTo(ChronoUnit.SECONDS),
-            tilstand.funksjoneltTidspunkt.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS),
-        )
+        assertThat(behandling.endretTidspunkt).isCloseTo(tilstand.funksjoneltTidspunkt.toLocalDateTime(), Assertions.within(1, ChronoUnit.SECONDS))
     }
 }
