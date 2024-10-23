@@ -48,8 +48,6 @@ fun forskyvBarnehageplassVilkår2024(
         .filtrerBortOverlappendePerioderMedMaksGradering()
 }
 
-fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = forskyvTomBasertPåGraderingsforskjell2024(this, Graderingsforskjell.REDUKSJON)?.toYearMonth()
-
 private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(
     tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
 ): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
