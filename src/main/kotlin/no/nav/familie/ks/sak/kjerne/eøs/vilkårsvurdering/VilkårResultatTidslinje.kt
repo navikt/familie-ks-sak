@@ -21,11 +21,9 @@ fun tilVilkårRegelverkResultatTidslinje(
     vilkår: Vilkår,
     alleVilkårResultater: List<VilkårResultat>,
 ): Tidslinje<VilkårRegelverkResultat> {
-    val forskjøvetVilkårResultatPerioder =
-        forskyvVilkårResultater(
-            vilkår,
-            alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() },
-        )
+    val oppfyltEllerIkkeAktueltVilkårer = alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
+
+    val forskjøvetVilkårResultatPerioder = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
 
     return forskjøvetVilkårResultatPerioder.map { it.tilVilkårRegelverkResultatPeriode() }.tilTidslinje()
 }
