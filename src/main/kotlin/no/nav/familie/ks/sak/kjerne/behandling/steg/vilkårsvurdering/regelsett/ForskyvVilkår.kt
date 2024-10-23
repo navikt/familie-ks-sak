@@ -90,7 +90,7 @@ fun forskyvVilkårResultater(
     val forskjøvetVilkårResultaterTidslinje2021 =
         forskyvEtterLovgivning2021(
             vilkårType,
-            alleVilkårResultater.filter { it.vilkårType == vilkårType },
+            alleVilkårResultater,
         ).tilTidslinje()
 
     val forskjøvetVilkårResultaterTidslinje2024 =
