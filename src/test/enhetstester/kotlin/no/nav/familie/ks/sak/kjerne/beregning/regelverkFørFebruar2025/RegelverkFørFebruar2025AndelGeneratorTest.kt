@@ -32,22 +32,33 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
         val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
-        val barnetsVilkår = lagVilkårResultater(person = barnRegelverkAugust2024, personResultat = barnetsPersonResultat)
-        val barnetsVilkårMedFullbarnehageplass =
-            barnetsVilkår.toMutableList().apply {
-                add(
-                    lagVilkårResultat(
-                        personResultat = barnetsPersonResultat,
-                        vilkårType = Vilkår.BARNEHAGEPLASS,
-                        periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(2).plusDays(1),
-                        periodeTom = null,
-                        antallTimer = BigDecimal(40),
-                        resultat = Resultat.IKKE_OPPFYLT,
+        val barnetsVilkår =
+            lagVilkårResultater(
+                person = barnRegelverkAugust2024,
+                personResultat = barnetsPersonResultat,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(1),
+                            periodeTom = barnRegelverkAugust2024.fødselsdato.plusYears(2),
+                            behandlingId = 0L,
+                            antallTimer = null,
+                        ),
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(2).plusDays(1),
+                            periodeTom = null,
+                            antallTimer = BigDecimal(40),
+                            resultat = Resultat.IKKE_OPPFYLT,
+                        ),
                     ),
-                )
-            }
+            )
+
         søkersPersonResultat.setSortedVilkårResultater(søkersVilkår.toSet())
-        barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkårMedFullbarnehageplass.toSet())
+        barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkår.toSet())
         vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
 
         val tilkjentYtelse = mockk<TilkjentYtelse>()
@@ -121,22 +132,33 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
         val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkFørOgEtterAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
-        val barnetsVilkår = lagVilkårResultater(person = barnRegelverkFørOgEtterAugust2024, personResultat = barnetsPersonResultat)
-        val barnetsVilkårMedFullbarnehageplass =
-            barnetsVilkår.toMutableList().apply {
-                add(
-                    lagVilkårResultat(
-                        personResultat = barnetsPersonResultat,
-                        vilkårType = Vilkår.BARNEHAGEPLASS,
-                        periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2).plusDays(1),
-                        periodeTom = null,
-                        antallTimer = BigDecimal(40),
-                        resultat = Resultat.IKKE_OPPFYLT,
+        val barnetsVilkår =
+            lagVilkårResultater(
+                person = barnRegelverkFørOgEtterAugust2024,
+                personResultat = barnetsPersonResultat,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(1),
+                            periodeTom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2),
+                            behandlingId = 0L,
+                            antallTimer = null,
+                        ),
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2).plusDays(1),
+                            periodeTom = null,
+                            antallTimer = BigDecimal(40),
+                            resultat = Resultat.IKKE_OPPFYLT,
+                        ),
                     ),
-                )
-            }
+            )
+
         søkersPersonResultat.setSortedVilkårResultater(søkersVilkår.toSet())
-        barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkårMedFullbarnehageplass.toSet())
+        barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkår.toSet())
         vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
 
         val tilkjentYtelse = mockk<TilkjentYtelse>()
