@@ -6,10 +6,9 @@ import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
-import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
-import no.nav.familie.ks.sak.integrasjon.lagJournalpost
+import no.nav.familie.ks.sak.integrasjon.lagTilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingSøknadsinfoService
@@ -42,7 +41,7 @@ class InnkommendeJournalføringServiceTest {
         // Arrange
         val brukerId = "12345678910"
         val journalpostId = "123"
-        val journalposter = listOf(lagJournalpost(personIdent = brukerId, journalpostId = journalpostId)).map { TilgangsstyrtJournalpost(it, true) }
+        val tilgangsstyrteJournalposter = listOf(lagTilgangsstyrtJournalpost(personIdent = brukerId, journalpostId = journalpostId, harTilgang = true))
 
         every {
             integrasjonClient.hentTilgangsstyrteJournalposterForBruker(
@@ -52,12 +51,13 @@ class InnkommendeJournalføringServiceTest {
                     tema = listOf(Tema.KON),
                 ),
             )
-        } returns journalposter
+        } returns tilgangsstyrteJournalposter
 
         // Act
         val journalposterForBruker = innkommendeJournalføringService.hentJournalposterForBruker(brukerId)
 
         // Assert
+        assertThat(journalposterForBruker).hasSize(1)
         assertThat(journalposterForBruker.first { it.journalpost.journalpostId === journalpostId }.harTilgang).isTrue
     }
 }

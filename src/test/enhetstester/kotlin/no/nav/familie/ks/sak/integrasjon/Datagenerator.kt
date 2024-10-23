@@ -12,11 +12,23 @@ import no.nav.familie.kontrakter.felles.journalpost.Journalstatus
 import no.nav.familie.kontrakter.felles.journalpost.LogiskVedlegg
 import no.nav.familie.kontrakter.felles.journalpost.RelevantDato
 import no.nav.familie.kontrakter.felles.journalpost.Sak
+import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.api.dto.Sakstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import java.time.LocalDateTime
+
+fun lagTilgangsstyrtJournalpost(
+    personIdent: String,
+    journalpostId: String,
+    kanal: String? = InnkommendeJournalføringService.NAV_NO,
+    harTilgang: Boolean = true,
+): TilgangsstyrtJournalpost =
+    TilgangsstyrtJournalpost(
+        journalpost = lagJournalpost(personIdent = personIdent, journalpostId = journalpostId, kanal = kanal),
+        harTilgang = harTilgang,
+    )
 
 fun lagJournalpost(
     personIdent: String,
