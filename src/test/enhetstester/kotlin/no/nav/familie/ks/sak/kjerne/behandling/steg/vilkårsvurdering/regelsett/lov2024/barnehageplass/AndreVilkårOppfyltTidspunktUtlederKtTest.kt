@@ -30,7 +30,7 @@ class AndreVilkårOppfyltTidspunktUtlederKtTest {
                     vilkårResultater,
                 )
             }
-        assertThat(exception.message).isEqualTo("Fant vilkår barnehageplass hvor man ikke forventet det")
+        assertThat(exception.message).isEqualTo("Fant vilkår barnehageplass men forventent at det ikke skulle bli sendt inn")
     }
 
     @Test

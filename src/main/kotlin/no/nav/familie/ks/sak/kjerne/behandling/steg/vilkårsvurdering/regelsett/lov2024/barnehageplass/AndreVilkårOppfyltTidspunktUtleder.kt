@@ -16,7 +16,7 @@ fun utledTidligsteÅrMånedAlleAndreVilkårErOppfylt(
 ): YearMonth? {
     val vilkårResultatPerType = andreVilkårResultater.groupBy { it.vilkårType }
     if (vilkårResultatPerType.containsKey(Vilkår.BARNEHAGEPLASS)) {
-        throw IllegalArgumentException("Fant vilkår barnehageplass hvor man ikke forventet det")
+        throw IllegalArgumentException("Fant vilkår barnehageplass men forventent at det ikke skulle bli sendt inn")
     }
     return vilkårResultatPerType
         .map { forskyvStandardVilkår2024(it.key, it.value) }
