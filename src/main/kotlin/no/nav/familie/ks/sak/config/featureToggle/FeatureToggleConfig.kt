@@ -16,6 +16,6 @@ class FeatureToggleConfig {
         const val BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER = "familie-ks-sak.bruk-ny-loype-for-generering-av-andeler"
 
         // NAV-22361
-        const val BRUK_NYTT_RETUR_OBJEKT_FOR_JOURNALPOSTER = "familie-ba-ks-sak.bruk-nytt-retur-objeckt-for-journalposter"
+        const val BRUK_NYTT_RETUR_OBJEKT_FOR_JOURNALPOSTER = "familie-ba-ks-sak.bruk-nytt-retur-objekt-for-journalposter"
     }
 }

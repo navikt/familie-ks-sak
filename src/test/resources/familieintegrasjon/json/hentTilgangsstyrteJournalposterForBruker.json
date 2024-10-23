@@ -5,13 +5,13 @@
         "journalpostId": "453492634",
         "journalposttype": "I",
         "journalstatus": "JOURNALFOERT",
-        "tema": "BAR",
+        "tema": "KON",
         "kanal": "NAV_NO",
         "dokumenter": [
           {
             "dokumentInfoId": "453871494",
-            "tittel": "Søknad om ordinær barnetrygd",
-            "brevkode": "NAV 33-00.07",
+            "tittel": "Søknad om kontantstøtte",
+            "brevkode": "NAV 34-00.08",
             "dokumentstatus": null,
             "dokumentvarianter": [
               {
