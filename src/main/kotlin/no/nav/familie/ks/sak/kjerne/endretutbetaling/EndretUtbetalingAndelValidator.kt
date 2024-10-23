@@ -34,7 +34,7 @@ object EndretUtbetalingAndelValidator {
         val feilMelding = "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for."
         val frontendFeilMelding =
             "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person " +
-                    "i hele eller deler av perioden."
+                "i hele eller deler av perioden."
 
         val minsteDatoForTilkjentYtelse =
             andelTilkjentYtelser
@@ -94,7 +94,7 @@ object EndretUtbetalingAndelValidator {
             throw FunksjonellFeil(
                 melding = "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut før navigering til neste steg.",
                 frontendFeilmelding =
-                "Du har opprettet en eller flere endrede utbetalingsperioder " +
+                    "Du har opprettet en eller flere endrede utbetalingsperioder " +
                         "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre.",
             )
         }
@@ -104,7 +104,7 @@ object EndretUtbetalingAndelValidator {
         if (endretUtbetalingAndeler.any { it.andelerTilkjentYtelse.isEmpty() }) {
             throw FunksjonellFeil(
                 melding =
-                "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
+                    "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
                         "De må enten lagres eller slettes av SB.",
                 frontendFeilmelding = "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen.",
             )
@@ -131,7 +131,7 @@ object EndretUtbetalingAndelValidator {
                         vilkårsvurdering.personResultater.flatMap { personResultat ->
                             personResultat.vilkårResultater.filter {
                                 it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) &&
-                                        it.resultat == Resultat.OPPFYLT
+                                    it.resultat == Resultat.OPPFYLT
                             }
                         }
 
@@ -193,7 +193,7 @@ object EndretUtbetalingAndelValidator {
             throw FunksjonellFeil(
                 melding = "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
                 frontendFeilmelding =
-                "Du har valgt årsaken 'delt bosted', " +
+                    "Du har valgt årsaken 'delt bosted', " +
                         "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt.",
             )
         }
@@ -252,11 +252,11 @@ object EndretUtbetalingAndelValidator {
     ) {
         endretUtbetalingAndel.validerUtfyltEndring()
         if (eksisterendeEndringerPåBehandling.any
-            {
-                it.overlapperMed(endretUtbetalingAndel.periode) &&
+                {
+                    it.overlapperMed(endretUtbetalingAndel.periode) &&
                         it.person == endretUtbetalingAndel.person &&
                         it.årsak == endretUtbetalingAndel.årsak
-            }
+                }
         ) {
             throw FunksjonellFeil(
                 melding = "Perioden som blir forsøkt lagt til overlapper med eksisterende periode på person.",
