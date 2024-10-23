@@ -5,10 +5,34 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.YearMonth
 
 class AndreVilkårOppfyltTidspunktUtlederKtTest {
+    @Test
+    fun `skal kaste exception om vilkårresultatene inneholder vilkår for barnehageplass`() {
+        // Arrange
+        val barnehageplassVilkårresultat =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = LocalDate.of(2024, 5, 31),
+                periodeTom = LocalDate.of(2024, 9, 15),
+                resultat = Resultat.OPPFYLT,
+            )
+
+        val vilkårResultater = listOf(barnehageplassVilkårresultat)
+
+        // Act & assert
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                utledTidligsteÅrMånedAlleAndreVilkårErOppfylt(
+                    vilkårResultater,
+                )
+            }
+        assertThat(exception.message).isEqualTo("Fant vilkår barnehageplass hvor man ikke forventet det")
+    }
+
     @Test
     fun `skal finne tidligste tidspunkt for hvor alle vilkår er oppfylt`() {
         // Arrange
