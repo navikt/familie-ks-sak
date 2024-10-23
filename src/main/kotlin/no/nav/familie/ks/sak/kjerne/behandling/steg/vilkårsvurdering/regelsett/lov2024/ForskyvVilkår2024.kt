@@ -17,5 +17,5 @@ fun forskyvEtterLovgivning2024(
     Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
     Vilkår.BOR_MED_SØKER,
     Vilkår.BARNETS_ALDER,
-    -> forskyvAndreVilkår2024(vilkårType, alleVilkårResultater)
+    -> forskyvStandardVilkår2024(vilkårType, alleVilkårResultater)
 }

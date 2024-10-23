@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.mapTilTilknyttetVilkårResultater
 
-fun forskyvAndreVilkår2024(
+fun forskyvStandardVilkår2024(
     vilkårType: Vilkår,
     alleVilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> =
