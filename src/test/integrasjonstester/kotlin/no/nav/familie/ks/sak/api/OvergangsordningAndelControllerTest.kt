@@ -116,7 +116,8 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 OvergangsordningAndelDto(
                     id = overgangsordningAndel.id,
                     personIdent = søker.aktivFødselsnummer(),
-                    prosent = BigDecimal(100),
+                    antallTimer = BigDecimal.ZERO,
+                    deltBosted = false,
                     fom = YearMonth.of(2024, 1),
                     tom = YearMonth.of(2024, 3),
                 )

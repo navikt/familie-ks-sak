@@ -96,8 +96,7 @@ class OvergangsordningAndelService(
     }
 
     private fun List<OvergangsordningAndel>.slåSammenLikePerioder(): List<OvergangsordningAndel> =
-        map { it.tilIOvergangsordningAndel() }
-            .filterIsInstance<UtfyltOvergangsordningAndel>()
+        utfyltePerioder()
             .tilPerioder()
             .tilTidslinje()
             .slåSammenLikePerioder()
