@@ -39,7 +39,7 @@ fun hentGyldigSatsFor(
     val prosent =
         when {
             erDeltBosted -> 50
-            antallTimer == null -> 100
+            antallTimer == null || antallTimer == BigDecimal.ZERO -> 100
             antallTimer in BigDecimal(0.00)..BigDecimal(8.99) -> 80
             antallTimer in BigDecimal(9.00)..BigDecimal(16.99) -> 60
             antallTimer in BigDecimal(17.00)..BigDecimal(24.99) -> 40

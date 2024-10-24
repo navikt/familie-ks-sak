@@ -83,3 +83,9 @@ fun TilkjentYtelse.utbetalingsoppdrag(): Utbetalingsoppdrag? =
 
 fun TilkjentYtelse.skalIverksettesMotOppdrag(): Boolean =
     this.utbetalingsoppdrag()?.utbetalingsperiode?.isNotEmpty() ?: false
+
+fun TilkjentYtelse.ordinæreAndeler(): List<AndelTilkjentYtelse> =
+    andelerTilkjentYtelse.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+
+fun TilkjentYtelse.overgangsordningAndeler(): List<AndelTilkjentYtelse> =
+    andelerTilkjentYtelse.filter { it.type == YtelseType.OVERGANGSORDNING }

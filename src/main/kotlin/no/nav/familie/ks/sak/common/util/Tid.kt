@@ -29,6 +29,8 @@ fun LocalDate.tilddMMyyyy() = this.format(DateTimeFormatter.ofPattern("dd.MM.yyy
 
 fun LocalDate.tilDagMånedÅr() = this.format(DateTimeFormatter.ofPattern("d. MMMM yyyy", nbLocale))
 
+fun LocalDate.tilDagMånedÅrKort() = this.format(DateTimeFormatter.ofPattern("d. MMM yy", nbLocale))
+
 fun LocalDate.tilMånedÅr() = this.format(DateTimeFormatter.ofPattern("MMMM yyyy", nbLocale))
 
 fun LocalDate.tilYearMonth() = YearMonth.from(this)
@@ -36,6 +38,8 @@ fun LocalDate.tilYearMonth() = YearMonth.from(this)
 fun LocalDate.sisteDagIMåned(): LocalDate = YearMonth.from(this).atEndOfMonth()
 
 fun YearMonth.tilKortString() = this.format(DateTimeFormatter.ofPattern("MM.yy", nbLocale))
+
+fun YearMonth.tilMånedÅrKort() = this.format(DateTimeFormatter.ofPattern("MMM yyy", nbLocale))
 
 fun YearMonth.toLocalDate() = LocalDate.of(this.year, this.month, 1)
 

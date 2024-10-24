@@ -91,7 +91,8 @@ internal class TilkjentYtelseServiceTest {
                     id = 1,
                     behandlingId = behandling.id,
                     person = barnPerson,
-                    prosent = BigDecimal(100),
+                    antallTimer = BigDecimal.ZERO,
+                    deltBosted = false,
                     fom = YearMonth.of(2024, 9),
                     tom = YearMonth.of(2024, 10),
                 ),
@@ -99,7 +100,8 @@ internal class TilkjentYtelseServiceTest {
                     id = 2,
                     behandlingId = behandling.id,
                     person = barnPerson,
-                    prosent = BigDecimal(50),
+                    antallTimer = BigDecimal.ZERO,
+                    deltBosted = true,
                     fom = YearMonth.of(2024, 12),
                     tom = YearMonth.of(2025, 1),
                 ),
@@ -138,10 +140,6 @@ internal class TilkjentYtelseServiceTest {
                 OvergangsordningAndel(
                     id = 1,
                     behandlingId = behandling.id,
-                    person = null,
-                    prosent = null,
-                    fom = null,
-                    tom = null,
                 ),
             )
 

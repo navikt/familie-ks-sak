@@ -46,9 +46,6 @@ object TilkjentYtelseValidator {
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-
-            // TODO: Valider OVERGANGSORDNING
-
             val ordinæreAndeler = andeler.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
 
             val stønadFom = ordinæreAndeler.minOf { it.stønadFom }

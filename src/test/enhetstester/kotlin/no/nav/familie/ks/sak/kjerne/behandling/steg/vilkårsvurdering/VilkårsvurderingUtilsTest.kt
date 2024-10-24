@@ -300,7 +300,7 @@ class VilkårsvurderingUtilsTest {
 
         // Siden barnet dør før vilkårResulatatene starter skal vi ikke gjøre noe med dem
         val personResultaterBarn1 = vilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == personIdentBarn1 }
-        personResultaterBarn1.vilkårResultater.forEach { assertEquals(fødselsDatoBarn1.plusYears(2), it.periodeTom) }
+        personResultaterBarn1.vilkårResultater.forEach { assertEquals(fødselsDatoBarn1.plusMonths(19), it.periodeTom) }
 
         val personResultaterBarn2 = vilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == personIdentBarn2 }
         personResultaterBarn2.vilkårResultater.forEach { assertEquals(dødsdatoBarn2, it.periodeTom) }
