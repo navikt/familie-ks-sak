@@ -8,15 +8,16 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator.validerFomDato
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator.validerIngenOverlappMedEksisterendeOvergangsordningAndeler
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator.validerTomDato
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.erObligatoriskeFelterUtfylt
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.fraOvergangsordningAndelDto
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilIOvergangsordningAndel
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilOvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,7 +32,13 @@ class OvergangsordningAndelService(
     fun hentOvergangsordningAndeler(behandlingId: Long) = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId)
 
     @Transactional
-    fun opprettTomOvergangsordningAndel(behandling: Behandling) = overgangsordningAndelRepository.save(OvergangsordningAndel(behandlingId = behandling.id))
+    fun opprettTomOvergangsordningAndel(behandling: Behandling): OvergangsordningAndel {
+        if (!behandling.erOvergangsordning()) {
+            throw FunksjonellFeil("Kan ikke opprette overgangsordningandel på behandling som ikke har årsak overgangsordning")
+        }
+
+        return overgangsordningAndelRepository.save(OvergangsordningAndel(behandlingId = behandling.id))
+    }
 
     @Transactional
     fun oppdaterOvergangsordningAndelOgOppdaterTilkjentYtelse(
@@ -42,11 +49,38 @@ class OvergangsordningAndelService(
         val overgangsordningAndel = finnOvergangsordningAndel(overgangsordningAndelId)
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person = personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == overgangsordningAndelRequestDto.personIdent }
-        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
+        val vilkårsvurdering by lazy { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
+        val andreAndelerPåBehandling by lazy { hentOvergangsordningAndeler(behandling.id).filter { it.id != overgangsordningAndelId } }
 
-        overgangsordningAndel.fraOvergangsordningAndelDto(overgangsordningAndelRequestDto, person)
+        val utfyltOvergangsordningAndel =
+            overgangsordningAndel
+                .fraOvergangsordningAndelDto(overgangsordningAndelRequestDto, person)
+                .tilUtfyltOvergangsordningAndel()
 
-        // TODO: Validering
+        val barnehageplassVilkår =
+            vilkårsvurdering
+                .hentPersonResultaterTilAktør(person.aktør.aktørId)
+                .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+
+        validerFomDato(
+            andel = utfyltOvergangsordningAndel,
+            gyldigFom = beregnGyldigFom(person),
+        )
+
+        validerTomDato(
+            andel = utfyltOvergangsordningAndel,
+            gyldigTom = beregnGyldigTom(person),
+        )
+
+        validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
+            nyAndel = utfyltOvergangsordningAndel,
+            eksisterendeAndeler = andreAndelerPåBehandling,
+        )
+
+        validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(
+            overgangsordningAndel = utfyltOvergangsordningAndel,
+            barnehageplassVilkår = barnehageplassVilkår,
+        )
 
         slåSammenOgOppdaterOvergangsordningAndeler(behandling)
 
