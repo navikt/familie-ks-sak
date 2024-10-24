@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.barnehageplass
 
 import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
@@ -16,24 +16,22 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.hentProsentForAntallTimer
 import java.math.BigDecimal
 import java.time.LocalDate
 
-fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<VilkårResultat>> =
-    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024()
+fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårResultat>> =
+    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
         .map {
             Periode(
                 verdi = it.vilkårResultat,
                 fom =
                     it.vilkårResultat.periodeFom
-                        .tilForskøvetFomBasertPåGraderingsforskjell2024(it.graderingsforskjellMellomDenneOgForrigePeriode),
+                        .tilForskøvetFomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgForrigePeriode),
                 tom =
                     it.vilkårResultat.periodeTom
-                        .tilForskøvetTomBasertPåGraderingsforskjell2024(it.graderingsforskjellMellomDenneOgNestePeriode),
+                        .tilForskøvetTomBasertPåGraderingsforskjell(it.graderingsforskjellMellomDenneOgNestePeriode),
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
-        .filtrerBortOverlappendePerioderMedMaksGradering()
+        .filtrerBortOverlappendePerioderMedMinstGradering()
 
-fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024() = this?.tilForskøvetTomBasertPåGraderingsforskjell2024(Graderingsforskjell.REDUKSJON)?.toYearMonth()
-
-private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
+private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
         this
             .tilTidslinje()
@@ -45,7 +43,7 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
             val vilkårResultatIForrigePeriode = acc.lastOrNull()
 
             val graderingsforskjellMellomDenneOgForrigePeriode =
-                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(vilkårResultatIForrigePeriode)
+                vilkårResultat.hentGraderingsforskjellMellomDenneOgForrigePeriode(vilkårResultatIForrigePeriode)
 
             val accMedForrigeOppdatert =
                 if (vilkårResultatIForrigePeriode == null) {
@@ -60,51 +58,79 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
                 BarnehageplassVilkårMedGraderingsforskjellMellomPerioder(
                     vilkårResultat = vilkårResultat,
                     graderingsforskjellMellomDenneOgForrigePeriode = graderingsforskjellMellomDenneOgForrigePeriode,
-                    graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.REDUKSJON,
+                    graderingsforskjellMellomDenneOgNestePeriode = Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING,
                 )
         }.filtrerBortNullverdier()
 }
 
-private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode2024(
+private fun VilkårResultat?.hentGraderingsforskjellMellomDenneOgForrigePeriode(
     vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
         vilkårResultatForrigePeriode?.vilkårResultat?.let { hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer) }
             ?: BigDecimal.ZERO
     val graderingDennePerioden = this?.let { hentProsentForAntallTimer(this.antallTimer) } ?: BigDecimal.ZERO
+    val erFørstePeriode = vilkårResultatForrigePeriode == null
+
+    val gikkPåBarnehageForrigePeriode = vilkårResultatForrigePeriode?.vilkårResultat?.antallTimer != null
+    val gårIkkePåBarnehageDennePerioden = this?.antallTimer == null
+
+    val sluttetIBarnehageDennePerioden = gikkPåBarnehageForrigePeriode && gårIkkePåBarnehageDennePerioden
+
     return when {
+        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden == BigDecimal.ZERO -> Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.REDUKSJON
+
+        sluttetIBarnehageDennePerioden -> Graderingsforskjell.ØKNING_GRUNNET_SLUTT_I_BARNEHAGE
+        graderingForrigePeriode < graderingDennePerioden && graderingForrigePeriode == BigDecimal.ZERO -> if (erFørstePeriode) Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING else Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING
+
         graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.ØKNING
+
         else -> Graderingsforskjell.LIK
     }
 }
 
-private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMaksGradering() =
+private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioderMedMinstGradering() =
     map { listOf(it).tilTidslinje() }
-        .kombiner { vilkårResultater -> vilkårResultater.minByOrNull { it.antallTimer ?: BigDecimal.ZERO } }
+        .kombiner { vilkårResultater -> vilkårResultater.maxByOrNull { it.antallTimer ?: BigDecimal.ZERO } }
         .tilPerioderIkkeNull()
 
-private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell2024(graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell) =
+private fun LocalDate?.tilForskøvetTomBasertPåGraderingsforskjell(graderingsforskjellMellomDenneOgNestePeriode: Graderingsforskjell) =
     this?.let { tomDato ->
         when (graderingsforskjellMellomDenneOgNestePeriode) {
             Graderingsforskjell.LIK,
-            -> tomDato.minusMonths(1).sisteDagIMåned()
-
+            Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING,
+            Graderingsforskjell.ØKNING_GRUNNET_SLUTT_I_BARNEHAGE,
             Graderingsforskjell.ØKNING,
             -> tomDato.sisteDagIMåned()
 
-            Graderingsforskjell.REDUKSJON -> tomDato.plusDays(1).sisteDagIMåned()
+            Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING -> tomDato.plusDays(1).sisteDagIMåned()
+
+            Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING,
+            Graderingsforskjell.REDUKSJON,
+            -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
         }
     }
 
-private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell2024(graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell) =
+fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør() = this?.tilForskøvetTomBasertPåGraderingsforskjell(Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING)?.toYearMonth()
+
+private fun LocalDate?.tilForskøvetFomBasertPåGraderingsforskjell(graderingsforskjellMellomDenneOgForrigePeriode: Graderingsforskjell) =
     this?.let { fomDato ->
         when (graderingsforskjellMellomDenneOgForrigePeriode) {
             Graderingsforskjell.LIK,
+            Graderingsforskjell.ØKNING_GRUNNET_SLUTT_I_BARNEHAGE,
             Graderingsforskjell.ØKNING,
-            -> fomDato.førsteDagIInneværendeMåned()
+            -> fomDato.minusDays(1).plusMonths(1)?.førsteDagIInneværendeMåned()
 
+            Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING,
+            Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING,
+            ->
+                fomDato
+                    .plusMonths(1)
+                    .førsteDagIInneværendeMåned()
+
+            Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING,
             Graderingsforskjell.REDUKSJON,
-            -> fomDato.plusMonths(1).førsteDagIInneværendeMåned()
+            -> fomDato.førsteDagIInneværendeMåned()
         }
     }

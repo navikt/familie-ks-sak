@@ -216,8 +216,7 @@ class OppgaveService(
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
             val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
             logger.info("Oppdaterer enhet fra ${oppgave.tildeltEnhetsnr} til $nyEnhet på oppgave ${oppgave.id}")
-            val oppgaveOppdatering = Oppgave(id = oppgave.id, tildeltEnhetsnr = nyEnhet, tilordnetRessurs = null, mappeId = null)
-            integrasjonClient.oppdaterOppgave(oppgaveOppdatering = oppgaveOppdatering)
+            integrasjonClient.tilordneEnhetOgRessursForOppgave(oppgaveId = oppgave.id!!, nyEnhet = nyEnhet)
         }
     }
 

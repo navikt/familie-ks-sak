@@ -20,6 +20,7 @@ import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.kontrakter.felles.enhet.HentEnheterNavIdentHarTilgangTilRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
+import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
@@ -119,7 +120,7 @@ class IntegrasjonClient(
         }
     }
 
-    fun tilordneEnhetForOppgave(
+    fun tilordneEnhetOgRessursForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
     ): OppgaveResponse {
@@ -128,6 +129,7 @@ class IntegrasjonClient(
             UriComponentsBuilder
                 .fromUri(baseUri)
                 .queryParam("fjernMappeFraOppgave", true)
+                .queryParam("nullstillTilordnetRessurs", true)
                 .build()
                 .toUri() // fjerner alltid mappe fra Kontantstøtte siden hver enhet har sin mappestruktur
 
@@ -183,6 +185,23 @@ class IntegrasjonClient(
             tjeneste = "dokarkiv",
             uri = uri,
             formål = "Hent journalposter for bruker",
+        ) {
+            postForEntity(uri, journalposterForBrukerRequest)
+        }
+    }
+
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
+    )
+    fun hentTilgangsstyrteJournalposterForBruker(journalposterForBrukerRequest: JournalposterForBrukerRequest): List<TilgangsstyrtJournalpost> {
+        val uri = URI.create("$integrasjonUri/journalpost/tilgangsstyrt/baks")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Hent tilgangsstyrte journalposter for bruker",
         ) {
             postForEntity(uri, journalposterForBrukerRequest)
         }
