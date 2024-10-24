@@ -116,7 +116,7 @@ object BehandlingsresultatSøknadUtils {
                             Årsak.ALLEREDE_UTBETALT,
                             Årsak.ENDRE_MOTTAKER,
                             Årsak.ETTERBETALING_3MND,
-                            Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
+                            Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                             -> Søknadsresultat.AVSLÅTT
                         }
                     }
