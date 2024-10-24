@@ -18,8 +18,7 @@ object EndringIEndretUtbetalingAndelUtil {
             nåværendeTidslinje.kombinerMed(forrigeTidslinje) { nåværende, forrige ->
                 (
                     nåværende?.avtaletidspunktDeltBosted != forrige?.avtaletidspunktDeltBosted ||
-                        nåværende?.årsak != forrige?.årsak ||
-                        nåværende?.søknadstidspunkt != forrige?.søknadstidspunkt
+                        nåværende?.årsak != forrige?.årsak
                 )
             }
 

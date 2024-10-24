@@ -56,10 +56,12 @@ class BrevmalService {
                     utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(
                         behandlingsresultat = behandling.resultat,
                     )
+
                 BehandlingType.REVURDERING ->
                     utledBrevmalFraBehandlingsresultatForRevurdering(
                         behandlingsresultat = behandling.resultat,
                     )
+
                 BehandlingType.TEKNISK_ENDRING -> throw FunksjonellFeil(
                     melding = "Brev ikke støttet for behandlingstype=${behandling.type}",
                     frontendFeilmelding = frontendFeilmelding,
@@ -90,9 +92,11 @@ class BrevmalService {
             Behandlingsresultat.AVSLÅTT,
             -> Brevmal.VEDTAK_AVSLAG
 
-            Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
             Behandlingsresultat.AVSLÅTT_OG_ENDRET,
+            Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
             Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
+            -> Brevmal.VEDTAK_ENDRING
+
             Behandlingsresultat.ENDRET_UTBETALING,
             Behandlingsresultat.ENDRET_UTEN_UTBETALING,
             Behandlingsresultat.ENDRET_OG_OPPHØRT,
