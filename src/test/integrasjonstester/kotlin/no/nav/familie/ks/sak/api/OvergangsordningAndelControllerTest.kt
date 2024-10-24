@@ -82,15 +82,16 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 {
                     "id": 999951,
                     "personIdent": "0101545030",
-                    "prosent": 110,
+                    "antallTimer": 20,
+                    "deltBosted": true,
                     "fom": "2024-03",
                     "tom": "2024-01"
                 }
                 """.trimIndent()
 
             val tomFomFeilmelding = "Til og med-dato kan ikke være før fra og med-dato"
-            val personidentFeilmelding = "Personident må være elleve siffer"
-            val prosentFeilmelding = "Prosent må være mellom 0 og 100"
+            val personidentFeilmelding = "Personident må være et gyldig fødselsnummer"
+            val antallTimerFeilmelding = "Hvis antall timer er større enn 0, kan ikke delt bosted være avhuket"
 
             Given {
                 header("Authorization", "Bearer $token")
@@ -103,7 +104,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 body("status", Is("FEILET"))
                 body("melding", Contains(tomFomFeilmelding))
                 body("melding", Contains(personidentFeilmelding))
-                body("melding", Contains(prosentFeilmelding))
+                body("melding", Contains(antallTimerFeilmelding))
             }
         }
 

@@ -228,7 +228,7 @@ class OvergangsordningAndelServiceTest {
                 }
 
             assertThat(funksjonellFeil.melding).isEqualTo("Barnehagevilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.")
-            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehagevilkåret må være oppfylt alle periodene du prøver å legge til periode for overgangsordning. Vilkåret er ikke oppfylt i perioden 15. des. 24 til 31. jan. 25.")
+            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehagevilkåret må være oppfylt alle periodene det er overgangsordning. Vilkåret er ikke oppfylt i perioden 15. des. 24 til 31. jan. 25.")
         }
 
         @Test
@@ -278,7 +278,7 @@ class OvergangsordningAndelServiceTest {
                 }
 
             assertThat(funksjonellFeil.melding).isEqualTo("Barnehagevilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.")
-            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehagevilkåret må være oppfylt alle periodene du prøver å legge til periode for overgangsordning. Vilkåret er ikke oppfylt i periodene 1. okt. 24 til 14. nov. 24 og 15. des. 24 til 31. jan. 25.")
+            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehagevilkåret må være oppfylt alle periodene det er overgangsordning. Vilkåret er ikke oppfylt i periodene 1. okt. 24 til 14. nov. 24 og 15. des. 24 til 31. jan. 25.")
         }
 
         @Test
