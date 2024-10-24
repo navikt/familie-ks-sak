@@ -1,7 +1,7 @@
 # language: no
 # encoding: UTF-8
 
-Egenskap: Overgang fra barnehageplass
+Egenskap: Overgang fra gradert barnehageplass
 
   Bakgrunn:
     Gitt følgende fagsaker
@@ -111,7 +111,7 @@ Egenskap: Overgang fra barnehageplass
       | 2       | 01.09.2024 | 31.11.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
       | 2       | 01.12.2024 | 31.03.2025 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
 
-  Scenario: Kontantstøtte skal reduseres fra og med neste måned når oppholdstiden øker i midten av måneden
+  Scenario: Kontantstøtte skal reduseres fra og med samme måned når oppholdstiden øker i midten av måneden
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -133,10 +133,10 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.09.2024 | 30.11.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
-      | 2       | 01.12.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.09.2024 | 31.10.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
+      | 2       | 01.11.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
-  Scenario: Kontantstøtte skal reduseres fra og med neste måned når oppholdstiden øker den første i måneden
+  Scenario: Kontantstøtte skal reduseres fra og med samme måned når oppholdstiden øker den første i måneden
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -158,8 +158,8 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.09.2024 | 31.11.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
-      | 2       | 01.12.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.09.2024 | 31.10.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
+      | 2       | 01.11.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
   Scenario: Kontantstøtte skal økes til full fra samme måned som når barnet slutter i barnehage i mitden av måneden
     Og følgende persongrunnlag
