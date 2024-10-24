@@ -147,6 +147,7 @@ enum class Årsak(
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
     ENDRE_MOTTAKER("Foreldrene bor sammen, endret mottaker"),
     ALLEREDE_UTBETALT("Allerede utbetalt"),
+    FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024("Fulltidsplass i barnehage august 2024")
 }
 
 sealed interface IEndretUtbetalingAndel
