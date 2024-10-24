@@ -6,15 +6,15 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 data class EndretUtbetalingAndelRequestDto(
-    val id: Long?,
-    val personIdent: String?,
-    val prosent: BigDecimal?,
-    val fom: YearMonth?,
-    val tom: YearMonth?,
-    val årsak: Årsak?,
+    val id: Long,
+    val personIdent: String,
+    val prosent: BigDecimal,
+    val fom: YearMonth,
+    val tom: YearMonth,
+    val årsak: Årsak,
     val avtaletidspunktDeltBosted: LocalDate?,
-    val søknadstidspunkt: LocalDate?,
-    val begrunnelse: String?,
+    val søknadstidspunkt: LocalDate,
+    val begrunnelse: String,
     val erEksplisittAvslagPåSøknad: Boolean?,
 )
 
