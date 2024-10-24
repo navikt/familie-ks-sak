@@ -18,14 +18,13 @@ class StandardVilkårForskyverKtTest {
             )
 
         // Act & assert
-        val exception = assertThrows<IllegalArgumentException> {
-            forskyvStandardVilkår2024(
-                Vilkår.BARNEHAGEPLASS,
-                alleVilkårResultater,
-            )
-        }
-
-        // Assert
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                forskyvStandardVilkår2024(
+                    Vilkår.BARNEHAGEPLASS,
+                    alleVilkårResultater,
+                )
+            }
         assertThat(exception.message).isEqualTo("BARNEHAGEPLASS skal ikke behandles etter standard logikk")
     }
 }
