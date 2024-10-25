@@ -8,7 +8,6 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @Component
 class EndretUtbetalingAndelOppdaterer(
