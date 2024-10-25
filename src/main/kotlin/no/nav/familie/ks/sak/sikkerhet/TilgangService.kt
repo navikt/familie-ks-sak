@@ -41,6 +41,7 @@ class TilgangService(
                 melding =
                     "${SikkerhetContext.hentSaksbehandlerNavn()} " +
                         "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle",
+                frontendFeilmelding = "Du har ikke tilgang til å $handling.",
             )
         }
         val høyesteRolletilgang = SikkerhetContext.hentHøyesteRolletilgangForInnloggetBruker(rolleConfig)
@@ -49,6 +50,7 @@ class TilgangService(
                 melding =
                     "${SikkerhetContext.hentSaksbehandlerNavn()} med rolle $høyesteRolletilgang " +
                         "har ikke tilgang til å $handling. Krever $minimumBehandlerRolle.",
+                frontendFeilmelding = "Du har ikke tilgang til å $handling.",
             )
         }
     }
