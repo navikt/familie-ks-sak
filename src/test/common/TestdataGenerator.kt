@@ -23,6 +23,7 @@ import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -1380,3 +1381,27 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
         antallTimerBarnehageplass = antallTimerBarnehageplass.toString(),
         soknadstidspunkt = soknadstidspunkt.tilKortString(),
     )
+
+fun lagEndretUtbetalingAndelRequestDto(
+    id: Long = 0L,
+    personIdent: String = "12345678903",
+    prosent: BigDecimal = BigDecimal(100),
+    fom: YearMonth = YearMonth.now().minusYears(1),
+    tom: YearMonth = YearMonth.now(),
+    årsak: Årsak = Årsak.ENDRE_MOTTAKER,
+    avtaletidspunktDeltBosted: LocalDate? = LocalDate.now(),
+    søknadstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
+    begrunnelse: String = "en begrunnelse",
+    erEksplisittAvslagPåSøknad: Boolean? = false,
+) = EndretUtbetalingAndelRequestDto(
+    id,
+    personIdent,
+    prosent,
+    fom,
+    tom,
+    årsak,
+    avtaletidspunktDeltBosted,
+    søknadstidspunkt,
+    begrunnelse,
+    erEksplisittAvslagPåSøknad,
+)
