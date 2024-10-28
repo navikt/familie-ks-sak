@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅrKort
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
-import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
@@ -27,14 +26,14 @@ object OvergangsordningAndelValidator {
         andeler
             .groupBy { it.person }
             .forEach { (person, andelerForPerson) ->
-                val tidligsteGyldigeFom = person.fødselsdato.plusMonths(20).toYearMonth()
-                val senesteGyldigeTom = person.fødselsdato.plusMonths(23).toYearMonth()
+                val tidligsteGyldigeFom = beregnGyldigFom(person)
+                val senesteGyldigeTom = beregnGyldigTom(person)
                 andelerForPerson.forEach {
                     if (it.fom.isBefore(tidligsteGyldigeFom) || it.tom.isAfter(senesteGyldigeTom)) {
                         throw FunksjonellFeil(
                             melding = "Perioden som blir forsøkt lagt til er utenfor gyldig periode for person.",
                             frontendFeilmelding =
-                                "Perioden for overgangsordning du forsøker å legge til (${it.fom} - ${it.tom}) er utenfor gyldig periode for personen. " +
+                                "Perioden for overgangsordning du forsøker å legge til (${it.fom} - ${it.tom}) er utenfor gyldig periode for barn født ${person.fødselsdato}. " +
                                     "Gyldig periode er fra og med 20 til og med 23 måneder etter fødselsdato ($tidligsteGyldigeFom - $senesteGyldigeTom).",
                         )
                     }
