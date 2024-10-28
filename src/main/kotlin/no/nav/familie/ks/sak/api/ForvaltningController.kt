@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import jakarta.validation.Valid
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
@@ -32,6 +33,8 @@ import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
+import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -48,6 +51,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -328,6 +332,31 @@ class ForvaltningController(
                 "Automatisk revurdering på fagsak $fagsakId opprettet OK",
             ),
         )
+    }
+
+    @PatchMapping("/patch-fagsak-med-ny-ident")
+    fun patchMergetIdent(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description =
+                "skalSjekkeAtGammelIdentErHistoriskAvNyIdent - Sjekker at " +
+                    "gammel ident er historisk av ny. Hvis man ønsker å patche med en ident hvor den gamle ikke er historisk av ny, så settes " +
+                    "denne til false. OBS: Du må da være sikker på at identen man ønsker å patche til er samme person. Dette kan skje hvis " +
+                    "identen ikke er merget av folketrygden.",
+        )
+        @RequestBody
+        @Valid
+        patchMergetIdentDto: PatchMergetIdentDto,
+    ): ResponseEntity<String> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Patch merget ident",
+        )
+
+        val task = PatchMergetIdentTask.opprettTask(patchMergetIdentDto)
+
+        taskService.save(task)
+
+        return ResponseEntity.ok("ok")
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")
