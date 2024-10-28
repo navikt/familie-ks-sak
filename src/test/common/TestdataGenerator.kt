@@ -693,15 +693,21 @@ fun lagVilkårResultaterForDeltBosted(
 }
 
 fun lagEndretUtbetalingAndel(
-    behandlingId: Long = 0,
+    id: Long = 0L,
+    behandlingId: Long = 0L,
     person: Person,
     prosent: BigDecimal? = null,
     periodeFom: YearMonth = YearMonth.now().minusMonths(1),
     periodeTom: YearMonth = YearMonth.now(),
     årsak: Årsak = Årsak.DELT_BOSTED,
     avtaletidspunktDeltBosted: LocalDate? = LocalDate.now().minusMonths(1),
+    søknadstidspunkt: LocalDate? = LocalDate.now().minusMonths(1),
+    begrunnelse: String? = "test",
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    erEksplisittAvslagPåSøknad: Boolean? = false,
 ): EndretUtbetalingAndel =
     EndretUtbetalingAndel(
+        id = id,
         behandlingId = behandlingId,
         person = person,
         prosent = prosent,
@@ -709,8 +715,10 @@ fun lagEndretUtbetalingAndel(
         tom = periodeTom,
         årsak = årsak,
         avtaletidspunktDeltBosted = avtaletidspunktDeltBosted,
-        søknadstidspunkt = LocalDate.now().minusMonths(1),
-        begrunnelse = "test",
+        søknadstidspunkt = søknadstidspunkt,
+        begrunnelse = begrunnelse,
+        begrunnelser = begrunnelser,
+        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 
 fun lagVedtaksbegrunnelse(

@@ -127,16 +127,16 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     person: Person,
 ): EndretUtbetalingAndel {
+    this.person = person
+    this.prosent = endretUtbetalingAndelRequestDto.prosent
     this.fom = endretUtbetalingAndelRequestDto.fom
     this.tom = endretUtbetalingAndelRequestDto.tom
-    this.prosent = endretUtbetalingAndelRequestDto.prosent
     this.årsak = endretUtbetalingAndelRequestDto.årsak
     this.avtaletidspunktDeltBosted = endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted
     this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
-    this.person = person
-    this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
     this.begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+    this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
     return this
 }
 
