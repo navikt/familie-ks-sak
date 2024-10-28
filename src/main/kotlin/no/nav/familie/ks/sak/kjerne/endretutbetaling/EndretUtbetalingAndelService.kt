@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValida
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerÅrsak
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,7 +26,6 @@ class EndretUtbetalingAndelService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
-    private val endretUtbetalingAndelOppdaterer: EndretUtbetalingAndelOppdaterer,
 ) {
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
@@ -34,6 +34,7 @@ class EndretUtbetalingAndelService(
         behandling: Behandling,
         endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ) {
+        val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelRequestDto.id)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
@@ -41,11 +42,7 @@ class EndretUtbetalingAndelService(
             personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == endretUtbetalingAndelRequestDto.personIdent }
         val andelTilkjentYtelser = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
 
-        val oppdatertEndretUtbetalingAndel =
-            endretUtbetalingAndelOppdaterer.oppdaterEndretUtbetalingAndel(
-                endretUtbetalingAndelRequestDto,
-                person,
-            )
+        endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, person)
 
         val andreEndredeAndelerPåBehandling =
             hentEndredeUtbetalingAndeler(behandling.id)
@@ -54,51 +51,51 @@ class EndretUtbetalingAndelService(
         val gyldigTomEtterDagensDato =
             beregnGyldigTomIFremtiden(
                 andreEndredeAndelerPåBehandling = andreEndredeAndelerPåBehandling,
-                endretUtbetalingAndel = oppdatertEndretUtbetalingAndel,
+                endretUtbetalingAndel = endretUtbetalingAndel,
                 andelTilkjentYtelser = andelTilkjentYtelser,
             )
 
         validerTomDato(
-            tomDato = oppdatertEndretUtbetalingAndel.tom,
+            tomDato = endretUtbetalingAndel.tom,
             gyldigTomEtterDagensDato = gyldigTomEtterDagensDato,
-            årsak = oppdatertEndretUtbetalingAndel.årsak,
+            årsak = endretUtbetalingAndel.årsak,
         )
 
-        if (oppdatertEndretUtbetalingAndel.tom == null) {
-            oppdatertEndretUtbetalingAndel.tom = gyldigTomEtterDagensDato
+        if (endretUtbetalingAndel.tom == null) {
+            endretUtbetalingAndel.tom = gyldigTomEtterDagensDato
         }
 
         validerÅrsak(
-            årsak = oppdatertEndretUtbetalingAndel.årsak,
-            endretUtbetalingAndel = oppdatertEndretUtbetalingAndel,
+            årsak = endretUtbetalingAndel.årsak,
+            endretUtbetalingAndel = endretUtbetalingAndel,
             vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id),
         )
 
         validerUtbetalingMotÅrsak(
-            årsak = oppdatertEndretUtbetalingAndel.årsak,
-            skalUtbetales = oppdatertEndretUtbetalingAndel.prosent != BigDecimal(0),
+            årsak = endretUtbetalingAndel.årsak,
+            skalUtbetales = endretUtbetalingAndel.prosent != BigDecimal(0),
         )
 
         validerIngenOverlappendeEndring(
-            endretUtbetalingAndel = oppdatertEndretUtbetalingAndel,
+            endretUtbetalingAndel = endretUtbetalingAndel,
             eksisterendeEndringerPåBehandling = andreEndredeAndelerPåBehandling,
         )
 
-        validerPeriodeInnenforTilkjentYtelse(oppdatertEndretUtbetalingAndel, andelTilkjentYtelser)
+        validerPeriodeInnenforTilkjentYtelse(endretUtbetalingAndel, andelTilkjentYtelser)
 
-        endretUtbetalingAndelRepository.saveAndFlush(oppdatertEndretUtbetalingAndel)
+        endretUtbetalingAndelRepository.saveAndFlush(endretUtbetalingAndel)
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(
             behandling,
             personopplysningGrunnlag,
             vilkårsvurdering,
-            oppdatertEndretUtbetalingAndel,
+            endretUtbetalingAndel,
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach {
             it.endretUtbetalingAndelerOppdatert(
                 behandlingId = behandling.id,
-                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + oppdatertEndretUtbetalingAndel,
+                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
             )
         }
     }

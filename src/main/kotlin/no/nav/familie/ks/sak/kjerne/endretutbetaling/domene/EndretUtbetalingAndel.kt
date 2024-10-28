@@ -12,7 +12,9 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
+import no.nav.familie.ks.sak.api.dto.mapTilBegrunnelser
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
@@ -120,6 +122,23 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty(),
     )
+
+fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
+    endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
+    person: Person,
+): EndretUtbetalingAndel {
+    this.fom = endretUtbetalingAndelRequestDto.fom
+    this.tom = endretUtbetalingAndelRequestDto.tom
+    this.prosent = endretUtbetalingAndelRequestDto.prosent
+    this.årsak = endretUtbetalingAndelRequestDto.årsak
+    this.avtaletidspunktDeltBosted = endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted
+    this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
+    this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
+    this.person = person
+    this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
+    this.begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+    return this
+}
 
 enum class Årsak(
     val visningsnavn: String,
