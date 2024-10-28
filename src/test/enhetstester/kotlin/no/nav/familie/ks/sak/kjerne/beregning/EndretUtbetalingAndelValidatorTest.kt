@@ -607,15 +607,34 @@ class EndretUtbetalingAndelValidatorTest {
         }
 
         @Test
-        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og endringsperiode fom ikke er i august 2024`() {
+        fun `skal ikke kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter innefor etterbetalingsgrense`() {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
                     person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(5),
+                    periodeTom = YearMonth.now().minusMonths(4),
+                    prosent = BigDecimal.ZERO,
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerÅrsak(
+                    Årsak.ETTERBETALING_3MND,
+                    endretUtbetalingAndel,
+                    null,
+                )
+            }
+        }
+
+        @Test
+        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og endringsperiode fom ikke er i august 2024`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
                     periodeFom = YearMonth.of(2024, 7),
                     periodeTom = YearMonth.of(2024, 8),
-                    prosent = BigDecimal.ZERO,
                     årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                 )
 
@@ -638,11 +657,8 @@ class EndretUtbetalingAndelValidatorTest {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    person = barnPerson,
                     periodeFom = YearMonth.of(2024, 8),
                     periodeTom = YearMonth.of(2024, 9),
-                    prosent = BigDecimal.ZERO,
                     årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                 )
 
@@ -665,11 +681,8 @@ class EndretUtbetalingAndelValidatorTest {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    person = barnPerson,
                     periodeFom = YearMonth.of(2024, 7),
                     periodeTom = YearMonth.of(2024, 9),
-                    prosent = BigDecimal.ZERO,
                     årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                 )
 
@@ -692,11 +705,8 @@ class EndretUtbetalingAndelValidatorTest {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    person = barnPerson,
                     periodeFom = YearMonth.of(2024, 7),
                     periodeTom = YearMonth.of(2024, 9),
-                    prosent = BigDecimal.ZERO,
                     årsak = null,
                 )
 
@@ -719,11 +729,8 @@ class EndretUtbetalingAndelValidatorTest {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    person = barnPerson,
                     periodeFom = YearMonth.of(2024, 8),
                     periodeTom = YearMonth.of(2024, 8),
-                    prosent = BigDecimal.ZERO,
                     årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                 )
 
@@ -738,25 +745,47 @@ class EndretUtbetalingAndelValidatorTest {
         }
 
         @Test
-        fun `skal ikke kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter innefor etterbetalingsgrense`() {
+        fun `skal kaste feil når årsak er ENDRE_MOTTAKER`() {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    behandlingId = behandling.id,
-                    person = barnPerson,
-                    periodeFom = YearMonth.now().minusMonths(5),
-                    periodeTom = YearMonth.now().minusMonths(4),
-                    prosent = BigDecimal.ZERO,
+                    årsak = Årsak.ENDRE_MOTTAKER,
                 )
 
             // Act & assert
-            assertDoesNotThrow {
-                EndretUtbetalingAndelValidator.validerÅrsak(
-                    Årsak.ETTERBETALING_3MND,
-                    endretUtbetalingAndel,
-                    null,
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.ENDRE_MOTTAKER,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Årsak ${Årsak.ENDRE_MOTTAKER.visningsnavn} er ikke implementert enda!!",
+            )
+        }
+
+        @Test
+        fun `skal kaste feil når årsak er ALLEREDE_UTBETALT`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    årsak = Årsak.ALLEREDE_UTBETALT,
                 )
-            }
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.ALLEREDE_UTBETALT,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Årsak ${Årsak.ALLEREDE_UTBETALT.visningsnavn} er ikke implementert enda!!",
+            )
         }
     }
 }
