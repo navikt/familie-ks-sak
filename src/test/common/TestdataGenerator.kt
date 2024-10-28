@@ -975,6 +975,8 @@ fun lagVilkårsvurderingOppfylt(
     behandling: Behandling = lagBehandling(),
     erEksplisittAvslagPåSøknad: Boolean = false,
     skalOppretteEøsSpesifikkeVilkår: Boolean = false,
+    periodeFom: LocalDate? = null,
+    periodeTom: LocalDate? = null,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -997,12 +999,16 @@ fun lagVilkårsvurderingOppfylt(
                             VilkårResultat(
                                 personResultat = personResultat,
                                 periodeFom =
-                                    if (person.type == PersonType.SØKER) {
-                                        person.fødselsdato
-                                    } else {
-                                        person.fødselsdato.plusYears(1)
+                                    when (it) {
+                                        Vilkår.BARNETS_ALDER -> person.fødselsdato.plusMonths(13)
+                                        else -> periodeFom ?: person.fødselsdato.plusMonths(13)
                                     },
-                                periodeTom = if (it == Vilkår.BARNETS_ALDER) person.fødselsdato.plusMonths(19) else null,
+                                periodeTom =
+                                    when {
+                                        person.type == PersonType.SØKER -> null
+                                        it == Vilkår.BARNETS_ALDER -> person.fødselsdato.plusMonths(19)
+                                        else -> periodeTom ?: person.fødselsdato.plusMonths(19)
+                                    },
                                 vilkårType = it,
                                 resultat = Resultat.OPPFYLT,
                                 begrunnelse = "",

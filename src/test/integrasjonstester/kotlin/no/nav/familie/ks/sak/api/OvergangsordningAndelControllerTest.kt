@@ -60,7 +60,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             behandlingÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024,
         )
         opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = barnFødselsdato)
-        opprettOppfyltVilkårsvurdering()
+        opprettOppfyltVilkårsvurdering(periodeTom = null)
 
         arbeidsfordelingPåBehandlingRepository.save(
             ArbeidsfordelingPåBehandling(

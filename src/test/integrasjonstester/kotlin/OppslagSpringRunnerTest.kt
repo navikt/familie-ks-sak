@@ -253,11 +253,15 @@ abstract class OppslagSpringRunnerTest {
     fun opprettOppfyltVilkårsvurdering(
         personer: Collection<Person> = this.personopplysningGrunnlag.personer,
         behandling: Behandling = this.behandling,
+        periodeFom: LocalDate? = null,
+        periodeTom: LocalDate? = null,
     ) {
         val vilkårsvurdering =
             lagVilkårsvurderingOppfylt(
                 personer = personer,
                 behandling = behandling,
+                periodeFom = periodeFom,
+                periodeTom = periodeTom,
             )
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }
