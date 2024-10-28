@@ -688,6 +688,56 @@ class EndretUtbetalingAndelValidatorTest {
         }
 
         @Test
+        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og EndretUtbetalingAndel mangler årsak`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.of(2024, 7),
+                    periodeTom = YearMonth.of(2024, 9),
+                    prosent = BigDecimal.ZERO,
+                    årsak = null,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<IllegalStateException> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Årsak må være satt",
+            )
+        }
+
+        @Test
+        fun `skal ikke kaste feil for årsak FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.of(2024, 8),
+                    periodeTom = YearMonth.of(2024, 8),
+                    prosent = BigDecimal.ZERO,
+                    årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerÅrsak(
+                    Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                    endretUtbetalingAndel,
+                    null,
+                )
+            }
+        }
+
+        @Test
         fun `skal ikke kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter innefor etterbetalingsgrense`() {
             // Arrange
             val endretUtbetalingAndel =
