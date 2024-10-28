@@ -10,14 +10,16 @@ import io.restassured.module.kotlin.extensions.When
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.OVERGANGSORDNING
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
 import org.hamcrest.CoreMatchers.containsString as Contains
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -46,16 +49,18 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
 
     private var token = ""
     private val overgangsordningAndelControllerUrl = "/api/overgangsordningandel"
+    private val barnFødselsdato = LocalDate.of(2024, 1, 1)
 
     @BeforeEach
     fun setUp() {
         RestAssured.port = port
         opprettSøkerFagsakOgBehandling(
+            barn = randomAktør(randomFnr(barnFødselsdato)),
             fagsakStatus = FagsakStatus.LØPENDE,
             behandlingÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024,
         )
-        opprettPersonopplysningGrunnlagOgPersonForBehandling()
-        opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.OPPFYLT)
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(lagBarn = true, fødselsdatoBarn = barnFødselsdato)
+        opprettOppfyltVilkårsvurdering()
 
         arbeidsfordelingPåBehandlingRepository.save(
             ArbeidsfordelingPåBehandling(
@@ -116,11 +121,11 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             val overgangsordningAndelDto =
                 OvergangsordningAndelDto(
                     id = overgangsordningAndel.id,
-                    personIdent = søker.aktivFødselsnummer(),
+                    personIdent = barn.aktivFødselsnummer(),
                     antallTimer = BigDecimal.ZERO,
                     deltBosted = false,
-                    fom = YearMonth.of(2024, 1),
-                    tom = YearMonth.of(2024, 3),
+                    fom = barnFødselsdato.plusMonths(20).toYearMonth(),
+                    tom = barnFødselsdato.plusMonths(23).toYearMonth(),
                 )
 
             Given {
@@ -132,10 +137,11 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             } Then {
                 statusCode(200)
                 body("status", Is("SUKSESS"))
-                body("data.overgangsordningAndeler[0].personIdent", Is(søker.aktivFødselsnummer()))
-                body("data.overgangsordningAndeler[0].prosent", Is(100))
-                body("data.overgangsordningAndeler[0].fom", Is("2024-01"))
-                body("data.overgangsordningAndeler[0].tom", Is("2024-03"))
+                body("data.overgangsordningAndeler[0].personIdent", Is(barn.aktivFødselsnummer()))
+                body("data.overgangsordningAndeler[0].antallTimer", Is(0))
+                body("data.overgangsordningAndeler[0].deltBosted", Is(false))
+                body("data.overgangsordningAndeler[0].fom", Is("2025-09"))
+                body("data.overgangsordningAndeler[0].tom", Is("2025-12"))
             }
         }
     }

@@ -1002,7 +1002,7 @@ fun lagVilkårsvurderingOppfylt(
                                     } else {
                                         person.fødselsdato.plusYears(1)
                                     },
-                                periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusMonths(19),
+                                periodeTom = if (it == Vilkår.BARNETS_ALDER) person.fødselsdato.plusMonths(19) else null,
                                 vilkårType = it,
                                 resultat = Resultat.OPPFYLT,
                                 begrunnelse = "",
