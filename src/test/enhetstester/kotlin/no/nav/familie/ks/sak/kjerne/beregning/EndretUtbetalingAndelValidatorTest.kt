@@ -16,8 +16,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -26,504 +26,687 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class EndretUtbetalingAndelValidatorTest {
-    val søker = randomAktør()
+    private val søker = randomAktør()
     private val barn1 = randomAktør()
 
-    val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    val personopplysningGrunnlag =
+    private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+    private val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+
+    private val personopplysningGrunnlag =
         lagPersonopplysningGrunnlag(
             behandlingId = behandling.id,
             søkerPersonIdent = søker.aktivFødselsnummer(),
             barnasIdenter = listOf(barn1.aktivFødselsnummer()),
         )
-    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
-    private val barnPerson = lagPerson(personopplysningGrunnlag, barn1, PersonType.BARN)
-    val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+    private val søkerPerson =
+        lagPerson(
+            personopplysningGrunnlag,
+            søker,
+            PersonType.SØKER,
+        )
+    private val barnPerson =
+        lagPerson(
+            personopplysningGrunnlag,
+            barn1,
+            PersonType.BARN,
+        )
 
-    @Test
-    fun `validerPeriodeInnenforTilkjentytelse skal kaste feil når EndretUtbetaling periode slutter etter ty perioder`() {
-        val andelTilkjentYtelse =
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                aktør = søker,
-                stønadFom = YearMonth.now().minusMonths(1),
-                stønadTom = YearMonth.now().plusMonths(5),
-            )
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = søkerPerson,
-                prosent = BigDecimal(50),
-                periodeFom = YearMonth.now().minusMonths(1),
-                periodeTom = YearMonth.now().plusMonths(7),
-            )
+    @Nested
+    inner class ValiderPeriodeInnenforTilkjentytelseTest {
+        @Test
+        fun `skal kaste feil når EndretUtbetaling periode slutter etter ty perioder`() {
+            // Arrange
+            val andelTilkjentYtelse =
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = søker,
+                    stønadFom = YearMonth.now().minusMonths(1),
+                    stønadTom = YearMonth.now().plusMonths(5),
+                )
 
-        val exception =
-            assertThrows<FunksjonellFeil> {
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = søkerPerson,
+                    prosent = BigDecimal(50),
+                    periodeFom = YearMonth.now().minusMonths(1),
+                    periodeTom = YearMonth.now().plusMonths(7),
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
+                        endretUtbetalingAndel,
+                        listOf(andelTilkjentYtelse),
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
+            )
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person i hele eller deler av perioden.",
+            )
+        }
+
+        @Test
+        fun `skal kaste feil når EndretUtbetaling periode starter før ty perioder`() {
+            // Arrange
+            val andelTilkjentYtelse =
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = søker,
+                    stønadFom = YearMonth.now().minusMonths(1),
+                    stønadTom = YearMonth.now().plusMonths(5),
+                )
+
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = søkerPerson,
+                    prosent = BigDecimal(50),
+                    periodeFom = YearMonth.now().minusMonths(2),
+                    periodeTom = YearMonth.now().plusMonths(5),
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
+                        endretUtbetalingAndel,
+                        listOf(andelTilkjentYtelse),
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
+            )
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person i hele eller deler av perioden.",
+            )
+        }
+
+        @Test
+        fun `skal kaste feil når EndretUtbetaling periode ikke finnes for person`() {
+            // Arrange
+            val andelTilkjentYtelse =
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = barn1,
+                    stønadFom = YearMonth.now().minusMonths(1),
+                    stønadTom = YearMonth.now().plusMonths(5),
+                )
+
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = søkerPerson,
+                    prosent = BigDecimal(50),
+                    periodeFom = YearMonth.now().minusMonths(1),
+                    periodeTom = YearMonth.now().plusMonths(5),
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
+                        endretUtbetalingAndel,
+                        listOf(andelTilkjentYtelse),
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
+            )
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person i hele eller deler av perioden.",
+            )
+        }
+
+        @Test
+        fun `validerPeriodeInnenforTilkjentytelse skal ikke kaste feil når EndretUtbetaling periode er innefor ty periode`() {
+            val andelTilkjentYtelse =
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = søker,
+                    stønadFom = YearMonth.now().minusMonths(2),
+                    stønadTom = YearMonth.now().plusMonths(5),
+                )
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = søkerPerson,
+                    prosent = BigDecimal(50),
+                    periodeFom = YearMonth.now().minusMonths(1),
+                    periodeTom = YearMonth.now().plusMonths(4),
+                )
+
+            assertDoesNotThrow {
                 EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
                     endretUtbetalingAndel,
                     listOf(andelTilkjentYtelse),
                 )
             }
-        assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception)
+        }
     }
 
-    @Test
-    fun `validerPeriodeInnenforTilkjentytelse skal kaste feil når EndretUtbetaling periode starter før ty perioder`() {
-        val andelTilkjentYtelse =
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                aktør = søker,
-                stønadFom = YearMonth.now().minusMonths(1),
-                stønadTom = YearMonth.now().plusMonths(5),
-            )
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = søkerPerson,
-                prosent = BigDecimal(50),
-                periodeFom = YearMonth.now().minusMonths(2),
-                periodeTom = YearMonth.now().plusMonths(5),
-            )
+    @Nested
+    inner class FinnDeltBostedPerioderTest {
+        @Test
+        fun `skal finne riktige delt bosted perioder for barn, og slå sammen de som er sammenhengende`() {
+            // Arrange
+            val fom = LocalDate.now().minusMonths(5)
+            val tom = LocalDate.now().plusMonths(7)
 
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
-                    endretUtbetalingAndel,
-                    listOf(andelTilkjentYtelse),
+            val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+            val vilkårResultaterForBarn =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn,
+                    behandlingId = behandling.id,
+                    fom1 = fom,
+                    tom1 = tom,
+                )
+            personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+            vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+            // Act
+            val deltBostedPerioder =
+                EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
+                    person = barnPerson,
+                    vilkårsvurdering = vilkårsvurdering,
+                )
+
+            // Assert
+            assertThat(deltBostedPerioder).hasSize(1)
+            assertThat(deltBostedPerioder.single().fom).isEqualTo(fom.plusMonths(1).førsteDagIInneværendeMåned())
+            assertThat(deltBostedPerioder.single().tom).isEqualTo(tom.sisteDagIMåned())
+        }
+
+        @Test
+        fun `skal finne riktige delt bosted perioder for barn, og ikke slå sammen når de ikke er sammenhengende`() {
+            // Arrange
+            val fom1 = LocalDate.now().minusMonths(5)
+            val tom1 = LocalDate.now().minusMonths(2)
+            val fom2 = LocalDate.now()
+            val tom2 = LocalDate.now().plusMonths(7)
+
+            val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+
+            val vilkårResultaterForBarn =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn,
+                    behandlingId = behandling.id,
+                    fom1 = fom1,
+                    tom1 = tom1,
+                    fom2 = fom2,
+                    tom2 = tom2,
+                )
+
+            personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+            vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+            // Act
+            val deltBostedPerioder =
+                EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
+                    person = barnPerson,
+                    vilkårsvurdering = vilkårsvurdering,
+                )
+
+            // Assert
+            assertThat(deltBostedPerioder).hasSize(2)
+            assertThat(deltBostedPerioder[0].fom).isEqualTo(fom1.plusMonths(1).førsteDagIInneværendeMåned())
+            assertThat(deltBostedPerioder[0].tom).isEqualTo(tom1.sisteDagIMåned())
+            assertThat(deltBostedPerioder[1].fom).isEqualTo(fom2.plusMonths(1).førsteDagIInneværendeMåned())
+            assertThat(deltBostedPerioder[1].tom).isEqualTo(tom2.sisteDagIMåned())
+        }
+
+        @Test
+        fun `skal finne riktige delt bosted perioder for søker, og slå sammen de som er sammenhengende`() {
+            // Arrange
+            val fomBarn1 = LocalDate.now().minusMonths(5)
+            val tomBarn1 = LocalDate.now().plusMonths(7)
+            val fomBarn2 = fomBarn1.minusMonths(5)
+
+            val barn2 = randomAktør()
+            val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+            val personResultatForBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn2)
+
+            val vilkårResultaterForBarn1 =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn1,
+                    behandlingId = behandling.id,
+                    fom1 = fomBarn1,
+                    tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
+                    fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
+                    tom2 = tomBarn1,
+                )
+            val vilkårResultaterForBarn2 =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn2,
+                    behandlingId = behandling.id,
+                    fom1 = fomBarn2,
+                    // sammenhengde periode med første barn vilkår resultat
+                    tom1 = fomBarn1,
+                )
+
+            personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
+            personResultatForBarn2.setSortedVilkårResultater(vilkårResultaterForBarn2)
+
+            vilkårsvurdering.personResultater = setOf(personResultatForBarn1, personResultatForBarn2)
+
+            // Act
+            val deltBostedPerioder =
+                EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
+                    person = søkerPerson,
+                    vilkårsvurdering = vilkårsvurdering,
+                )
+
+            // Assert
+            assertThat(deltBostedPerioder).hasSize(1)
+            assertThat(deltBostedPerioder.single().fom).isEqualTo(fomBarn2.plusMonths(1).førsteDagIInneværendeMåned())
+            assertThat(deltBostedPerioder.single().tom).isEqualTo(tomBarn1.sisteDagIMåned())
+        }
+
+        @Test
+        fun `finnDeltBostedPerioder Skal finne riktige delt bosted perioder for søker, og slå sammen de som overlapper`() {
+            // Arrange
+            val fomBarn1 = LocalDate.now().minusMonths(5)
+            val tomBarn1 = LocalDate.now().plusMonths(7)
+            val fomBarn2 = fomBarn1.minusMonths(5)
+
+            val barn2 = randomAktør()
+            val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+            val personResultatForBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn2)
+
+            val vilkårResultaterForBarn1 =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn1,
+                    behandlingId = behandling.id,
+                    fom1 = fomBarn1,
+                    tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
+                    fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
+                    tom2 = tomBarn1,
+                )
+            val vilkårResultaterForBarn2 =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn2,
+                    behandlingId = behandling.id,
+                    fom1 = fomBarn2,
+                    // overlapper med første barn vilkårresultat
+                    tom1 = tomBarn1,
+                )
+
+            personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
+            personResultatForBarn2.setSortedVilkårResultater(vilkårResultaterForBarn2)
+
+            vilkårsvurdering.personResultater = setOf(personResultatForBarn1, personResultatForBarn2)
+
+            // Act
+            val deltBostedPerioder =
+                EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
+                    person = søkerPerson,
+                    vilkårsvurdering = vilkårsvurdering,
+                )
+
+            // Assert
+            assertThat(deltBostedPerioder).hasSize(1)
+            assertThat(deltBostedPerioder.single().fom).isEqualTo(fomBarn2.plusMonths(1).førsteDagIInneværendeMåned())
+            assertThat(deltBostedPerioder.single().tom).isEqualTo(tomBarn1.sisteDagIMåned())
+        }
+    }
+
+    @Nested
+    inner class ValiderAtAlleOpprettedeEndringerErUtfyltTest {
+        @Test
+        fun `skal ikke kaste feil når endret utbetaling andel er oppfylt`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(5),
+                    periodeTom = YearMonth.now().minusMonths(4),
+                    prosent = BigDecimal.ZERO,
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(
+                    listOf(endretUtbetalingAndel),
                 )
             }
-        assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception)
+        }
+
+        @Test
+        fun `skal kaste feil når endret utbetaling andel ikke er oppfylt`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(5),
+                    periodeTom = YearMonth.now().minusMonths(4),
+                    prosent = null,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(
+                        listOf(endretUtbetalingAndel),
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut " +
+                    "før navigering til neste steg.",
+            )
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Du har opprettet en eller flere endrede utbetalingsperioder " +
+                    "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre.",
+            )
+        }
     }
 
-    @Test
-    fun `validerPeriodeInnenforTilkjentytelse skal kaste feil når EndretUtbetaling periode ikke finnes for person`() {
-        val andelTilkjentYtelse =
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                aktør = barn1,
-                stønadFom = YearMonth.now().minusMonths(1),
-                stønadTom = YearMonth.now().plusMonths(5),
-            )
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = søkerPerson,
-                prosent = BigDecimal(50),
-                periodeFom = YearMonth.now().minusMonths(1),
-                periodeTom = YearMonth.now().plusMonths(5),
-            )
+    @Nested
+    inner class ValiderAtEndringerErTilknyttetAndelTilkjentYtelseTest {
+        @Test
+        fun `skal ikke kaste feil når endret utbetaling andel har ATY`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(5),
+                    periodeTom = YearMonth.now().minusMonths(4),
+                    prosent = BigDecimal.ZERO,
+                )
 
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
+            val andelerTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(behandling = behandling),
+                )
+
+            val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+                EndretUtbetalingAndelMedAndelerTilkjentYtelse(
                     endretUtbetalingAndel,
-                    listOf(andelTilkjentYtelse),
+                    andelerTilkjentYtelse,
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse(
+                    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                 )
             }
-        assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception)
-    }
+        }
 
-    @Test
-    fun `validerPeriodeInnenforTilkjentytelse skal ikke kaste feil når EndretUtbetaling periode er innefor ty periode`() {
-        val andelTilkjentYtelse =
-            lagAndelTilkjentYtelse(
-                behandling = behandling,
-                aktør = søker,
-                stønadFom = YearMonth.now().minusMonths(2),
-                stønadTom = YearMonth.now().plusMonths(5),
-            )
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = søkerPerson,
-                prosent = BigDecimal(50),
-                periodeFom = YearMonth.now().minusMonths(1),
-                periodeTom = YearMonth.now().plusMonths(4),
-            )
+        @Test
+        fun `skal kaste feil når endret utbetaling andel ikke har ATY`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(5),
+                    periodeTom = YearMonth.now().minusMonths(4),
+                    prosent = BigDecimal.ZERO,
+                )
 
-        assertDoesNotThrow {
-            EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse(
-                endretUtbetalingAndel,
-                listOf(andelTilkjentYtelse),
+            val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+                EndretUtbetalingAndelMedAndelerTilkjentYtelse(
+                    endretUtbetalingAndel,
+                    emptyList(),
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse(
+                        listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. De må enten lagres eller slettes av SB.",
+            )
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen.",
             )
         }
     }
 
-    @Test
-    fun `finnDeltBostedPerioder skal finne riktige delt bosted perioder for barn, og slå sammen de som er sammenhengende`() {
-        val fom = LocalDate.now().minusMonths(5)
-        val tom = LocalDate.now().plusMonths(7)
+    @Nested
+    inner class ValiderÅrsakTest {
+        @Test
+        fun `skal kaste feil når delt bosted periode ikke er innenfor endringsperiode`() {
+            // Arrange
+            val fom = LocalDate.now().minusMonths(5)
+            val tom = LocalDate.now().plusMonths(7)
 
-        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn,
-                behandlingId = behandling.id,
-                fom1 = fom,
-                tom1 = tom,
+            val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+            val vilkårResultaterForBarn =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn,
+                    behandlingId = behandling.id,
+                    fom1 = fom,
+                    tom1 = tom,
+                )
+            personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+            vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(10),
+                    periodeTom = YearMonth.now().minusMonths(8),
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.DELT_BOSTED,
+                        endretUtbetalingAndel,
+                        vilkårsvurdering,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
             )
-        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
-        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
-
-        val deltBostedPerioder =
-            EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
-                person = barnPerson,
-                vilkårsvurdering = vilkårsvurdering,
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Du har valgt årsaken 'delt bosted', " +
+                    "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt.",
             )
-
-        assertTrue(deltBostedPerioder.size == 1)
-        assertEquals(fom.plusMonths(1).førsteDagIInneværendeMåned(), deltBostedPerioder.single().fom)
-        assertEquals(tom.sisteDagIMåned(), deltBostedPerioder.single().tom)
-    }
-
-    @Test
-    fun `finnDeltBostedPerioder skal finne riktige delt bosted perioder for barn, og ikke slå sammen når de ikke er sammenhengende`() {
-        val fom1 = LocalDate.now().minusMonths(5)
-        val tom1 = LocalDate.now().minusMonths(2)
-        val fom2 = LocalDate.now()
-        val tom2 = LocalDate.now().plusMonths(7)
-
-        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-
-        val vilkårResultaterForBarn =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn,
-                behandlingId = behandling.id,
-                fom1 = fom1,
-                tom1 = tom1,
-                fom2 = fom2,
-                tom2 = tom2,
-            )
-
-        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
-        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
-
-        val deltBostedPerioder =
-            EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
-                person = barnPerson,
-                vilkårsvurdering = vilkårsvurdering,
-            )
-
-        assertTrue(deltBostedPerioder.size == 2)
-        assertEquals(fom1.plusMonths(1).førsteDagIInneværendeMåned(), deltBostedPerioder[0].fom)
-        assertEquals(tom1.sisteDagIMåned(), deltBostedPerioder[0].tom)
-        assertEquals(fom2.plusMonths(1).førsteDagIInneværendeMåned(), deltBostedPerioder[1].fom)
-        assertEquals(tom2.sisteDagIMåned(), deltBostedPerioder[1].tom)
-    }
-
-    @Test
-    fun `finnDeltBostedPerioder Skal finne riktige delt bosted perioder for søker, og slå sammen de som er sammenhengende`() {
-        val fomBarn1 = LocalDate.now().minusMonths(5)
-        val tomBarn1 = LocalDate.now().plusMonths(7)
-        val fomBarn2 = fomBarn1.minusMonths(5)
-
-        val barn2 = randomAktør()
-        val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val personResultatForBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn2)
-
-        val vilkårResultaterForBarn1 =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn1,
-                behandlingId = behandling.id,
-                fom1 = fomBarn1,
-                tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
-                fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
-                tom2 = tomBarn1,
-            )
-        val vilkårResultaterForBarn2 =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn2,
-                behandlingId = behandling.id,
-                fom1 = fomBarn2,
-                // sammenhengde periode med første barn vilkår resultat
-                tom1 = fomBarn1,
-            )
-
-        personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
-        personResultatForBarn2.setSortedVilkårResultater(vilkårResultaterForBarn2)
-
-        vilkårsvurdering.personResultater = setOf(personResultatForBarn1, personResultatForBarn2)
-
-        val deltBostedPerioder =
-            EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
-                person = søkerPerson,
-                vilkårsvurdering = vilkårsvurdering,
-            )
-
-        assertTrue(deltBostedPerioder.size == 1)
-        assertEquals(fomBarn2.plusMonths(1).førsteDagIInneværendeMåned(), deltBostedPerioder.single().fom)
-        assertEquals(tomBarn1.sisteDagIMåned(), deltBostedPerioder.single().tom)
-    }
-
-    @Test
-    fun `finnDeltBostedPerioder Skal finne riktige delt bosted perioder for søker, og slå sammen de som overlapper`() {
-        val fomBarn1 = LocalDate.now().minusMonths(5)
-        val tomBarn1 = LocalDate.now().plusMonths(7)
-        val fomBarn2 = fomBarn1.minusMonths(5)
-
-        val barn2 = randomAktør()
-        val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val personResultatForBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn2)
-
-        val vilkårResultaterForBarn1 =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn1,
-                behandlingId = behandling.id,
-                fom1 = fomBarn1,
-                tom1 = LocalDate.now().minusMonths(1).sisteDagIMåned(),
-                fom2 = LocalDate.now().førsteDagIInneværendeMåned(),
-                tom2 = tomBarn1,
-            )
-        val vilkårResultaterForBarn2 =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn2,
-                behandlingId = behandling.id,
-                fom1 = fomBarn2,
-                // overlapper med første barn vilkårresultat
-                tom1 = tomBarn1,
-            )
-
-        personResultatForBarn1.setSortedVilkårResultater(vilkårResultaterForBarn1)
-        personResultatForBarn2.setSortedVilkårResultater(vilkårResultaterForBarn2)
-
-        vilkårsvurdering.personResultater = setOf(personResultatForBarn1, personResultatForBarn2)
-
-        val deltBostedPerioder =
-            EndretUtbetalingAndelValidator.finnDeltBostedPerioder(
-                person = søkerPerson,
-                vilkårsvurdering = vilkårsvurdering,
-            )
-
-        assertTrue(deltBostedPerioder.size == 1)
-        assertEquals(fomBarn2.plusMonths(1).førsteDagIInneværendeMåned(), deltBostedPerioder.single().fom)
-        assertEquals(tomBarn1.sisteDagIMåned(), deltBostedPerioder.single().tom)
-    }
-
-    @Test
-    fun `validerÅrsak skal kaste feil når delt bosted periode ikke er innenfor endringsperiode`() {
-        val fom = LocalDate.now().minusMonths(5)
-        val tom = LocalDate.now().plusMonths(7)
-
-        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn,
-                behandlingId = behandling.id,
-                fom1 = fom,
-                tom1 = tom,
-            )
-        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
-        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
-
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(10),
-                periodeTom = YearMonth.now().minusMonths(8),
-            )
-
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator.validerÅrsak(Årsak.DELT_BOSTED, endretUtbetalingAndel, vilkårsvurdering)
-            }
-
-        assertEquals(
-            "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
-            exception.message,
-        )
-        assertEquals(
-            "Du har valgt årsaken 'delt bosted', " +
-                "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt.",
-            exception.frontendFeilmelding,
-        )
-    }
-
-    @Test
-    fun `validerÅrsak skal ikke kaste feil når delt bosted periode er innenfor endringsperiode`() {
-        val fom = LocalDate.now().minusMonths(5)
-        val tom = LocalDate.now().plusMonths(7)
-
-        val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
-        val vilkårResultaterForBarn =
-            lagVilkårResultaterForDeltBosted(
-                personResultat = personResultatForBarn,
-                behandlingId = behandling.id,
-                fom1 = fom,
-                tom1 = tom,
-            )
-        personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
-        vilkårsvurdering.personResultater = setOf(personResultatForBarn)
-
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(3),
-                periodeTom = YearMonth.now().minusMonths(2),
-            )
-
-        assertDoesNotThrow {
-            EndretUtbetalingAndelValidator.validerÅrsak(Årsak.DELT_BOSTED, endretUtbetalingAndel, vilkårsvurdering)
         }
-    }
 
-    @Test
-    fun `validerÅrsak skal kaste feil når årsak er ETTERBETALING_3MND, men perioden skal utbetales `() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(3),
-                periodeTom = YearMonth.now().minusMonths(2),
-                prosent = BigDecimal(100),
-            )
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
+        @Test
+        fun `skal ikke kaste feil når delt bosted periode er innenfor endringsperiode`() {
+            // Arrange
+            val fom = LocalDate.now().minusMonths(5)
+            val tom = LocalDate.now().plusMonths(7)
+
+            val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
+            val vilkårResultaterForBarn =
+                lagVilkårResultaterForDeltBosted(
+                    personResultat = personResultatForBarn,
+                    behandlingId = behandling.id,
+                    fom1 = fom,
+                    tom1 = tom,
+                )
+            personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
+            vilkårsvurdering.personResultater = setOf(personResultatForBarn)
+
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(3),
+                    periodeTom = YearMonth.now().minusMonths(2),
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerÅrsak(
+                    Årsak.DELT_BOSTED,
+                    endretUtbetalingAndel,
+                    vilkårsvurdering,
+                )
             }
-
-        assertEquals(
-            "Du kan ikke sette årsak etterbetaling 3 måned når du har valgt at perioden skal utbetales.",
-            exception.message,
-        )
-    }
-
-    @Test
-    fun `validerÅrsak skal kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter etter etterbetalingsgrense`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(1),
-                periodeTom = YearMonth.now().plusMonths(2),
-                prosent = BigDecimal.ZERO,
-            )
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
-            }
-
-        assertEquals(
-            "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid.",
-            exception.message,
-        )
-    }
-
-    @Test
-    fun `validerÅrsak skal ikke kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter innefor etterbetalingsgrense`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(5),
-                periodeTom = YearMonth.now().minusMonths(4),
-                prosent = BigDecimal.ZERO,
-            )
-        assertDoesNotThrow {
-            EndretUtbetalingAndelValidator.validerÅrsak(Årsak.ETTERBETALING_3MND, endretUtbetalingAndel, null)
         }
-    }
 
-    @Test
-    fun `validerAtAlleOpprettedeEndringerErUtfylt skal ikke kaste feil når endret utbetaling andel er oppfylt`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(5),
-                periodeTom = YearMonth.now().minusMonths(4),
-                prosent = BigDecimal.ZERO,
+        @Test
+        fun `skal kaste feil når årsak er ETTERBETALING_3MND, men perioden skal utbetales `() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(3),
+                    periodeTom = YearMonth.now().minusMonths(2),
+                    prosent = BigDecimal(100),
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.ETTERBETALING_3MND,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+
+            assertThat(exception.message).isEqualTo(
+                "Du kan ikke sette årsak etterbetaling 3 måned når du har valgt at perioden skal utbetales.",
             )
-        assertDoesNotThrow {
-            EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(listOf(endretUtbetalingAndel))
         }
-    }
 
-    @Test
-    fun `validerAtAlleOpprettedeEndringerErUtfylt skal kaste feil når endret utbetaling andel ikke er oppfylt`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(5),
-                periodeTom = YearMonth.now().minusMonths(4),
-                prosent = null,
-            )
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(listOf(endretUtbetalingAndel))
-            }
-        assertEquals(
-            "Det er opprettet instanser av EndretUtbetalingandel som ikke er fylt ut " +
-                "før navigering til neste steg.",
-            exception.message,
-        )
-        assertEquals(
-            "Du har opprettet en eller flere endrede utbetalingsperioder " +
-                "som er ufullstendig utfylt. Disse må enten fylles ut eller slettes før du kan gå videre.",
-            exception.frontendFeilmelding,
-        )
-    }
+        @Test
+        fun `skal kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter etter etterbetalingsgrense`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(1),
+                    periodeTom = YearMonth.now().plusMonths(2),
+                    prosent = BigDecimal.ZERO,
+                )
 
-    @Test
-    fun `validerAtEndringerErTilknyttetAndelTilkjentYtelse skal ikke kaste feil når endret utbetaling andel har ATY`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(5),
-                periodeTom = YearMonth.now().minusMonths(4),
-                prosent = BigDecimal.ZERO,
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.ETTERBETALING_3MND,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+
+            assertThat(exception.message).isEqualTo(
+                "Du kan ikke stoppe etterbetaling for en periode som ikke strekker seg mer enn 3 måned tilbake i tid.",
             )
-        val andelerTilkjentYtelse = listOf(lagAndelTilkjentYtelse(behandling = behandling))
-        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
-            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, andelerTilkjentYtelse)
-        assertDoesNotThrow {
-            EndretUtbetalingAndelValidator
-                .validerAtEndringerErTilknyttetAndelTilkjentYtelse(listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse))
         }
-    }
 
-    @Test
-    fun `validerAtEndringerErTilknyttetAndelTilkjentYtelse skal kaste feil når endret utbetaling andel ikke har ATY`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = barnPerson,
-                periodeFom = YearMonth.now().minusMonths(5),
-                periodeTom = YearMonth.now().minusMonths(4),
-                prosent = BigDecimal.ZERO,
+        @Test
+        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og endringsperiode fom ikke er i august 2024`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.of(2024, 7),
+                    periodeTom = YearMonth.of(2024, 8),
+                    prosent = BigDecimal.ZERO,
+                    årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Årsak \"Fulltidsplass i barnehage august 2024\" er bare mulig å sette til august 2024",
             )
-        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
-            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, emptyList())
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                EndretUtbetalingAndelValidator
-                    .validerAtEndringerErTilknyttetAndelTilkjentYtelse(listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse))
+        }
+
+        @Test
+        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og endringsperiode tom ikke er i august 2024`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.of(2024, 8),
+                    periodeTom = YearMonth.of(2024, 9),
+                    prosent = BigDecimal.ZERO,
+                    årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Årsak \"Fulltidsplass i barnehage august 2024\" er bare mulig å sette til august 2024",
+            )
+        }
+
+        @Test
+        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og endringsperiode fom og tom ikke er i august 2024`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.of(2024, 7),
+                    periodeTom = YearMonth.of(2024, 9),
+                    prosent = BigDecimal.ZERO,
+                    årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    EndretUtbetalingAndelValidator.validerÅrsak(
+                        Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+                        endretUtbetalingAndel,
+                        null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo(
+                "Årsak \"Fulltidsplass i barnehage august 2024\" er bare mulig å sette til august 2024",
+            )
+        }
+
+        @Test
+        fun `skal ikke kaste feil når årsak er ETTERBETALING_3MND, men endringsperiode slutter innefor etterbetalingsgrense`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = barnPerson,
+                    periodeFom = YearMonth.now().minusMonths(5),
+                    periodeTom = YearMonth.now().minusMonths(4),
+                    prosent = BigDecimal.ZERO,
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerÅrsak(
+                    Årsak.ETTERBETALING_3MND,
+                    endretUtbetalingAndel,
+                    null,
+                )
             }
-
-        assertEquals(
-            "Det er opprettet instanser av EndretUtbetalingandel som ikke er tilknyttet noen andeler. " +
-                "De må enten lagres eller slettes av SB.",
-            exception.message,
-        )
-        assertEquals(
-            "Du har endrede utbetalingsperioder. Bekreft, slett eller oppdater periodene i listen.",
-            exception.frontendFeilmelding,
-        )
-    }
-
-    private fun assertFeilMeldingerNårEndretUtbetalingPerioderIkkeInnenforTyPerioder(exception: FunksjonellFeil) {
-        assertEquals(
-            "Det er ingen tilkjent ytelse for personen det blir forsøkt lagt til en endret periode for.",
-            exception.message,
-        )
-        assertEquals(
-            "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person " +
-                "i hele eller deler av perioden.",
-            exception.frontendFeilmelding,
-        )
+        }
     }
 }
