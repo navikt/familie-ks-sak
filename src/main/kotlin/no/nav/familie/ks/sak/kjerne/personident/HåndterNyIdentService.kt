@@ -114,7 +114,8 @@ class HåndterNyIdentService(
         fagsak: Fagsak,
     ) {
         // Hvis søkers fødselsdato endrer seg kan vi alltid patche siden det ikke påvirker andeler.
-        if (fagsak.aktør.aktørId in alleIdenterFraPdl.hentAktørIder()) return
+        val søkersAktørId = fagsak.aktør.aktørId
+        if (søkersAktørId in alleIdenterFraPdl.hentAktørIder()) return
 
         val aktivFødselsnummer = alleIdenterFraPdl.hentAktivFødselsnummer()
         val fødselsdatoFraPdl = tilPersonInfo(pdlClient.hentPerson(aktivFødselsnummer, PersonInfoQuery.ENKEL)).fødselsdato
