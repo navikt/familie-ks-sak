@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -11,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -28,6 +30,7 @@ class BehandlingsresultatSteg(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
+    private val unleashService: UnleashService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -51,6 +54,7 @@ class BehandlingsresultatSteg(
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
             overgangsordningAndeler = overgangsordningAndeler,
             personResultaterForBarn = personResultaterForBarn,
+            skalValidereOvergangsordningAndeler = unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING),
         )
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)

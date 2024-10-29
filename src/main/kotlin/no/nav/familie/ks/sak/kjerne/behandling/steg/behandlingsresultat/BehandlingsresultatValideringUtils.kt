@@ -38,6 +38,7 @@ object BehandlingsresultatValideringUtils {
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
         overgangsordningAndeler: List<OvergangsordningAndel>,
         personResultaterForBarn: List<PersonResultat>,
+        skalValidereOvergangsordningAndeler: Boolean,
     ) {
         val alleBarnetsAlderVilkårResultater = personResultaterForBarn.flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
         val barnehageplassVilkårPerPerson = personResultaterForBarn.groupBy { it.aktør }.mapValues { it.value.flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS } } }
@@ -50,10 +51,12 @@ object BehandlingsresultatValideringUtils {
         EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingMedAndeler)
 
         // valider OvergangsordningAndel
-        OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler)
-        OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse.andelerTilkjentYtelse)
-        OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
-        OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
+        if (skalValidereOvergangsordningAndeler) {
+            OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler)
+            OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse.andelerTilkjentYtelse)
+            OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
+            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
+        }
     }
 
     internal fun validerBehandlingsresultat(
