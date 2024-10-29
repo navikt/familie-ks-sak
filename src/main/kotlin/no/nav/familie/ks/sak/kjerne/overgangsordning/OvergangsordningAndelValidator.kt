@@ -57,7 +57,7 @@ object OvergangsordningAndelValidator {
 
     fun validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(andelerTilkjentYtelse: Set<AndelTilkjentYtelse>) {
         val ordinæreAndeler = andelerTilkjentYtelse.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
-        andelerTilkjentYtelse.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }.forEach { overgangsordningAndel ->
+        andelerTilkjentYtelse.filter { it.type == YtelseType.OVERGANGSORDNING }.forEach { overgangsordningAndel ->
             if (ordinæreAndeler.any {
                     it.overlapperPeriode(overgangsordningAndel.periode) && it.aktør == overgangsordningAndel.aktør
                 }
