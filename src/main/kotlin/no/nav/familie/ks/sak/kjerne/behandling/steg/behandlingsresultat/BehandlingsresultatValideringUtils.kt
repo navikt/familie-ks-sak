@@ -50,8 +50,8 @@ object BehandlingsresultatValideringUtils {
         EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingMedAndeler)
 
         // valider OvergangsordningAndel
-        OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErUtfylt(overgangsordningAndeler)
-        OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse)
+        OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler)
+        OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse.andelerTilkjentYtelse)
         OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
         OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
     }

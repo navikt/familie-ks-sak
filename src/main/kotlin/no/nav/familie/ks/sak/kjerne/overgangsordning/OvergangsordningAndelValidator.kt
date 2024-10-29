@@ -10,9 +10,8 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
-import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
-import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
@@ -21,14 +20,14 @@ import java.time.YearMonth
 
 object OvergangsordningAndelValidator {
     fun validerAndelerErIPeriodenBarnetEr20Til23Måneder(
-        andeler: List<UtfyltOvergangsordningAndel>,
+        overgangsordningAndeler: List<UtfyltOvergangsordningAndel>,
     ) {
-        andeler
+        overgangsordningAndeler
             .groupBy { it.person }
-            .forEach { (person, andelerForPerson) ->
+            .forEach { (person, overgangsordningAndelerForPerson) ->
                 val tidligsteGyldigeFom = beregnGyldigFom(person)
                 val senesteGyldigeTom = beregnGyldigTom(person)
-                andelerForPerson.forEach {
+                overgangsordningAndelerForPerson.forEach {
                     if (it.fom.isBefore(tidligsteGyldigeFom) || it.tom.isAfter(senesteGyldigeTom)) {
                         throw FunksjonellFeil(
                             melding = "Perioden som blir forsøkt lagt til er utenfor gyldig periode for person.",
@@ -41,9 +40,9 @@ object OvergangsordningAndelValidator {
             }
     }
 
-    fun validerAtAlleOpprettedeOvergangsordningAndelerErUtfylt(andeler: List<OvergangsordningAndel>) {
+    fun validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler: List<OvergangsordningAndel>) {
         runCatching {
-            andeler.forEach { it.validerAlleFelterUtfylt() }
+            overgangsordningAndeler.forEach { it.validerAtObligatoriskeFelterErUtfylt() }
         }.onFailure {
             throw FunksjonellFeil(
                 melding = "Det er opprettet instanser av OvergangsordningAndel som ikke er fylt ut før navigering til neste steg.",
@@ -52,25 +51,27 @@ object OvergangsordningAndelValidator {
                         "Disse må enten fylles ut eller slettes før du kan gå videre.",
             )
         }
+
+        overgangsordningAndeler.forEach { it.validerAtObligatoriskeFelterErGyldigUtfylt() }
     }
 
-    fun validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse: TilkjentYtelse) {
-        val ordinæreAndeler = tilkjentYtelse.ordinæreAndeler()
-        tilkjentYtelse.overgangsordningAndeler().forEach { overgangsordningAndel ->
+    fun validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(andelerTilkjentYtelse: Set<AndelTilkjentYtelse>) {
+        val ordinæreAndeler = andelerTilkjentYtelse.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+        andelerTilkjentYtelse.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }.forEach { overgangsordningAndel ->
             if (ordinæreAndeler.any {
                     it.overlapperPeriode(overgangsordningAndel.periode) && it.aktør == overgangsordningAndel.aktør
                 }
             ) {
-                throw FunksjonellFeil("Perioder for overgangsordning kan ikke overlappe med perioder med ordinær utbetaling for barnet.")
+                throw FunksjonellFeil("Perioder for overgangsordning kan ikke overlappe med perioder med ordinær utbetaling for barn født ${overgangsordningAndel.aktør}.")
             }
         }
     }
 
     fun validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(
-        andeler: List<UtfyltOvergangsordningAndel>,
+        overgangsordningAndeler: List<UtfyltOvergangsordningAndel>,
         barnehageplassVilkårPerPerson: Map<Aktør, List<VilkårResultat>>,
     ) {
-        val andelerTidslinjePerAktør = andeler.groupBy { it.person.aktør }.mapValues { it.value.tilPerioder().tilTidslinje() }
+        val andelerTidslinjePerAktør = overgangsordningAndeler.groupBy { it.person.aktør }.mapValues { it.value.tilPerioder().tilTidslinje() }
         val barnehagevilkårTidslinjePerAktør = barnehageplassVilkårPerPerson.mapValues { it.value.tilTidslinje() }
 
         andelerTidslinjePerAktør.forEach { (aktør, andelerTidslinje) ->
@@ -87,12 +88,12 @@ object OvergangsordningAndelValidator {
     }
 
     fun validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
-        nyAndel: UtfyltOvergangsordningAndel,
-        eksisterendeAndeler: List<OvergangsordningAndel>,
+        nyOvergangsordningAndel: UtfyltOvergangsordningAndel,
+        eksisterendeOvergangsordningAndeler: List<OvergangsordningAndel>,
     ) {
-        if (eksisterendeAndeler.any {
-                it.overlapperMed(nyAndel.periode) &&
-                    it.person == nyAndel.person
+        if (eksisterendeOvergangsordningAndeler.any {
+                it.overlapperMed(nyOvergangsordningAndel.periode) &&
+                    it.person == nyOvergangsordningAndel.person
             }
         ) {
             throw FunksjonellFeil(
@@ -133,23 +134,23 @@ object OvergangsordningAndelValidator {
     }
 
     fun validerFomDato(
-        andel: UtfyltOvergangsordningAndel,
+        overgangsordningAndel: UtfyltOvergangsordningAndel,
         gyldigFom: YearMonth,
     ) {
-        if (andel.fom.isBefore(gyldigFom)) {
+        if (overgangsordningAndel.fom.isBefore(gyldigFom)) {
             throw FunksjonellFeil(
-                "F.o.m. dato (${andel.fom.tilMånedÅrKort()}) kan ikke være tidligere enn barnet fyller 20 måneder (${gyldigFom.tilMånedÅrKort()})",
+                "F.o.m. dato (${overgangsordningAndel.fom.tilMånedÅrKort()}) kan ikke være tidligere enn barnet fyller 20 måneder (${gyldigFom.tilMånedÅrKort()})",
             )
         }
     }
 
     fun validerTomDato(
-        andel: UtfyltOvergangsordningAndel,
+        overgangsordningAndel: UtfyltOvergangsordningAndel,
         gyldigTom: YearMonth,
     ) {
-        if (andel.tom.isAfter(gyldigTom)) {
+        if (overgangsordningAndel.tom.isAfter(gyldigTom)) {
             throw FunksjonellFeil(
-                "T.o.m. dato (${andel.tom.tilMånedÅrKort()}) kan ikke være senere enn barnet fyller 23 måneder (${gyldigTom.tilMånedÅrKort()})",
+                "T.o.m. dato (${overgangsordningAndel.tom.tilMånedÅrKort()}) kan ikke være senere enn barnet fyller 23 måneder (${gyldigTom.tilMånedÅrKort()})",
             )
         }
     }

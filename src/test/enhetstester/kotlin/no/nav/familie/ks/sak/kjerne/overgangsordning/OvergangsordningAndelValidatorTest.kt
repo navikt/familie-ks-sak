@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.overgangsordning
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
-import no.nav.familie.ks.sak.data.lagInitiellTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagUtfyltOvergangsordningAndel
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -12,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.YearMonth
@@ -37,20 +37,18 @@ class OvergangsordningAndelValidatorTest {
     }
 
     @Test
-    fun validerAtAlleOpprettedeOvergangsordningAndelerErUtfylt() {
+    fun validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt() {
         val andeler = listOf(OvergangsordningAndel(behandlingId = 1))
 
         assertThrows<FunksjonellFeil> {
-            OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErUtfylt(andeler)
+            OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(andeler)
         }
     }
 
     @Test
     fun validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler() {
-        val tilkjentYtelse = lagInitiellTilkjentYtelse()
-
-        tilkjentYtelse.andelerTilkjentYtelse.addAll(
-            listOf(
+        val andelerTilkjentYtelse =
+            setOf(
                 lagAndelTilkjentYtelse(
                     aktør = aktør,
                     fom = YearMonth.now().plusMonths(1),
@@ -63,11 +61,10 @@ class OvergangsordningAndelValidatorTest {
                     tom = YearMonth.now().plusMonths(3),
                     ytelseType = YtelseType.OVERGANGSORDNING,
                 ),
-            ),
-        )
+            )
 
         assertThrows<FunksjonellFeil> {
-            OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse)
+            OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(andelerTilkjentYtelse)
         }
     }
 
@@ -83,6 +80,22 @@ class OvergangsordningAndelValidatorTest {
         val barnehagevilkårPerAktør = mapOf(aktør to listOf(barnehageVilkår))
 
         assertThrows<FunksjonellFeil> {
+            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør)
+        }
+    }
+
+    @Test
+    fun validerAtBarnehagevilkårMedTomLikNullErOppfyltForAlleOvergangsordningPerioder() {
+        val barnehageVilkår =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = LocalDate.now().minusYears(1),
+                periodeTom = null,
+            )
+
+        val barnehagevilkårPerAktør = mapOf(aktør to listOf(barnehageVilkår))
+
+        assertDoesNotThrow {
             OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør)
         }
     }

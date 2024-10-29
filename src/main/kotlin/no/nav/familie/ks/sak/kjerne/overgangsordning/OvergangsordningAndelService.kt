@@ -50,7 +50,7 @@ class OvergangsordningAndelService(
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person = personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == overgangsordningAndelRequestDto.personIdent }
         val vilkårsvurdering by lazy { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
-        val andreAndelerPåBehandling by lazy { hentOvergangsordningAndeler(behandling.id).filter { it.id != overgangsordningAndelId } }
+        val andreOvergangsordningAndelerPåBehandling by lazy { hentOvergangsordningAndeler(behandling.id).filter { it.id != overgangsordningAndelId } }
 
         val utfyltOvergangsordningAndel =
             overgangsordningAndel
@@ -63,18 +63,18 @@ class OvergangsordningAndelService(
                 .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
 
         validerFomDato(
-            andel = utfyltOvergangsordningAndel,
+            overgangsordningAndel = utfyltOvergangsordningAndel,
             gyldigFom = beregnGyldigFom(person),
         )
 
         validerTomDato(
-            andel = utfyltOvergangsordningAndel,
+            overgangsordningAndel = utfyltOvergangsordningAndel,
             gyldigTom = beregnGyldigTom(person),
         )
 
         validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
-            nyAndel = utfyltOvergangsordningAndel,
-            eksisterendeAndeler = andreAndelerPåBehandling,
+            nyOvergangsordningAndel = utfyltOvergangsordningAndel,
+            eksisterendeOvergangsordningAndeler = andreOvergangsordningAndelerPåBehandling,
         )
 
         validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(

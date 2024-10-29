@@ -50,7 +50,7 @@ data class OvergangsordningAndel(
 ) : BaseEntitet() {
     val periode
         get(): MånedPeriode {
-            validerAlleFelterUtfylt()
+            validerAtObligatoriskeFelterErGyldigUtfylt()
             return MånedPeriode(fom!!, tom!!)
         }
 
@@ -82,11 +82,14 @@ data class OvergangsordningAndel(
             this.fom != null &&
             this.tom != null
 
-    fun validerAlleFelterUtfylt() {
+    fun validerAtObligatoriskeFelterErUtfylt() {
         if (!erObligatoriskeFelterUtfylt()) {
-            throw FunksjonellFeil("Person, prosent, fom og tom skal være utfylt: $this")
+            throw FunksjonellFeil("Person, fom og tom skal være utfylt: $this")
         }
+    }
 
+    fun validerAtObligatoriskeFelterErGyldigUtfylt() {
+        validerAtObligatoriskeFelterErUtfylt()
         if (fom!! > tom!!) {
             throw FunksjonellFeil(
                 melding = "T.o.m. dato kan ikke være før f.o.m. dato",
@@ -126,7 +129,7 @@ data class OvergangsordningAndel(
     }
 
     fun tilUtfyltOvergangsordningAndel(): UtfyltOvergangsordningAndel {
-        validerAlleFelterUtfylt()
+        validerAtObligatoriskeFelterErGyldigUtfylt()
         return UtfyltOvergangsordningAndel(
             id = id,
             behandlingId = behandlingId,
