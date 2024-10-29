@@ -7,9 +7,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,6 +27,7 @@ class BehandlingsresultatSteg(
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val vilkårsvurderingService: VilkårsvurderingService,
+    private val overgangsordningAndelService: OvergangsordningAndelService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -40,18 +41,16 @@ class BehandlingsresultatSteg(
         val endretUtbetalingMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-        val alleBarnetsAlderVilkårResultater =
-            vilkårsvurderingService
-                .hentAktivVilkårsvurderingForBehandling(behandlingId)
-                .personResultater
-                .filter { !it.erSøkersResultater() }
-                .flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
+        val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
+
+        val personResultaterForBarn = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId).personResultater.filter { !it.erSøkersResultater() }
 
         BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
-            personopplysningGrunnlag,
-            tilkjentYtelse,
-            endretUtbetalingMedAndeler,
-            alleBarnetsAlderVilkårResultater,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            tilkjentYtelse = tilkjentYtelse,
+            endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
+            overgangsordningAndeler = overgangsordningAndeler,
+            personResultaterForBarn = personResultaterForBarn,
         )
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)

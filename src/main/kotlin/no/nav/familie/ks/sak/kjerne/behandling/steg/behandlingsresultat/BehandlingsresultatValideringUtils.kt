@@ -6,11 +6,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 
@@ -33,14 +36,24 @@ object BehandlingsresultatValideringUtils {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         tilkjentYtelse: TilkjentYtelse,
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
-        alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
+        overgangsordningAndeler: List<OvergangsordningAndel>,
+        personResultaterForBarn: List<PersonResultat>,
     ) {
+        val alleBarnetsAlderVilkårResultater = personResultaterForBarn.flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
+        val barnehageplassVilkårPerPerson = personResultaterForBarn.groupBy { it.aktør }.mapValues { it.value.flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS } } }
+
         // valider TilkjentYtelse
         TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag, alleBarnetsAlderVilkårResultater)
 
         // valider EndretUtbetalingAndel
         EndretUtbetalingAndelValidator.validerAtAlleOpprettedeEndringerErUtfylt(endretUtbetalingMedAndeler.map { it.endretUtbetaling })
         EndretUtbetalingAndelValidator.validerAtEndringerErTilknyttetAndelTilkjentYtelse(endretUtbetalingMedAndeler)
+
+        // valider OvergangsordningAndel
+        OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler)
+        OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(tilkjentYtelse.andelerTilkjentYtelse)
+        OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
+        OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
     }
 
     internal fun validerBehandlingsresultat(
