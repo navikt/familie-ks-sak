@@ -53,6 +53,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeTy
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -66,6 +67,7 @@ class BrevPeriodeContext(
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
     private val persongrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
+    private val overgangsordningAndeler: List<OvergangsordningAndel>,
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
     private val erFørsteVedtaksperiode: Boolean,
@@ -187,7 +189,7 @@ class BrevPeriodeContext(
 
     fun hentBarnasFødselsdagerForBegrunnelse(
         gjelderSøker: Boolean,
-        personerMedVilkårSomPasserBegrunnelse: Collection<Person>,
+        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse: Collection<Person>,
         begrunnelse: IBegrunnelse,
     ): List<LocalDate> =
         when {
@@ -198,11 +200,11 @@ class BrevPeriodeContext(
                 begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
                 if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
-                    personerMedVilkårSomPasserBegrunnelse
+                    personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
                 } else {
-                    (personerMedUtbetaling + personerMedVilkårSomPasserBegrunnelse)
+                    (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
                         .toSet()
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
@@ -210,7 +212,7 @@ class BrevPeriodeContext(
             }
 
             else ->
-                personerMedVilkårSomPasserBegrunnelse
+                personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
                     .map { it.fødselsdato }
         }
@@ -258,6 +260,7 @@ class BrevPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
             personopplysningGrunnlag = persongrunnlag,
+            overgangsordningAndeler = overgangsordningAndeler,
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
@@ -304,7 +307,7 @@ class BrevPeriodeContext(
                 val barnasFødselsdatoer =
                     hentBarnasFødselsdagerForBegrunnelse(
                         gjelderSøker = gjelderSøker,
-                        personerMedVilkårSomPasserBegrunnelse = relevantePersoner,
+                        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse = relevantePersoner,
                         begrunnelse = begrunnelse,
                     )
 
@@ -407,7 +410,7 @@ class BrevPeriodeContext(
                 val barnasFødselsdatoer =
                     hentBarnasFødselsdagerForBegrunnelse(
                         gjelderSøker = gjelderSøker,
-                        personerMedVilkårSomPasserBegrunnelse = personerGjeldendeForBegrunnelse,
+                        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse = personerGjeldendeForBegrunnelse,
                         begrunnelse = begrunnelse,
                     )
 

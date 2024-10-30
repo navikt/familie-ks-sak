@@ -51,6 +51,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunn
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -65,6 +66,7 @@ class VedtaksperiodeService(
     private val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     private val vedtakRepository: VedtakRepository,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
+    private val overgangsordningAndelService: OvergangsordningAndelService,
     private val sanityService: SanityService,
     private val søknadGrunnlagService: SøknadGrunnlagService,
     private val utbetalingsperiodeMedBegrunnelserService: UtbetalingsperiodeMedBegrunnelserService,
@@ -465,6 +467,7 @@ class VedtaksperiodeService(
                             erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                             kompetanser = utfylteKompetanser,
                             andelerTilkjentYtelse = andeler,
+                            overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
                         ).hentGyldigeBegrunnelserForVedtaksperiode(),
                 )
             }
