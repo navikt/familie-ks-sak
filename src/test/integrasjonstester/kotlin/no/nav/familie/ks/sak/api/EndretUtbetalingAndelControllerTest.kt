@@ -9,6 +9,7 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
@@ -18,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
+import org.hamcrest.CoreMatchers.nullValue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -46,6 +48,14 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
         RestAssured.port = port
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
         every { integrasjonClient.hentLand(any()) } returns "Norge"
+
+        arbeidsfordelingPåBehandlingRepository.save(
+            ArbeidsfordelingPåBehandling(
+                behandlingId = behandling.id,
+                behandlendeEnhetId = "test",
+                behandlendeEnhetNavn = "test",
+            ),
+        )
     }
 
     @Nested
@@ -69,16 +79,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
             opprettSøkerFagsakOgBehandling()
             opprettPersonopplysningGrunnlagOgPersonForBehandling()
             opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.OPPFYLT)
-            lagTilkjentYtelse()
-            andelTilkjentYtelseRepository.saveAndFlush(
-                lagAndelTilkjentYtelse(
-                    aktør = søker,
-                    stønadFom = YearMonth.of(2024, 8),
-                    stønadTom = YearMonth.of(2024, 8),
-                    tilkjentYtelse = tilkjentYtelse,
-                    behandling = behandling,
-                ),
-            )
 
             val lagretTomEndretUtbetalingAndel =
                 endretUtbetalingAndelRepository.saveAndFlush(
@@ -114,7 +114,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
             } Then {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("status", Is("IKKE_TILGANG"))
-                body("frontendFeilmelding", Is("Du har ikke tilgang til å Oppdater endretutbetalingandel."))
+                body("frontendFeilmelding", Is("Du har ikke tilgang til å oppdatere endretutbetalingandel."))
             }
         }
 
@@ -132,6 +132,13 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     stønadTom = YearMonth.of(2024, 8),
                     tilkjentYtelse = tilkjentYtelse,
                     behandling = behandling,
+                ),
+            )
+            arbeidsfordelingPåBehandlingRepository.save(
+                ArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetId = "test",
+                    behandlendeEnhetNavn = "test",
                 ),
             )
 
@@ -158,14 +165,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     "begrunnelse": "gyldig request"
                 }
                 """.trimIndent()
-
-            arbeidsfordelingPåBehandlingRepository.save(
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetId = "test",
-                    behandlendeEnhetNavn = "test",
-                ),
-            )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
@@ -205,6 +204,13 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     behandling = behandling,
                 ),
             )
+            arbeidsfordelingPåBehandlingRepository.save(
+                ArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetId = "test",
+                    behandlendeEnhetNavn = "test",
+                ),
+            )
 
             every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
@@ -230,14 +236,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 }
                 """.trimIndent()
 
-            arbeidsfordelingPåBehandlingRepository.save(
-                ArbeidsfordelingPåBehandling(
-                    behandlingId = behandling.id,
-                    behandlendeEnhetId = "test",
-                    behandlendeEnhetNavn = "test",
-                ),
-            )
-
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
             // Act & assert
@@ -251,6 +249,141 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 statusCode(HttpStatus.OK.value())
                 body("status", Is("FUNKSJONELL_FEIL"))
                 body("frontendFeilmelding", Is("Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person i hele eller deler av perioden."))
+            }
+        }
+    }
+
+    @Nested
+    inner class FjernEndretUtbetalingAndelOgOppdaterTilkjentYtelseTest {
+        @Test
+        fun `skal slette EndretUtbetalingAndel`() {
+            // Arrange
+            opprettSøkerFagsakOgBehandling()
+            opprettPersonopplysningGrunnlagOgPersonForBehandling()
+            opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.OPPFYLT)
+            arbeidsfordelingPåBehandlingRepository.save(
+                ArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetId = "test",
+                    behandlendeEnhetNavn = "test",
+                ),
+            )
+
+            every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
+
+            val lagretTomEndretUtbetalingAndel =
+                endretUtbetalingAndelRepository.saveAndFlush(
+                    lagEndretUtbetalingAndel(
+                        behandlingId = behandling.id,
+                        person = søkerPerson,
+                    ),
+                )
+
+            val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+
+            // Act & assert
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                delete("$controllerUrl/${behandling.id}/${lagretTomEndretUtbetalingAndel.id}")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+                body("data.behandlingId", Is(behandling.id.toInt()))
+                body("data.endretUtbetalingAndeler", Is(emptyList<EndretUtbetalingAndelResponsDto>()))
+                body("status", Is("SUKSESS"))
+                body("melding", Is("Innhenting av data var vellykket"))
+            }
+        }
+
+        @Test
+        fun `skal kaste feil ved forsøk på å slette endret utbetaling andel med veileder tilgang`() {
+            // Arrange
+            opprettSøkerFagsakOgBehandling()
+            opprettPersonopplysningGrunnlagOgPersonForBehandling()
+            opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.OPPFYLT)
+
+            val lagretTomEndretUtbetalingAndel =
+                endretUtbetalingAndelRepository.saveAndFlush(
+                    lagEndretUtbetalingAndel(
+                        behandlingId = behandling.id,
+                        person = søkerPerson,
+                    ),
+                )
+
+            val token = lokalTestToken(behandlerRolle = BehandlerRolle.VEILEDER)
+
+            // Act & assert
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                delete("$controllerUrl/${behandling.id}/${lagretTomEndretUtbetalingAndel.id}")
+            } Then {
+                statusCode(HttpStatus.FORBIDDEN.value())
+                body("status", Is("IKKE_TILGANG"))
+                body("frontendFeilmelding", Is("Du har ikke tilgang til å fjerne endretutbetalingandel."))
+            }
+        }
+    }
+
+    @Nested
+    inner class LagreEndretUtbetalingAndelOgOppdaterTilkjentYtelse {
+        @Test
+        fun `skal opprette tom endret utbetaling andel på behandling`() {
+            // Arrange
+            opprettSøkerFagsakOgBehandling()
+            opprettPersonopplysningGrunnlagOgPersonForBehandling()
+            opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.OPPFYLT)
+            arbeidsfordelingPåBehandlingRepository.save(
+                ArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetId = "test",
+                    behandlendeEnhetNavn = "test",
+                ),
+            )
+
+            every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
+
+            val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+
+            // Act & assert
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                post("$controllerUrl/${behandling.id}")
+            } Then {
+                statusCode(HttpStatus.OK.value())
+                body("data.behandlingId", Is(behandling.id.toInt()))
+                body("data.endretUtbetalingAndeler[0].prosent", Is(nullValue()))
+                body("data.endretUtbetalingAndeler[0].fom", Is(nullValue()))
+                body("data.endretUtbetalingAndeler[0].tom", Is(nullValue()))
+                body("data.endretUtbetalingAndeler[0].årsak", Is(nullValue()))
+                body("status", Is("SUKSESS"))
+                body("melding", Is("Innhenting av data var vellykket"))
+            }
+        }
+
+        @Test
+        fun `skal kaste feil ved forsøk på å slette endret utbetaling andel med veileder tilgang`() {
+            // Arrange
+            opprettSøkerFagsakOgBehandling()
+            opprettPersonopplysningGrunnlagOgPersonForBehandling()
+            opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.OPPFYLT)
+
+            val token = lokalTestToken(behandlerRolle = BehandlerRolle.VEILEDER)
+
+            // Act & assert
+            Given {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.JSON)
+            } When {
+                post("$controllerUrl/${behandling.id}")
+            } Then {
+                statusCode(HttpStatus.FORBIDDEN.value())
+                body("status", Is("IKKE_TILGANG"))
+                body("frontendFeilmelding", Is("Du har ikke tilgang til å lagre endretutbetalingandel."))
             }
         }
     }

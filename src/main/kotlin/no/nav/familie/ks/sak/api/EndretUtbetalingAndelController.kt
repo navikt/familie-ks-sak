@@ -39,7 +39,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.UPDATE,
-            handling = "Oppdater endretutbetalingandel",
+            handling = "oppdatere endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -64,7 +64,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.DELETE,
-            handling = "Fjern endretutbetalingandel",
+            handling = "fjerne endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -88,7 +88,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.CREATE,
-            handling = "Lagre endretutbetalingandel",
+            handling = "lagre endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
