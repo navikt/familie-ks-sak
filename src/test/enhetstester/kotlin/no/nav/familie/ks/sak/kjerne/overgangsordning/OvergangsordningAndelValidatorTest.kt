@@ -106,9 +106,10 @@ class OvergangsordningAndelValidatorTest {
             listOf(
                 OvergangsordningAndel(
                     behandlingId = 1,
+                    person = person,
                     fom = YearMonth.now(),
                     tom = YearMonth.now(),
-                ),
+                ).tilUtfyltOvergangsordningAndel(),
             )
 
         assertThrows<FunksjonellFeil> {

@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅrKort
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -79,8 +80,8 @@ object OvergangsordningAndelValidator {
             andelerTidslinje.kombinerMed(barnehagevilkårTidslinje) { andel, vilkår ->
                 if (andel != null && vilkår?.resultat != Resultat.OPPFYLT) {
                     throw FunksjonellFeil(
-                        melding = "Barnehagevilkåret må være oppfylt for alle periodene du prøver å legge til periode for overgangsordning.",
-                        frontendFeilmelding = "Barnehagevilkåret for barnet må være oppfylt for alle periodene det er overgangsordning.",
+                        melding = "Barnehagevilkåret må være oppfylt for alle periodene det er overgangsordning.",
+                        frontendFeilmelding = "Barnehagevilkåret for barn født ${andel.person.fødselsdato.tilKortString()} må være oppfylt for alle periodene det er overgangsordning.",
                     )
                 }
             }
@@ -89,11 +90,10 @@ object OvergangsordningAndelValidator {
 
     fun validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
         nyOvergangsordningAndel: UtfyltOvergangsordningAndel,
-        eksisterendeOvergangsordningAndeler: List<OvergangsordningAndel>,
+        eksisterendeUtfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
     ) {
-        if (eksisterendeOvergangsordningAndeler.any {
-                it.overlapperMed(nyOvergangsordningAndel.periode) &&
-                    it.person == nyOvergangsordningAndel.person
+        if (eksisterendeUtfylteOvergangsordningAndeler.any {
+                it.overlapperMed(nyOvergangsordningAndel) && it.person == nyOvergangsordningAndel.person
             }
         ) {
             throw FunksjonellFeil(
