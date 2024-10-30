@@ -48,14 +48,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
         RestAssured.port = port
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
         every { integrasjonClient.hentLand(any()) } returns "Norge"
-
-        arbeidsfordelingPåBehandlingRepository.save(
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetId = "test",
-                behandlendeEnhetNavn = "test",
-            ),
-        )
     }
 
     @Nested
