@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
+import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
@@ -194,22 +195,22 @@ abstract class OppslagSpringRunnerTest {
     ) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
-        søkerPerson =
-            lagrePerson(
-                Person(
-                    aktør = søker,
-                    type = PersonType.SØKER,
-                    personopplysningGrunnlag = personopplysningGrunnlag,
-                    fødselsdato = LocalDate.of(2019, 1, 1),
-                    navn = "",
-                    kjønn = Kjønn.KVINNE,
-                ).also { søker ->
-                    søker.statsborgerskap =
-                        mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
-                    søker.bostedsadresser = mutableListOf()
-                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
-                },
-            )
+        søkerPerson = lagrePerson(
+            Person(
+                aktør = søker,
+                type = PersonType.SØKER,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                fødselsdato = LocalDate.of(2019, 1, 1),
+                navn = "",
+                kjønn = Kjønn.KVINNE,
+            ).also { søker ->
+                søker.statsborgerskap =
+                    mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                søker.bostedsadresser = mutableListOf()
+                søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
+                personopplysningGrunnlag.personer.add(søker)
+            },
+        )
 
         if (lagBarn) {
             lagrePerson(
@@ -220,17 +221,18 @@ abstract class OppslagSpringRunnerTest {
                     fødselsdato = fødselsdatoBarn,
                     navn = "",
                     kjønn = Kjønn.KVINNE,
-                ).also { søker ->
-                    søker.statsborgerskap =
+                ).also { barn ->
+                    barn.statsborgerskap =
                         mutableListOf(
                             GrStatsborgerskap(
                                 landkode = "NOR",
                                 medlemskap = Medlemskap.NORDEN,
-                                person = søker,
+                                person = barn,
                             ),
                         )
-                    søker.bostedsadresser = mutableListOf()
-                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
+                    barn.bostedsadresser = mutableListOf()
+                    barn.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = barn))
+                    personopplysningGrunnlag.personer.add(barn)
                 },
             )
         }
@@ -246,6 +248,22 @@ abstract class OppslagSpringRunnerTest {
                 søkerAktør = aktør,
                 behandling = behandling,
                 resultat = resultat,
+            )
+        vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
+    }
+
+    fun opprettOppfyltVilkårsvurdering(
+        personer: Collection<Person> = this.personopplysningGrunnlag.personer,
+        behandling: Behandling = this.behandling,
+        periodeFom: LocalDate? = null,
+        periodeTom: LocalDate? = null,
+    ) {
+        val vilkårsvurdering =
+            lagVilkårsvurderingOppfylt(
+                personer = personer,
+                behandling = behandling,
+                periodeFom = periodeFom,
+                periodeTom = periodeTom,
             )
         vilkårsvurderingRepository.saveAndFlush(vilkårsvurdering)
     }

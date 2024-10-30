@@ -2,21 +2,28 @@ package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.okJson
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockkObject
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.Ressurs.Companion.success
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.integrasjon.lagJournalpost
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.assertj.core.api.Assertions.assertThat
@@ -337,8 +344,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .post(WireMock.urlEqualTo("/journalpost/tilgangsstyrt/baks"))
-                .willReturn(WireMock.okJson(readFile("hentTilgangsstyrteJournalposterForBruker.json"))),
+                .post(urlEqualTo("/journalpost/tilgangsstyrt/baks"))
+                .willReturn(okJson(readFile("hentTilgangsstyrteJournalposterForBruker.json"))),
         )
 
         // Act
@@ -351,6 +358,54 @@ internal class IntegrasjonClientTest {
         assertThat(tilgangsstyrtJournalpost.journalpost.tema).isEqualTo(Tema.KON.name)
         assertThat(tilgangsstyrtJournalpost.journalpost.kanal).isEqualTo("NAV_NO")
         assertThat(tilgangsstyrtJournalpost.harTilgang).isTrue
+    }
+
+    @Test
+    fun `hentJournalpost returnerer OK`() {
+        val journalpostId = "1234"
+        val fnr = randomFnr()
+        wiremockServerItem.stubFor(
+            get("/journalpost/tilgangsstyrt/baks?journalpostId=$journalpostId").willReturn(
+                okJson(
+                    objectMapper.writeValueAsString(
+                        success(
+                            lagJournalpost(fnr, journalpostId),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        val journalpost = integrasjonClient.hentJournalpost(journalpostId)
+        assertThat(journalpost).isNotNull
+        assertThat(journalpost.journalpostId).isEqualTo(journalpostId)
+        assertThat(journalpost.bruker?.id).isEqualTo(fnr)
+
+        wiremockServerItem.verify(getRequestedFor(urlEqualTo("/journalpost/tilgangsstyrt/baks?journalpostId=$journalpostId")))
+    }
+
+    @Test
+    fun `hentDokumentIJournalpost returnerer OK`() {
+        val journalpostId = "1234"
+        val dokumentId = "5678"
+        val fnr = randomFnr()
+        wiremockServerItem.stubFor(
+            get("/journalpost/hentdokument/tilgangsstyrt/baks/$journalpostId/$dokumentId").willReturn(
+                okJson(
+                    objectMapper.writeValueAsString(
+                        success(
+                            "Test".toByteArray(),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        val dokument = integrasjonClient.hentDokumentIJournalpost(journalpostId = journalpostId, dokumentId = dokumentId)
+        assertThat(dokument).isNotNull
+        assertThat(dokument.decodeToString()).isEqualTo("Test")
+
+        wiremockServerItem.verify(getRequestedFor(urlEqualTo("/journalpost/hentdokument/tilgangsstyrt/baks/$journalpostId/$dokumentId")))
     }
 
     private fun readFile(filnavn: String): String = this::class.java.getResource("/familieintegrasjon/json/$filnavn").readText()

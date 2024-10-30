@@ -89,13 +89,17 @@ class ApiExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleInputValideringFeil(valideringFeil: MethodArgumentNotValidException): ResponseEntity<Ressurs<Nothing>> =
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+    fun handleInputValideringFeil(valideringFeil: MethodArgumentNotValidException): ResponseEntity<Ressurs<Nothing>> {
+        val errorMessage =
+            valideringFeil.bindingResult.fieldErrors
+                .map { fieldError ->
+                    fieldError.defaultMessage
+                }.joinToString(", ")
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             Ressurs.failure(
-                valideringFeil.bindingResult.fieldErrors
-                    .map { fieldError ->
-                        fieldError.defaultMessage
-                    }.joinToString(", "),
+                errorMessage = errorMessage,
+                frontendFeilmelding = errorMessage,
             ),
         )
+    }
 }
