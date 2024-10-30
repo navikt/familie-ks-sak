@@ -114,7 +114,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
             } Then {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("status", Is("IKKE_TILGANG"))
-                body("frontendFeilmelding", Is("System med rolle VEILEDER har ikke tilgang til å Oppdater endretutbetalingandel. Krever SAKSBEHANDLER."))
+                body("frontendFeilmelding", Is("Du har ikke tilgang til å Oppdater endretutbetalingandel."))
             }
         }
 
@@ -179,7 +179,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
             } Then {
                 statusCode(HttpStatus.OK.value())
                 body("data.behandlingId", Is(behandling.id.toInt()))
-                body("data.endretUtbetalingAndeler[0].id", Is(lagretTomEndretUtbetalingAndel.id))
+                body("data.endretUtbetalingAndeler[0].id", Is(lagretTomEndretUtbetalingAndel.id.toInt()))
                 body("data.endretUtbetalingAndeler[0].prosent", Is(0))
                 body("data.endretUtbetalingAndeler[0].fom", Is("2024-08"))
                 body("data.endretUtbetalingAndeler[0].tom", Is("2024-08"))
