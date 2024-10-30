@@ -80,8 +80,8 @@ object OvergangsordningAndelValidator {
             andelerTidslinje.kombinerMed(barnehagevilkårTidslinje) { andel, vilkår ->
                 if (andel != null && vilkår?.resultat != Resultat.OPPFYLT) {
                     throw FunksjonellFeil(
-                        melding = "Barnehagevilkåret må være oppfylt for alle periodene du prøver å legge til periode for overgangsordning.",
-                        frontendFeilmelding = "Barnehagevilkåret for barnet må være oppfylt for alle periodene det er overgangsordning.",
+                        melding = "Barnehagevilkåret må være oppfylt for alle periodene det er overgangsordning.",
+                        frontendFeilmelding = "Barnehagevilkåret for barn født ${andel.person.fødselsdato.tilKortString()} må være oppfylt for alle periodene det er overgangsordning.",
                     )
                 }
             }
