@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅrKort
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -89,11 +90,10 @@ object OvergangsordningAndelValidator {
 
     fun validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
         nyOvergangsordningAndel: UtfyltOvergangsordningAndel,
-        eksisterendeOvergangsordningAndeler: List<OvergangsordningAndel>,
+        eksisterendeUtfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
     ) {
-        if (eksisterendeOvergangsordningAndeler.any {
-                it.overlapperMed(nyOvergangsordningAndel.periode) &&
-                    it.person == nyOvergangsordningAndel.person
+        if (eksisterendeUtfylteOvergangsordningAndeler.any {
+                it.overlapperMed(nyOvergangsordningAndel) && it.person == nyOvergangsordningAndel.person
             }
         ) {
             throw FunksjonellFeil(
