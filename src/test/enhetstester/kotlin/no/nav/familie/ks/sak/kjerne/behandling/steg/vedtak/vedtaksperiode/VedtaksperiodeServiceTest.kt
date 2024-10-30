@@ -48,6 +48,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -77,6 +78,9 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK
     private lateinit var vedtakRepository: VedtakRepository
+
+    @MockK
+    private lateinit var overgangsordningAndelService: OvergangsordningAndelService
 
     @MockK
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
