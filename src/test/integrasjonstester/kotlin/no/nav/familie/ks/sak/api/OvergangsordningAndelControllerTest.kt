@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.core.IsNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -142,6 +143,10 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 body("data.overgangsordningAndeler[0].deltBosted", Is(false))
                 body("data.overgangsordningAndeler[0].fom", Is("2025-09"))
                 body("data.overgangsordningAndeler[0].tom", Is("2025-12"))
+                // Valideringsfunksjoner skal ikke være med i responsen
+                body("data.overgangsordningAndeler[0].isTomSameOrAfterFom", Is(nullValue()))
+                body("data.overgangsordningAndeler[0].isPersonidentValid", Is(nullValue()))
+                body("data.overgangsordningAndeler[0].isAntallTimerAndDeltBostedValid", Is(nullValue()))
             }
         }
     }
