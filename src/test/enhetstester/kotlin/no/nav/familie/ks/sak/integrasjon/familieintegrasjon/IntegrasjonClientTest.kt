@@ -16,6 +16,7 @@ import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
+import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.objectMapper
@@ -369,7 +370,7 @@ internal class IntegrasjonClientTest {
                 okJson(
                     objectMapper.writeValueAsString(
                         success(
-                            lagJournalpost(fnr, journalpostId),
+                            lagJournalpost(fnr, journalpostId, avsenderMottakerIdType = AvsenderMottakerIdType.FNR),
                         ),
                     ),
                 ),
