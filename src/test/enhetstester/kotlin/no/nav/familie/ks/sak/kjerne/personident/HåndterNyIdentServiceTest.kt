@@ -8,6 +8,7 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.cucumber.mocking.mockTaskService
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -30,6 +31,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -82,7 +84,7 @@ internal class HåndterNyIdentServiceTest {
             every { personIdentService.hentIdenter(any(), true) } returns identInformasjonFraPdl
             every { aktørRepository.findByAktørId(nyAktør.aktørId) } returns null
             every { aktørRepository.findByAktørId(gammelAktør.aktørId) } returns gammelAktør
-            every { fagsakService.hentFagsakerPåPerson(any()) } returns listOf(Fagsak(id = 0, aktør = gammelAktør))
+            every { fagsakService.hentFagsakerPåPerson(any()) } returns listOf(Fagsak(id = 0, aktør = randomAktør()))
             every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns gammelBehandling
             every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns
                 PersonopplysningGrunnlag(
@@ -122,6 +124,46 @@ internal class HåndterNyIdentServiceTest {
                 }
 
             assertThat(feil.message).startsWith("Det eksisterer flere fagsaker på identer som skal merges")
+        }
+
+        @Test
+        fun `håndterNyIdent kaster ikke Feil når fødselsdato er endret innenfor samme måned`() {
+            // arrange
+            every { pdlClient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
+                PdlPersonData(
+                    folkeregisteridentifikator = emptyList(),
+                    foedselsdato = listOf(PdlFødselsDato(gammelFødselsdato.sisteDagIMåned().toString())),
+                    bostedsadresse = emptyList(),
+                )
+            every { behandlingRepository.finnBehandlinger(any<Long>()) } returns listOf(gammelBehandling)
+            every { behandlingRepository.finnAktivtFødselsnummerForBehandlinger(any()) } returns listOf(1L to gammeltFnr)
+
+            // act & assert
+            assertDoesNotThrow {
+                håndterNyIdentService.håndterNyIdent(PersonIdent(nyttFnr))
+            }
+        }
+
+        @Test
+        fun `håndterNyIdent kaster ikke Feil når fødselsdato er endret for søker`() {
+            // arrange
+            every { pdlClient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
+                PdlPersonData(
+                    folkeregisteridentifikator = emptyList(),
+                    foedselsdato = listOf(PdlFødselsDato(nyFødselsdato.toString())),
+                    bostedsadresse = emptyList(),
+                )
+            every { fagsakService.hentFagsakerPåPerson(any()) } returns
+                listOf(
+                    Fagsak(id = 1, aktør = gammelAktør),
+                )
+            every { behandlingRepository.finnBehandlinger(any<Long>()) } returns listOf(gammelBehandling)
+            every { behandlingRepository.finnAktivtFødselsnummerForBehandlinger(any()) } returns listOf(1L to gammeltFnr)
+
+            // act & assert
+            assertDoesNotThrow {
+                håndterNyIdentService.håndterNyIdent(PersonIdent(nyttFnr))
+            }
         }
 
         @Test

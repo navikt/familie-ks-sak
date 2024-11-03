@@ -85,6 +85,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.logg.LoggType
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.Personident
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
@@ -932,7 +933,7 @@ fun fnrTilFødselsdato(fnr: String): LocalDate {
             }
             it
         }
-    val year = fnr.substring(4, 6).toInt().let { if (it < (LocalDate.now().year - 2000)) it + 2000 else it + 1900 }
+    val year = fnr.substring(4, 6).toInt().let { if (it <= (LocalDate.now().year - 2000)) it + 2000 else it + 1900 }
     return LocalDate.of(year, month, day)
 }
 
@@ -974,6 +975,8 @@ fun lagVilkårsvurderingOppfylt(
     behandling: Behandling = lagBehandling(),
     erEksplisittAvslagPåSøknad: Boolean = false,
     skalOppretteEøsSpesifikkeVilkår: Boolean = false,
+    periodeFom: LocalDate? = null,
+    periodeTom: LocalDate? = null,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -996,14 +999,16 @@ fun lagVilkårsvurderingOppfylt(
                             VilkårResultat(
                                 personResultat = personResultat,
                                 periodeFom =
-                                    if (person.type == PersonType.SØKER) {
-                                        person.fødselsdato
-                                    } else {
-                                        person.fødselsdato.plusYears(
-                                            1,
-                                        )
+                                    when (it) {
+                                        Vilkår.BARNETS_ALDER -> person.fødselsdato.plusMonths(13)
+                                        else -> periodeFom ?: person.fødselsdato.plusMonths(13)
                                     },
-                                periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
+                                periodeTom =
+                                    when {
+                                        person.type == PersonType.SØKER -> null
+                                        it == Vilkår.BARNETS_ALDER -> person.fødselsdato.plusMonths(19)
+                                        else -> periodeTom ?: person.fødselsdato.plusMonths(19)
+                                    },
                                 vilkårType = it,
                                 resultat = Resultat.OPPFYLT,
                                 begrunnelse = "",
@@ -1119,6 +1124,25 @@ fun lagAndelTilkjentYtelse(
         prosent = prosent,
         kildeBehandlingId = kildeBehandlingId,
         differanseberegnetPeriodebeløp = differanseberegnetPeriodebeløp,
+    )
+
+fun lagUtfyltOvergangsordningAndel(
+    id: Long = 0,
+    behandling: Behandling = lagBehandling(),
+    person: Person = lagPerson(aktør = randomAktør()),
+    antallTimer: BigDecimal = BigDecimal.ZERO,
+    deltBosted: Boolean = false,
+    fom: YearMonth = YearMonth.now(),
+    tom: YearMonth = YearMonth.now(),
+): UtfyltOvergangsordningAndel =
+    UtfyltOvergangsordningAndel(
+        id = id,
+        behandlingId = behandling.id,
+        person = person,
+        antallTimer = antallTimer,
+        deltBosted = deltBosted,
+        fom = fom,
+        tom = tom,
     )
 
 fun lagInitiellTilkjentYtelse(

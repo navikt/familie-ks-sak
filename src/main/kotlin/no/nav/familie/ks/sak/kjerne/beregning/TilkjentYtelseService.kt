@@ -5,12 +5,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
+import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
-import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilIOvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.unleash.UnleashService
@@ -67,20 +66,31 @@ class TilkjentYtelseService(
     ): List<AndelTilkjentYtelse> =
         overgangsordningAndelRepository
             .hentOvergangsordningAndelerForBehandling(behandlingId)
-            .map { it.tilIOvergangsordningAndel() }
-            .filterIsInstance<UtfyltOvergangsordningAndel>()
+            .utfyltePerioder()
             .map { overgangsordningAndel ->
+                val satsPeriode =
+                    with(overgangsordningAndel) {
+                        hentGyldigSatsFor(
+                            antallTimer = antallTimer,
+                            erDeltBosted = deltBosted,
+                            stønadFom = fom,
+                            stønadTom = tom,
+                        )
+                    }
+
+                val utbetalingsbeløp = satsPeriode.sats.prosent(satsPeriode.prosent)
+
                 AndelTilkjentYtelse(
                     behandlingId = behandlingId,
                     tilkjentYtelse = tilkjentYtelse,
                     aktør = overgangsordningAndel.person.aktør,
-                    prosent = overgangsordningAndel.prosent,
+                    prosent = satsPeriode.prosent,
                     stønadFom = overgangsordningAndel.fom,
                     stønadTom = overgangsordningAndel.tom,
-                    kalkulertUtbetalingsbeløp = maksBeløp().prosent(overgangsordningAndel.prosent),
-                    nasjonaltPeriodebeløp = maksBeløp().prosent(overgangsordningAndel.prosent),
+                    kalkulertUtbetalingsbeløp = utbetalingsbeløp,
+                    nasjonaltPeriodebeløp = utbetalingsbeløp,
                     type = YtelseType.OVERGANGSORDNING,
-                    sats = maksBeløp(),
+                    sats = satsPeriode.sats,
                 )
             }
 }
