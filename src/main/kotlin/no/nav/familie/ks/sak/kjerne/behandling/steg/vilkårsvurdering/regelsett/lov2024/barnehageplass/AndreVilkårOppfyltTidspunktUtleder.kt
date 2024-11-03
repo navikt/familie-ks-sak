@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -31,4 +32,12 @@ fun utledTidligsteÅrMånedAlleAndreVilkårErOppfylt(
         .mapNotNull { it.fom }
         .map { it.toYearMonth() }
         .minOfOrNull { it }
+        ?.let { månedAlleAndreVilkårErOppfylt ->
+            // Før lovendring 2024 så fikk man ikke innvilget kontantstøtte før måneden etter
+            if (månedAlleAndreVilkårErOppfylt < DATO_LOVENDRING_2024.toYearMonth()) {
+                månedAlleAndreVilkårErOppfylt.plusMonths(1)
+            } else {
+                månedAlleAndreVilkårErOppfylt
+            }
+        }
 }
