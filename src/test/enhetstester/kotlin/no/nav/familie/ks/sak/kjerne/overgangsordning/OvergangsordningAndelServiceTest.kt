@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -227,8 +228,8 @@ class OvergangsordningAndelServiceTest {
                     overgangsordningAndelService.oppdaterOvergangsordningAndelOgOppdaterTilkjentYtelse(behandling, 0, overgangsordningAndelDto)
                 }
 
-            assertThat(funksjonellFeil.melding).isEqualTo("Barnehagevilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.")
-            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehagevilkåret må være oppfylt alle periodene det er overgangsordning. Vilkåret er ikke oppfylt i perioden 15. des. 24 til 31. jan. 25.")
+            assertThat(funksjonellFeil.melding).isEqualTo("Barnehageplassvilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.")
+            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehageplassvilkåret må være oppfylt alle periodene det er overgangsordning for barn født ${barn.fødselsdato.tilKortString()}. Vilkåret er ikke oppfylt i perioden 15. des. 24 til 31. jan. 25.")
         }
 
         @Test
@@ -277,8 +278,8 @@ class OvergangsordningAndelServiceTest {
                     overgangsordningAndelService.oppdaterOvergangsordningAndelOgOppdaterTilkjentYtelse(behandling, 0, overgangsordningAndelDto)
                 }
 
-            assertThat(funksjonellFeil.melding).isEqualTo("Barnehagevilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.")
-            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehagevilkåret må være oppfylt alle periodene det er overgangsordning. Vilkåret er ikke oppfylt i periodene 1. okt. 24 til 14. nov. 24 og 15. des. 24 til 31. jan. 25.")
+            assertThat(funksjonellFeil.melding).isEqualTo("Barnehageplassvilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.")
+            assertThat(funksjonellFeil.frontendFeilmelding).isEqualTo("Barnehageplassvilkåret må være oppfylt alle periodene det er overgangsordning for barn født ${barn.fødselsdato.tilKortString()}. Vilkåret er ikke oppfylt i periodene 1. okt. 24 til 14. nov. 24 og 15. des. 24 til 31. jan. 25.")
         }
 
         @Test

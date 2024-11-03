@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
+import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
@@ -14,6 +15,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.OVERGANGSORDNING
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -23,6 +25,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.core.IsNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -114,18 +119,55 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
         }
 
         @Test
-        fun `skal oppdatere OvergangsordningAndel`() {
-            val overgangsordningAndel = OvergangsordningAndel(id = 0, behandlingId = behandling.id)
-            overgangsordningAndelRepository.saveAndFlush(overgangsordningAndel)
+        fun `skal oppdatere og slå sammen overgangsordningandeler`() {
+            val barn1 = personopplysningGrunnlag.personer.first { it.aktør == barn }
+            val barn2 =
+                lagrePerson(
+                    lagPerson(
+                        aktør = lagreAktør(randomAktør(randomFnr(barnFødselsdato.plusMonths(2)))),
+                        personType = PersonType.BARN,
+                        personopplysningGrunnlag = personopplysningGrunnlag,
+                    ),
+                )
 
+            val gamleOvergangsordningAndeler =
+                listOf(
+                    OvergangsordningAndel(
+                        id = 0,
+                        behandlingId = behandling.id,
+                        person = barn1,
+                        antallTimer = BigDecimal(20),
+                        fom = barn1.fødselsdato.plusMonths(20).toYearMonth(),
+                        tom = barn1.fødselsdato.plusMonths(21).toYearMonth(),
+                    ),
+                    OvergangsordningAndel(
+                        id = 1,
+                        behandlingId = behandling.id,
+                        person = barn1,
+                        antallTimer = BigDecimal.ZERO,
+                        fom = barn1.fødselsdato.plusMonths(22).toYearMonth(),
+                        tom = barn1.fødselsdato.plusMonths(23).toYearMonth(),
+                    ),
+                    OvergangsordningAndel(
+                        id = 2,
+                        behandlingId = behandling.id,
+                        person = barn2,
+                        fom = barn2.fødselsdato.plusMonths(20).toYearMonth(),
+                        tom = barn2.fødselsdato.plusMonths(23).toYearMonth(),
+                    ),
+                )
+
+            overgangsordningAndelRepository.saveAllAndFlush(gamleOvergangsordningAndeler)
+
+            // Sett antall timer til 0 i første overgangsordningandel
             val overgangsordningAndelDto =
                 OvergangsordningAndelDto(
-                    id = overgangsordningAndel.id,
-                    personIdent = barn.aktivFødselsnummer(),
+                    id = gamleOvergangsordningAndeler.first().id,
+                    personIdent = barn1.aktør.aktivFødselsnummer(),
                     antallTimer = BigDecimal.ZERO,
                     deltBosted = false,
                     fom = barnFødselsdato.plusMonths(20).toYearMonth(),
-                    tom = barnFødselsdato.plusMonths(23).toYearMonth(),
+                    tom = barnFødselsdato.plusMonths(21).toYearMonth(),
                 )
 
             Given {
@@ -133,15 +175,33 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 contentType(ContentType.JSON)
                 body(objectMapper.writeValueAsString(overgangsordningAndelDto))
             } When {
-                put("$overgangsordningAndelControllerUrl/${behandling.id}/${overgangsordningAndel.id}")
+                put("$overgangsordningAndelControllerUrl/${behandling.id}/${gamleOvergangsordningAndeler.first().id}")
             } Then {
                 statusCode(200)
                 body("status", Is("SUKSESS"))
-                body("data.overgangsordningAndeler[0].personIdent", Is(barn.aktivFødselsnummer()))
-                body("data.overgangsordningAndeler[0].antallTimer", Is(0))
-                body("data.overgangsordningAndeler[0].deltBosted", Is(false))
-                body("data.overgangsordningAndeler[0].fom", Is("2025-09"))
-                body("data.overgangsordningAndeler[0].tom", Is("2025-12"))
+                // Valideringsfunksjoner skal ikke være med i responsen
+                body("data.overgangsordningAndeler[0].isTomSameOrAfterFom", Is(nullValue()))
+                body("data.overgangsordningAndeler[0].isPersonidentValid", Is(nullValue()))
+                body("data.overgangsordningAndeler[0].isAntallTimerAndDeltBostedValid", Is(nullValue()))
+            } Extract {
+                val overgangsordningAndeler =
+                    path<List<Map<String, Any>>>("data.overgangsordningAndeler")
+                        .map { objectMapper.convertValue(it, OvergangsordningAndelDto::class.java) }
+                assertThat(overgangsordningAndeler)
+                    .hasSize(2)
+                    .anySatisfy {
+                        // Forvent at overgangsordningandeler for barn 1 er slått sammen
+                        assertThat(it.personIdent).isEqualTo(barn1.aktør.aktivFødselsnummer())
+                        assertThat(it.antallTimer).isEqualTo(BigDecimal.ZERO)
+                        assertThat(it.fom).isEqualTo(barn1.fødselsdato.plusMonths(20).toYearMonth())
+                        assertThat(it.tom).isEqualTo(barn1.fødselsdato.plusMonths(23).toYearMonth())
+                    }.anySatisfy {
+                        // Forvent at overgangsordningandel for barn 2 er uendret
+                        assertThat(it.personIdent).isEqualTo(barn2.aktør.aktivFødselsnummer())
+                        assertThat(it.antallTimer).isEqualTo(BigDecimal.ZERO)
+                        assertThat(it.fom).isEqualTo(barn2.fødselsdato.plusMonths(20).toYearMonth())
+                        assertThat(it.tom).isEqualTo(barn2.fødselsdato.plusMonths(23).toYearMonth())
+                    }
             }
         }
     }
