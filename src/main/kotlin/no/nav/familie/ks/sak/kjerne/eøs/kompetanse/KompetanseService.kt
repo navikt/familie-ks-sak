@@ -29,7 +29,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.EndretUtbetalingAndelTidslinjeService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjeService
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.tilBarnasHarEtterbetaling3MånedTidslinjer
+import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.tilBarnasSkalIkkeUtbetalesTidslinjer
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.stereotype.Service
@@ -110,7 +110,7 @@ class TilpassKompetanserTilEndretUtbetalingAndelerService(
     ) {
         val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
         val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
-        val barnasHarEtterbetaling3MånedTidslinjer = endretUtbetalingAndeler.tilBarnasHarEtterbetaling3MånedTidslinjer()
+        val barnasHarEtterbetaling3MånedTidslinjer = endretUtbetalingAndeler.tilBarnasSkalIkkeUtbetalesTidslinjer()
 
         val annenForelderOmfattetAvNorskLovgivningTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
