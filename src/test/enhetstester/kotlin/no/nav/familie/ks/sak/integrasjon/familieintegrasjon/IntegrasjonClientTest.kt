@@ -16,6 +16,7 @@ import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
+import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.objectMapper
@@ -23,6 +24,7 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.integrasjon.lagAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -369,7 +371,16 @@ internal class IntegrasjonClientTest {
                 okJson(
                     objectMapper.writeValueAsString(
                         success(
-                            lagJournalpost(fnr, journalpostId),
+                            lagJournalpost(
+                                personIdent = fnr,
+                                journalpostId = journalpostId,
+                                avsenderMottaker =
+                                    lagAvsenderMottaker(
+                                        personIdent = fnr,
+                                        avsenderMottakerIdType = AvsenderMottakerIdType.FNR,
+                                        navn = "testNavn",
+                                    ),
+                            ),
                         ),
                     ),
                 ),
