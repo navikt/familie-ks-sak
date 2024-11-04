@@ -32,7 +32,20 @@ fun lagTilgangsstyrtJournalpost(
     harTilgang: Boolean = true,
 ): TilgangsstyrtJournalpost =
     TilgangsstyrtJournalpost(
-        journalpost = lagJournalpost(personIdent = personIdent, journalpostId = journalpostId, kanal = kanal, avsenderMottakerIdType = AvsenderMottakerIdType.FNR),
+        journalpost =
+            lagJournalpost(
+                personIdent = personIdent,
+                journalpostId = journalpostId,
+                kanal = kanal,
+                avsenderMottaker =
+                    lagAvsenderMottaker(
+                        personIdent = personIdent,
+                        avsenderMottakerIdType = AvsenderMottakerIdType.FNR,
+                        navn = "BLÅØYD HEST",
+                        erLikBruker = true,
+                        land = "NO",
+                    ),
+            ),
         harTilgang = harTilgang,
     )
 
@@ -40,7 +53,7 @@ fun lagJournalpost(
     personIdent: String,
     journalpostId: String,
     kanal: String? = InnkommendeJournalføringService.NAV_NO,
-    avsenderMottakerIdType: AvsenderMottakerIdType,
+    avsenderMottaker: AvsenderMottaker?,
 ): Journalpost =
     Journalpost(
         journalpostId = journalpostId,
@@ -49,14 +62,7 @@ fun lagJournalpost(
         tema = Tema.KON.name,
         behandlingstema = "ab00001",
         bruker = Bruker(personIdent, type = BrukerIdType.FNR),
-        avsenderMottaker =
-            AvsenderMottaker(
-                navn = "BLÅØYD HEST",
-                erLikBruker = true,
-                id = personIdent,
-                land = "NO",
-                type = avsenderMottakerIdType,
-            ),
+        avsenderMottaker = avsenderMottaker,
         journalforendeEnhet = DEFAULT_JOURNALFØRENDE_ENHET,
         kanal = kanal,
         dokumenter =
@@ -89,6 +95,20 @@ fun lagJournalpost(
         tittel = "Søknad om ordinær barnetrygd",
         relevanteDatoer = listOf(RelevantDato(LocalDateTime.now(), "DATO_REGISTRERT")),
     )
+
+fun lagAvsenderMottaker(
+    personIdent: String,
+    avsenderMottakerIdType: AvsenderMottakerIdType,
+    navn: String,
+    erLikBruker: Boolean = false,
+    land: String = "NO",
+) = AvsenderMottaker(
+    navn = navn,
+    erLikBruker = erLikBruker,
+    id = personIdent,
+    land = land,
+    type = avsenderMottakerIdType,
+)
 
 fun lagJournalføringRequestDto(bruker: NavnOgIdentDto): JournalføringRequestDto =
     JournalføringRequestDto(
