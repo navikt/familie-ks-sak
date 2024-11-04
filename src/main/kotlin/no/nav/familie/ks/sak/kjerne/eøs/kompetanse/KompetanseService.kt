@@ -17,6 +17,8 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerFo
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelerOppdatertAbonnent
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
@@ -27,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.EndretUtbetalingAndelTidslinjeService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjeService
+import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.tilBarnasHarEtterbetaling3MånedTidslinjer
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.stereotype.Service
@@ -64,7 +67,7 @@ class KompetanseService(
     @Transactional
     fun tilpassKompetanse(behandlingId: BehandlingId) {
         val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
-        val barnasRegelverkResultatTidslinjer = hentBarnasRegelverkResultatTidslinjer(behandlingId)
+        val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
         val barnasHarEtterbetaling3MånedTidslinjer =
             endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId.id)
         val annenForelderOmfattetAvNorskLovgivningTidslinje =
@@ -90,67 +93,99 @@ class KompetanseService(
         tilBehandlingId: BehandlingId,
     ) =
         kompetanseSkjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
+}
 
-    private fun tilpassKompetanserTilRegelverk(
-        eksisterendeKompetanser: Collection<Kompetanse>,
-        barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
-        barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
-        annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
-    ): List<Kompetanse> {
-        val barnasEøsRegelverkTidslinjer =
-            barnaRegelverkTidslinjer
-                .tilBarnasEøsRegelverkTidslinjer()
-                .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
-                    when (harEtterbetaling3Måned) {
-                        true -> null // ta bort regelverk hvis barnet har etterbetaling 3 måned
-                        else -> regelverk
-                    }
-                }
+@Service
+class TilpassKompetanserTilEndretUtbetalingAndelerService(
+    kompetanseRepository: EøsSkjemaRepository<Kompetanse>,
+    kompetanseEndringsAbonnenter: List<EøsSkjemaEndringAbonnent<Kompetanse>>,
+    private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
+) : EndretUtbetalingAndelerOppdatertAbonnent {
+    private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
-        return eksisterendeKompetanser
-            .tilSeparateTidslinjerForBarna()
-            .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->
-                regelverk?.let { kompetanse ?: Kompetanse.blankKompetanse }
-            }.mapValues { (_, value) ->
-                value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
-                    kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
-                }
-            }.tilSkjemaer()
+    @Transactional
+    override fun endretUtbetalingAndelerOppdatert(
+        behandlingId: BehandlingId,
+        endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
+    ) {
+        val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
+        val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
+        val barnasHarEtterbetaling3MånedTidslinjer = endretUtbetalingAndeler.tilBarnasHarEtterbetaling3MånedTidslinjer()
+
+        val annenForelderOmfattetAvNorskLovgivningTidslinje =
+            vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
+
+        val oppdaterteKompetanser =
+            tilpassKompetanserTilRegelverk(
+                eksisterendeKompetanser,
+                barnasRegelverkResultatTidslinjer,
+                barnasHarEtterbetaling3MånedTidslinjer,
+                annenForelderOmfattetAvNorskLovgivningTidslinje,
+            ).medBehandlingId(behandlingId)
+
+        kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
     }
+}
 
-    private fun hentBarnasRegelverkResultatTidslinjer(behandlingId: BehandlingId): Map<Aktør, Tidslinje<RegelverkResultat>> =
-        vilkårsvurderingTidslinjeService
-            .lagVilkårsvurderingTidslinjer(behandlingId.id)
-            .barnasTidslinjer()
-            .mapValues { (_, tidslinjer) ->
-                tidslinjer.regelverkResultatTidslinje
+fun VilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId: BehandlingId): Map<Aktør, Tidslinje<RegelverkResultat>> =
+    this
+        .lagVilkårsvurderingTidslinjer(behandlingId.id)
+        .barnasTidslinjer()
+        .mapValues { (_, tidslinjer) ->
+            tidslinjer.regelverkResultatTidslinje
+        }
+
+fun tilpassKompetanserTilRegelverk(
+    eksisterendeKompetanser: Collection<Kompetanse>,
+    barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
+    barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
+    annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
+): List<Kompetanse> {
+    val barnasEøsRegelverkTidslinjer =
+        barnaRegelverkTidslinjer
+            .tilBarnasEøsRegelverkTidslinjer()
+            .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
+                when (harEtterbetaling3Måned) {
+                    true -> null // ta bort regelverk hvis barnet har etterbetaling 3 måned
+                    else -> regelverk
+                }
             }
 
-    private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
-        this.mapValues { (_, tidslinjer) ->
-            tidslinjer
-                .filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
-                .filtrerIkkeNull()
-                .forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned = LocalDate.now().førsteDagINesteMåned())
-        }
+    return eksisterendeKompetanser
+        .tilSeparateTidslinjerForBarna()
+        .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->
+            regelverk?.let { kompetanse ?: Kompetanse.blankKompetanse }
+        }.mapValues { (_, value) ->
+            value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
+                kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
+            }
+        }.tilSkjemaer()
+}
 
-    private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned: LocalDate): Tidslinje<T & Any> {
-        val tom = this.tilPerioderIkkeNull().mapNotNull { it.tom }.maxOrNull()
-        return if (tom != null && tom > førsteDagINesteMåned) {
-            this
-                .tilPerioderIkkeNull()
-                .filter { it.fom != null && it.fom <= førsteDagINesteMåned }
-                .replaceLast { Periode(verdi = it.verdi, fom = it.fom, tom = null) }
-                .tilTidslinje()
-        } else {
-            this.tilPerioderIkkeNull().tilTidslinje()
-        }
+private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
+    this.mapValues { (_, tidslinjer) ->
+        tidslinjer
+            .filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
+            .filtrerIkkeNull()
+            .forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned = LocalDate.now().førsteDagINesteMåned())
     }
 
-    fun <T> List<T>.replaceLast(replacer: (T) -> T): List<T> {
-        if (this.isEmpty()) {
-            throw Feil("Kan ikke modifisere på siste element i en tom liste")
-        }
-        return this.take(this.size - 1) + replacer(this.last())
+private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned: LocalDate): Tidslinje<T & Any> {
+    val tom = this.tilPerioderIkkeNull().mapNotNull { it.tom }.maxOrNull()
+    return if (tom != null && tom > førsteDagINesteMåned) {
+        this
+            .tilPerioderIkkeNull()
+            .filter { it.fom != null && it.fom <= førsteDagINesteMåned }
+            .replaceLast { Periode(verdi = it.verdi, fom = it.fom, tom = null) }
+            .tilTidslinje()
+    } else {
+        this.tilPerioderIkkeNull().tilTidslinje()
     }
+}
+
+fun <T> List<T>.replaceLast(replacer: (T) -> T): List<T> {
+    if (this.isEmpty()) {
+        throw Feil("Kan ikke modifisere på siste element i en tom liste")
+    }
+    return this.take(this.size - 1) + replacer(this.last())
 }
