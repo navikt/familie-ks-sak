@@ -271,9 +271,9 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagMottarFulleForeldrepenger"
     },
-    AVSLAG_BARNEHAGEPLASS_AUGUST_2024 {
+    AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 {
         override val begrunnelseType = BegrunnelseType.AVSLAG
-        override val sanityApiNavn = "avslagBarnehageplassAugust2024"
+        override val sanityApiNavn = "avslagFulltidsplassIBarnehageAugust2024"
     },
     OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
         override val begrunnelseType = BegrunnelseType.OPPHØR

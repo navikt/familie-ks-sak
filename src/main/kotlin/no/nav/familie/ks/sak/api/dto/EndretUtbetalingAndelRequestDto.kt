@@ -31,6 +31,6 @@ fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFell
         -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
 
         Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
-        -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_BARNEHAGEPLASS_AUGUST_2024)
+        -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
     }
 }

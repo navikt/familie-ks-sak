@@ -102,7 +102,7 @@ class EndretUtbetalingAndelRequestDtoKtTest {
             val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_BARNEHAGEPLASS_AUGUST_2024)
+            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
         }
     }
 }
