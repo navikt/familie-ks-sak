@@ -83,7 +83,15 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
+            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel)
+
             else -> throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+        }
+    }
+
+    private fun validerAlleredeUtbetalt(endretUtbetalingAndel: EndretUtbetalingAndel) {
+        if (endretUtbetalingAndel.tom?.isAfter(YearMonth.now()) == true) {
+            throw FunksjonellFeil("Du har valgt årsaken allerede utbetalt. Du kan ikke velge denne årsaken og en til og med dato frem i tid. Ta kontakt med superbruker om du er usikker på hva du skal gjøre.")
         }
     }
 
