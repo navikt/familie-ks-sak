@@ -95,7 +95,7 @@ class EndretUtbetalingAndelService(
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach {
-            it.endretUtbetalingAndelerOppdatert(
+            it.tilpassKompetanserTilEndretUtbetalingAndeler(
                 behandlingId = BehandlingId(behandling.id),
                 endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
             )
@@ -121,7 +121,7 @@ class EndretUtbetalingAndelService(
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
-            abonnent.endretUtbetalingAndelerOppdatert(
+            abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
                 behandlingId = BehandlingId(behandling.id),
                 endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id),
             )
@@ -144,7 +144,7 @@ class EndretUtbetalingAndelService(
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {
-    fun endretUtbetalingAndelerOppdatert(
+    fun tilpassKompetanserTilEndretUtbetalingAndeler(
         behandlingId: BehandlingId,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     )
