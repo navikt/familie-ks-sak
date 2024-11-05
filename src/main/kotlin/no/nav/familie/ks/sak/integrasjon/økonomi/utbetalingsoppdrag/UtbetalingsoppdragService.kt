@@ -17,6 +17,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.førsteOvergangsordningAndelForHverAktør
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -171,16 +173,17 @@ class UtbetalingsoppdragService(
         tilkjentYtelse: TilkjentYtelse,
         andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
     ) {
-        val andelerPåId = andelerMedPeriodeId.associateBy { it.id }
-        val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse
-        val andelerSomSkalSendesTilOppdrag = andelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() }
+        val ordinæreAndelerTilkjentYtelse = tilkjentYtelse.ordinæreAndeler()
+        val overgangsordningAndeler = tilkjentYtelse.førsteOvergangsordningAndelForHverAktør()
+        val andelerSomSkalSendesTilOppdrag =
+            ordinæreAndelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() } + overgangsordningAndeler
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {
             error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet andeler med kalkulertUtbetalingsbeløp != 0. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
         }
         andelerSomSkalSendesTilOppdrag.forEach { andel ->
             val andelMedOffset =
-                andelerPåId[andel.id]
-                    ?: error("Feil ved oppdaterig av offset på andeler. Finner ikke andel med id ${andel.id} blandt andelene med oppdatert offset fra ny generator. Ny generator returnerer andeler med ider [${andelerPåId.values.map { it.id }}]")
+                andelerMedPeriodeId.find { it.id == andel.id }
+                    ?: error("Feil ved oppdaterig av offset på andeler. Finner ikke andel med id ${andel.id} blandt andelene med oppdatert offset fra ny generator. Ny generator returnerer andeler med ider [${andelerMedPeriodeId.map { it.id }}]")
             andel.periodeOffset = andelMedOffset.periodeId
             andel.forrigePeriodeOffset = andelMedOffset.forrigePeriodeId
             andel.kildeBehandlingId = andelMedOffset.kildeBehandlingId
