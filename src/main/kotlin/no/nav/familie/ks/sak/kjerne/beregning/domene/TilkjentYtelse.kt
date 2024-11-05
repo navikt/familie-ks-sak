@@ -83,3 +83,12 @@ fun TilkjentYtelse.utbetalingsoppdrag(): Utbetalingsoppdrag? =
 
 fun TilkjentYtelse.skalIverksettesMotOppdrag(): Boolean =
     this.utbetalingsoppdrag()?.utbetalingsperiode?.isNotEmpty() ?: false
+
+fun TilkjentYtelse.ordinæreAndeler() =
+    andelerTilkjentYtelse.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+
+fun TilkjentYtelse.overgangsordningAndeler() =
+    andelerTilkjentYtelse.filter { it.type == YtelseType.OVERGANGSORDNING }
+
+fun TilkjentYtelse.førsteOvergangsordningAndelForHverAktør() =
+    overgangsordningAndeler().groupBy { it.aktør }.map { it.value.minBy { it.stønadFom } }

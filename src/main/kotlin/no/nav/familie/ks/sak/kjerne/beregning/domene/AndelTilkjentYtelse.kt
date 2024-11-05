@@ -20,6 +20,7 @@ import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.common.util.antallMåneder
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.YtelsetypeKS
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -153,6 +154,8 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
             acc + andelTilkjentYtelse
         }
     }
+
+fun AndelTilkjentYtelse.totalKalkulertUtbetalingsbeløpForPeriode(): Int = kalkulertUtbetalingsbeløp * stønadsPeriode().antallMåneder()
 
 enum class YtelseType(
     val klassifisering: String,

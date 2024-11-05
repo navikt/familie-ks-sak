@@ -12,10 +12,15 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.time.YearMonth
 
 const val FAGSYSTEM = "KS"
+val OVERGANGSORDNING_UTBETALINGSMÅNED = YearMonth.of(2024, 11) // TODO: SKAL VÆRE 2024-12
 
 @Component
 class UtbetalingsoppdragGenerator {
@@ -51,9 +56,6 @@ class UtbetalingsoppdragGenerator {
             sisteAndelPerKjede = sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() },
         )
 
-    private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> =
-        this.andelerTilkjentYtelse.map { it.tilAndelDataLongId() }
-
     private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId =
         AndelDataLongId(
             id = id,
@@ -66,6 +68,34 @@ class UtbetalingsoppdragGenerator {
             forrigePeriodeId = forrigePeriodeOffset,
             kildeBehandlingId = kildeBehandlingId,
         )
+
+    private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> {
+        val ordinæreAndeler = this.ordinæreAndelertilAndelDataLongId()
+        val overgangsordningAndeler = this.overgangsordningAndelerTilAndelDataLongId()
+        return ordinæreAndeler + overgangsordningAndeler
+    }
+
+    private fun TilkjentYtelse.ordinæreAndelertilAndelDataLongId(): List<AndelDataLongId> = this.ordinæreAndeler().map { it.tilAndelDataLongId() }
+
+    private fun TilkjentYtelse.overgangsordningAndelerTilAndelDataLongId(): List<AndelDataLongId> =
+        this
+            .overgangsordningAndeler()
+            .groupBy { it.aktør }
+            .map { (aktør, overgangsordningAndeler) ->
+                val førsteAndel = overgangsordningAndeler.minBy { it.stønadFom }
+                val kalkulertUtbetalingsbeløp = overgangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+                AndelDataLongId(
+                    id = førsteAndel.id,
+                    fom = OVERGANGSORDNING_UTBETALINGSMÅNED,
+                    tom = OVERGANGSORDNING_UTBETALINGSMÅNED,
+                    beløp = kalkulertUtbetalingsbeløp,
+                    personIdent = aktør.aktivFødselsnummer(),
+                    type = førsteAndel.type.tilYtelseType(),
+                    periodeId = førsteAndel.periodeOffset,
+                    forrigePeriodeId = førsteAndel.forrigePeriodeOffset,
+                    kildeBehandlingId = førsteAndel.kildeBehandlingId,
+                )
+            }
 }
 
 enum class YtelsetypeKS(
