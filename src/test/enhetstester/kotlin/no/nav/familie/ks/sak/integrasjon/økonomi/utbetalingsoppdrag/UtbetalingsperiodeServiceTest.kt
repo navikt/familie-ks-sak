@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -49,6 +50,9 @@ internal class UtbetalingsperiodeServiceTest {
 
     @MockK
     private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
+
+    @MockK
+    private lateinit var unleashService: UnleashService
 
     @InjectMockKs
     private lateinit var utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator
@@ -686,5 +690,7 @@ internal class UtbetalingsperiodeServiceTest {
         every { behandlingService.hentBehandlingerPåFagsak(behandling.fagsak.id) } returns listOf(behandling)
 
         every { tilkjentYtelseRepository.save(capture(tilkjentYtelseSlot)) } returns mockk()
+
+        every { unleashService.isEnabled(any()) } returns false
     }
 }

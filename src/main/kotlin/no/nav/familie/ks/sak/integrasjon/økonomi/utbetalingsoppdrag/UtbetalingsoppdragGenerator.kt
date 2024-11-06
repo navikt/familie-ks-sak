@@ -31,6 +31,7 @@ class UtbetalingsoppdragGenerator {
         nyTilkjentYtelse: TilkjentYtelse,
         sisteAndelPerKjede: Map<IdentOgType, AndelTilkjentYtelse>,
         erSimulering: Boolean,
+        skalSendeOvergangsordningAndeler: Boolean,
     ): BeregnetUtbetalingsoppdragLongId =
         Utbetalingsgenerator().lagUtbetalingsoppdrag(
             behandlingsinformasjon =
@@ -51,8 +52,8 @@ class UtbetalingsoppdragGenerator {
                     // Ved simulering når migreringsdato er endret, skal vi opphøre fra den nye datoen og ikke fra første utbetaling per kjede.
                     opphørKjederFraFørsteUtbetaling = erSimulering,
                 ),
-            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId() ?: emptyList(),
-            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(),
+            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId(skalSendeOvergangsordningAndeler) ?: emptyList(),
+            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler),
             sisteAndelPerKjede = sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() },
         )
 
@@ -69,9 +70,13 @@ class UtbetalingsoppdragGenerator {
             kildeBehandlingId = kildeBehandlingId,
         )
 
-    private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> {
+    private fun TilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler: Boolean): List<AndelDataLongId> {
         val ordinæreAndeler = this.ordinæreAndelertilAndelDataLongId()
-        val overgangsordningAndeler = this.overgangsordningAndelerTilAndelDataLongId()
+        val overgangsordningAndeler =
+            when (skalSendeOvergangsordningAndeler) {
+                true -> this.overgangsordningAndelerTilAndelDataLongId()
+                false -> emptyList()
+            }
         return ordinæreAndeler + overgangsordningAndeler
     }
 

@@ -8,6 +8,7 @@ import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -20,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.førsteOvergangsordningAndelForHverAktør
 import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -35,6 +37,7 @@ class UtbetalingsoppdragService(
     private val behandlingService: BehandlingService,
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val unleashService: UnleashService,
 ) {
     private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
 
@@ -97,6 +100,7 @@ class UtbetalingsoppdragService(
                 nyTilkjentYtelse = nyTilkjentYtelse,
                 sisteAndelPerKjede = sisteAndelPerKjede,
                 erSimulering = erSimulering,
+                skalSendeOvergangsordningAndeler = unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING),
             )
 
         beregnetUtbetalingsoppdrag.valider(behandlingsresultat = vedtak.behandling.resultat)
@@ -174,11 +178,15 @@ class UtbetalingsoppdragService(
         andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
     ) {
         val ordinæreAndelerTilkjentYtelse = tilkjentYtelse.ordinæreAndeler()
-        val overgangsordningAndeler = tilkjentYtelse.førsteOvergangsordningAndelForHverAktør()
+        val overgangsordningAndeler =
+            when (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+                true -> tilkjentYtelse.førsteOvergangsordningAndelForHverAktør()
+                false -> emptyList()
+            }
         val andelerSomSkalSendesTilOppdrag =
             ordinæreAndelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() } + overgangsordningAndeler
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {
-            error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet andeler med kalkulertUtbetalingsbeløp != 0. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
+            error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet ordinære andeler med kalkulertUtbetalingsbeløp != 0 + antall barn med overgangsordning. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
         }
         andelerSomSkalSendesTilOppdrag.forEach { andel ->
             val andelMedOffset =
