@@ -18,8 +18,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.førsteOvergangsordningAndelForHverAktør
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
@@ -177,14 +176,7 @@ class UtbetalingsoppdragService(
         tilkjentYtelse: TilkjentYtelse,
         andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
     ) {
-        val ordinæreAndelerTilkjentYtelse = tilkjentYtelse.ordinæreAndeler()
-        val overgangsordningAndeler =
-            when (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
-                true -> tilkjentYtelse.førsteOvergangsordningAndelForHverAktør()
-                false -> emptyList()
-            }
-        val andelerSomSkalSendesTilOppdrag =
-            ordinæreAndelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() } + overgangsordningAndeler
+        val andelerSomSkalSendesTilOppdrag = tilkjentYtelse.andelerTilkjentYtelse.filtrerAndelerSomSkalSendesTilOppdrag()
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {
             error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet ordinære andeler med kalkulertUtbetalingsbeløp != 0 + antall barn med overgangsordning. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
         }

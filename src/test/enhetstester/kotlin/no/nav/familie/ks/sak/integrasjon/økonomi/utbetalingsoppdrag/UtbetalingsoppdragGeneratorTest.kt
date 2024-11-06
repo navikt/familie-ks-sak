@@ -19,8 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.beregning.domene.førsteOvergangsordningAndelForHverAktør
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -744,19 +743,13 @@ internal class UtbetalingsoppdragGeneratorTest {
 
     private fun TilkjentYtelse.tilAndelerMedOppdatertOffset(
         andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
-    ): MutableSet<AndelTilkjentYtelse> {
-        val ordinæreAndelerTilkjentYtelse = this.ordinæreAndeler()
-        val overgangsordningAndeler = this.førsteOvergangsordningAndelForHverAktør()
-        val andelerSomSkalSendesTilOppdrag =
-            ordinæreAndelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() } + overgangsordningAndeler
-
-        return andelerSomSkalSendesTilOppdrag
+    ): MutableSet<AndelTilkjentYtelse> =
+        andelerTilkjentYtelse
+            .filtrerAndelerSomSkalSendesTilOppdrag()
             .onEach { andel ->
-                val andelMedOffset =
-                    andelerMedPeriodeId.first { it.id == andel.id }
+                val andelMedOffset = andelerMedPeriodeId.first { it.id == andel.id }
                 andel.periodeOffset = andelMedOffset.periodeId
                 andel.forrigePeriodeOffset = andelMedOffset.forrigePeriodeId
                 andel.kildeBehandlingId = andelMedOffset.kildeBehandlingId
             }.toMutableSet()
-    }
 }

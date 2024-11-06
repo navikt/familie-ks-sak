@@ -25,6 +25,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -678,7 +680,7 @@ internal class UtbetalingsperiodeServiceTest {
 
             every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(behandling.fagsak.id) } returns
                 forrigeTilkjentYtelse.andelerTilkjentYtelse
-                    .filter { it.erAndelSomSkalSendesTilOppdrag() }
+                    .filtrerAndelerSomSkalSendesTilOppdrag()
                     .groupBy { it.aktør.aktivFødselsnummer() }
                     .mapValues { it.value.maxBy { it.periodeOffset!! } }
                     .values

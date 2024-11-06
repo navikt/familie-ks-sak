@@ -89,6 +89,3 @@ fun TilkjentYtelse.ordinæreAndeler() =
 
 fun TilkjentYtelse.overgangsordningAndeler() =
     andelerTilkjentYtelse.filter { it.type == YtelseType.OVERGANGSORDNING }
-
-fun TilkjentYtelse.førsteOvergangsordningAndelForHverAktør() =
-    overgangsordningAndeler().groupBy { it.aktør }.map { it.value.minBy { it.stønadFom } }
