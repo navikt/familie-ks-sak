@@ -4,6 +4,8 @@ import io.mockk.junit5.MockKExtension
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.data.dato
 import no.nav.familie.ks.sak.data.fnrTilAktør
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
@@ -16,6 +18,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.førsteOvergangsordningAndelForHverAktør
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -551,29 +556,207 @@ internal class UtbetalingsoppdragGeneratorTest {
     }
 
     @Test
-    fun `lagUtbetalingsoppdrag skal summere overgangsordningandeler riktig`() {
+    fun `lagUtbetalingsoppdrag skal ikke generere utbetalingsperioder for overgangsordningAndeler som har uendret sum`() {
+        val tidNå = LocalDate.now()
+
+        val aktør = fnrTilAktør(randomFnr())
+        val fagsak = lagFagsak(aktør)
+
+        val førsteBehandling =
+            lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak).also {
+                it.behandlingStegTilstand.forEach { behandlingSteg ->
+                    behandlingSteg.behandlingStegStatus = BehandlingStegStatus.UTFØRT
+                }
+            }
+
+        val vedtak = Vedtak(behandling = førsteBehandling)
+
+        val tilkjentYtelseIFørsteBehandling =
+            TilkjentYtelse(behandling = førsteBehandling, opprettetDato = tidNå, endretDato = tidNå)
+
+        val andelTilkjentYtelserIFørsteBehandling =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    id = 0,
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                    behandling = førsteBehandling,
+                    aktør = aktør,
+                    stønadFom = årMåned("2020-01"),
+                    stønadTom = årMåned("2024-07"),
+                ),
+                lagAndelTilkjentYtelse(
+                    id = 1,
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                    behandling = førsteBehandling,
+                    aktør = aktør,
+                    stønadFom = årMåned("2024-10"),
+                    stønadTom = årMåned("2024-11"),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+                lagAndelTilkjentYtelse(
+                    id = 2,
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                    behandling = førsteBehandling,
+                    aktør = aktør,
+                    stønadFom = årMåned("2025-01"),
+                    stønadTom = årMåned("2025-02"),
+                    kalkulertUtbetalingsbeløp = 2000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+            )
+
+        tilkjentYtelseIFørsteBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIFørsteBehandling)
+
+        val oppdatertTilkjentYtelseIFørsteBehandling =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = null,
+                nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                sisteAndelPerKjede = emptyMap(),
+                erSimulering = false,
+                skalSendeOvergangsordningAndeler = true,
+            )
+
+        val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(oppdatertTilkjentYtelseIFørsteBehandling.andeler)
+
+        val andreBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD, fagsak = fagsak)
+
+        val tilkjentYtelseIAndreBehandling =
+            TilkjentYtelse(behandling = andreBehandling, opprettetDato = tidNå, endretDato = tidNå)
+
+        val andelTilkjentYtelserIAndreBehandling =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    id = 3,
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                    behandling = førsteBehandling,
+                    aktør = aktør,
+                    stønadFom = årMåned("2020-01"),
+                    stønadTom = årMåned("2024-07"),
+                ),
+                lagAndelTilkjentYtelse(
+                    id = 4,
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                    behandling = førsteBehandling,
+                    aktør = aktør,
+                    stønadFom = årMåned("2024-08"),
+                    stønadTom = årMåned("2024-08"),
+                    kalkulertUtbetalingsbeløp = 4000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+                lagAndelTilkjentYtelse(
+                    id = 5,
+                    tilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                    behandling = førsteBehandling,
+                    aktør = aktør,
+                    stønadFom = årMåned("2025-01"),
+                    stønadTom = årMåned("2025-02"),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+            )
+
+        tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
+
+        val beregnetUtbetalingsoppdragLongId =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
+                nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
+                sisteAndelPerKjede =
+                    oppdaterteAndelerTilkjentYtelseFørsteBehandling
+                        .groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }
+                        .filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }
+                        .mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
+                erSimulering = false,
+                skalSendeOvergangsordningAndeler = true,
+            )
+
+        val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
+
+        assertThat("Det er uventede utbetalingsperioder: ${utbetalingsoppdrag.utbetalingsperiode}", utbetalingsoppdrag.utbetalingsperiode.size, Is(0))
     }
 
-    // Flere barn
-    // Flere andeler per barn
-    // Perioder som er lengre enn én måned gir riktig sum
-    // Ordinære og overgangsordningandeler fucker ikke opp hverandre
-    // Sjekke riktig offset
+    @Test
+    fun `lagUtbetalingsoppdrag skal generere én utbetalingsperiode for overgangsordning per barn `() {
+        val tidNå = LocalDate.now()
+
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val aktør = fnrTilAktør(randomFnr())
+        val aktør2 = fnrTilAktør(randomFnr())
+        val vedtak = Vedtak(behandling = behandling)
+        val tilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå)
+
+        val andelTilkjentYtelser =
+            listOf(
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2024-05"), årMåned("2024-08"), id = 0),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2024-09"), årMåned("2024-10"), id = 1, ytelseType = YtelseType.OVERGANGSORDNING),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør, årMåned("2024-12"), årMåned("2024-12"), id = 2, ytelseType = YtelseType.OVERGANGSORDNING),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2024-11"), årMåned("2024-12"), id = 3, ytelseType = YtelseType.OVERGANGSORDNING, kalkulertUtbetalingsbeløp = 1000),
+                lagAndelTilkjentYtelse(tilkjentYtelse, behandling, aktør2, årMåned("2025-01"), årMåned("2025-02"), id = 4, ytelseType = YtelseType.OVERGANGSORDNING),
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
+
+        val beregnetUtbetalingsoppdragLongId =
+            utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
+                saksbehandlerId = "123abc",
+                vedtak = vedtak,
+                forrigeTilkjentYtelse = null,
+                nyTilkjentYtelse = tilkjentYtelse,
+                sisteAndelPerKjede = emptyMap(),
+                erSimulering = false,
+                skalSendeOvergangsordningAndeler = true,
+            )
+
+        val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
+
+        assertThat(utbetalingsoppdrag.kodeEndring, Is(no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.NY))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
+        assertThat(
+            "Sats på utbetalingsperiode var feil: ${utbetalingsoppdrag.utbetalingsperiode.map { it.sats }}",
+            utbetalingsoppdrag.utbetalingsperiode.map { it.sats.toInt() },
+            Is(listOf(7500, 22500, 17000)),
+        )
+        assertThat(
+            utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == behandling.fagsak.aktør.aktivFødselsnummer() },
+            Is(true),
+        )
+
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoFom, Is(dato("2024-05-01")))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoTom, Is(dato("2024-08-31")))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].periodeId, Is(0))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].forrigePeriodeId, Is(nullValue()))
+
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].vedtakdatoFom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().førsteDagIInneværendeMåned()))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].vedtakdatoTom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().sisteDagIMåned()))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].periodeId, Is(1))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[1].forrigePeriodeId, Is(0))
+
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].vedtakdatoFom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().førsteDagIInneværendeMåned()))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].vedtakdatoTom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().sisteDagIMåned()))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].periodeId, Is(2))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode[2].forrigePeriodeId, Is(nullValue()))
+    }
 
     private fun TilkjentYtelse.tilAndelerMedOppdatertOffset(
         andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
     ): MutableSet<AndelTilkjentYtelse> {
-        val andelerPåId = andelerMedPeriodeId.associateBy { it.id }
-        val andelerTilkjentYtelse = this.andelerTilkjentYtelse
+        val ordinæreAndelerTilkjentYtelse = this.ordinæreAndeler()
+        val overgangsordningAndeler = this.førsteOvergangsordningAndelForHverAktør()
+        val andelerSomSkalSendesTilOppdrag =
+            ordinæreAndelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() } + overgangsordningAndeler
 
-        andelerTilkjentYtelse.forEach { andel ->
-            if (andel.erAndelSomSkalSendesTilOppdrag()) {
-                val andelMedOffset = andelerPåId[andel.id]
-                andel.periodeOffset = andelMedOffset!!.periodeId
+        return andelerSomSkalSendesTilOppdrag
+            .onEach { andel ->
+                val andelMedOffset =
+                    andelerMedPeriodeId.first { it.id == andel.id }
+                andel.periodeOffset = andelMedOffset.periodeId
                 andel.forrigePeriodeOffset = andelMedOffset.forrigePeriodeId
                 andel.kildeBehandlingId = andelMedOffset.kildeBehandlingId
-            }
-        }
-        return andelerTilkjentYtelse
+            }.toMutableSet()
     }
 }
