@@ -244,7 +244,8 @@ class StegService(
 
         return lagEndringIUtbetalingTidslinje(ordinæreAndelerNåværendeBehandling, ordinæreAndelerForrigeBehandling)
             .tilPerioder()
-            .any { it.verdi == true } || erEndringIOvergangsordningAndeler(overgangsordningAndelerNåværendeBehandling, overgangsordningAndelerForrigeBehandling)
+            .any { it.verdi == true } ||
+            erEndringIOvergangsordningAndeler(overgangsordningAndelerNåværendeBehandling, overgangsordningAndelerForrigeBehandling)
     }
 
     private fun erEndringIOvergangsordningAndeler(
