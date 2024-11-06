@@ -20,7 +20,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil.lagEndringIUtbetalingTidslinje
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbehandlingRequestTask
@@ -225,15 +228,40 @@ class StegService(
 
     fun erEndringIUtbetaling(behandling: Behandling): Boolean {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
-        val andelerForrigeBehandling =
-            forrigeBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
-                ?: emptyList()
+        val (ordinæreAndelerForrigeBehandling, overgangsordningAndelerForrigeBehandling) =
+            forrigeBehandling?.let {
+                andelTilkjentYtelseRepository
+                    .finnAndelerTilkjentYtelseForBehandling(it.id)
+                    .partition { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+            } ?: Pair(emptyList(), emptyList())
 
-        val andelerBehandling = behandling.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
+        val (ordinæreAndelerNåværendeBehandling, overgangsordningAndelerNåværendeBehandling) =
+            behandling.let {
+                andelTilkjentYtelseRepository
+                    .finnAndelerTilkjentYtelseForBehandling(it.id)
+                    .partition { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+            }
 
-        return lagEndringIUtbetalingTidslinje(andelerBehandling, andelerForrigeBehandling)
+        return lagEndringIUtbetalingTidslinje(ordinæreAndelerNåværendeBehandling, ordinæreAndelerForrigeBehandling)
             .tilPerioder()
-            .any { it.verdi == true }
+            .any { it.verdi == true } || erEndringIOvergangsordningAndeler(overgangsordningAndelerNåværendeBehandling, overgangsordningAndelerForrigeBehandling)
+    }
+
+    private fun erEndringIOvergangsordningAndeler(
+        andelerNåværendeBehandling: List<AndelTilkjentYtelse>,
+        andelerForrigeBehandling: List<AndelTilkjentYtelse>,
+    ): Boolean {
+        val sumOvergangsordningAndelerPerAktør =
+            andelerNåværendeBehandling
+                .filter { it.type == YtelseType.OVERGANGSORDNING }
+                .groupBy { it.aktør }
+                .mapValues { (_, nåværendeOvergangsordningAndeler) ->
+                    nåværendeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+                }
+
+        return andelerForrigeBehandling.groupBy { it.aktør }.any { (aktør, forrigeOvergangsordningAndeler) ->
+            sumOvergangsordningAndelerPerAktør[aktør] != forrigeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+        }
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {
