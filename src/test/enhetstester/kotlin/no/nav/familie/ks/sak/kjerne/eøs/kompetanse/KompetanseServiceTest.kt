@@ -69,7 +69,7 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn1.aktivFødselsnummer()) } returns barn1
         every { personidentService.hentAktør(barn2.aktivFødselsnummer()) } returns barn2
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
-        every { endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId.id) } returns
+        every { endretUtbetalingAndelTidslinjeService.hentBarnasSkalIkkeUtbetalesTidslinjer(behandlingId.id) } returns
             emptyMap()
         kompetanseRepository.deleteAll()
     }

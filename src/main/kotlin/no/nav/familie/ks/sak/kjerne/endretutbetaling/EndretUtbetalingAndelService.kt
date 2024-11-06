@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -94,8 +95,8 @@ class EndretUtbetalingAndelService(
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach {
-            it.endretUtbetalingAndelerOppdatert(
-                behandlingId = behandling.id,
+            it.tilpassKompetanserTilEndretUtbetalingAndeler(
+                behandlingId = BehandlingId(behandling.id),
                 endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
             )
         }
@@ -120,8 +121,8 @@ class EndretUtbetalingAndelService(
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
-            abonnent.endretUtbetalingAndelerOppdatert(
-                behandlingId = behandling.id,
+            abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
+                behandlingId = BehandlingId(behandling.id),
                 endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id),
             )
         }
@@ -143,8 +144,8 @@ class EndretUtbetalingAndelService(
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {
-    fun endretUtbetalingAndelerOppdatert(
-        behandlingId: Long,
+    fun tilpassKompetanserTilEndretUtbetalingAndeler(
+        behandlingId: BehandlingId,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     )
 }
