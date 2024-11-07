@@ -180,7 +180,7 @@ class UtbetalingsoppdragService(
         val andelerSomSkalSendesTilOppdrag =
             when (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
                 true -> tilkjentYtelse.andelerTilkjentYtelse
-                false -> tilkjentYtelse.ordinæreAndeler()
+                false -> tilkjentYtelse.andelerTilkjentYtelse.ordinæreAndeler()
             }.filtrerAndelerSomSkalSendesTilOppdrag()
 
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {

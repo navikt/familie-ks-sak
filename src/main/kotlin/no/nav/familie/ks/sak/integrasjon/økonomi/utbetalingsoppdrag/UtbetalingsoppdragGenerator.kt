@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
-import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndelerPerAktør
 import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -80,12 +80,16 @@ class UtbetalingsoppdragGenerator {
         return ordinæreAndeler + overgangsordningAndeler
     }
 
-    private fun TilkjentYtelse.ordinæreAndelertilAndelDataLongId(): List<AndelDataLongId> = this.ordinæreAndeler().map { it.tilAndelDataLongId() }
+    private fun TilkjentYtelse.ordinæreAndelertilAndelDataLongId(): List<AndelDataLongId> =
+        this
+            .andelerTilkjentYtelse
+            .ordinæreAndeler()
+            .map { it.tilAndelDataLongId() }
 
     private fun TilkjentYtelse.overgangsordningAndelerTilAndelDataLongId(): List<AndelDataLongId> =
         this
-            .overgangsordningAndeler()
-            .groupBy { it.aktør }
+            .andelerTilkjentYtelse
+            .overgangsordningAndelerPerAktør()
             .map { (aktør, overgangsordningAndeler) ->
                 val førsteAndel = overgangsordningAndeler.minBy { it.stønadFom }
                 val kalkulertUtbetalingsbeløp = overgangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }

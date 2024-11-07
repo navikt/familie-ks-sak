@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndelerPerAktør
 import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil.lagEndringIUtbetalingTidslinje
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -254,15 +255,16 @@ class StegService(
     ): Boolean {
         val sumOvergangsordningAndelerPerAktør =
             andelerNåværendeBehandling
-                .filter { it.type == YtelseType.OVERGANGSORDNING }
-                .groupBy { it.aktør }
+                .overgangsordningAndelerPerAktør()
                 .mapValues { (_, nåværendeOvergangsordningAndeler) ->
                     nåværendeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
                 }
 
-        return andelerForrigeBehandling.groupBy { it.aktør }.any { (aktør, forrigeOvergangsordningAndeler) ->
-            sumOvergangsordningAndelerPerAktør[aktør] != forrigeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
-        }
+        return andelerForrigeBehandling
+            .overgangsordningAndelerPerAktør()
+            .any { (aktør, forrigeOvergangsordningAndeler) ->
+                sumOvergangsordningAndelerPerAktør[aktør] != forrigeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+            }
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {

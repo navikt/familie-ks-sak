@@ -138,10 +138,8 @@ data class AndelTilkjentYtelse(
             this.stønadTom >= måndePeriode.fom
 }
 
-fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> {
-    val (ordinæreAndeler, overgangsordningAndeler) = partition { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
-    return overgangsordningAndeler.groupBy { it.aktør }.map { it.value.minBy { it.stønadFom } } + ordinæreAndeler.filter { it.kalkulertUtbetalingsbeløp != 0 }
-}
+fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> =
+    overgangsordningAndelerPerAktør().map { it.value.minBy { it.stønadFom } } + ordinæreAndeler().filter { it.kalkulertUtbetalingsbeløp != 0 }
 
 fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
     this.fold(emptyList()) { acc, andelTilkjentYtelse ->
@@ -159,6 +157,12 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
     }
 
 fun AndelTilkjentYtelse.totalKalkulertUtbetalingsbeløpForPeriode(): Int = kalkulertUtbetalingsbeløp * stønadsPeriode().antallMåneder()
+
+fun Iterable<AndelTilkjentYtelse>.ordinæreAndeler() =
+    this.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+
+fun Iterable<AndelTilkjentYtelse>.overgangsordningAndelerPerAktør() =
+    this.filter { it.type == YtelseType.OVERGANGSORDNING }.groupBy { it.aktør }
 
 enum class YtelseType(
     val klassifisering: String,
