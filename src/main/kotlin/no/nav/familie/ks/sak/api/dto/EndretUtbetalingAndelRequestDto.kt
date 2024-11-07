@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -30,4 +31,10 @@ data class EndretUtbetalingAndelResponsDto(
     val begrunnelse: String?,
     val erEksplisittAvslagPåSøknad: Boolean?,
     val erTilknyttetAndeler: Boolean,
+)
+
+
+data class EndretUtbetalingBegrunnelseResponseDto(
+    val id: IBegrunnelse,
+    val navn: String,
 )

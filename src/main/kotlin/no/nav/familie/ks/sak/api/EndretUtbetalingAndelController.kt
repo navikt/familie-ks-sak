@@ -1,16 +1,14 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingBegrunnelseResponseDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
-import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.standardbegrunnelserTilNedtrekksmenytekster
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
@@ -115,50 +113,42 @@ class EndretUtbetalingAndelController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 
-    fun vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
-        sanityBegrunnelser: List<SanityBegrunnelse>,
-        vedtakBegrunnelse: IBegrunnelse,
-    ): List<VedtakBegrunnelseTilknyttetVilkårResponseDto> {
-        val sanityBegrunnelse = vedtakBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
-        val visningsnavn = sanityBegrunnelse.navnISystem
+    fun hentSanityTekstIRestFormat (sanityBegrunnelser: List<SanityBegrunnelse>, begrunnelse:IBegrunnelse): List<EndretUtbetalingBegrunnelseResponseDto> {
+        val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
 
-        return if (sanityBegrunnelse.vilkår.isEmpty()) {
-            listOf(
-                VedtakBegrunnelseTilknyttetVilkårResponseDto(
-                    id = vedtakBegrunnelse,
+        if (sanityBegrunnelse != null) {
+            val visningsnavn = sanityBegrunnelse.navnISystem
+
+            return listOf(EndretUtbetalingBegrunnelseResponseDto(
+                    id = begrunnelse,
                     navn = visningsnavn,
-                    vilkår = null,
-                ),
-            )
-        } else {
-            sanityBegrunnelse.vilkår.map {
-                VedtakBegrunnelseTilknyttetVilkårResponseDto(
-                    id = vedtakBegrunnelse,
-                    navn = visningsnavn,
-                    vilkår = it,
-                )
-            }
+                ))
         }
+
+        return emptyList()
     }
 
-    fun standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser: List<SanityBegrunnelse>): List<Any> =
-        (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
-            .filter {it.begrunnelseType == BegrunnelseType.AVSLAG}
+    @GetMapping(
+        path = ["/endret-utbetaling-begrunnelser"])
+    fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<EndretUtbetalingBegrunnelseResponseDto>>>> {
+        // Hent ut de råe sanityTekstene
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
+        // Map sanityTekstene til allerede definerte begrunnelsesArrays og formater de riktig
+        val mappingTilSanityTekster = (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
+            .groupBy { it.begrunnelseType }
             .mapValues { begrunnelseGruppe ->
                 begrunnelseGruppe.value
-                    .flatMap { avslagBegrunnelse ->
-                        vedtakBegrunnelseTilRestVedtakBegrunnelseTilknyttetVilkår(
+                    .flatMap { endretUtbetalingBegrunnelse ->
+                        hentSanityTekstIRestFormat(
                             sanityBegrunnelser,
-                            avslagBegrunnelse,
+                            endretUtbetalingBegrunnelse,
                         )
                     }
             }
 
-    @GetMapping(path = ["/avslag-allerede-utbetalt-begrunnelser"])
-    fun hentBegrunnelser(): ResponseEntity<Ressurs<String>> {
-        //
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-        val mappingTilSanityTekster = standardbegrunnelserTilNedtrekksmenytekster(sanityBegrunnelser)
-        return ResponseEntity.ok(Ressurs.success("yolo"));
+        // Returnere en array med sanitytekster som det gjelder
+        println(mappingTilSanityTekster)
+        return ResponseEntity.ok(Ressurs.success(mappingTilSanityTekster));
     }
 }
