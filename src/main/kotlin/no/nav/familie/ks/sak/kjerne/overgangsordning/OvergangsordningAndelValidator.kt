@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅrKort
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -71,29 +72,23 @@ object OvergangsordningAndelValidator {
         overgangsordningAndeler: List<UtfyltOvergangsordningAndel>,
         barnehageplassVilkårPerPerson: Map<Aktør, List<VilkårResultat>>,
     ) {
-        val andelerTidslinjePerAktør = overgangsordningAndeler.groupBy { it.person.aktør }.mapValues { it.value.tilPerioder().tilTidslinje() }
-        val barnehagevilkårTidslinjePerAktør = barnehageplassVilkårPerPerson.mapValues { it.value.tilTidslinje() }
-
-        andelerTidslinjePerAktør.forEach { (aktør, andelerTidslinje) ->
-            val barnehagevilkårTidslinje = barnehagevilkårTidslinjePerAktør[aktør] ?: throw FunksjonellFeil("Fant ikke barnehagevilkår for aktør $aktør")
-            andelerTidslinje.kombinerMed(barnehagevilkårTidslinje) { andel, vilkår ->
-                if (andel != null && vilkår?.resultat != Resultat.OPPFYLT) {
-                    throw FunksjonellFeil(
-                        melding = "Barnehagevilkåret må være oppfylt for alle periodene du prøver å legge til periode for overgangsordning.",
-                        frontendFeilmelding = "Barnehagevilkåret for barnet må være oppfylt for alle periodene det er overgangsordning.",
-                    )
-                }
-            }
+        overgangsordningAndeler.forEach { overgangsordningAndel ->
+            val barnehagevilkår =
+                barnehageplassVilkårPerPerson[overgangsordningAndel.person.aktør]
+                    ?: throw FunksjonellFeil("Fant ikke barnehagevilkår for barn født ${overgangsordningAndel.person.fødselsdato.tilKortString()}")
+            validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(
+                overgangsordningAndel = overgangsordningAndel,
+                barnehageplassVilkår = barnehagevilkår,
+            )
         }
     }
 
     fun validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
         nyOvergangsordningAndel: UtfyltOvergangsordningAndel,
-        eksisterendeOvergangsordningAndeler: List<OvergangsordningAndel>,
+        eksisterendeUtfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
     ) {
-        if (eksisterendeOvergangsordningAndeler.any {
-                it.overlapperMed(nyOvergangsordningAndel.periode) &&
-                    it.person == nyOvergangsordningAndel.person
+        if (eksisterendeUtfylteOvergangsordningAndeler.any {
+                it.overlapperMed(nyOvergangsordningAndel) && it.person == nyOvergangsordningAndel.person
             }
         ) {
             throw FunksjonellFeil(
@@ -120,14 +115,14 @@ object OvergangsordningAndelValidator {
 
         if (perioderBarnehagevilkårIkkeErOppfylt.isNotEmpty()) {
             val feilmelding =
-                "Barnehagevilkåret må være oppfylt alle periodene det er overgangsordning. " +
+                "Barnehageplassvilkåret må være oppfylt alle periodene det er overgangsordning for barn født ${overgangsordningAndel.person.fødselsdato.tilKortString()}. " +
                     "Vilkåret er ikke oppfylt i " +
                     when (perioderBarnehagevilkårIkkeErOppfylt.size) {
                         1 -> "perioden ${perioderBarnehagevilkårIkkeErOppfylt.first()}."
                         else -> "periodene ${perioderBarnehagevilkårIkkeErOppfylt.dropLast(1).joinToString()} og ${perioderBarnehagevilkårIkkeErOppfylt.last()}."
                     }
             throw FunksjonellFeil(
-                melding = "Barnehagevilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.",
+                melding = "Barnehageplassvilkåret er ikke oppfylt i perioden som blir forsøkt lagt til.",
                 frontendFeilmelding = feilmelding,
             )
         }

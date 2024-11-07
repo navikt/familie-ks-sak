@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAnde
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -30,6 +31,11 @@ class OvergangsordningAndelService(
     private val vilkårsvurderingService: VilkårsvurderingService,
 ) {
     fun hentOvergangsordningAndeler(behandlingId: Long) = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId)
+
+    fun hentOvergangsordningAndelerForPerson(
+        behandlingId: Long,
+        person: Person,
+    ): List<OvergangsordningAndel> = hentOvergangsordningAndeler(behandlingId).filter { it.person == person }
 
     @Transactional
     fun opprettTomOvergangsordningAndel(behandling: Behandling): OvergangsordningAndel {
@@ -50,7 +56,9 @@ class OvergangsordningAndelService(
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person = personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == overgangsordningAndelRequestDto.personIdent }
         val vilkårsvurdering by lazy { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
-        val andreOvergangsordningAndelerPåBehandling by lazy { hentOvergangsordningAndeler(behandling.id).filter { it.id != overgangsordningAndelId } }
+        val andreUtfylteOvergangsordningAndelerPåBehandling by lazy {
+            hentOvergangsordningAndelerForPerson(behandling.id, person).filter { it.id != overgangsordningAndelId }.utfyltePerioder()
+        }
 
         val utfyltOvergangsordningAndel =
             overgangsordningAndel
@@ -74,7 +82,7 @@ class OvergangsordningAndelService(
 
         validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
             nyOvergangsordningAndel = utfyltOvergangsordningAndel,
-            eksisterendeOvergangsordningAndeler = andreOvergangsordningAndelerPåBehandling,
+            eksisterendeUtfylteOvergangsordningAndeler = andreUtfylteOvergangsordningAndelerPåBehandling,
         )
 
         validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(
@@ -82,7 +90,7 @@ class OvergangsordningAndelService(
             barnehageplassVilkår = barnehageplassVilkår,
         )
 
-        slåSammenOgOppdaterOvergangsordningAndeler(behandling)
+        slåSammenOgOppdaterOvergangsordningAndeler(behandling, person)
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(
             behandling = behandling,
@@ -120,8 +128,11 @@ class OvergangsordningAndelService(
         overgangsordningAndelRepository.finnOvergangsordningAndel(overgangsordningAndelId)
             ?: throw FunksjonellFeil(melding = "Fant ikke overgangsordningandel med id $overgangsordningAndelId")
 
-    private fun slåSammenOgOppdaterOvergangsordningAndeler(behandling: Behandling) {
-        val overgangsordningAndeler = hentOvergangsordningAndeler(behandling.id)
+    private fun slåSammenOgOppdaterOvergangsordningAndeler(
+        behandling: Behandling,
+        person: Person,
+    ) {
+        val overgangsordningAndeler = hentOvergangsordningAndelerForPerson(behandling.id, person)
         val sammenslåtteOvergangsordningAndeler = overgangsordningAndeler.slåSammenLikePerioder()
         val utfyltePerioder = overgangsordningAndeler.filter { it.erObligatoriskeFelterUtfylt() }
 

@@ -75,8 +75,6 @@ data class OvergangsordningAndel(
 
     override fun hashCode(): Int = id.hashCode()
 
-    fun overlapperMed(periode: MånedPeriode) = periode.overlapperHeltEllerDelvisMed(this.periode)
-
     fun erObligatoriskeFelterUtfylt(): Boolean =
         this.person != null &&
             this.fom != null &&
@@ -174,6 +172,9 @@ data class UtfyltOvergangsordningAndel(
             fom = fom.atDay(1),
             tom = tom.atEndOfMonth(),
         )
+
+    fun overlapperMed(overgangsordningAndel: UtfyltOvergangsordningAndel) =
+        overgangsordningAndel.periode.overlapperHeltEllerDelvisMed(this.periode)
 }
 
 fun List<UtfyltOvergangsordningAndel>.tilPerioder(): List<Periode<OvergangsordningAndelPeriode>> = map { it.tilPeriode() }

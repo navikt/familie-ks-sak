@@ -69,7 +69,7 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn1.aktivFødselsnummer()) } returns barn1
         every { personidentService.hentAktør(barn2.aktivFødselsnummer()) } returns barn2
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
-        every { endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId.id) } returns
+        every { endretUtbetalingAndelTidslinjeService.hentBarnasSkalIkkeUtbetalesTidslinjer(behandlingId.id) } returns
             emptyMap()
         kompetanseRepository.deleteAll()
     }
@@ -443,7 +443,8 @@ internal class KompetanseServiceTest {
     fun `tilpassKompetanse skal opprette kompetanseskjema med ingen sluttdato når regelverk-tidslinjer fortsetter etter nåtidspunktet`() {
         every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
 
-        val fom = LocalDate.now().minusMonths(3).førsteDagIInneværendeMåned()
+        val nåDato = LocalDate.of(2024, 10, 1)
+        val fom = nåDato.minusMonths(3).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
         val tomForBarn2 = fom.plusMonths(6).sisteDagIMåned()
 
@@ -480,7 +481,8 @@ internal class KompetanseServiceTest {
     fun `tilpassKompetanse skal opprette kompetanse med sluttdato når et av barnets regelverk-tidslinjer avsluttes før nåtidspunktet`() {
         every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
 
-        val fom = LocalDate.now().minusMonths(6).førsteDagIInneværendeMåned()
+        val nåDato = LocalDate.of(2024, 10, 1)
+        val fom = nåDato.minusMonths(6).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
         val tomForBarn2 = fom.plusMonths(3).sisteDagIMåned()
 

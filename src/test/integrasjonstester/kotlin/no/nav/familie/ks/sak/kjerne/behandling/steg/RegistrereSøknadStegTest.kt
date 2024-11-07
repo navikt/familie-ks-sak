@@ -79,7 +79,6 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         // Mocker ut tjenester som kjører eksterne kall
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandlendeEnhet(any()) } just runs
-        every { infotrygdReplikaClient.harKontantstøtteIInfotrygd(any()) } returns false
     }
 
     @Test
