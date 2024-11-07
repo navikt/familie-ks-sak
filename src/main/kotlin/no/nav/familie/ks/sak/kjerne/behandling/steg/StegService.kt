@@ -253,18 +253,21 @@ class StegService(
         andelerNåværendeBehandling: List<AndelTilkjentYtelse>,
         andelerForrigeBehandling: List<AndelTilkjentYtelse>,
     ): Boolean {
-        val sumOvergangsordningAndelerPerAktør =
+        val sumOvergangsordningAndelerPerAktørNåværendeBehandling =
             andelerNåværendeBehandling
                 .overgangsordningAndelerPerAktør()
-                .mapValues { (_, nåværendeOvergangsordningAndeler) ->
-                    nåværendeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+                .mapValues { (_, andeler) ->
+                    andeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
                 }
 
-        return andelerForrigeBehandling
-            .overgangsordningAndelerPerAktør()
-            .any { (aktør, forrigeOvergangsordningAndeler) ->
-                sumOvergangsordningAndelerPerAktør[aktør] != forrigeOvergangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
-            }
+        val sumOvergangsordningAndelerPerAktørForrigeBehandling =
+            andelerForrigeBehandling
+                .overgangsordningAndelerPerAktør()
+                .mapValues { (_, andeler) ->
+                    andeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+                }
+
+        return sumOvergangsordningAndelerPerAktørNåværendeBehandling != sumOvergangsordningAndelerPerAktørForrigeBehandling
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {
