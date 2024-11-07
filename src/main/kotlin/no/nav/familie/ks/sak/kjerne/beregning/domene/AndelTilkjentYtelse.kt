@@ -20,6 +20,7 @@ import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
+import no.nav.familie.ks.sak.common.util.antallMåneder
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.YtelsetypeKS
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -135,9 +136,10 @@ data class AndelTilkjentYtelse(
     fun overlapperPeriode(måndePeriode: MånedPeriode): Boolean =
         this.stønadFom <= måndePeriode.tom &&
             this.stønadTom >= måndePeriode.fom
-
-    fun erAndelSomSkalSendesTilOppdrag(): Boolean = this.kalkulertUtbetalingsbeløp != 0
 }
+
+fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> =
+    overgangsordningAndelerPerAktør().map { it.value.minBy { it.stønadFom } } + ordinæreAndeler().filter { it.kalkulertUtbetalingsbeløp != 0 }
 
 fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
     this.fold(emptyList()) { acc, andelTilkjentYtelse ->
@@ -153,6 +155,14 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
             acc + andelTilkjentYtelse
         }
     }
+
+fun AndelTilkjentYtelse.totalKalkulertUtbetalingsbeløpForPeriode(): Int = kalkulertUtbetalingsbeløp * stønadsPeriode().antallMåneder()
+
+fun Iterable<AndelTilkjentYtelse>.ordinæreAndeler() =
+    this.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+
+fun Iterable<AndelTilkjentYtelse>.overgangsordningAndelerPerAktør() =
+    this.filter { it.type == YtelseType.OVERGANGSORDNING }.groupBy { it.aktør }
 
 enum class YtelseType(
     val klassifisering: String,
