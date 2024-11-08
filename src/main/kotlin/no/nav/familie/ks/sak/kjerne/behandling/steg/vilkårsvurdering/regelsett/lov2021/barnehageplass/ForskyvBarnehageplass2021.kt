@@ -11,8 +11,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import java.math.BigDecimal
 
-fun List<VilkårResultat>.forskyvBarnehageplassVilkår(): List<Periode<VilkårResultat>> =
-    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
+fun forskyvBarnehageplassVilkår(
+    vilkårResultats: List<VilkårResultat>,
+): List<Periode<VilkårResultat>> =
+    vilkårResultats
+        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder()
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -43,8 +46,9 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 
             val graderingsforskjellMellomDenneOgForrigePeriode =
                 finnGraderingsforskjellMellomDenneOgForrigePeriode(
-                    vilkårResultat,
-                    vilkårResultatIForrigePeriode,
+                    vilkårResultatForrigePeriode = vilkårResultatIForrigePeriode?.vilkårResultat,
+                    vilkårResultatDennePerioden = vilkårResultat,
+                    erFørstePeriode = vilkårResultatIForrigePeriode == null,
                 )
 
             val accMedForrigeOppdatert =

@@ -14,7 +14,7 @@ fun forskyvFomBasertPåGraderingsforskjell(
         Graderingsforskjell.LIK,
         Graderingsforskjell.ØKNING_GRUNNET_SLUTT_I_BARNEHAGE,
         Graderingsforskjell.ØKNING,
-        -> fomDato.minusDays(1).plusMonths(1)?.førsteDagIInneværendeMåned()
+        -> fomDato.minusDays(1).plusMonths(1).førsteDagIInneværendeMåned()
 
         Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING,
         Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING,

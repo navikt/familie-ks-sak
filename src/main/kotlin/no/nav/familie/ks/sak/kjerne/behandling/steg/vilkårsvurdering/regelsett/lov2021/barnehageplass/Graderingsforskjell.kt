@@ -15,25 +15,26 @@ enum class Graderingsforskjell {
 }
 
 fun finnGraderingsforskjellMellomDenneOgForrigePeriode(
-    vilkårResultat: VilkårResultat?,
-    vilkårResultatForrigePeriode: BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat?>?,
+    vilkårResultatForrigePeriode: VilkårResultat?,
+    vilkårResultatDennePerioden: VilkårResultat?,
+    erFørstePeriode: Boolean,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
-        vilkårResultatForrigePeriode?.vilkårResultat?.let {
-            hentProsentForAntallTimer(vilkårResultatForrigePeriode.vilkårResultat.antallTimer)
-        } ?: BigDecimal.ZERO
+        when (vilkårResultatForrigePeriode == null) {
+            false -> hentProsentForAntallTimer(vilkårResultatForrigePeriode.antallTimer)
+            true -> BigDecimal.ZERO
+        }
 
     val graderingDennePerioden =
-        vilkårResultat?.let {
-            hentProsentForAntallTimer(vilkårResultat.antallTimer)
-        } ?: BigDecimal.ZERO
+        when (vilkårResultatDennePerioden == null) {
+            false -> hentProsentForAntallTimer(vilkårResultatDennePerioden.antallTimer)
+            true -> BigDecimal.ZERO
+        }
 
-    val erFørstePeriode = vilkårResultatForrigePeriode == null
+    val gikkIBarnehageForrigePeriode = vilkårResultatForrigePeriode?.antallTimer != null
+    val gårIkkeIBarnehageDennePerioden = vilkårResultatDennePerioden?.antallTimer == null
 
-    val gikkPåBarnehageForrigePeriode = vilkårResultatForrigePeriode?.vilkårResultat?.antallTimer != null
-    val gårIkkePåBarnehageDennePerioden = vilkårResultat?.antallTimer == null
-
-    val sluttetIBarnehageDennePerioden = gikkPåBarnehageForrigePeriode && gårIkkePåBarnehageDennePerioden
+    val sluttetIBarnehageDennePerioden = gikkIBarnehageForrigePeriode && gårIkkeIBarnehageDennePerioden
 
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden == BigDecimal.ZERO -> Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING
