@@ -46,17 +46,20 @@ class BrevmalService {
             )
         }
 
+        val behandlingType = behandling.type
+        val behandlingÅrsak = behandling.opprettetÅrsak
+
         val brevmal =
             when {
-                behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
-                behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024 -> Brevmal.VEDTAK_OVERGANGSORDNING
-                behandling.type == BehandlingType.FØRSTEGANGSBEHANDLING ->
-                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(behandlingsresultat = behandling.resultat)
+                behandlingÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
+                behandlingÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024 -> Brevmal.VEDTAK_OVERGANGSORDNING
+                behandlingType == BehandlingType.FØRSTEGANGSBEHANDLING -> utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(behandlingsresultat = behandling.resultat)
+                behandlingType == BehandlingType.REVURDERING -> utledBrevmalFraBehandlingsresultatForRevurdering(behandlingsresultat = behandling.resultat)
 
-                behandling.type == BehandlingType.REVURDERING ->
-                    utledBrevmalFraBehandlingsresultatForRevurdering(behandlingsresultat = behandling.resultat)
-
-                else -> throw Feil("Kunne ikke utlede hvilket brevmal som skulle benyttes")
+                else ->
+                    throw Feil(
+                        "Kunne ikke utlede hvilket brevmal som skulle benyttes behandling type $behandlingType og årsak $behandlingÅrsak",
+                    )
             }
 
         return if (brevmal.erVedtaksbrev) {

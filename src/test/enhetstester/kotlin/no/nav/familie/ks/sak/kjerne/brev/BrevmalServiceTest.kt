@@ -81,6 +81,7 @@ class BrevmalServiceTest {
                 "DØDSFALL",
                 "KORREKSJON_VEDTAKSBREV",
                 "LOVENDRING_2024",
+                "OVERGANGSORDNING_2024",
             ],
             mode = EnumSource.Mode.EXCLUDE,
         )
@@ -356,13 +357,13 @@ class BrevmalServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<FunksjonellFeil> {
+                assertThrows<Feil> {
                     brevmalService.hentVedtaksbrevmal(
                         behandling = behandling,
                     )
                 }
             assertThat(exception.message).isEqualTo(
-                "Brev ikke støttet for behandlingstype=${BehandlingType.TEKNISK_ENDRING}",
+                "Kunne ikke utlede hvilket brevmal som skulle benyttes behandling type TEKNISK_ENDRING og årsak SØKNAD",
             )
         }
     }
