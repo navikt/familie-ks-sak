@@ -22,6 +22,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
@@ -37,12 +40,14 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.UtbetalingOvergangsordning
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.FortsattInnvilget
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakOvergangsordning
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
@@ -69,6 +74,7 @@ class GenererBrevService(
     private val søkersMeldepliktService: SøkersMeldepliktService,
     private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
     private val brevmalService: BrevmalService,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -144,6 +150,7 @@ class GenererBrevService(
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
         val etterbetaling = etterbetalingService.hentEtterbetaling(vedtak)
         val søkerHarMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
+        val andeler by lazy { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id) }
 
         return when (vedtaksbrevmal) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -179,6 +186,16 @@ class GenererBrevService(
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
+
+            Brevmal.VEDTAK_OVERGANGSORDNING -> {
+                val sumAvOvergangsordningsAndeler = andeler.filter { it.type == YtelseType.OVERGANGSORDNING }.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+
+                VedtakOvergangsordning(
+                    mal = Brevmal.VEDTAK_OVERGANGSORDNING,
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                    utbetalingOvergangsordning = UtbetalingOvergangsordning(utbetalingsbelop = sumAvOvergangsordningsAndeler.toString()),
+                )
+            }
 
             Brevmal.VEDTAK_OPPHØRT ->
                 Opphørt(

@@ -49,6 +49,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -551,6 +552,7 @@ internal class VedtaksperiodeServiceTest {
         vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
@@ -563,6 +565,7 @@ internal class VedtaksperiodeServiceTest {
     @Test
     fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere null hvis det ikke finnes vilkårsvurdering for behandling`() {
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns null
+        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
@@ -608,11 +611,59 @@ internal class VedtaksperiodeServiceTest {
         vilkårsvurdering.personResultater = setOf(personResultat)
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
 
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
         assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(nullValue()))
+
+        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+    }
+
+    @Test
+    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere siste tom i overgangsordning andeler dersom det er senere enn vilkårsvurderingen`() {
+        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+        val barnAktør = randomAktør()
+
+        val personResultat =
+            PersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barnAktør,
+            )
+
+        personResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = Vilkår.MEDLEMSKAP,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2020, 12, 12),
+                    periodeTom = LocalDate.of(2022, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id,
+                ),
+                VilkårResultat(
+                    personResultat = personResultat,
+                    vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2025, 12, 12),
+                    periodeTom = LocalDate.of(2026, 12, 12),
+                    begrunnelse = "",
+                    behandlingId = behandling.id,
+                ),
+            ),
+        )
+        vilkårsvurdering.personResultater = setOf(personResultat)
+
+        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+        val overgangsordningsAndeler = listOf(OvergangsordningAndel(behandlingId = 200, fom = YearMonth.of(2025, 3), tom = YearMonth.of(2025, 3)))
+        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns overgangsordningsAndeler
+
+        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2025, 3, 31)))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }

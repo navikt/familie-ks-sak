@@ -67,12 +67,12 @@ class BrevPeriodeContext(
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
     private val persongrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
-    private val overgangsordningAndeler: List<OvergangsordningAndel>,
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val erFørsteVedtaksperiode: Boolean,
     private val kompetanser: List<UtfyltKompetanse>,
     private val landkoder: Map<String, String>,
+    private val erFørsteVedtaksperiode: Boolean,
+    private val overgangsordningAndeler: List<OvergangsordningAndel>,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -83,8 +83,10 @@ class BrevPeriodeContext(
         if (begrunnelserOgFritekster.isEmpty()) return null
 
         val tomDato =
-            if (utvidetVedtaksperiodeMedBegrunnelser.tom?.erSenereEnnInneværendeMåned() == false) {
-                utvidetVedtaksperiodeMedBegrunnelser.tom.tilDagMånedÅr()
+            if (utvidetVedtaksperiodeMedBegrunnelser.tom?.erSenereEnnInneværendeMåned() == false ||
+                utvidetVedtaksperiodeMedBegrunnelser.inneholderOvergangsordningBegrunnelser()
+            ) {
+                utvidetVedtaksperiodeMedBegrunnelser.tom?.tilDagMånedÅr()
             } else {
                 null
             }
@@ -615,10 +617,23 @@ class BrevPeriodeContext(
                 ?.get(Vilkår.BARNEHAGEPLASS)
                 ?.tilPerioderIkkeNull()
 
-        return forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
-            ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
-            ?.verdi
-            ?.antallTimer ?: BigDecimal.ZERO
+        val antallTimerIBarnehageplassVilkår =
+            forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
+                ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
+                ?.verdi
+                ?.antallTimer
+
+        val antallTimerIOvergangsordningsAndel =
+            overgangsordningAndeler
+                .find {
+                    it.person == this &&
+                        it.fom == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() &&
+                        it.tom == utvidetVedtaksperiodeMedBegrunnelser.tom?.toYearMonth()
+                }?.antallTimer
+
+        return antallTimerIBarnehageplassVilkår
+            ?: antallTimerIOvergangsordningsAndel
+            ?: BigDecimal.ZERO
     }
 
     private fun Person.erMedlemskapVurdertPåAndreforelder(): Boolean {
@@ -674,6 +689,12 @@ class BrevPeriodeContext(
         }
     }
 }
+
+private fun UtvidetVedtaksperiodeMedBegrunnelser.inneholderOvergangsordningBegrunnelser() =
+    this.begrunnelser.any {
+        it.nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING ||
+            it.nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING
+    }
 
 private fun NasjonalEllerFellesBegrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,

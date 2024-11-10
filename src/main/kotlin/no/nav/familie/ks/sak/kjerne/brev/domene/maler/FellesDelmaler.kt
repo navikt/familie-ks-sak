@@ -32,6 +32,14 @@ data class Etterbetaling(
     )
 }
 
+data class UtbetalingOvergangsordning(
+    val utbetalingsbelop: Flettefelt,
+) {
+    constructor(utbetalingsbelop: String) : this(
+        flettefelt(utbetalingsbelop),
+    )
+}
+
 data class Hjemmeltekst(
     val hjemler: Flettefelt,
 ) {

@@ -46,26 +46,17 @@ class BrevmalService {
             )
         }
 
-        if (behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024) {
-            return Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
-        }
-
         val brevmal =
-            when (behandling.type) {
-                BehandlingType.FØRSTEGANGSBEHANDLING ->
-                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(
-                        behandlingsresultat = behandling.resultat,
-                    )
+            when {
+                behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
+                behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024 -> Brevmal.VEDTAK_OVERGANGSORDNING
+                behandling.type == BehandlingType.FØRSTEGANGSBEHANDLING ->
+                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(behandlingsresultat = behandling.resultat)
 
-                BehandlingType.REVURDERING ->
-                    utledBrevmalFraBehandlingsresultatForRevurdering(
-                        behandlingsresultat = behandling.resultat,
-                    )
+                behandling.type == BehandlingType.REVURDERING ->
+                    utledBrevmalFraBehandlingsresultatForRevurdering(behandlingsresultat = behandling.resultat)
 
-                BehandlingType.TEKNISK_ENDRING -> throw FunksjonellFeil(
-                    melding = "Brev ikke støttet for behandlingstype=${behandling.type}",
-                    frontendFeilmelding = frontendFeilmelding,
-                )
+                else -> throw Feil("Kunne ikke utlede hvilket brevmal som skulle benyttes")
             }
 
         return if (brevmal.erVedtaksbrev) {

@@ -169,23 +169,37 @@ class VedtaksperiodeService(
         val vilkårsvurdering =
             vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandlingId) ?: return null
 
-        return vilkårsvurdering.personResultater
-            .mapNotNull { personResultat ->
+        val sisteTomPåOvergangsordningSomAlltidSkalKunneBegrunnes =
+            overgangsordningAndelService
+                .hentOvergangsordningAndeler(behandlingId)
+                .mapNotNull { it.tom?.toLocalDate()?.sisteDagIMåned() }
+                .maxOrNull() ?: TIDENES_MORGEN
 
-                val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
-                    personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
+        val sisteTomPåVilkårSomAlltidSkalKunneBegrunnes =
+            vilkårsvurdering.personResultater
+                .mapNotNull { personResultat ->
 
-                val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes =
-                    vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes
-                        .groupByTo(mutableMapOf()) { it.vilkårType }
-                        .mapValues { it.value }
+                    val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes =
+                        personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
 
-                vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
-                    .flatMap { (vilkårType, vilkårResultater) ->
-                        forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
-                    }.mapNotNull { it.verdi.periodeTom }
-                    .maxOfOrNull { it }
-            }.maxOfOrNull { it }
+                    val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes =
+                        vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes
+                            .groupByTo(mutableMapOf()) { it.vilkårType }
+                            .mapValues { it.value }
+
+                    vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
+                        .flatMap { (vilkårType, vilkårResultater) ->
+                            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
+                        }.mapNotNull { it.verdi.periodeTom }
+                        .maxOfOrNull { it }
+                }.maxOfOrNull { it } ?: TIDENES_MORGEN
+
+        return maxOf(
+            sisteTomPåOvergangsordningSomAlltidSkalKunneBegrunnes,
+            sisteTomPåVilkårSomAlltidSkalKunneBegrunnes,
+        ).takeIf {
+            it != TIDENES_MORGEN
+        }
     }
 
     @Transactional

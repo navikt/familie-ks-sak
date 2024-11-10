@@ -64,6 +64,7 @@ class OpprettSammensattKontrollsakBrevDtoService(
             Brevmal.VEDTAK_FORTSATT_INNVILGET,
             Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV,
             Brevmal.VEDTAK_OPPHØR_DØDSFALL,
+            Brevmal.VEDTAK_OVERGANGSORDNING,
             Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,

@@ -208,9 +208,9 @@ class BegrunnelserForPeriodeContext(
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger,
             )
 
-        val hentOvergangsordningsAndelerSomOverlapperVedtaksperioder = overgangsordningAndeler.filter { it.fom == vedtaksperiode.fom.toYearMonth() && it.tom == vedtaksperiode.tom.toYearMonth() }
+        val overgangsordningsAndelerSomStarterOgSlutterSamtidigSomVedtaksperiode = overgangsordningAndeler.filter { it.fom == vedtaksperiode.fom.toYearMonth() && it.tom == vedtaksperiode.tom.toYearMonth() }
 
-        val personerMedOvergangsordningAndel = hentOvergangsordningsAndelerSomOverlapperVedtaksperioder.mapNotNull { it.person }
+        val personerMedOvergangsordningAndel = overgangsordningsAndelerSomStarterOgSlutterSamtidigSomVedtaksperiode.mapNotNull { it.person }
 
         val filtrerPersonerUtenUtbetalingVedInnvilget =
             hentVilkårResultaterSomOverlapperVedtaksperiode
