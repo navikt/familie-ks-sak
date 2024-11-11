@@ -258,16 +258,16 @@ internal class StønadsstatistikkServiceTest {
 
         val vedtakDvh = stønadsstatistikkService.hentVedtakDVH(1L)
 
-        val utbetalingsperidoerAugTilFeb =
+        val utbetalingsperioderAugTilFeb =
             vedtakDvh.utbetalingsperioder.filter {
                 it.stønadFom in LocalDate.of(2024, 8, 1)..LocalDate.of(2025, 2, 28) &&
                     it.stønadTom in LocalDate.of(2024, 8, 1)..LocalDate.of(2025, 2, 28)
             }
 
-        assertEquals(3, utbetalingsperidoerAugTilFeb.size)
+        assertEquals(3, utbetalingsperioderAugTilFeb.size)
 
         val utbetalingerForBarn1IAugTilFeb =
-            utbetalingsperidoerAugTilFeb.filter {
+            utbetalingsperioderAugTilFeb.filter {
                 it.utbetalingsDetaljer.any { it.person.personIdent == barnFnr }
             }
         assertEquals(2, utbetalingerForBarn1IAugTilFeb.size)
