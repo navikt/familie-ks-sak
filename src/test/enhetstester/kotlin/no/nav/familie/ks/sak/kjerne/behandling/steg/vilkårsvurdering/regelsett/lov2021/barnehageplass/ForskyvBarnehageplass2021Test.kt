@@ -364,9 +364,9 @@ class ForskyvBarnehageplass2021Test {
     }
 
     @Test
-    fun `Scenario 1 fra rundskrivet - Endring i KS skjer fra og med samme måned som en økning i barnehageplass`() {
+    fun `Scenario 1 fra rundskrivet - Endring i KS skjer fra og med samme måned som en økning i barnehageplass - test 1`() {
         // Arrange
-        val vilkårResultaterForBarn1 =
+        val vilkårResultaterForBarn =
             listOf(
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
@@ -382,7 +382,25 @@ class ForskyvBarnehageplass2021Test {
                 ),
             )
 
-        val vilkårResultaterForBarn2 =
+        // Act
+        val forskjøvedeVilkårResultaterForBarn1 = forskyvBarnehageplassVilkår(vilkårResultaterForBarn)
+
+        // Assert
+        assertThat(forskjøvedeVilkårResultaterForBarn1).hasSize(2)
+
+        assertThat(forskjøvedeVilkårResultaterForBarn1.first().fom).isEqualTo(august.atDay(1))
+        assertThat(forskjøvedeVilkårResultaterForBarn1.first().tom).isEqualTo(september.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultaterForBarn1.first().verdi.antallTimer).isEqualTo(BigDecimal(17))
+
+        assertThat(forskjøvedeVilkårResultaterForBarn1.last().fom).isEqualTo(oktober.atDay(1))
+        assertThat(forskjøvedeVilkårResultaterForBarn1.last().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultaterForBarn1.last().verdi.antallTimer).isEqualTo(BigDecimal(35))
+    }
+
+    @Test
+    fun `Scenario 1 fra rundskrivet - Endring i KS skjer fra og med samme måned som en økning i barnehageplass - test 2`() {
+        // Arrange
+        val vilkårResultaterForBarn =
             listOf(
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
@@ -399,23 +417,9 @@ class ForskyvBarnehageplass2021Test {
             )
 
         // Act
-        val forskjøvedeVilkårResultaterForBarn1 = forskyvBarnehageplassVilkår(vilkårResultaterForBarn1)
+        val forskjøvedeVilkårResultaterForBarn2 = forskyvBarnehageplassVilkår(vilkårResultaterForBarn)
 
         // Assert
-        assertThat(forskjøvedeVilkårResultaterForBarn1).hasSize(2)
-
-        assertThat(forskjøvedeVilkårResultaterForBarn1.first().fom).isEqualTo(august.atDay(1))
-        assertThat(forskjøvedeVilkårResultaterForBarn1.first().tom).isEqualTo(september.atEndOfMonth())
-        assertThat(forskjøvedeVilkårResultaterForBarn1.first().verdi.antallTimer).isEqualTo(BigDecimal(17))
-
-        assertThat(forskjøvedeVilkårResultaterForBarn1.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultaterForBarn1.last().tom).isEqualTo(desember.atEndOfMonth())
-        assertThat(forskjøvedeVilkårResultaterForBarn1.last().verdi.antallTimer).isEqualTo(BigDecimal(35))
-
-        // Act TODO : Hvorfor act 2?
-        val forskjøvedeVilkårResultaterForBarn2 = forskyvBarnehageplassVilkår(vilkårResultaterForBarn2)
-
-        // Assert TODO : Hvorfor assert 2 ?
         assertThat(forskjøvedeVilkårResultaterForBarn2).hasSize(2)
 
         assertThat(forskjøvedeVilkårResultaterForBarn2.first().fom).isEqualTo(august.atDay(1))
