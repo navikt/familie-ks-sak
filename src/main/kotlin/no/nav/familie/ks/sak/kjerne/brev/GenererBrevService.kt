@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
@@ -193,7 +194,7 @@ class GenererBrevService(
                 VedtakOvergangsordning(
                     mal = Brevmal.VEDTAK_OVERGANGSORDNING,
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
-                    utbetalingOvergangsordning = UtbetalingOvergangsordning(utbetalingsbelop = sumAvOvergangsordningsAndeler.toString()),
+                    utbetalingOvergangsordning = UtbetalingOvergangsordning(utbetalingsbelop = formaterBeløp(sumAvOvergangsordningsAndeler)),
                 )
             }
 
