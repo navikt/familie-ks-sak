@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
@@ -66,6 +67,7 @@ class BrevService(
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
         val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
+
         sendBrev(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
     }
 
@@ -110,10 +112,18 @@ class BrevService(
             }
 
         val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
+        val brevmottakerDtoListe = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling
         val mottakere =
             brevmottakerService.lagMottakereFraBrevMottakere(
-                manueltRegistrerteMottakere = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling,
+                manueltRegistrerteMottakere = brevmottakerDtoListe,
             )
+
+        if (!validerBrevmottakerService.erBrevmottakereGyldige(brevmottakerDtoListe)) {
+            throw FunksjonellFeil(
+                melding = "Det finnes ugyldige brevmottakere i utsending av manuelt brev",
+                frontendFeilmelding = "Det finnes ugyldige brevmottakere i dette brevet som må oppdateres før brevet kan sendes.",
+            )
+        }
 
         val journalposterTilDistribusjon =
             mottakere.map { mottaker ->
