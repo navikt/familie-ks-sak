@@ -118,7 +118,7 @@ class BegrunnelserForPeriodeContext(
         val alleBarna = kompetanser.flatMap { it.barnAktører }.toSet()
         val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> kompetanser.filter { barn in it.barnAktører } }
         val vilkårResultaterSomOverlapperVedtaksperiode =
-            hentVilkårResultaterSomOverlapperVedtaksperiode(
+            hentRelevanteVilkårResultaterForVedtaksperiode(
                 standardBegrunnelse = begrunnelse,
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger = false,
             )
@@ -201,7 +201,7 @@ class BegrunnelserForPeriodeContext(
             erFørsteVedtaksperiode && sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()
 
         val hentVilkårResultaterSomOverlapperVedtaksperiode =
-            hentVilkårResultaterSomOverlapperVedtaksperiode(
+            hentRelevanteVilkårResultaterForVedtaksperiode(
                 begrunnelse,
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger,
             )
@@ -310,7 +310,7 @@ class BegrunnelserForPeriodeContext(
                 .flatMap { it.value }
         }
 
-    private fun hentVilkårResultaterSomOverlapperVedtaksperiode(
+    private fun hentRelevanteVilkårResultaterForVedtaksperiode(
         standardBegrunnelse: IBegrunnelse,
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (standardBegrunnelse.begrunnelseType) {
@@ -321,7 +321,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.INNVILGET,
         -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
 
-        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode()
+        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
 
         BegrunnelseType.EØS_OPPHØR,
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
@@ -333,7 +333,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
     }
 
-    private fun finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode(): Map<Person, List<VilkårResultat>> =
+    private fun finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse: IBegrunnelse): Map<Person, List<VilkårResultat>> =
         personResultater
             .mapNotNull { personResultat ->
                 val person = personopplysningGrunnlag.personer.find { it.aktør == personResultat.aktør }
@@ -344,7 +344,7 @@ class BegrunnelserForPeriodeContext(
                         .filter { it.resultat == Resultat.IKKE_OPPFYLT }
                         .filter {
                             (it.periodeFom ?: TIDENES_MORGEN).toYearMonth() == vedtaksperiode.fom.toYearMonth()
-                        }
+                        }.filter { it.begrunnelser.contains(standardBegrunnelse) }
 
                 if (person != null && ikkeOppfylteVilkårSomStarterISammePeriode.isNotEmpty()) {
                     Pair(person, ikkeOppfylteVilkårSomStarterISammePeriode)
