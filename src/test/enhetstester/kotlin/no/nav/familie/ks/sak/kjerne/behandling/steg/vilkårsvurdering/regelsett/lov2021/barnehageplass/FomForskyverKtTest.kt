@@ -131,7 +131,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING til første dag i neste måneden når fom dato er førsste dag i måneden`() {
+    fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING til første dag i neste måneden når fom dato er første dag i måneden`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 7, 1)
 
@@ -163,7 +163,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING til første dag i neste måneden når fom dato er førsste dag i måneden`() {
+    fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING til første dag i neste måneden når fom dato er første dag i måneden`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 7, 1)
 
@@ -195,7 +195,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato for graderingsforskjell REDUKSJON_GÅR_TIL_INGEN_UTBETALING til første dag i måneden når fom dato er førsste dag i måneden`() {
+    fun `skal forskyve fom dato for graderingsforskjell REDUKSJON_GÅR_TIL_INGEN_UTBETALING til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 7, 1)
 
@@ -227,7 +227,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato for graderingsforskjell REDUKSJON til første dag i måneden når fom dato er førsste dag i måneden`() {
+    fun `skal forskyve fom dato for graderingsforskjell REDUKSJON til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 7, 1)
 

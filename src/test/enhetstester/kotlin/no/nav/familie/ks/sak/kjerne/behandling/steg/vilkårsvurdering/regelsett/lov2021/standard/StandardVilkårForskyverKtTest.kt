@@ -26,7 +26,7 @@ class StandardVilkårForskyverKtTest {
             assertThrows<IllegalArgumentException> {
                 forskyvStandardVilkår(vilkårResultater)
             }
-        assertThat(exception.message).isEqualTo("Vilkårtype skal ikke forskyves etter standard logikk")
+        assertThat(exception.message).isEqualTo("Vilkårtype BARNEHAGEPLASS skal ikke forskyves etter standard logikk")
     }
 
     @ParameterizedTest
@@ -53,7 +53,7 @@ class StandardVilkårForskyverKtTest {
     }
 
     @Test
-    fun `skal forksyve standard vilkårresultat med uten fom satt`() {
+    fun `skal forskyve standard vilkårresultat uten fom satt`() {
         // Arrange
         val vilkårResultat =
             lagVilkårResultat(
@@ -76,7 +76,7 @@ class StandardVilkårForskyverKtTest {
     }
 
     @Test
-    fun `skal forksyve standard vilkårresultat med uten tom satt`() {
+    fun `skal forskyve standard vilkårresultat uten tom satt`() {
         // Arrange
         val vilkårResultat =
             lagVilkårResultat(
@@ -99,7 +99,7 @@ class StandardVilkårForskyverKtTest {
     }
 
     @Test
-    fun `skal forksyve standard vilkårresultat med fom og tom satt`() {
+    fun `skal forskyve standard vilkårresultat med fom og tom satt`() {
         // Arrange
         val vilkårResultat =
             lagVilkårResultat(
@@ -122,7 +122,7 @@ class StandardVilkårForskyverKtTest {
     }
 
     @Test
-    fun `skal forksyve standard med flere vilkårresultat`() {
+    fun `skal forskyve standard med flere vilkårresultat`() {
         // Arrange
         val vilkårResultat1 =
             lagVilkårResultat(

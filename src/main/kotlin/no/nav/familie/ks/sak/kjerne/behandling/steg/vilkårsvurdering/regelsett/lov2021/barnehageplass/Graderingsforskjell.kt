@@ -20,15 +20,17 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode(
     erFørstePeriode: Boolean,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
-        when (vilkårResultatForrigePeriode == null) {
-            false -> hentProsentForAntallTimer(vilkårResultatForrigePeriode.antallTimer)
-            true -> BigDecimal.ZERO
+        if (vilkårResultatForrigePeriode != null) {
+            hentProsentForAntallTimer(vilkårResultatForrigePeriode.antallTimer)
+        } else {
+            BigDecimal.ZERO
         }
 
     val graderingDennePerioden =
-        when (vilkårResultatDennePerioden == null) {
-            false -> hentProsentForAntallTimer(vilkårResultatDennePerioden.antallTimer)
-            true -> BigDecimal.ZERO
+        if (vilkårResultatDennePerioden != null) {
+            hentProsentForAntallTimer(vilkårResultatDennePerioden.antallTimer)
+        } else {
+            BigDecimal.ZERO
         }
 
     val gikkIBarnehageForrigePeriode = vilkårResultatForrigePeriode?.antallTimer != null

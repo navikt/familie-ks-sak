@@ -28,14 +28,10 @@ private fun finnSkalHaUtbetaltForJuli2024PgaLovendring(gjeldendeVilkårResultat:
     val periodeFom = gjeldendeVilkårResultat.periodeFom
     val periodeTom = gjeldendeVilkårResultat.periodeTom
     val vilkårType = gjeldendeVilkårResultat.vilkårType
-    if (vilkårType != Vilkår.BARNETS_ALDER) {
-        return false
+    return when {
+        vilkårType != Vilkår.BARNETS_ALDER -> false
+        periodeTom != sisteMuligeTomForBarnetsAlderILov2021 -> false
+        periodeFom?.plusYears(1) == sisteMuligeTomForBarnetsAlderILov2021 -> false
+        else -> true
     }
-    if (periodeTom != sisteMuligeTomForBarnetsAlderILov2021) {
-        return false
-    }
-    if (periodeFom?.plusYears(1) == sisteMuligeTomForBarnetsAlderILov2021) {
-        return false
-    }
-    return true
 }

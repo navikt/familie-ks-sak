@@ -7,7 +7,7 @@ import java.time.YearMonth
 
 class TomForskyverKtTest {
     @Test
-    fun `skal forksyve dagens dato via extension function`() {
+    fun `skal forskyve dagens dato via extension function`() {
         // Arrange
         val dagensDato = LocalDate.of(2024, 7, 31)
 
@@ -19,7 +19,7 @@ class TomForskyverKtTest {
     }
 
     @Test
-    fun `skal forksyve dagens dato via extension function hvis den er null`() {
+    fun `skal forskyve dagens dato via extension function hvis den er null`() {
         // Arrange
         val dagensDato = null
 

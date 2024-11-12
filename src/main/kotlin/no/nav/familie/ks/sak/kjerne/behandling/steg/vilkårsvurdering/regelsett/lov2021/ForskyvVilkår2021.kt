@@ -10,9 +10,7 @@ fun forskyvEtterLovgivning2021(
     vilkårResultater: List<VilkårResultat>,
 ) = when (vilkårType) {
     Vilkår.BARNEHAGEPLASS,
-    -> {
-        forskyvBarnehageplassVilkår(vilkårResultater)
-    }
+    -> forskyvBarnehageplassVilkår(vilkårResultater)
 
     Vilkår.BOSATT_I_RIKET,
     Vilkår.LOVLIG_OPPHOLD,
@@ -20,7 +18,5 @@ fun forskyvEtterLovgivning2021(
     Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
     Vilkår.BOR_MED_SØKER,
     Vilkår.BARNETS_ALDER,
-    -> {
-        forskyvStandardVilkår(vilkårResultater)
-    }
+    -> forskyvStandardVilkår(vilkårResultater)
 }

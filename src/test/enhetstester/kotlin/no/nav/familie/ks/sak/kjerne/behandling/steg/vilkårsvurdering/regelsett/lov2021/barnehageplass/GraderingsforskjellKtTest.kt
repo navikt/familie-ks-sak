@@ -119,9 +119,9 @@ class GraderingsforskjellKtTest {
         // Act
         val graderingsforskjell =
             finnGraderingsforskjellMellomDenneOgForrigePeriode(
-                null,
-                null,
-                false,
+                vilkårResultatForrigePeriode = null,
+                vilkårResultatDennePerioden = null,
+                erFørstePeriode = false,
             )
 
         // Assert
@@ -133,9 +133,9 @@ class GraderingsforskjellKtTest {
         // Act
         val graderingsforskjell =
             finnGraderingsforskjellMellomDenneOgForrigePeriode(
-                lagVilkårResultat(antallTimer = BigDecimal(20)),
-                lagVilkårResultat(antallTimer = BigDecimal(20)),
-                false,
+                vilkårResultatForrigePeriode = lagVilkårResultat(antallTimer = BigDecimal(20)),
+                vilkårResultatDennePerioden = lagVilkårResultat(antallTimer = BigDecimal(20)),
+                erFørstePeriode = false,
             )
 
         // Assert

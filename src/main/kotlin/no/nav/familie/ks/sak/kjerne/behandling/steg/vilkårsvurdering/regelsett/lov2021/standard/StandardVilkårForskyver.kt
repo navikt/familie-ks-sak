@@ -15,14 +15,19 @@ private val VILKÅR_SOM_IKKE_SKAL_FORSKYVES_ETTER_STANDARD_LOGIKK =
 fun forskyvStandardVilkår(
     vilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val vilkårTyper = vilkårResultater.map { it.vilkårType }.distinct()
-    if (vilkårTyper.any { VILKÅR_SOM_IKKE_SKAL_FORSKYVES_ETTER_STANDARD_LOGIKK.contains(it) }) {
-        throw IllegalArgumentException("Vilkårtype skal ikke forskyves etter standard logikk")
-    }
+    validerVilkårResultater(vilkårResultater)
     return vilkårResultater
         .filter { it.erOppfylt() || it.erIkkeAktuelt() }
         .sortedBy { it.periodeFom }
         .mapTilTilknyttetVilkårResultater()
         .map { Periode(verdi = it.gjeldende, fom = forskyvFom(it.gjeldende.periodeFom), tom = forskyvTom(it)) }
         .filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
+}
+
+private fun validerVilkårResultater(vilkårResultater: List<VilkårResultat>) {
+    vilkårResultater.map { it.vilkårType }.distinct().forEach {
+        if (it in VILKÅR_SOM_IKKE_SKAL_FORSKYVES_ETTER_STANDARD_LOGIKK) {
+            throw IllegalArgumentException("Vilkårtype $it skal ikke forskyves etter standard logikk")
+        }
+    }
 }
