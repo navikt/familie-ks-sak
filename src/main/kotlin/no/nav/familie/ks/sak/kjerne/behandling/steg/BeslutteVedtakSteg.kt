@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
@@ -15,6 +16,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
+import no.nav.familie.ks.sak.kjerne.brev.BrevService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -35,6 +39,8 @@ class BeslutteVedtakSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val unleashService: UnleashNextMedContextService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
+    private val brevmottakerService: BrevmottakerService,
+    private val validerBrevmottakerService: ValiderBrevmottakerService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -60,6 +66,8 @@ class BeslutteVedtakSteg(
         validerAtBehandlingKanBesluttes(behandling)
 
         val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
+
+        validerBrevmottakere(BehandlingId(behandling.id), besluttVedtakDto.beslutning.erGodkjent())
 
         val totrinnskontroll =
             totrinnskontrollService.besluttTotrinnskontroll(
@@ -132,6 +140,19 @@ class BeslutteVedtakSteg(
             FerdigstillOppgaverTask.opprettTask(behandling.id, Oppgavetype.GodkjenneVedtak)
 
         taskService.save(ferdigstillGodkjenneVedtakTask)
+    }
+
+    private fun validerBrevmottakere(
+        behandlingId: BehandlingId,
+        totrinnskontrollErGodkjent: Boolean,
+    ) {
+        val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId.id)
+        if (totrinnskontrollErGodkjent && !validerBrevmottakerService.erBrevmottakereGyldige(brevmottakere)) {
+            throw FunksjonellFeil(
+                melding = "Det finnes ugyldige brevmottakere, vi kan ikke beslutte vedtaket",
+                frontendFeilmelding = "Det finnes ugyldige brevmottakere i denne behandlingen, den må underkjennes og brevmottakerne oppdateres",
+            )
+        }
     }
 
     companion object {
