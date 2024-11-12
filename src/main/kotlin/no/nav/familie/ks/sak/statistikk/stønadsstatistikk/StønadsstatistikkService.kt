@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
-import no.nav.familie.ks.sak.kjerne.beregning.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
@@ -130,7 +129,7 @@ class StønadsstatistikkService(
                 utbetaltPerMnd = sumUtbetalingsbeløp,
                 utbetalingsDetaljer =
                     andelerForPeriode
-                        .filtrerAndelerSomSkalSendesTilOppdrag()
+                        .filter { it.kalkulertUtbetalingsbeløp != 0 }
                         .map { andel ->
                             UtbetalingsDetaljDVH(
                                 person =
