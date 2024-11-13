@@ -168,6 +168,23 @@ fun <K, V, H, R> Map<K, Tidslinje<V>>.outerJoin(
     }
 }
 
+fun <K, A, B, C, R> Map<K, Tidslinje<A>>.outerJoin(
+    tidslinjer2: Map<K, Tidslinje<B>>,
+    tidslinjer3: Map<K, Tidslinje<C>>,
+    kombinator: (A?, B?, C?) -> R?,
+): Map<K, Tidslinje<R>> {
+    val tidslinjer1 = this
+    val alleNøkler = tidslinjer1.keys + tidslinjer2.keys + tidslinjer3.keys
+
+    return alleNøkler.associateWith { nøkkel ->
+        val tidslinje1 = tidslinjer1.getOrDefault(nøkkel, tomTidslinje())
+        val tidslinje2 = tidslinjer2.getOrDefault(nøkkel, tomTidslinje())
+        val tidslinje3 = tidslinjer3.getOrDefault(nøkkel, tomTidslinje())
+
+        tidslinje1.kombinerMed(tidslinje2, tidslinje3, kombinator)
+    }
+}
+
 fun <T> Tidslinje<T>.beskjærEtter(tidslinje: Tidslinje<*>): Tidslinje<T> =
     this.klipp(tidslinje.startsTidspunkt, tidslinje.kalkulerSluttTidspunkt())
 

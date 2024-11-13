@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
@@ -24,7 +25,12 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.RegelverkResultat
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjeService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.tilBarnasSkalIkkeUtbetalesTidslinjer
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -35,6 +41,8 @@ class TilpassKompetanserService(
     kompetanseEndringsAbonnenter: List<EøsSkjemaEndringAbonnent<Kompetanse>>,
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
+    private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
+    private val unleashService: UnleashService,
 ) {
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
@@ -43,11 +51,17 @@ class TilpassKompetanserService(
         val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
         val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
         val endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId.id)
+        val overgangsordningAndeler = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id)
 
         val annenForelderOmfattetAvNorskLovgivningTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
 
         val barnasSkalIkkeUtbetalesTidslinjer = endretUtbetalingAndeler.tilBarnasSkalIkkeUtbetalesTidslinjer()
+        val utfylteOvergangsordningAndeler =
+            when (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+                true -> overgangsordningAndeler.utfyltePerioder()
+                false -> emptyList()
+            }
 
         val oppdaterteKompetanser =
             tilpassKompetanser(
@@ -55,6 +69,7 @@ class TilpassKompetanserService(
                 barnasRegelverkResultatTidslinjer,
                 barnasSkalIkkeUtbetalesTidslinjer,
                 annenForelderOmfattetAvNorskLovgivningTidslinje,
+                utfylteOvergangsordningAndeler,
             ).medBehandlingId(behandlingId)
 
         kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
@@ -66,6 +81,7 @@ fun tilpassKompetanser(
     barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
     barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
     annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
+    utfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
 ): List<Kompetanse> {
     val barnasEøsRegelverkTidslinjer =
         barnaRegelverkTidslinjer
@@ -77,10 +93,23 @@ fun tilpassKompetanser(
                 }
             }
 
+    val overgangsordningAndelerTidslinjer =
+        utfylteOvergangsordningAndeler
+            .groupBy { it.person.aktør }
+            .mapValues {
+                it.value
+                    .tilPerioder()
+                    .tilTidslinje()
+            }
+
     return eksisterendeKompetanser
         .tilSeparateTidslinjerForBarna()
-        .outerJoin(barnasEøsRegelverkTidslinjer) { kompetanse, regelverk ->
-            regelverk?.let { kompetanse ?: Kompetanse.blankKompetanse }
+        .outerJoin(barnasEøsRegelverkTidslinjer, overgangsordningAndelerTidslinjer) { kompetanse, regelverk, overgangsordningAndel ->
+            when {
+                regelverk != null -> kompetanse ?: Kompetanse.blankKompetanse
+                overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
+                else -> null
+            }
         }.mapValues { (_, value) ->
             value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
                 kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
