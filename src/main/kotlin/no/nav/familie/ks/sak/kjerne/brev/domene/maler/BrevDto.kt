@@ -59,6 +59,9 @@ enum class Brevmal(
 ) {
     @Deprecated("Manuelt brev som skal sendes en gang til de som er påvirket av lovendring med søknadsdato før feb 2024, vedtatt etter feb 2024, og ATY etter juli 2024.")
     INFORMASJONSBREV_LOVENDRING_JULI_2024(erVedtaksbrev = false, apiNavn = "informasjonOmOvergangsordningForKontantstotte", visningsTekst = "Kontantstøtte – overgangsordning"),
+
+    INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024(erVedtaksbrev = false, apiNavn = "informasjonNummer2OmOvergangsordningenForKontantstotte", visningsTekst = "Kontantstøtte – overgangsordning 2024"),
+
     INFORMASJONSBREV_DELT_BOSTED(erVedtaksbrev = false, apiNavn = "informasjonsbrevDeltBosted", visningsTekst = "Informasjonsbrev delt bosted"),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
         erVedtaksbrev = false,
@@ -129,6 +132,7 @@ enum class Brevmal(
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER,
             INFORMASJONSBREV_LOVENDRING_JULI_2024,
+            INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024,
             -> false
 
             VEDTAK_FØRSTEGANGSVEDTAK,
@@ -165,6 +169,7 @@ enum class Brevmal(
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
             VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Dokumenttype.KONTANTSTØTTE_VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT
             INFORMASJONSBREV_LOVENDRING_JULI_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_LOVENDRING_JULI_2024
+            INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024
             ENDRING_AV_FRAMTIDIG_OPPHØR -> Dokumenttype.KONTANTSTØTTE_ENDRING_AV_FRAMTIDIG_OPPHØR
 
             VEDTAK_ENDRING,
@@ -198,6 +203,7 @@ enum class Brevmal(
                 INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER -> Distribusjonstype.VIKTIG
                 VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Distribusjonstype.VIKTIG
                 INFORMASJONSBREV_LOVENDRING_JULI_2024 -> Distribusjonstype.VIKTIG
+                INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 -> Distribusjonstype.VEDTAK
                 SVARTIDSBREV -> Distribusjonstype.ANNET
                 FORLENGET_SVARTIDSBREV -> Distribusjonstype.ANNET
                 INFORMASJONSBREV_KAN_SØKE -> Distribusjonstype.ANNET
