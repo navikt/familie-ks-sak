@@ -16,6 +16,8 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -25,6 +27,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -65,14 +71,37 @@ fun hentPerioderMedUtbetaling(
 
     return andeltilkjentYtelserSplittetPåKriterier
         .tilPerioderIkkeNull()
-        .map {
-            VedtaksperiodeMedBegrunnelser(
-                fom = it.fom?.førsteDagIInneværendeMåned(),
-                tom = it.tom?.sisteDagIMåned(),
-                vedtak = vedtak,
-                type = Vedtaksperiodetype.UTBETALING,
-            )
+        .map { periode ->
+            val vedtaksperiodeMedBegrunnelser =
+                VedtaksperiodeMedBegrunnelser(
+                    fom = periode.fom?.førsteDagIInneværendeMåned(),
+                    tom = periode.tom?.sisteDagIMåned(),
+                    vedtak = vedtak,
+                    type = Vedtaksperiodetype.UTBETALING,
+                )
+            if (vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024) {
+                vedtaksperiodeMedBegrunnelser.begrunnelser.addAll(
+                    hentBegrunnelserForInnvilgelsePeriode(periode)
+                        .map { begrunnelse ->
+                            begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+                        }.toMutableSet(),
+                )
+            }
+
+            vedtaksperiodeMedBegrunnelser
         }
+}
+
+fun hentBegrunnelserForInnvilgelsePeriode(periode: Periode<SplittkriterierForVedtaksperiode>): Set<NasjonalEllerFellesBegrunnelse> {
+    val andelIPeriode = periode.verdi.andelerTilkjentYtelse?.find { it.stønadFom == periode.fom?.toYearMonth() && it.stønadTom == periode.tom?.toYearMonth() } ?: return emptySet()
+
+    return if (andelIPeriode.type == YtelseType.OVERGANGSORDNING && andelIPeriode.kalkulertUtbetalingsbeløp == maksBeløp()) {
+        setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING)
+    } else if (andelIPeriode.type == YtelseType.OVERGANGSORDNING) {
+        setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+    } else {
+        emptySet()
+    }
 }
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPerson() =

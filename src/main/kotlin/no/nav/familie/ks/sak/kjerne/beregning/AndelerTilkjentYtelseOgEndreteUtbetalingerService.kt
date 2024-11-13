@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
@@ -130,11 +129,6 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger(
     companion object {
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger = AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
     }
-}
-
-fun Iterable<AndelTilkjentYtelseMedEndreteUtbetalinger>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {
-    val andelerSomskalSendesTilOppdrag = this.map { it.andel }.filtrerAndelerSomSkalSendesTilOppdrag()
-    return this.filter { it.andel in andelerSomskalSendesTilOppdrag }
 }
 
 data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(

@@ -53,6 +53,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeTy
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -68,9 +69,10 @@ class BrevPeriodeContext(
     private val personResultater: List<PersonResultat>,
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
-    private val erFørsteVedtaksperiode: Boolean,
     private val kompetanser: List<UtfyltKompetanse>,
     private val landkoder: Map<String, String>,
+    private val erFørsteVedtaksperiode: Boolean,
+    private val overgangsordningAndeler: List<OvergangsordningAndel>,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -81,8 +83,10 @@ class BrevPeriodeContext(
         if (begrunnelserOgFritekster.isEmpty()) return null
 
         val tomDato =
-            if (utvidetVedtaksperiodeMedBegrunnelser.tom?.erSenereEnnInneværendeMåned() == false) {
-                utvidetVedtaksperiodeMedBegrunnelser.tom.tilDagMånedÅr()
+            if (utvidetVedtaksperiodeMedBegrunnelser.tom?.erSenereEnnInneværendeMåned() == false ||
+                utvidetVedtaksperiodeMedBegrunnelser.inneholderOvergangsordningBegrunnelser()
+            ) {
+                utvidetVedtaksperiodeMedBegrunnelser.tom?.tilDagMånedÅr()
             } else {
                 null
             }
@@ -187,7 +191,7 @@ class BrevPeriodeContext(
 
     fun hentBarnasFødselsdagerForBegrunnelse(
         gjelderSøker: Boolean,
-        personerMedVilkårSomPasserBegrunnelse: Collection<Person>,
+        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse: Collection<Person>,
         begrunnelse: IBegrunnelse,
     ): List<LocalDate> =
         when {
@@ -198,11 +202,11 @@ class BrevPeriodeContext(
                 begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
                 if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
-                    personerMedVilkårSomPasserBegrunnelse
+                    personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
                 } else {
-                    (personerMedUtbetaling + personerMedVilkårSomPasserBegrunnelse)
+                    (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
                         .toSet()
                         .filter { it.type == PersonType.BARN }
                         .map { it.fødselsdato }
@@ -210,7 +214,7 @@ class BrevPeriodeContext(
             }
 
             else ->
-                personerMedVilkårSomPasserBegrunnelse
+                personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
                     .map { it.fødselsdato }
         }
@@ -258,6 +262,7 @@ class BrevPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
             personopplysningGrunnlag = persongrunnlag,
+            overgangsordningAndeler = overgangsordningAndeler,
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
@@ -304,7 +309,7 @@ class BrevPeriodeContext(
                 val barnasFødselsdatoer =
                     hentBarnasFødselsdagerForBegrunnelse(
                         gjelderSøker = gjelderSøker,
-                        personerMedVilkårSomPasserBegrunnelse = relevantePersoner,
+                        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse = relevantePersoner,
                         begrunnelse = begrunnelse,
                     )
 
@@ -407,7 +412,7 @@ class BrevPeriodeContext(
                 val barnasFødselsdatoer =
                     hentBarnasFødselsdagerForBegrunnelse(
                         gjelderSøker = gjelderSøker,
-                        personerMedVilkårSomPasserBegrunnelse = personerGjeldendeForBegrunnelse,
+                        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse = personerGjeldendeForBegrunnelse,
                         begrunnelse = begrunnelse,
                     )
 
@@ -612,10 +617,23 @@ class BrevPeriodeContext(
                 ?.get(Vilkår.BARNEHAGEPLASS)
                 ?.tilPerioderIkkeNull()
 
-        return forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
-            ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
-            ?.verdi
-            ?.antallTimer ?: BigDecimal.ZERO
+        val antallTimerIBarnehageplassVilkår =
+            forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
+                ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
+                ?.verdi
+                ?.antallTimer
+
+        val antallTimerIOvergangsordningsAndel =
+            overgangsordningAndeler
+                .find {
+                    it.person == this &&
+                        it.fom == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() &&
+                        it.tom == utvidetVedtaksperiodeMedBegrunnelser.tom?.toYearMonth()
+                }?.antallTimer
+
+        return antallTimerIBarnehageplassVilkår
+            ?: antallTimerIOvergangsordningsAndel
+            ?: BigDecimal.ZERO
     }
 
     private fun Person.erMedlemskapVurdertPåAndreforelder(): Boolean {
@@ -671,6 +689,12 @@ class BrevPeriodeContext(
         }
     }
 }
+
+private fun UtvidetVedtaksperiodeMedBegrunnelser.inneholderOvergangsordningBegrunnelser() =
+    this.begrunnelser.any {
+        it.nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING ||
+            it.nasjonalEllerFellesBegrunnelse == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING
+    }
 
 private fun NasjonalEllerFellesBegrunnelse.hentRelevanteEndringsperioderForBegrunnelse(
     endretUtbetalingAndeler: List<EndretUtbetalingAndel>,

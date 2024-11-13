@@ -100,6 +100,7 @@ enum class Brevmal(
     VEDTAK_FORTSATT_INNVILGET(erVedtaksbrev = true, apiNavn = "vedtakFortsattInnvilget", visningsTekst = "Vedtak fortsatt innvilget"),
     VEDTAK_KORREKSJON_VEDTAKSBREV(erVedtaksbrev = true, apiNavn = "korrigertVedtakEgenBrevmal", visningsTekst = "Korrigere vedtak med egen brevmal"),
     VEDTAK_OPPHØR_DØDSFALL(erVedtaksbrev = true, apiNavn = "dodsfall", visningsTekst = "Dødsfall"),
+    VEDTAK_OVERGANGSORDNING(erVedtaksbrev = true, apiNavn = "vedtakOvergangsordning", visningsTekst = "Overgangsordning vedtak"),
 
     AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG(erVedtaksbrev = true, apiNavn = "autovedtakBarn6AarOg18AarOgSmaabarnstillegg", visningsTekst = "Autovedtak - Barn 6 og 18 år og småbarnstillegg"),
     AUTOVEDTAK_NYFØDT_FØRSTE_BARN(erVedtaksbrev = true, apiNavn = "autovedtakNyfodtForsteBarn", visningsTekst = "Autovedtak nyfødt - første barn"),
@@ -138,6 +139,7 @@ enum class Brevmal(
             VEDTAK_FORTSATT_INNVILGET,
             VEDTAK_KORREKSJON_VEDTAKSBREV,
             VEDTAK_OPPHØR_DØDSFALL,
+            VEDTAK_OVERGANGSORDNING,
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
@@ -176,6 +178,7 @@ enum class Brevmal(
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+            VEDTAK_OVERGANGSORDNING,
             -> throw Feil("Ingen dokumenttype for $this")
         }
 
@@ -208,6 +211,7 @@ enum class Brevmal(
                 VEDTAK_FORTSATT_INNVILGET -> Distribusjonstype.VEDTAK
                 VEDTAK_KORREKSJON_VEDTAKSBREV -> Distribusjonstype.VEDTAK
                 VEDTAK_OPPHØR_DØDSFALL -> Distribusjonstype.VEDTAK
+                VEDTAK_OVERGANGSORDNING -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_NYFØDT_FØRSTE_BARN -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> Distribusjonstype.VEDTAK
