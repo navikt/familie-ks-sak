@@ -48,13 +48,13 @@ internal class KompetanseServiceTest {
     private val personidentService: PersonidentService = mockk()
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService = mockk()
     private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService = mockk()
+    private val tilpassKompetanserService: TilpassKompetanserService = mockk()
     private val kompetanseService: KompetanseService =
         KompetanseService(
             kompetanseRepository = kompetanseRepository,
             kompetanseEndringsAbonnenter = emptyList(),
             personidentService = personidentService,
-            vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
-            endretUtbetalingAndelTidslinjeService = endretUtbetalingAndelTidslinjeService,
+            tilpassKompetanserService = tilpassKompetanserService,
         )
 
     private val søker = randomAktør()

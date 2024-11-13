@@ -5,13 +5,10 @@ import no.nav.familie.ks.sak.api.dto.tilKompetanse
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
-import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.EndretUtbetalingAndelTidslinjeService
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjeService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,8 +18,7 @@ class KompetanseService(
     kompetanseRepository: EøsSkjemaRepository<Kompetanse>,
     kompetanseEndringsAbonnenter: List<EøsSkjemaEndringAbonnent<Kompetanse>>,
     private val personidentService: PersonidentService,
-    private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
-    private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService,
+    private val tilpassKompetanserService: TilpassKompetanserService,
 ) {
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
@@ -45,24 +41,7 @@ class KompetanseService(
     // når vilkårer er vurdert etter EØS forordningen i vilkårsvurdering for det første gang
     // Tilpasser kompetanse skjema basert på endringer i vilkårsvurdering deretter
     @Transactional
-    fun tilpassKompetanse(behandlingId: BehandlingId) {
-        val eksisterendeKompetanser = kompetanseSkjemaService.hentMedBehandlingId(behandlingId)
-        val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
-        val barnasHarEtterbetaling3MånedTidslinjer =
-            endretUtbetalingAndelTidslinjeService.hentBarnasSkalIkkeUtbetalesTidslinjer(behandlingId.id)
-        val annenForelderOmfattetAvNorskLovgivningTidslinje =
-            vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
-
-        val oppdaterteKompetanser =
-            tilpassKompetanserTilRegelverk(
-                eksisterendeKompetanser,
-                barnasRegelverkResultatTidslinjer,
-                barnasHarEtterbetaling3MånedTidslinjer,
-                annenForelderOmfattetAvNorskLovgivningTidslinje,
-            ).medBehandlingId(behandlingId)
-
-        kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
-    }
+    fun tilpassKompetanse(behandlingId: BehandlingId) = tilpassKompetanserService.tilpassKompetanser(behandlingId)
 
     @Transactional
     fun slettKompetanse(kompetanseId: Long) = kompetanseSkjemaService.slettSkjema(kompetanseId)
