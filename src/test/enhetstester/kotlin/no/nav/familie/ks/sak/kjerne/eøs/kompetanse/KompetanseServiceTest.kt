@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -23,17 +24,20 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.jan
 import no.nav.familie.ks.sak.kjerne.eøs.util.KompetanseBuilder
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.EndretUtbetalingAndelTidslinjeService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjeService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -47,8 +51,19 @@ internal class KompetanseServiceTest {
     private val kompetanseRepository: EøsSkjemaRepository<Kompetanse> = mockEøsSkjemaRepository()
     private val personidentService: PersonidentService = mockk()
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService = mockk()
-    private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService = mockk()
-    private val tilpassKompetanserService: TilpassKompetanserService = mockk()
+    private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository = mockk()
+    private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
+    private val unleashService: UnleashService = mockk()
+    private val tilpassKompetanserService =
+        TilpassKompetanserService(
+            kompetanseRepository = kompetanseRepository,
+            kompetanseEndringsAbonnenter = emptyList(),
+            vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
+            endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
+            overgangsordningAndelRepository = overgangsordningAndelRepository,
+            unleashService = unleashService,
+        )
+
     private val kompetanseService: KompetanseService =
         KompetanseService(
             kompetanseRepository = kompetanseRepository,
@@ -69,8 +84,10 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn1.aktivFødselsnummer()) } returns barn1
         every { personidentService.hentAktør(barn2.aktivFødselsnummer()) } returns barn2
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
-        every { endretUtbetalingAndelTidslinjeService.hentBarnasSkalIkkeUtbetalesTidslinjer(behandlingId.id) } returns
-            emptyMap()
+        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
+        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId.id) } returns emptyList()
+        every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
+        every { unleashService.isEnabled(any()) } returns true
         kompetanseRepository.deleteAll()
     }
 
@@ -441,8 +458,6 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `tilpassKompetanse skal opprette kompetanseskjema med ingen sluttdato når regelverk-tidslinjer fortsetter etter nåtidspunktet`() {
-        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
-
         val nåDato = LocalDate.of(2024, 10, 1)
         val fom = nåDato.minusMonths(3).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
@@ -479,8 +494,6 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `tilpassKompetanse skal opprette kompetanse med sluttdato når et av barnets regelverk-tidslinjer avsluttes før nåtidspunktet`() {
-        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
-
         val nåDato = LocalDate.of(2024, 10, 1)
         val fom = nåDato.minusMonths(6).førsteDagIInneværendeMåned()
         val tom = fom.plusMonths(10).sisteDagIMåned()
@@ -523,9 +536,117 @@ internal class KompetanseServiceTest {
     }
 
     @Test
-    fun `tilpassKompetanse skal tilpasse kompetanser til endrede regelverk-tidslinjer`() {
-        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
+    fun `tilpassKompetanse skal opprette tomme kompetanser for perioder med overgangsordningandeler`() {
+        val vilkårFom = LocalDate.of(2024, 5, 1)
+        val vilkårTom = LocalDate.of(2024, 9, 1)
+        val kompetanseFom = vilkårFom.plusMonths(1).toYearMonth()
+        val kompetanseTom = vilkårTom.toYearMonth()
 
+        lagKompetanse(
+            behandlingId = behandlingId.id,
+            fom = kompetanseFom,
+            tom = kompetanseTom,
+            barnAktører = setOf(barn1, barn2),
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+        ).lagreTil(kompetanseRepository)
+
+        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns
+            lagVilkårsvurderingTidslinjer(
+                lagVilkårsvurdering(
+                    søkersperiode = Periode(vilkårFom, vilkårTom),
+                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
+                ),
+            )
+
+        every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns
+            listOf(
+                lagOvergangsordningAndel(
+                    aktør = barn1,
+                    fom = vilkårTom.plusMonths(1).toYearMonth(),
+                    tom = vilkårTom.plusMonths(2).toYearMonth(),
+                ),
+                lagOvergangsordningAndel(
+                    aktør = barn2,
+                    fom = vilkårTom.plusMonths(1).toYearMonth(),
+                    tom = vilkårTom.plusMonths(4).toYearMonth(),
+                ),
+            )
+
+        kompetanseService.tilpassKompetanse(behandlingId)
+
+        val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+        assertThat(kompetanser)
+            .hasSize(3)
+            .anySatisfy {
+                assertThat(it.fom).isEqualTo(kompetanseFom)
+                assertThat(it.tom).isEqualTo(kompetanseTom)
+                assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
+                assertThat(it.resultat).isEqualTo(KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
+            }.anySatisfy {
+                assertThat(it.fom).isEqualTo(kompetanseTom.plusMonths(1))
+                assertThat(it.tom).isEqualTo(kompetanseTom.plusMonths(2))
+                assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
+            }.anySatisfy {
+                assertThat(it.fom).isEqualTo(kompetanseTom.plusMonths(3))
+                assertThat(it.tom).isEqualTo(kompetanseTom.plusMonths(4))
+                assertThat(it.barnAktører).containsExactlyInAnyOrder(barn2)
+            }
+    }
+
+    @Test
+    fun `tilpassKompetanse skal ikke opprette tomme kompetanser for perioder med overgangsordningandeler hvis toggle er skrudd av`() {
+        every { unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING) } returns false
+
+        val vilkårFom = LocalDate.of(2024, 5, 1)
+        val vilkårTom = LocalDate.of(2024, 9, 1)
+        val kompetanseFom = vilkårFom.plusMonths(1).toYearMonth()
+        val kompetanseTom = vilkårTom.toYearMonth()
+
+        lagKompetanse(
+            behandlingId = behandlingId.id,
+            fom = kompetanseFom,
+            tom = kompetanseTom,
+            barnAktører = setOf(barn1, barn2),
+            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+        ).lagreTil(kompetanseRepository)
+
+        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns
+            lagVilkårsvurderingTidslinjer(
+                lagVilkårsvurdering(
+                    søkersperiode = Periode(vilkårFom, vilkårTom),
+                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
+                ),
+            )
+
+        every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns
+            listOf(
+                lagOvergangsordningAndel(
+                    aktør = barn1,
+                    fom = vilkårTom.plusMonths(1).toYearMonth(),
+                    tom = vilkårTom.plusMonths(2).toYearMonth(),
+                ),
+                lagOvergangsordningAndel(
+                    aktør = barn2,
+                    fom = vilkårTom.plusMonths(1).toYearMonth(),
+                    tom = vilkårTom.plusMonths(4).toYearMonth(),
+                ),
+            )
+
+        kompetanseService.tilpassKompetanse(behandlingId)
+
+        val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+        assertThat(kompetanser)
+            .hasSize(1)
+            .anySatisfy {
+                assertThat(it.fom).isEqualTo(kompetanseFom)
+                assertThat(it.tom).isEqualTo(kompetanseTom)
+                assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
+                assertThat(it.resultat).isEqualTo(KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
+            }
+    }
+
+    @Test
+    fun `tilpassKompetanse skal tilpasse kompetanser til endrede regelverk-tidslinjer`() {
         val eksisterendeKompetanse1 =
             lagKompetanse(
                 behandlingId = behandlingId.id,
@@ -767,6 +888,18 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
                     barnAktør = listOf(barn1, barn2),
                 ),
+        )
+
+    private fun lagOvergangsordningAndel(
+        aktør: Aktør,
+        fom: YearMonth,
+        tom: YearMonth,
+    ): OvergangsordningAndel =
+        OvergangsordningAndel(
+            behandlingId = behandlingId.id,
+            person = tilfeldigPerson(aktør = aktør),
+            fom = fom,
+            tom = tom,
         )
 
     private fun assertKompetanse(
