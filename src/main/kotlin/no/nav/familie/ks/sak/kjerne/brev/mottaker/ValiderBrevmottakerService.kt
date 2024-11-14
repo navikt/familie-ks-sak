@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.mottaker
 
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
-import no.nav.familie.ks.sak.api.dto.harGyldigAdresse
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService

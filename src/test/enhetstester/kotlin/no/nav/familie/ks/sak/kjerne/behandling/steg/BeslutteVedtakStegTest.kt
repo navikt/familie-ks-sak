@@ -134,7 +134,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
-        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
@@ -171,7 +171,7 @@ class BeslutteVedtakStegTest {
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
-        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
@@ -221,7 +221,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
-        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
 
         // Act & assert
         val exception =
@@ -248,7 +248,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
-        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 

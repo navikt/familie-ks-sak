@@ -591,7 +591,7 @@ class BrevServiceTest {
         val søkersident = aktør.aktivFødselsnummer()
         val brevmottakere =
             listOf(
-                lagBrevmottakerDto(id=1234, postnummer = "0661", poststed = "Stockholm", landkode = "SE")
+                lagBrevmottakerDto(id = 1234, postnummer = "0661", poststed = "Stockholm", landkode = "SE"),
             )
         val manueltBrevDto =
             ManueltBrevDto(
