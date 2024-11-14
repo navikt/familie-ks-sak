@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -41,7 +42,7 @@ class BehandlingsresultatSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
-        val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
+        val tilkjentYtelseNåværendeBehandling = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
         val endretUtbetalingMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
@@ -50,7 +51,7 @@ class BehandlingsresultatSteg(
 
         BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag = personopplysningGrunnlag,
-            tilkjentYtelse = tilkjentYtelse,
+            tilkjentYtelse = tilkjentYtelseNåværendeBehandling,
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
             personResultaterForBarn = personResultaterForBarn,
         )
@@ -60,8 +61,19 @@ class BehandlingsresultatSteg(
 
             OvergangsordningAndelValidator.validerOvergangsordningAndeler(
                 overgangsordningAndeler = overgangsordningAndeler,
-                alleAndelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse,
+                alleAndelerTilkjentYtelse = tilkjentYtelseNåværendeBehandling.andelerTilkjentYtelse,
                 personResultaterForBarn = personResultaterForBarn,
+            )
+
+            val sisteIverksatteBehandling =
+                behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+                    ?: throw Feil("Fant ingen iverksatt behandling for fagsak ${behandling.fagsak.id}")
+            val tilkjentYtelseForrigeBehandling = beregningService.hentTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
+
+            OvergangsordningAndelValidator.validerIngenEndringIOrdinæreAndelerTilkjentYtelse(
+                andelerNåværendeBehandling = tilkjentYtelseNåværendeBehandling.andelerTilkjentYtelse,
+                andelerForrigeBehandling = tilkjentYtelseForrigeBehandling.andelerTilkjentYtelse,
+                barna = personopplysningGrunnlag.barna,
             )
         }
 

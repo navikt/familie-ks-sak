@@ -2,12 +2,14 @@ package no.nav.familie.ks.sak.kjerne.overgangsordning
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
+import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅrKort
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -15,11 +17,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.YearMonth
 
 object OvergangsordningAndelValidator {
@@ -33,6 +38,37 @@ object OvergangsordningAndelValidator {
         validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(alleAndelerTilkjentYtelse)
         validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
         validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
+    }
+
+    fun validerIngenEndringIOrdinæreAndelerTilkjentYtelse(
+        andelerNåværendeBehandling: Set<AndelTilkjentYtelse>,
+        andelerForrigeBehandling: Set<AndelTilkjentYtelse>,
+        barna: List<Person>,
+    ) {
+        val nåværendeAndelerTidslinjer = andelerNåværendeBehandling.ordinæreAndeler().tilSeparateTidslinjerForBarna()
+        val forrigeAndelerTidslinjer = andelerForrigeBehandling.ordinæreAndeler().tilSeparateTidslinjerForBarna()
+
+        nåværendeAndelerTidslinjer
+            .outerJoin(forrigeAndelerTidslinjer) { nåværendeAndeler, forrigeAndeler ->
+                when {
+                    nåværendeAndeler == null && forrigeAndeler == null -> false
+                    nåværendeAndeler == null || forrigeAndeler == null -> true
+                    else -> !nåværendeAndeler.innholdErLikt(forrigeAndeler)
+                }
+            }.forEach { (aktør, erEndringIOrdinæreAndelerTidslinje) ->
+                erEndringIOrdinæreAndelerTidslinje.tilPerioder().forEach {
+                    if (it.verdi == true) {
+                        val fødselsdato = barna.first { it.aktør == aktør }.fødselsdato.tilKortString()
+                        throw FunksjonellFeil(
+                            melding = "Det er endringer i ordinære andeler for aktør med id ${aktør.aktørId} i behandling med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024}.",
+                            frontendFeilmelding =
+                                "Det er ikke mulig å gjøre andre endringer i behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn}. " +
+                                    "Det er lagt inn endringer for barn født $fødselsdato i perioden ${it.fom?.tilDagMånedÅrKort()} til ${it.tom?.tilDagMånedÅrKort()}. " +
+                                    "Slike endringer må gjøres i en egen revurderingsbehandling.",
+                        )
+                    }
+                }
+            }
     }
 
     fun validerAndelerErIPeriodenBarnetEr20Til23Måneder(

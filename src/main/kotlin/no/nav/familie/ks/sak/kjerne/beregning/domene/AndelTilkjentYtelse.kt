@@ -136,6 +136,15 @@ data class AndelTilkjentYtelse(
     fun overlapperPeriode(måndePeriode: MånedPeriode): Boolean =
         this.stønadFom <= måndePeriode.tom &&
             this.stønadTom >= måndePeriode.fom
+
+    fun innholdErLikt(andel: AndelTilkjentYtelse): Boolean =
+        this.type == andel.type &&
+            this.stønadFom == andel.stønadFom &&
+            this.stønadTom == andel.stønadTom &&
+            this.kalkulertUtbetalingsbeløp == andel.kalkulertUtbetalingsbeløp &&
+            this.aktør == andel.aktør &&
+            this.nasjonaltPeriodebeløp == andel.nasjonaltPeriodebeløp &&
+            this.differanseberegnetPeriodebeløp == andel.differanseberegnetPeriodebeløp
 }
 
 fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> =
