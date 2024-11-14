@@ -119,15 +119,7 @@ fun tilpassKompetanser(
         }.tilSkjemaer()
 }
 
-fun VilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId: BehandlingId): Map<Aktør, Tidslinje<RegelverkResultat>> =
-    this
-        .lagVilkårsvurderingTidslinjer(behandlingId.id)
-        .barnasTidslinjer()
-        .mapValues { (_, tidslinjer) ->
-            tidslinjer.regelverkResultatTidslinje
-        }
-
-fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
+private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
     this.mapValues { (_, tidslinjer) ->
         tidslinjer
             .filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
