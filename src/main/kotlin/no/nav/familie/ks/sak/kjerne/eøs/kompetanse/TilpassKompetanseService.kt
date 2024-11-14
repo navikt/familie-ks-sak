@@ -58,9 +58,10 @@ class TilpassKompetanserService(
 
         val barnasSkalIkkeUtbetalesTidslinjer = endretUtbetalingAndeler.tilBarnasSkalIkkeUtbetalesTidslinjer()
         val utfylteOvergangsordningAndeler =
-            when (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
-                true -> overgangsordningAndeler.utfyltePerioder()
-                false -> emptyList()
+            if (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+                overgangsordningAndeler.utfyltePerioder()
+            } else {
+                emptyList()
             }
 
         val oppdaterteKompetanser =
@@ -87,9 +88,10 @@ fun tilpassKompetanser(
         barnaRegelverkTidslinjer
             .tilBarnasEøsRegelverkTidslinjer()
             .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
-                when (harEtterbetaling3Måned) {
-                    true -> null // ta bort regelverk hvis barnet har etterbetaling 3 måned
-                    else -> regelverk
+                if (harEtterbetaling3Måned == true) {
+                    null
+                } else {
+                    regelverk
                 }
             }
 
