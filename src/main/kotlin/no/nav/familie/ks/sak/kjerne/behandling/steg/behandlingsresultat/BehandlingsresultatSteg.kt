@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
@@ -44,7 +45,6 @@ class BehandlingsresultatSteg(
         val endretUtbetalingMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-        val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
 
         val personResultaterForBarn = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId).personResultater.filter { !it.erSøkersResultater() }
 
@@ -52,10 +52,18 @@ class BehandlingsresultatSteg(
             personopplysningGrunnlag = personopplysningGrunnlag,
             tilkjentYtelse = tilkjentYtelse,
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
-            overgangsordningAndeler = overgangsordningAndeler,
             personResultaterForBarn = personResultaterForBarn,
-            skalValidereOvergangsordningAndeler = unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING),
         )
+
+        if (behandling.erOvergangsordning() && unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+            val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
+
+            OvergangsordningAndelValidator.validerOvergangsordningAndeler(
+                overgangsordningAndeler = overgangsordningAndeler,
+                alleAndelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse,
+                personResultaterForBarn = personResultaterForBarn,
+            )
+        }
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)
 
