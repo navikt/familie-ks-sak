@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.overgangsordning
 
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikePerioder
@@ -29,8 +30,11 @@ class OvergangsordningAndelService(
     private val beregningService: BeregningService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vilkårsvurderingService: VilkårsvurderingService,
+    private val overgangsordningAndelOppdatertAbonnementer: List<OvergangsordningAndelerOppdatertAbonnent> = emptyList(),
 ) {
     fun hentOvergangsordningAndeler(behandlingId: Long) = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId)
+
+    fun hentUtfylteOvergangsordningAndeler(behandlingId: Long) = hentOvergangsordningAndeler(behandlingId).utfyltePerioder()
 
     fun hentOvergangsordningAndelerForPerson(
         behandlingId: Long,
@@ -57,7 +61,7 @@ class OvergangsordningAndelService(
         val person = personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == overgangsordningAndelRequestDto.personIdent }
         val vilkårsvurdering by lazy { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         val andreUtfylteOvergangsordningAndelerPåBehandling by lazy {
-            hentOvergangsordningAndelerForPerson(behandling.id, person).filter { it.id != overgangsordningAndelId }.utfyltePerioder()
+            hentUtfylteOvergangsordningAndeler(behandling.id).filter { it.id != overgangsordningAndelId }
         }
 
         val utfyltOvergangsordningAndel =
@@ -97,6 +101,12 @@ class OvergangsordningAndelService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             vilkårsvurdering = vilkårsvurdering,
         )
+
+        overgangsordningAndelOppdatertAbonnementer.forEach { abonnent ->
+            abonnent.tilpassKompetanserTilOvergangsordningAndeler(
+                behandlingId = BehandlingId(behandling.id),
+            )
+        }
     }
 
     @Transactional
@@ -114,6 +124,12 @@ class OvergangsordningAndelService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             vilkårsvurdering = vilkårsvurdering,
         )
+
+        overgangsordningAndelOppdatertAbonnementer.forEach { abonnent ->
+            abonnent.tilpassKompetanserTilOvergangsordningAndeler(
+                behandlingId = BehandlingId(behandling.id),
+            )
+        }
     }
 
     @Transactional
@@ -147,4 +163,10 @@ class OvergangsordningAndelService(
             .slåSammenLikePerioder()
             .tilPerioderIkkeNull()
             .map { it.verdi.tilOvergangsordningAndel(fom = it.fom!!.toYearMonth(), tom = it.tom!!.toYearMonth()) }
+}
+
+interface OvergangsordningAndelerOppdatertAbonnent {
+    fun tilpassKompetanserTilOvergangsordningAndeler(
+        behandlingId: BehandlingId,
+    )
 }
