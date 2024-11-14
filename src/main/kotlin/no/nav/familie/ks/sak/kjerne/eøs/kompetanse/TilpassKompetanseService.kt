@@ -75,48 +75,48 @@ class TilpassKompetanserService(
 
         kompetanseSkjemaService.lagreDifferanseOgVarsleAbonnenter(behandlingId, eksisterendeKompetanser, oppdaterteKompetanser)
     }
-}
 
-fun tilpassKompetanser(
-    eksisterendeKompetanser: Collection<Kompetanse>,
-    barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
-    barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
-    annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
-    utfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
-): List<Kompetanse> {
-    val barnasEøsRegelverkTidslinjer =
-        barnaRegelverkTidslinjer
-            .tilBarnasEøsRegelverkTidslinjer()
-            .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
-                if (harEtterbetaling3Måned == true) {
-                    null
-                } else {
-                    regelverk
+    private fun tilpassKompetanser(
+        eksisterendeKompetanser: Collection<Kompetanse>,
+        barnaRegelverkTidslinjer: Map<Aktør, Tidslinje<RegelverkResultat>>,
+        barnasHarEtterbetaling3MånedTidslinjer: Map<Aktør, Tidslinje<Boolean>>,
+        annenForelderOmfattetAvNorskLovgivningTidslinje: Tidslinje<Boolean>,
+        utfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
+    ): List<Kompetanse> {
+        val barnasEøsRegelverkTidslinjer =
+            barnaRegelverkTidslinjer
+                .tilBarnasEøsRegelverkTidslinjer()
+                .leftJoin(barnasHarEtterbetaling3MånedTidslinjer) { regelverk, harEtterbetaling3Måned ->
+                    if (harEtterbetaling3Måned == true) {
+                        null
+                    } else {
+                        regelverk
+                    }
                 }
-            }
 
-    val overgangsordningAndelerTidslinjer =
-        utfylteOvergangsordningAndeler
-            .groupBy { it.person.aktør }
-            .mapValues {
-                it.value
-                    .tilPerioder()
-                    .tilTidslinje()
-            }
+        val overgangsordningAndelerTidslinjer =
+            utfylteOvergangsordningAndeler
+                .groupBy { it.person.aktør }
+                .mapValues {
+                    it.value
+                        .tilPerioder()
+                        .tilTidslinje()
+                }
 
-    return eksisterendeKompetanser
-        .tilSeparateTidslinjerForBarna()
-        .outerJoin(barnasEøsRegelverkTidslinjer, overgangsordningAndelerTidslinjer) { kompetanse, regelverk, overgangsordningAndel ->
-            when {
-                regelverk != null -> kompetanse ?: Kompetanse.blankKompetanse
-                overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
-                else -> null
-            }
-        }.mapValues { (_, value) ->
-            value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
-                kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
-            }
-        }.tilSkjemaer()
+        return eksisterendeKompetanser
+            .tilSeparateTidslinjerForBarna()
+            .outerJoin(barnasEøsRegelverkTidslinjer, overgangsordningAndelerTidslinjer) { kompetanse, regelverk, overgangsordningAndel ->
+                when {
+                    regelverk != null -> kompetanse ?: Kompetanse.blankKompetanse
+                    overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
+                    else -> null
+                }
+            }.mapValues { (_, value) ->
+                value.kombinerMed(annenForelderOmfattetAvNorskLovgivningTidslinje) { kompetanse, annenForelderOmfattet ->
+                    kompetanse?.copy(erAnnenForelderOmfattetAvNorskLovgivning = annenForelderOmfattet ?: false)
+                }
+            }.tilSkjemaer()
+    }
 }
 
 private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
