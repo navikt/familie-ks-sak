@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerAdresseValidering
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -40,7 +41,6 @@ class BeslutteVedtakSteg(
     private val unleashService: UnleashNextMedContextService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val brevmottakerService: BrevmottakerService,
-    private val validerBrevmottakerService: ValiderBrevmottakerService
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -147,7 +147,7 @@ class BeslutteVedtakSteg(
         totrinnskontrollErGodkjent: Boolean,
     ) {
         val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId.id)
-        if (totrinnskontrollErGodkjent && !validerBrevmottakerService.erBrevmottakereGyldige(brevmottakere)) {
+        if (totrinnskontrollErGodkjent && !BrevmottakerAdresseValidering.erBrevmottakereGyldige(brevmottakere)) {
             throw FunksjonellFeil(
                 melding = "Det finnes ugyldige brevmottakere, vi kan ikke beslutte vedtaket",
                 frontendFeilmelding = "Det finnes ugyldige brevmottakere i denne behandlingen, den må underkjennes og brevmottakerne oppdateres",

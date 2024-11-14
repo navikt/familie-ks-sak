@@ -15,7 +15,9 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -41,8 +43,10 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.prosessering.internal.TaskService
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -578,5 +582,32 @@ class BrevServiceTest {
         }
 
         assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
+    }
+
+    @Test
+    fun `sendBrev skal kaste feil dersom manuelle brevmottakere er ugyldige`() {
+        val aktør = randomAktør()
+        val fagsak = Fagsak(aktør = aktør)
+        val søkersident = aktør.aktivFødselsnummer()
+        val brevmottakere =
+            listOf(
+                lagBrevmottakerDto(id=1234, postnummer = "0661", poststed = "Stockholm", landkode = "SE")
+            )
+        val manueltBrevDto =
+            ManueltBrevDto(
+                mottakerIdent = søkersident,
+                brevmal = Brevmal.SVARTIDSBREV,
+                manuelleBrevmottakere = brevmottakere,
+            )
+
+        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
+
+        // Act & assert
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
+            }
+
+        assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
     }
 }

@@ -25,3 +25,18 @@ fun BrevmottakerDto.tilBrevMottakerDb(behandlingId: Long) =
         poststed = poststed.trim(),
         landkode = landkode,
     )
+
+fun BrevmottakerDto.harGyldigAdresse(): Boolean {
+    if (landkode == "NO") {
+        return navn.isNotEmpty() &&
+               adresselinje1.isNotEmpty() &&
+               postnummer.isNotEmpty() &&
+               poststed.isNotEmpty()
+    } else {
+        // Utenlandske manuelle brevmottakere skal ha postnummer og poststed satt i adresselinjene
+        return navn.isNotEmpty() &&
+               adresselinje1.isNotEmpty() &&
+               postnummer.isEmpty() &&
+               poststed.isEmpty()
+    }
+}

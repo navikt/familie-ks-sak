@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -21,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
@@ -59,6 +61,9 @@ class BeslutteVedtakStegTest {
 
     @MockK
     private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
+
+    @MockK
+    private lateinit var brevmottakerService: BrevmottakerService
 
     @InjectMockKs
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
@@ -129,6 +134,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123))
 
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
@@ -165,6 +171,8 @@ class BeslutteVedtakStegTest {
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
+        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123))
+
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
         verify(exactly = 1) {
@@ -195,5 +203,68 @@ class BeslutteVedtakStegTest {
             feil.melding,
             Is("Du har ikke tilgang til å beslutte en behandling med årsak=Teknisk endring. Ta kontakt med teamet dersom dette ikke stemmer."),
         )
+    }
+
+    @Test
+    fun `utførSteg skal kaste feil dersom vedtaket er godkjent og det finnes ugyldige manuelle brevmottakere`() {
+        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
+
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList(),
+            )
+        } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+
+        // Act & assert
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
+            }
+
+        assertThat(exception.message, Is("Det finnes ugyldige brevmottakere, vi kan ikke beslutte vedtaket"))
+    }
+
+    @Test
+    fun `utførSteg skal opprette og initiere nytt vedtak dersom vedtaket er underkjent selv om det finnes ugyldige brevmottakere`() {
+        val besluttVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
+
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList(),
+            )
+        } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any())} returns listOf(lagBrevmottakerDto(id=123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+
+        beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
+
+        verify(exactly = 1) {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                besluttVedtakDto.beslutning,
+                emptyList(),
+            )
+        }
+        verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
+        verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
     }
 }

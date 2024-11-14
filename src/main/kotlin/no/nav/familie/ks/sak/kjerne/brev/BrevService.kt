@@ -29,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerAdresseValidering
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
@@ -118,7 +119,7 @@ class BrevService(
                 manueltRegistrerteMottakere = brevmottakerDtoListe,
             )
 
-        if (!validerBrevmottakerService.erBrevmottakereGyldige(brevmottakerDtoListe)) {
+        if (!BrevmottakerAdresseValidering.erBrevmottakereGyldige(brevmottakerDtoListe)) {
             throw FunksjonellFeil(
                 melding = "Det finnes ugyldige brevmottakere i utsending av manuelt brev",
                 frontendFeilmelding = "Det finnes ugyldige brevmottakere i dette brevet som må oppdateres før brevet kan sendes.",

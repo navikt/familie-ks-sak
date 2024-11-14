@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.brev.mottaker
 
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.harGyldigAdresse
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
@@ -66,24 +67,4 @@ class ValiderBrevmottakerService(
             throw FunksjonellFeil(melding, frontendFeilmelding)
         }
     }
-
-    fun erBrevmottakerGyldig(brevmottaker: BrevmottakerDto): Boolean {
-        if (brevmottaker.landkode == "NO") {
-            return brevmottaker.navn.isNotEmpty() &&
-                brevmottaker.adresselinje1.isNotEmpty() &&
-                brevmottaker.postnummer.isNotEmpty() &&
-                brevmottaker.poststed.isNotEmpty()
-        } else {
-            // Utenlandske manuelle brevmottakere skal ha postnummer og poststed satt i adresselinjene
-            return brevmottaker.navn.isNotEmpty() &&
-                brevmottaker.adresselinje1.isNotEmpty() &&
-                brevmottaker.postnummer.isEmpty() &&
-                brevmottaker.poststed.isEmpty()
-        }
-    }
-
-    fun erBrevmottakereGyldige(brevmottakere: List<BrevmottakerDto>): Boolean =
-        brevmottakere.all {
-            erBrevmottakerGyldig(it)
-        }
 }
