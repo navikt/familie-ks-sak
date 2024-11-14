@@ -58,21 +58,16 @@ class BehandlingsresultatSteg(
 
         if (behandling.erOvergangsordning() && unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
             val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
+            val sisteVedtatteBehandling =
+                behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+                    ?: throw Feil("Fant ingen iverksatt behandling for fagsak ${behandling.fagsak.id}")
+            val tilkjentYtelseForrigeBehandling = beregningService.hentTilkjentYtelseForBehandling(sisteVedtatteBehandling.id)
 
             OvergangsordningAndelValidator.validerOvergangsordningAndeler(
                 overgangsordningAndeler = overgangsordningAndeler,
-                alleAndelerTilkjentYtelse = tilkjentYtelseNåværendeBehandling.andelerTilkjentYtelse,
+                andelerTilkjentYtelseNåværendeBehandling = tilkjentYtelseNåværendeBehandling.andelerTilkjentYtelse,
+                andelerTilkjentYtelseForrigeBehandling = tilkjentYtelseForrigeBehandling.andelerTilkjentYtelse,
                 personResultaterForBarn = personResultaterForBarn,
-            )
-
-            val sisteIverksatteBehandling =
-                behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
-                    ?: throw Feil("Fant ingen iverksatt behandling for fagsak ${behandling.fagsak.id}")
-            val tilkjentYtelseForrigeBehandling = beregningService.hentTilkjentYtelseForBehandling(sisteIverksatteBehandling.id)
-
-            OvergangsordningAndelValidator.validerIngenEndringIOrdinæreAndelerTilkjentYtelse(
-                andelerNåværendeBehandling = tilkjentYtelseNåværendeBehandling.andelerTilkjentYtelse,
-                andelerForrigeBehandling = tilkjentYtelseForrigeBehandling.andelerTilkjentYtelse,
                 barna = personopplysningGrunnlag.barna,
             )
         }

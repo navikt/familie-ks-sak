@@ -30,14 +30,17 @@ import java.time.YearMonth
 object OvergangsordningAndelValidator {
     fun validerOvergangsordningAndeler(
         overgangsordningAndeler: List<OvergangsordningAndel>,
-        alleAndelerTilkjentYtelse: Set<AndelTilkjentYtelse>,
+        andelerTilkjentYtelseNåværendeBehandling: Set<AndelTilkjentYtelse>,
+        andelerTilkjentYtelseForrigeBehandling: Set<AndelTilkjentYtelse>,
         personResultaterForBarn: List<PersonResultat>,
+        barna: List<Person>,
     ) {
         val barnehageplassVilkårPerPerson = personResultaterForBarn.groupBy { it.aktør }.mapValues { it.value.flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS } } }
         validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler)
-        validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(alleAndelerTilkjentYtelse)
+        validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(andelerTilkjentYtelseNåværendeBehandling)
         validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
         validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
+        validerIngenEndringIOrdinæreAndelerTilkjentYtelse(andelerTilkjentYtelseNåværendeBehandling, andelerTilkjentYtelseForrigeBehandling, barna)
     }
 
     fun validerIngenEndringIOrdinæreAndelerTilkjentYtelse(
