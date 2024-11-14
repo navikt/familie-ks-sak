@@ -28,6 +28,37 @@ class OvergangsordningAndelValidatorTest {
         )
 
     @Test
+    fun validerIngenEndringIOrdinæreAndelerTilkjentYtelse() {
+        val nåværendeAndeler =
+            setOf(
+                lagAndelTilkjentYtelse(
+                    aktør = aktør,
+                    fom = YearMonth.of(2024, 1),
+                    tom = YearMonth.of(2024, 5),
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+            )
+
+        val forrigeAndeler =
+            setOf(
+                lagAndelTilkjentYtelse(
+                    aktør = aktør,
+                    fom = YearMonth.of(2024, 1),
+                    tom = YearMonth.of(2024, 3),
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+            )
+
+        assertThrows<FunksjonellFeil> {
+            OvergangsordningAndelValidator.validerIngenEndringIOrdinæreAndelerTilkjentYtelse(
+                andelerNåværendeBehandling = nåværendeAndeler,
+                andelerForrigeBehandling = forrigeAndeler,
+                barna = listOf(person),
+            )
+        }
+    }
+
+    @Test
     fun validerAndelerErIPeriodenBarnetEr20Til23Måneder() {
         val andeler = listOf(andel)
 
