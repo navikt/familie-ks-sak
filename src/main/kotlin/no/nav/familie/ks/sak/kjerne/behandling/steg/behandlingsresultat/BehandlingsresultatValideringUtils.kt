@@ -36,7 +36,6 @@ object BehandlingsresultatValideringUtils {
         personResultaterForBarn: List<PersonResultat>,
     ) {
         val alleBarnetsAlderVilkårResultater = personResultaterForBarn.flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
-        val barnehageplassVilkårPerPerson = personResultaterForBarn.groupBy { it.aktør }.mapValues { it.value.flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS } } }
 
         // valider TilkjentYtelse
         TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(tilkjentYtelse, personopplysningGrunnlag, alleBarnetsAlderVilkårResultater)
