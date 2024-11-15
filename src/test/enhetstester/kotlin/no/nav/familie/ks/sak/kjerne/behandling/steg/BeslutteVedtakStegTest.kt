@@ -235,6 +235,7 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal opprette og initiere nytt vedtak dersom vedtaket er underkjent selv om det finnes ugyldige brevmottakere`() {
+        // Arrange
         val besluttVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
 
         every {
@@ -251,8 +252,10 @@ class BeslutteVedtakStegTest {
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
         every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
 
+        // Act
         beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
 
+        // Assert
         verify(exactly = 1) {
             totrinnskontrollService.besluttTotrinnskontroll(
                 any(),
