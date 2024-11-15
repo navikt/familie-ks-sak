@@ -1,10 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.overgangsordning
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagUtfyltOvergangsordningAndel
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -26,6 +29,50 @@ class OvergangsordningAndelValidatorTest {
             tom = YearMonth.now(),
             person = person,
         )
+
+    @Test
+    fun validerOvergangsordningAndeler() {
+        val overgangsordningAndel =
+            OvergangsordningAndel(
+                behandlingId = 1,
+                fom = person.fødselsdato.plusMonths(20).toYearMonth(),
+                tom = person.fødselsdato.plusMonths(23).toYearMonth(),
+                person = person,
+            )
+
+        val ordinæreAndel =
+            lagAndelTilkjentYtelse(
+                aktør = aktør,
+                fom = person.fødselsdato.plusMonths(13).toYearMonth(),
+                tom = person.fødselsdato.plusMonths(19).toYearMonth(),
+                ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+            )
+
+        val personResultaterForBarn =
+            lagPersonResultat(
+                vilkårsvurdering = lagVilkårsvurdering(),
+                aktør = aktør,
+                lagVilkårResultater = {
+                    setOf(
+                        lagVilkårResultat(
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = person.fødselsdato,
+                            periodeTom = null,
+                        ),
+                    )
+                },
+            )
+
+        assertDoesNotThrow {
+            OvergangsordningAndelValidator.validerOvergangsordningAndeler(
+                overgangsordningAndeler = listOf(overgangsordningAndel),
+                andelerTilkjentYtelseNåværendeBehandling = setOf(ordinæreAndel),
+                andelerTilkjentYtelseForrigeBehandling = setOf(ordinæreAndel),
+                personResultaterForBarn = listOf(personResultaterForBarn),
+                barna = listOf(person),
+            )
+        }
+    }
 
     @Test
     fun validerIngenEndringIOrdinæreAndelerTilkjentYtelse() {
