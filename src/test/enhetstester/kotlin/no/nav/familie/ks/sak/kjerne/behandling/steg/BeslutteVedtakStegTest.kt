@@ -207,6 +207,7 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal kaste feil dersom vedtaket er godkjent og det finnes ugyldige manuelle brevmottakere`() {
+        // Arrange
         val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
 
         every {
