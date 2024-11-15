@@ -119,7 +119,7 @@ class BrevService(
                 manueltRegistrerteMottakere = brevmottakerDtoListe,
             )
 
-        if (!BrevmottakerAdresseValidering.erBrevmottakereGyldige(brevmottakerDtoListe)) {
+        if (!BrevmottakerAdresseValidering.harBrevmottakereGyldigAddresse(brevmottakerDtoListe)) {
             throw FunksjonellFeil(
                 melding = "Det finnes ugyldige brevmottakere i utsending av manuelt brev",
                 frontendFeilmelding = "Adressen som er lagt til manuelt har ugyldig format, og brevet kan ikke sendes. Du må legge til manuell adresse på nytt.",

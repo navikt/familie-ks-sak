@@ -145,7 +145,7 @@ class BeslutteVedtakSteg(
         totrinnskontrollErGodkjent: Boolean,
     ) {
         val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId.id)
-        if (totrinnskontrollErGodkjent && !BrevmottakerAdresseValidering.erBrevmottakereGyldige(brevmottakere)) {
+        if (totrinnskontrollErGodkjent && !BrevmottakerAdresseValidering.harBrevmottakereGyldigAddresse(brevmottakere)) {
             throw FunksjonellFeil(
                 melding = "Det finnes ugyldige brevmottakere, vi kan ikke beslutte vedtaket",
                 frontendFeilmelding = "Adressen som er lagt til manuelt har ugyldig format, og vedtaksbrevet kan ikke sendes. Behandlingen må underkjennes, og saksbehandler må legge til manuell adresse på nytt.",
