@@ -94,10 +94,9 @@ class EndretUtbetalingAndelService(
             endretUtbetalingAndel,
         )
 
-        endretUtbetalingAndelOppdatertAbonnementer.forEach {
-            it.tilpassKompetanserTilEndretUtbetalingAndeler(
+        endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
+            abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
                 behandlingId = BehandlingId(behandling.id),
-                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
             )
         }
     }
@@ -123,7 +122,6 @@ class EndretUtbetalingAndelService(
         endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
             abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
                 behandlingId = BehandlingId(behandling.id),
-                endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id),
             )
         }
     }
@@ -146,6 +144,5 @@ class EndretUtbetalingAndelService(
 interface EndretUtbetalingAndelerOppdatertAbonnent {
     fun tilpassKompetanserTilEndretUtbetalingAndeler(
         behandlingId: BehandlingId,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     )
 }
