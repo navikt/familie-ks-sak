@@ -586,6 +586,7 @@ class BrevServiceTest {
 
     @Test
     fun `sendBrev skal kaste feil dersom manuelle brevmottakere er ugyldige`() {
+        // Arrange
         val aktør = randomAktør()
         val fagsak = Fagsak(aktør = aktør)
         val søkersident = aktør.aktivFødselsnummer()
