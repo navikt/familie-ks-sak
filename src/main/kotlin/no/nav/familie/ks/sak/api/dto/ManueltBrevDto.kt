@@ -87,6 +87,7 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
 
         Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
         Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
+        Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER,
         ->
             InformasjonsbrevTilForelderBrev(
                 mal = this.brevmal,
@@ -257,6 +258,7 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
         Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
         Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
         Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+        Brevmal.VEDTAK_OVERGANGSORDNING,
         -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
     }
 

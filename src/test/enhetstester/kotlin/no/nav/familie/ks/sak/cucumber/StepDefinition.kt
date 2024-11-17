@@ -347,6 +347,7 @@ class StepDefinition {
                                     endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),
                                     erFørsteVedtaksperiode = index == 0,
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
+                                    overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
@@ -441,6 +442,7 @@ class StepDefinition {
         persongrunnlag = persongrunnlag[behandlingId]!!,
         personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
         andelTilkjentYtelserMedEndreteUtbetalinger = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+        overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
         uregistrerteBarn = uregistrerteBarn[behandlingId] ?: emptyList(),
         // TODO
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
@@ -677,6 +679,7 @@ class StepDefinition {
             sanityService = mockk(),
             søknadGrunnlagService = søknadGrunnlagService,
             utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
+            overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),

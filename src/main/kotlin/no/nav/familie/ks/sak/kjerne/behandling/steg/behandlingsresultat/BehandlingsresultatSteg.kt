@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -11,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
@@ -40,22 +42,35 @@ class BehandlingsresultatSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
-        val tilkjentYtelse = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
+        val tilkjentYtelseNåværendeBehandling = beregningService.hentTilkjentYtelseForBehandling(behandlingId)
         val endretUtbetalingMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
-        val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
 
         val personResultaterForBarn = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId).personResultater.filter { !it.erSøkersResultater() }
 
         BehandlingsresultatValideringUtils.validerAtBehandlingsresultatKanUtføres(
             personopplysningGrunnlag = personopplysningGrunnlag,
-            tilkjentYtelse = tilkjentYtelse,
+            tilkjentYtelse = tilkjentYtelseNåværendeBehandling,
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
-            overgangsordningAndeler = overgangsordningAndeler,
             personResultaterForBarn = personResultaterForBarn,
-            skalValidereOvergangsordningAndeler = unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING),
         )
+
+        if (behandling.erOvergangsordning() && unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+            val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
+            val sisteVedtatteBehandling =
+                behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+                    ?: throw Feil("Fant ingen iverksatt behandling for fagsak ${behandling.fagsak.id}")
+            val tilkjentYtelseForrigeBehandling = beregningService.hentTilkjentYtelseForBehandling(sisteVedtatteBehandling.id)
+
+            OvergangsordningAndelValidator.validerOvergangsordningAndeler(
+                overgangsordningAndeler = overgangsordningAndeler,
+                andelerTilkjentYtelseNåværendeBehandling = tilkjentYtelseNåværendeBehandling.andelerTilkjentYtelse,
+                andelerTilkjentYtelseForrigeBehandling = tilkjentYtelseForrigeBehandling.andelerTilkjentYtelse,
+                personResultaterForBarn = personResultaterForBarn,
+                barna = personopplysningGrunnlag.barna,
+            )
+        }
 
         val resultat = behandlingsresultatService.utledBehandlingsresultat(behandling.id)
 

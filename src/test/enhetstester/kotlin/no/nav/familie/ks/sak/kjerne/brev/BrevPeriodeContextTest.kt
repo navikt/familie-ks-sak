@@ -509,6 +509,7 @@ fun lagBrevPeriodeContext(
         personResultater = personResultater,
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
         uregistrerteBarn = emptyList(),
+        overgangsordningAndeler = emptyList(),
         erFørsteVedtaksperiode = false,
         kompetanser = emptyList(),
         landkoder = LANDKODER,

@@ -129,7 +129,7 @@ class StønadsstatistikkService(
                 utbetaltPerMnd = sumUtbetalingsbeløp,
                 utbetalingsDetaljer =
                     andelerForPeriode
-                        .filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
+                        .filter { it.kalkulertUtbetalingsbeløp != 0 }
                         .map { andel ->
                             UtbetalingsDetaljDVH(
                                 person =

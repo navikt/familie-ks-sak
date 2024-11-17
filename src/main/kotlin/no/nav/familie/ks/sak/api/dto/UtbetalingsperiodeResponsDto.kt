@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import java.math.BigDecimal
@@ -26,6 +27,7 @@ data class UtbetalingsperiodeDetaljDto(
     val utbetaltPerMnd: Int,
     val erPåvirketAvEndring: Boolean,
     val prosent: BigDecimal,
+    val ytelseType: YtelseType,
 )
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeResponsDto(
@@ -61,6 +63,7 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
             utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
             erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
             prosent = andel.prosent,
+            ytelseType = andel.type,
         )
     }
 
@@ -70,4 +73,5 @@ fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto() =
         utbetaltPerMnd = this.utbetaltPerMnd,
         erPåvirketAvEndring = this.erPåvirketAvEndring,
         prosent = this.prosent,
+        ytelseType = this.ytelseType,
     )
