@@ -20,15 +20,17 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
     tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
 ): Graderingsforskjell {
     val graderingForrigePeriode =
-        when (vilkårResultatForrigePerioden != null) {
-            true -> hentProsentForAntallTimer(vilkårResultatForrigePerioden.antallTimer)
-            false -> BigDecimal.ZERO
+        if (vilkårResultatForrigePerioden != null) {
+            hentProsentForAntallTimer(vilkårResultatForrigePerioden.antallTimer)
+        } else {
+            BigDecimal.ZERO
         }
 
     val graderingDennePerioden =
-        when (vilkårResultatDennePerioden != null) {
-            true -> hentProsentForAntallTimer(vilkårResultatDennePerioden.antallTimer)
-            false -> BigDecimal.ZERO
+        if (vilkårResultatDennePerioden != null) {
+            hentProsentForAntallTimer(vilkårResultatDennePerioden.antallTimer)
+        } else {
+            BigDecimal.ZERO
         }
 
     val fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt =
