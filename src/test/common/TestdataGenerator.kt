@@ -23,6 +23,7 @@ import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -1404,3 +1405,23 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
         antallTimerBarnehageplass = antallTimerBarnehageplass.toString(),
         soknadstidspunkt = soknadstidspunkt.tilKortString(),
     )
+
+fun lagBrevmottakerDto(
+    id: Long,
+    type: no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType = no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
+    navn: String = "Test Testesen",
+    adresselinje1: String = "En adresse her",
+    adresselinje2: String? = null,
+    postnummer: String = "0661",
+    poststed: String = "Oslo",
+    landkode: String = "NO",
+) = BrevmottakerDto(
+    id = id,
+    type = type,
+    navn = navn,
+    adresselinje1 = adresselinje1,
+    adresselinje2 = adresselinje2,
+    postnummer = postnummer,
+    poststed = poststed,
+    landkode = landkode,
+)
