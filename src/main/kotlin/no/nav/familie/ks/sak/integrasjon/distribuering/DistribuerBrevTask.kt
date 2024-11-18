@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingTask
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
-import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
+import no.nav.familie.ks.sak.task.utledNesteTriggerTidIHverdagerForTask
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
@@ -76,7 +76,7 @@ class DistribuerBrevTask(
                 payload = objectMapper.writeValueAsString(distribuerBrevDTO),
                 properties = properties,
             ).copy(
-                triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(),
+                triggerTid = utledNesteTriggerTidIHverdagerForTask(),
             )
 
         const val TASK_STEP_TYPE = "distribuerBrev"

@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
-import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
+import no.nav.familie.ks.sak.task.utledNesteTriggerTidIHverdagerForTask
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.domene.Status
@@ -15,6 +15,7 @@ import org.slf4j.MDC
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.LocalDate
 import java.util.UUID
 
@@ -50,7 +51,7 @@ class GrensesnittavstemmingScheduler(
             val sisteFerdigTaskData =
                 objectMapper.readValue(sisteFerdigTask.payload, GrensesnittavstemmingTaskDto::class.java)
             fom = sisteFerdigTaskData.tom.toLocalDate().atStartOfDay()
-            tom = nesteGyldigeTriggertidForBehandlingIHverdager((24 * 60).toLong(), fom).toLocalDate().atStartOfDay()
+            tom = utledNesteTriggerTidIHverdagerForTask(fom, Duration.ofMinutes(24 * 60)).toLocalDate().atStartOfDay()
         }
         // Opprett GrensesnittavstemmingTask
         taskService.save(GrensesnittavstemmingTask.opprettTask(fom, tom))

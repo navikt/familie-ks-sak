@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.skalIverksettesMotOppdrag
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
-import no.nav.familie.ks.sak.task.nesteGyldigeTriggertidForBehandlingIHverdager
+import no.nav.familie.ks.sak.task.utledNesteTriggerTidIHverdagerForTask
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Status
@@ -21,6 +21,7 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.util.Properties
 
 /**
@@ -54,7 +55,7 @@ class HentStatusFraOppdragTask(
         when (statusFraOppdrag) {
             OppdragStatus.LAGT_PÅ_KØ -> throw RekjørSenereException(
                 årsak = "Mottok ${statusFraOppdrag.name} fra oppdrag.",
-                triggerTid = nesteGyldigeTriggertidForBehandlingIHverdager(minutesToAdd = 15),
+                triggerTid = utledNesteTriggerTidIHverdagerForTask(minimumForsinkelse = Duration.ofMinutes(15)),
             )
             OppdragStatus.KVITTERT_OK -> {
                 stegService.utførStegEtterIverksettelseAutomatisk(statusFraOppdragDto.behandlingsId)
