@@ -51,7 +51,11 @@ class GrensesnittavstemmingScheduler(
             val sisteFerdigTaskData =
                 objectMapper.readValue(sisteFerdigTask.payload, GrensesnittavstemmingTaskDto::class.java)
             fom = sisteFerdigTaskData.tom.toLocalDate().atStartOfDay()
-            tom = utledNesteTriggerTidIHverdagerForTask(fom, Duration.ofMinutes(24 * 60)).toLocalDate().atStartOfDay()
+            tom =
+                utledNesteTriggerTidIHverdagerForTask(
+                    triggerTid = fom,
+                    minimumForsinkelse = Duration.ofHours(24),
+                ).toLocalDate().atStartOfDay()
         }
         // Opprett GrensesnittavstemmingTask
         taskService.save(GrensesnittavstemmingTask.opprettTask(fom, tom))

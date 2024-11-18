@@ -121,10 +121,10 @@ class TriggerTidUtlederKtTest {
         fun `skal returnere samme dag kl 6 for hverdag når triggertid er rett før kl 6, med forsikelse på 1 sek `() {
             // Arrange
             val triggerTid = LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(5, 59, 59))
-            val forsinkelse = Duration.ofSeconds(1)
+            val minimumForsinkelse = Duration.ofSeconds(1)
 
             // Act
-            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = forsinkelse)
+            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = minimumForsinkelse)
 
             // Assert
             assertThat(nyTriggertid).isEqualTo(LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(6, 0)))
@@ -134,10 +134,10 @@ class TriggerTidUtlederKtTest {
         fun `skal returnere samme dag kl 06,00,01 for hverdag når triggretid er 06,00,00, med forsikelse på 1 sek `() {
             // Arrange
             val triggerTid = LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(6, 0, 0))
-            val forsinkelse = Duration.ofSeconds(1)
+            val minimumForsinkelse = Duration.ofSeconds(1)
 
             // Act
-            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = forsinkelse)
+            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = minimumForsinkelse)
 
             // Assert
             assertThat(nyTriggertid).isEqualTo(LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(6, 0, 1)))
@@ -147,10 +147,10 @@ class TriggerTidUtlederKtTest {
         fun `skal returnere samme dag kl 21 når triggertid er 1 sek før kl 21 med forsinkelse på 1 sek `() {
             // Arrange
             val triggerTid = LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(20, 59, 59))
-            val forsinkelse = Duration.ofSeconds(1)
+            val minimumForsinkelse = Duration.ofSeconds(1)
 
             // Act
-            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = forsinkelse)
+            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = minimumForsinkelse)
 
             // Assert
             assertThat(nyTriggertid).isEqualTo(LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(21, 0, 0)))
@@ -160,10 +160,10 @@ class TriggerTidUtlederKtTest {
         fun `skal returnere neste virkedag kl 06 når triggertid er kl 21 med forsinkelse på 1 sek`() {
             // Arrange
             val triggerTid = LocalDateTime.of(LocalDate.of(2024, 11, 15), LocalTime.of(21, 0, 0))
-            val forsinkelse = Duration.ofSeconds(1)
+            val minimumForsinkelse = Duration.ofSeconds(1)
 
             // Act
-            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = forsinkelse)
+            val nyTriggertid = utledNesteTriggerTidIHverdagerForTask(triggerTid = triggerTid, minimumForsinkelse = minimumForsinkelse)
 
             // Assert
             assertThat(nyTriggertid).isEqualTo(LocalDateTime.of(LocalDate.of(2024, 11, 18), LocalTime.of(6, 0, 0)))
