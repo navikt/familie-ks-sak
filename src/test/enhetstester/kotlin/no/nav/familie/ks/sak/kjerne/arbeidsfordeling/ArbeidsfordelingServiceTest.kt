@@ -22,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -171,7 +170,7 @@ internal class ArbeidsfordelingServiceTest {
             every {
                 tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                     arbeidsfordelingsenhet = arbeidsfordelingsenhet,
-                    navIdent = NavIdent(SikkerhetContext.hentSaksbehandler()),
+                    navIdent = NavIdent("VL"),
                 )
             } returns Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.OSLO.enhetsnummer, enhetNavn = KontantstøtteEnhet.OSLO.enhetsnavn)
 
