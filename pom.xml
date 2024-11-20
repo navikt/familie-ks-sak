@@ -521,6 +521,7 @@
                         <configuration>
                             <sourceDirectory>src/main/avro</sourceDirectory>
                             <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                            <stringType>String</stringType>
                         </configuration>
                     </execution>
                 </executions>
