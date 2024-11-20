@@ -16,6 +16,27 @@ plugins {
 
     // ------------- SLSA -------------- //
     id("org.cyclonedx.bom") version "1.10.0"
+
+    id("maven-publish")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "no.nav.familie.ks.sak"
+            artifactId = "familie-ks-sak"
+            version = "0.0.1-SNAPSHOT"
+
+            from(components["java"])
+        }
+    }
+
+    repositories {
+        maven {
+            name = "familie-ks-sak"
+            url = uri(layout.buildDirectory.dir("repo"))
+        }
+    }
 }
 
 configurations {
@@ -46,7 +67,6 @@ repositories {
 }
 
 dependencies {
-
     val springdocVersion = "2.6.0"
     val sentryVersion = "7.14.0"
     val navFellesVersion = "3.20240913110742_adb42f8"
@@ -84,6 +104,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.4")
 
     // ---------- Apache ---------- \\
+    // TODO: Overflødig?
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("org.apache.httpcomponents:httpcore:4.4.16")
 

@@ -13,7 +13,7 @@
     <artifactId>familie-ks-sak</artifactId>
     <version>${revision}${sha1}${changelist}</version>
     <name>familie-ks-sak</name>
-    <description>Saksbehandling Barnetrygd</description>
+    <description>Saksbehandling Kontantstøtte</description>
 
     <properties>
         <java.version>21</java.version>
@@ -28,7 +28,7 @@
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
         <felles-kontrakter.version>3.0_20241113143804_80bdd40</felles-kontrakter.version>
         <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
-        <familie.kontrakter.stønadsstatistikk>2.0_20240311083956_0558f2a</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.stønadsstatistikk>2.0_20240806120744_a042aa1</familie.kontrakter.stønadsstatistikk>
         <utbetalingsgenerator.version>1.0_20241021103522_3adb9fa</utbetalingsgenerator.version>
         <cucumber.version>7.20.1</cucumber.version>
         <mockk.version>1.13.13</mockk.version>
@@ -60,6 +60,9 @@
         <sonar.projectKey>navikt_familie-ks-sak</sonar.projectKey>
         <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+
+        <!-- Test -->
+        <rest-assured.version>5.5.0</rest-assured.version>
     </properties>
 
     <dependencyManagement>
@@ -96,6 +99,14 @@
                 <version>${kotlin.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-bom</artifactId>
+                <version>${cucumber.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- TODO: Fjern Sentry-->
+            <dependency>
                 <groupId>io.sentry</groupId>
                 <artifactId>sentry-bom</artifactId>
                 <version>${sentry.version}</version>
@@ -128,10 +139,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.micrometer</groupId>-->
-<!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -176,13 +187,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.postgresql.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -198,25 +202,10 @@
         </dependency>
 
         <!-- https://github.com/spring-projects/spring-boot/issues/33044#issuecomment-1379812611 -->
+        <!-- TODO: Overflødig? -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>${maven.model.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.sentry</groupId>
-            <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.sentry</groupId>
-            <artifactId>sentry-logback</artifactId>
         </dependency>
 
         <dependency>
@@ -254,24 +243,7 @@
             <artifactId>token-client-core</artifactId>
             <version>${token-validation-spring.version}</version>
         </dependency>
-        <dependency>
-            <groupId>no.nav.security</groupId>
-            <artifactId>token-validation-spring-test</artifactId>
-            <version>${token-validation-spring.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.security</groupId>
-            <artifactId>mock-oauth2-server</artifactId>
-            <version>${mock-oauth2-server.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nav-foedselsnummer</groupId>
-            <artifactId>testutils</artifactId>
-            <version>${nav-foedselsnummer.version}</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>nav-foedselsnummer</groupId>
             <artifactId>core</artifactId>
@@ -325,7 +297,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.familie.kontrakter</groupId>
-            <artifactId>barnetrygd</artifactId>
+            <artifactId>kontantstotte</artifactId>
             <version>${felles-kontrakter.version}</version>
         </dependency>
         <dependency>
@@ -335,7 +307,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.familie.eksterne.kontrakter</groupId>
-            <artifactId>stonadsstatistikk</artifactId>
+            <artifactId>stonadsstatistikk-ks</artifactId>
             <version>${familie.kontrakter.stønadsstatistikk}</version>
         </dependency>
         <dependency>
@@ -354,6 +326,73 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>${kotlinx.version}</version>
+            <type>pom</type>
+        </dependency>
+
+
+        <!-- TODO: Fjern sentry -->
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-logback</artifactId>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>spring-mock-mvc</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>kotlin-extensions</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-validation-spring-test</artifactId>
+            <version>${token-validation-spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>mock-oauth2-server</artifactId>
+            <version>${mock-oauth2-server.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nav-foedselsnummer</groupId>
+            <artifactId>testutils</artifactId>
+            <version>${nav-foedselsnummer.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.postgresql.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -378,24 +417,6 @@
             <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.worldturner.medeia</groupId>
-            <artifactId>medeia-validator-jackson</artifactId>
-            <version>${medeia-validator-jackson.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>5.0</version>
-        </dependency>
-
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
@@ -414,12 +435,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>${kotlinx.version}</version>
-            <type>pom</type>
-        </dependency>
     </dependencies>
 
     <repositories>
@@ -503,7 +518,7 @@
                             <goal>idl-protocol</goal>
                         </goals>
                         <configuration>
-                            <sourceDirectory>src/main/resources/avro</sourceDirectory>
+                            <sourceDirectory>src/main/avro</sourceDirectory>
                             <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
                         </configuration>
                     </execution>
@@ -564,6 +579,7 @@
                             <sources>
                                 <source>${project.basedir}/src/test/integrasjonstester/kotlin</source>
                                 <source>${project.basedir}/src/test/enhetstester/kotlin</source>
+                                <source>${project.basedir}/src/test/common</source>
                             </sources>
                         </configuration>
                     </execution>
