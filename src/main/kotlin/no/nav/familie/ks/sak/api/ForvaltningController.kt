@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
+import no.nav.familie.ks.sak.internal.kontantstøtteOvergangsordningBrevNovember2024.DistribuerInformasjonsbrevOvergangsordningNovember2024
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
@@ -85,6 +86,7 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
+    private val distribuerInformasjonsbrevOvergangsordningNovember2024: DistribuerInformasjonsbrevOvergangsordningNovember2024,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -357,6 +359,26 @@ class ForvaltningController(
         taskService.save(task)
 
         return ResponseEntity.ok("ok")
+    }
+
+    @PostMapping(path = ["/fagsaker/kjor-send-informasjonsbrev-overgangsordning-november-2024"])
+    fun sendInformasjonsBrevOvergangsordningNovember2024TilFagsakSomErTruffet() {
+        tilgangService.validerTilgangTilHandling(
+            handling = "Send informasjonsbrev til alle fagsak som skal motta informasjonsbrev om overgangsordning november 2024",
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+        )
+
+        distribuerInformasjonsbrevOvergangsordningNovember2024.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevOvergangsordningNovember2024()
+    }
+
+    @GetMapping(path = ["/fagsaker/fagsak-som-skal-ha-overgangsordning-november-brev-2024"])
+    fun hentFagsakSomSkalHaOvergangsordningNovember2024Brev(): List<Long> {
+        tilgangService.validerTilgangTilHandling(
+            handling = "henter alle fagsak som skal motta informasjonsbrev om overgangsordning november 2024",
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+        )
+
+        return distribuerInformasjonsbrevOvergangsordningNovember2024.hentAlleFagsakSomSkalHaInformasjonsbrevOvergangsordningNovember2024()
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")
