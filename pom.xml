@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.3.5</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -29,6 +29,7 @@
         <kotlinx.version>1.9.0</kotlinx.version>
 
         <!-- Spring -->
+        <spring-boot-dependencies.version>3.3.5</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>2.6.0</springdoc.version>
 
         <!-- Nav felles -->
@@ -60,10 +61,6 @@
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>9.2.4</unleash.version>
 
-        <medeia-validator-jackson.version>1.1.1</medeia-validator-jackson.version> <!-- Ikke i bruk? -->
-        <maven.model.version>3.9.9</maven.model.version> <!-- Ikke i bruk? -->
-        <awaitility-kotlin.version>4.2.0</awaitility-kotlin.version> <!-- Ikke i bruk? -->
-
         <!-- Test -->
         <cucumber.version>7.20.1</cucumber.version>
         <rest-assured.version>5.5.0</rest-assured.version>
@@ -94,6 +91,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>no.nav.familie.felles</groupId>
                 <artifactId>felles</artifactId>
@@ -136,10 +140,6 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
@@ -358,10 +358,6 @@
             <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
             <version>${unleash.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
         </dependency>
 
         <!-- Test -->
