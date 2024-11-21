@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>3.3.6</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -29,7 +29,7 @@
         <kotlinx.version>1.9.0</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>3.3.5</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <spring-boot-dependencies.version>3.3.6</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>2.6.0</springdoc.version>
 
         <!-- Nav felles -->
@@ -59,13 +59,13 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>9.2.4</unleash.version>
+        <unleash.version>9.2.5</unleash.version>
 
         <!-- Test -->
         <cucumber.version>7.20.1</cucumber.version>
         <rest-assured.version>5.5.0</rest-assured.version>
         <mock-oauth2-server.version>2.1.10</mock-oauth2-server.version>
-        <testcontainers.postgresql.version>1.20.3</testcontainers.postgresql.version>
+        <testcontainers.postgresql.version>1.20.4</testcontainers.postgresql.version>
         <mockk.version>1.13.13</mockk.version>
         <wiremock.version>3.9.2</wiremock.version>
         <okhttp3.version>4.9.0</okhttp3.version> <!-- Må settes for å kjøre opp mock-oauth2-server i unit-tester -->
