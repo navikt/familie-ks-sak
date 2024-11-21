@@ -58,7 +58,7 @@ jobs:
       - name: Last opp Jacoco enhetstester rapport
         uses: actions/upload-artifact@v4
         with:
-          name: jacocoTestReport
+          name: jacocoUT
           path: target/jacoco/UT/jacoco.xml
           retention-days: 1
           overwrite: true
@@ -82,7 +82,7 @@ jobs:
       - name: Last opp Jacoco integrasjonstester rapport
         uses: actions/upload-artifact@v4
         with:
-          name: jacocoIntegrationTestReport
+          name: jacocoIT
           path: target/jacoco/IT/jacoco.xml
           retention-days: 1
           overwrite: true
