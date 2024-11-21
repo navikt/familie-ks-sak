@@ -49,7 +49,7 @@ dependencies {
 
     val springdocVersion = "2.6.0"
     val sentryVersion = "7.14.0"
-    val navFellesVersion = "3.20240913110742_adb42f8"
+    val navFellesVersion = "3.20241121130246_7d2949d"
     val eksterneKontrakterBisysVersion = "2.0_20230214104704_706e9c0"
     val fellesKontrakterVersion = "3.0_20241102131210_d65efd1"
     val familieKontrakterSaksstatistikkVersion = "2.0_20230214104704_706e9c0"
@@ -109,6 +109,7 @@ dependencies {
     implementation("no.nav.familie.felles:leader:$navFellesVersion")
     implementation("no.nav.familie.felles:http-client:$navFellesVersion")
     implementation("no.nav.familie.felles:modell:$navFellesVersion")
+    implementation("no.nav.familie.felles:tidslinje:$navFellesVersion")
     implementation("no.nav.familie.felles:familie-utbetalingsgenerator:$utbetalingsgeneratorVersion")
 
     implementation("no.nav.familie.felles:util:$navFellesVersion")

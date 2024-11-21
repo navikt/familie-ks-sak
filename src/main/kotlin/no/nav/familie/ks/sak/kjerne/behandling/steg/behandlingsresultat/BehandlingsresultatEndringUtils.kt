@@ -1,10 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.forrigeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -20,6 +15,11 @@ import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIKompetanseUtil
 import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIVilkårsvurderingUtil
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.klipp
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.YearMonth

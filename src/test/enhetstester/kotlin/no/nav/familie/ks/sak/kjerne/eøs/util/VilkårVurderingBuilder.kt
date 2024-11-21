@@ -2,11 +2,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
@@ -33,6 +28,11 @@ import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.Reg
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.filtrerIkkeNull
+import no.nav.familie.tidslinje.util.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import java.time.YearMonth
 
 data class VilkårsvurderingBuilder(
