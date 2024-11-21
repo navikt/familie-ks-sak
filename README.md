@@ -12,14 +12,13 @@ export GITHUB_TOKEN=`github token` (fra github)
 
 Lagre dette i `~/.zshrc`
 
-** Windows brukere kan legge til de øvrige verdiene som miljøvariable i intellij
-eller kan settes til en gradle.properties i ~/.gradle/
+Dette må også legges inn i settings.xml is .m2 mappen. Se onboarding doc på Confluence
 ```
 
 Deretter så kan denne kommandoen kjøres for å bygge
 
 ```
-./gradlew build -x test -x integrationTest -x ktlintCheck
+mvn clean install
 ```
 
 ## Kjøring lokalt
@@ -92,7 +91,7 @@ Husk å sette `KS_SAK_SCOPE=api://dev-gcp.teamfamilie.familie-ks-sak/.default` i
 
 #### Manuel kjøring av ktlint
 
-* Kjør `./gradlew ktlintFormat` i terminalen
+* Kjør `mvn antrun:run@ktlint-format` i terminalen
 
 ## Produksjonssetting
 
