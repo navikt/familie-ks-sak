@@ -45,10 +45,6 @@
         <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20241021103522_3adb9fa</utbetalingsgenerator.version>
 
-        <!-- Sentry -->
-        <!-- TODO: Bør fjernes -->
-        <sentry.version>7.17.0</sentry.version>
-
         <!-- Database -->
         <jsqlparser.version>5.0</jsqlparser.version>
 
@@ -121,14 +117,6 @@
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
                 <version>${cucumber.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- TODO: Fjern Sentry-->
-            <dependency>
-                <groupId>io.sentry</groupId>
-                <artifactId>sentry-bom</artifactId>
-                <version>${sentry.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -293,17 +281,6 @@
             <groupId>no.nav.familie.felles</groupId>
             <artifactId>familie-utbetalingsgenerator</artifactId>
             <version>${utbetalingsgenerator.version}</version>
-        </dependency>
-
-        <!-- Sentry -->
-        <!-- TODO: Bør fjernes -->
-        <dependency>
-            <groupId>io.sentry</groupId>
-            <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.sentry</groupId>
-            <artifactId>sentry-logback</artifactId>
         </dependency>
 
         <!-- Database -->
