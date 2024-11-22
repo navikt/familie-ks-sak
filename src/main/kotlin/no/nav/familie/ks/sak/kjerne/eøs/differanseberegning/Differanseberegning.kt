@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.eøs.differanseberegning
 
-import no.nav.familie.ks.sak.common.tidslinje.outerJoin
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelse
@@ -10,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.tilMånedlig
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.times
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
+import no.nav.familie.tidslinje.outerJoin
 
 /**
  * ADVARSEL: Muterer TilkjentYtelse

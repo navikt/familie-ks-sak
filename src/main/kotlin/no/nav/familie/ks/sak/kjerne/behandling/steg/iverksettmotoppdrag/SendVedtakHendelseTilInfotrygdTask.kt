@@ -3,14 +3,14 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.ks.infotrygd.feed.VedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.integrasjon.infotrygd.KafkaProducer
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.lagVertikalePerioder
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
+import no.nav.familie.tidslinje.filtrerIkkeNull
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate

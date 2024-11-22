@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -226,7 +225,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
 
         val feil =
-            assertThrows<Feil> {
+            assertThrows<IllegalStateException> {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }
 

@@ -33,7 +33,7 @@
         <springdoc.version>2.6.0</springdoc.version>
 
         <!-- Nav felles -->
-        <felles.version>3.20241111113426_be51eee</felles.version>
+        <felles.version>3.20241121151626_836e7ca</felles.version>
         <nav-token-client.version>5.0.11</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
@@ -263,6 +263,10 @@
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
             <artifactId>metrikker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>tidslinje</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.familie.kontrakter</groupId>
