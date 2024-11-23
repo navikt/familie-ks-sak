@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -81,6 +82,7 @@ class BehandlingService(
     private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
+    private val oppgaveService: OppgaveService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -273,7 +275,9 @@ class BehandlingService(
     ): Behandling {
         val behandling = hentBehandling(behandlingId)
 
-        if (overstyrtKategori == behandling.kategori) return behandling
+        val skalOppdatereBehandlingstemaPåBehandling = overstyrtKategori != behandling.kategori
+
+        if (!skalOppdatereBehandlingstemaPåBehandling) return behandling
 
         loggService.opprettEndretBehandlingstemaLogg(
             behandling = behandling,
@@ -282,7 +286,10 @@ class BehandlingService(
         )
 
         behandling.kategori = overstyrtKategori
-        return oppdaterBehandling(behandling)
+
+        return oppdaterBehandling(behandling).also {
+            oppgaveService.endreBehandlingstemaPåOppgaverForBehandling(it, overstyrtKategori)
+        }
     }
 
     fun erLovendringOgFremtidigOpphørOgHarFlereAndeler(
