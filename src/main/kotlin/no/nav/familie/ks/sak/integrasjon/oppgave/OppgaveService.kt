@@ -20,7 +20,6 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.tilArbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.unleash.UnleashService
 import org.slf4j.LoggerFactory
@@ -221,13 +220,12 @@ class OppgaveService(
         }
     }
 
-    fun endreBehandlingstemaPåOppgaverForBehandling(
+    fun oppdaterBehandlingstemaPåOppgaverFraBehandling(
         behandling: Behandling,
-        nyBehandlingKategori: BehandlingKategori,
     ) =
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
             val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
-            integrasjonClient.oppdaterOppgave(oppgave.copy(behandlingstema = nyBehandlingKategori.tilOppgavebehandlingType().value))
+            integrasjonClient.oppdaterOppgave(oppgave.copy(behandlingstema = behandling.kategori.tilOppgavebehandlingType().value))
         }
 
     private fun lagOppgaveTekst(

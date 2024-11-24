@@ -207,9 +207,13 @@ class BehandlingServiceTest {
 
     @Test
     fun `oppdaterBehandlendeEnhet - skal oppdatere behandlende enhet tilknyttet behandling ved hjelp av ArbeidsfordelingService`() {
+        // Arrange
         val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("nyEnhetId", "begrunnelse")
+
+        // Act
         behandlingService.oppdaterBehandlendeEnhet(behandling.id, endreBehandlendeEnhetDto)
 
+        // Assert
         verify(exactly = 1) {
             mockArbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
                 behandling,
@@ -220,6 +224,7 @@ class BehandlingServiceTest {
 
     @Test
     fun `oppdaterBehandlingsresultat skal oppdatere behandlingsresultat til INNVILGET og lage historikk på det`() {
+        // Arrange
         every {
             mockLoggService.opprettVilkårsvurderingLogg(
                 behandling = behandling,
@@ -229,6 +234,7 @@ class BehandlingServiceTest {
         } just runs
         every { mockBehandlingRepository.save(any()) } returns behandling.copy(resultat = Behandlingsresultat.INNVILGET)
 
+        // Act && Assert
         val oppdatertBehandling =
             assertDoesNotThrow {
                 behandlingService.oppdaterBehandlingsresultat(behandling.id, Behandlingsresultat.INNVILGET)
@@ -238,7 +244,7 @@ class BehandlingServiceTest {
     }
 
     @Test
-    fun `endreBehandlingstemaPåBehandling skal oppdatere kategori og opprette logg hvis overstyrt kategori er annerledes`() {
+    fun `endreBehandlingstemaPåBehandling skal oppdatere kategori, oppgaver og opprette logg hvis overstyrt kategori er annerledes`() {
         // Arrange
         every {
             mockLoggService.opprettEndretBehandlingstemaLogg(
@@ -250,7 +256,7 @@ class BehandlingServiceTest {
 
         every { mockBehandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { mockBehandlingRepository.save(behandling) } returns behandling
-        every { mockOppgaveService.endreBehandlingstemaPåOppgaverForBehandling(behandling, BehandlingKategori.EØS) } just runs
+        every { mockOppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(behandling) } just runs
 
         // Act
         val oppdatertBehandling =
@@ -268,19 +274,22 @@ class BehandlingServiceTest {
             )
         }
         verify(exactly = 1) { mockBehandlingRepository.save(behandling) }
-        verify(exactly = 1) { mockOppgaveService.endreBehandlingstemaPåOppgaverForBehandling(behandling, BehandlingKategori.EØS) }
+        verify(exactly = 1) { mockOppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(behandling) }
     }
 
     @Test
     fun `endreBehandlingstemaPåBehandling skal ikke oppdatere kategori og opprette logg hvis overstyrt kategori er lik`() {
+        // Arrange
         every { mockBehandlingRepository.hentBehandling(behandling.id) } returns behandling
 
+        // Act
         val oppdatertBehandling =
             behandlingService.endreBehandlingstemaPåBehandling(
                 behandlingId = behandling.id,
                 BehandlingKategori.NASJONAL,
             )
 
+        // Assert
         assertEquals(oppdatertBehandling.kategori, BehandlingKategori.NASJONAL)
 
         verify(exactly = 1) { mockBehandlingRepository.hentBehandling(behandling.id) }

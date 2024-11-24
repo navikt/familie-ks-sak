@@ -275,9 +275,7 @@ class BehandlingService(
     ): Behandling {
         val behandling = hentBehandling(behandlingId)
 
-        val skalOppdatereBehandlingstemaPåBehandling = overstyrtKategori != behandling.kategori
-
-        if (!skalOppdatereBehandlingstemaPåBehandling) return behandling
+        if (overstyrtKategori == behandling.kategori) return behandling
 
         loggService.opprettEndretBehandlingstemaLogg(
             behandling = behandling,
@@ -288,7 +286,7 @@ class BehandlingService(
         behandling.kategori = overstyrtKategori
 
         return oppdaterBehandling(behandling).also {
-            oppgaveService.endreBehandlingstemaPåOppgaverForBehandling(it, overstyrtKategori)
+            oppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(it)
         }
     }
 
