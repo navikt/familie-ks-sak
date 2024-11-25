@@ -220,6 +220,14 @@ class OppgaveService(
         }
     }
 
+    fun oppdaterBehandlingstemaPåOppgaverFraBehandling(
+        behandling: Behandling,
+    ) =
+        hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
+            val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
+            integrasjonClient.oppdaterOppgave(oppgave.copy(behandlingstema = behandling.kategori.tilOppgavebehandlingType().value))
+        }
+
     private fun lagOppgaveTekst(
         fagsakId: Long,
         beskrivelse: String? = null,
