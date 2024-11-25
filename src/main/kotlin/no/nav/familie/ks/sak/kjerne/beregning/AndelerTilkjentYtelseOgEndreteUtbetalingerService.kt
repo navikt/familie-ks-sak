@@ -114,6 +114,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger(
     val type get() = andelTilkjentYtelse.type
     val kalkulertUtbetalingsbeløp get() = andelTilkjentYtelse.kalkulertUtbetalingsbeløp
     val aktør get() = andelTilkjentYtelse.aktør
+    val nasjonaltPeriodebeløp get() = andelTilkjentYtelse.nasjonaltPeriodebeløp
 
     fun medTom(tom: YearMonth): AndelTilkjentYtelseMedEndreteUtbetalinger =
         AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse.copy(stønadTom = tom), endreteUtbetalinger)

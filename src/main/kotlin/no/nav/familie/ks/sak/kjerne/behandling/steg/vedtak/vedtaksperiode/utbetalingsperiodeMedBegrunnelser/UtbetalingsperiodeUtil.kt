@@ -1,7 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.MånedPeriode
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -54,54 +58,68 @@ fun hentPerioderMedUtbetaling(
     val splittkriterierForKompetanseTidslinjer = kompetanser.tilSplittkriterierForKompetanseTidslinje()
 
     val andeltilkjentYtelserSplittetPåKriterier =
-        andelerTilkjentYtelse
-            .tilTidslinjerPerPerson()
-            .values
-            .slåSammen()
-            .filtrer { !it.isNullOrEmpty() }
-            .kombinerMed(splittkriterierForVilkårResultatTidslinje, splittkriterierForKompetanseTidslinjer) {
-                    andelerTilkjentYtelseIPeriode,
-                    splittkriterierVilkår,
-                    splittKriterierKompetanse,
-                ->
-                andelerTilkjentYtelseIPeriode?.let {
-                    SplittkriterierForVedtaksperiode(splittkriterierVilkår, splittKriterierKompetanse, andelerTilkjentYtelseIPeriode)
-                }
+        andelerTilkjentYtelse.tilTidslinjerPerPerson().values.slåSammen().filtrer { !it.isNullOrEmpty() }.kombinerMed(splittkriterierForVilkårResultatTidslinje, splittkriterierForKompetanseTidslinjer) {
+                andelerTilkjentYtelseIPeriode,
+                splittkriterierVilkår,
+                splittKriterierKompetanse,
+            ->
+            andelerTilkjentYtelseIPeriode?.let {
+                SplittkriterierForVedtaksperiode(splittkriterierVilkår, splittKriterierKompetanse, andelerTilkjentYtelseIPeriode)
             }
-
-    return andeltilkjentYtelserSplittetPåKriterier
-        .tilPerioderIkkeNull()
-        .map { periode ->
-            val vedtaksperiodeMedBegrunnelser =
-                VedtaksperiodeMedBegrunnelser(
-                    fom = periode.fom?.førsteDagIInneværendeMåned(),
-                    tom = periode.tom?.sisteDagIMåned(),
-                    vedtak = vedtak,
-                    type = Vedtaksperiodetype.UTBETALING,
-                )
-            if (vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024) {
-                vedtaksperiodeMedBegrunnelser.begrunnelser.addAll(
-                    hentBegrunnelserForInnvilgelsePeriode(periode)
-                        .map { begrunnelse ->
-                            begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
-                        }.toMutableSet(),
-                )
-            }
-
-            vedtaksperiodeMedBegrunnelser
         }
+
+    return andeltilkjentYtelserSplittetPåKriterier.tilPerioderIkkeNull().map { periode ->
+        val vedtaksperiodeMedBegrunnelser =
+            VedtaksperiodeMedBegrunnelser(
+                fom = periode.fom?.førsteDagIInneværendeMåned(),
+                tom = periode.tom?.sisteDagIMåned(),
+                vedtak = vedtak,
+                type = Vedtaksperiodetype.UTBETALING,
+            )
+        if (vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024) {
+            vedtaksperiodeMedBegrunnelser.begrunnelser.addAll(
+                hentBegrunnelserForInnvilgelsePeriode(periode)
+                    .map { begrunnelse ->
+                        begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+                    }.toMutableSet(),
+            )
+        }
+
+        vedtaksperiodeMedBegrunnelser
+    }
 }
 
 fun hentBegrunnelserForInnvilgelsePeriode(periode: Periode<SplittkriterierForVedtaksperiode>): Set<NasjonalEllerFellesBegrunnelse> {
-    val andelIPeriode = periode.verdi.andelerTilkjentYtelse?.find { it.stønadFom == periode.fom?.toYearMonth() && it.stønadTom == periode.tom?.toYearMonth() } ?: return emptySet()
+    val periodeFom = periode.fom?.toYearMonth() ?: TIDENES_MORGEN.toYearMonth()
+    val periodeTom = periode.tom?.toYearMonth() ?: TIDENES_ENDE.toYearMonth()
+    val månedPeriode = MånedPeriode(periodeFom, periodeTom)
 
-    return if (andelIPeriode.type == YtelseType.OVERGANGSORDNING && andelIPeriode.kalkulertUtbetalingsbeløp == maksBeløp()) {
-        setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING)
-    } else if (andelIPeriode.type == YtelseType.OVERGANGSORDNING) {
-        setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
-    } else {
-        emptySet()
+    val andelerIPeriode =
+        periode.verdi.andelerTilkjentYtelse?.filter { andel ->
+            val månedPeriodeForAndel = MånedPeriode(fom = andel.stønadFom, tom = andel.stønadTom)
+            månedPeriodeForAndel.overlapperHeltEllerDelvisMed(månedPeriode)
+        } ?: return emptySet()
+
+    val overgangsordningAndelerIPeriode =
+        andelerIPeriode
+            .filter { it.type == YtelseType.OVERGANGSORDNING }
+            .map { andel ->
+                if (andel.nasjonaltPeriodebeløp == maksBeløp()) {
+                    NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING
+                } else {
+                    NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING
+                }
+            }.distinct()
+
+    if (overgangsordningAndelerIPeriode.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)) {
+        return setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
     }
+
+    if (overgangsordningAndelerIPeriode.isNotEmpty()) {
+        return setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING)
+    }
+
+    return emptySet()
 }
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPerson() =
@@ -109,10 +127,7 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPers
         andelerTilkjentYtelsePåPerson.tilTidslinje()
     }
 
-private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger> =
-    this
-        .map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }
-        .tilTidslinje()
+private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tidslinje<AndelTilkjentYtelseMedEndreteUtbetalinger> = this.map { Periode(it, it.stønadFom.førsteDagIInneværendeMåned(), it.stønadTom.sisteDagIInneværendeMåned()) }.tilTidslinje()
 
 data class SplittkriterierForVilkår(
     val vilkårType: Vilkår,
@@ -191,17 +206,14 @@ private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslin
         }.kombiner { it.toMap() }
 }
 
-private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) =
-    vilkårResultater.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
+private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) = vilkårResultater.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
 
 private fun hentRegelverkPersonErVurdertEtterIPeriode(vilkårResultater: Iterable<VilkårResultat>) =
-    vilkårResultater
-        .map { it.vurderesEtter }
-        .reduce { acc, regelverk ->
-            when {
-                acc == null -> regelverk
-                regelverk == null -> acc
-                regelverk != acc -> throw Feil("Mer enn ett regelverk på person i periode: $regelverk, $acc")
-                else -> acc
-            }
+    vilkårResultater.map { it.vurderesEtter }.reduce { acc, regelverk ->
+        when {
+            acc == null -> regelverk
+            regelverk == null -> acc
+            regelverk != acc -> throw Feil("Mer enn ett regelverk på person i periode: $regelverk, $acc")
+            else -> acc
         }
+    }
