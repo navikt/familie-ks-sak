@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -92,7 +93,7 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn1.aktivFødselsnummer()) } returns barn1
         every { personidentService.hentAktør(barn2.aktivFødselsnummer()) } returns barn2
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
-        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId.id) } returns emptyList()
+        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
         every { unleashService.isEnabled(any()) } returns true
         kompetanseRepository.deleteAll()
@@ -606,6 +607,49 @@ internal class KompetanseServiceTest {
         }
 
         @Test
+        fun `tilpassKompetanse skal ikke opprette kompetanser for perioder med overgangsordningandeler i nasjonale saker`() {
+            val vilkårFom = LocalDate.of(2024, 5, 1)
+            val vilkårTom = LocalDate.of(2024, 9, 1)
+            val nasjonalBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
+
+            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(nasjonalBehandling.id) } returns
+                lagPersonopplysningGrunnlag(
+                    behandlingId = nasjonalBehandling.id,
+                    søkerAktør = søker,
+                    barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
+                    barnAktør = listOf(barn1, barn2),
+                )
+
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(nasjonalBehandling.id) } returns
+                lagVilkårsvurdering(
+                    søkersperiode = Periode(vilkårFom, vilkårTom),
+                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
+                    behandling = nasjonalBehandling,
+                )
+
+            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(nasjonalBehandling.id) } returns
+                listOf(
+                    lagOvergangsordningAndel(
+                        aktør = barn1,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(2).toYearMonth(),
+                        behandling = nasjonalBehandling,
+                    ),
+                    lagOvergangsordningAndel(
+                        aktør = barn2,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(4).toYearMonth(),
+                        behandling = nasjonalBehandling,
+                    ),
+                )
+
+            kompetanseService.tilpassKompetanse(nasjonalBehandling.behandlingId)
+
+            val kompetanser = kompetanseService.hentKompetanser(nasjonalBehandling.behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser).isEmpty()
+        }
+
+        @Test
         fun `tilpassKompetanse skal ikke opprette tomme kompetanser for perioder med overgangsordningandeler hvis toggle er skrudd av`() {
             every { unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING) } returns false
 
@@ -852,6 +896,7 @@ internal class KompetanseServiceTest {
     }
 
     private fun lagVilkårsvurdering(
+        behandling: Behandling = this.behandling,
         søkersperiode: Periode,
         barnasperioder: Map<Aktør, Pair<LocalDate?, LocalDate?>>,
     ): Vilkårsvurdering {
@@ -862,7 +907,7 @@ internal class KompetanseServiceTest {
                 resultat = Resultat.OPPFYLT,
                 søkerPeriodeFom = søkersperiode.fom,
                 søkerPeriodeTom = søkersperiode.tom,
-                regelverk = Regelverk.EØS_FORORDNINGEN,
+                regelverk = if (behandling.kategori == BehandlingKategori.EØS) Regelverk.EØS_FORORDNINGEN else Regelverk.NASJONALE_REGLER,
             )
         val personResultaterForBarna =
             barnasperioder.map { (aktør, periode) ->
@@ -875,7 +920,7 @@ internal class KompetanseServiceTest {
                             periodeFom = periode.first,
                             periodeTom = periode.second,
                             behandlingId = behandling.id,
-                            regelverk = Regelverk.EØS_FORORDNINGEN,
+                            regelverk = if (behandling.kategori == BehandlingKategori.EØS) Regelverk.EØS_FORORDNINGEN else Regelverk.NASJONALE_REGLER,
                         )
                     }
                 personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
@@ -888,9 +933,10 @@ internal class KompetanseServiceTest {
         aktør: Aktør,
         fom: YearMonth,
         tom: YearMonth,
+        behandling: Behandling = this.behandling,
     ): OvergangsordningAndel =
         OvergangsordningAndel(
-            behandlingId = behandlingId.id,
+            behandlingId = behandling.id,
             person = tilfeldigPerson(aktør = aktør),
             fom = fom,
             tom = tom,
