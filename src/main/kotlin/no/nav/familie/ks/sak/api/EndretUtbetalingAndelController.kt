@@ -1,19 +1,14 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.EndretUtbetalingBegrunnelseResponseDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -39,7 +34,7 @@ class EndretUtbetalingAndelController(
     private val behandlingService: BehandlingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
     private val sanityService: SanityService,
-    ) {
+) {
     @PutMapping(path = ["/{behandlingId}/{endretUtbetalingAndelId}"])
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         @PathVariable behandlingId: Long,
@@ -113,42 +108,11 @@ class EndretUtbetalingAndelController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 
-    fun hentSanityTekstIRestFormat (sanityBegrunnelser: List<SanityBegrunnelse>, begrunnelse:IBegrunnelse): List<EndretUtbetalingBegrunnelseResponseDto> {
-        val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
-
-        if (sanityBegrunnelse != null) {
-            val visningsnavn = sanityBegrunnelse.navnISystem
-
-            return listOf(EndretUtbetalingBegrunnelseResponseDto(
-                    id = begrunnelse,
-                    navn = visningsnavn,
-                ))
-        }
-
-        return emptyList()
-    }
-
     @GetMapping(
-        path = ["/endret-utbetaling-begrunnelser"])
-    fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<EndretUtbetalingBegrunnelseResponseDto>>>> {
-        // Hent ut de råe sanityTekstene
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
-        // Map sanityTekstene til allerede definerte begrunnelsesArrays og formater de riktig
-        val mappingTilSanityTekster = (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
-            .groupBy { it.begrunnelseType }
-            .mapValues { begrunnelseGruppe ->
-                begrunnelseGruppe.value
-                    .flatMap { endretUtbetalingBegrunnelse ->
-                        hentSanityTekstIRestFormat(
-                            sanityBegrunnelser,
-                            endretUtbetalingBegrunnelse,
-                        )
-                    }
-            }
-
-        // Returnere en array med sanitytekster som det gjelder
-        println(mappingTilSanityTekster)
-        return ResponseEntity.ok(Ressurs.success(mappingTilSanityTekster));
+        path = ["/endret-utbetaling-begrunnelser"],
+    )
+    fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>>>> {
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser().filter { it.endringsårsaker.isNotEmpty() }
+        return ResponseEntity.ok(Ressurs.success(endretUtbetalingAndelService.sanityBegrunnelserMedEndringsårsak(sanityBegrunnelser)))
     }
 }

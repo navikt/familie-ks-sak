@@ -1,10 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerIngenOverlappendeEndring
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerTomDato
@@ -140,6 +146,40 @@ class EndretUtbetalingAndelService(
             it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false)
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
     }
+
+    fun sanityBegrunnelseTilRestFormat(
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        begrunnelse: IBegrunnelse,
+    ): List<SanityBegrunnelseMedEndringsårsakResponseDto> {
+        val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
+
+        if (sanityBegrunnelse != null) {
+            val visningsnavn = sanityBegrunnelse.navnISystem
+
+            return listOf(
+                SanityBegrunnelseMedEndringsårsakResponseDto(
+                    id = begrunnelse,
+                    navn = visningsnavn,
+                    endringsårsaker = sanityBegrunnelse.endringsårsaker,
+                ),
+            )
+        }
+
+        return emptyList()
+    }
+
+    fun sanityBegrunnelserMedEndringsårsak(sanityBegrunnelser: List<SanityBegrunnelse>) =
+        (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
+            .groupBy { it.begrunnelseType }
+            .mapValues { begrunnelseGruppe ->
+                begrunnelseGruppe.value
+                    .flatMap { endretUtbetalingBegrunnelse ->
+                        sanityBegrunnelseTilRestFormat(
+                            sanityBegrunnelser,
+                            endretUtbetalingBegrunnelse,
+                        )
+                    }
+            }
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {

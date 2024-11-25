@@ -33,8 +33,8 @@ data class EndretUtbetalingAndelResponsDto(
     val erTilknyttetAndeler: Boolean,
 )
 
-
-data class EndretUtbetalingBegrunnelseResponseDto(
+data class SanityBegrunnelseMedEndringsårsakResponseDto(
     val id: IBegrunnelse,
     val navn: String,
+    val endringsårsaker: List<Årsak>,
 )
