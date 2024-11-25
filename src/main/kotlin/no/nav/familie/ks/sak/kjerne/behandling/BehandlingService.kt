@@ -286,7 +286,7 @@ class BehandlingService(
         behandling.kategori = overstyrtKategori
 
         return oppdaterBehandling(behandling).also {
-            oppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(it)
+            oppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(it)
         }
     }
 

@@ -252,14 +252,14 @@ class OppgaveServiceTest {
     @Nested
     inner class EndreBehandlingstemaPåOppgaverForBehandling {
         @Test
-        fun `skal oppdatere behandlingstema for alle oppgaver som ikke er ferdigstilt for behandling`() {
+        fun `skal oppdatere behandlingstype for alle oppgaver som ikke er ferdigstilt for behandling`() {
             // Arrange
             val behandling = lagBehandling()
 
             val dbOppgave1 = mockk<DbOppgave>().apply { every { gsakId } returns "1" }
             val dbOppgave2 = mockk<DbOppgave>().apply { every { gsakId } returns "2" }
-            val oppgave1 = Oppgave(id = 1, behandlingstema = "NASJONAL")
-            val oppgave2 = Oppgave(id = 2, behandlingstema = "NASJONAL")
+            val oppgave1 = Oppgave(id = 1, behandlingstype = "NASJONAL")
+            val oppgave2 = Oppgave(id = 2, behandlingstype = "NASJONAL")
             val oppdaterteOppgaveList = mutableListOf<Oppgave>()
 
             every { mockedOppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling) } returns listOf(dbOppgave1, dbOppgave2)
@@ -268,7 +268,7 @@ class OppgaveServiceTest {
             every { mockedIntegrasjonClient.oppdaterOppgave(capture(oppdaterteOppgaveList)) } just runs
 
             // Act
-            oppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(behandling)
+            oppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(behandling)
 
             // Assert
             verify(exactly = 1) { mockedOppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling) }
@@ -276,7 +276,7 @@ class OppgaveServiceTest {
             verify(exactly = 1) { mockedIntegrasjonClient.finnOppgaveMedId(2) }
             verify(exactly = 2) { mockedIntegrasjonClient.oppdaterOppgave(any()) }
 
-            assertThat(oppdaterteOppgaveList.all { it.behandlingstema == "EØS" })
+            assertThat(oppdaterteOppgaveList.all { it.behandlingstype == "EØS" })
         }
     }
 }

@@ -256,7 +256,7 @@ class BehandlingServiceTest {
 
         every { mockBehandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { mockBehandlingRepository.save(behandling) } returns behandling
-        every { mockOppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(behandling) } just runs
+        every { mockOppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(behandling) } just runs
 
         // Act
         val oppdatertBehandling =
@@ -274,7 +274,7 @@ class BehandlingServiceTest {
             )
         }
         verify(exactly = 1) { mockBehandlingRepository.save(behandling) }
-        verify(exactly = 1) { mockOppgaveService.oppdaterBehandlingstemaPåOppgaverFraBehandling(behandling) }
+        verify(exactly = 1) { mockOppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(behandling) }
     }
 
     @Test
