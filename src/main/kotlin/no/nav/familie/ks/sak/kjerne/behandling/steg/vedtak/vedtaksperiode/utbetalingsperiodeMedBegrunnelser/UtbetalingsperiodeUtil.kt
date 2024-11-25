@@ -39,6 +39,7 @@ import no.nav.familie.tidslinje.utvidelser.slåSammen
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+import java.math.BigDecimal
 import java.time.LocalDate
 
 // Om noe av dette endrer seg skal vi ha en splitt i vedtaksperiodene.
@@ -104,7 +105,7 @@ fun hentBegrunnelserForInnvilgelsePeriode(periode: Periode<SplittkriterierForVed
         andelerIPeriode
             .filter { it.type == YtelseType.OVERGANGSORDNING }
             .map { andel ->
-                if (andel.nasjonaltPeriodebeløp == maksBeløp()) {
+                if (andel.nasjonaltPeriodebeløp == maksBeløp() || andel.prosent == BigDecimal(50)) {
                     NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING
                 } else {
                     NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING
