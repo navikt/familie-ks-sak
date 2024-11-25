@@ -102,13 +102,15 @@ class TilpassKompetanserService(
                         .tilPerioder()
                         .tilTidslinje()
                 }
+        val eksistererEøsRegelverkPåBehandling =
+            barnasEøsRegelverkTidslinjer.values.any { it.tilPerioderIkkeNull().isNotEmpty() }
 
         return eksisterendeKompetanser
             .tilSeparateTidslinjerForBarna()
             .outerJoin(barnasEøsRegelverkTidslinjer, overgangsordningAndelerTidslinjer) { kompetanse, regelverk, overgangsordningAndel ->
                 when {
                     regelverk != null -> kompetanse ?: Kompetanse.blankKompetanse
-                    overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
+                    eksistererEøsRegelverkPåBehandling && overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
                     else -> null
                 }
             }.mapValues { (_, value) ->
