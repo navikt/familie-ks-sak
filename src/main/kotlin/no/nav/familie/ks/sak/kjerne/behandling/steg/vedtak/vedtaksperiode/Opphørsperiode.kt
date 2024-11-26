@@ -132,7 +132,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
                             false -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
                         }
                     barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true &&
-                            periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
+                        periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
                 }
         }
 
@@ -186,27 +186,27 @@ fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(
 }
 
 private fun Opphørsperiode.settOvergangsordningOpphørBegrunnelser(
-    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
 ) {
     val behandlingKategori = vedtaksperiodeMedBegrunnelser.vedtak.behandling.kategori
 
     if (behandlingKategori == BehandlingKategori.NASJONAL) {
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             listOf(
-                NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+                NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
             ),
         )
     } else {
         vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
             listOf(
-                EØSBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR_EØS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+                EØSBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR_EØS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
             ),
         )
     }
 }
 
 private fun Opphørsperiode.settBegrunnelserPåPeriode(
-    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
 ) {
     vedtaksperiodeMedBegrunnelser.settBegrunnelser(
         begrunnelser.map {
