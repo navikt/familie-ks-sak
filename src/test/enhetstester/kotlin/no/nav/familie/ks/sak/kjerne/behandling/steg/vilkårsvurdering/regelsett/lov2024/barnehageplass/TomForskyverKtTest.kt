@@ -73,9 +73,25 @@ class TomForskyverKtTest {
     @Nested
     inner class GraderingsforskjellReduksjonTest {
         @Test
-        fun `skal forskyve tom til siste dag i samme måned når tom dato er siste dag i måneden`() {
+        fun `skal forskyve tom til siste dag i neste måned når tom dato er siste dag i måneden`() {
             // Arrange
             val tomDato = LocalDate.of(2024, 10, 31)
+
+            // Act
+            val forskjøvetTom =
+                forskyvTomBasertPåGraderingsforskjell2024(
+                    tomDato,
+                    Graderingsforskjell.REDUKSJON,
+                )
+
+            // Assert
+            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 11, 30))
+        }
+
+        @Test
+        fun `skal forskyve tom til siste dag i nåværende måned når tom dato er nest siste dag i måneden`() {
+            // Arrange
+            val tomDato = LocalDate.of(2024, 10, 30)
 
             // Act
             val forskjøvetTom =
@@ -89,23 +105,7 @@ class TomForskyverKtTest {
         }
 
         @Test
-        fun `skal forskyve tom til siste dag i forrige måned når tom dato er nest siste dag i måneden`() {
-            // Arrange
-            val tomDato = LocalDate.of(2024, 10, 30)
-
-            // Act
-            val forskjøvetTom =
-                forskyvTomBasertPåGraderingsforskjell2024(
-                    tomDato,
-                    Graderingsforskjell.REDUKSJON,
-                )
-
-            // Assert
-            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 9, 30))
-        }
-
-        @Test
-        fun `skal forskyve tom til siste dag i forrige måned når tom dato er første dag i måneden`() {
+        fun `skal forskyve tom til siste dag i måneden når tom dato er første dag i måneden`() {
             // Arrange
             val tomDato = LocalDate.of(2024, 10, 1)
 
@@ -117,7 +117,7 @@ class TomForskyverKtTest {
                 )
 
             // Assert
-            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 9, 30))
+            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 10, 31))
         }
     }
 
@@ -184,41 +184,6 @@ class TomForskyverKtTest {
                 forskyvTomBasertPåGraderingsforskjell2024(
                     tomDato,
                     Graderingsforskjell.ØKNING,
-                )
-
-            // Assert
-            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 10, 31))
-        }
-    }
-
-    @Nested
-    inner class GraderingsforskjellReduksjonTilFullBarnehageplassTest {
-        @Test
-        fun `skal forskyve tom til siste dag i neste måned om tom dato er siste dag i måneden`() {
-            // Arrange
-            val tomDato = LocalDate.of(2024, 10, 31)
-
-            // Act
-            val forskjøvetTom =
-                forskyvTomBasertPåGraderingsforskjell2024(
-                    tomDato,
-                    Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
-                )
-
-            // Assert
-            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 11, 30))
-        }
-
-        @Test
-        fun `skal forskyve tom til siste dag i måneeden om tom dato ikke er siste dag i måneden`() {
-            // Arrange
-            val tomDato = LocalDate.of(2024, 10, 30)
-
-            // Act
-            val forskjøvetTom =
-                forskyvTomBasertPåGraderingsforskjell2024(
-                    tomDato,
-                    Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
                 )
 
             // Assert

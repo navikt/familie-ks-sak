@@ -9,7 +9,6 @@ import java.time.YearMonth
 enum class Graderingsforskjell {
     ØKNING,
     REDUKSJON,
-    REDUKSJON_TIL_FULL_BARNEHAGEPLASS,
     REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
     LIK,
 }
@@ -40,9 +39,6 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt
         -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
-
-        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0))
-        -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS
 
         graderingForrigePeriode > graderingDennePerioden
         -> Graderingsforskjell.REDUKSJON

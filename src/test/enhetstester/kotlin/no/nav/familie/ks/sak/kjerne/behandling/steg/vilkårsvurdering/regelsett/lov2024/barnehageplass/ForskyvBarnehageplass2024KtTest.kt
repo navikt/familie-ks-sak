@@ -55,23 +55,19 @@ class ForskyvBarnehageplass2024KtTest {
         val forskyvBarnehageplassVilkår2024 = forskyvBarnehageplassVilkår2024(vilkårresultater)
 
         // Assert
-        assertThat(forskyvBarnehageplassVilkår2024).hasSize(4)
+        assertThat(forskyvBarnehageplassVilkår2024).hasSize(3)
 
         assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
         assertThat(forskyvBarnehageplassVilkår2024[0].fom).isEqualTo(LocalDate.of(2024, 8, 1))
-        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 8, 31))
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 9, 30))
 
         assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
-        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 9, 1))
-        assertThat(forskyvBarnehageplassVilkår2024[1].tom).isEqualTo(LocalDate.of(2024, 9, 30))
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 10, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].tom).isEqualTo(LocalDate.of(2024, 10, 31))
 
-        assertThat(forskyvBarnehageplassVilkår2024[2].verdi).isEqualTo(vilkårResultat3)
-        assertThat(forskyvBarnehageplassVilkår2024[2].fom).isEqualTo(LocalDate.of(2024, 10, 1))
-        assertThat(forskyvBarnehageplassVilkår2024[2].tom).isEqualTo(LocalDate.of(2024, 10, 31))
-
-        assertThat(forskyvBarnehageplassVilkår2024[3].verdi).isEqualTo(vilkårResultat4)
-        assertThat(forskyvBarnehageplassVilkår2024[3].fom).isEqualTo(LocalDate.of(2024, 11, 1))
-        assertThat(forskyvBarnehageplassVilkår2024[3].tom).isNull()
+        assertThat(forskyvBarnehageplassVilkår2024[2].verdi).isEqualTo(vilkårResultat4)
+        assertThat(forskyvBarnehageplassVilkår2024[2].fom).isEqualTo(LocalDate.of(2024, 11, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[2].tom).isNull()
     }
 
     @Test
@@ -107,10 +103,10 @@ class ForskyvBarnehageplass2024KtTest {
 
         assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
         assertThat(forskyvBarnehageplassVilkår2024[0].fom).isNull()
-        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 8, 31))
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 9, 30))
 
         assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
-        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 9, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 10, 1))
         assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
     }
 
@@ -147,10 +143,10 @@ class ForskyvBarnehageplass2024KtTest {
 
         assertThat(forskyvBarnehageplassVilkår2024[0].verdi).isEqualTo(vilkårResultat1)
         assertThat(forskyvBarnehageplassVilkår2024[0].fom).isNull()
-        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 8, 31))
+        assertThat(forskyvBarnehageplassVilkår2024[0].tom).isEqualTo(LocalDate.of(2024, 9, 30))
 
         assertThat(forskyvBarnehageplassVilkår2024[1].verdi).isEqualTo(vilkårResultat2)
-        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 9, 1))
+        assertThat(forskyvBarnehageplassVilkår2024[1].fom).isEqualTo(LocalDate.of(2024, 10, 1))
         assertThat(forskyvBarnehageplassVilkår2024[1].tom).isNull()
     }
 
