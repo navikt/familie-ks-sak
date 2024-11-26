@@ -117,7 +117,7 @@ class ForskyvVilkår2024KtTest {
     }
 
     @Test
-    fun `Ved to oppfylte vilkårresultat i samme måned så skal det seneste vilkåret være gjeldene for måneden etter`() {
+    fun `Ved to oppfylte vilkårresultat i samme måned så skal det seneste vilkåret være gjeldende for måneden`() {
         // Arrange
         val førstePeriodeBorMedSøker =
             lagVilkårResultat(
@@ -147,6 +147,7 @@ class ForskyvVilkår2024KtTest {
                 vilkårResultater,
             )
 
+        // Assert
         assertThat(forskjøvedeVilkårResultater).hasSize(2)
 
         assertThat(forskjøvedeVilkårResultater[0].fom).isEqualTo(august.atDay(1))
