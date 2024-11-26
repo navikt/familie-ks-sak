@@ -5,12 +5,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.
 import java.time.LocalDate
 
 fun forskyvTom(
-    TilknyttetVilkårResultater: TilknyttetVilkårResultater,
+    tilknyttetVilkårResultater: TilknyttetVilkårResultater,
 ): LocalDate? {
-    val gjeldendePeriodeTom = TilknyttetVilkårResultater.gjeldende.periodeTom
+    val gjeldendePeriodeTom = tilknyttetVilkårResultater.gjeldende.periodeTom
     return when {
         gjeldendePeriodeTom == null -> null
-        TilknyttetVilkårResultater.gjeldendeSlutterDagenFørNeste() -> gjeldendePeriodeTom
+        tilknyttetVilkårResultater.gjeldendeSlutterDagenFørNeste() -> gjeldendePeriodeTom
         else -> gjeldendePeriodeTom.sisteDagIMåned()
     }
 }
