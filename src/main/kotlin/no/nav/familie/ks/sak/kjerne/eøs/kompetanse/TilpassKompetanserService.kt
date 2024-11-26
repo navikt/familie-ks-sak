@@ -2,15 +2,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.leftJoin
-import no.nav.familie.ks.sak.common.tidslinje.outerJoin
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
@@ -30,6 +21,15 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordni
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.leftJoin
+import no.nav.familie.tidslinje.outerJoin
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.filtrer
+import no.nav.familie.tidslinje.utvidelser.filtrerIkkeNull
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -102,13 +102,15 @@ class TilpassKompetanserService(
                         .tilPerioder()
                         .tilTidslinje()
                 }
+        val eksistererEøsRegelverkPåBehandling =
+            barnasEøsRegelverkTidslinjer.values.any { it.tilPerioderIkkeNull().isNotEmpty() }
 
         return eksisterendeKompetanser
             .tilSeparateTidslinjerForBarna()
             .outerJoin(barnasEøsRegelverkTidslinjer, overgangsordningAndelerTidslinjer) { kompetanse, regelverk, overgangsordningAndel ->
                 when {
                     regelverk != null -> kompetanse ?: Kompetanse.blankKompetanse
-                    overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
+                    eksistererEøsRegelverkPåBehandling && overgangsordningAndel != null -> kompetanse ?: Kompetanse.blankKompetanse
                     else -> null
                 }
             }.mapValues { (_, value) ->
@@ -132,7 +134,7 @@ private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDa
     return if (tom != null && tom > førsteDagINesteMåned) {
         this
             .tilPerioderIkkeNull()
-            .filter { it.fom != null && it.fom <= førsteDagINesteMåned }
+            .filter { it.fom != null && it.fom!! <= førsteDagINesteMåned }
             .replaceLast { Periode(verdi = it.verdi, fom = it.fom, tom = null) }
             .tilTidslinje()
     } else {

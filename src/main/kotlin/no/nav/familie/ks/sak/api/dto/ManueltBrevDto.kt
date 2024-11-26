@@ -62,6 +62,13 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                 mottakerIdent = this.mottakerIdent,
             )
 
+        Brevmal.INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 ->
+            BrevUtenDataDto(
+                mal = Brevmal.INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024,
+                mottakerNavn = this.mottakerNavn,
+                mottakerIdent = this.mottakerIdent,
+            )
+
         Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
             InformasjonsbrevDeltBostedBrevDto(
                 data =

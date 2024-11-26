@@ -1,9 +1,9 @@
-FROM busybox:1.36.1-uclibc as busybox
+FROM busybox:1.36.1-uclibc AS busybox
 
 # Final image
 FROM gcr.io/distroless/java21:nonroot
 COPY --from=busybox /bin/printenv /bin/printenv
-COPY --chown=nonroot:nonroot ./build/libs/familie-ks-sak.jar /app/app.jar
+COPY --chown=nonroot:nonroot ./target/familie-ks-sak.jar /app/app.jar
 WORKDIR /app
 
 ENV APP_NAME=familie-ks-sak

@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.common.util
 
-import io.sentry.Sentry
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -13,8 +12,7 @@ object RessursUtils {
     private val logger = LoggerFactory.getLogger(RessursUtils::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
-    fun <T> unauthorized(errorMessage: String): ResponseEntity<Ressurs<T>> =
-        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Ressurs.failure(errorMessage))
+    fun <T> unauthorized(errorMessage: String): ResponseEntity<Ressurs<T>> = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Ressurs.failure(errorMessage))
 
     fun <T> badRequest(
         errorMessage: String,
@@ -65,7 +63,6 @@ object RessursUtils {
         secureLogger.error("$className En feil har oppstått: $errorMessage", throwable)
         logger.error("$className En feil har oppstått. Se securelogs for detaljer.")
 
-        Sentry.captureException(throwable)
         return ResponseEntity.status(httpStatus).body(Ressurs.failure(errorMessage))
     }
 
@@ -88,7 +85,6 @@ object RessursUtils {
         )
         logger.error("$className En håndtert feil har oppstått(${feil.httpStatus}): ${feil.message} ", feil)
 
-        Sentry.captureException(feil)
         return ResponseEntity.status(feil.httpStatus).body(
             Ressurs.failure(
                 frontendFeilmelding = feil.frontendFeilmelding,

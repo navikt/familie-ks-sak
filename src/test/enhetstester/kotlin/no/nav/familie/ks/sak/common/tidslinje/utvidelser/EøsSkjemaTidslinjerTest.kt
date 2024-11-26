@@ -1,5 +1,6 @@
-package no.nav.familie.ks.sak.common.tidslinje.utvidelser
+package no.nav.familie.tidslinje.utvidelser
 
+import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinje
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse

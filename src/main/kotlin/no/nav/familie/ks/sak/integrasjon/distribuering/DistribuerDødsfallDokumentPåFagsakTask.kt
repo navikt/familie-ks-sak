@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.integrasjon.distribuering
 
-import io.sentry.Sentry
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.mottakerErDødUtenDødsboadresse
@@ -54,11 +54,11 @@ class DistribuerDødsfallBrevPåFagsakTask(
                     logger.info(
                         "Klarte ikke å distribuere \"${brevmal.visningsTekst}\" på journalpost $journalpostId. Prøver igjen om 7 dager.",
                     )
-                    throw e
                 } else {
-                    Sentry.captureException(e)
-                    throw e
+                    logger.warn("Feilet med å distribuere brev. Mottaker er ikke død uten dødsboadresse. task=${task.id} journalpostId=$journalpostId")
+                    secureLogger.warn("Feilet med å distribuere brev. Mottaker er ikke død uten dødsboadresse. task=${task.id} journalpostId=$journalpostId", e)
                 }
+                throw e
             }
         }
     }

@@ -1,19 +1,26 @@
 package no.nav.familie.ks.sak.integrasjon.sanity
 
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient.Companion.RETRY_BACKOFF_5000MS
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class SanityService(
     private val cachedSanityKlient: CachedSanityKlient,
 ) {
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
-    )
-    fun hentSanityBegrunnelser(): List<SanityBegrunnelse> = cachedSanityKlient.hentSanityBegrunnelserCached()
+    private val logger = LoggerFactory.getLogger(javaClass)
+    private var sanityBegrunnelseCache: List<SanityBegrunnelse> = emptyList()
+
+    fun hentSanityBegrunnelser(): List<SanityBegrunnelse> =
+        try {
+            cachedSanityKlient
+                .hentSanityBegrunnelserCached()
+                .also { sanityBegrunnelse -> sanityBegrunnelseCache = sanityBegrunnelse }
+        } catch (e: Exception) {
+            if (sanityBegrunnelseCache.isEmpty()) {
+                throw e
+            }
+            logger.warn("Kunne ikke hente begrunnelser fra Sanity, bruker siste cachet begrunnelser", e)
+            sanityBegrunnelseCache
+        }
 }

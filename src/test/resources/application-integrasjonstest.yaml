@@ -105,8 +105,6 @@ credential:
 
 logging:
   config: "classpath:logback-test.xml"
-sentry.environment: local
-sentry.logging.enabled: false
 
 # Kreves for at unleash mock skal fungere:
 UNLEASH_SERVER_API_URL: http://dummy/api/

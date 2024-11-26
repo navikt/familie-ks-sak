@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.outerJoin
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
@@ -14,6 +11,9 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.outerJoin
+import no.nav.familie.tidslinje.utvidelser.filtrer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
