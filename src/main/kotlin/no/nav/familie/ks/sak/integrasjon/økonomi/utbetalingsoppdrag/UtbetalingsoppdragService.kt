@@ -8,6 +8,7 @@ import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -17,7 +18,10 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -33,6 +37,7 @@ class UtbetalingsoppdragService(
     private val behandlingService: BehandlingService,
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val unleashService: UnleashService,
 ) {
     private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
 
@@ -95,6 +100,7 @@ class UtbetalingsoppdragService(
                 nyTilkjentYtelse = nyTilkjentYtelse,
                 sisteAndelPerKjede = sisteAndelPerKjede,
                 erSimulering = erSimulering,
+                skalSendeOvergangsordningAndeler = unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING),
             )
 
         beregnetUtbetalingsoppdrag.valider(behandlingsresultat = vedtak.behandling.resultat)
@@ -171,16 +177,19 @@ class UtbetalingsoppdragService(
         tilkjentYtelse: TilkjentYtelse,
         andelerMedPeriodeId: List<AndelMedPeriodeIdLongId>,
     ) {
-        val andelerPåId = andelerMedPeriodeId.associateBy { it.id }
-        val andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse
-        val andelerSomSkalSendesTilOppdrag = andelerTilkjentYtelse.filter { it.erAndelSomSkalSendesTilOppdrag() }
+        val andelerSomSkalSendesTilOppdrag =
+            when (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+                true -> tilkjentYtelse.andelerTilkjentYtelse
+                false -> tilkjentYtelse.andelerTilkjentYtelse.ordinæreAndeler()
+            }.filtrerAndelerSomSkalSendesTilOppdrag()
+
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {
-            error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet andeler med kalkulertUtbetalingsbeløp != 0. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
+            error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet ordinære andeler med kalkulertUtbetalingsbeløp != 0 + antall barn med overgangsordning. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
         }
         andelerSomSkalSendesTilOppdrag.forEach { andel ->
             val andelMedOffset =
-                andelerPåId[andel.id]
-                    ?: error("Feil ved oppdaterig av offset på andeler. Finner ikke andel med id ${andel.id} blandt andelene med oppdatert offset fra ny generator. Ny generator returnerer andeler med ider [${andelerPåId.values.map { it.id }}]")
+                andelerMedPeriodeId.find { it.id == andel.id }
+                    ?: error("Feil ved oppdaterig av offset på andeler. Finner ikke andel med id ${andel.id} blandt andelene med oppdatert offset fra ny generator. Ny generator returnerer andeler med ider [${andelerMedPeriodeId.map { it.id }}]")
             andel.periodeOffset = andelMedOffset.periodeId
             andel.forrigePeriodeOffset = andelMedOffset.forrigePeriodeId
             andel.kildeBehandlingId = andelMedOffset.kildeBehandlingId

@@ -1,8 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -11,6 +8,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.tilAndelT
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.regelverk.Regelverk
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Component
 
 interface AndelGenerator {

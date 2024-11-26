@@ -1,10 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -31,10 +27,15 @@ import no.nav.familie.ks.sak.kjerne.beregning.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.utvidelser.klipp
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import java.time.LocalDate
 
 class BegrunnelserForPeriodeContext(
@@ -42,6 +43,7 @@ class BegrunnelserForPeriodeContext(
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
     private val kompetanser: List<UtfyltKompetanse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
+    private val overgangsordningAndeler: List<OvergangsordningAndel>,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
     private val erFørsteVedtaksperiode: Boolean,
@@ -115,7 +117,7 @@ class BegrunnelserForPeriodeContext(
         val alleBarna = kompetanser.flatMap { it.barnAktører }.toSet()
         val utfylteKompetanserPerBarn = alleBarna.associateWith { barn -> kompetanser.filter { barn in it.barnAktører } }
         val vilkårResultaterSomOverlapperVedtaksperiode =
-            hentVilkårResultaterSomOverlapperVedtaksperiode(
+            hentRelevanteVilkårResultaterForVedtaksperiode(
                 standardBegrunnelse = begrunnelse,
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger = false,
             )
@@ -147,7 +149,7 @@ class BegrunnelserForPeriodeContext(
                     utfyltKompetansePåBarnIPerodeneMedUtbetalingPåBarnet
                         .tilPerioderIkkeNull()
                         .singleOrNull { kompetansePeriode ->
-                            kompetansePeriode.tom != null && kompetansePeriode.tom.toYearMonth().plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
+                            kompetansePeriode.tom != null && kompetansePeriode.tom!!.toYearMonth().plusMonths(1) == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
                         }?.verdi
 
                 val utfyltKompetanse =
@@ -193,10 +195,14 @@ class BegrunnelserForPeriodeContext(
             erFørsteVedtaksperiode && sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger()
 
         val hentVilkårResultaterSomOverlapperVedtaksperiode =
-            hentVilkårResultaterSomOverlapperVedtaksperiode(
+            hentRelevanteVilkårResultaterForVedtaksperiode(
                 begrunnelse,
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger,
             )
+
+        val overgangsordningsAndelerSomStarterOgSlutterSamtidigSomVedtaksperiode = overgangsordningAndeler.filter { it.fom == vedtaksperiode.fom.toYearMonth() && it.tom == vedtaksperiode.tom.toYearMonth() }
+
+        val personerMedOvergangsordningAndel = overgangsordningsAndelerSomStarterOgSlutterSamtidigSomVedtaksperiode.mapNotNull { it.person }
 
         val filtrerPersonerUtenUtbetalingVedInnvilget =
             hentVilkårResultaterSomOverlapperVedtaksperiode
@@ -233,7 +239,7 @@ class BegrunnelserForPeriodeContext(
 
         val personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden = hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
 
-        return personerMedVilkårResultaterSomPasserVedtaksperioden.keys + personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden
+        return (personerMedVilkårResultaterSomPasserVedtaksperioden.keys + personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden + personerMedOvergangsordningAndel).toSet()
     }
 
     fun hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse: SanityBegrunnelse): Set<Person> =
@@ -309,7 +315,7 @@ class BegrunnelserForPeriodeContext(
                 .flatMap { it.value }
         }
 
-    private fun hentVilkårResultaterSomOverlapperVedtaksperiode(
+    private fun hentRelevanteVilkårResultaterForVedtaksperiode(
         standardBegrunnelse: IBegrunnelse,
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (standardBegrunnelse.begrunnelseType) {
@@ -320,7 +326,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.INNVILGET,
         -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
 
-        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode()
+        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
 
         BegrunnelseType.EØS_OPPHØR,
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
@@ -332,7 +338,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
     }
 
-    private fun finnPersonerSomHarIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriode(): Map<Person, List<VilkårResultat>> =
+    private fun finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse: IBegrunnelse): Map<Person, List<VilkårResultat>> =
         personResultater
             .mapNotNull { personResultat ->
                 val person = personopplysningGrunnlag.personer.find { it.aktør == personResultat.aktør }
@@ -343,7 +349,7 @@ class BegrunnelserForPeriodeContext(
                         .filter { it.resultat == Resultat.IKKE_OPPFYLT }
                         .filter {
                             (it.periodeFom ?: TIDENES_MORGEN).toYearMonth() == vedtaksperiode.fom.toYearMonth()
-                        }
+                        }.filter { it.begrunnelser.contains(standardBegrunnelse) }
 
                 if (person != null && ikkeOppfylteVilkårSomStarterISammePeriode.isNotEmpty()) {
                     Pair(person, ikkeOppfylteVilkårSomStarterISammePeriode)
@@ -360,8 +366,8 @@ class BegrunnelserForPeriodeContext(
                 val perioderMedVilkårForPerson = vilkårResultatTidslinjeForPerson.tilPerioder()
                 val månedenFørVedtaksperioden = vedtaksperiode.fom.minusMonths(1)
 
-                val vilkårResultaterForrigeMåned = perioderMedVilkårForPerson.tilInnoldForMåned(månedenFørVedtaksperioden)
-                val vilkårResultaterDenneMåneden = perioderMedVilkårForPerson.tilInnoldForMåned(vedtaksperiode.fom)
+                val vilkårResultaterForrigeMåned = perioderMedVilkårForPerson.tilInnholdForMåned(månedenFørVedtaksperioden)
+                val vilkårResultaterDenneMåneden = perioderMedVilkårForPerson.tilInnholdForMåned(vedtaksperiode.fom)
 
                 val oppfylteVilkårForrigeMåned = vilkårResultaterForrigeMåned.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
@@ -398,7 +404,7 @@ class BegrunnelserForPeriodeContext(
             }.toMap()
             .filterValues { it.isNotEmpty() }
 
-    private fun List<no.nav.familie.ks.sak.common.tidslinje.Periode<List<VilkårResultat>?>>.tilInnoldForMåned(dato: LocalDate?): List<VilkårResultat> = this.singleOrNull { it.fom != null && it.fom <= dato && (it.tom == null || it.tom >= dato) }?.verdi ?: emptyList()
+    private fun List<no.nav.familie.tidslinje.Periode<List<VilkårResultat>?>>.tilInnholdForMåned(dato: LocalDate?): List<VilkårResultat> = this.singleOrNull { it.fom != null && it.fom!! <= dato && (it.tom == null || it.tom!! >= dato) }?.verdi ?: emptyList()
 
     private fun Aktør.hentPerson() = (personopplysningGrunnlag.personer.singleOrNull { it.aktør.aktivFødselsnummer() == aktivFødselsnummer() } ?: throw Feil("Aktør $this finnes ikke i personGrunnlaget."))
 

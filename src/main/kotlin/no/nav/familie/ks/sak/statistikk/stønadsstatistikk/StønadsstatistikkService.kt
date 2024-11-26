@@ -10,7 +10,6 @@ import no.nav.familie.eksterne.kontrakter.UtbetalingsDetaljDVH
 import no.nav.familie.eksterne.kontrakter.UtbetalingsperiodeDVH
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -24,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.filtrerGjeldendeNå
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import java.time.ZoneId
 import java.util.UUID
@@ -129,7 +129,7 @@ class StønadsstatistikkService(
                 utbetaltPerMnd = sumUtbetalingsbeløp,
                 utbetalingsDetaljer =
                     andelerForPeriode
-                        .filter { andel -> andel.erAndelSomSkalSendesTilOppdrag() }
+                        .filter { it.kalkulertUtbetalingsbeløp != 0 }
                         .map { andel ->
                             UtbetalingsDetaljDVH(
                                 person =

@@ -1,13 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Verdi
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikePerioder
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikeTidslinjer
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.erMellom
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -20,6 +13,13 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Verdi
+import no.nav.familie.tidslinje.filtrerIkkeNull
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikeTidslinjer
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.YearMonth

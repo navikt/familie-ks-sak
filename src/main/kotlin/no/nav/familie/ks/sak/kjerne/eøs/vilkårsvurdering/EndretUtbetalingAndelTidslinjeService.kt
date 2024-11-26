@@ -1,8 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
@@ -10,22 +7,26 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Service
 class EndretUtbetalingAndelTidslinjeService(
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
 ) {
-    fun hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId: Long) =
+    fun hentBarnasSkalIkkeUtbetalesTidslinjer(behandlingId: Long) =
         endretUtbetalingAndelService
             .hentEndredeUtbetalingAndeler(behandlingId)
-            .tilBarnasHarEtterbetaling3MånedTidslinjer()
+            .tilBarnasSkalIkkeUtbetalesTidslinjer()
 }
 
-internal fun Iterable<EndretUtbetalingAndel>.tilBarnasHarEtterbetaling3MånedTidslinjer(): Map<Aktør, Tidslinje<Boolean>> =
+internal fun Iterable<EndretUtbetalingAndel>.tilBarnasSkalIkkeUtbetalesTidslinjer(): Map<Aktør, Tidslinje<Boolean>> =
     this
-        .filter { it.årsak == Årsak.ETTERBETALING_3MND }
+        .filter { it.årsak in listOf(Årsak.ETTERBETALING_3MND, Årsak.ALLEREDE_UTBETALT, Årsak.ENDRE_MOTTAKER) && it.prosent == BigDecimal.ZERO }
         .filter { it.person?.type == PersonType.BARN }
         .filter { it.person?.aktør != null }
         .groupBy { checkNotNull(it.person?.aktør) }

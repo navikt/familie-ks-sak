@@ -13,10 +13,16 @@ import no.nav.familie.kontrakter.felles.journalpost.LogiskVedlegg
 import no.nav.familie.kontrakter.felles.journalpost.RelevantDato
 import no.nav.familie.kontrakter.felles.journalpost.Sak
 import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
+import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
+import no.nav.familie.ks.sak.api.dto.JournalpostDokumentDto
+import no.nav.familie.ks.sak.api.dto.NavnOgIdentDto
 import no.nav.familie.ks.sak.api.dto.Sakstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.LocalDateTime
 
 fun lagTilgangsstyrtJournalpost(
@@ -26,7 +32,20 @@ fun lagTilgangsstyrtJournalpost(
     harTilgang: Boolean = true,
 ): TilgangsstyrtJournalpost =
     TilgangsstyrtJournalpost(
-        journalpost = lagJournalpost(personIdent = personIdent, journalpostId = journalpostId, kanal = kanal),
+        journalpost =
+            lagJournalpost(
+                personIdent = personIdent,
+                journalpostId = journalpostId,
+                kanal = kanal,
+                avsenderMottaker =
+                    lagAvsenderMottaker(
+                        personIdent = personIdent,
+                        avsenderMottakerIdType = AvsenderMottakerIdType.FNR,
+                        navn = "BLÅØYD HEST",
+                        erLikBruker = true,
+                        land = "NO",
+                    ),
+            ),
         harTilgang = harTilgang,
     )
 
@@ -34,6 +53,7 @@ fun lagJournalpost(
     personIdent: String,
     journalpostId: String,
     kanal: String? = InnkommendeJournalføringService.NAV_NO,
+    avsenderMottaker: AvsenderMottaker?,
 ): Journalpost =
     Journalpost(
         journalpostId = journalpostId,
@@ -42,14 +62,7 @@ fun lagJournalpost(
         tema = Tema.KON.name,
         behandlingstema = "ab00001",
         bruker = Bruker(personIdent, type = BrukerIdType.FNR),
-        avsenderMottaker =
-            AvsenderMottaker(
-                navn = "BLÅØYD HEST",
-                erLikBruker = true,
-                id = personIdent,
-                land = "NO",
-                type = AvsenderMottakerIdType.FNR,
-            ),
+        avsenderMottaker = avsenderMottaker,
         journalforendeEnhet = DEFAULT_JOURNALFØRENDE_ENHET,
         kanal = kanal,
         dokumenter =
@@ -81,4 +94,51 @@ fun lagJournalpost(
             ),
         tittel = "Søknad om ordinær barnetrygd",
         relevanteDatoer = listOf(RelevantDato(LocalDateTime.now(), "DATO_REGISTRERT")),
+    )
+
+fun lagAvsenderMottaker(
+    personIdent: String,
+    avsenderMottakerIdType: AvsenderMottakerIdType,
+    navn: String,
+    erLikBruker: Boolean = false,
+    land: String = "NO",
+) = AvsenderMottaker(
+    navn = navn,
+    erLikBruker = erLikBruker,
+    id = personIdent,
+    land = land,
+    type = avsenderMottakerIdType,
+)
+
+fun lagJournalføringRequestDto(bruker: NavnOgIdentDto): JournalføringRequestDto =
+    JournalføringRequestDto(
+        avsender = bruker,
+        bruker = bruker,
+        datoMottatt = LocalDateTime.now().minusDays(10),
+        journalpostTittel = "Søknad om ordinær kontantstøtte",
+        kategori = BehandlingKategori.NASJONAL,
+        knyttTilFagsak = true,
+        opprettOgKnyttTilNyBehandling = true,
+        tilknyttedeBehandlingIder = emptyList(),
+        dokumenter =
+            listOf(
+                JournalpostDokumentDto(
+                    dokumentTittel = "Søknad om kontantstøtte",
+                    brevkode = "mock",
+                    dokumentInfoId = "1",
+                    logiskeVedlegg = listOf(LogiskVedlegg("123", "Oppholdstillatelse")),
+                    eksisterendeLogiskeVedlegg = emptyList(),
+                ),
+                JournalpostDokumentDto(
+                    dokumentTittel = "Ekstra vedlegg",
+                    brevkode = "mock",
+                    dokumentInfoId = "2",
+                    logiskeVedlegg = listOf(LogiskVedlegg("123", "Pass")),
+                    eksisterendeLogiskeVedlegg = emptyList(),
+                ),
+            ),
+        navIdent = "09123",
+        nyBehandlingstype = BehandlingType.FØRSTEGANGSBEHANDLING,
+        nyBehandlingsårsak = BehandlingÅrsak.SØKNAD,
+        journalførendeEnhet = "4820",
     )

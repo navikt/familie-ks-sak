@@ -795,6 +795,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
+            overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
         )
     }
@@ -830,6 +831,7 @@ class BegrunnelserForPeriodeContextTest {
             personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
+            overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
         )
     }

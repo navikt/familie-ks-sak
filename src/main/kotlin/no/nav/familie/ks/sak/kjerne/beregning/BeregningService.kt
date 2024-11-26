@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -48,7 +49,7 @@ class BeregningService(
     fun hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(behandlingId: Long): List<AndelTilkjentYtelse> =
         andelTilkjentYtelseRepository
             .finnAndelerTilkjentYtelseForBehandling(behandlingId)
-            .filter { it.erAndelSomSkalSendesTilOppdrag() }
+            .filtrerAndelerSomSkalSendesTilOppdrag()
 
     fun hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(fagsakId: Long): List<TilkjentYtelse> {
         val iverksatteBehandlinger = behandlingRepository.finnByFagsakAndAvsluttet(fagsakId)
@@ -57,7 +58,7 @@ class BeregningService(
                 .finnByBehandlingAndHasUtbetalingsoppdrag(
                     it.id,
                 )?.takeIf { tilkjentYtelse ->
-                    tilkjentYtelse.andelerTilkjentYtelse.any { aty -> aty.erAndelSomSkalSendesTilOppdrag() }
+                    tilkjentYtelse.andelerTilkjentYtelse.filtrerAndelerSomSkalSendesTilOppdrag().isNotEmpty()
                 }
         }
     }
@@ -185,7 +186,7 @@ class BeregningService(
             .finnLøpendeAndelerTilkjentYtelseForBehandlinger(
                 behandlingIder,
                 avstemmingstidspunkt.toLocalDate().toYearMonth(),
-            ).filter { it.erAndelSomSkalSendesTilOppdrag() }
+            ).filtrerAndelerSomSkalSendesTilOppdrag()
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 }

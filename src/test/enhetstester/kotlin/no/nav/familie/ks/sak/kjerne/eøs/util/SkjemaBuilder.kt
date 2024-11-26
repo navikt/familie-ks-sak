@@ -1,13 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.tidslinje.filtrerIkkeNull
+import no.nav.familie.tidslinje.util.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import java.time.YearMonth
 
 abstract class SkjemaBuilder<S, B>(

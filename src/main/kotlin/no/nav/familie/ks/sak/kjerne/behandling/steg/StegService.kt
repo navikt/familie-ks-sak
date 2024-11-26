@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -20,7 +19,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndelerPerAktør
+import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil.lagEndringIUtbetalingTidslinje
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbehandlingRequestTask
@@ -28,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingReposito
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.prosessering.internal.TaskService
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -225,15 +229,45 @@ class StegService(
 
     fun erEndringIUtbetaling(behandling: Behandling): Boolean {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)
-        val andelerForrigeBehandling =
-            forrigeBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
-                ?: emptyList()
+        val (ordinæreAndelerForrigeBehandling, overgangsordningAndelerForrigeBehandling) =
+            forrigeBehandling?.let {
+                andelTilkjentYtelseRepository
+                    .finnAndelerTilkjentYtelseForBehandling(it.id)
+                    .partition { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+            } ?: Pair(emptyList(), emptyList())
 
-        val andelerBehandling = behandling.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
+        val (ordinæreAndelerNåværendeBehandling, overgangsordningAndelerNåværendeBehandling) =
+            behandling.let {
+                andelTilkjentYtelseRepository
+                    .finnAndelerTilkjentYtelseForBehandling(it.id)
+                    .partition { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+            }
 
-        return lagEndringIUtbetalingTidslinje(andelerBehandling, andelerForrigeBehandling)
+        return lagEndringIUtbetalingTidslinje(ordinæreAndelerNåværendeBehandling, ordinæreAndelerForrigeBehandling)
             .tilPerioder()
-            .any { it.verdi == true }
+            .any { it.verdi == true } ||
+            erEndringIOvergangsordningAndeler(overgangsordningAndelerNåværendeBehandling, overgangsordningAndelerForrigeBehandling)
+    }
+
+    private fun erEndringIOvergangsordningAndeler(
+        andelerNåværendeBehandling: List<AndelTilkjentYtelse>,
+        andelerForrigeBehandling: List<AndelTilkjentYtelse>,
+    ): Boolean {
+        val sumOvergangsordningAndelerPerAktørNåværendeBehandling =
+            andelerNåværendeBehandling
+                .overgangsordningAndelerPerAktør()
+                .mapValues { (_, andeler) ->
+                    andeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+                }
+
+        val sumOvergangsordningAndelerPerAktørForrigeBehandling =
+            andelerForrigeBehandling
+                .overgangsordningAndelerPerAktør()
+                .mapValues { (_, andeler) ->
+                    andeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+                }
+
+        return sumOvergangsordningAndelerPerAktørNåværendeBehandling != sumOvergangsordningAndelerPerAktørForrigeBehandling
     }
 
     private fun utførStegAutomatisk(behandling: Behandling) {
