@@ -1,10 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erDagenFør
+import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -208,9 +210,10 @@ class BegrunnelserForPeriodeContext(
                 erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger,
             )
 
-        val overgangsordningsAndelerSomStarterOgSlutterSamtidigSomVedtaksperiode = overgangsordningAndeler.filter { it.fom == vedtaksperiode.fom.toYearMonth() && it.tom == vedtaksperiode.tom.toYearMonth() }
-
-        val personerMedOvergangsordningAndel = overgangsordningsAndelerSomStarterOgSlutterSamtidigSomVedtaksperiode.mapNotNull { it.person }
+        val personerMedOvergangsordningAndel =
+            overgangsordningAndeler
+                .filter { it.periode.overlapperHeltEllerDelvisMed(MånedPeriode(vedtaksperiode.fom.toYearMonth(), vedtaksperiode.tom.toYearMonth())) }
+                .mapNotNull { it.person }
 
         val filtrerPersonerUtenUtbetalingVedInnvilget =
             hentVilkårResultaterSomOverlapperVedtaksperiode

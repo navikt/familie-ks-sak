@@ -124,4 +124,47 @@ class ForskyvVilkår2024KtTest {
             assertThat(it.tom).isEqualTo(desember.atEndOfMonth())
         }
     }
+
+    @Test
+    fun `Ved to oppfylte vilkårresultat i samme måned så skal det seneste vilkåret være gjeldende for måneden`() {
+        // Arrange
+        val førstePeriodeBorMedSøker =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOR_MED_SØKER,
+                periodeFom = august.atDay(15),
+                periodeTom = oktober.atDay(14),
+                resultat = Resultat.OPPFYLT,
+            )
+        val andrePeriodeBorMedSøker =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BOR_MED_SØKER,
+                periodeFom = oktober.atDay(15),
+                periodeTom = desember.atDay(1),
+                resultat = Resultat.OPPFYLT,
+            )
+
+        val vilkårResultater =
+            listOf(
+                førstePeriodeBorMedSøker,
+                andrePeriodeBorMedSøker,
+            )
+
+        // Act
+        val forskjøvedeVilkårResultater =
+            forskyvEtterLovgivning2024(
+                Vilkår.BOR_MED_SØKER,
+                vilkårResultater,
+            )
+
+        // Assert
+        assertThat(forskjøvedeVilkårResultater).hasSize(2)
+
+        assertThat(forskjøvedeVilkårResultater[0].fom).isEqualTo(august.atDay(1))
+        assertThat(forskjøvedeVilkårResultater[0].tom).isEqualTo(september.atDay(30))
+        assertThat(forskjøvedeVilkårResultater[0].verdi).isEqualTo(førstePeriodeBorMedSøker)
+
+        assertThat(forskjøvedeVilkårResultater[1].fom).isEqualTo(oktober.atDay(1))
+        assertThat(forskjøvedeVilkårResultater[1].tom).isEqualTo(desember.atDay(31))
+        assertThat(forskjøvedeVilkårResultater[1].verdi).isEqualTo(andrePeriodeBorMedSøker)
+    }
 }

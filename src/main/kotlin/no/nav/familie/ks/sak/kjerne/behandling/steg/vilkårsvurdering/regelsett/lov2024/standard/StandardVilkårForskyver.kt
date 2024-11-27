@@ -34,5 +34,5 @@ fun forskyvStandardVilkår2024(
 
 private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioder() =
     map { listOf(it).tilTidslinje() }
-        .kombiner { vilkårResultater -> vilkårResultater.minByOrNull { it.periodeFom ?: TIDENES_MORGEN } }
+        .kombiner { vilkårResultater -> vilkårResultater.maxByOrNull { it.periodeFom ?: TIDENES_MORGEN } }
         .tilPerioderIkkeNull()
