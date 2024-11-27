@@ -8,9 +8,12 @@ fun utledEØSForordningen987Hjemler(
     sanityBegrunnelser: List<SanityBegrunnelse>,
     refusjonEøsHjemmelSkalMedIBrev: Boolean,
 ): List<String> =
-    sanityBegrunnelser.flatMap { it.hjemlerEØSForordningen987 } +
-        if (refusjonEøsHjemmelSkalMedIBrev) {
-            listOf(HJEMMEL_60_EØS_FORORDNINGEN_987)
-        } else {
-            emptyList()
-        }.distinct()
+    sanityBegrunnelser
+        .flatMap { it.hjemlerEØSForordningen987 }
+        .plus(
+            if (refusjonEøsHjemmelSkalMedIBrev) {
+                listOf(HJEMMEL_60_EØS_FORORDNINGEN_987)
+            } else {
+                emptyList()
+            },
+        ).distinct()

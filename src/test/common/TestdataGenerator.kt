@@ -51,10 +51,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
@@ -71,6 +74,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
@@ -723,6 +727,15 @@ fun lagVedtaksbegrunnelse(
     nasjonalEllerFellesBegrunnelse = nasjonalEllerFellesBegrunnelse,
 )
 
+fun lagEØSVedtaksbegrunnelse(
+    begrunnelse: EØSBegrunnelse =
+        EØSBegrunnelse.INNVILGET_PRIMÆRLAND_ALENEANSVAR,
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
+) = EØSBegrunnelseDB(
+    vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
+    begrunnelse = begrunnelse,
+)
+
 fun lagVedtaksperiodeMedBegrunnelser(
     vedtak: Vedtak = Vedtak(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
     fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
@@ -742,6 +755,15 @@ fun lagVedtaksperiodeMedBegrunnelser(
     vedtaksperiodeMedBegrunnelser.settBegrunnelser(begrunnelser(vedtaksperiodeMedBegrunnelser))
     return vedtaksperiodeMedBegrunnelser
 }
+
+fun lagUtvidetVedtaksperiodeMedBegrunnelser(
+    fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
+    tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
+    type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
+    begrunnelser: List<NasjonalEllerFellesBegrunnelseDB> = emptyList(),
+    eøsBegrunnelser: List<EØSBegrunnelseDB> = emptyList(),
+): UtvidetVedtaksperiodeMedBegrunnelser =
+    UtvidetVedtaksperiodeMedBegrunnelser(id = 0, fom = fom, tom = tom, type = type, begrunnelser = begrunnelser, eøsBegrunnelser = eøsBegrunnelser, støtterFritekst = false)
 
 fun lagPersonResultat(
     vilkårsvurdering: Vilkårsvurdering,
@@ -1233,8 +1255,12 @@ fun lagVilkårsvurdering(
 
 fun lagSanityBegrunnelse(
     apiNavn: String,
-    støtterFritekst: Boolean,
-    resultat: SanityResultat,
+    støtterFritekst: Boolean = false,
+    resultat: SanityResultat = SanityResultat.INNVILGET,
+    hjemler: List<String> = emptyList(),
+    hjemlerEøsForordningen883: List<String> = emptyList(),
+    hjemlerEøsForordningen987: List<String> = emptyList(),
+    hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
 ): SanityBegrunnelse =
     SanityBegrunnelse(
         apiNavn = apiNavn,
@@ -1244,12 +1270,15 @@ fun lagSanityBegrunnelse(
         rolle = emptyList(),
         utdypendeVilkårsvurderinger = emptyList(),
         triggere = emptyList(),
-        hjemler = emptyList(),
+        hjemler = hjemler,
         endringsårsaker = emptyList(),
         endretUtbetalingsperiode = emptyList(),
         støtterFritekst = støtterFritekst,
         skalAlltidVises = false,
         resultat = resultat,
+        hjemlerEØSForordningen883 = hjemlerEøsForordningen883,
+        hjemlerEØSForordningen987 = hjemlerEøsForordningen987,
+        hjemlerSeperasjonsavtalenStorbritannina = hjemlerSeperasjonsavtalenStorbritannina,
     )
 
 fun lagSammensattKontrollsak(
@@ -1425,3 +1454,22 @@ fun lagBrevmottakerDto(
     poststed = poststed,
     landkode = landkode,
 )
+
+fun lagRefusjonEøs(
+    behandlingId: Long = 0L,
+    fom: LocalDate = LocalDate.now().minusMonths(1),
+    tom: LocalDate = LocalDate.now().plusMonths(1),
+    refusjonsbeløp: Int = 0,
+    land: String = "NO",
+    refusjonAvklart: Boolean = true,
+    id: Long = 0L,
+): RefusjonEøs =
+    RefusjonEøs(
+        behandlingId = behandlingId,
+        fom = fom,
+        tom = tom,
+        refusjonsbeløp = refusjonsbeløp,
+        land = land,
+        refusjonAvklart = refusjonAvklart,
+        id = id,
+    )
