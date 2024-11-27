@@ -27,7 +27,7 @@ fun forskyvStandardVilkår2024(
         .filter { it.erOppfylt() || it.erIkkeAktuelt() }
         .sortedBy { it.periodeFom }
         .mapTilTilknyttetVilkårResultater()
-        .map { Periode(verdi = it.gjeldende, fom = forskyvFom(it.gjeldende.periodeFom), tom = forskyvTom(it)) }
+        .map { Periode(verdi = it.gjeldende, fom = forskyvFom(it.gjeldende.periodeFom), tom = forskyvTom(it.gjeldende.periodeTom)) }
         .filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioder()
 }

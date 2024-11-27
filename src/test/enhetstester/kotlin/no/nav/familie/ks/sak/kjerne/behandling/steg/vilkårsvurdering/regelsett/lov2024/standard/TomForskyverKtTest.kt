@@ -8,88 +8,37 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class TomForskyverKtTest {
-    private val dagensDato = LocalDate.of(2024, 11, 17)
 
     @Test
-    fun `skal returnere null når gjeldende periode tom er null`() {
-        // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = dagensDato.minusMonths(3),
-                periodeTom = null,
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = null,
-            )
-
+    fun `skal returnere null når input dato er null`() {
         // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
+        val forskjøvetTom = forskyvTom(null)
 
         // Assert
         assertThat(forskjøvetTom).isNull()
     }
 
     @Test
-    fun `skal returnere gjeldende vilkårresultat periode tom når gjeldene vilkårresultat periode slutter dagen før neste vilkårresultat`() {
+    fun `skal returnere siste dag i måneden når input dato er første dag i måneden`() {
         // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                periodeFom = dagensDato.minusMonths(3),
-                periodeTom = dagensDato.minusDays(1),
-            )
-
-        val nesteVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                periodeFom = dagensDato,
-                periodeTom = dagensDato.plusMonths(1),
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = nesteVilkårResultat,
-            )
+        val tomDato = LocalDate.of(2024, 8, 1)
 
         // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
+        val forskjøvetTom = forskyvTom(tomDato)
 
         // Assert
-        assertThat(forskjøvetTom).isEqualTo(gjeldendeVilkårResultat.periodeTom)
+        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 8, 31))
     }
 
     @Test
-    fun `skal returnere siste dag i måneden basert på gjeldende vilkårresutlat periode tom når gjeldende vilkårresultat periode tom ikke er dagen før neste vilkårresultat periode`() {
+    fun `skal returnere siste dag i måneden når input dato er siste dag i måneden`() {
         // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                periodeFom = dagensDato.minusMonths(3),
-                periodeTom = dagensDato.minusDays(1),
-            )
-
-        val nesteVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BOR_MED_SØKER,
-                periodeFom = dagensDato.plusDays(1),
-                periodeTom = dagensDato.plusMonths(1),
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = nesteVilkårResultat,
-            )
+        val tomDato = LocalDate.of(2024, 8, 31)
 
         // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
+        val forskjøvetTom = forskyvTom(tomDato)
 
         // Assert
-        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 11, 30))
+        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 8, 31))
     }
 }

@@ -148,11 +148,11 @@ class StandardVilkårForskyverKtTest {
         assertThat(forskjøvetVilkårResultater).hasSize(2)
         assertThat(forskjøvetVilkårResultater).anySatisfy {
             assertThat(it.fom).isEqualTo(LocalDate.of(2024, 10, 1))
-            assertThat(it.tom).isEqualTo(LocalDate.of(2024, 12, 17))
+            assertThat(it.tom).isEqualTo(LocalDate.of(2024, 11, 30))
             assertThat(it.verdi).isEqualTo(vilkårResultatBorMedSøker1)
         }
         assertThat(forskjøvetVilkårResultater).anySatisfy {
-            assertThat(it.fom).isEqualTo(LocalDate.of(2024, 12, 18))
+            assertThat(it.fom).isEqualTo(LocalDate.of(2024, 12, 1))
             assertThat(it.tom).isEqualTo(LocalDate.of(2025, 2, 28))
             assertThat(it.verdi).isEqualTo(vilkårResultatBorMedSøker2)
         }
@@ -192,11 +192,11 @@ class StandardVilkårForskyverKtTest {
         assertThat(forskjøvetVilkårResultater).hasSize(2)
         assertThat(forskjøvetVilkårResultater).anySatisfy {
             assertThat(it.fom).isEqualTo(LocalDate.of(2024, 8, 1))
-            assertThat(it.tom).isEqualTo(LocalDate.of(2024, 10, 31))
+            assertThat(it.tom).isEqualTo(LocalDate.of(2024, 8, 31))
             assertThat(it.verdi).isEqualTo(vilkårResultatBorMedSøker1)
         }
         assertThat(forskjøvetVilkårResultater).anySatisfy {
-            assertThat(it.fom).isEqualTo(LocalDate.of(2024, 11, 1))
+            assertThat(it.fom).isEqualTo(LocalDate.of(2024, 9, 1))
             assertThat(it.tom).isEqualTo(LocalDate.of(2024, 11, 30))
             assertThat(it.verdi).isEqualTo(vilkårResultatBorMedSøker2)
         }
