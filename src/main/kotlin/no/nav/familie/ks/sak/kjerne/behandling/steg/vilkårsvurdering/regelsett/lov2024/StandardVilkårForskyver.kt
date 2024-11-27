@@ -22,16 +22,12 @@ fun forskyvStandardVilkår2024(
             Periode(
                 verdi = it.gjeldende,
                 fom = it.gjeldende.periodeFom?.førsteDagIInneværendeMåned(),
-                tom =
-                    when (it.gjeldendeSlutterDagenFørNeste()) {
-                        true -> it.gjeldende.periodeTom
-                        false -> it.gjeldende.periodeTom?.sisteDagIMåned()
-                    },
+                tom = it.gjeldende.periodeTom?.sisteDagIMåned(),
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioder()
 
 private fun List<Periode<VilkårResultat>>.filtrerBortOverlappendePerioder() =
     map { listOf(it).tilTidslinje() }
-        .kombiner { vilkårResultater -> vilkårResultater.minByOrNull { it.periodeFom ?: TIDENES_MORGEN } }
+        .kombiner { vilkårResultater -> vilkårResultater.maxByOrNull { it.periodeFom ?: TIDENES_MORGEN } }
         .tilPerioderIkkeNull()
