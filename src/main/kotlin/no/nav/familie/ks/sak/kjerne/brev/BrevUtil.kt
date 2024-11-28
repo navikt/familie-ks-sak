@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.erOvergangsordningBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 
@@ -37,7 +38,7 @@ fun hentHjemmeltekst(
         )
 
     val alleHjemlerOgTekstForBegrunnelser =
-        if (sanitybegrunnelserBruktIBrev.inneholderOvergangsordningBegrunnelser()) {
+        if (sanitybegrunnelserBruktIBrev.any { it.erOvergangsordningBegrunnelse() }) {
             alleHjemlerForBegrunnelser + "forskrift om overgangsregler"
         } else {
             alleHjemlerForBegrunnelser
