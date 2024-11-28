@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrollsakBrevDtoUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
@@ -57,7 +58,7 @@ class GenererBrevServiceTest {
             opprettGrunnlagOgSignaturDataService = mockk<OpprettGrunnlagOgSignaturDataService>(),
             etterbetalingService = mockk<EtterbetalingService>(),
             søkersMeldepliktService = mockk<SøkersMeldepliktService>(),
-            opprettSammensattKontrollsakBrevDtoService = mockk<OpprettSammensattKontrollsakBrevDtoService>(),
+            sammensattKontrollsakBrevDtoUtleder = mockk<SammensattKontrollsakBrevDtoUtleder>(),
             brevmalService = mockk<BrevmalService>(),
             andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>(),
         )

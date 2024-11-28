@@ -49,6 +49,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndr
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakOvergangsordning
+import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrollsakBrevDtoUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
@@ -71,7 +72,7 @@ class GenererBrevService(
     private val sammensattKontrollsakService: SammensattKontrollsakService,
     private val etterbetalingService: EtterbetalingService,
     private val simuleringService: SimuleringService,
-    private val opprettSammensattKontrollsakBrevDtoService: OpprettSammensattKontrollsakBrevDtoService,
+    private val sammensattKontrollsakBrevDtoUtleder: SammensattKontrollsakBrevDtoUtleder,
     private val søkersMeldepliktService: SøkersMeldepliktService,
     private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
     private val brevmalService: BrevmalService,
@@ -121,7 +122,7 @@ class GenererBrevService(
 
             val vedtaksbrev =
                 when {
-                    sammensattKontrollsak != null -> opprettSammensattKontrollsakBrevDtoService.opprett(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
+                    sammensattKontrollsak != null -> sammensattKontrollsakBrevDtoUtleder.utled(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
