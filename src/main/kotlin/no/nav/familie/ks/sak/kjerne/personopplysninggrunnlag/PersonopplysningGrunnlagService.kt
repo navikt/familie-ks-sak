@@ -100,6 +100,8 @@ class PersonopplysningGrunnlagService(
 
     fun hentSøker(behandlingId: Long): Person? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
 
+    fun hentSøkerThrows(behandlingId: Long): Person = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).søker
+
     fun hentBarna(behandlingId: Long): List<Person>? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
 
     fun hentSøkerOgBarnPåFagsak(fagsakId: Long): Set<PersonEnkel>? =
@@ -107,7 +109,7 @@ class PersonopplysningGrunnlagService(
             .finnSøkerOgBarnAktørerTilFagsak(fagsakId)
             .takeIf { it.isNotEmpty() }
 
-    fun hentSøkersMålform(behandlingId: Long) = hentSøker(behandlingId)?.målform ?: Målform.NB
+    fun hentSøkersMålform(behandlingId: Long) = hentSøkerThrows(behandlingId).målform
 
     fun lagreOgDeaktiverGammel(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {
         finnAktivPersonopplysningGrunnlag(personopplysningGrunnlag.behandlingId)?.let {

@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -49,11 +50,13 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndr
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakOvergangsordning
+import no.nav.familie.ks.sak.kjerne.brev.hjemler.HjemmeltekstUtleder
 import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrollsakBrevDtoUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
+import no.nav.familie.unleash.UnleashService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
@@ -77,6 +80,8 @@ class GenererBrevService(
     private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
     private val brevmalService: BrevmalService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val hjemmeltekstUtleder: HjemmeltekstUtleder,
+    private val unleashService: UnleashService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -260,13 +265,21 @@ class GenererBrevService(
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
         val hjemler =
-            hentHjemler(
-                behandlingId = vedtak.behandling.id,
-                utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
-                målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
-                sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
-                vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
-            )
+            if (unleashService.isEnabled(FeatureToggleConfig.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV, false)) {
+                hjemmeltekstUtleder.utledHjemmeltekst(
+                    behandlingId = vedtak.behandling.id,
+                    vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+                    utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
+                )
+            } else {
+                hentHjemler(
+                    behandlingId = vedtak.behandling.id,
+                    utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
+                    målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
+                    sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
+                    vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+                )
+            }
 
         return FellesdataForVedtaksbrev(
             enhet = personopplysningsgrunnlagOgSignaturData.enhet,
