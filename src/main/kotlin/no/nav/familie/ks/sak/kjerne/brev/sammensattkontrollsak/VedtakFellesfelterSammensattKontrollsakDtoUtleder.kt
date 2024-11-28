@@ -1,26 +1,27 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak
 
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
+import no.nav.familie.ks.sak.kjerne.brev.OpprettGrunnlagOgSignaturDataService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class OpprettVedtakFellesfelterSammensattKontrollsakDtoService(
+@Component
+class VedtakFellesfelterSammensattKontrollsakDtoUtleder(
     private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
     private val korrigertVedtakService: KorrigertVedtakService,
 ) {
-    private val logger = LoggerFactory.getLogger(OpprettVedtakFellesfelterSammensattKontrollsakDtoService::class.java)
+    private val logger = LoggerFactory.getLogger(VedtakFellesfelterSammensattKontrollsakDtoUtleder::class.java)
 
-    fun opprett(
+    fun utled(
         vedtak: Vedtak,
         sammensattKontrollsak: SammensattKontrollsak,
     ): VedtakFellesfelterSammensattKontrollsakDto {
-        logger.debug("Oppretter ${VedtakFellesfelterSammensattKontrollsakDto::class.simpleName} for vedtak ${vedtak.id}")
+        logger.debug("Utleder ${VedtakFellesfelterSammensattKontrollsakDto::class.simpleName} for vedtak ${vedtak.id}")
         val grunnlagOgSignaturData = opprettGrunnlagOgSignaturDataService.opprett(vedtak)
         return VedtakFellesfelterSammensattKontrollsakDto(
             enhet = grunnlagOgSignaturData.enhet,

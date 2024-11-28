@@ -47,4 +47,13 @@ data class Vilkårsvurdering(
             .single { it.erSøkersResultater() }
             .andreVurderinger
             .singleOrNull { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
+
+    fun erOpplysningspliktVilkårOppfylt(): Boolean {
+        val opplysningspliktVilkår =
+            personResultater
+                .single { it.erSøkersResultater() }
+                .andreVurderinger
+                .singleOrNull { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
+        return opplysningspliktVilkår?.resultat == Resultat.OPPFYLT
+    }
 }
