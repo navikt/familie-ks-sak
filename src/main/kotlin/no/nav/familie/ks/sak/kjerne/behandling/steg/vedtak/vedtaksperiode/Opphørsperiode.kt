@@ -190,18 +190,19 @@ private fun Opphørsperiode.settOvergangsordningOpphørBegrunnelser(
 ) {
     val behandlingKategori = vedtaksperiodeMedBegrunnelser.vedtak.behandling.kategori
 
-    if (behandlingKategori == BehandlingKategori.NASJONAL) {
-        vedtaksperiodeMedBegrunnelser.settBegrunnelser(
-            listOf(
-                NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
-            ),
-        )
-    } else {
-        vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
-            listOf(
-                EØSBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR_EØS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
-            ),
-        )
+    when (behandlingKategori) {
+        BehandlingKategori.NASJONAL ->
+            vedtaksperiodeMedBegrunnelser.settBegrunnelser(
+                listOf(
+                    NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
+                ),
+            )
+        BehandlingKategori.EØS ->
+            vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
+                listOf(
+                    EØSBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR_EØS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
+                ),
+            )
     }
 }
 
