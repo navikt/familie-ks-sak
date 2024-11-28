@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 class SanityBegrunnelseTest {
     @Test
     fun `erOvergangsordningBegrunnelse skal returnere true hvis begrunnelse er en overgangsordning begrunnelse`() {
-
         // Arrange
         val sanityBegrunnelse = lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn)
 
@@ -18,12 +17,10 @@ class SanityBegrunnelseTest {
 
     @Test
     fun `erOvergangsordningBegrunnelse skal returnere false hvis begrunnelse ikke er en overgangsordning begrunnelse`() {
-
         // Arrange
         val sanityBegrunnelse = lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn)
 
         // Assert
         assertThat(sanityBegrunnelse.erOvergangsordningBegrunnelse()).isFalse()
     }
-
 }
