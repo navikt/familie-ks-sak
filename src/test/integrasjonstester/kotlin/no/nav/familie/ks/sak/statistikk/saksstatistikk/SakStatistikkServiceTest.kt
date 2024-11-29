@@ -99,7 +99,6 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         }
     }
 
-
     @Test
     fun `hentBehandlingensTilstand skal utlede behandlingtilstand på behandling som utredes`() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)

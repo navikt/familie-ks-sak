@@ -50,7 +50,7 @@ class SakStatistikkService(
     }
 
     fun sendMeldingOmManuellEndringAvBehandlendeEnhet(
-        behandlingId: Long
+        behandlingId: Long,
     ) {
         val hendelsesbeskrivelse =
             "Endrer behandlende enhet manuelt for behandling $behandlingId"
