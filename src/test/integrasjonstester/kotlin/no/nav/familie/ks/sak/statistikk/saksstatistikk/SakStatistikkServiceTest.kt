@@ -78,6 +78,29 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
+    fun `Ved manuell endring av behandlende enhet skal vi sende melding til dvh`() {
+        every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
+        every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
+        stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
+        taskService.findAll().filter { it.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE }.first().let {
+            val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto =
+                no.nav.familie.kontrakter.felles.objectMapper
+                    .readValue(it.payload)
+            val tekniskTid =
+                ZonedDateTime.of(
+                    LocalDateTime.now(),
+                    SakStatistikkService.TIMEZONE,
+                )
+            val funksjonellTid = behandlingStatistikkV1Dto.funksjoneltTidspunkt
+            assertEquals(true, tekniskTid.isAfter(funksjonellTid))
+        }
+    }
+
+
+    @Test
     fun `hentBehandlingensTilstand skal utlede behandlingtilstand på behandling som utredes`() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs

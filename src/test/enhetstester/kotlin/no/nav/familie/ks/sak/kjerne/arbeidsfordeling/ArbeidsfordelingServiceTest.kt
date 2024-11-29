@@ -57,7 +57,7 @@ internal class ArbeidsfordelingServiceTest {
             loggService = loggService,
             personidentService = personidentService,
             tilpassArbeidsfordelingService = tilpassArbeidsfordelingService,
-            unleashService = unleashService,
+            unleashService = unleashService
         )
 
     @Test
