@@ -120,6 +120,7 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         begrunnelse = this.begrunnelse,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty(),
+        begrunnelser = this.begrunnelser,
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
@@ -135,7 +136,7 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
     this.person = person
     this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
-    this.begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+    this.begrunnelser = endretUtbetalingAndelRequestDto.begrunnelser ?: listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
 
     return this
 }
