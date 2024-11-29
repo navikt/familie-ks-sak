@@ -23,9 +23,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.hjemler.HjemmeltekstUtleder
+import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrollsakBrevDtoUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
+import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -39,6 +42,7 @@ class GenererBrevServiceTest {
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     val saksbehandlerContext: SaksbehandlerContext = mockk()
     val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    val unleashService = mockk<UnleashService>()
 
     val genererBrevService =
         GenererBrevService(
@@ -57,9 +61,11 @@ class GenererBrevServiceTest {
             opprettGrunnlagOgSignaturDataService = mockk<OpprettGrunnlagOgSignaturDataService>(),
             etterbetalingService = mockk<EtterbetalingService>(),
             søkersMeldepliktService = mockk<SøkersMeldepliktService>(),
-            opprettSammensattKontrollsakBrevDtoService = mockk<OpprettSammensattKontrollsakBrevDtoService>(),
+            sammensattKontrollsakBrevDtoUtleder = mockk<SammensattKontrollsakBrevDtoUtleder>(),
             brevmalService = mockk<BrevmalService>(),
             andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>(),
+            hjemmeltekstUtleder = mockk<HjemmeltekstUtleder>(),
+            unleashService = unleashService,
         )
 
     private val søker = randomAktør()

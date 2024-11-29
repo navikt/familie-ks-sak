@@ -19,6 +19,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetOvergangsordningGradertUtbetaling"
     },
+    INNVILGET_OVERGANGSORDNING_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetOvergangsordningDeltBosted"
+    },
     INNVILGET_DELTID_BARNEHAGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetDeltidBarnehage"
