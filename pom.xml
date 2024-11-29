@@ -39,9 +39,9 @@
 
         <!-- Nav Familie-->
         <prosessering.version>2.20241118095311_c66bd61</prosessering.version>
-        <felles-kontrakter.version>3.0_20241113143804_80bdd40</felles-kontrakter.version>
+        <felles-kontrakter.version>3.0_20241127135607_0f52105</felles-kontrakter.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20240806120744_a042aa1</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.stønadsstatistikk>2.0_20241129145006_f1078b7</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20241021103522_3adb9fa</utbetalingsgenerator.version>
 
