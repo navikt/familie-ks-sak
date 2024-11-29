@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -45,6 +46,8 @@ internal class ArbeidsfordelingServiceTest {
 
     private val unleashService: UnleashService = mockk()
 
+    private val sakStatistikkService: SakStatistikkService = mockk()
+
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
 
     private val arbeidsfordelingService: ArbeidsfordelingService =
@@ -58,6 +61,7 @@ internal class ArbeidsfordelingServiceTest {
             personidentService = personidentService,
             tilpassArbeidsfordelingService = tilpassArbeidsfordelingService,
             unleashService = unleashService,
+            sakStatistikkService = sakStatistikkService,
         )
 
     @Test
