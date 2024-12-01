@@ -5,6 +5,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.erOvergangsordningBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 
 const val HJEMMEL_60_EØS_FORORDNINGEN_987 = "60"
@@ -35,7 +37,14 @@ fun hentHjemmeltekst(
             hjemlerEØSForordningen987 = hentHjemlerForEøsForordningen987(sanitybegrunnelserBruktIBrev, refusjonEøsHjemmelSkalMedIBrev),
         )
 
-    return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
+    val alleHjemlerOgTekstForBegrunnelser =
+        if (sanitybegrunnelserBruktIBrev.any { it.erOvergangsordningBegrunnelse() }) {
+            alleHjemlerForBegrunnelser + "forskrift om overgangsregler"
+        } else {
+            alleHjemlerForBegrunnelser
+        }
+
+    return slåSammenHjemlerAvUlikeTyper(alleHjemlerOgTekstForBegrunnelser)
 }
 
 private fun hentHjemlerForEøsForordningen987(
@@ -179,3 +188,10 @@ fun String.tilLandNavn(landkoderISO2: Map<String, String>): Landkode {
 
     return Landkode(kode.key, kode.value.storForbokstav())
 }
+
+fun List<SanityBegrunnelse>.inneholderOvergangsordningBegrunnelser() =
+    this.any {
+        it.apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn ||
+            it.apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED.sanityApiNavn ||
+            it.apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING.sanityApiNavn
+    }

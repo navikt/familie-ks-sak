@@ -104,7 +104,7 @@ class BegrunnelserForPeriodeContext(
         // filtrer på tema
 
         val personerSomMatcherBegrunnelseIPeriode =
-            hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse) +
+            hentPersonerMedVilkårResultaterEllerOvergangsordningAndelerSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse) +
                 hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
 
         return when {
@@ -197,7 +197,7 @@ class BegrunnelserForPeriodeContext(
                 begrunnelseHarSammeÅrsakSomEndringsperiode
         }
 
-    fun hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
+    fun hentPersonerMedVilkårResultaterEllerOvergangsordningAndelerSomPasserMedBegrunnelseOgPeriode(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ): Set<Person> {
@@ -213,6 +213,11 @@ class BegrunnelserForPeriodeContext(
         val personerMedOvergangsordningAndel =
             overgangsordningAndeler
                 .filter { it.periode.overlapperHeltEllerDelvisMed(MånedPeriode(vedtaksperiode.fom.toYearMonth(), vedtaksperiode.tom.toYearMonth())) }
+                .mapNotNull { it.person }
+
+        val personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode =
+            overgangsordningAndeler
+                .filter { it.periode.tom.plusMonths(1) == vedtaksperiode.fom.toYearMonth() }
                 .mapNotNull { it.person }
 
         val filtrerPersonerUtenUtbetalingVedInnvilget =
@@ -248,7 +253,7 @@ class BegrunnelserForPeriodeContext(
         val personerMedVilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =
             filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType
 
-        return (personerMedVilkårResultaterSomPasserVedtaksperioden.keys + personerMedOvergangsordningAndel).toSet()
+        return (personerMedVilkårResultaterSomPasserVedtaksperioden.keys + personerMedOvergangsordningAndel + personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode).toSet()
     }
 
     fun hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse: SanityBegrunnelse): Set<Person> =
