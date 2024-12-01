@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.unleash.UnleashService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -33,6 +34,7 @@ class ArbeidsfordelingService(
     private val personidentService: PersonidentService,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val unleashService: UnleashService,
+    private val sakStatistikkService: SakStatistikkService,
 ) {
     fun hentAlleBehandlingerPåEnhet(enhetId: String) =
         arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
@@ -206,6 +208,10 @@ class ArbeidsfordelingService(
                 behandling,
                 oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId,
             )
+
+            if (manuellOppdatering) {
+                sakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandling.id)
+            }
         }
     }
 
