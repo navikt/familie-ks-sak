@@ -49,6 +49,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapServ
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -83,6 +84,7 @@ class BehandlingService(
     private val brevmottakerService: BrevmottakerService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val oppgaveService: OppgaveService,
+    private val sakStatistikkService: SakStatistikkService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -287,6 +289,7 @@ class BehandlingService(
 
         return oppdaterBehandling(behandling).also {
             oppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(it)
+            sakStatistikkService.sendMeldingOmEndringAvBehandlingkategori(behandlingId, overstyrtKategori)
         }
     }
 
