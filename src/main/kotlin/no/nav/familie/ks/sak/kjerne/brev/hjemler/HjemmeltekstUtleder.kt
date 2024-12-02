@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.hjemler
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.erOvergangsordningBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -19,7 +20,7 @@ class HjemmeltekstUtleder(
 ) {
     fun utledHjemmeltekst(
         behandlingId: Long,
-        vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
+        vedtakKorrigertHjemmelSkalMedIBrev: Boolean,
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
     ): String {
         val vilkårsvurdering =
@@ -33,15 +34,22 @@ class HjemmeltekstUtleder(
 
         val alleHjemlerForBegrunnelser =
             kombinerHjemler(
-                ordinæreHjemler = utledOrdinæreHjemler(sanityBegrunnelser = sanityBegrunnelser, opplysningspliktHjemlerSkalMedIBrev = !vilkårsvurdering.erOpplysningspliktVilkårOppfylt()),
                 målform = personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandlingId),
-                forvaltningslovenHjemler = utledForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev),
                 separasjonsavtaleStorbritanniaHjemler = utledSeprasjonsavtaleStorbritanniaHjemler(sanityBegrunnelser = sanityBegrunnelser),
+                ordinæreHjemler = utledOrdinæreHjemler(sanityBegrunnelser = sanityBegrunnelser, opplysningspliktHjemlerSkalMedIBrev = !vilkårsvurdering.erOpplysningspliktVilkårOppfylt()),
                 eøsForordningen883Hjemler = utledEØSForordningen883Hjemler(sanityBegrunnelser = sanityBegrunnelser),
                 eøsForordningen987Hjemler = utledEØSForordningen987Hjemler(sanityBegrunnelser = sanityBegrunnelser, refusjonEøsHjemmelSkalMedIBrev = refusjonEøsService.harRefusjonEøsPåBehandling(behandlingId)),
+                forvaltningslovenHjemler = utledForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev),
             )
 
-        return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
+        val hjemlerOgOvergangsordning =
+            if (sanityBegrunnelser.any { it.erOvergangsordningBegrunnelse() }) {
+                alleHjemlerForBegrunnelser + "forskrift om overgangsregler"
+            } else {
+                alleHjemlerForBegrunnelser
+            }
+
+        return slåSammenHjemlerAvUlikeTyper(hjemlerOgOvergangsordning)
     }
 
     private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
