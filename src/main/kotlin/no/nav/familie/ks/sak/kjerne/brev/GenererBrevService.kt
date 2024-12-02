@@ -329,6 +329,7 @@ class GenererBrevService(
         )
     }
 
+    @Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
     private fun hentHjemler(
         behandlingId: Long,
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
