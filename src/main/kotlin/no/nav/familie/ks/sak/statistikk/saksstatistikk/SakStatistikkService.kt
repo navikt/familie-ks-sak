@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
@@ -44,6 +45,16 @@ class SakStatistikkService(
             "Ny behandlingsstegstilstand " +
                 "${behandlingStegTilstand?.behandlingSteg}:${behandlingStegTilstand?.behandlingStegStatus} " +
                 "for behandling $behandlingId"
+
+        val tilstand = hentBehandlingensTilstandV2(behandlingId, false)
+        opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhV2Task.TASK_TYPE)
+    }
+
+    fun sendMeldingOmEndringAvBehandlingkategori(
+        behandlingId: Long,
+        nyBehandlingKategori: BehandlingKategori,
+    ) {
+        val hendelsesbeskrivelse = "Endrer behandlingskategori til $nyBehandlingKategori for behandling $behandlingId"
 
         val tilstand = hentBehandlingensTilstandV2(behandlingId, false)
         opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhV2Task.TASK_TYPE)
