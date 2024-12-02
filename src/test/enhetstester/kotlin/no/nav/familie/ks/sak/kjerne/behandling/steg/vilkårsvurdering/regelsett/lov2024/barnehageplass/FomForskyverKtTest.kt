@@ -22,7 +22,14 @@ class FomForskyverKtTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = Graderingsforskjell::class, names = ["REDUKSJON"], mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(
+        value = Graderingsforskjell::class,
+        names = [
+            "REDUKSJON",
+            "ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT",
+        ],
+        mode = EnumSource.Mode.EXCLUDE,
+    )
     fun `skal forskyve fom til første dag i inneværende måned om fom ikke er null`(
         graderingsforskjell: Graderingsforskjell,
     ) {
@@ -41,7 +48,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato til første dag neste månede når fom dato er første dag i måneden `() {
+    fun `skal forskyve fom dato til første dag neste månede når fom dato er første dag i måneden ved reduksjon`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 10, 1)
 
@@ -57,7 +64,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato til første dag neste månede når fom dato er siste dag i måneden `() {
+    fun `skal forskyve fom dato til første dag neste månede når fom dato er siste dag i måneden ved reduksjon`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 10, 31)
 
@@ -71,4 +78,38 @@ class FomForskyverKtTest {
         // Assert
         assertThat(forskjøvetDato).isEqualTo(LocalDate.of(2024, 11, 1))
     }
+
+
+    @Test
+    fun `skal forskyve fom dato til første dag samme månede når fom dato er første dag i måneden ved økning fra full barnehageplass samme måned som andre vilkår først blir oppfylt`() {
+        // Arrange
+        val fomDato = LocalDate.of(2024, 10, 1)
+
+        // Act
+        val forskjøvetDato =
+            forskyvFomBasertPåGraderingsforskjell2024(
+                fomDato,
+                Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+            )
+
+        // Assert
+        assertThat(forskjøvetDato).isEqualTo(LocalDate.of(2024, 10, 1))
+    }
+
+    @Test
+    fun `skal forskyve fom dato til første dag neste månede når fom dato er siste dag i måneden ved økning fra full barnehageplass samme måned som andre vilkår først blir oppfylt`() {
+        // Arrange
+        val fomDato = LocalDate.of(2024, 10, 31)
+
+        // Act
+        val forskjøvetDato =
+            forskyvFomBasertPåGraderingsforskjell2024(
+                fomDato,
+                Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+            )
+
+        // Assert
+        assertThat(forskjøvetDato).isEqualTo(LocalDate.of(2024, 11, 1))
+    }
+
 }

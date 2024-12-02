@@ -44,6 +44,74 @@ class GraderingsforskjellKtTest {
     }
 
     @Test
+    fun `skal utlede ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT når det er en økning fra full barnehageplass i graderingen til vilkårsresultatet fra forrige og denne perioden og alle andre vilkår er oppfylt samme måned`() {
+        // Arrange
+        val vilkårResultatForrigePeriode =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = null,
+                periodeTom = LocalDate.of(2024, 1, 15),
+                antallTimer = BigDecimal(40),
+            )
+        val vilkårResultatDennePeriode =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = LocalDate.of(2024, 1, 16),
+                periodeTom = null,
+                antallTimer = BigDecimal(20),
+            )
+
+        val tidligsteÅrMånedAlleAndreVilkårErOppfylt = YearMonth.of(2024, 1)
+
+        // Act
+        val graderingsforskjell =
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                vilkårResultatForrigePeriode,
+                vilkårResultatDennePeriode,
+                tidligsteÅrMånedAlleAndreVilkårErOppfylt,
+            )
+
+        // Assert
+        assertThat(graderingsforskjell).isEqualTo(
+            Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+        )
+    }
+
+    @Test
+    fun `skal utlede ØKNING når det er en økning fra full barnehageplass i graderingen til vilkårsresultatet fra forrige og denne perioden men alle andre vilkår er ikke oppfylt samme måned`() {
+        // Arrange
+        val vilkårResultatForrigePeriode =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = null,
+                periodeTom = LocalDate.of(2024, 1, 15),
+                antallTimer = BigDecimal(40),
+            )
+        val vilkårResultatDennePeriode =
+            lagVilkårResultat(
+                vilkårType = Vilkår.BARNEHAGEPLASS,
+                periodeFom = LocalDate.of(2024, 1, 16),
+                periodeTom = null,
+                antallTimer = BigDecimal(20),
+            )
+
+        val tidligsteÅrMånedAlleAndreVilkårErOppfylt = YearMonth.of(2024, 2)
+
+        // Act
+        val graderingsforskjell =
+            finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                vilkårResultatForrigePeriode,
+                vilkårResultatDennePeriode,
+                tidligsteÅrMånedAlleAndreVilkårErOppfylt,
+            )
+
+        // Assert
+        assertThat(graderingsforskjell).isEqualTo(
+            Graderingsforskjell.ØKNING,
+        )
+    }
+
+    @Test
     fun `skal utlede REDUKSJON når det er en reduksjon i gradering mellom vilkårsresultatet fra forrige og denne perioden`() {
         // Arrange
         val vilkårResultatForrigePeriode =

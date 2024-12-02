@@ -175,7 +175,7 @@ class TomForskyverKtTest {
     @Nested
     inner class GraderingsforskjellØkningTest {
         @Test
-        fun `skal forskyve tom til siste dag i samme måned`() {
+        fun `skal forskyve tom til siste dag i samme måned når tom er første dag i måneden`() {
             // Arrange
             val tomDato = LocalDate.of(2024, 10, 1)
 
@@ -184,6 +184,57 @@ class TomForskyverKtTest {
                 forskyvTomBasertPåGraderingsforskjell2024(
                     tomDato,
                     Graderingsforskjell.ØKNING,
+                )
+
+            // Assert
+            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 10, 31))
+        }
+
+        @Test
+        fun `skal forskyve tom til siste dag i samme måned når tom er siste dag i måneden`() {
+            // Arrange
+            val tomDato = LocalDate.of(2024, 10, 31)
+
+            // Act
+            val forskjøvetTom =
+                forskyvTomBasertPåGraderingsforskjell2024(
+                    tomDato,
+                    Graderingsforskjell.ØKNING,
+                )
+
+            // Assert
+            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 10, 31))
+        }
+    }
+
+    @Nested
+    inner class ØkningFraFullBarnehageplassSammeMånedSomAndreVilkårFørstBlirOppfyltTest {
+        @Test
+        fun `skal forskyve tom til siste dag i samme måned når tom dato er siste dag i måneden`() {
+            // Arrange
+            val tomDato = LocalDate.of(2024, 10, 31)
+
+            // Act
+            val forskjøvetTom =
+                forskyvTomBasertPåGraderingsforskjell2024(
+                    tomDato,
+                    Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+                )
+
+            // Assert
+            assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 10, 31))
+        }
+
+        @Test
+        fun `skal forskyve tom til siste dag i samme måned når tom dato er første dag i måneden`() {
+            // Arrange
+            val tomDato = LocalDate.of(2024, 10, 1)
+
+            // Act
+            val forskjøvetTom =
+                forskyvTomBasertPåGraderingsforskjell2024(
+                    tomDato,
+                    Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
                 )
 
             // Assert
