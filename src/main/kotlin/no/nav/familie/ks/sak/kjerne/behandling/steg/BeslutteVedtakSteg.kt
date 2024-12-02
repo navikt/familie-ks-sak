@@ -65,7 +65,7 @@ class BeslutteVedtakSteg(
 
         if (behandling.erOvergangsordning() && !unleashService.isEnabled(GODKJENNE_OVERGANGSORDNING)) {
             throw FunksjonellFeil(
-                "Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke totrinnskontrolleres ennå.",
+                "Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå.",
             )
         }
 
