@@ -79,7 +79,6 @@ class FomForskyverKtTest {
         assertThat(forskjøvetDato).isEqualTo(LocalDate.of(2024, 11, 1))
     }
 
-
     @Test
     fun `skal forskyve fom dato til første dag samme månede når fom dato er første dag i måneden ved økning fra full barnehageplass samme måned som andre vilkår først blir oppfylt`() {
         // Arrange
@@ -111,5 +110,4 @@ class FomForskyverKtTest {
         // Assert
         assertThat(forskjøvetDato).isEqualTo(LocalDate.of(2024, 11, 1))
     }
-
 }
