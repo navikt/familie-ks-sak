@@ -805,7 +805,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                 ).utbetalingsoppdrag
 
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(1))
+        assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
 
         val forventetUtbetalingsbeløp =
             tilkjentYtelsenyBehandling.andelerTilkjentYtelse.let { andeler ->
@@ -815,18 +815,19 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         assertThat(
             "Sats på utbetalingsperiode var feil: ${utbetalingsoppdrag.utbetalingsperiode.map { it.sats }}",
-            utbetalingsoppdrag.utbetalingsperiode[0].sats.toInt(),
-            Is(forventetUtbetalingsbeløp),
+            utbetalingsoppdrag.utbetalingsperiode.any {
+                it.sats.toInt() == forventetUtbetalingsbeløp
+            },
+            Is(true),
         )
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == aktør.aktivFødselsnummer() },
             Is(true),
         )
 
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoFom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().førsteDagIInneværendeMåned()))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].vedtakdatoTom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().sisteDagIMåned()))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].periodeId, Is(1))
-        assertThat(utbetalingsoppdrag.utbetalingsperiode[0].forrigePeriodeId, Is(0))
+        val utbetalingOvergangsordning = utbetalingsoppdrag.utbetalingsperiode.first { it.sats.toInt() == forventetUtbetalingsbeløp }
+        assertThat(utbetalingOvergangsordning.vedtakdatoFom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().førsteDagIInneværendeMåned()))
+        assertThat(utbetalingOvergangsordning.vedtakdatoTom, Is(OVERGANGSORDNING_UTBETALINGSMÅNED.toLocalDate().sisteDagIMåned()))
     }
 
     private fun TilkjentYtelse.tilAndelerMedOppdatertOffset(

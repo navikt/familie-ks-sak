@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 const val FAGSYSTEM = "KS"
-val OVERGANGSORDNING_UTBETALINGSMÅNED = YearMonth.of(2024, 10) // TODO: skal være 24/12
+val OVERGANGSORDNING_UTBETALINGSMÅNED = YearMonth.of(2024, 12)
 
 @Component
 class UtbetalingsoppdragGenerator {
