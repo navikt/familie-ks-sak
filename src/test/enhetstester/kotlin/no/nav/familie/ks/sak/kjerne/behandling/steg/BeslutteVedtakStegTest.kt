@@ -78,6 +78,19 @@ class BeslutteVedtakStegTest {
     }
 
     @Test
+    fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024 og feature toggle GODKJENNE_OVERGANGSORDNING er av`() {
+        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
+        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
+
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, mockk()) }
+
+        assertThat(
+            funksjonellFeil.message,
+            Is("Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå."),
+        )
+    }
+
+    @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen er satt til IVERKSETTER_VEDTAK `() {
         every { behandlingService.hentBehandling(200) } returns
             lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).apply {

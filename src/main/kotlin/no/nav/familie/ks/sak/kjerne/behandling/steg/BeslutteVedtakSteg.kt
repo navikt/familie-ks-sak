@@ -40,7 +40,6 @@ class BeslutteVedtakSteg(
     private val unleashService: UnleashNextMedContextService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val brevmottakerService: BrevmottakerService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
