@@ -724,6 +724,7 @@ class HjemmeltekstUtlederTest {
             assertThrows<FunksjonellFeil> {
                 hjemmeltekstUtleder.utledHjemmeltekst(
                     behandlingId = behandling.id,
+                    vedtakKorrigertHjemmelSkalMedIBrev = false,
                     utvidetVedtaksperioderMedBegrunnelser = emptyList(),
                 )
             }
@@ -731,5 +732,60 @@ class HjemmeltekstUtlederTest {
             "Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. " +
                 "Du må velge minst én begrunnelse som er knyttet til en hjemmel.",
         )
+    }
+
+    @Test
+    fun `skal utlede hjemler med overgangsordning`() {
+        // Arrange
+        val søker = randomAktør()
+
+        val behandling = lagBehandling()
+
+        val vedtaksperioderMedBegrunnelser =
+            listOf(
+                lagUtvidetVedtaksperiodeMedBegrunnelser(
+                    begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING).map { lagVedtaksbegrunnelse(it) },
+                ),
+                lagUtvidetVedtaksperiodeMedBegrunnelser(
+                    begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_SATSENDRING).map { lagVedtaksbegrunnelse(it) },
+                ),
+            )
+
+        every { refusjonEøsService.harRefusjonEøsPåBehandling(behandlingId = behandling.id) } returns false
+        every { personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandling.id) } returns Målform.NB
+
+        every {
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id)
+        } returns
+            lagVilkårsvurdering(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+            )
+
+        every {
+            sanityService.hentSanityBegrunnelser()
+        } returns
+            listOf(
+                lagSanityBegrunnelse(
+                    apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn,
+                    hjemler = emptyList(),
+                ),
+                lagSanityBegrunnelse(
+                    apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_SATSENDRING.sanityApiNavn,
+                    hjemler = listOf("10"),
+                ),
+            )
+
+        // Act
+        val hentHjemmeltekst =
+            hjemmeltekstUtleder.utledHjemmeltekst(
+                behandlingId = behandling.id,
+                vedtakKorrigertHjemmelSkalMedIBrev = false,
+                utvidetVedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser,
+            )
+
+        // Assert
+        assertThat("kontantstøtteloven § 10 og forskrift om overgangsregler").isEqualTo(hentHjemmeltekst)
     }
 }
