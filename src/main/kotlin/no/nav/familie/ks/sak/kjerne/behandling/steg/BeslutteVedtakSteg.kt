@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
@@ -62,15 +63,18 @@ class BeslutteVedtakSteg(
             )
         }
 
-        if (behandling.erOvergangsordning() && !unleashService.isEnabled(GODKJENNE_OVERGANGSORDNING)) {
+        val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
+        if (
+            behandling.erOvergangsordning() &&
+            !unleashService.isEnabled(GODKJENNE_OVERGANGSORDNING) &&
+            besluttVedtakDto.beslutning == Beslutning.GODKJENT
+        ) {
             throw FunksjonellFeil(
                 "Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå.",
             )
         }
 
         validerAtBehandlingKanBesluttes(behandling)
-
-        val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
 
         validerBrevmottakere(BehandlingId(behandling.id), besluttVedtakDto.beslutning.erGodkjent())
 
