@@ -65,9 +65,10 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
             .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
     val forskjøvedeVilkårResultater =
-        vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+        vilkårResultaterForAktørMap.map {
+            forskyvVilkårResultater(it.key, vilkårResultaterForAktør.toList()).tilTidslinje()
         }
+
     return forskjøvedeVilkårResultater
 }
 
@@ -84,11 +85,11 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
 
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, alleVilkårResultater).tilTidslinje()
 
-    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, alleVilkårResultater).tilTidslinje()
 
     val klippetTidslinje2021 =
         forskjøvetVilkårResultaterTidslinje2021.klipp(
@@ -110,12 +111,17 @@ fun forskyvVilkårResultater(
 private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
-private fun alleVilkårOppfyltEllerNull(
+fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
     personType: PersonType,
+    vilkårSomIkkeSkalSjekkesPå: List<Vilkår> = emptyList(),
 ): List<VilkårResultat>? {
     val skalHenteEøsSpesifikkeVilkår = vilkårResultater.any { it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET }
-    val vilkårForPerson = Vilkår.hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
+    val vilkårForPerson =
+        Vilkår
+            .hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
+            .filter { it !in vilkårSomIkkeSkalSjekkesPå }
+            .toSet()
 
     return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()

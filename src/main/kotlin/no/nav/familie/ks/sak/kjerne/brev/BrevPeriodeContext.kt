@@ -251,7 +251,8 @@ class BrevPeriodeContext(
             barnasFødselsdatoer.isEmpty() &&
             !sanityBegrunnelse.triggere.contains(Trigger.SATSENDRING) &&
             nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN &&
-            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE
+            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE &&
+            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
         ) {
             throw IllegalStateException("Ingen personer på brevbegrunnelse $nasjonalEllerFellesBegrunnelse")
         }
@@ -362,7 +363,7 @@ class BrevPeriodeContext(
         }
 
         else ->
-            begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterEllerOvergangsordningAndelerSomPasserMedBegrunnelseOgPeriode(
+            begrunnelserForPeriodeContext.hentPersonerSomPasserMedBegrunnelseOgPeriode(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
@@ -659,12 +660,13 @@ class BrevPeriodeContext(
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> =
         personResultater.associate { personResultat ->
-            val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
-
-            personResultat.aktør to
-                vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
-                    forskyvVilkårResultater(vilkår, vilkårResultater).tilTidslinje()
-                }
+            val vilkårTilTidslinje =
+                personResultat.vilkårResultater
+                    .groupBy { it.vilkårType }
+                    .mapValues { (vilkår) ->
+                        forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
+                    }
+            personResultat.aktør to vilkårTilTidslinje
         }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {

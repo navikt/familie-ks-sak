@@ -30,24 +30,22 @@ class EndretUtbetalingAndelController(
     private val behandlingService: BehandlingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
-    @PutMapping(path = ["/{behandlingId}/{endretUtbetalingAndelId}"])
+    @PutMapping(path = ["/{behandlingId}"])
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         @PathVariable behandlingId: Long,
-        @PathVariable endretUtbetalingAndelId: Long,
         @RequestBody endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.UPDATE,
-            handling = "Oppdater endretutbetalingandel",
+            handling = "oppdatere endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
             behandling,
-            endretUtbetalingAndelId,
             endretUtbetalingAndelRequestDto,
         )
 
@@ -66,7 +64,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.DELETE,
-            handling = "Fjern endretutbetalingandel",
+            handling = "fjerne endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -90,7 +88,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.CREATE,
-            handling = "Lagre endretutbetalingandel",
+            handling = "lagre endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)

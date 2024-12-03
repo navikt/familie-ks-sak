@@ -83,7 +83,26 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
-            else -> throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+            Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 -> {
+                validerFulltidsplassIBarnehageAugust2024(
+                    endretUtbetalingAndel,
+                )
+            }
+
+            Årsak.ENDRE_MOTTAKER,
+            Årsak.ALLEREDE_UTBETALT,
+            ->
+                throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+        }
+    }
+
+    private fun validerFulltidsplassIBarnehageAugust2024(
+        endretUtbetalingAndel: EndretUtbetalingAndel,
+    ) {
+        val august2024 = YearMonth.of(2024, 8)
+        if (endretUtbetalingAndel.fom != august2024 || endretUtbetalingAndel.tom != august2024) {
+            val årsak = endretUtbetalingAndel.årsak ?: throw IllegalStateException("Årsak må være satt")
+            throw FunksjonellFeil("Årsak \"${årsak.visningsnavn}\" er bare mulig å sette til august 2024")
         }
     }
 

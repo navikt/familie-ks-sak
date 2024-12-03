@@ -140,6 +140,8 @@ abstract class OppslagSpringRunnerTest {
 
     lateinit var tilkjentYtelse: TilkjentYtelse
 
+    lateinit var søkerPerson: Person
+
     @LocalServerPort
     var port: Int = 0
 
@@ -193,22 +195,23 @@ abstract class OppslagSpringRunnerTest {
     ) {
         personopplysningGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandlingId))
 
-        lagrePerson(
-            Person(
-                aktør = søker,
-                type = PersonType.SØKER,
-                personopplysningGrunnlag = personopplysningGrunnlag,
-                fødselsdato = LocalDate.of(2019, 1, 1),
-                navn = "",
-                kjønn = Kjønn.KVINNE,
-            ).also { søker ->
-                søker.statsborgerskap =
-                    mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
-                søker.bostedsadresser = mutableListOf()
-                søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
-                personopplysningGrunnlag.personer.add(søker)
-            },
-        )
+        søkerPerson =
+            lagrePerson(
+                Person(
+                    aktør = søker,
+                    type = PersonType.SØKER,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    fødselsdato = LocalDate.of(2019, 1, 1),
+                    navn = "",
+                    kjønn = Kjønn.KVINNE,
+                ).also { søker ->
+                    søker.statsborgerskap =
+                        mutableListOf(GrStatsborgerskap(landkode = "NOR", medlemskap = Medlemskap.NORDEN, person = søker))
+                    søker.bostedsadresser = mutableListOf()
+                    søker.sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.GIFT, person = søker))
+                    personopplysningGrunnlag.personer.add(søker)
+                },
+            )
 
         if (lagBarn) {
             lagrePerson(

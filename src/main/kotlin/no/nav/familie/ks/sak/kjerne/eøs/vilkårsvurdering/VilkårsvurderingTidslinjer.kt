@@ -24,7 +24,7 @@ class VilkårsvurderingTidslinjer(
             aktør to
                 personResultat.vilkårResultater
                     .groupBy { it.vilkårType }
-                    .map { tilVilkårRegelverkResultatTidslinje(it.key, it.value) }
+                    .map { tilVilkårRegelverkResultatTidslinje(it.key, personResultat.vilkårResultater.toList()) }
         }
 
     private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)
