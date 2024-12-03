@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak
 
 import io.mockk.every
 import io.mockk.mockk
@@ -10,12 +10,12 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class OpprettOpphørtSammensattKontrollsakDtoServiceTest {
-    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService = mockk()
+class OpphørtSammensattKontrollsakDtoUtlederTest {
+    private val mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder: VedtakFellesfelterSammensattKontrollsakDtoUtleder = mockk()
     private val mockedSimuleringService: SimuleringService = mockk()
-    private val opprettOpphørtSammensattKontrollsakDtoService: OpprettOpphørtSammensattKontrollsakDtoService =
-        OpprettOpphørtSammensattKontrollsakDtoService(
-            opprettVedtakFellesfelterSammensattKontrollsakDtoService = mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService,
+    private val opphørtSammensattKontrollsakDtoUtleder: OpphørtSammensattKontrollsakDtoUtleder =
+        OpphørtSammensattKontrollsakDtoUtleder(
+            vedtakFellesfelterSammensattKontrollsakDtoUtleder = mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder,
             simuleringService = mockedSimuleringService,
         )
 
@@ -29,7 +29,7 @@ class OpprettOpphørtSammensattKontrollsakDtoServiceTest {
             )
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
+            mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
@@ -43,7 +43,7 @@ class OpprettOpphørtSammensattKontrollsakDtoServiceTest {
 
         // Act
         val opphørtSammensattKontrollsak =
-            opprettOpphørtSammensattKontrollsakDtoService.opprett(
+            opphørtSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )

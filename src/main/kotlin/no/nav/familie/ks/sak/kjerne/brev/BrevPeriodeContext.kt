@@ -363,7 +363,7 @@ class BrevPeriodeContext(
         }
 
         else ->
-            begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterEllerEndretUtbetalingsandelerSomPasserMedBegrunnelseOgPeriode(
+            begrunnelserForPeriodeContext.hentPersonerSomPasserMedBegrunnelseOgPeriode(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
