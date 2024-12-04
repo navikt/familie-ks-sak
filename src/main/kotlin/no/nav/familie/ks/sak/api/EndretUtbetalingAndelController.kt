@@ -30,9 +30,10 @@ class EndretUtbetalingAndelController(
     private val behandlingService: BehandlingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
-    @PutMapping(path = ["/{behandlingId}"])
+    @PutMapping(path = ["/{behandlingId}/{endretUtbetalingAndelId}"])
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         @PathVariable behandlingId: Long,
+        @PathVariable endretUtbetalingAndelId: Long,
         @RequestBody endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
