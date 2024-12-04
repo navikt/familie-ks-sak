@@ -33,10 +33,9 @@ class EndretUtbetalingAndelService(
     @Transactional
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
-        endretUtbetalingAndelId: Long,
         endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ) {
-        val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId)
+        val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelRequestDto.id)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
@@ -48,7 +47,7 @@ class EndretUtbetalingAndelService(
 
         val andreEndredeAndelerPåBehandling =
             hentEndredeUtbetalingAndeler(behandling.id)
-                .filter { it.id != endretUtbetalingAndelId }
+                .filter { it.id != endretUtbetalingAndelRequestDto.id }
 
         val gyldigTomEtterDagensDato =
             beregnGyldigTomIFremtiden(

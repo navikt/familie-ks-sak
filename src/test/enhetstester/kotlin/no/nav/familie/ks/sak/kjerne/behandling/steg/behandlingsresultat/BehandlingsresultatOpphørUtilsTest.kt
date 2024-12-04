@@ -334,7 +334,7 @@ class BehandlingsresultatOpphørUtilsTest {
     }
 
     @ParameterizedTest
-    @EnumSource(Årsak::class, names = ["ALLEREDE_UTBETALT", "ENDRE_MOTTAKER", "ETTERBETALING_3MND"])
+    @EnumSource(Årsak::class, names = ["ALLEREDE_UTBETALT", "ENDRE_MOTTAKER", "ETTERBETALING_3MND", "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024"])
     internal fun `filtrerBortIrrelevanteAndeler - skal filtrere andeler som har 0 i beløp og endret utbetaling andel med årsak ALLEREDE_UTBETALT, ENDRE_MOTTAKER eller ETTERBETALING_3ÅR`(årsak: Årsak) {
         val barn = lagPerson(aktør = randomAktør())
         val barnAktør = barn.aktør

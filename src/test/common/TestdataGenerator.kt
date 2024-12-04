@@ -24,6 +24,7 @@ import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -698,15 +699,21 @@ fun lagVilkårResultaterForDeltBosted(
 }
 
 fun lagEndretUtbetalingAndel(
-    behandlingId: Long = 0,
-    person: Person,
+    id: Long = 0L,
+    behandlingId: Long = 0L,
+    person: Person? = lagPerson(aktør = randomAktør()),
     prosent: BigDecimal? = null,
-    periodeFom: YearMonth = YearMonth.now().minusMonths(1),
-    periodeTom: YearMonth = YearMonth.now(),
-    årsak: Årsak = Årsak.DELT_BOSTED,
+    periodeFom: YearMonth? = YearMonth.now().minusMonths(1),
+    periodeTom: YearMonth? = YearMonth.now(),
+    årsak: Årsak? = Årsak.DELT_BOSTED,
     avtaletidspunktDeltBosted: LocalDate? = LocalDate.now().minusMonths(1),
+    søknadstidspunkt: LocalDate? = LocalDate.now().minusMonths(1),
+    begrunnelse: String? = "test",
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    erEksplisittAvslagPåSøknad: Boolean? = false,
 ): EndretUtbetalingAndel =
     EndretUtbetalingAndel(
+        id = id,
         behandlingId = behandlingId,
         person = person,
         prosent = prosent,
@@ -714,8 +721,10 @@ fun lagEndretUtbetalingAndel(
         tom = periodeTom,
         årsak = årsak,
         avtaletidspunktDeltBosted = avtaletidspunktDeltBosted,
-        søknadstidspunkt = LocalDate.now().minusMonths(1),
-        begrunnelse = "test",
+        søknadstidspunkt = søknadstidspunkt,
+        begrunnelse = begrunnelse,
+        begrunnelser = begrunnelser,
+        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 
 fun lagVedtaksbegrunnelse(
@@ -1453,6 +1462,30 @@ fun lagBrevmottakerDto(
     postnummer = postnummer,
     poststed = poststed,
     landkode = landkode,
+)
+
+fun lagEndretUtbetalingAndelRequestDto(
+    id: Long = 0L,
+    personIdent: String = "12345678903",
+    prosent: BigDecimal = BigDecimal(100),
+    fom: YearMonth = YearMonth.now().minusYears(1),
+    tom: YearMonth = YearMonth.now(),
+    årsak: Årsak = Årsak.ENDRE_MOTTAKER,
+    avtaletidspunktDeltBosted: LocalDate? = LocalDate.now(),
+    søknadstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
+    begrunnelse: String = "en begrunnelse",
+    erEksplisittAvslagPåSøknad: Boolean? = false,
+) = EndretUtbetalingAndelRequestDto(
+    id,
+    personIdent,
+    prosent,
+    fom,
+    tom,
+    årsak,
+    avtaletidspunktDeltBosted,
+    søknadstidspunkt,
+    begrunnelse,
+    erEksplisittAvslagPåSøknad,
 )
 
 fun lagRefusjonEøs(
