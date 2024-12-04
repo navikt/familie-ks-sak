@@ -9,10 +9,13 @@ class FeatureToggleConfig {
         const val KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER = "familie-ks-sak.kan-opprette-og-endre-sammensatte-kontrollsaker"
         const val KAN_KJORE_LOVENDRING_FLERE_GANGER = "familie-ks-sak.kan-kjore-lovendring-flere-ganger"
         const val OVERGANGSORDNING = "familie-ks-sak.overgangsordning"
+        const val GODKJENNE_OVERGANGSORDNING = "familie-ks-sak.godkjenne-overgangsordning"
 
         // Ikke operasjonelle
         const val OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER = "familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"
 
         const val BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER = "familie-ks-sak.bruk-ny-loype-for-generering-av-andeler"
+
+        const val BRUK_OMSKRIVING_AV_HJEMLER_I_BREV = "familie-ks-sak.bruk_omskriving_av_hjemler_i_brev"
     }
 }

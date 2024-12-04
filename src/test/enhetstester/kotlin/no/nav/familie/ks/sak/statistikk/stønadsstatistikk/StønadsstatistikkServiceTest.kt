@@ -272,7 +272,7 @@ internal class StønadsstatistikkServiceTest {
                     it.stønadTom in LocalDate.of(2024, 8, 1)..LocalDate.of(2025, 2, 28)
             }
 
-        assertThat(utbetalingsperioderAugTilFeb.size).isEqualTo(3)
+        assertThat(utbetalingsperioderAugTilFeb.size).isEqualTo(4)
 
         val utbetalingerForBarn1IAugTilFeb =
             utbetalingsperioderAugTilFeb.filter {

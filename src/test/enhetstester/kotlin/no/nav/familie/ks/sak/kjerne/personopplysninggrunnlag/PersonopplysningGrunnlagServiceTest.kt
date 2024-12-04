@@ -115,6 +115,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                 barnAktør = listOf(barnAktør),
                 barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
             )
+        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
         every { personopplysningGrunnlagRepository.save(any()) } returns personopplysningGrunnlag
         every { personopplysningGrunnlagRepository.saveAndFlush(any()) } returns personopplysningGrunnlag

@@ -1,42 +1,43 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
+import no.nav.familie.ks.sak.kjerne.brev.BrevmalService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class OpprettSammensattKontrollsakBrevDtoService(
+@Component
+class SammensattKontrollsakBrevDtoUtleder(
     private val brevmalService: BrevmalService,
-    private val opprettOpphørtSammensattKontrollsakDtoService: OpprettOpphørtSammensattKontrollsakDtoService,
-    private val opprettOpphørMedEndringSammensattKontrollsakDtoService: OpprettOpphørMedEndringSammensattKontrollsakDtoService,
-    private val opprettVedtakEndringSammensattKontrollsakDtoService: OpprettVedtakEndringSammensattKontrollsakDtoService,
+    private val opphørtSammensattKontrollsakDtoUtleder: OpphørtSammensattKontrollsakDtoUtleder,
+    private val opphørMedEndringSammensattKontrollsakDtoUtleder: OpphørMedEndringSammensattKontrollsakDtoUtleder,
+    private val vedtakEndringSammensattKontrollsakDtoUtleder: VedtakEndringSammensattKontrollsakDtoUtleder,
 ) {
-    private val logger = LoggerFactory.getLogger(OpprettSammensattKontrollsakBrevDtoService::class.java)
+    private val logger = LoggerFactory.getLogger(SammensattKontrollsakBrevDtoUtleder::class.java)
 
-    fun opprett(
+    fun utled(
         vedtak: Vedtak,
         sammensattKontrollsak: SammensattKontrollsak,
     ): BrevDto {
-        logger.debug("Oppretter sammensatt kontrollsak ${BrevDto::class.simpleName} for vedtak ${vedtak.id}")
+        logger.debug("Utleder sammensatt kontrollsak ${BrevDto::class.simpleName} for vedtak ${vedtak.id}")
         return when (val brevmal = brevmalService.hentVedtaksbrevmal(behandling = vedtak.behandling)) {
             Brevmal.VEDTAK_OPPHØRT ->
-                opprettOpphørtSammensattKontrollsakDtoService.opprett(
+                opphørtSammensattKontrollsakDtoUtleder.utled(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
 
             Brevmal.VEDTAK_OPPHØR_MED_ENDRING ->
-                opprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
+                opphørMedEndringSammensattKontrollsakDtoUtleder.utled(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
 
             Brevmal.VEDTAK_ENDRING ->
-                opprettVedtakEndringSammensattKontrollsakDtoService.opprett(
+                vedtakEndringSammensattKontrollsakDtoUtleder.utled(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
