@@ -59,7 +59,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
 
             // Act & assert
             When {
-                put("$controllerUrl/${behandling.id}")
+                put("$controllerUrl/${behandling.id}/401")
             } Then {
                 statusCode(HttpStatus.UNAUTHORIZED.value())
             }
@@ -102,7 +102,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 body(gyldigEndretUtbetalingAndelDto)
                 contentType(ContentType.JSON)
             } When {
-                put("$controllerUrl/${behandling.id}")
+                put("$controllerUrl/${behandling.id}/${lagretTomEndretUtbetalingAndel.id}")
             } Then {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("status", Is("IKKE_TILGANG"))
@@ -166,7 +166,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 body(gyldigEndretUtbetalingAndelDto)
                 contentType(ContentType.JSON)
             } When {
-                put("$controllerUrl/${behandling.id}")
+                put("$controllerUrl/${behandling.id}/${lagretTomEndretUtbetalingAndel.id}")
             } Then {
                 statusCode(HttpStatus.OK.value())
                 body("data.behandlingId", Is(behandling.id.toInt()))
@@ -236,7 +236,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 body(gyldigEndretUtbetalingAndelDto)
                 contentType(ContentType.JSON)
             } When {
-                put("$controllerUrl/${behandling.id}")
+                put("$controllerUrl/${behandling.id}/${lagretTomEndretUtbetalingAndel.id}")
             } Then {
                 statusCode(HttpStatus.OK.value())
                 body("status", Is("FUNKSJONELL_FEIL"))
