@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -403,5 +404,185 @@ class TilkjentYtelseValideringServiceTest {
         assertDoesNotThrow {
             tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling)
         }
+    }
+
+    @Test
+    fun `validerAtIngenUtbetalingerOverstiger100Prosent - skal ikke kaste feil dersom barn har én måned overlapp i utbetalinger i perioden august 2024 til januar 2025`() {
+        val overlappendeMåned = YearMonth.of(2024, 10)
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = overlappendeMåned.minusMonths(5),
+                            stønadTom = overlappendeMåned,
+                        ),
+                    ),
+            )
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            TilkjentYtelse(
+                behandling = annenBehandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = annenBehandling,
+                            aktør = barn1,
+                            stønadFom = overlappendeMåned,
+                            stønadTom = overlappendeMåned.plusMonths(5),
+                        ),
+                    ),
+            )
+
+        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns
+            Totrinnskontroll(
+                behandling = behandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
+
+        every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
+        every {
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
+        } returns personopplysningGrunnlag
+        every { beregningService.hentRelevanteTilkjentYtelserForBarn(any(), any()) } returns listOf(annenTilkjentYtelse)
+
+        assertDoesNotThrow { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling) }
+    }
+
+    @Test
+    fun `validerAtIngenUtbetalingerOverstiger100Prosent - skal kaste feil dersom barn har mer enn én måned overlapp i utbetalinger i perioden august 2024 til januar 2025`() {
+        val overlappendeMåned = YearMonth.of(2024, 10)
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = overlappendeMåned.minusMonths(5),
+                            stønadTom = overlappendeMåned.plusMonths(1),
+                        ),
+                    ),
+            )
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            TilkjentYtelse(
+                behandling = annenBehandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = annenBehandling,
+                            aktør = barn1,
+                            stønadFom = overlappendeMåned,
+                            stønadTom = overlappendeMåned.plusMonths(5),
+                        ),
+                    ),
+            )
+
+        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns
+            Totrinnskontroll(
+                behandling = behandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
+
+        every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
+        every {
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
+        } returns personopplysningGrunnlag
+        every { beregningService.hentRelevanteTilkjentYtelserForBarn(any(), any()) } returns listOf(annenTilkjentYtelse)
+
+        val utbetalingsikkerhetFeil =
+            assertThrows<UtbetalingsikkerhetFeil> {
+                tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling)
+            }
+
+        assertEquals(
+            "Vi finner utbetalinger som overstiger 100% på hvert av barna: ${fnrTilFødselsdato(
+                barn1.aktivFødselsnummer(),
+            ).tilKortString()}",
+            utbetalingsikkerhetFeil.message,
+        )
+        assertEquals(
+            "Du kan ikke godkjenne dette vedtaket fordi det vil betales ut mer enn 100% for barn født ${
+                fnrTilFødselsdato(
+                    barn1.aktivFødselsnummer(),
+                ).tilKortString()
+            }. Reduksjonsvedtak til annen person må være sendt til godkjenning før du kan gå videre.",
+            utbetalingsikkerhetFeil.frontendFeilmelding,
+        )
+    }
+
+    @Test
+    fun `validerAtIngenUtbetalingerOverstiger100Prosent - skal ikke kaste feil dersom barn delt bosted`() {
+        val tilkjentYtelse =
+            TilkjentYtelse(
+                behandling = behandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = behandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.of(2024, 8),
+                            stønadTom = YearMonth.of(2025, 2),
+                            prosent = BigDecimal(50),
+                            sats = 3750,
+                        ),
+                    ),
+            )
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            TilkjentYtelse(
+                behandling = annenBehandling,
+                opprettetDato = LocalDate.now(),
+                endretDato = LocalDate.now(),
+                andelerTilkjentYtelse =
+                    mutableSetOf(
+                        lagAndelTilkjentYtelse(
+                            behandling = annenBehandling,
+                            aktør = barn1,
+                            stønadFom = YearMonth.of(2024, 8),
+                            stønadTom = YearMonth.of(2025, 2),
+                            prosent = BigDecimal(50),
+                            sats = 3750,
+                        ),
+                    ),
+            )
+
+        every { totrinnskontrollService.hentAktivForBehandling(behandling.id) } returns
+            Totrinnskontroll(
+                behandling = behandling,
+                saksbehandler = "Test",
+                saksbehandlerId = "1234",
+                godkjent = true,
+            )
+
+        every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns tilkjentYtelse
+        every {
+            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
+        } returns personopplysningGrunnlag
+        every { beregningService.hentRelevanteTilkjentYtelserForBarn(any(), any()) } returns listOf(annenTilkjentYtelse)
+
+        assertDoesNotThrow { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(behandling) }
     }
 }
