@@ -4,6 +4,9 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
 import no.nav.familie.ks.sak.common.exception.UtbetalingsikkerhetFeil
+import no.nav.familie.ks.sak.common.util.MånedPeriode
+import no.nav.familie.ks.sak.common.util.inkluderer
+import no.nav.familie.ks.sak.common.util.månederIPeriode
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -144,7 +147,7 @@ object TilkjentYtelseValidator {
                     .flatMap { it.andelerTilkjentYtelse }
                     .filter { it.aktør == barn.aktør }
 
-            if (erOverlappAvAndeler(
+            if (erUgyldigOverlappAvAndeler(
                     andeler = andeler,
                     andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger,
                 )
@@ -164,16 +167,27 @@ object TilkjentYtelseValidator {
         }
     }
 
-    private fun erOverlappAvAndeler(
+    private fun erUgyldigOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
         andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>,
-    ): Boolean =
-        andeler.any { andelTilkjentYtelse ->
-            andelerFraAndreBehandlinger.any {
-                andelTilkjentYtelse.overlapperMed(it) &&
-                    andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
-            }
+    ): Boolean {
+        val overlappendeMåneder =
+            andeler
+                .flatMap { andel -> andel.periode.månederIPeriode().map { it to andel.prosent } }
+                .filter { (måned, prosent) ->
+                    andelerFraAndreBehandlinger.any { andelFraAnnenBehandling ->
+                        andelFraAnnenBehandling.periode.inkluderer(måned) &&
+                            prosent + andelFraAnnenBehandling.prosent > BigDecimal(100)
+                    }
+                }.map { it.first }
+
+        val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
+        return when {
+            overlappendeMåneder.isEmpty() -> false
+            overlappendeMåneder.size > 1 -> true
+            else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
         }
+    }
 
     fun finnAktørIderMedUgyldigEtterbetalingsperiode(
         forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?,

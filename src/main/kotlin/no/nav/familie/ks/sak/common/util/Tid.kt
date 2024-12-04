@@ -95,6 +95,8 @@ fun MånedPeriode.erMellom(annenPeriode: MånedPeriode) = annenPeriode.inkludere
 
 fun MånedPeriode.antallMåneder(): Int = fom.until(tom, ChronoUnit.MONTHS).toInt() + 1
 
+fun MånedPeriode.månederIPeriode(): List<YearMonth> = generateSequence(fom) { it.plusMonths(1) }.takeWhile { it <= tom }.toList()
+
 fun LocalDate.førsteDagINesteMåned() = this.plusMonths(1).withDayOfMonth(1)
 
 fun erBack2BackIMånedsskifte(
