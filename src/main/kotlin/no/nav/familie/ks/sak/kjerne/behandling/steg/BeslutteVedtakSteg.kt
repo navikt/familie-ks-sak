@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.GODKJENNE_OVERGANGSORDNING
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -13,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
@@ -61,9 +63,18 @@ class BeslutteVedtakSteg(
             )
         }
 
-        validerAtBehandlingKanBesluttes(behandling)
-
         val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
+        if (
+            behandling.erOvergangsordning() &&
+            !unleashService.isEnabled(GODKJENNE_OVERGANGSORDNING) &&
+            besluttVedtakDto.beslutning == Beslutning.GODKJENT
+        ) {
+            throw FunksjonellFeil(
+                "Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå.",
+            )
+        }
+
+        validerAtBehandlingKanBesluttes(behandling)
 
         validerBrevmottakere(BehandlingId(behandling.id), besluttVedtakDto.beslutning.erGodkjent())
 
