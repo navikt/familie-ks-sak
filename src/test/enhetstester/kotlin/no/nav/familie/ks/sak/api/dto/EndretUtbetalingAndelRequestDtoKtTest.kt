@@ -58,7 +58,24 @@ class EndretUtbetalingAndelRequestDtoKtTest {
         }
 
         @Test
-        fun `skal returnere AVSLAG_BARNEHAGEPLASS_AUGUST_2024 begrunnelse for årsak ALLEREDE_UTBETALT`() {
+        fun `skal returnere brukersatt begrunnelse for årsak ALLEREDE_UTBETALT`() {
+            // Arrange
+            val endretUtbetalingAndelRequestDto =
+                lagEndretUtbetalingAndelRequestDto(
+                    erEksplisittAvslagPåSøknad = true,
+                    årsak = Årsak.ALLEREDE_UTBETALT,
+                    begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER),
+                )
+
+            // Act
+            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+
+            // Assert
+            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER)
+        }
+
+        @Test
+        fun `skal returnere AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE begrunnelse for årsak ALLEREDE_UTBETALT hvis ingen andre begrunnelser er sendt inn`() {
             // Arrange
             val endretUtbetalingAndelRequestDto =
                 lagEndretUtbetalingAndelRequestDto(
