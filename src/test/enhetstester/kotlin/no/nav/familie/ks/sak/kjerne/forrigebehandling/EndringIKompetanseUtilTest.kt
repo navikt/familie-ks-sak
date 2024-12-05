@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -8,6 +7,7 @@ import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.YearMonth

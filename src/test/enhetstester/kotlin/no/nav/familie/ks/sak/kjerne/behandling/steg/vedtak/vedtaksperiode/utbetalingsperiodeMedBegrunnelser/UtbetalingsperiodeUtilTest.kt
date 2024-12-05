@@ -4,7 +4,6 @@ import apr
 import io.mockk.every
 import io.mockk.mockk
 import mars
-import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -28,16 +27,21 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.tidslinje.Periode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
 
 internal class UtbetalingsperiodeUtilTest {
@@ -312,6 +316,230 @@ internal class UtbetalingsperiodeUtilTest {
                 )
 
             assertThat(vedtaksperioderMedKompetanse.size).isEqualTo(4)
+        }
+    }
+
+    @Nested
+    inner class HentBegrunnelserForOvergangsordningPerioder {
+        @Test
+        fun `skal ikke returnere noe begrunnelser dersom det ikke finnes noe overgangsordningandeler i perioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 8), stønadTom = YearMonth.of(2024, 12)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).isEmpty()
+        }
+
+        @Test
+        fun `skal ikke returnere noe begrunnelser dersom overgangsordning andelene ikke overlapper med vedtaksperioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 6), stønadTom = YearMonth.of(2024, 7), ytelseType = YtelseType.OVERGANGSORDNING),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).isEmpty()
+        }
+
+        @Test
+        fun `skal returnere noe begrunnelser dersom overgangsordning andelene ikke overlapper med vedtaksperioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 6), stønadTom = YearMonth.of(2024, 7), ytelseType = YtelseType.OVERGANGSORDNING),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).isEmpty()
+        }
+
+        @Test
+        fun `skal returnere INNVILGET_OVERGANGSORDNING begrunnelse dersom det eksisterer overgangsordning andeler med full sats som overlapper med vedtak perioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).size().isEqualTo(1)
+            assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING)
+        }
+
+        @Test
+        fun `skal returnere INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING begrunnelse dersom det eksisterer overgangsordning andeler med gradert sats som overlapper med vedtak perioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING, prosent = BigDecimal(60)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).size().isEqualTo(1)
+            assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+        }
+
+        @Test
+        fun `skal returnere INNVILGET_OVERGANGSORDNING_DELT_BOSTED begrunnelse dersom det eksisterer overgangsordning andeler med halv sats som overlapper med vedtak perioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING, prosent = BigDecimal(50)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).size().isEqualTo(1)
+            assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED)
+        }
+
+        @Test
+        fun `skal returnere INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING begrunnelse dersom det både eksisterer overgangsordning andeler med gradert sats og full sats som overlapper med vedtak perioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING, prosent = BigDecimal(100)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING, prosent = BigDecimal(60)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).size().isEqualTo(1)
+            assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+        }
+
+        @Test
+        fun `skal returnere INNVILGET_OVERGANGSORDNING_DELT_BOSTED begrunnelse dersom det både eksisterer overgangsordning andeler med halv sats og full sats som overlapper med vedtak perioden`() {
+            val andeler =
+                listOf(
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING, prosent = BigDecimal(100)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                    AndelTilkjentYtelseMedEndreteUtbetalinger(
+                        andelTilkjentYtelse = lagAndelTilkjentYtelse(stønadFom = YearMonth.of(2024, 7), stønadTom = YearMonth.of(2024, 9), ytelseType = YtelseType.OVERGANGSORDNING, prosent = BigDecimal(50)),
+                        endreteUtbetalingerAndeler = emptyList(),
+                    ),
+                )
+
+            val splittKriteriePeriode =
+                Periode(
+                    SplittkriterierForVedtaksperiode(
+                        andelerTilkjentYtelse = andeler,
+                        splittkriterierForVilkår = emptyMap(),
+                        splittkriterierForKompetanse = emptyMap(),
+                    ),
+                    fom = LocalDate.of(2024, 8, 1),
+                    tom = LocalDate.of(2024, 12, 31),
+                )
+
+            val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
+
+            assertThat(begrunnelser).size().isEqualTo(1)
+            assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED)
         }
     }
 

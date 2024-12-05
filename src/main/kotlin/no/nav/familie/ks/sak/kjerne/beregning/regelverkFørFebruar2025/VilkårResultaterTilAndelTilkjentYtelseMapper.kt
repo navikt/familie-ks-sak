@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -13,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.hentGyldigSatsFor
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.tidslinje.Periode
 import java.math.RoundingMode
 
 fun Periode<List<VilkårResultat>>.tilAndelTilkjentYtelse(

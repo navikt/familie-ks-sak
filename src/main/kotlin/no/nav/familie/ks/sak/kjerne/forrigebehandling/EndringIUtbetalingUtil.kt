@@ -1,11 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombiner
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
 
 object EndringIUtbetalingUtil {
     internal fun lagEndringIUtbetalingTidslinje(

@@ -1,11 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.mapVerdi
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.util.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.util.MAX_MÅNED
 import no.nav.familie.ks.sak.common.util.MIN_MÅNED
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -15,6 +9,12 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.mapVerdi
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.util.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth

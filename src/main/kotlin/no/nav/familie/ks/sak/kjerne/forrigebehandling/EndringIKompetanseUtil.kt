@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.utvidelser.filtrerIkkeNull
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
 
 object EndringIKompetanseUtil {
     fun lagEndringIKompetanseForPersonTidslinje(

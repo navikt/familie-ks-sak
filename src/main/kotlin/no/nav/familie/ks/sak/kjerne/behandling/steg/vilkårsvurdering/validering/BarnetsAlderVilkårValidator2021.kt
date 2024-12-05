@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
-import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.tidslinje.IkkeNullbarPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.Month

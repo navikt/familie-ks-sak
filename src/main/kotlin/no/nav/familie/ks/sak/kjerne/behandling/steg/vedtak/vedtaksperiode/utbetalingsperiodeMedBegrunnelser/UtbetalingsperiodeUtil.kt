@@ -1,21 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.mapVerdi
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.filtrer
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikePerioder
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -25,10 +17,26 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.filtrerIkkeNull
+import no.nav.familie.tidslinje.mapVerdi
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.filtrer
+import no.nav.familie.tidslinje.utvidelser.kombiner
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.slåSammen
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+import java.math.BigDecimal
 import java.time.LocalDate
 
 // Om noe av dette endrer seg skal vi ha en splitt i vedtaksperiodene.
@@ -65,14 +73,63 @@ fun hentPerioderMedUtbetaling(
 
     return andeltilkjentYtelserSplittetPåKriterier
         .tilPerioderIkkeNull()
-        .map {
-            VedtaksperiodeMedBegrunnelser(
-                fom = it.fom?.førsteDagIInneværendeMåned(),
-                tom = it.tom?.sisteDagIMåned(),
-                vedtak = vedtak,
-                type = Vedtaksperiodetype.UTBETALING,
-            )
+        .map { periode ->
+            val vedtaksperiodeMedBegrunnelser =
+                VedtaksperiodeMedBegrunnelser(
+                    fom = periode.fom?.førsteDagIInneværendeMåned(),
+                    tom = periode.tom?.sisteDagIMåned(),
+                    vedtak = vedtak,
+                    type = Vedtaksperiodetype.UTBETALING,
+                )
+            if (vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024) {
+                vedtaksperiodeMedBegrunnelser.begrunnelser.addAll(
+                    hentBegrunnelserForOvergangsordningPerioder(periode)
+                        .map { begrunnelse ->
+                            begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+                        }.toMutableSet(),
+                )
+            }
+
+            vedtaksperiodeMedBegrunnelser
         }
+}
+
+fun hentBegrunnelserForOvergangsordningPerioder(periode: Periode<SplittkriterierForVedtaksperiode>): Set<NasjonalEllerFellesBegrunnelse> {
+    val vedtaksperiodeFom = periode.fom
+    val vedtaksperiodeTom = periode.tom
+
+    if (vedtaksperiodeFom == null || vedtaksperiodeTom == null) return emptySet()
+
+    val månedPeriodeForVedtaksperiode = MånedPeriode(vedtaksperiodeFom.toYearMonth(), vedtaksperiodeTom.toYearMonth())
+
+    val overgangsordningAndelerIPeriode =
+        periode.verdi.andelerTilkjentYtelse?.filter { andel ->
+            val andelMånedPeriode = MånedPeriode(andel.stønadFom, andel.stønadTom)
+
+            månedPeriodeForVedtaksperiode.overlapperHeltEllerDelvisMed(andelMånedPeriode) && andel.type == YtelseType.OVERGANGSORDNING
+        } ?: emptyList()
+
+    val overgangsordningBegrunnelser =
+        overgangsordningAndelerIPeriode
+            .filter { it.type == YtelseType.OVERGANGSORDNING }
+            .map {
+                when (it.prosent) {
+                    BigDecimal(100) -> NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING
+                    BigDecimal(50) -> NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED
+                    else -> NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING
+                }
+            }.distinct()
+            .toSet()
+
+    val skalGradertEllerDeltBostedBegrunnelseBrukes =
+        overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED) ||
+            overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+
+    return if (skalGradertEllerDeltBostedBegrunnelseBrukes) {
+        overgangsordningBegrunnelser.filter { it != NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING }.toSet()
+    } else {
+        overgangsordningBegrunnelser
+    }
 }
 
 private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjerPerPerson() =

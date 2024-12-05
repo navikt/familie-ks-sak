@@ -5,11 +5,11 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.tidslinje.tomTidslinje
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -17,26 +17,32 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.jan
 import no.nav.familie.ks.sak.kjerne.eøs.util.KompetanseBuilder
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.EndretUtbetalingAndelTidslinjeService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjeService
-import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
@@ -46,15 +52,33 @@ import java.time.YearMonth
 internal class KompetanseServiceTest {
     private val kompetanseRepository: EøsSkjemaRepository<Kompetanse> = mockEøsSkjemaRepository()
     private val personidentService: PersonidentService = mockk()
-    private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService = mockk()
-    private val endretUtbetalingAndelTidslinjeService: EndretUtbetalingAndelTidslinjeService = mockk()
+    private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository = mockk()
+    private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
+    private val unleashService: UnleashService = mockk()
+    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
+    private val vilkårsvurderingService: VilkårsvurderingService = mockk()
+
+    private val vilkårsvurderingTidslinjeService =
+        VilkårsvurderingTidslinjeService(
+            vilkårsvurderingService = vilkårsvurderingService,
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+        )
+    private val tilpassKompetanserService =
+        TilpassKompetanserService(
+            kompetanseRepository = kompetanseRepository,
+            kompetanseEndringsAbonnenter = emptyList(),
+            vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
+            endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
+            overgangsordningAndelRepository = overgangsordningAndelRepository,
+            unleashService = unleashService,
+        )
+
     private val kompetanseService: KompetanseService =
         KompetanseService(
             kompetanseRepository = kompetanseRepository,
             kompetanseEndringsAbonnenter = emptyList(),
             personidentService = personidentService,
-            vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
-            endretUtbetalingAndelTidslinjeService = endretUtbetalingAndelTidslinjeService,
+            tilpassKompetanserService = tilpassKompetanserService,
         )
 
     private val søker = randomAktør()
@@ -69,8 +93,9 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn1.aktivFødselsnummer()) } returns barn1
         every { personidentService.hentAktør(barn2.aktivFødselsnummer()) } returns barn2
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
-        every { endretUtbetalingAndelTidslinjeService.hentBarnasHarEtterbetaling3MånedTidslinjer(behandlingId.id) } returns
-            emptyMap()
+        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
+        every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
+        every { unleashService.isEnabled(any()) } returns true
         kompetanseRepository.deleteAll()
     }
 
@@ -439,203 +464,350 @@ internal class KompetanseServiceTest {
         )
     }
 
-    @Test
-    fun `tilpassKompetanse skal opprette kompetanseskjema med ingen sluttdato når regelverk-tidslinjer fortsetter etter nåtidspunktet`() {
-        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
+    @Nested
+    inner class TilpassKompetanse {
+        @BeforeEach
+        fun setup() {
+            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId.id) } returns
+                lagPersonopplysningGrunnlag(
+                    behandlingId = behandlingId.id,
+                    søkerAktør = søker,
+                    barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
+                    barnAktør = listOf(barn1, barn2),
+                )
+        }
 
-        val nåDato = LocalDate.of(2024, 10, 1)
-        val fom = nåDato.minusMonths(3).førsteDagIInneværendeMåned()
-        val tom = fom.plusMonths(10).sisteDagIMåned()
-        val tomForBarn2 = fom.plusMonths(6).sisteDagIMåned()
+        @Test
+        fun `skal opprette kompetanseskjema med ingen sluttdato når regelverk-tidslinjer fortsetter etter nåtidspunktet`() {
+            val nåDato = LocalDate.of(2024, 10, 1)
+            val fom = nåDato.minusMonths(3).førsteDagIInneværendeMåned()
+            val tom = fom.plusMonths(10).sisteDagIMåned()
+            val tomForBarn2 = fom.plusMonths(6).sisteDagIMåned()
 
-        val vilkårsvurdering =
-            lagVilkårsvurdering(
-                // søkersperiode avslutter etter nå tidspunkt
-                søkersperiode = Periode(fom, tom),
-                barnasperioder =
-                    mapOf(
-                        barn1 to Pair(fom, tom),
-                        barn2 to Pair(fom, tomForBarn2),
-                    ),
-                // begge barnasperiode avslutter etter nå tidspunkt
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+                lagVilkårsvurdering(
+                    // søkersperiode avslutter etter nå tidspunkt
+                    søkersperiode = Periode(fom, tom),
+                    barnasperioder =
+                        mapOf(
+                            barn1 to Pair(fom, tom),
+                            barn2 to Pair(fom, tomForBarn2),
+                        ),
+                    // begge barnasperiode avslutter etter nå tidspunkt
+                )
+
+            kompetanseService.tilpassKompetanse(behandlingId)
+
+            // henter kompetanse perioder som opprettes automatisk etter vilkårsvurdering
+            val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser.size == 1)
+
+            assertKompetanse(
+                fom = fom.plusMonths(1).toYearMonth(),
+                tom = null,
+                barnAktører = setOf(barn1, barn2),
+                hentetKompetanse = kompetanser[0],
             )
-        val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
+        }
 
-        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns vilkårsvurderingTidslinjer
+        @Test
+        fun `tilpassKompetanse skal opprette kompetanse med sluttdato når et av barnets regelverk-tidslinjer avsluttes før nåtidspunktet`() {
+            val nåDato = LocalDate.of(2024, 10, 1)
+            val fom = nåDato.minusMonths(6).førsteDagIInneværendeMåned()
+            val tom = fom.plusMonths(10).sisteDagIMåned()
+            val tomForBarn2 = fom.plusMonths(3).sisteDagIMåned()
 
-        kompetanseService.tilpassKompetanse(behandlingId)
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+                lagVilkårsvurdering(
+                    // søkersperiode avslutter etter nåtidspunkt
+                    søkersperiode = Periode(fom, tom),
+                    barnasperioder =
+                        mapOf(
+                            // barnetsperiode avslutter etter nåtidspunkt
+                            barn1 to Pair(fom, tom),
+                            // barnetsperiode avslutter før nåtidspunkt
+                            barn2 to Pair(fom, tomForBarn2),
+                        ),
+                )
 
-        // henter kompetanse perioder som opprettes automatisk etter vilkårsvurdering
-        val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
-        assertThat(kompetanser.size == 1)
+            kompetanseService.tilpassKompetanse(behandlingId)
 
-        assertKompetanse(
-            fom = fom.plusMonths(1).toYearMonth(),
-            tom = null,
-            barnAktører = setOf(barn1, barn2),
-            hentetKompetanse = kompetanser[0],
-        )
-    }
+            // henter kompetanse perioder som opprettes automatisk etter vilkårsvurdering
+            val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser.size == 2)
 
-    @Test
-    fun `tilpassKompetanse skal opprette kompetanse med sluttdato når et av barnets regelverk-tidslinjer avsluttes før nåtidspunktet`() {
-        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
-
-        val nåDato = LocalDate.of(2024, 10, 1)
-        val fom = nåDato.minusMonths(6).førsteDagIInneværendeMåned()
-        val tom = fom.plusMonths(10).sisteDagIMåned()
-        val tomForBarn2 = fom.plusMonths(3).sisteDagIMåned()
-
-        val vilkårsvurdering =
-            lagVilkårsvurdering(
-                // søkersperiode avslutter etter nåtidspunkt
-                søkersperiode = Periode(fom, tom),
-                barnasperioder =
-                    mapOf(
-                        // barnetsperiode avslutter etter nåtidspunkt
-                        barn1 to Pair(fom, tom),
-                        // barnetsperiode avslutter før nåtidspunkt
-                        barn2 to Pair(fom, tomForBarn2),
-                    ),
+            assertKompetanse(
+                fom = fom.plusMonths(1).toYearMonth(),
+                tom = tomForBarn2.minusMonths(1).toYearMonth(),
+                barnAktører = setOf(barn1, barn2),
+                hentetKompetanse = kompetanser[0],
             )
-        val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
+            assertKompetanse(
+                fom = tomForBarn2.toYearMonth(),
+                tom = null,
+                barnAktører = setOf(barn1),
+                hentetKompetanse = kompetanser[1],
+            )
+        }
 
-        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns vilkårsvurderingTidslinjer
+        @Test
+        fun `tilpassKompetanse skal opprette tomme kompetanser for perioder med overgangsordningandeler`() {
+            val vilkårFom = LocalDate.of(2024, 5, 1)
+            val vilkårTom = LocalDate.of(2024, 9, 1)
+            val kompetanseFom = vilkårFom.plusMonths(1).toYearMonth()
+            val kompetanseTom = vilkårTom.toYearMonth()
 
-        kompetanseService.tilpassKompetanse(behandlingId)
-
-        // henter kompetanse perioder som opprettes automatisk etter vilkårsvurdering
-        val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
-        assertThat(kompetanser.size == 2)
-
-        assertKompetanse(
-            fom = fom.plusMonths(1).toYearMonth(),
-            tom = tomForBarn2.minusMonths(1).toYearMonth(),
-            barnAktører = setOf(barn1, barn2),
-            hentetKompetanse = kompetanser[0],
-        )
-        assertKompetanse(
-            fom = tomForBarn2.toYearMonth(),
-            tom = null,
-            barnAktører = setOf(barn1),
-            hentetKompetanse = kompetanser[1],
-        )
-    }
-
-    @Test
-    fun `tilpassKompetanse skal tilpasse kompetanser til endrede regelverk-tidslinjer`() {
-        every { vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(any()) } returns tomTidslinje()
-
-        val eksisterendeKompetanse1 =
             lagKompetanse(
                 behandlingId = behandlingId.id,
-                fom = YearMonth.of(2022, 1),
+                fom = kompetanseFom,
+                tom = kompetanseTom,
+                barnAktører = setOf(barn1, barn2),
+                resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+            ).lagreTil(kompetanseRepository)
+
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+                lagVilkårsvurdering(
+                    søkersperiode = Periode(vilkårFom, vilkårTom),
+                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
+                )
+
+            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns
+                listOf(
+                    lagOvergangsordningAndel(
+                        aktør = barn1,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(2).toYearMonth(),
+                    ),
+                    lagOvergangsordningAndel(
+                        aktør = barn2,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(4).toYearMonth(),
+                    ),
+                )
+
+            kompetanseService.tilpassKompetanse(behandlingId)
+
+            val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser)
+                .hasSize(3)
+                .anySatisfy {
+                    assertThat(it.fom).isEqualTo(kompetanseFom)
+                    assertThat(it.tom).isEqualTo(kompetanseTom)
+                    assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
+                    assertThat(it.resultat).isEqualTo(KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
+                }.anySatisfy {
+                    assertThat(it.fom).isEqualTo(kompetanseTom.plusMonths(1))
+                    assertThat(it.tom).isEqualTo(kompetanseTom.plusMonths(2))
+                    assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
+                }.anySatisfy {
+                    assertThat(it.fom).isEqualTo(kompetanseTom.plusMonths(3))
+                    assertThat(it.tom).isEqualTo(kompetanseTom.plusMonths(4))
+                    assertThat(it.barnAktører).containsExactlyInAnyOrder(barn2)
+                }
+        }
+
+        @Test
+        fun `tilpassKompetanse skal ikke opprette kompetanser for perioder med overgangsordningandeler i nasjonale saker`() {
+            val vilkårFom = LocalDate.of(2024, 5, 1)
+            val vilkårTom = LocalDate.of(2024, 9, 1)
+            val nasjonalBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
+
+            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(nasjonalBehandling.id) } returns
+                lagPersonopplysningGrunnlag(
+                    behandlingId = nasjonalBehandling.id,
+                    søkerAktør = søker,
+                    barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
+                    barnAktør = listOf(barn1, barn2),
+                )
+
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(nasjonalBehandling.id) } returns
+                lagVilkårsvurdering(
+                    søkersperiode = Periode(vilkårFom, vilkårTom),
+                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
+                    behandling = nasjonalBehandling,
+                )
+
+            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(nasjonalBehandling.id) } returns
+                listOf(
+                    lagOvergangsordningAndel(
+                        aktør = barn1,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(2).toYearMonth(),
+                        behandling = nasjonalBehandling,
+                    ),
+                    lagOvergangsordningAndel(
+                        aktør = barn2,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(4).toYearMonth(),
+                        behandling = nasjonalBehandling,
+                    ),
+                )
+
+            kompetanseService.tilpassKompetanse(nasjonalBehandling.behandlingId)
+
+            val kompetanser = kompetanseService.hentKompetanser(nasjonalBehandling.behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser).isEmpty()
+        }
+
+        @Test
+        fun `tilpassKompetanse skal ikke opprette tomme kompetanser for perioder med overgangsordningandeler hvis toggle er skrudd av`() {
+            every { unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING) } returns false
+
+            val vilkårFom = LocalDate.of(2024, 5, 1)
+            val vilkårTom = LocalDate.of(2024, 9, 1)
+            val kompetanseFom = vilkårFom.plusMonths(1).toYearMonth()
+            val kompetanseTom = vilkårTom.toYearMonth()
+
+            lagKompetanse(
+                behandlingId = behandlingId.id,
+                fom = kompetanseFom,
+                tom = kompetanseTom,
+                barnAktører = setOf(barn1, barn2),
+                resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+            ).lagreTil(kompetanseRepository)
+
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+                lagVilkårsvurdering(
+                    søkersperiode = Periode(vilkårFom, vilkårTom),
+                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
+                )
+
+            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns
+                listOf(
+                    lagOvergangsordningAndel(
+                        aktør = barn1,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(2).toYearMonth(),
+                    ),
+                    lagOvergangsordningAndel(
+                        aktør = barn2,
+                        fom = vilkårTom.plusMonths(1).toYearMonth(),
+                        tom = vilkårTom.plusMonths(4).toYearMonth(),
+                    ),
+                )
+
+            kompetanseService.tilpassKompetanse(behandlingId)
+
+            val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser)
+                .hasSize(1)
+                .anySatisfy {
+                    assertThat(it.fom).isEqualTo(kompetanseFom)
+                    assertThat(it.tom).isEqualTo(kompetanseTom)
+                    assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
+                    assertThat(it.resultat).isEqualTo(KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
+                }
+        }
+
+        @Test
+        fun `tilpassKompetanse skal tilpasse kompetanser til endrede regelverk-tidslinjer`() {
+            val eksisterendeKompetanse1 =
+                lagKompetanse(
+                    behandlingId = behandlingId.id,
+                    fom = YearMonth.of(2022, 1),
+                    tom = YearMonth.of(2022, 2),
+                    barnAktører = setOf(barn1),
+                    resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                )
+            val eksisterendeKompetanse2 =
+                lagKompetanse(
+                    behandlingId = behandlingId.id,
+                    fom = YearMonth.of(2022, 1),
+                    tom = YearMonth.of(2022, 2),
+                    barnAktører = setOf(barn2, barn3),
+                )
+            val eksisterendeKompetanse3 =
+                lagKompetanse(
+                    behandlingId = behandlingId.id,
+                    fom = YearMonth.of(2022, 3),
+                    tom = YearMonth.of(2022, 5),
+                    barnAktører = setOf(barn1, barn2, barn3),
+                    resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+                )
+            val eksisterendeKompetanse4 =
+                lagKompetanse(
+                    behandlingId = behandlingId.id,
+                    fom = YearMonth.of(2022, 6),
+                    tom = YearMonth.of(2022, 7),
+                    barnAktører = setOf(barn1),
+                    resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                )
+            val eksisterendeKompetanse5 =
+                lagKompetanse(
+                    behandlingId = behandlingId.id,
+                    fom = YearMonth.of(2022, 6),
+                    tom = YearMonth.of(2022, 9),
+                    barnAktører = setOf(barn2, barn3),
+                )
+            listOf(
+                eksisterendeKompetanse1,
+                eksisterendeKompetanse2,
+                eksisterendeKompetanse3,
+                eksisterendeKompetanse4,
+                eksisterendeKompetanse5,
+            ).lagreTil(kompetanseRepository)
+
+            val fom = LocalDate.of(2022, 1, 1)
+            val tom = fom.plusMonths(10).sisteDagIMåned()
+            val fomForBarn2 = fom.plusMonths(2)
+            val tomForBarn2 = fomForBarn2.plusMonths(3).sisteDagIMåned()
+
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+                lagVilkårsvurdering(
+                    // søkersperiode 2022-01-2022-11
+                    søkersperiode = Periode(fom, tom),
+                    barnasperioder =
+                        mapOf(
+                            // barn1 periode 2022-01-2022-11
+                            barn1 to Pair(fom, tom),
+                            // barn2 periode 2022-03-2022-06
+                            barn2 to Pair(fomForBarn2, tomForBarn2),
+                            // barn3 periode 2022-01-null
+                            barn3 to Pair(fom, null),
+                        ),
+                )
+
+            kompetanseService.tilpassKompetanse(behandlingId)
+
+            // henter kompetanse perioder som tilpasses etter endringer i vilkårsvurdering
+            val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
+            assertThat(kompetanser.size == 6)
+
+            assertKompetanse(
+                fom = YearMonth.of(2022, 2),
                 tom = YearMonth.of(2022, 2),
                 barnAktører = setOf(barn1),
                 resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                hentetKompetanse = kompetanser[0],
             )
-        val eksisterendeKompetanse2 =
-            lagKompetanse(
-                behandlingId = behandlingId.id,
-                fom = YearMonth.of(2022, 1),
-                tom = YearMonth.of(2022, 2),
-                barnAktører = setOf(barn2, barn3),
-            )
-        val eksisterendeKompetanse3 =
-            lagKompetanse(
-                behandlingId = behandlingId.id,
+            assertKompetanse(
                 fom = YearMonth.of(2022, 3),
-                tom = YearMonth.of(2022, 5),
-                barnAktører = setOf(barn1, barn2, barn3),
+                tom = YearMonth.of(2022, 3),
+                barnAktører = setOf(barn1),
                 resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+                hentetKompetanse = kompetanser[1],
             )
-        val eksisterendeKompetanse4 =
-            lagKompetanse(
-                behandlingId = behandlingId.id,
+            assertKompetanse(
+                fom = YearMonth.of(2022, 4),
+                tom = YearMonth.of(2022, 5),
+                barnAktører = setOf(barn1, barn2),
+                resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+                hentetKompetanse = kompetanser[2],
+            )
+            assertKompetanse(
                 fom = YearMonth.of(2022, 6),
                 tom = YearMonth.of(2022, 7),
                 barnAktører = setOf(barn1),
                 resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
+                hentetKompetanse = kompetanser[3],
             )
-        val eksisterendeKompetanse5 =
-            lagKompetanse(
-                behandlingId = behandlingId.id,
-                fom = YearMonth.of(2022, 6),
-                tom = YearMonth.of(2022, 9),
-                barnAktører = setOf(barn2, barn3),
+            assertKompetanse(
+                fom = YearMonth.of(2022, 8),
+                tom = YearMonth.of(2022, 10),
+                barnAktører = setOf(barn1),
+                hentetKompetanse = kompetanser[4],
             )
-        listOf(
-            eksisterendeKompetanse1,
-            eksisterendeKompetanse2,
-            eksisterendeKompetanse3,
-            eksisterendeKompetanse4,
-            eksisterendeKompetanse5,
-        ).lagreTil(kompetanseRepository)
-
-        val fom = LocalDate.of(2022, 1, 1)
-        val tom = fom.plusMonths(10).sisteDagIMåned()
-        val fomForBarn2 = fom.plusMonths(2)
-        val tomForBarn2 = fomForBarn2.plusMonths(3).sisteDagIMåned()
-
-        val vilkårsvurdering =
-            lagVilkårsvurdering(
-                // søkersperiode 2022-01-2022-11
-                søkersperiode = Periode(fom, tom),
-                barnasperioder =
-                    mapOf(
-                        // barn1 periode 2022-01-2022-11
-                        barn1 to Pair(fom, tom),
-                        // barn2 periode 2022-03-2022-06
-                        barn2 to Pair(fomForBarn2, tomForBarn2),
-                        // barn3 periode 2022-01-null
-                        barn3 to Pair(fom, null),
-                    ),
-            )
-        val vilkårsvurderingTidslinjer = lagVilkårsvurderingTidslinjer(vilkårsvurdering)
-
-        every { vilkårsvurderingTidslinjeService.lagVilkårsvurderingTidslinjer(behandlingId.id) } returns
-            vilkårsvurderingTidslinjer
-
-        kompetanseService.tilpassKompetanse(behandlingId)
-
-        // henter kompetanse perioder som tilpasses etter endringer i vilkårsvurdering
-        val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
-        assertThat(kompetanser.size == 6)
-
-        assertKompetanse(
-            fom = YearMonth.of(2022, 2),
-            tom = YearMonth.of(2022, 2),
-            barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[0],
-        )
-        assertKompetanse(
-            fom = YearMonth.of(2022, 3),
-            tom = YearMonth.of(2022, 3),
-            barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[1],
-        )
-        assertKompetanse(
-            fom = YearMonth.of(2022, 4),
-            tom = YearMonth.of(2022, 5),
-            barnAktører = setOf(barn1, barn2),
-            resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
-            hentetKompetanse = kompetanser[2],
-        )
-        assertKompetanse(
-            fom = YearMonth.of(2022, 6),
-            tom = YearMonth.of(2022, 7),
-            barnAktører = setOf(barn1),
-            resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            hentetKompetanse = kompetanser[3],
-        )
-        assertKompetanse(
-            fom = YearMonth.of(2022, 8),
-            tom = YearMonth.of(2022, 10),
-            barnAktører = setOf(barn1),
-            hentetKompetanse = kompetanser[4],
-        )
+        }
     }
 
     @Test
@@ -724,6 +896,7 @@ internal class KompetanseServiceTest {
     }
 
     private fun lagVilkårsvurdering(
+        behandling: Behandling = this.behandling,
         søkersperiode: Periode,
         barnasperioder: Map<Aktør, Pair<LocalDate?, LocalDate?>>,
     ): Vilkårsvurdering {
@@ -734,7 +907,7 @@ internal class KompetanseServiceTest {
                 resultat = Resultat.OPPFYLT,
                 søkerPeriodeFom = søkersperiode.fom,
                 søkerPeriodeTom = søkersperiode.tom,
-                regelverk = Regelverk.EØS_FORORDNINGEN,
+                regelverk = if (behandling.kategori == BehandlingKategori.EØS) Regelverk.EØS_FORORDNINGEN else Regelverk.NASJONALE_REGLER,
             )
         val personResultaterForBarna =
             barnasperioder.map { (aktør, periode) ->
@@ -747,7 +920,7 @@ internal class KompetanseServiceTest {
                             periodeFom = periode.first,
                             periodeTom = periode.second,
                             behandlingId = behandling.id,
-                            regelverk = Regelverk.EØS_FORORDNINGEN,
+                            regelverk = if (behandling.kategori == BehandlingKategori.EØS) Regelverk.EØS_FORORDNINGEN else Regelverk.NASJONALE_REGLER,
                         )
                     }
                 personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
@@ -756,17 +929,17 @@ internal class KompetanseServiceTest {
         return vilkårsvurdering.apply { personResultater += personResultaterForBarna }
     }
 
-    private fun lagVilkårsvurderingTidslinjer(vilkårsvurdering: Vilkårsvurdering) =
-        VilkårsvurderingTidslinjer(
-            vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag =
-                lagPersonopplysningGrunnlag(
-                    behandlingId = behandlingId.id,
-                    søkerPersonIdent = søker.aktivFødselsnummer(),
-                    søkerAktør = søker,
-                    barnasIdenter = listOf(barn1.aktivFødselsnummer(), barn2.aktivFødselsnummer()),
-                    barnAktør = listOf(barn1, barn2),
-                ),
+    private fun lagOvergangsordningAndel(
+        aktør: Aktør,
+        fom: YearMonth,
+        tom: YearMonth,
+        behandling: Behandling = this.behandling,
+    ): OvergangsordningAndel =
+        OvergangsordningAndel(
+            behandlingId = behandling.id,
+            person = tilfeldigPerson(aktør = aktør),
+            fom = fom,
+            tom = tom,
         )
 
     private fun assertKompetanse(

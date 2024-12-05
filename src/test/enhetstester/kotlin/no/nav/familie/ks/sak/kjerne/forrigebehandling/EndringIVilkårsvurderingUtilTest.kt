@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -13,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

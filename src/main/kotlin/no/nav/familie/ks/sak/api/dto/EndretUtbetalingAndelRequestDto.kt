@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseDeserializer
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -10,37 +9,32 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 data class EndretUtbetalingAndelRequestDto(
-    val id: Long?,
-    val personIdent: String?,
-    val prosent: BigDecimal?,
-    val fom: YearMonth?,
-    val tom: YearMonth?,
-    val årsak: Årsak?,
+    val id: Long,
+    val personIdent: String,
+    val prosent: BigDecimal,
+    val fom: YearMonth,
+    val tom: YearMonth,
+    val årsak: Årsak,
     val avtaletidspunktDeltBosted: LocalDate?,
-    val søknadstidspunkt: LocalDate?,
-    val begrunnelse: String?,
+    val søknadstidspunkt: LocalDate,
+    val begrunnelse: String,
     val erEksplisittAvslagPåSøknad: Boolean?,
     @JsonDeserialize(using = IBegrunnelseDeserializer::class)
     val begrunnelser: List<NasjonalEllerFellesBegrunnelse>?,
 )
 
-data class EndretUtbetalingAndelResponsDto(
-    val id: Long?,
-    val personIdent: String?,
-    val prosent: BigDecimal?,
-    val fom: YearMonth?,
-    val tom: YearMonth?,
-    val årsak: Årsak?,
-    val avtaletidspunktDeltBosted: LocalDate?,
-    val søknadstidspunkt: LocalDate?,
-    val begrunnelse: String?,
-    val erEksplisittAvslagPåSøknad: Boolean?,
-    val erTilknyttetAndeler: Boolean,
-    val begrunnelser: List<NasjonalEllerFellesBegrunnelse>?,
-)
+fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFellesBegrunnelse> {
+    if (this.erEksplisittAvslagPåSøknad == false) {
+        return emptyList()
+    }
+    return when (this.årsak) {
+        Årsak.DELT_BOSTED,
+        Årsak.ENDRE_MOTTAKER,
+        Årsak.ALLEREDE_UTBETALT,
+        Årsak.ETTERBETALING_3MND,
+        -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
 
-data class SanityBegrunnelseMedEndringsårsakResponseDto(
-    val id: IBegrunnelse,
-    val navn: String,
-    val endringsårsaker: List<Årsak>,
-)
+        Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
+        -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
+    }
+}

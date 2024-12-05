@@ -2,9 +2,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -18,11 +15,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.lagPersonResultat
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.tilTidslinje
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,8 +30,6 @@ import org.hamcrest.CoreMatchers.`is` as Is
 internal class VilkårsvurderingTidslinjeServiceTest {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     val vilkårsvurderingService = mockk<VilkårsvurderingService>()
-    val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
-    val unleashNextMedContextService = mockk<UnleashNextMedContextService>()
 
     private lateinit var vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService
 
@@ -41,7 +37,6 @@ internal class VilkårsvurderingTidslinjeServiceTest {
     fun setUp() {
         vilkårsvurderingTidslinjeService =
             VilkårsvurderingTidslinjeService(
-                vilkårsvurderingRepository = vilkårsvurderingRepository,
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
                 vilkårsvurderingService = vilkårsvurderingService,
             )

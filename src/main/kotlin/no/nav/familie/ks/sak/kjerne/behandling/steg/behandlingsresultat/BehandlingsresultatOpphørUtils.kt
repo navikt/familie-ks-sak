@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -9,6 +7,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.tilAndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriode
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import java.time.YearMonth
 
 internal enum class Opphørsresultat {
@@ -131,6 +131,7 @@ object BehandlingsresultatOpphørUtils {
                     Årsak.ALLEREDE_UTBETALT,
                     Årsak.ENDRE_MOTTAKER,
                     Årsak.ETTERBETALING_3MND,
+                    Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                     ->
                         // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
                         if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse

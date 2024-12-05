@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
@@ -8,6 +7,7 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

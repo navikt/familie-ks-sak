@@ -13,9 +13,11 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.hamcrest.CoreMatchers.`is` as Is
 
@@ -26,6 +28,11 @@ internal class UtgåendeJournalføringServiceTest {
 
     @InjectMockKs
     private lateinit var utgåendeJournalføringService: UtgåendeJournalføringService
+
+    @BeforeEach
+    fun setUp() {
+        MDC.clear()
+    }
 
     @Test
     fun `journalførDokument skal kaste feil hvis ferdigstilling av journalpost ikke var vellykket`() {

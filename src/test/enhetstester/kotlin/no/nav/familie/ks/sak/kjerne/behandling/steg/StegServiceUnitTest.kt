@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -168,7 +169,7 @@ class StegServiceUnitTest {
     }
 
     @Test
-    fun `skal iverksette mot oppdrag hvis det er endring i andeler`() {
+    fun `skal iverksette mot oppdrag hvis det er endring i ordinære andeler`() {
         // Arrange
         val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
         val forrigeBehandlingAndeler =
@@ -188,6 +189,65 @@ class StegServiceUnitTest {
                     stønadFom = YearMonth.now().minusMonths(5),
                     stønadTom = YearMonth.now().minusMonths(3),
                     kalkulertUtbetalingsbeløp = 2000,
+                ),
+            )
+
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeBehandling
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeBehandling.id) } returns forrigeBehandlingAndeler
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns behandlingAndeler
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.IVERKSETT_MOT_OPPDRAG)
+    }
+
+    @Test
+    fun `skal iverksette mot oppdrag hvis det er endring i overgangsordningandeler`() {
+        // Arrange
+        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(4),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(4),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+            )
+
+        val behandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(4),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(4),
+                    stønadTom = YearMonth.now().minusMonths(3),
+                    kalkulertUtbetalingsbeløp = 1500,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
                 ),
             )
 
@@ -252,8 +312,16 @@ class StegServiceUnitTest {
                 lagAndelTilkjentYtelse(
                     behandling = forrigeBehandling,
                     stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(4),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now().minusMonths(3),
                     kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
                 ),
             )
 
@@ -262,8 +330,16 @@ class StegServiceUnitTest {
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(4),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(4),
                     stønadTom = YearMonth.now().minusMonths(3),
                     kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
                 ),
             )
 
@@ -322,6 +398,65 @@ class StegServiceUnitTest {
         // Arrange
         every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns null
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns emptyList()
+        every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
+        every { taskService.save(any()) } returns mockk()
+
+        val behandlingsStegDto =
+            BesluttVedtakDto(
+                Beslutning.GODKJENT,
+                "GODKJENT",
+            )
+
+        // Act
+        val nesteSteg = stegService.hentNesteSteg(behandling, BehandlingSteg.BESLUTTE_VEDTAK, behandlingsStegDto)
+
+        // Assert
+        assertThat(nesteSteg).isEqualTo(BehandlingSteg.JOURNALFØR_VEDTAKSBREV)
+    }
+
+    @Test
+    fun `skal ikke iverksette mot oppdrag hvis det ikke er endring i overgangsordningandeler, men ikke i totalbeløp for andelene`() {
+        // Arrange
+        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(4),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+                lagAndelTilkjentYtelse(
+                    behandling = forrigeBehandling,
+                    stønadFom = YearMonth.now().minusMonths(3),
+                    stønadTom = YearMonth.now().minusMonths(2),
+                    kalkulertUtbetalingsbeløp = 500,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+            )
+
+        val behandlingAndeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(4),
+                    kalkulertUtbetalingsbeløp = 500,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    stønadFom = YearMonth.now().minusMonths(3),
+                    stønadTom = YearMonth.now().minusMonths(2),
+                    kalkulertUtbetalingsbeløp = 1000,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+            )
+
+        every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeBehandling
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeBehandling.id) } returns forrigeBehandlingAndeler
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns behandlingAndeler
         every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
         every { taskService.save(any()) } returns mockk()
 

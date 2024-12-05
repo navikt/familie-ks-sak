@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -48,6 +49,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapServ
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -81,6 +83,8 @@ class BehandlingService(
     private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
+    private val oppgaveService: OppgaveService,
+    private val sakStatistikkService: SakStatistikkService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -282,7 +286,11 @@ class BehandlingService(
         )
 
         behandling.kategori = overstyrtKategori
-        return oppdaterBehandling(behandling)
+
+        return oppdaterBehandling(behandling).also {
+            oppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(it)
+            sakStatistikkService.sendMeldingOmEndringAvBehandlingkategori(behandlingId, overstyrtKategori)
+        }
     }
 
     fun erLovendringOgFremtidigOpphørOgHarFlereAndeler(

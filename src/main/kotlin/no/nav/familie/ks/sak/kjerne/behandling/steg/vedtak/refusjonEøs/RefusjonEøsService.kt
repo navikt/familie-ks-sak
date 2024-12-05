@@ -78,4 +78,6 @@ class RefusjonEøsService(
             land = it.land,
             refusjonAvklart = it.refusjonAvklart,
         )
+
+    fun harRefusjonEøsPåBehandling(behandlingId: Long): Boolean = refusjonEøsRepository.finnRefusjonEøsForBehandling(behandlingId).isNotEmpty()
 }

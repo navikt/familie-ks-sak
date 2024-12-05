@@ -8,6 +8,7 @@ import java.time.LocalTime
 import java.time.Month
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 val nbLocale = Locale.of("nb", "Norway")
@@ -91,6 +92,10 @@ fun MånedPeriode.overlapperHeltEllerDelvisMed(annenPeriode: MånedPeriode) =
         annenPeriode.inkluderer(this.tom)
 
 fun MånedPeriode.erMellom(annenPeriode: MånedPeriode) = annenPeriode.inkluderer(this.fom) && annenPeriode.inkluderer(this.tom)
+
+fun MånedPeriode.antallMåneder(): Int = fom.until(tom, ChronoUnit.MONTHS).toInt() + 1
+
+fun MånedPeriode.månederIPeriode(): List<YearMonth> = generateSequence(fom) { it.plusMonths(1) }.takeWhile { it <= tom }.toList()
 
 fun LocalDate.førsteDagINesteMåned() = this.plusMonths(1).withDayOfMonth(1)
 

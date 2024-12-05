@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
@@ -13,6 +14,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -21,12 +23,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
+import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -60,16 +64,61 @@ class BeslutteVedtakStegTest {
     @MockK
     private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
 
+    @MockK
+    private lateinit var brevmottakerService: BrevmottakerService
+
     @InjectMockKs
     private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
 
+    private val underkjentVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
+    private val godkjentVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
+
     @BeforeEach
-    private fun init() {
+    fun init() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         every { unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
+    }
+
+    @Test
+    fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024, feature toggle GODKJENNE_OVERGANGSORDNING er av og resultat er GODKJENT`() {
+        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
+        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
+
+        val beslutning =
+            BesluttVedtakDto(
+                beslutning = Beslutning.GODKJENT,
+                begrunnelse = "GODKJENT",
+            )
+
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, beslutning) }
+
+        assertThat(
+            funksjonellFeil.message,
+            Is("Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå."),
+        )
+    }
+
+    @Test
+    fun `utførSteg skal ikke kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024, feature toggle GODKJENNE_OVERGANGSORDNING er av og resultat er UNDERKJENT`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
+        every { behandlingService.hentBehandling(200) } returns behandling
+        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
+        every { brevmottakerService.hentBrevmottakere(any()) } returns mockk()
+        every { totrinnskontrollService.besluttTotrinnskontroll(any(), any(), any(), any(), any()) } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        justRun { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
+
+        val beslutning =
+            BesluttVedtakDto(
+                beslutning = Beslutning.UNDERKJENT,
+                begrunnelse = "UNDERKJENT",
+            )
+
+        assertDoesNotThrow { beslutteVedtakSteg.utførSteg(200, beslutning) }
     }
 
     @Test
@@ -79,7 +128,7 @@ class BeslutteVedtakStegTest {
                 status = BehandlingStatus.IVERKSETTER_VEDTAK
             }
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, mockk()) }
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
         assertThat(funksjonellFeil.message, Is("Behandlingen er allerede sendt til oppdrag og venter på kvittering"))
     }
@@ -91,7 +140,7 @@ class BeslutteVedtakStegTest {
                 status = BehandlingStatus.AVSLUTTET
             }
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, mockk()) }
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
         assertThat(funksjonellFeil.message, Is("Behandlingen er allerede avsluttet"))
     }
@@ -101,7 +150,7 @@ class BeslutteVedtakStegTest {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV)
         every { unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
 
-        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, mockk()) }
+        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
         assertThat(
             funksjonellFeil.message,
@@ -115,29 +164,28 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal opprette og initiere nytt vedtak dersom vedtaket er underkjent `() {
-        val besluttVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
-
         every {
             totrinnskontrollService.besluttTotrinnskontroll(
                 any(),
                 any(),
                 any(),
-                besluttVedtakDto.beslutning,
+                underkjentVedtakDto.beslutning,
                 emptyList(),
             )
         } returns mockk(relaxed = true)
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
 
-        beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
+        beslutteVedtakSteg.utførSteg(200, underkjentVedtakDto)
 
         verify(exactly = 1) {
             totrinnskontrollService.besluttTotrinnskontroll(
                 any(),
                 any(),
                 any(),
-                besluttVedtakDto.beslutning,
+                underkjentVedtakDto.beslutning,
                 emptyList(),
             )
         }
@@ -150,14 +198,12 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `utførSteg skal oppdatere vedtak med nytt vedtaksbrev dersom vedtaket er godkjent `() {
-        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")
-
         every {
             totrinnskontrollService.besluttTotrinnskontroll(
                 any(),
                 any(),
                 any(),
-                besluttVedtakDto.beslutning,
+                godkjentVedtakDto.beslutning,
                 emptyList(),
             )
         } returns mockk(relaxed = true)
@@ -165,14 +211,16 @@ class BeslutteVedtakStegTest {
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
-        beslutteVedtakSteg.utførSteg(200, besluttVedtakDto)
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+
+        beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto)
 
         verify(exactly = 1) {
             totrinnskontrollService.besluttTotrinnskontroll(
                 any(),
                 any(),
                 any(),
-                besluttVedtakDto.beslutning,
+                godkjentVedtakDto.beslutning,
                 emptyList(),
             )
         }
@@ -186,14 +234,76 @@ class BeslutteVedtakStegTest {
         every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING, any()) } returns false
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
-        val besluttVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, null)
 
         every { behandlingService.hentBehandling(any()) } returns behandling
 
-        val feil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(behandling.id, besluttVedtakDto) }
+        val feil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(behandling.id, godkjentVedtakDto) }
         assertThat(
             feil.melding,
             Is("Du har ikke tilgang til å beslutte en behandling med årsak=Teknisk endring. Ta kontakt med teamet dersom dette ikke stemmer."),
         )
+    }
+
+    @Test
+    fun `utførSteg skal kaste feil dersom vedtaket er godkjent og det finnes ugyldige manuelle brevmottakere`() {
+        // Arrange
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                godkjentVedtakDto.beslutning,
+                emptyList(),
+            )
+        } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+
+        // Act & assert
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto)
+            }
+
+        assertThat(exception.message, Is("Det finnes ugyldige brevmottakere, vi kan ikke beslutte vedtaket"))
+    }
+
+    @Test
+    fun `utførSteg skal opprette og initiere nytt vedtak dersom vedtaket er underkjent selv om det finnes ugyldige brevmottakere`() {
+        // Arrange
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                underkjentVedtakDto.beslutning,
+                emptyList(),
+            )
+        } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+
+        // Act
+        beslutteVedtakSteg.utførSteg(200, underkjentVedtakDto)
+
+        // Assert
+        verify(exactly = 1) {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                underkjentVedtakDto.beslutning,
+                emptyList(),
+            )
+        }
+        verify(exactly = 1) { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) }
+        verify(exactly = 2) { taskService.save(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
+        verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
+        verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
     }
 }

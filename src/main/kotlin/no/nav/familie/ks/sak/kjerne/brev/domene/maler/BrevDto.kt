@@ -59,6 +59,9 @@ enum class Brevmal(
 ) {
     @Deprecated("Manuelt brev som skal sendes en gang til de som er påvirket av lovendring med søknadsdato før feb 2024, vedtatt etter feb 2024, og ATY etter juli 2024.")
     INFORMASJONSBREV_LOVENDRING_JULI_2024(erVedtaksbrev = false, apiNavn = "informasjonOmOvergangsordningForKontantstotte", visningsTekst = "Kontantstøtte – overgangsordning"),
+
+    INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024(erVedtaksbrev = false, apiNavn = "informasjonNummer2OmOvergangsordningenForKontantstotte", visningsTekst = "Kontantstøtte – overgangsordning 2024"),
+
     INFORMASJONSBREV_DELT_BOSTED(erVedtaksbrev = false, apiNavn = "informasjonsbrevDeltBosted", visningsTekst = "Informasjonsbrev delt bosted"),
     INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER(
         erVedtaksbrev = false,
@@ -100,6 +103,7 @@ enum class Brevmal(
     VEDTAK_FORTSATT_INNVILGET(erVedtaksbrev = true, apiNavn = "vedtakFortsattInnvilget", visningsTekst = "Vedtak fortsatt innvilget"),
     VEDTAK_KORREKSJON_VEDTAKSBREV(erVedtaksbrev = true, apiNavn = "korrigertVedtakEgenBrevmal", visningsTekst = "Korrigere vedtak med egen brevmal"),
     VEDTAK_OPPHØR_DØDSFALL(erVedtaksbrev = true, apiNavn = "dodsfall", visningsTekst = "Dødsfall"),
+    VEDTAK_OVERGANGSORDNING(erVedtaksbrev = true, apiNavn = "vedtakOvergangsordning", visningsTekst = "Overgangsordning vedtak"),
 
     AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG(erVedtaksbrev = true, apiNavn = "autovedtakBarn6AarOg18AarOgSmaabarnstillegg", visningsTekst = "Autovedtak - Barn 6 og 18 år og småbarnstillegg"),
     AUTOVEDTAK_NYFØDT_FØRSTE_BARN(erVedtaksbrev = true, apiNavn = "autovedtakNyfodtForsteBarn", visningsTekst = "Autovedtak nyfødt - første barn"),
@@ -128,6 +132,7 @@ enum class Brevmal(
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER,
             INFORMASJONSBREV_LOVENDRING_JULI_2024,
+            INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024,
             -> false
 
             VEDTAK_FØRSTEGANGSVEDTAK,
@@ -138,6 +143,7 @@ enum class Brevmal(
             VEDTAK_FORTSATT_INNVILGET,
             VEDTAK_KORREKSJON_VEDTAKSBREV,
             VEDTAK_OPPHØR_DØDSFALL,
+            VEDTAK_OVERGANGSORDNING,
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
@@ -163,6 +169,7 @@ enum class Brevmal(
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
             VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Dokumenttype.KONTANTSTØTTE_VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT
             INFORMASJONSBREV_LOVENDRING_JULI_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_LOVENDRING_JULI_2024
+            INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024
             ENDRING_AV_FRAMTIDIG_OPPHØR -> Dokumenttype.KONTANTSTØTTE_ENDRING_AV_FRAMTIDIG_OPPHØR
 
             VEDTAK_ENDRING,
@@ -176,6 +183,7 @@ enum class Brevmal(
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+            VEDTAK_OVERGANGSORDNING,
             -> throw Feil("Ingen dokumenttype for $this")
         }
 
@@ -195,6 +203,7 @@ enum class Brevmal(
                 INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER -> Distribusjonstype.VIKTIG
                 VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Distribusjonstype.VIKTIG
                 INFORMASJONSBREV_LOVENDRING_JULI_2024 -> Distribusjonstype.VIKTIG
+                INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 -> Distribusjonstype.VEDTAK
                 SVARTIDSBREV -> Distribusjonstype.ANNET
                 FORLENGET_SVARTIDSBREV -> Distribusjonstype.ANNET
                 INFORMASJONSBREV_KAN_SØKE -> Distribusjonstype.ANNET
@@ -208,6 +217,7 @@ enum class Brevmal(
                 VEDTAK_FORTSATT_INNVILGET -> Distribusjonstype.VEDTAK
                 VEDTAK_KORREKSJON_VEDTAKSBREV -> Distribusjonstype.VEDTAK
                 VEDTAK_OPPHØR_DØDSFALL -> Distribusjonstype.VEDTAK
+                VEDTAK_OVERGANGSORDNING -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_NYFØDT_FØRSTE_BARN -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_NYFØDT_BARN_FRA_FØR -> Distribusjonstype.VEDTAK

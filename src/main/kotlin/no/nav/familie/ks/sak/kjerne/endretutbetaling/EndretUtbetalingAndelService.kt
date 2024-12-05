@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
-import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -38,10 +38,9 @@ class EndretUtbetalingAndelService(
     @Transactional
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
         behandling: Behandling,
-        endretUtbetalingAndelId: Long,
         endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ) {
-        val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId)
+        val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelRequestDto.id)
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
@@ -53,7 +52,7 @@ class EndretUtbetalingAndelService(
 
         val andreEndredeAndelerPåBehandling =
             hentEndredeUtbetalingAndeler(behandling.id)
-                .filter { it.id != endretUtbetalingAndelId }
+                .filter { it.id != endretUtbetalingAndelRequestDto.id }
 
         val gyldigTomEtterDagensDato =
             beregnGyldigTomIFremtiden(
@@ -99,10 +98,9 @@ class EndretUtbetalingAndelService(
             endretUtbetalingAndel,
         )
 
-        endretUtbetalingAndelOppdatertAbonnementer.forEach {
-            it.endretUtbetalingAndelerOppdatert(
-                behandlingId = behandling.id,
-                endretUtbetalingAndeler = andreEndredeAndelerPåBehandling + endretUtbetalingAndel,
+        endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
+            abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
+                behandlingId = BehandlingId(behandling.id),
             )
         }
     }
@@ -126,9 +124,8 @@ class EndretUtbetalingAndelService(
         )
 
         endretUtbetalingAndelOppdatertAbonnementer.forEach { abonnent ->
-            abonnent.endretUtbetalingAndelerOppdatert(
-                behandlingId = behandling.id,
-                endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandling.id),
+            abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
+                behandlingId = BehandlingId(behandling.id),
             )
         }
     }
@@ -183,8 +180,7 @@ class EndretUtbetalingAndelService(
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {
-    fun endretUtbetalingAndelerOppdatert(
-        behandlingId: Long,
-        endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
+    fun tilpassKompetanserTilEndretUtbetalingAndeler(
+        behandlingId: BehandlingId,
     )
 }

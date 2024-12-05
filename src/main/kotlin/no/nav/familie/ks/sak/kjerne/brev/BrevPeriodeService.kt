@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDt
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
+import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 
@@ -28,6 +29,7 @@ class BrevPeriodeService(
     val vilkårsvurderingRepository: VilkårsvurderingRepository,
     val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    val overgangsordningAndelService: OvergangsordningAndelService,
     val søknadGrunnlagService: SøknadGrunnlagService,
     val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     val vedtaksperiodeService: VedtaksperiodeService,
@@ -86,6 +88,7 @@ class BrevPeriodeService(
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                     kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
                     landkoder = integrasjonClient.hentLandkoderISO2(),
+                    overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId),
                 ).genererBrevPeriodeDto()
             }
     }

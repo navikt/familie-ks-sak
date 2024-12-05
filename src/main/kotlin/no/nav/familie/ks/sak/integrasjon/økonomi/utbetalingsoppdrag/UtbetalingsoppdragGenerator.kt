@@ -9,13 +9,21 @@ import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
+import no.nav.familie.ks.sak.common.util.MånedPeriode
+import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndelerPerAktør
+import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.time.YearMonth
 
 const val FAGSYSTEM = "KS"
+val OVERGANGSORDNING_UTBETALINGSMÅNED = YearMonth.of(2024, 12)
 
 @Component
 class UtbetalingsoppdragGenerator {
@@ -26,6 +34,7 @@ class UtbetalingsoppdragGenerator {
         nyTilkjentYtelse: TilkjentYtelse,
         sisteAndelPerKjede: Map<IdentOgType, AndelTilkjentYtelse>,
         erSimulering: Boolean,
+        skalSendeOvergangsordningAndeler: Boolean,
     ): BeregnetUtbetalingsoppdragLongId =
         Utbetalingsgenerator().lagUtbetalingsoppdrag(
             behandlingsinformasjon =
@@ -46,13 +55,10 @@ class UtbetalingsoppdragGenerator {
                     // Ved simulering når migreringsdato er endret, skal vi opphøre fra den nye datoen og ikke fra første utbetaling per kjede.
                     opphørKjederFraFørsteUtbetaling = erSimulering,
                 ),
-            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId() ?: emptyList(),
-            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(),
+            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId(skalSendeOvergangsordningAndeler) ?: emptyList(),
+            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler),
             sisteAndelPerKjede = sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() },
         )
-
-    private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> =
-        this.andelerTilkjentYtelse.map { it.tilAndelDataLongId() }
 
     private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId =
         AndelDataLongId(
@@ -66,6 +72,57 @@ class UtbetalingsoppdragGenerator {
             forrigePeriodeId = forrigePeriodeOffset,
             kildeBehandlingId = kildeBehandlingId,
         )
+
+    private fun TilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler: Boolean): List<AndelDataLongId> {
+        val ordinæreAndeler = this.ordinæreAndelertilAndelDataLongId()
+        val overgangsordningAndeler =
+            when (skalSendeOvergangsordningAndeler) {
+                true -> this.overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId()
+                false -> emptyList()
+            }
+        return ordinæreAndeler + overgangsordningAndeler
+    }
+
+    private fun TilkjentYtelse.ordinæreAndelertilAndelDataLongId(): List<AndelDataLongId> =
+        this
+            .andelerTilkjentYtelse
+            .ordinæreAndeler()
+            .map { it.tilAndelDataLongId() }
+
+    private fun TilkjentYtelse.overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId(): List<AndelDataLongId> {
+        val ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned =
+            ordinæreAndelerPerBarnIOvergangsordningUtbetalingMåned()
+        return this
+            .andelerTilkjentYtelse
+            .overgangsordningAndelerPerAktør()
+            .map { (aktør, overgangsordningAndeler) ->
+                val førsteAndel = overgangsordningAndeler.minBy { it.stønadFom }
+                val kalkulertUtbetalingsbeløp =
+                    overgangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() } +
+                        (ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned[aktør]?.kalkulertUtbetalingsbeløp ?: 0)
+                AndelDataLongId(
+                    id = førsteAndel.id,
+                    fom = OVERGANGSORDNING_UTBETALINGSMÅNED,
+                    tom = OVERGANGSORDNING_UTBETALINGSMÅNED,
+                    beløp = kalkulertUtbetalingsbeløp,
+                    personIdent = aktør.aktivFødselsnummer(),
+                    type = førsteAndel.type.tilYtelseType(),
+                    periodeId = førsteAndel.periodeOffset,
+                    forrigePeriodeId = førsteAndel.forrigePeriodeOffset,
+                    kildeBehandlingId = førsteAndel.kildeBehandlingId,
+                )
+            }
+    }
+
+    private fun TilkjentYtelse.ordinæreAndelerPerBarnIOvergangsordningUtbetalingMåned(): Map<Aktør, AndelTilkjentYtelse?> =
+        andelerTilkjentYtelse
+            .ordinæreAndeler()
+            .groupBy { it.aktør }
+            .mapValues { (_, andeler) ->
+                andeler.find { andel ->
+                    andel.periode.overlapperHeltEllerDelvisMed(MånedPeriode(OVERGANGSORDNING_UTBETALINGSMÅNED, OVERGANGSORDNING_UTBETALINGSMÅNED))
+                }
+            }
 }
 
 enum class YtelsetypeKS(

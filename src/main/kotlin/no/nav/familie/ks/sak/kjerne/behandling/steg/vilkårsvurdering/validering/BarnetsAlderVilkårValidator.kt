@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
-import no.nav.familie.ks.sak.common.tidslinje.IkkeNullbarPeriode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.tidslinje.IkkeNullbarPeriode
 import org.springframework.stereotype.Component
 
 @Component

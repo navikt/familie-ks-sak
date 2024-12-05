@@ -13,11 +13,11 @@ import jakarta.persistence.Table
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.tidslinje.Periode
 import java.math.BigDecimal
 import java.time.YearMonth
 

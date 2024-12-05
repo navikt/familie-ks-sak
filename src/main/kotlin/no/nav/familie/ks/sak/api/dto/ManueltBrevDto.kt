@@ -62,6 +62,13 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                 mottakerIdent = this.mottakerIdent,
             )
 
+        Brevmal.INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 ->
+            BrevUtenDataDto(
+                mal = Brevmal.INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024,
+                mottakerNavn = this.mottakerNavn,
+                mottakerIdent = this.mottakerIdent,
+            )
+
         Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
             InformasjonsbrevDeltBostedBrevDto(
                 data =
@@ -258,6 +265,7 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
         Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
         Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
         Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+        Brevmal.VEDTAK_OVERGANGSORDNING,
         -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
     }
 
