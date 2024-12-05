@@ -104,6 +104,7 @@ class EndretUtbetalingAndelServiceTest {
 
     @Test
     fun `sanityBegrunnelserMedEndringsårsak - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
+        // Arrange
         val sanityTekster =
             listOf(
                 SanityBegrunnelse(
@@ -138,8 +139,10 @@ class EndretUtbetalingAndelServiceTest {
                 ),
             )
 
+        // Act
         val endringsårsakbegrunnelser = endretUtbetalingAndelService.sanityBegrunnelserMedEndringsårsak(sanityTekster)
 
+        // Assert
         assertEquals(9, endringsårsakbegrunnelser.size)
         assertEquals(2, endringsårsakbegrunnelser[BegrunnelseType.AVSLAG]?.size)
     }
