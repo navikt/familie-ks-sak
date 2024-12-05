@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,6 +22,7 @@ class TilkjentYtelseValideringService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val personidentService: PersonidentService,
     private val behandlingService: BehandlingService,
+    private val unleashService: UnleashService,
 ) {
     fun validerAtIngenUtbetalingerOverstiger100Prosent(behandling: Behandling) {
         if (behandling.erTekniskEndring()) return
@@ -44,6 +46,7 @@ class TilkjentYtelseValideringService(
                 tilkjentYtelseForBehandling = tilkjentYtelse,
                 barnMedAndreRelevanteTilkjentYtelser = barnMedAndreRelevanteTilkjentYtelser,
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                unleashService = unleashService,
             )
         }
     }
