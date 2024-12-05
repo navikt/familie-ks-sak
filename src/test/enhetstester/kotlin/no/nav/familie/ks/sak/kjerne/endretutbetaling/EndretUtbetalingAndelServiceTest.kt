@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
-class EndretUtbetalingAndelServiceEnhetstest {
+class EndretUtbetalingAndelServiceTest {
     @MockK
     private lateinit var endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository
 
