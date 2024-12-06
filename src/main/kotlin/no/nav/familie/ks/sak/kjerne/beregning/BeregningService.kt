@@ -63,6 +63,30 @@ class BeregningService(
         }
     }
 
+    // For at endret utbetaling andeler skal fungere så må man generere andeler før man kobler endringene på andelene.
+    // Dette er fordi en endring regnes som gyldig når den overlapper med en andel og har gyldig årsak.
+    // Hvis man ikke genererer andeler før man kobler på endringene så vil ingen av endringene ses på som gyldige, altså ikke oppdatere noen andeler.
+    // Dette gjøres spesifikt fra vilkårsvurdering steget da på dette tidspunktet så har man ikke generert andeler.
+    fun oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(
+        behandling: Behandling,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering,
+    ) {
+        val tilkjentYtelse =
+            tilkjentYtelseService.beregnTilkjentYtelse(
+                vilkårsvurdering = vilkårsvurdering,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                endretUtbetalingAndeler = emptyList(),
+            )
+        tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
+
+        this.oppdaterTilkjentYtelsePåBehandling(
+            behandling,
+            personopplysningGrunnlag,
+            vilkårsvurdering,
+        )
+    }
+
     fun oppdaterTilkjentYtelsePåBehandling(
         behandling: Behandling,
         personopplysningGrunnlag: PersonopplysningGrunnlag,

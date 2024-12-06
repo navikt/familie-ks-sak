@@ -51,7 +51,6 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class VilkårsvurderingStegTest {
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     private val behandlingService: BehandlingService = mockk()
@@ -118,7 +117,7 @@ class VilkårsvurderingStegTest {
         every { søknadGrunnlagService.finnAktiv(behandling.id) } returns søknadGrunnlagMock
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
-        every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
+        every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
     }
 
     @Test
