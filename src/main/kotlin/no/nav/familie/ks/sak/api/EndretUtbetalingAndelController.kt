@@ -106,7 +106,7 @@ class EndretUtbetalingAndelController(
     }
 
     @GetMapping(
-        path = ["/endret-utbetaling-begrunnelser"],
+        path = ["/endret-utbetaling-vedtaksbegrunnelser"],
     )
     fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>>>> = ResponseEntity.ok(Ressurs.success(endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()))
 }
