@@ -167,10 +167,10 @@ class EndretUtbetalingAndelService(
             .groupBy { it.begrunnelseType }
             .mapValues { begrunnelseGruppe ->
                 begrunnelseGruppe.value
-                    .flatMap { endretUtbetalingBegrunnelse ->
+                    .flatMap { begrunnelse ->
                         sanityBegrunnelseTilRestFormat(
                             sanityBegrunnelser,
-                            endretUtbetalingBegrunnelse,
+                            begrunnelse,
                         )
                     }
             }
