@@ -61,7 +61,6 @@ class GraderingsforskjellKtTest {
                 antallTimer = BigDecimal(20),
             )
 
-
         // Act
         val graderingsforskjell =
             finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
