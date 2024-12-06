@@ -146,6 +146,62 @@ class HjemmeltekstUtlederTest {
     }
 
     @Test
+    fun `skal ikke inkludere hjemmel 13 og 16 dersom andreVurderinger ikke inneholder Opplysningsplikt-vilkår`() {
+        // Arrange
+        val søker = randomAktør()
+
+        val behandling = lagBehandling()
+
+        val vedtaksperioderMedBegrunnelser =
+            listOf(
+                lagUtvidetVedtaksperiodeMedBegrunnelser(
+                    begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_BOSATT_I_NORGE).map { lagVedtaksbegrunnelse(it) },
+                ),
+                lagUtvidetVedtaksperiodeMedBegrunnelser(
+                    begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_SATSENDRING).map { lagVedtaksbegrunnelse(it) },
+                ),
+            )
+
+        every { refusjonEøsService.harRefusjonEøsPåBehandling(behandlingId = behandling.id) } returns false
+        every { personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandling.id) } returns Målform.NB
+
+        every {
+            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id)
+        } returns
+            lagVilkårsvurdering(
+                søkerAktør = søker,
+                behandling = behandling,
+                resultat = Resultat.OPPFYLT,
+                medAndreVurderinger = false,
+            )
+
+        every {
+            sanityService.hentSanityBegrunnelser()
+        } returns
+            listOf(
+                lagSanityBegrunnelse(
+                    apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_BOSATT_I_NORGE.sanityApiNavn,
+                    hjemler = listOf("11", "4", "2", "10"),
+                ),
+                lagSanityBegrunnelse(
+                    apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_SATSENDRING.sanityApiNavn,
+                    hjemler = listOf("10"),
+                ),
+            )
+
+        // Act
+        val hjemler =
+            hjemmeltekstUtleder.utledHjemmeltekst(
+                behandlingId = behandling.id,
+                vedtakKorrigertHjemmelSkalMedIBrev = false,
+                utvidetVedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser,
+            )
+
+        // Assert
+        assertThat(hjemler).isEqualTo("kontantstøtteloven §§ 2, 4, 10 og 11")
+    }
+
+    @Test
     fun `skal inkludere hjemmel 13 og 16 hvis opplysningsplikt ikke er oppfylt`() {
         // Arrange
         val søker = randomAktør()
