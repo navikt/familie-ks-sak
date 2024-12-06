@@ -42,20 +42,29 @@ object BehandlingsresultatSøknadUtils {
                 endretUtbetalingAndeler = endretUtbetalingAndeler,
             )
 
-        val erEksplisittAvslagPåMinstEnPersonFremstiltKravFor =
-            erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøker(
+        val erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering =
+            erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering(
                 nåværendePersonResultater = nåværendePersonResultater,
+                personerFremstiltKravFor = personerFremstiltKravFor,
+            )
+
+        val erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler =
+            erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler(
+                nåværendeEndretUtbetalingAndeler = endretUtbetalingAndeler,
                 personerFremstiltKravFor = personerFremstiltKravFor,
             )
 
         val alleResultater =
             (
-                if (erEksplisittAvslagPåMinstEnPersonFremstiltKravFor || finnesUregistrerteBarn) {
-                    resultaterFraAndeler.plus(Søknadsresultat.AVSLÅTT)
-                } else {
-                    resultaterFraAndeler
-                }
-            ).distinct()
+                    if (erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering ||
+                        erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler ||
+                        finnesUregistrerteBarn
+                    ) {
+                        resultaterFraAndeler.plus(Søknadsresultat.AVSLÅTT)
+                    } else {
+                        resultaterFraAndeler
+                    }
+                    ).distinct()
 
         return alleResultater.kombinerSøknadsresultater(behandlingÅrsak = behandlingÅrsak)
     }
@@ -106,8 +115,8 @@ object BehandlingsresultatSøknadUtils {
                                 } else {
                                     secureLogger.info(
                                         "Andel $nåværende er satt til 0kr, men det skyldes verken differanseberegning eller endret utbetaling andel." +
-                                            "\nNåværende andeler: $nåværendeAndelerForPerson" +
-                                            "\nEndret utbetaling andeler: $endretUtbetalingAndelerForPerson",
+                                                "\nNåværende andeler: $nåværendeAndelerForPerson" +
+                                                "\nEndret utbetaling andeler: $endretUtbetalingAndelerForPerson",
                                     )
                                     throw Feil("Andel er satt til 0 kr, men det skyldes verken differanseberegning eller endret utbetaling andel")
                                 }
@@ -117,7 +126,7 @@ object BehandlingsresultatSøknadUtils {
                             Årsak.ENDRE_MOTTAKER,
                             Årsak.ETTERBETALING_3MND,
                             Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
-                            -> Søknadsresultat.AVSLÅTT
+                                -> Søknadsresultat.AVSLÅTT
                         }
                     }
 
@@ -129,7 +138,7 @@ object BehandlingsresultatSøknadUtils {
         return resultatTidslinje.tilPerioderIkkeNull().map { it.verdi }.distinct()
     }
 
-    private fun erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøker(
+    private fun erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering(
         nåværendePersonResultater: Set<PersonResultat>,
         personerFremstiltKravFor: List<Aktør>,
     ): Boolean =
@@ -138,6 +147,14 @@ object BehandlingsresultatSøknadUtils {
             .any {
                 it.harEksplisittAvslag()
             }
+
+    private fun erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler(
+        nåværendeEndretUtbetalingAndeler: List<EndretUtbetalingAndel>,
+        personerFremstiltKravFor: List<Aktør>,
+    ): Boolean =
+        nåværendeEndretUtbetalingAndeler
+            .filter { personerFremstiltKravFor.contains(it.person?.aktør) }
+            .any { it.erEksplisittAvslagPåSøknad == true}
 
     internal fun List<Søknadsresultat>.kombinerSøknadsresultater(behandlingÅrsak: BehandlingÅrsak): Søknadsresultat {
         val resultaterUtenIngenEndringer = this.filter { it != Søknadsresultat.INGEN_RELEVANTE_ENDRINGER }
@@ -160,13 +177,13 @@ object BehandlingsresultatSøknadUtils {
             this.size == 1 -> this.single()
             resultaterUtenIngenEndringer.size == 1 -> resultaterUtenIngenEndringer.single()
             resultaterUtenIngenEndringer.size == 2 &&
-                resultaterUtenIngenEndringer.containsAll(
-                    listOf(
-                        Søknadsresultat.INNVILGET,
-                        Søknadsresultat.AVSLÅTT,
-                    ),
-                )
-            -> Søknadsresultat.DELVIS_INNVILGET
+                    resultaterUtenIngenEndringer.containsAll(
+                        listOf(
+                            Søknadsresultat.INNVILGET,
+                            Søknadsresultat.AVSLÅTT,
+                        ),
+                    )
+                -> Søknadsresultat.DELVIS_INNVILGET
 
             else -> throw Feil("Klarer ikke kombinere søknadsresultater: $this")
         }
