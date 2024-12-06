@@ -3,11 +3,13 @@ package no.nav.familie.ks.sak.kjerne.endretutbetaling
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
@@ -33,6 +35,7 @@ class EndretUtbetalingAndelService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
+    private val sanityService: SanityService,
 ) {
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
@@ -162,8 +165,9 @@ class EndretUtbetalingAndelService(
         )
     }
 
-    fun sanityBegrunnelserMedEndringsårsak(sanityBegrunnelser: List<SanityBegrunnelse>) =
-        (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
+    fun hentSanityBegrunnelserMedEndringsårsak(): Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>> {
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser().filter { it.endringsårsaker.isNotEmpty() }
+        return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
             .groupBy { it.begrunnelseType }
             .mapValues { begrunnelseGruppe ->
                 begrunnelseGruppe.value
@@ -174,6 +178,7 @@ class EndretUtbetalingAndelService(
                         )
                     }
             }
+    }
 }
 
 interface EndretUtbetalingAndelerOppdatertAbonnent {

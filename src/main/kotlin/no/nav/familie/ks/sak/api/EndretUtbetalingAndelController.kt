@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -33,7 +32,6 @@ class EndretUtbetalingAndelController(
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-    private val sanityService: SanityService,
 ) {
     @PutMapping(path = ["/{behandlingId}/{endretUtbetalingAndelId}"])
     fun oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
@@ -110,8 +108,5 @@ class EndretUtbetalingAndelController(
     @GetMapping(
         path = ["/endret-utbetaling-begrunnelser"],
     )
-    fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>>>> {
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser().filter { it.endringsårsaker.isNotEmpty() }
-        return ResponseEntity.ok(Ressurs.success(endretUtbetalingAndelService.sanityBegrunnelserMedEndringsårsak(sanityBegrunnelser)))
-    }
+    fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>>>> = ResponseEntity.ok(Ressurs.success(endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()))
 }

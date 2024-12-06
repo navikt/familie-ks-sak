@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
@@ -47,6 +48,9 @@ class EndretUtbetalingAndelServiceTest {
 
     @InjectMockKs
     private lateinit var endretUtbetalingAndelService: EndretUtbetalingAndelService
+
+    @MockK
+    private lateinit var sanityService: SanityService
 
     @Test
     fun `kopierEndretUtbetalingAndelFraForrigeBehandling - skal kopiere over endrete utbetaling i forrige behandling og lagre disse på ny`() {
@@ -103,9 +107,9 @@ class EndretUtbetalingAndelServiceTest {
     }
 
     @Test
-    fun `sanityBegrunnelserMedEndringsårsak - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
+    fun `hentSanityBegrunnelserMedEndringsårsak - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
         // Arrange
-        val sanityTekster =
+        every { sanityService.hentSanityBegrunnelser() } returns
             listOf(
                 SanityBegrunnelse(
                     NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER.sanityApiNavn,
@@ -140,7 +144,7 @@ class EndretUtbetalingAndelServiceTest {
             )
 
         // Act
-        val endringsårsakbegrunnelser = endretUtbetalingAndelService.sanityBegrunnelserMedEndringsårsak(sanityTekster)
+        val endringsårsakbegrunnelser = endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()
 
         // Assert
         assertEquals(9, endringsårsakbegrunnelser.size)
