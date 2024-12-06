@@ -80,7 +80,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato til første dag samme månede når fom dato er første dag i måneden ved økning fra full barnehageplass samme måned som andre vilkår først blir oppfylt`() {
+    fun `skal forskyve fom dato til første dag samme månede når fom dato er første dag i måneden ved økning fra full barnehageplass`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 10, 1)
 
@@ -96,7 +96,7 @@ class FomForskyverKtTest {
     }
 
     @Test
-    fun `skal forskyve fom dato til første dag neste månede når fom dato er siste dag i måneden ved økning fra full barnehageplass samme måned som andre vilkår først blir oppfylt`() {
+    fun `skal forskyve fom dato til første dag neste månede når fom dato er siste dag i måneden ved økning fra full barnehageplass`() {
         // Arrange
         val fomDato = LocalDate.of(2024, 10, 31)
 

@@ -208,7 +208,7 @@ class TomForskyverKtTest {
     }
 
     @Nested
-    inner class ØkningFraFullBarnehageplassSammeMånedSomAndreVilkårFørstBlirOppfyltTest {
+    inner class GraderingsforskjellØkningFraFullBarnehageplassTest {
         @Test
         fun `skal forskyve tom til siste dag i samme måned når tom dato er siste dag i måneden`() {
             // Arrange

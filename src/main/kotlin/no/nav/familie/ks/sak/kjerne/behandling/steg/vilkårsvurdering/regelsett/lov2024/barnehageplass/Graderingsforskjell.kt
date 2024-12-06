@@ -37,7 +37,7 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
         tidligsteÅrMånedAlleAndreVilkårErOppfylt != null &&
             vilkårResultatDennePerioden?.periodeFom?.toYearMonth() == tidligsteÅrMånedAlleAndreVilkårErOppfylt
 
-    val harSluttetIBarnehageDennePerioden =
+    val harSluttetIFulltidBarnehageDennePerioden =
         graderingForrigePeriode < graderingDennePerioden &&
             graderingForrigePeriode.equals(BigDecimal(0)) &&
             vilkårResultatForrigePerioden != null
@@ -46,7 +46,7 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt
         -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
 
-        harSluttetIBarnehageDennePerioden
+        harSluttetIFulltidBarnehageDennePerioden
         -> Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS
 
         graderingForrigePeriode > graderingDennePerioden
