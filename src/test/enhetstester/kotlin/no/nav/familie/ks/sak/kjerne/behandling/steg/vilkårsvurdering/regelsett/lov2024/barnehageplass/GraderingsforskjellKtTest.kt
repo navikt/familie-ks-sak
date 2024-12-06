@@ -73,12 +73,12 @@ class GraderingsforskjellKtTest {
 
         // Assert
         assertThat(graderingsforskjell).isEqualTo(
-            Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+            Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS,
         )
     }
 
     @Test
-    fun `skal utlede ØKNING når det er en økning fra full barnehageplass i graderingen til vilkårsresultatet fra forrige og denne perioden men alle andre vilkår er ikke oppfylt samme måned`() {
+    fun `skal utlede ØKNING_FRA_BARNEHAGEPLASS når det er en økning fra full barnehageplass i graderingen til vilkårsresultatet fra forrige og denne perioden`() {
         // Arrange
         val vilkårResultatForrigePeriode =
             lagVilkårResultat(
@@ -107,7 +107,7 @@ class GraderingsforskjellKtTest {
 
         // Assert
         assertThat(graderingsforskjell).isEqualTo(
-            Graderingsforskjell.ØKNING,
+            Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS,
         )
     }
 

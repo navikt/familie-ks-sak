@@ -26,7 +26,7 @@ class FomForskyverKtTest {
         value = Graderingsforskjell::class,
         names = [
             "REDUKSJON",
-            "ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT",
+            "ØKNING_FRA_FULL_BARNEHAGEPLASS",
         ],
         mode = EnumSource.Mode.EXCLUDE,
     )
@@ -88,7 +88,7 @@ class FomForskyverKtTest {
         val forskjøvetDato =
             forskyvFomBasertPåGraderingsforskjell2024(
                 fomDato,
-                Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+                Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS,
             )
 
         // Assert
@@ -104,7 +104,7 @@ class FomForskyverKtTest {
         val forskjøvetDato =
             forskyvFomBasertPåGraderingsforskjell2024(
                 fomDato,
-                Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+                Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS,
             )
 
         // Assert
