@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.erOvergangsordningBegrunn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -34,12 +35,28 @@ class HjemmeltekstUtleder(
 
         val alleHjemlerForBegrunnelser =
             kombinerHjemler(
+<<<<<<< Updated upstream
+=======
+                ordinæreHjemler =
+                    utledOrdinæreHjemler(
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        opplysningspliktHjemlerSkalMedIBrev = vilkårsvurdering.finnOpplysningspliktVilkår()?.resultat == Resultat.IKKE_OPPFYLT,
+                    ),
+>>>>>>> Stashed changes
                 målform = personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandlingId),
                 separasjonsavtaleStorbritanniaHjemler = utledSeprasjonsavtaleStorbritanniaHjemler(sanityBegrunnelser = sanityBegrunnelser),
                 ordinæreHjemler = utledOrdinæreHjemler(sanityBegrunnelser = sanityBegrunnelser, opplysningspliktHjemlerSkalMedIBrev = !vilkårsvurdering.erOpplysningspliktVilkårOppfylt()),
                 eøsForordningen883Hjemler = utledEØSForordningen883Hjemler(sanityBegrunnelser = sanityBegrunnelser),
+<<<<<<< Updated upstream
                 eøsForordningen987Hjemler = utledEØSForordningen987Hjemler(sanityBegrunnelser = sanityBegrunnelser, refusjonEøsHjemmelSkalMedIBrev = refusjonEøsService.harRefusjonEøsPåBehandling(behandlingId)),
                 forvaltningslovenHjemler = utledForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev),
+=======
+                eøsForordningen987Hjemler =
+                    utledEØSForordningen987Hjemler(
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        refusjonEøsHjemmelSkalMedIBrev = refusjonEøsService.harRefusjonEøsPåBehandling(behandlingId),
+                    ),
+>>>>>>> Stashed changes
             )
 
         val hjemlerOgOvergangsordning =
