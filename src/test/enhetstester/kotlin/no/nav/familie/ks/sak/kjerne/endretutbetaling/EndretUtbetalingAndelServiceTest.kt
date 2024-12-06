@@ -126,7 +126,7 @@ class EndretUtbetalingAndelServiceTest {
                     NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER.sanityApiNavn,
                     "avslagAlleredeUtbetaltSokerEndringsperiode",
                     SanityBegrunnelseType.ENDRINGSPERIODE,
-                    Vilkår.values().toList(),
+                    Vilkår.entries.toList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
