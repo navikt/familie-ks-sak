@@ -123,7 +123,7 @@ class EndretUtbetalingAndelServiceTest {
                     støtterFritekst = false,
                 ),
                 SanityBegrunnelse(
-                    NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SOKER.sanityApiNavn,
+                    NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER.sanityApiNavn,
                     "avslagAlleredeUtbetaltSokerEndringsperiode",
                     SanityBegrunnelseType.ENDRINGSPERIODE,
                     Vilkår.values().toList(),
