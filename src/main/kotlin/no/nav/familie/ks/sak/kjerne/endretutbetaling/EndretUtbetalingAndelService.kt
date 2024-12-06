@@ -154,12 +154,10 @@ class EndretUtbetalingAndelService(
     ): List<SanityBegrunnelseMedEndringsårsakResponseDto> {
         val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
 
-        val visningsnavn = sanityBegrunnelse.navnISystem
-
         return listOf(
             SanityBegrunnelseMedEndringsårsakResponseDto(
                 id = begrunnelse,
-                navn = visningsnavn,
+                navn = sanityBegrunnelse.navnISystem,
                 endringsårsaker = sanityBegrunnelse.endringsårsaker,
             ),
         )
