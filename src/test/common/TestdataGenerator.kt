@@ -709,7 +709,7 @@ fun lagEndretUtbetalingAndel(
     avtaletidspunktDeltBosted: LocalDate? = LocalDate.now().minusMonths(1),
     søknadstidspunkt: LocalDate? = LocalDate.now().minusMonths(1),
     begrunnelse: String? = "test",
-    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE),
     erEksplisittAvslagPåSøknad: Boolean? = false,
 ): EndretUtbetalingAndel =
     EndretUtbetalingAndel(
@@ -1478,6 +1478,7 @@ fun lagEndretUtbetalingAndelRequestDto(
     søknadstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
     begrunnelse: String = "en begrunnelse",
     erEksplisittAvslagPåSøknad: Boolean? = false,
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
 ) = EndretUtbetalingAndelRequestDto(
     id,
     personIdent,
@@ -1489,6 +1490,7 @@ fun lagEndretUtbetalingAndelRequestDto(
     søknadstidspunkt,
     begrunnelse,
     erEksplisittAvslagPåSøknad,
+    begrunnelser,
 )
 
 fun lagRefusjonEøs(

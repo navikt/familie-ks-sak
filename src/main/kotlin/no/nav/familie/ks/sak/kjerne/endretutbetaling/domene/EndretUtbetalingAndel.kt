@@ -121,6 +121,7 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         begrunnelse = this.begrunnelse,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty(),
+        begrunnelser = this.begrunnelser,
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
