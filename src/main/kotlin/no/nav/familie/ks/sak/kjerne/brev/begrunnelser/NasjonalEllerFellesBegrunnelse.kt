@@ -761,7 +761,7 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
     },
 
-    AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SOKER {
+    AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER {
         override val sanityApiNavn = "avslagAlleredeUtbetaltSokerEndringsperiode"
         override val begrunnelseType = BegrunnelseType.AVSLAG
     },
