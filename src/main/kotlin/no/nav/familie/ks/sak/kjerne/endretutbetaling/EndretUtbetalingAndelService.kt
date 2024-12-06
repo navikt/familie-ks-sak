@@ -145,25 +145,21 @@ class EndretUtbetalingAndelService(
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
     }
 
-  private  fun sanityBegrunnelseTilRestFormat(
+    private fun sanityBegrunnelseTilRestFormat(
         sanityBegrunnelser: List<SanityBegrunnelse>,
         begrunnelse: IBegrunnelse,
     ): List<SanityBegrunnelseMedEndringsårsakResponseDto> {
-        val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser)
+        val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
 
-        if (sanityBegrunnelse != null) {
-            val visningsnavn = sanityBegrunnelse.navnISystem
+        val visningsnavn = sanityBegrunnelse.navnISystem
 
-            return listOf(
-                SanityBegrunnelseMedEndringsårsakResponseDto(
-                    id = begrunnelse,
-                    navn = visningsnavn,
-                    endringsårsaker = sanityBegrunnelse.endringsårsaker,
-                ),
-            )
-        }
-
-        return emptyList()
+        return listOf(
+            SanityBegrunnelseMedEndringsårsakResponseDto(
+                id = begrunnelse,
+                navn = visningsnavn,
+                endringsårsaker = sanityBegrunnelse.endringsårsaker,
+            ),
+        )
     }
 
     fun sanityBegrunnelserMedEndringsårsak(sanityBegrunnelser: List<SanityBegrunnelse>) =
