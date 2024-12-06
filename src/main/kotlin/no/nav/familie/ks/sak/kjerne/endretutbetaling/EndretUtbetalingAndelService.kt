@@ -145,7 +145,7 @@ class EndretUtbetalingAndelService(
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
     }
 
-    fun sanityBegrunnelseTilRestFormat(
+  private  fun sanityBegrunnelseTilRestFormat(
         sanityBegrunnelser: List<SanityBegrunnelse>,
         begrunnelse: IBegrunnelse,
     ): List<SanityBegrunnelseMedEndringsårsakResponseDto> {
