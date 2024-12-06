@@ -111,7 +111,7 @@ class EndretUtbetalingAndelServiceTest {
                     NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER.sanityApiNavn,
                     "avslagAlleredeUtbataltAnnenForelderEndringsperiode",
                     SanityBegrunnelseType.ENDRINGSPERIODE,
-                    Vilkår.values().toList(),
+                    Vilkår.entries.toList(),
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
