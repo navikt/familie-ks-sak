@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
@@ -59,11 +58,10 @@ fun hentPerioderMedUtbetaling(
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
             .filter {
-                !it.endreteUtbetalinger.any {
-                    endretUtbetalingAndel -> endretUtbetalingAndel.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
+                !it.endreteUtbetalinger.any { endretUtbetalingAndel ->
+                    endretUtbetalingAndel.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
                 }
-            }
-            .tilTidslinjerPerPerson()
+            }.tilTidslinjerPerPerson()
             .values
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
@@ -129,7 +127,7 @@ fun hentBegrunnelserForOvergangsordningPerioder(periode: Periode<Splittkriterier
 
     val skalGradertEllerDeltBostedBegrunnelseBrukes =
         overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED) ||
-                overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+            overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
 
     return if (skalGradertEllerDeltBostedBegrunnelseBrukes) {
         overgangsordningBegrunnelser.filter { it != NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING }.toSet()
