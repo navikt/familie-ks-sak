@@ -59,3 +59,49 @@ Egenskap: Opphørsperiode
       | Fra dato   | Til dato   | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |
       | 01.04.2024 | 31.07.2024 |                      |                 |            |
       | 01.08.2024 |            |                      |                 |            |
+
+
+  Scenario: Opphørsperioder som oppstår i mellom perioder skal ha tom dato, opphørsperioder som oppstår
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | UTREDES           |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 13.12.1995  |
+      | 1            | 2       | BARN       | 06.12.2022  |
+
+    Og følgende dagens dato 07.12.2024
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                                                 | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET,MEDLEMSKAP                              |                  | 13.12.1995 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | BOSATT_I_RIKET,MEDLEMSKAP_ANNEN_FORELDER,BOR_MED_SØKER |                  | 06.12.2022 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 06.12.2022 | 05.03.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                                          |                  | 06.12.2023 | 31.07.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS                                         |                  | 06.03.2024 | 21.05.2024 | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 40           |
+      | 2       | BARNEHAGEPLASS                                         |                  | 22.05.2024 |            | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+
+    Og andeler er beregnet for behandling 1
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 1
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+      | 2       | 01.01.2024 | 29.02.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
+      | 2       | 01.06.2024 | 31.07.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
+    Og når behandlingsresultatet er utledet for behandling 1
+
+    Så forvent at behandlingsresultatet er INNVILGET_OG_OPPHØRT på behandling 1
+
+    Og vedtaksperioder er laget for behandling 1
+
+    Så forvent følgende vedtaksperioder på behandling 1
+      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
+      | 01.01.2024 | 29.02.2024 | UTBETALING         |           |
+      | 01.03.2024 | 31.05.2024 | OPPHØR             |           |
+      | 01.06.2024 | 31.07.2024 | UTBETALING         |           |
+      | 01.08.2024 |            | OPPHØR             |           |
