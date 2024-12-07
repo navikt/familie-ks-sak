@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -57,6 +58,11 @@ fun hentPerioderMedUtbetaling(
 
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
+            .filter {
+                !it.endreteUtbetalinger.any {
+                    endretUtbetalingAndel -> endretUtbetalingAndel.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
+                }
+            }
             .tilTidslinjerPerPerson()
             .values
             .slåSammen()
@@ -123,7 +129,7 @@ fun hentBegrunnelserForOvergangsordningPerioder(periode: Periode<Splittkriterier
 
     val skalGradertEllerDeltBostedBegrunnelseBrukes =
         overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED) ||
-            overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+                overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
 
     return if (skalGradertEllerDeltBostedBegrunnelseBrukes) {
         overgangsordningBegrunnelser.filter { it != NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING }.toSet()
@@ -218,18 +224,3 @@ private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslin
                 }.tilTidslinje()
         }.kombiner { it.toMap() }
 }
-
-private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) =
-    vilkårResultater.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
-
-private fun hentRegelverkPersonErVurdertEtterIPeriode(vilkårResultater: Iterable<VilkårResultat>) =
-    vilkårResultater
-        .map { it.vurderesEtter }
-        .reduce { acc, regelverk ->
-            when {
-                acc == null -> regelverk
-                regelverk == null -> acc
-                regelverk != acc -> throw Feil("Mer enn ett regelverk på person i periode: $regelverk, $acc")
-                else -> acc
-            }
-        }
