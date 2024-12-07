@@ -48,17 +48,14 @@ Egenskap: Opphørsperiode
     Så forvent følgende vedtaksperioder på behandling 1
       | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
       | 01.04.2024 | 31.07.2024 | UTBETALING         |           |
-      | 01.08.2024 | 31.08.2024 | UTBETALING         |           |
       | 01.08.2024 |            | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 1
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Ugyldige begrunnelser |
       | 01.04.2024 | 31.07.2024 | UTBETALING         |                                |                      |                       |
-      | 01.08.2024 | 31.08.2024 | UTBETALING         |                                |                      |                       |
       | 01.08.2024 |            | OPPHØR             |                                |                      |                       |
 
     Og når disse begrunnelsene er valgt for behandling 1
       | Fra dato   | Til dato   | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |
       | 01.04.2024 | 31.07.2024 |                      |                 |            |
-      | 01.08.2024 | 31.08.2024 |                      |                 |            |
       | 01.08.2024 |            |                      |                 |            |
