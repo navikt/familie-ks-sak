@@ -167,7 +167,7 @@ data class Behandling(
         when {
             type == TEKNISK_ENDRING -> false
             opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 && erFremtidigOpphørOgNyAndelIAugust2024 -> true
-            opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024) -> false
+            opprettetÅrsak in listOf(BehandlingÅrsak.SATSENDRING, BehandlingÅrsak.LOVENDRING_2024, BehandlingÅrsak.IVERKSETTE_KA_VEDTAK) -> false
             else -> true
         }
 
@@ -295,6 +295,7 @@ enum class BehandlingÅrsak(
     BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING)),
     LOVENDRING_2024("Lovendring 2024", listOf(REVURDERING)),
     OVERGANGSORDNING_2024("Overgangsordning 2024", listOf(REVURDERING)),
+    IVERKSETTE_KA_VEDTAK("Iverksette KA-vedtak", listOf(REVURDERING)),
 }
 
 enum class BehandlingType(

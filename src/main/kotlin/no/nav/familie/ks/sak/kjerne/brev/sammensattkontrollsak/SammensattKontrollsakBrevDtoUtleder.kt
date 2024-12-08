@@ -70,6 +70,7 @@ class SammensattKontrollsakBrevDtoUtleder(
             Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
+            Brevmal.UTBETALING_ETTER_KA_VEDTAK,
             -> throw Feil("Brevmalen $brevmal er ikke støttet for sammensatte kontrollsaker")
         }
     }

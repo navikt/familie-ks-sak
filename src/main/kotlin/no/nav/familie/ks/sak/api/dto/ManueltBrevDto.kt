@@ -6,11 +6,13 @@ import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevUtenDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.EnkeltInformasjonsbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FlettefelterForDokumentDtoImpl
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.ForlengetSvartidsbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FritekstAvsnitt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadBrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.HenleggeTrukketSøknadDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InformasjonsbrevDeltBostedBrevDto
@@ -23,6 +25,8 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerDataDt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.InnhenteOpplysningerOmBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturDelmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SvartidsbrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.UtbetalingEtterKAVedtakBrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.UtbetalingEtterKAVedtakDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
@@ -49,12 +53,18 @@ data class ManueltBrevDto(
     val barnasFødselsdager: List<LocalDate>? = null,
     val behandlingKategori: BehandlingKategori? = null,
     val manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
+    val fritekstAvsnitt: String? = null,
 ) {
     fun enhetNavn(): String = this.enhet?.enhetNavn ?: error("Finner ikke enhetsnavn på manuell brevrequest")
 }
 
-fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
-    when (this.brevmal) {
+fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto {
+    val fritekstAvsnitt =
+        this.fritekstAvsnitt
+            ?.takeIf { it.isNotBlank() }
+            ?.let { FritekstAvsnitt(it) }
+
+    return when (this.brevmal) {
         Brevmal.INFORMASJONSBREV_LOVENDRING_JULI_2024 ->
             BrevUtenDataDto(
                 mal = Brevmal.INFORMASJONSBREV_LOVENDRING_JULI_2024,
@@ -252,6 +262,23 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
                 mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        Brevmal.UTBETALING_ETTER_KA_VEDTAK ->
+            UtbetalingEtterKAVedtakBrevDto(
+                mal = Brevmal.UTBETALING_ETTER_KA_VEDTAK,
+                data =
+                    UtbetalingEtterKAVedtakDataDto(
+                        delmalData =
+                            UtbetalingEtterKAVedtakDataDto.DelmalData(
+                                signatur = SignaturDelmal(enhet = this.enhetNavn(), saksbehandlerNavn = saksbehandlerNavn),
+                                fritekstAvsnitt = fritekstAvsnitt,
+                            ),
+                        flettefelter =
+                            UtbetalingEtterKAVedtakDataDto.FlettefelterDto(
+                                navn = this.mottakerNavn,
+                                fodselsnummer = this.mottakerIdent,
+                            ),
+                    ),
+            )
 
         Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
         Brevmal.VEDTAK_ENDRING,
@@ -268,6 +295,7 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String) =
         Brevmal.VEDTAK_OVERGANGSORDNING,
         -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
     }
+}
 
 fun ManueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
     behandlingId: Long,

@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.randomAktør
@@ -29,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.prosessering.internal.TaskService
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -70,6 +72,9 @@ class OpprettBehandlingServiceTest {
     @MockK
     private lateinit var behandlingMetrikker: BehandlingMetrikker
 
+    @MockK
+    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
+
     @InjectMockKs
     private lateinit var opprettBehandlingService: OpprettBehandlingService
 
@@ -103,6 +108,7 @@ class OpprettBehandlingServiceTest {
             )
         every { stegService.utførSteg(any(), any()) } returns Unit
         every { behandlingMetrikker.tellNøkkelTallVedOpprettelseAvBehandling(behandling) } just runs
+        every { unleashNextMedContextService.isEnabled(any()) } returns true
     }
 
     @Test
@@ -327,6 +333,24 @@ class OpprettBehandlingServiceTest {
             "Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt.",
             funksjonellFeil.message,
         )
+    }
+
+    @Test
+    fun `opprettBehandling - skal kaste feil dersom behandlingsårsak er IVERKSETTE_KA_VEDTAK og toggle ikke er skrudd på`() {
+        every { unleashNextMedContextService.isEnabled(any()) } returns false
+
+        val funksjonellFeil =
+            assertThrows<FunksjonellFeil> {
+                opprettBehandlingService.opprettBehandling(
+                    OpprettBehandlingDto(
+                        søkersIdent = søkersIdent,
+                        behandlingType = BehandlingType.REVURDERING,
+                        behandlingÅrsak = BehandlingÅrsak.IVERKSETTE_KA_VEDTAK,
+                    ),
+                )
+            }
+
+        assertThat(funksjonellFeil.melding).isEqualTo("Kan ikke opprette behandling med årsak Iverksette KA-vedtak.")
     }
 
     @Test

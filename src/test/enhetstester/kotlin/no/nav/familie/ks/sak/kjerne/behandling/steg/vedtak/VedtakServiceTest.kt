@@ -62,7 +62,7 @@ class VedtakServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = BehandlingÅrsak::class, names = ["SATSENDRING", "LOVENDRING_2024"], mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(value = BehandlingÅrsak::class, names = ["SATSENDRING", "LOVENDRING_2024", "IVERKSETTE_KA_VEDTAK"], mode = EnumSource.Mode.EXCLUDE)
     fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato og stønadsbrev`(
         behandlingÅrsak: BehandlingÅrsak,
     ) {

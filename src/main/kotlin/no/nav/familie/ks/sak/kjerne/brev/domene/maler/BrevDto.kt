@@ -95,6 +95,8 @@ enum class Brevmal(
     INFORMASJONSBREV_KAN_SØKE(erVedtaksbrev = false, apiNavn = "informasjonsbrevKanSoke", visningsTekst = "Informasjonsbrev kan søke"),
     INFORMASJONSBREV_KAN_SØKE_EØS(erVedtaksbrev = false, apiNavn = "informasjonsbrevKanSokeEOS", visningsTekst = "Informasjonsbrev kan søke EØS"),
 
+    UTBETALING_ETTER_KA_VEDTAK(erVedtaksbrev = false, apiNavn = "utbetalingEtterKAVedtak", visningsTekst = "Utbetaling etter KA-vedtak"),
+
     VEDTAK_FØRSTEGANGSVEDTAK(erVedtaksbrev = true, apiNavn = "forstegangsvedtak", visningsTekst = "Førstegangsvedtak"),
     VEDTAK_ENDRING(erVedtaksbrev = true, apiNavn = "vedtakEndring", visningsTekst = "Vedtak endring"),
     VEDTAK_OPPHØRT(erVedtaksbrev = true, apiNavn = "opphort", visningsTekst = "Opphørt"),
@@ -133,6 +135,7 @@ enum class Brevmal(
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER,
             INFORMASJONSBREV_LOVENDRING_JULI_2024,
             INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024,
+            UTBETALING_ETTER_KA_VEDTAK,
             -> false
 
             VEDTAK_FØRSTEGANGSVEDTAK,
@@ -171,6 +174,7 @@ enum class Brevmal(
             INFORMASJONSBREV_LOVENDRING_JULI_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_LOVENDRING_JULI_2024
             INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024 -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024
             ENDRING_AV_FRAMTIDIG_OPPHØR -> Dokumenttype.KONTANTSTØTTE_ENDRING_AV_FRAMTIDIG_OPPHØR
+            UTBETALING_ETTER_KA_VEDTAK -> Dokumenttype.KONTANTSTØTTE_UTBETALING_ETTER_KA_VEDTAK
 
             VEDTAK_ENDRING,
             VEDTAK_OPPHØRT,
@@ -211,6 +215,7 @@ enum class Brevmal(
                 VEDTAK_FØRSTEGANGSVEDTAK -> Distribusjonstype.VEDTAK
                 VEDTAK_ENDRING -> Distribusjonstype.VEDTAK
                 ENDRING_AV_FRAMTIDIG_OPPHØR -> Distribusjonstype.VEDTAK
+                UTBETALING_ETTER_KA_VEDTAK -> Distribusjonstype.VIKTIG
                 VEDTAK_OPPHØRT -> Distribusjonstype.VEDTAK
                 VEDTAK_OPPHØR_MED_ENDRING -> Distribusjonstype.VEDTAK
                 VEDTAK_AVSLAG -> Distribusjonstype.VEDTAK
