@@ -58,7 +58,7 @@ fun mapTilOpphørsperioder(
             listOf(
                 Opphørsperiode(
                     periodeFom = forrigeUtbetalingsperioder.minOf { it.periodeFom },
-                    periodeTom = forrigeUtbetalingsperioder.maxOf { it.periodeTom },
+                    periodeTom = null,
                 ),
             )
         } else {
