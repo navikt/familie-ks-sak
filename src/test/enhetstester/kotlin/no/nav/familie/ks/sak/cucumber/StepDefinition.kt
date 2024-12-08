@@ -164,7 +164,7 @@ class StepDefinition {
     }
 
     /**
-     * Mulige verdier: | AktørId | Fra dato | Til dato | BehandlingId |  Årsak | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted |
+     * Mulige verdier: | AktørId | Fra dato | Til dato | BehandlingId |  Årsak | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted | Er eksplisitt avslag |
      */
     @Og("følgende endrede utbetalinger")
     fun `følgende endrede utbetalinger`(
