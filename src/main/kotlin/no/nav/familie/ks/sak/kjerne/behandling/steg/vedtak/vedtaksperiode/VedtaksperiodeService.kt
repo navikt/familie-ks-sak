@@ -678,7 +678,22 @@ private fun List<VedtaksperiodeMedBegrunnelser>.settRiktigTomPåAvslagsperioder(
 
     return this.map { vedtaksperiode ->
         if (vedtaksperiode.fom == senesteVedtaksperiodeFom && vedtaksperiode.type == Vedtaksperiodetype.AVSLAG && vedtaksperiode.tom != null) {
-            vedtaksperiode.copy(tom = null)
+            val begrunnelserBruktIAvslagsperiode = vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse }
+
+            vedtaksperiode
+                .copy(
+                    tom = null,
+                ).apply {
+                    begrunnelser.clear()
+                    begrunnelser.addAll(
+                        begrunnelserBruktIAvslagsperiode.map { begrunnelse ->
+                            NasjonalEllerFellesBegrunnelseDB(
+                                vedtaksperiodeMedBegrunnelser = this,
+                                nasjonalEllerFellesBegrunnelse = begrunnelse,
+                            )
+                        },
+                    )
+                }
         } else {
             vedtaksperiode
         }
