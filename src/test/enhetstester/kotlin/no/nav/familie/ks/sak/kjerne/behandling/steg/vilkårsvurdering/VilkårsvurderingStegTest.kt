@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -46,12 +45,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class VilkårsvurderingStegTest {
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     private val behandlingService: BehandlingService = mockk()
@@ -118,7 +115,7 @@ class VilkårsvurderingStegTest {
         every { søknadGrunnlagService.finnAktiv(behandling.id) } returns søknadGrunnlagMock
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
-        every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
+        every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
     }
 
     @Test

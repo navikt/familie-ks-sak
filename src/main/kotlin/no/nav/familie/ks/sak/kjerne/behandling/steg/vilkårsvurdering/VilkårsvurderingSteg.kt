@@ -60,7 +60,7 @@ class VilkårsvurderingSteg(
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
-        beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+        beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(behandling, personopplysningGrunnlag, vilkårsvurdering)
 
         // sjekker og tilpasser kompetanse skjema når vilkårer er vurdert etter EØS forordingen
         // eller det ligger allerede en kompetanse
