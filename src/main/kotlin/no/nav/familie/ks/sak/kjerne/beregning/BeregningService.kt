@@ -78,6 +78,7 @@ class BeregningService(
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 endretUtbetalingAndeler = emptyList(),
             )
+
         tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
 
         this.oppdaterTilkjentYtelsePåBehandling(
