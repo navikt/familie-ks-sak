@@ -13,7 +13,7 @@ Egenskap: Overgang fra barnehageplass
       | 1            | 1        |                     | SØKNAD           | NASJONAL            |
 
 
-  Scenario: Kontantstøtte skal innvilges i oktober dersom barnet slutter i fulltids barnehageplass 15 oktober.
+  Scenario: Kontantstøtte skal innvilges i november dersom barnet slutter i fulltids barnehageplass 15 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -36,7 +36,7 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.10.2024 | 31.03.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
+      | 2       | 01.11.2024 | 31.03.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
   Scenario: Kontantstøtte skal innvilges i november dersom barnet slutter i fulltids barnehageplass 31 oktober.
     Og følgende persongrunnlag
@@ -62,7 +62,7 @@ Egenskap: Overgang fra barnehageplass
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.11.2024 | 31.03.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
 
-  Scenario: Kontantstøtten skal innvilges og økes fra og med oktober dersom barn går fra 40 timer til 15 timer 16 oktober.
+  Scenario: Kontantstøtten skal innvilges og økes fra og med november dersom barn går fra 40 timer til 15 timer 16 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -84,9 +84,9 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.10.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.11.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
-  Scenario: Kontantstøtten skal innvilges og økes fra og med oktober dersom barn går fra 40 timer til 15 timer 31 oktober.
+  Scenario: Kontantstøtten skal innvilges og økes fra og med november dersom barn går fra 40 timer til 15 timer 31 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -108,7 +108,7 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.10.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.11.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
   Scenario: Kontantstøtten skal innvilges fra og med november dersom barnet har fulltid barnehageplass til og med 31 oktober
     Og følgende persongrunnlag

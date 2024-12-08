@@ -86,9 +86,9 @@ Egenskap: Overgang fra barnehageplass kombinert
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 30.06.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
       | 2       | 01.07.2024 | 30.09.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
-      | 2       | 01.10.2024 | 01.10.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.10.2024 | 31.10.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
-  Scenario: case 1
+  Scenario: Reduksjon fra samme måned i gammelt regelverk
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -130,7 +130,7 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 2       | 01.04.2024 | 31.04.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
       | 2       | 01.05.2024 | 20.10.2024 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 |
 
-  Scenario: case 2
+  Scenario: Reduseres måneden etter man får barnehageplass, økes i samme måned som man får mindre barnehageplass
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -173,7 +173,7 @@ Egenskap: Overgang fra barnehageplass kombinert
       | 2       | 01.09.2024 | 30.09.2024 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
       | 2       | 01.10.2024 | 30.11.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
-  Scenario: case 3
+  Scenario: Reduksjon i gammelt regelverk, økning i nytt regelverk skal påvirke satsen i samme måned. Reduksjon i nytt regelverkskal påvirke satsen i neste måned
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -215,10 +215,10 @@ Egenskap: Overgang fra barnehageplass kombinert
     Så forvent følgende andeler tilkjent ytelse for behandling 2
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 31.06.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
-      | 2       | 01.07.2024 | 31.09.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.07.2024 | 30.09.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
       | 2       | 01.10.2024 | 30.11.2024 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
 
-  Scenario: case 4
+  Scenario: Reduksjon i gammelt regelverk, reduksjon i nytt regelverk, økning i nytt regelverk, gir nye satser samme måned i en revurdering
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
@@ -244,6 +244,6 @@ Egenskap: Overgang fra barnehageplass kombinert
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
       | 2       | 01.06.2024 | 30.06.2024 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |
-      | 2       | 01.07.2024 | 31.09.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
+      | 2       | 01.07.2024 | 30.09.2024 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
       | 2       | 01.10.2024 | 30.11.2024 | 1500  | ORDINÆR_KONTANTSTØTTE | 20      | 7500 |
       | 2       | 01.12.2024 | 31.12.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 |

@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
@@ -20,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -57,7 +57,11 @@ fun hentPerioderMedUtbetaling(
 
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
-            .tilTidslinjerPerPerson()
+            .filter {
+                !it.endreteUtbetalinger.any { endretUtbetalingAndel ->
+                    endretUtbetalingAndel.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
+                }
+            }.tilTidslinjerPerPerson()
             .values
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
@@ -218,18 +222,3 @@ private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslin
                 }.tilTidslinje()
         }.kombiner { it.toMap() }
 }
-
-private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) =
-    vilkårResultater.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
-
-private fun hentRegelverkPersonErVurdertEtterIPeriode(vilkårResultater: Iterable<VilkårResultat>) =
-    vilkårResultater
-        .map { it.vurderesEtter }
-        .reduce { acc, regelverk ->
-            when {
-                acc == null -> regelverk
-                regelverk == null -> acc
-                regelverk != acc -> throw Feil("Mer enn ett regelverk på person i periode: $regelverk, $acc")
-                else -> acc
-            }
-        }

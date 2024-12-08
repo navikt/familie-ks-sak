@@ -15,6 +15,7 @@ class ForskyvVilkår2024KtTest {
     val september = YearMonth.of(2024, 9)
     val oktober = YearMonth.of(2024, 10)
     val desember = YearMonth.of(2024, 12)
+    val januar = YearMonth.of(2025, 1)
 
     @Test
     fun `skal forskyve en liste av VilkårResultat med VilkårType BARNEHAGEPLASS`() {
@@ -33,6 +34,13 @@ class ForskyvVilkår2024KtTest {
                     periodeTom = desember.atDay(1),
                     antallTimer = BigDecimal.valueOf(20L),
                 ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = desember.atDay(2),
+                    periodeTom = null,
+                    antallTimer = BigDecimal.valueOf(40),
+                    resultat = Resultat.IKKE_OPPFYLT,
+                ),
             )
 
         // Act
@@ -43,11 +51,12 @@ class ForskyvVilkår2024KtTest {
             )
 
         // Arrange
-        assertThat(forskjøvedeVilkårResultater).hasSize(2)
-        assertThat(forskjøvedeVilkårResultater.first().fom).isEqualTo(august.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(september.atEndOfMonth())
-        assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater).hasSize(3)
+        assertThat(forskjøvedeVilkårResultater[0].fom).isEqualTo(august.atDay(1))
+        assertThat(forskjøvedeVilkårResultater[0].tom).isEqualTo(september.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater[1].fom).isEqualTo(oktober.atDay(1))
+        assertThat(forskjøvedeVilkårResultater[1].tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater[2].fom).isEqualTo(januar.atDay(1))
     }
 
     @ParameterizedTest

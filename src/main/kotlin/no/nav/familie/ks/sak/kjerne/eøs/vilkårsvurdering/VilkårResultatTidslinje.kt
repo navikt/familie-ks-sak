@@ -19,9 +19,9 @@ import no.nav.familie.tidslinje.tilTidslinje
  */
 fun tilVilkårRegelverkResultatTidslinje(
     vilkår: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ): Tidslinje<VilkårRegelverkResultat> {
-    val oppfyltEllerIkkeAktueltVilkårer = vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
+    val oppfyltEllerIkkeAktueltVilkårer = alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
     val forskjøvetVilkårResultatPerioder = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
 

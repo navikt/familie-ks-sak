@@ -168,7 +168,6 @@ Egenskap: Opphør første periode
       | 2            | 1       | SØKER      | 16.04.1997  |
       | 2            | 2       | BARN       | 02.05.2023  |
 
-
     Og følgende dagens dato 25.09.2024
 
     Og følgende vilkårresultater for behandling 1

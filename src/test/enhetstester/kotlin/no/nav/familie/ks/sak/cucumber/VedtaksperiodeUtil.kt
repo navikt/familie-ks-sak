@@ -391,6 +391,11 @@ fun lagEndredeUtbetalinger(
                         BrevPeriodeParser.DomenebegrepBrevBegrunnelse.AVTALETIDSPUNKT_DELT_BOSTED,
                         rad,
                     ),
+                erEksplisittAvslagPåSøknad =
+                    parseValgfriBoolean(
+                        VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ER_EKSPLISITT_AVSLAG,
+                        rad,
+                    ),
             )
         }.groupBy { it.behandlingId }
         .toMutableMap()

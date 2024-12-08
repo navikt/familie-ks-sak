@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -16,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.brev.lagVilkårResultater
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
 import java.time.LocalDate
 
 class RegelverkFørFebruar2025AndelGeneratorTest {
@@ -30,7 +32,31 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
         val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
-        val barnetsVilkår = lagVilkårResultater(person = barnRegelverkAugust2024, personResultat = barnetsPersonResultat)
+        val barnetsVilkår =
+            lagVilkårResultater(
+                person = barnRegelverkAugust2024,
+                personResultat = barnetsPersonResultat,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(1),
+                            periodeTom = barnRegelverkAugust2024.fødselsdato.plusYears(2),
+                            behandlingId = 0L,
+                            antallTimer = null,
+                        ),
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(2).plusDays(1),
+                            periodeTom = null,
+                            antallTimer = BigDecimal(40),
+                            resultat = Resultat.IKKE_OPPFYLT,
+                        ),
+                    ),
+            )
+
         søkersPersonResultat.setSortedVilkårResultater(søkersVilkår.toSet())
         barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkår.toSet())
         vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
@@ -106,7 +132,31 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
         val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkFørOgEtterAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
-        val barnetsVilkår = lagVilkårResultater(person = barnRegelverkFørOgEtterAugust2024, personResultat = barnetsPersonResultat)
+        val barnetsVilkår =
+            lagVilkårResultater(
+                person = barnRegelverkFørOgEtterAugust2024,
+                personResultat = barnetsPersonResultat,
+                overstyrendeVilkårResultater =
+                    listOf(
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(1),
+                            periodeTom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2),
+                            behandlingId = 0L,
+                            antallTimer = null,
+                        ),
+                        lagVilkårResultat(
+                            personResultat = barnetsPersonResultat,
+                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                            periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2).plusDays(1),
+                            periodeTom = null,
+                            antallTimer = BigDecimal(40),
+                            resultat = Resultat.IKKE_OPPFYLT,
+                        ),
+                    ),
+            )
+
         søkersPersonResultat.setSortedVilkårResultater(søkersVilkår.toSet())
         barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkår.toSet())
         vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
