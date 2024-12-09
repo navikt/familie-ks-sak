@@ -13,9 +13,11 @@ fun forskyvTomBasertPåGraderingsforskjell2024(
     }
     return when (graderingsforskjellMellomDenneOgNestePeriode) {
         Graderingsforskjell.LIK,
-        -> tomDato.minusMonths(1).sisteDagIMåned()
+        Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+        -> tomDato.plusDays(1).minusMonths(1).sisteDagIMåned()
 
         Graderingsforskjell.ØKNING,
+        Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS,
         -> tomDato.sisteDagIMåned()
 
         Graderingsforskjell.REDUKSJON,

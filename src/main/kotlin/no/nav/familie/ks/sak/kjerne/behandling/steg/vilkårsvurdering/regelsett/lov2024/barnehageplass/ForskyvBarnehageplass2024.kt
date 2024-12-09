@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.tidslinje.Periode
@@ -10,9 +11,23 @@ import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import java.math.BigDecimal
+import java.time.YearMonth
 
-fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<VilkårResultat>> =
-    tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024()
+fun forskyvBarnehageplassVilkår2024(
+    alleVilkårResultat: List<VilkårResultat>,
+): List<Periode<VilkårResultat>> {
+    val (
+        barnehageplassVilkår,
+        andreVilkår,
+    ) = alleVilkårResultat.partition { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+
+    val tidligsteÅrMånedAlleAndreVilkårErOppfylt =
+        utledTidligsteÅrMånedAlleAndreVilkårErOppfylt(
+            andreVilkår,
+        )
+
+    return barnehageplassVilkår
+        .tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(tidligsteÅrMånedAlleAndreVilkårErOppfylt)
         .map {
             Periode(
                 verdi = it.vilkårResultat,
@@ -29,8 +44,11 @@ fun List<VilkårResultat>.forskyvBarnehageplassVilkår2024(): List<Periode<Vilk�
             )
         }.filter { (it.fom ?: TIDENES_MORGEN).isBefore(it.tom ?: TIDENES_ENDE) }
         .filtrerBortOverlappendePerioderMedMaksGradering()
+}
 
-private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
+private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjellMellomPerioder2024(
+    tidligsteÅrMånedAlleAndreVilkårErOppfylt: YearMonth?,
+): List<BarnehageplassVilkårMedGraderingsforskjellMellomPerioder<VilkårResultat>> {
     val vilkårResultatListeMedNullverdierForHullITidslinje: List<VilkårResultat?> =
         this
             .tilTidslinje()
@@ -43,8 +61,9 @@ private fun List<VilkårResultat>.tilBarnehageplassVilkårMedGraderingsforskjell
 
             val graderingsforskjellMellomDenneOgForrigePeriode =
                 finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
+                    vilkårResultatIForrigePeriode?.vilkårResultat,
                     vilkårResultat,
-                    vilkårResultatIForrigePeriode,
+                    tidligsteÅrMånedAlleAndreVilkårErOppfylt,
                 )
 
             val accMedForrigeOppdatert =
