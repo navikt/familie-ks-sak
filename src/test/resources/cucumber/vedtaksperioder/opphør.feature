@@ -51,14 +51,18 @@ Egenskap: Opphørsperiode
       | 01.08.2024 |            | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 1
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Ugyldige begrunnelser |
-      | 01.04.2024 | 31.07.2024 | UTBETALING         |                                |                      |                       |
-      | 01.08.2024 |            | OPPHØR             |                                |                      |                       |
+      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                          | Ugyldige begrunnelser |
+      | 01.04.2024 | 31.07.2024 | UTBETALING         |                                |                                               |                       |
+      | 01.08.2024 |            | OPPHØR             |                                | OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 |                       |
 
     Og når disse begrunnelsene er valgt for behandling 1
-      | Fra dato   | Til dato   | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |
-      | 01.04.2024 | 31.07.2024 |                      |                 |            |
-      | 01.08.2024 |            |                      |                 |            |
+      | Fra dato   | Til dato   | Standardbegrunnelser                          | Eøsbegrunnelser | Fritekster |
+      | 01.04.2024 | 31.07.2024 |                                               |                 |            |
+      | 01.08.2024 |            | OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 |                 |            |
+
+    Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
+      | Begrunnelse                                   | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
+      | OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 | STANDARD | 1           | 20.03.23             | Nei           | 0     | august 2024                          | true                   | 0                           |
 
 
   Scenario: Opphørsperioder som oppstår i mellom perioder skal ha tom dato, opphørsperioder som oppstår
