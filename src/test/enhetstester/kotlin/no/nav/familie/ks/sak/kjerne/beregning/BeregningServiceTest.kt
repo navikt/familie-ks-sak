@@ -2,13 +2,19 @@ package no.nav.familie.ks.sak.kjerne.beregning
 
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.slot
+import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
+import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -19,8 +25,10 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
@@ -28,36 +36,29 @@ import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
 class BeregningServiceTest {
-    private val tilkjentYtelseRepository: TilkjentYtelseRepository = mockk()
-
-    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
-
-    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
-
-    private val behandlingRepository: BehandlingRepository = mockk()
-
-    private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService = mockk()
-
-    private val fagsakService: FagsakService = mockk()
-
-    private val tilkjentYtelseService: TilkjentYtelseService = mockk()
-
+    private val mockTilkjentYtelseRepository: TilkjentYtelseRepository = mockk()
+    private val mockAndelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
+    private val mockPersonopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
+    private val mockBehandlingRepository: BehandlingRepository = mockk()
+    private val mockAndelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService = mockk()
+    private val mockFagsakService: FagsakService = mockk()
+    private val mockTilkjentYtelseService: TilkjentYtelseService = mockk()
     private val beregningService: BeregningService =
         BeregningService(
-            tilkjentYtelseRepository = tilkjentYtelseRepository,
-            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
-            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-            behandlingRepository = behandlingRepository,
-            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
-            fagsakService = fagsakService,
-            tilkjentYtelseService = tilkjentYtelseService,
+            tilkjentYtelseRepository = mockTilkjentYtelseRepository,
+            andelTilkjentYtelseRepository = mockAndelTilkjentYtelseRepository,
+            personopplysningGrunnlagRepository = mockPersonopplysningGrunnlagRepository,
+            behandlingRepository = mockBehandlingRepository,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService,
+            fagsakService = mockFagsakService,
+            tilkjentYtelseService = mockTilkjentYtelseService,
         )
 
     @Test
     fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere når tom liste når det ikke finnes en andel tilkjent ytelse`() {
         val behandlngId = 111L
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlngId) } returns emptyList()
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlngId) } returns
+        every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlngId) } returns emptyList()
+        every { mockPersonopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlngId) } returns
             lagPersonopplysningGrunnlag(
                 behandlngId,
                 søkerPersonIdent = randomFnr(),
@@ -70,9 +71,9 @@ class BeregningServiceTest {
     @Test
     fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere tom liste når det ikke finnes barn`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
+        every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(lagAndelTilkjentYtelse(behandling = behandling))
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
+        every { mockPersonopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandling.id,
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
@@ -87,7 +88,7 @@ class BeregningServiceTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
         val barnAktør = randomAktør()
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
+        every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
@@ -100,7 +101,7 @@ class BeregningServiceTest {
                     aktør = barnAktør,
                 ),
             )
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
+        every { mockPersonopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandling.id,
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
@@ -145,20 +146,20 @@ class BeregningServiceTest {
                 listOf(barnAktør.aktivFødselsnummer()),
                 barnAktør = listOf(barnAktør),
             )
-        every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns
+        every { mockFagsakService.hentFagsakerPåPerson(barnAktør) } returns
             listOf(
                 fagak,
                 annenFagsak,
             )
 
-        every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(any()) } returns
+        every { mockBehandlingRepository.finnBehandlingerSendtTilGodkjenning(any()) } returns
             listOf(
                 behandlingTilGodkjenning,
             )
 
-        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingTilGodkjenning.id) } returns tilkjentYtelse
+        every { mockTilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingTilGodkjenning.id) } returns tilkjentYtelse
 
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingTilGodkjenning.id) } returns personopplysningGrunnlag
+        every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingTilGodkjenning.id) } returns personopplysningGrunnlag
 
         val relevanteTilkjenteYtelserForBarn = beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør, fagak.id)
 
@@ -197,21 +198,21 @@ class BeregningServiceTest {
                 listOf(barnAktør.aktivFødselsnummer()),
                 barnAktør = listOf(barnAktør),
             )
-        every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns
+        every { mockFagsakService.hentFagsakerPåPerson(barnAktør) } returns
             listOf(
                 fagak,
                 annenFagsak,
             )
 
-        every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
+        every { mockBehandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
 
-        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(godkjentBehandlingSomIkkeErIverksatt.id) } returns tilkjentYtelse
+        every { mockTilkjentYtelseRepository.hentTilkjentYtelseForBehandling(godkjentBehandlingSomIkkeErIverksatt.id) } returns tilkjentYtelse
 
         every {
-            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(godkjentBehandlingSomIkkeErIverksatt.id)
+            mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(godkjentBehandlingSomIkkeErIverksatt.id)
         } returns personopplysningGrunnlag
 
-        every { behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns
+        every { mockBehandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns
             listOf(
                 godkjentBehandlingSomIkkeErIverksatt,
             )
@@ -256,21 +257,21 @@ class BeregningServiceTest {
                 listOf(barnAktør.aktivFødselsnummer()),
                 barnAktør = listOf(barnAktør),
             )
-        every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns
+        every { mockFagsakService.hentFagsakerPåPerson(barnAktør) } returns
             listOf(
                 fagak,
                 annenFagsak,
             )
 
-        every { behandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
+        every { mockBehandlingRepository.finnBehandlingerSendtTilGodkjenning(fagsakId = annenFagsak.id) } returns emptyList()
 
-        every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(iverksatteBehandlinger.id) } returns tilkjentYtelse
+        every { mockTilkjentYtelseRepository.hentTilkjentYtelseForBehandling(iverksatteBehandlinger.id) } returns tilkjentYtelse
 
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(iverksatteBehandlinger.id) } returns personopplysningGrunnlag
+        every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(iverksatteBehandlinger.id) } returns personopplysningGrunnlag
 
-        every { behandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns emptyList()
+        every { mockBehandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns emptyList()
 
-        every { behandlingRepository.finnIverksatteBehandlinger(fagsakId = annenFagsak.id) } returns
+        every { mockBehandlingRepository.finnIverksatteBehandlinger(fagsakId = annenFagsak.id) } returns
             listOf(
                 iverksatteBehandlinger,
             )
@@ -285,7 +286,7 @@ class BeregningServiceTest {
         val barnAktør = randomAktør()
         val fagak = lagFagsak(barnAktør, 1)
 
-        every { fagsakService.hentFagsakerPåPerson(barnAktør) } returns
+        every { mockFagsakService.hentFagsakerPåPerson(barnAktør) } returns
             listOf(
                 fagak,
             )
@@ -297,7 +298,7 @@ class BeregningServiceTest {
 
     @Test
     fun `hentAndelerTilkjentYtelseMedUtbetalingerForBehandling - skal returnere liste av andel tilkjent ytelse som har utbetalinger`() {
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns
+        every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns
             listOf(
                 lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 5000),
             )
@@ -310,7 +311,7 @@ class BeregningServiceTest {
 
     @Test
     fun `hentAndelerTilkjentYtelseMedUtbetalingerForBehandling - skal returnere tom liste dersom ingen andeler tilkjent ytelse har utbetalinger`() {
-        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns
+        every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns
             listOf(
                 lagAndelTilkjentYtelse(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD), sats = 0),
             )
@@ -324,8 +325,8 @@ class BeregningServiceTest {
     @Test
     fun `hentTilkjentYtelseForBehandlingerIverksattMotØkonomi - skal returnere liste over tilkjente ytelser som inneholder andeler med utbetalinger`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
-        every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns
+        every { mockBehandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
+        every { mockTilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns
             lagTilkjentYtelse(
                 mockk(),
                 mockk(),
@@ -343,8 +344,8 @@ class BeregningServiceTest {
     @Test
     fun `hentTilkjentYtelseForBehandlingerIverksattMotØkonomi - skal returnere tom liste hvis det ikke finnes noen tilkjente ytelser som inneholder andeler med utbetalinger`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { behandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
-        every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns
+        every { mockBehandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
+        every { mockTilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns
             lagTilkjentYtelse(
                 mockk(),
                 mockk(),
@@ -357,5 +358,169 @@ class BeregningServiceTest {
         val tilkjentYtelseIverksattMotØkonomi = beregningService.hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(1)
 
         assertEquals(0, tilkjentYtelseIverksattMotØkonomi.size)
+    }
+
+    @Nested
+    inner class OppdaterTilkjentYtelsePåBehandlingTest {
+        @Test
+        fun `skal oppdatere tilkjentytelse basert på endretutbetalings andeler uavhengig av overlapp med andeler dersom behandlingen er automatisk`() {
+            // Arrange
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.LOVENDRING_2024)
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id)
+            val vilkårsvurdering = lagVilkårsvurdering(behandling = behandling)
+
+            val endretUtbetalingMedAndel1 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 1), emptyList())
+            val endretUtbetalingMedAndel2 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 2), emptyList())
+
+            val endretUtbetalingAndelerMedAndeler =
+                listOf(
+                    endretUtbetalingMedAndel1,
+                    endretUtbetalingMedAndel2,
+                )
+
+            val lagretEndretUtbetalingAndelerMedAndelerSlot = slot<MutableList<EndretUtbetalingAndelMedAndelerTilkjentYtelse>>()
+            val opprettetTilkjentYtelse = mockk<TilkjentYtelse>()
+
+            every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
+            every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
+            every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse
+            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
+
+            // Act
+            beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+
+            // Assert
+            verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
+            verify(exactly = 1) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) }
+
+            val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
+
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler).hasSize(2)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler[0].id).isEqualTo(1)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler[1].id).isEqualTo(2)
+        }
+
+        @Test
+        fun `skal oppdatere tilkjentytelse basert på endretutbetalings andeler som har overlapp med andeler dersom behandlingen ikke er automatisk`() {
+            // Arrange
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id)
+            val vilkårsvurdering = lagVilkårsvurdering(behandling = behandling)
+
+            val endretUtbetalingMedAndel1 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 1), emptyList())
+            val endretUtbetalingMedAndel2 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 2), listOf(mockk()))
+
+            val endretUtbetalingAndelerMedAndeler =
+                listOf(
+                    endretUtbetalingMedAndel1,
+                    endretUtbetalingMedAndel2,
+                )
+
+            val lagretEndretUtbetalingAndelerMedAndelerSlot = slot<MutableList<EndretUtbetalingAndelMedAndelerTilkjentYtelse>>()
+            val opprettetTilkjentYtelse = mockk<TilkjentYtelse>()
+
+            every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
+            every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
+            every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse
+            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
+
+            // Act
+            beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+
+            // Assert
+            verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
+            verify(exactly = 1) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) }
+
+            val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
+
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler).hasSize(1)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler[0].id).isEqualTo(2)
+        }
+
+        @Test
+        fun `skal oppdatere tilkjentytelse basert på endretutbetalings andeler uavhengig av overlapp med andeler dersom endretutbetaling legges til av SB`() {
+            // Arrange
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id)
+            val vilkårsvurdering = lagVilkårsvurdering(behandling = behandling)
+
+            val endretUtbetalingMedAndel1 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 1), emptyList())
+            val endretUtbetalingMedAndel2 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 2), listOf(mockk()))
+
+            val endretUtbetalingAndelerMedAndeler =
+                listOf(
+                    endretUtbetalingMedAndel1,
+                    endretUtbetalingMedAndel2,
+                )
+
+            val lagretEndretUtbetalingAndelerMedAndelerSlot = slot<MutableList<EndretUtbetalingAndelMedAndelerTilkjentYtelse>>()
+            val opprettetTilkjentYtelse = mockk<TilkjentYtelse>()
+
+            every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
+            every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
+            every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse
+            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
+
+            // Act
+            beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering, endretUtbetalingMedAndel1.endretUtbetalingAndel)
+
+            // Assert
+            verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
+            verify(exactly = 1) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) }
+
+            val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
+
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler).hasSize(2)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler[0].id).isEqualTo(1)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler[1].id).isEqualTo(2)
+        }
+    }
+
+    @Nested
+    inner class OppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering {
+        @Test
+        fun `Skal først opprette tilkjent ytelse en gang uten hensyn til endret utbetalingsandeler før den oppretter tilkjent ytelse en gang til`() {
+            // Arrange
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id)
+            val vilkårsvurdering = lagVilkårsvurdering(behandling = behandling)
+
+            val endretUtbetalingMedAndel1 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 1), emptyList())
+            val endretUtbetalingMedAndel2 = EndretUtbetalingAndelMedAndelerTilkjentYtelse(lagEndretUtbetalingAndel(id = 2), listOf(mockk()))
+
+            val endretUtbetalingAndelerMedAndeler =
+                listOf(
+                    endretUtbetalingMedAndel1,
+                    endretUtbetalingMedAndel2,
+                )
+
+            val lagretEndretUtbetalingAndelerMedAndelerSlot = slot<MutableList<EndretUtbetalingAndelMedAndelerTilkjentYtelse>>()
+            val opprettetTilkjentYtelse1 = lagInitieltTilkjentYtelse(behandling)
+            val opprettetTilkjentYtelse2 = lagInitieltTilkjentYtelse(behandling)
+
+            every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
+            every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
+            every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, emptyList()) } returns opprettetTilkjentYtelse1
+            every { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse1) } returns opprettetTilkjentYtelse1
+
+            every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse2
+            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse2) } returns opprettetTilkjentYtelse2
+
+            // Act
+            beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(behandling, personopplysningGrunnlag, vilkårsvurdering)
+
+            // Assert
+            verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
+            verify(exactly = 2) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, any()) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse1) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse2) }
+        }
     }
 }
