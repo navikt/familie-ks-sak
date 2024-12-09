@@ -499,7 +499,7 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "opphorOvergangsordningOpphor"
         override val begrunnelseType = BegrunnelseType.OPPHØR
     },
-    OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024    {
+    OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 {
         override val sanityApiNavn = "opphorTilleggstekstForReglerFor010824"
         override val begrunnelseType = BegrunnelseType.OPPHØR
     },
