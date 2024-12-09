@@ -100,7 +100,7 @@ class KafkaConfig(
                 "specific.avro.reader" to true,
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-                ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-2",
+                ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             )
         return consumerConfigs.toMap() + securityConfig()
@@ -146,7 +146,7 @@ class KafkaConfig(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
-            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-3",
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "latest",
             CommonClientConfigs.RETRIES_CONFIG to 10,
             CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
@@ -158,7 +158,7 @@ class KafkaConfig(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.GROUP_ID_CONFIG to "familie-ks-sak",
-            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-1",
+            ConsumerConfig.CLIENT_ID_CONFIG to "consumer-familie-ks-sak-4",
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             CommonClientConfigs.RETRIES_CONFIG to 10,
             CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG to 100,
