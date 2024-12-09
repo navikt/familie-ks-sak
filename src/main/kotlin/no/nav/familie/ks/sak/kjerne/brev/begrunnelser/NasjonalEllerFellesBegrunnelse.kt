@@ -760,6 +760,17 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "avslagMottattI7Maaneder0824"
         override val begrunnelseType = BegrunnelseType.AVSLAG
     },
+
+    AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER {
+        override val sanityApiNavn = "avslagAlleredeUtbetaltSokerEndringsperiode"
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+    },
+
+    AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER {
+        override val sanityApiNavn = "avslagAlleredeUtbataltAnnenForelderEndringsperiode"
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+    },
+
     ;
 
     @JsonValue

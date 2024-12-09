@@ -89,8 +89,9 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
+            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel)
+
             Årsak.ENDRE_MOTTAKER,
-            Årsak.ALLEREDE_UTBETALT,
             ->
                 throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
         }
@@ -103,6 +104,12 @@ object EndretUtbetalingAndelValidator {
         if (endretUtbetalingAndel.fom != august2024 || endretUtbetalingAndel.tom != august2024) {
             val årsak = endretUtbetalingAndel.årsak ?: throw IllegalStateException("Årsak må være satt")
             throw FunksjonellFeil("Årsak \"${årsak.visningsnavn}\" er bare mulig å sette til august 2024")
+        }
+    }
+
+    private fun validerAlleredeUtbetalt(endretUtbetalingAndel: EndretUtbetalingAndel) {
+        if (endretUtbetalingAndel.tom?.isAfter(YearMonth.now()) == true) {
+            throw FunksjonellFeil("Du har valgt årsaken allerede utbetalt. Du kan ikke velge denne årsaken og en til og med dato frem i tid. Ta kontakt med superbruker om du er usikker på hva du skal gjøre.")
         }
     }
 
