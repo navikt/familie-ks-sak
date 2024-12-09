@@ -51,15 +51,15 @@ Egenskap: Opphør første periode
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                             | Ugyldige begrunnelser |
-      | 01.09.2023 | 31.08.2024 | OPPHØR             |                                | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                             | Ugyldige begrunnelser |
+      | 01.09.2023 |          | OPPHØR             |                                | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
-      | Fra dato   | Til dato   | Standardbegrunnelser                                                                                                             | Eøsbegrunnelser | Fritekster |
-      | 01.09.2023 | 31.08.2024 | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
+      | Fra dato   | Til dato | Standardbegrunnelser                                                                                                             | Eøsbegrunnelser | Fritekster |
+      | 01.09.2023 |          | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE, OPPHØR_IKKE_BOSATT_I_NORGE, OPPHØR_FLYTTET_FRA_NORGE, OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
 
 
-    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til 31.08.2024
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til -
       | Begrunnelse                          | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
       | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
       | OPPHØR_IKKE_BOSATT_I_NORGE           | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
@@ -104,14 +104,14 @@ Egenskap: Opphør første periode
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                 | Ugyldige begrunnelser |
-      | 01.12.2023 | 30.11.2024 | OPPHØR             |                                | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                 | Ugyldige begrunnelser |
+      | 01.12.2023 |          | OPPHØR             |                                | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
-      | Fra dato   | Til dato   | Standardbegrunnelser                 | Eøsbegrunnelser | Fritekster |
-      | 01.12.2023 | 30.11.2024 | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
+      | Fra dato   | Til dato | Standardbegrunnelser                 | Eøsbegrunnelser | Fritekster |
+      | 01.12.2023 |          | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
 
-    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.12.2023 til 30.11.2024
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.12.2023 til -
       | Begrunnelse                          | Type     | Gjelder søker | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Gjelder andre forelder | Antall timer barnehageplass |
       | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | Ja            | 0           | desember 2023                        | 0     | false                  |                             |
 
@@ -145,15 +145,15 @@ Egenskap: Opphør første periode
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                                                                                                          | Ugyldige begrunnelser |
-      | 01.09.2023 | 31.08.2024 | OPPHØR             |                                | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                       |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                                                                                                          | Ugyldige begrunnelser |
+      | 01.09.2023 |          | OPPHØR             |                                | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
-      | Fra dato   | Til dato   | Standardbegrunnelser                                                                                                                                                                                          | Eøsbegrunnelser | Fritekster |
-      | 01.09.2023 | 31.08.2024 | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                 |            |
+      | Fra dato   | Til dato | Standardbegrunnelser                                                                                                                                                                                          | Eøsbegrunnelser | Fritekster |
+      | 01.09.2023 |          | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                 |            |
 
 
-    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til 31.08.2024
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til -
       | Begrunnelse                                                   | Type     | Antall barn | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder |
       | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR                      | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
       | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
@@ -202,12 +202,12 @@ Egenskap: Opphør første periode
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent følgende vedtaksperioder på behandling 2
-      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.06.2024 | 31.08.2024 | OPPHØR             |           |
+      | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
+      | 01.06.2024 |          | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                           | Ugyldige begrunnelser |
-      | 01.06.2024 | 31.08.2024 | OPPHØR             |                                | OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE |                       |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                           | Ugyldige begrunnelser |
+      | 01.06.2024 |          | OPPHØR             |                                | OPPHØR_KOMMUNEN_MELDT_FULLTIDSPLASS_I_BARNEHAGE_FØRSTE_PERIODE |                       |
 
 
   Scenario: Ved opphør fra start langt tilbake før vedtaksperioden så skal vi få opp begrunnelser knyttet til utgjørende vilkår
@@ -258,9 +258,9 @@ Egenskap: Opphør første periode
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent følgende vedtaksperioder på behandling 2
-      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
-      | 01.07.2023 | 31.05.2024 | OPPHØR             |           |
+      | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
+      | 01.07.2023 |          | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                     | Ugyldige begrunnelser |
-      | 01.07.2023 | 31.05.2024 | OPPHØR             |                                | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR |                       |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                     | Ugyldige begrunnelser |
+      | 01.07.2023 |          | OPPHØR             |                                | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR |                       |
