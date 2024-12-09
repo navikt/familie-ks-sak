@@ -397,7 +397,7 @@ class BeregningServiceTest {
 
             val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
 
-            assertThat(lagretEndretUtbetalingAndelerMedAndeler.size).isEqualTo(2)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler).hasSize(2)
             assertThat(lagretEndretUtbetalingAndelerMedAndeler[0].id).isEqualTo(1)
             assertThat(lagretEndretUtbetalingAndelerMedAndeler[1].id).isEqualTo(2)
         }
@@ -437,7 +437,7 @@ class BeregningServiceTest {
 
             val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
 
-            assertThat(lagretEndretUtbetalingAndelerMedAndeler.size).isEqualTo(1)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler).hasSize(1)
             assertThat(lagretEndretUtbetalingAndelerMedAndeler[0].id).isEqualTo(2)
         }
 
@@ -476,7 +476,7 @@ class BeregningServiceTest {
 
             val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
 
-            assertThat(lagretEndretUtbetalingAndelerMedAndeler.size).isEqualTo(2)
+            assertThat(lagretEndretUtbetalingAndelerMedAndeler).hasSize(2)
             assertThat(lagretEndretUtbetalingAndelerMedAndeler[0].id).isEqualTo(1)
             assertThat(lagretEndretUtbetalingAndelerMedAndeler[1].id).isEqualTo(2)
         }
