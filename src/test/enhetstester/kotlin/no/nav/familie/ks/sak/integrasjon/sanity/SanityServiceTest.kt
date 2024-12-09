@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,10 +22,6 @@ class SanityServiceTest {
     @InjectMockKs
     private lateinit var sanityService: SanityService
 
-    @BeforeEach
-    fun setUp() {
-    }
-
     @Test
     fun `Skal hente SanityBegrunnelser`() {
         every { cachedSanityKlient.hentSanityBegrunnelserCached() } returns
@@ -35,7 +30,7 @@ class SanityServiceTest {
                     NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                     "innvilgetIkkeBarnehage",
                     SanityBegrunnelseType.STANDARD,
-                    Vilkår.values().toList(),
+                    Vilkår.entries,
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -44,11 +39,37 @@ class SanityServiceTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     resultat = SanityResultat.INNVILGET,
                 ),
             )
 
         assertThat(sanityService.hentSanityBegrunnelser()).hasSize(1)
+    }
+
+    @Test
+    fun `Skal ikke returnere SanityBegrunnelser som er markert ikke i bruk`() {
+        every { cachedSanityKlient.hentSanityBegrunnelserCached() } returns
+            listOf(
+                SanityBegrunnelse(
+                    NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
+                    "innvilgetIkkeBarnehage",
+                    SanityBegrunnelseType.STANDARD,
+                    Vilkår.entries,
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = emptyList(),
+                    støtterFritekst = false,
+                    skalAlltidVises = false,
+                    ikkeIBruk = true,
+                    resultat = SanityResultat.INNVILGET,
+                ),
+            )
+
+        assertThat(sanityService.hentSanityBegrunnelser()).isEmpty()
     }
 
     @Test
@@ -67,7 +88,7 @@ class SanityServiceTest {
                     NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                     "innvilgetIkkeBarnehage",
                     SanityBegrunnelseType.STANDARD,
-                    Vilkår.values().toList(),
+                    Vilkår.entries,
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
@@ -76,6 +97,7 @@ class SanityServiceTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     resultat = SanityResultat.INNVILGET,
                 ),
             ) andThenThrows RuntimeException("Feil får å teste cachet versjon")
