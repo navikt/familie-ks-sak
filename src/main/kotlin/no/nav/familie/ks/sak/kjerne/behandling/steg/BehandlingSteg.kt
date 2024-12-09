@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.IVERKSETTE_KA_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SATSENDRING
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.SØKNAD
@@ -49,7 +50,7 @@ enum class BehandlingSteg(
     JOURNALFØR_VEDTAKSBREV(
         sekvens = 9,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM),
-        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, TEKNISK_ENDRING)),
+        gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING, TEKNISK_ENDRING, IVERKSETTE_KA_VEDTAK)),
         tilknyttetBehandlingStatus = BehandlingStatus.IVERKSETTER_VEDTAK,
     ),
     AVSLUTT_BEHANDLING(
