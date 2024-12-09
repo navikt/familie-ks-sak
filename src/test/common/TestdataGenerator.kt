@@ -1287,6 +1287,7 @@ fun lagSanityBegrunnelse(
         endretUtbetalingsperiode = emptyList(),
         støtterFritekst = støtterFritekst,
         skalAlltidVises = false,
+        ikkeIBruk = false,
         resultat = resultat,
         hjemlerEØSForordningen883 = hjemlerEøsForordningen883,
         hjemlerEØSForordningen987 = hjemlerEøsForordningen987,
