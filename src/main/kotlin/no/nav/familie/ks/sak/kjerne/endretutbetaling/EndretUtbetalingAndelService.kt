@@ -1,11 +1,20 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerIngenOverlappendeEndring
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerTomDato
@@ -15,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -27,6 +37,8 @@ class EndretUtbetalingAndelService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
+    private val sanityService: SanityService,
+    private val unleashService: UnleashService,
 ) {
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
@@ -70,6 +82,7 @@ class EndretUtbetalingAndelService(
             årsak = endretUtbetalingAndel.årsak,
             endretUtbetalingAndel = endretUtbetalingAndel,
             vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id),
+            kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggleConfig.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
         )
 
         validerUtbetalingMotÅrsak(
@@ -137,6 +150,36 @@ class EndretUtbetalingAndelService(
         val kopiertOverEndretUtbetalingAndel =
             it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false)
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
+    }
+
+    private fun sanityBegrunnelseTilRestFormat(
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        begrunnelse: IBegrunnelse,
+    ): List<SanityBegrunnelseMedEndringsårsakResponseDto> {
+        val sanityBegrunnelse = begrunnelse.tilSanityBegrunnelse(sanityBegrunnelser) ?: return emptyList()
+
+        return listOf(
+            SanityBegrunnelseMedEndringsårsakResponseDto(
+                id = begrunnelse,
+                navn = sanityBegrunnelse.navnISystem,
+                endringsårsaker = sanityBegrunnelse.endringsårsaker,
+            ),
+        )
+    }
+
+    fun hentSanityBegrunnelserMedEndringsårsak(): Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>> {
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser().filter { it.endringsårsaker.isNotEmpty() }
+        return (NasjonalEllerFellesBegrunnelse.entries + EØSBegrunnelse.entries)
+            .groupBy { it.begrunnelseType }
+            .mapValues { begrunnelseGruppe ->
+                begrunnelseGruppe.value
+                    .flatMap { begrunnelse ->
+                        sanityBegrunnelseTilRestFormat(
+                            sanityBegrunnelser,
+                            begrunnelse,
+                        )
+                    }
+            }
     }
 }
 

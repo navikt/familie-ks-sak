@@ -9,11 +9,20 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.unleash.UnleashService
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -39,6 +48,12 @@ class EndretUtbetalingAndelServiceTest {
 
     @InjectMockKs
     private lateinit var endretUtbetalingAndelService: EndretUtbetalingAndelService
+
+    @MockK
+    private lateinit var sanityService: SanityService
+
+    @MockK
+    private lateinit var unleashService: UnleashService
 
     @Test
     fun `kopierEndretUtbetalingAndelFraForrigeBehandling - skal kopiere over endrete utbetaling i forrige behandling og lagre disse på ny`() {
@@ -92,5 +107,50 @@ class EndretUtbetalingAndelServiceTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, any(), any()) }
+    }
+
+    @Test
+    fun `hentSanityBegrunnelserMedEndringsårsak - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
+        // Arrange
+        every { sanityService.hentSanityBegrunnelser() } returns
+            listOf(
+                SanityBegrunnelse(
+                    NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER.sanityApiNavn,
+                    "avslagAlleredeUtbataltAnnenForelderEndringsperiode",
+                    SanityBegrunnelseType.ENDRINGSPERIODE,
+                    Vilkår.entries.toList(),
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = listOf(Årsak.ALLEREDE_UTBETALT),
+                    resultat = SanityResultat.AVSLAG,
+                    skalAlltidVises = false,
+                    støtterFritekst = false,
+                ),
+                SanityBegrunnelse(
+                    NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER.sanityApiNavn,
+                    "avslagAlleredeUtbetaltSokerEndringsperiode",
+                    SanityBegrunnelseType.ENDRINGSPERIODE,
+                    Vilkår.entries.toList(),
+                    rolle = emptyList(),
+                    triggere = emptyList(),
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    hjemler = emptyList(),
+                    endretUtbetalingsperiode = emptyList(),
+                    endringsårsaker = listOf(Årsak.ALLEREDE_UTBETALT),
+                    resultat = SanityResultat.AVSLAG,
+                    skalAlltidVises = false,
+                    støtterFritekst = false,
+                ),
+            )
+
+        // Act
+        val endringsårsakbegrunnelser = endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()
+
+        // Assert
+        assertThat(endringsårsakbegrunnelser.size, Is(9))
+        assertThat(endringsårsakbegrunnelser[BegrunnelseType.AVSLAG]?.size, Is(2))
     }
 }
