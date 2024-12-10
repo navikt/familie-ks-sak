@@ -147,7 +147,7 @@ class EndretUtbetalingAndelServiceTest {
         val endringsårsakbegrunnelser = endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()
 
         // Assert
-        assertEquals(9, endringsårsakbegrunnelser.size)
+        assertThat(endringsårsakbegrunnelser).hasSize(9)
         assertEquals(2, endringsårsakbegrunnelser[BegrunnelseType.AVSLAG]?.size)
     }
 }
