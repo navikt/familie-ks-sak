@@ -21,7 +21,7 @@ object EndringIEndretUtbetalingAndelUtil {
                 (
                     nåværende?.avtaletidspunktDeltBosted != forrige?.avtaletidspunktDeltBosted ||
                         nåværende?.årsak != forrige?.årsak &&
-                            erIkkeFulltidsplassIBarnehageAugust2024MedEksplisittAvslag
+                        erIkkeFulltidsplassIBarnehageAugust2024MedEksplisittAvslag
                 )
             }
 
