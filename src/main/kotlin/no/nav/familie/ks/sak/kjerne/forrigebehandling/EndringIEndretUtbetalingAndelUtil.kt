@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.tilPeriode
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
@@ -18,7 +19,8 @@ object EndringIEndretUtbetalingAndelUtil {
             nåværendeTidslinje.kombinerMed(forrigeTidslinje) { nåværende, forrige ->
                 (
                     nåværende?.avtaletidspunktDeltBosted != forrige?.avtaletidspunktDeltBosted ||
-                        nåværende?.årsak != forrige?.årsak
+                        nåværende?.årsak != forrige?.årsak &&
+                        nåværende?.årsak != Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
                 )
             }
 
