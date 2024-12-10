@@ -23,11 +23,11 @@ object EndringIVilkårsvurderingUtil {
                         nåværendeOppfylteVilkårResultaterForPerson =
                             nåværendePersonResultaterForPerson
                                 .flatMap { it.vilkårResultater }
-                                .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
+                                .filter { it.resultat == Resultat.OPPFYLT },
                         forrigeOppfylteVilkårResultaterForPerson =
                             forrigePersonResultater
                                 .flatMap { it.vilkårResultater }
-                                .filter { it.vilkårType == vilkår && it.resultat == Resultat.OPPFYLT },
+                                .filter { it.resultat == Resultat.OPPFYLT },
                         vilkår = vilkår,
                     )
                 vilkårTidslinje

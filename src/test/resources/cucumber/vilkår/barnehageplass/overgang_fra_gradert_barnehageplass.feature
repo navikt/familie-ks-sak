@@ -1,7 +1,7 @@
 # language: no
 # encoding: UTF-8
 
-Egenskap: Overgang fra barnehageplass
+Egenskap: Overgang fra gradert barnehageplass
 
   Bakgrunn:
     Gitt følgende fagsaker
@@ -158,7 +158,7 @@ Egenskap: Overgang fra barnehageplass
 
     Så forvent følgende andeler tilkjent ytelse for behandling 1
       | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats |
-      | 2       | 01.09.2024 | 31.11.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
+      | 2       | 01.09.2024 | 30.11.2024 | 6000  | ORDINÆR_KONTANTSTØTTE | 80      | 7500 |
       | 2       | 01.12.2024 | 31.03.2025 | 4500  | ORDINÆR_KONTANTSTØTTE | 60      | 7500 |
 
   Scenario: Kontantstøtte skal økes til full fra samme måned som når barnet slutter i barnehage i mitden av måneden
