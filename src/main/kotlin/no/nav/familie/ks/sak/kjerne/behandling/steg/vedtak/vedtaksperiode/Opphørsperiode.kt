@@ -116,7 +116,10 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
 ): List<Opphørsperiode> {
-    val sisteUtbetalingsperiodeTom = utbetalingsperioder.filter { it.utbetaltPerMnd != 0 }.maxOf { it.periodeTom }.toYearMonth()
+    val sisteUtbetalingsperiodeTom = utbetalingsperioder.
+    filter { it.utbetaltPerMnd != 0 }.
+    ifEmpty { return emptyList() }
+        .maxOf { it.periodeTom }.toYearMonth()
     val cutOffDato = inneværendeMåned().plusMonths(2)
 
     val erFramtidigOpphørPgaBarnehageplass =
