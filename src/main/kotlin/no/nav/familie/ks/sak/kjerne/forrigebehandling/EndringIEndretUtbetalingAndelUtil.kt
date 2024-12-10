@@ -17,10 +17,11 @@ object EndringIEndretUtbetalingAndelUtil {
 
         val endringerTidslinje =
             nåværendeTidslinje.kombinerMed(forrigeTidslinje) { nåværende, forrige ->
+                val erIkkeFulltidsplassIBarnehageAugust2024MedEksplisittAvslag = nåværende?.årsak != Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 && nåværende?.erEksplisittAvslagPåSøknad == true
                 (
                     nåværende?.avtaletidspunktDeltBosted != forrige?.avtaletidspunktDeltBosted ||
                         nåværende?.årsak != forrige?.årsak &&
-                        nåværende?.årsak != Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
+                            erIkkeFulltidsplassIBarnehageAugust2024MedEksplisittAvslag
                 )
             }
 
