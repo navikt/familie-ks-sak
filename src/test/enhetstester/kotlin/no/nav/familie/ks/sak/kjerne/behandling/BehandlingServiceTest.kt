@@ -48,6 +48,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -82,6 +83,7 @@ class BehandlingServiceTest {
     private val mockBrevmottakerService = mockk<BrevmottakerService>()
     private val mockOvergangsordningAndelService = mockk<OvergangsordningAndelService>()
     private val mockOppgaveService = mockk<OppgaveService>()
+    private val mockSakStatistikkService = mockk<SakStatistikkService>()
 
     private val behandlingService =
         BehandlingService(
@@ -108,6 +110,7 @@ class BehandlingServiceTest {
             brevmottakerService = mockBrevmottakerService,
             overgangsordningAndelService = mockOvergangsordningAndelService,
             oppgaveService = mockOppgaveService,
+            sakStatistikkService = mockSakStatistikkService,
         )
 
     private val søker = randomAktør()
@@ -244,7 +247,7 @@ class BehandlingServiceTest {
     }
 
     @Test
-    fun `endreBehandlingstemaPåBehandling skal oppdatere kategori, oppgaver og opprette logg hvis overstyrt kategori er annerledes`() {
+    fun `endreBehandlingstemaPåBehandling skal oppdatere kategori og oppgaver, opprette logg, og sende sakstatistikk hvis overstyrt kategori er annerledes`() {
         // Arrange
         every {
             mockLoggService.opprettEndretBehandlingstemaLogg(
@@ -257,6 +260,7 @@ class BehandlingServiceTest {
         every { mockBehandlingRepository.hentBehandling(behandling.id) } returns behandling
         every { mockBehandlingRepository.save(behandling) } returns behandling
         every { mockOppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(behandling) } just runs
+        every { mockSakStatistikkService.sendMeldingOmEndringAvBehandlingkategori(behandling.id, BehandlingKategori.EØS) } just runs
 
         // Act
         val oppdatertBehandling =
@@ -275,6 +279,7 @@ class BehandlingServiceTest {
         }
         verify(exactly = 1) { mockBehandlingRepository.save(behandling) }
         verify(exactly = 1) { mockOppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(behandling) }
+        verify(exactly = 1) { mockSakStatistikkService.sendMeldingOmEndringAvBehandlingkategori(behandling.id, BehandlingKategori.EØS) }
     }
 
     @Test

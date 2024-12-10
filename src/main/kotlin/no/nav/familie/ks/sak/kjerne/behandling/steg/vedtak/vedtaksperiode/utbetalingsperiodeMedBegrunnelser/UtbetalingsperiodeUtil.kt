@@ -1,7 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -16,9 +17,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -35,6 +36,7 @@ import no.nav.familie.tidslinje.utvidelser.slåSammen
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+import java.math.BigDecimal
 import java.time.LocalDate
 
 // Om noe av dette endrer seg skal vi ha en splitt i vedtaksperiodene.
@@ -55,7 +57,11 @@ fun hentPerioderMedUtbetaling(
 
     val andeltilkjentYtelserSplittetPåKriterier =
         andelerTilkjentYtelse
-            .tilTidslinjerPerPerson()
+            .filter {
+                !it.endreteUtbetalinger.any { endretUtbetalingAndel ->
+                    endretUtbetalingAndel.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
+                }
+            }.tilTidslinjerPerPerson()
             .values
             .slåSammen()
             .filtrer { !it.isNullOrEmpty() }
@@ -81,7 +87,7 @@ fun hentPerioderMedUtbetaling(
                 )
             if (vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024) {
                 vedtaksperiodeMedBegrunnelser.begrunnelser.addAll(
-                    hentBegrunnelserForInnvilgelsePeriode(periode)
+                    hentBegrunnelserForOvergangsordningPerioder(periode)
                         .map { begrunnelse ->
                             begrunnelse.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
                         }.toMutableSet(),
@@ -92,15 +98,41 @@ fun hentPerioderMedUtbetaling(
         }
 }
 
-fun hentBegrunnelserForInnvilgelsePeriode(periode: Periode<SplittkriterierForVedtaksperiode>): Set<NasjonalEllerFellesBegrunnelse> {
-    val andelIPeriode = periode.verdi.andelerTilkjentYtelse?.find { it.stønadFom == periode.fom?.toYearMonth() && it.stønadTom == periode.tom?.toYearMonth() } ?: return emptySet()
+fun hentBegrunnelserForOvergangsordningPerioder(periode: Periode<SplittkriterierForVedtaksperiode>): Set<NasjonalEllerFellesBegrunnelse> {
+    val vedtaksperiodeFom = periode.fom
+    val vedtaksperiodeTom = periode.tom
 
-    return if (andelIPeriode.type == YtelseType.OVERGANGSORDNING && andelIPeriode.kalkulertUtbetalingsbeløp == maksBeløp()) {
-        setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING)
-    } else if (andelIPeriode.type == YtelseType.OVERGANGSORDNING) {
-        setOf(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+    if (vedtaksperiodeFom == null || vedtaksperiodeTom == null) return emptySet()
+
+    val månedPeriodeForVedtaksperiode = MånedPeriode(vedtaksperiodeFom.toYearMonth(), vedtaksperiodeTom.toYearMonth())
+
+    val overgangsordningAndelerIPeriode =
+        periode.verdi.andelerTilkjentYtelse?.filter { andel ->
+            val andelMånedPeriode = MånedPeriode(andel.stønadFom, andel.stønadTom)
+
+            månedPeriodeForVedtaksperiode.overlapperHeltEllerDelvisMed(andelMånedPeriode) && andel.type == YtelseType.OVERGANGSORDNING
+        } ?: emptyList()
+
+    val overgangsordningBegrunnelser =
+        overgangsordningAndelerIPeriode
+            .filter { it.type == YtelseType.OVERGANGSORDNING }
+            .map {
+                when (it.prosent) {
+                    BigDecimal(100) -> NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING
+                    BigDecimal(50) -> NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED
+                    else -> NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING
+                }
+            }.distinct()
+            .toSet()
+
+    val skalGradertEllerDeltBostedBegrunnelseBrukes =
+        overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED) ||
+            overgangsordningBegrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
+
+    return if (skalGradertEllerDeltBostedBegrunnelseBrukes) {
+        overgangsordningBegrunnelser.filter { it != NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING }.toSet()
     } else {
-        emptySet()
+        overgangsordningBegrunnelser
     }
 }
 
@@ -190,18 +222,3 @@ private fun List<Kompetanse>.tilSplittkriterierForKompetanseTidslinje(): Tidslin
                 }.tilTidslinje()
         }.kombiner { it.toMap() }
 }
-
-private fun hentSetAvVilkårsVurderinger(vilkårResultater: List<VilkårResultat>) =
-    vilkårResultater.flatMap { it.utdypendeVilkårsvurderinger }.toSet()
-
-private fun hentRegelverkPersonErVurdertEtterIPeriode(vilkårResultater: Iterable<VilkårResultat>) =
-    vilkårResultater
-        .map { it.vurderesEtter }
-        .reduce { acc, regelverk ->
-            when {
-                acc == null -> regelverk
-                regelverk == null -> acc
-                regelverk != acc -> throw Feil("Mer enn ett regelverk på person i periode: $regelverk, $acc")
-                else -> acc
-            }
-        }

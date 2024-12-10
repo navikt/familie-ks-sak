@@ -14,6 +14,7 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
+import no.nav.familie.ks.sak.api.dto.mapTilBegrunnelser
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
@@ -126,17 +127,16 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     person: Person,
 ): EndretUtbetalingAndel {
+    this.person = person
+    this.prosent = endretUtbetalingAndelRequestDto.prosent
     this.fom = endretUtbetalingAndelRequestDto.fom
     this.tom = endretUtbetalingAndelRequestDto.tom
-    this.prosent = endretUtbetalingAndelRequestDto.prosent ?: BigDecimal(0)
     this.årsak = endretUtbetalingAndelRequestDto.årsak
     this.avtaletidspunktDeltBosted = endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted
     this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
-    this.person = person
+    this.begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
     this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
-    this.begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
-
     return this
 }
 
@@ -147,6 +147,7 @@ enum class Årsak(
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
     ENDRE_MOTTAKER("Foreldrene bor sammen, endret mottaker"),
     ALLEREDE_UTBETALT("Allerede utbetalt"),
+    FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024("Fulltidsplass i barnehage august 2024"),
 }
 
 sealed interface IEndretUtbetalingAndel

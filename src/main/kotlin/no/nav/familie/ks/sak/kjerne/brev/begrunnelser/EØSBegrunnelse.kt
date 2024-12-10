@@ -468,6 +468,11 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
     },
 
+    OPPHØR_OVERGANGSORDNING_OPPHØR_EØS {
+        override val sanityApiNavn = "opphorOvergangsordningOpphorEOS"
+        override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
+    },
+
     REDUKSJON_BARN_DØD_EØS {
         override val sanityApiNavn = "reduksjonBarnDodEos"
         override val begrunnelseType = BegrunnelseType.EØS_REDUKSJON

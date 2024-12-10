@@ -8,6 +8,7 @@ import io.mockk.runs
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
@@ -39,7 +40,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
     private lateinit var stegService: StegService
 
     @Autowired
-    private lateinit var service: SakStatistikkService
+    private lateinit var sakStatistikkService: SakStatistikkService
 
     @Test
     fun `opprettSendingAvBehandlingensTilstand skal generere melding om ny tilstand til DVH`() {
@@ -78,6 +79,26 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
+    fun `sendMeldingOmEndringAvBehandlingkategori skal generere melding om ny tilstand til DVH`() {
+        // Arrange
+        every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
+        every { registerPersonGrunnlagSteg.getBehandlingssteg() } answers { callOriginal() }
+        opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
+        lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
+
+        // Act
+        sakStatistikkService.sendMeldingOmEndringAvBehandlingkategori(behandling.id, BehandlingKategori.EØS)
+
+        // Assert
+        val tasks = taskService.findAll()
+        assertEquals(1, tasks.count { it.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE })
+
+        val taskSomErOpprettet = tasks[0]
+        assertThat(taskSomErOpprettet.metadata["beskrivelse"]).isEqualTo("Endrer behandlingskategori til EØS for behandling ${behandling.id}")
+    }
+
+    @Test
     fun `hentBehandlingensTilstand skal utlede behandlingtilstand på behandling som utredes`() {
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         every { registerPersonGrunnlagSteg.utførSteg(any()) } just runs
@@ -86,7 +107,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
 
-        val tilstand = service.hentBehandlingensTilstandV2(behandling.id, false)
+        val tilstand = sakStatistikkService.hentBehandlingensTilstandV2(behandling.id, false)
         assertEquals(behandling.fagsak.id, tilstand.saksnummer)
         assertEquals(behandling.id, tilstand.behandlingID)
         assertEquals(behandling.status, tilstand.behandlingStatus)

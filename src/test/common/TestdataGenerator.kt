@@ -24,6 +24,7 @@ import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -51,10 +52,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
@@ -71,6 +75,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
@@ -694,15 +699,21 @@ fun lagVilkårResultaterForDeltBosted(
 }
 
 fun lagEndretUtbetalingAndel(
-    behandlingId: Long = 0,
-    person: Person,
+    id: Long = 0L,
+    behandlingId: Long = 0L,
+    person: Person? = lagPerson(aktør = randomAktør()),
     prosent: BigDecimal? = null,
-    periodeFom: YearMonth = YearMonth.now().minusMonths(1),
-    periodeTom: YearMonth = YearMonth.now(),
-    årsak: Årsak = Årsak.DELT_BOSTED,
+    periodeFom: YearMonth? = YearMonth.now().minusMonths(1),
+    periodeTom: YearMonth? = YearMonth.now(),
+    årsak: Årsak? = Årsak.DELT_BOSTED,
     avtaletidspunktDeltBosted: LocalDate? = LocalDate.now().minusMonths(1),
+    søknadstidspunkt: LocalDate? = LocalDate.now().minusMonths(1),
+    begrunnelse: String? = "test",
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    erEksplisittAvslagPåSøknad: Boolean? = false,
 ): EndretUtbetalingAndel =
     EndretUtbetalingAndel(
+        id = id,
         behandlingId = behandlingId,
         person = person,
         prosent = prosent,
@@ -710,8 +721,10 @@ fun lagEndretUtbetalingAndel(
         tom = periodeTom,
         årsak = årsak,
         avtaletidspunktDeltBosted = avtaletidspunktDeltBosted,
-        søknadstidspunkt = LocalDate.now().minusMonths(1),
-        begrunnelse = "test",
+        søknadstidspunkt = søknadstidspunkt,
+        begrunnelse = begrunnelse,
+        begrunnelser = begrunnelser,
+        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 
 fun lagVedtaksbegrunnelse(
@@ -721,6 +734,15 @@ fun lagVedtaksbegrunnelse(
 ) = NasjonalEllerFellesBegrunnelseDB(
     vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
     nasjonalEllerFellesBegrunnelse = nasjonalEllerFellesBegrunnelse,
+)
+
+fun lagEØSVedtaksbegrunnelse(
+    begrunnelse: EØSBegrunnelse =
+        EØSBegrunnelse.INNVILGET_PRIMÆRLAND_ALENEANSVAR,
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser = mockk(),
+) = EØSBegrunnelseDB(
+    vedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelser,
+    begrunnelse = begrunnelse,
 )
 
 fun lagVedtaksperiodeMedBegrunnelser(
@@ -742,6 +764,15 @@ fun lagVedtaksperiodeMedBegrunnelser(
     vedtaksperiodeMedBegrunnelser.settBegrunnelser(begrunnelser(vedtaksperiodeMedBegrunnelser))
     return vedtaksperiodeMedBegrunnelser
 }
+
+fun lagUtvidetVedtaksperiodeMedBegrunnelser(
+    fom: LocalDate? = LocalDate.now().withDayOfMonth(1),
+    tom: LocalDate? = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
+    type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
+    begrunnelser: List<NasjonalEllerFellesBegrunnelseDB> = emptyList(),
+    eøsBegrunnelser: List<EØSBegrunnelseDB> = emptyList(),
+): UtvidetVedtaksperiodeMedBegrunnelser =
+    UtvidetVedtaksperiodeMedBegrunnelser(id = 0, fom = fom, tom = tom, type = type, begrunnelser = begrunnelser, eøsBegrunnelser = eøsBegrunnelser, støtterFritekst = false)
 
 fun lagPersonResultat(
     vilkårsvurdering: Vilkårsvurdering,
@@ -1186,6 +1217,7 @@ fun lagVilkårsvurdering(
     resultat: Resultat,
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
+    medAndreVurderinger: Boolean = true,
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -1218,14 +1250,16 @@ fun lagVilkårsvurdering(
             ),
         ),
     )
-    personResultat.andreVurderinger.add(
-        AnnenVurdering(
-            personResultat = personResultat,
-            resultat = resultat,
-            type = AnnenVurderingType.OPPLYSNINGSPLIKT,
-            begrunnelse = null,
-        ),
-    )
+    if (medAndreVurderinger) {
+        personResultat.andreVurderinger.add(
+            AnnenVurdering(
+                personResultat = personResultat,
+                resultat = resultat,
+                type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+                begrunnelse = null,
+            ),
+        )
+    }
 
     vilkårsvurdering.personResultater = setOf(personResultat)
     return vilkårsvurdering
@@ -1233,8 +1267,12 @@ fun lagVilkårsvurdering(
 
 fun lagSanityBegrunnelse(
     apiNavn: String,
-    støtterFritekst: Boolean,
-    resultat: SanityResultat,
+    støtterFritekst: Boolean = false,
+    resultat: SanityResultat = SanityResultat.INNVILGET,
+    hjemler: List<String> = emptyList(),
+    hjemlerEøsForordningen883: List<String> = emptyList(),
+    hjemlerEøsForordningen987: List<String> = emptyList(),
+    hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
 ): SanityBegrunnelse =
     SanityBegrunnelse(
         apiNavn = apiNavn,
@@ -1244,12 +1282,15 @@ fun lagSanityBegrunnelse(
         rolle = emptyList(),
         utdypendeVilkårsvurderinger = emptyList(),
         triggere = emptyList(),
-        hjemler = emptyList(),
+        hjemler = hjemler,
         endringsårsaker = emptyList(),
         endretUtbetalingsperiode = emptyList(),
         støtterFritekst = støtterFritekst,
         skalAlltidVises = false,
         resultat = resultat,
+        hjemlerEØSForordningen883 = hjemlerEøsForordningen883,
+        hjemlerEØSForordningen987 = hjemlerEøsForordningen987,
+        hjemlerSeperasjonsavtalenStorbritannina = hjemlerSeperasjonsavtalenStorbritannina,
     )
 
 fun lagSammensattKontrollsak(
@@ -1425,3 +1466,46 @@ fun lagBrevmottakerDto(
     poststed = poststed,
     landkode = landkode,
 )
+
+fun lagEndretUtbetalingAndelRequestDto(
+    id: Long = 0L,
+    personIdent: String = "12345678903",
+    prosent: BigDecimal = BigDecimal(100),
+    fom: YearMonth = YearMonth.now().minusYears(1),
+    tom: YearMonth = YearMonth.now(),
+    årsak: Årsak = Årsak.ENDRE_MOTTAKER,
+    avtaletidspunktDeltBosted: LocalDate? = LocalDate.now(),
+    søknadstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
+    begrunnelse: String = "en begrunnelse",
+    erEksplisittAvslagPåSøknad: Boolean? = false,
+) = EndretUtbetalingAndelRequestDto(
+    id,
+    personIdent,
+    prosent,
+    fom,
+    tom,
+    årsak,
+    avtaletidspunktDeltBosted,
+    søknadstidspunkt,
+    begrunnelse,
+    erEksplisittAvslagPåSøknad,
+)
+
+fun lagRefusjonEøs(
+    behandlingId: Long = 0L,
+    fom: LocalDate = LocalDate.now().minusMonths(1),
+    tom: LocalDate = LocalDate.now().plusMonths(1),
+    refusjonsbeløp: Int = 0,
+    land: String = "NO",
+    refusjonAvklart: Boolean = true,
+    id: Long = 0L,
+): RefusjonEøs =
+    RefusjonEøs(
+        behandlingId = behandlingId,
+        fom = fom,
+        tom = tom,
+        refusjonsbeløp = refusjonsbeløp,
+        land = land,
+        refusjonAvklart = refusjonAvklart,
+        id = id,
+    )

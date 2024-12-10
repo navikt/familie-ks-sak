@@ -19,6 +19,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetOvergangsordningGradertUtbetaling"
     },
+    INNVILGET_OVERGANGSORDNING_DELT_BOSTED {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetOvergangsordningDeltBosted"
+    },
     INNVILGET_DELTID_BARNEHAGE {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetDeltidBarnehage"
@@ -279,6 +283,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagMottarFulleForeldrepenger"
     },
+    AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagFulltidsplassIBarnehageAugust2024"
+    },
     OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorVurderingIkkeMedlemIFolketrygdenI5Aar"
@@ -486,6 +494,14 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorNyttFramtidigOpphorBarnehageplass"
+    },
+    OPPHØR_OVERGANGSORDNING_OPPHØR {
+        override val sanityApiNavn = "opphorOvergangsordningOpphor"
+        override val begrunnelseType = BegrunnelseType.OPPHØR
+    },
+    OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 {
+        override val sanityApiNavn = "opphorTilleggstekstForReglerFor010824"
+        override val begrunnelseType = BegrunnelseType.OPPHØR
     },
     REDUKSJON_BARN_FLYTTET_FRA_SOKER {
         override val begrunnelseType = BegrunnelseType.REDUKSJON

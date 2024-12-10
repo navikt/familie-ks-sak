@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak
 
 import io.mockk.every
 import io.mockk.mockk
@@ -8,6 +8,8 @@ import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.lagVedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
+import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeService
+import no.nav.familie.ks.sak.kjerne.brev.EtterbetalingService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Etterbetaling
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsAvklart
@@ -15,14 +17,14 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.RefusjonEøsUavklart
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class OpprettOpphørMedEndringSammensattKontrollsakDtoServiceTest {
-    private val mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService = mockk()
+class OpphørMedEndringSammensattKontrollsakDtoUtlederTest {
+    private val mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder: VedtakFellesfelterSammensattKontrollsakDtoUtleder = mockk()
     private val mockedEtterbetalingService: EtterbetalingService = mockk()
     private val mockedSimuleringService: SimuleringService = mockk()
     private val mockedBrevPeriodeService: BrevPeriodeService = mockk()
-    private val opprettOpphørMedEndringSammensattKontrollsakDtoService: OpprettOpphørMedEndringSammensattKontrollsakDtoService =
-        OpprettOpphørMedEndringSammensattKontrollsakDtoService(
-            opprettVedtakFellesfelterSammensattKontrollsakDtoService = mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService,
+    private val opphørMedEndringSammensattKontrollsakDtoUtleder: OpphørMedEndringSammensattKontrollsakDtoUtleder =
+        OpphørMedEndringSammensattKontrollsakDtoUtleder(
+            vedtakFellesfelterSammensattKontrollsakDtoUtleder = mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder,
             etterbetalingService = mockedEtterbetalingService,
             simuleringService = mockedSimuleringService,
             brevPeriodeService = mockedBrevPeriodeService,
@@ -43,7 +45,7 @@ class OpprettOpphørMedEndringSammensattKontrollsakDtoServiceTest {
             )
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
+            mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
@@ -91,7 +93,7 @@ class OpprettOpphørMedEndringSammensattKontrollsakDtoServiceTest {
 
         // Act
         val opphørMedEndringSammensattKontrollsak =
-            opprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
+            opphørMedEndringSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
@@ -129,7 +131,7 @@ class OpprettOpphørMedEndringSammensattKontrollsakDtoServiceTest {
             )
 
         every {
-            mockedOpprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
+            mockedVedtakFellesfelterSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )
@@ -177,7 +179,7 @@ class OpprettOpphørMedEndringSammensattKontrollsakDtoServiceTest {
 
         // Act
         val opphørMedEndringSammensattKontrollsak =
-            opprettOpphørMedEndringSammensattKontrollsakDtoService.opprett(
+            opphørMedEndringSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )

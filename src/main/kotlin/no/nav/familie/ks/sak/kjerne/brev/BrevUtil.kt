@@ -5,11 +5,14 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.integrasjon.sanity.domene.erOvergangsordningBegrunnelse
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 
 const val HJEMMEL_60_EØS_FORORDNINGEN_987 = "60"
 const val FORVALTINIGSLOVEN_PARAGRAF_35 = "35"
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 fun hentHjemmeltekst(
     sanitybegrunnelserBruktIBrev: List<SanityBegrunnelse>,
     opplysningspliktHjemlerSkalMedIBrev: Boolean = false,
@@ -35,9 +38,17 @@ fun hentHjemmeltekst(
             hjemlerEØSForordningen987 = hentHjemlerForEøsForordningen987(sanitybegrunnelserBruktIBrev, refusjonEøsHjemmelSkalMedIBrev),
         )
 
-    return slåSammenHjemlerAvUlikeTyper(alleHjemlerForBegrunnelser)
+    val alleHjemlerOgTekstForBegrunnelser =
+        if (sanitybegrunnelserBruktIBrev.any { it.erOvergangsordningBegrunnelse() }) {
+            alleHjemlerForBegrunnelser + "forskrift om overgangsregler"
+        } else {
+            alleHjemlerForBegrunnelser
+        }
+
+    return slåSammenHjemlerAvUlikeTyper(alleHjemlerOgTekstForBegrunnelser)
 }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 private fun hentHjemlerForEøsForordningen987(
     begrunnelser: List<SanityBegrunnelse>,
     refusjonEøsHjemmelSkalMedIBrev: Boolean,
@@ -53,6 +64,7 @@ private fun hentHjemlerForEøsForordningen987(
     return hjemler.distinct()
 }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): List<String> =
     if (vedtakKorrigertHjemmelSkalMedIBrev) {
         listOf(FORVALTINIGSLOVEN_PARAGRAF_35)
@@ -60,6 +72,7 @@ fun hentForvaltningsloverHjemler(vedtakKorrigertHjemmelSkalMedIBrev: Boolean): L
         emptyList()
     }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
     when (hjemler.size) {
         0 -> throw FunksjonellFeil("Ingen hjemler var knyttet til begrunnelsen(e) som er valgt. Du må velge minst én begrunnelse som er knyttet til en hjemmel.")
@@ -67,6 +80,7 @@ private fun slåSammenHjemlerAvUlikeTyper(hjemler: List<String>) =
         else -> slåSammenListeMedHjemler(hjemler)
     }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 private fun slåSammenListeMedHjemler(hjemler: List<String>): String =
     hjemler.reduceIndexed { index, acc, s ->
         when (index) {
@@ -76,6 +90,7 @@ private fun slåSammenListeMedHjemler(hjemler: List<String>): String =
         }
     }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 private fun hentAlleTyperHjemler(
     ordinæreHjemler: List<String>,
     målform: Målform,
@@ -138,6 +153,7 @@ private fun hentAlleTyperHjemler(
     return alleHjemlerForBegrunnelser
 }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 fun hjemlerTilHjemmeltekst(
     hjemler: List<String>,
     lovForHjemmel: String,
@@ -151,6 +167,7 @@ fun hjemlerTilHjemmeltekst(
         else -> "§§ ${slåSammen(hjemler)}"
     }
 
+@Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
 private fun hentOrdinæreHjemler(
     hjemler: MutableSet<String>,
     opplysningspliktHjemlerSkalMedIBrev: Boolean,
@@ -179,3 +196,10 @@ fun String.tilLandNavn(landkoderISO2: Map<String, String>): Landkode {
 
     return Landkode(kode.key, kode.value.storForbokstav())
 }
+
+fun List<SanityBegrunnelse>.inneholderOvergangsordningBegrunnelser() =
+    this.any {
+        it.apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn ||
+            it.apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED.sanityApiNavn ||
+            it.apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING.sanityApiNavn
+    }

@@ -42,15 +42,24 @@ object BehandlingsresultatSøknadUtils {
                 endretUtbetalingAndeler = endretUtbetalingAndeler,
             )
 
-        val erEksplisittAvslagPåMinstEnPersonFremstiltKravFor =
-            erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøker(
+        val erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering =
+            erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering(
                 nåværendePersonResultater = nåværendePersonResultater,
+                personerFremstiltKravFor = personerFremstiltKravFor,
+            )
+
+        val erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler =
+            erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler(
+                nåværendeEndretUtbetalingAndeler = endretUtbetalingAndeler,
                 personerFremstiltKravFor = personerFremstiltKravFor,
             )
 
         val alleResultater =
             (
-                if (erEksplisittAvslagPåMinstEnPersonFremstiltKravFor || finnesUregistrerteBarn) {
+                if (erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering ||
+                    erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler ||
+                    finnesUregistrerteBarn
+                ) {
                     resultaterFraAndeler.plus(Søknadsresultat.AVSLÅTT)
                 } else {
                     resultaterFraAndeler
@@ -116,6 +125,7 @@ object BehandlingsresultatSøknadUtils {
                             Årsak.ALLEREDE_UTBETALT,
                             Årsak.ENDRE_MOTTAKER,
                             Årsak.ETTERBETALING_3MND,
+                            Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                             -> Søknadsresultat.AVSLÅTT
                         }
                     }
@@ -128,7 +138,7 @@ object BehandlingsresultatSøknadUtils {
         return resultatTidslinje.tilPerioderIkkeNull().map { it.verdi }.distinct()
     }
 
-    private fun erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøker(
+    private fun erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIVilkårsvurdering(
         nåværendePersonResultater: Set<PersonResultat>,
         personerFremstiltKravFor: List<Aktør>,
     ): Boolean =
@@ -137,6 +147,14 @@ object BehandlingsresultatSøknadUtils {
             .any {
                 it.harEksplisittAvslag()
             }
+
+    private fun erEksplisittAvslagPåMinstEnPersonFremstiltKravForEllerSøkerIEndretUtbetalingAndeler(
+        nåværendeEndretUtbetalingAndeler: List<EndretUtbetalingAndel>,
+        personerFremstiltKravFor: List<Aktør>,
+    ): Boolean =
+        nåværendeEndretUtbetalingAndeler
+            .filter { personerFremstiltKravFor.contains(it.person?.aktør) }
+            .any { it.erEksplisittAvslagPåSøknad == true }
 
     internal fun List<Søknadsresultat>.kombinerSøknadsresultater(behandlingÅrsak: BehandlingÅrsak): Søknadsresultat {
         val resultaterUtenIngenEndringer = this.filter { it != Søknadsresultat.INGEN_RELEVANTE_ENDRINGER }

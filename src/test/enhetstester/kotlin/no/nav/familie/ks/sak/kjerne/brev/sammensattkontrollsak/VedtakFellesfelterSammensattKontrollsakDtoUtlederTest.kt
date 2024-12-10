@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.brev
+package no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak
 
 import io.mockk.every
 import io.mockk.mockk
@@ -6,17 +6,19 @@ import no.nav.familie.ks.sak.data.lagKorrigertVedtak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagSammensattKontrollsak
 import no.nav.familie.ks.sak.data.lagVedtak
+import no.nav.familie.ks.sak.kjerne.brev.GrunnlagOgSignaturData
+import no.nav.familie.ks.sak.kjerne.brev.OpprettGrunnlagOgSignaturDataService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class OpprettVedtakFellesfelterSammensattKontrollsakDtoServiceTest {
+class VedtakFellesfelterSammensattKontrollsakDtoUtlederTest {
     private val mockedOpprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService = mockk()
     private val mockedKorrigertVedtakService: KorrigertVedtakService = mockk()
 
-    private val opprettVedtakFellesfelterSammensattKontrollsakDtoService: OpprettVedtakFellesfelterSammensattKontrollsakDtoService =
-        OpprettVedtakFellesfelterSammensattKontrollsakDtoService(
+    private val vedtakFellesfelterSammensattKontrollsakDtoUtleder: VedtakFellesfelterSammensattKontrollsakDtoUtleder =
+        VedtakFellesfelterSammensattKontrollsakDtoUtleder(
             opprettGrunnlagOgSignaturDataService = mockedOpprettGrunnlagOgSignaturDataService,
             korrigertVedtakService = mockedKorrigertVedtakService,
         )
@@ -63,7 +65,7 @@ class OpprettVedtakFellesfelterSammensattKontrollsakDtoServiceTest {
 
         // Act
         val vedtakFellesfelterSammensattKontrollsak =
-            opprettVedtakFellesfelterSammensattKontrollsakDtoService.opprett(
+            vedtakFellesfelterSammensattKontrollsakDtoUtleder.utled(
                 vedtak = vedtak,
                 sammensattKontrollsak = sammensattKontrollsak,
             )

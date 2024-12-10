@@ -9,6 +9,8 @@ import no.nav.familie.kontrakter.felles.klage.Opprettet
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -44,9 +46,18 @@ class OpprettBehandlingService(
     private val taskService: TaskService,
     private val stegService: StegService,
     private val behandlingMetrikker: BehandlingMetrikker,
+    private val unleashService: UnleashNextMedContextService,
 ) {
     @Transactional
     fun opprettBehandling(opprettBehandlingRequest: OpprettBehandlingDto): Behandling {
+        if (opprettBehandlingRequest.behandlingÅrsak == BehandlingÅrsak.IVERKSETTE_KA_VEDTAK &&
+            !unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK)
+        ) {
+            throw FunksjonellFeil(
+                melding = "Kan ikke opprette behandling med årsak Iverksette KA-vedtak.",
+            )
+        }
+
         val aktør = personidentService.hentAktør(opprettBehandlingRequest.søkersIdent)
         val fagsak =
             fagsakRepository.finnFagsakForAktør(aktør)

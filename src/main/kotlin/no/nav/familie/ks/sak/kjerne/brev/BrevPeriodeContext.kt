@@ -44,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
@@ -251,7 +252,8 @@ class BrevPeriodeContext(
             barnasFødselsdatoer.isEmpty() &&
             !sanityBegrunnelse.triggere.contains(Trigger.SATSENDRING) &&
             nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN &&
-            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE
+            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE &&
+            nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
         ) {
             throw IllegalStateException("Ingen personer på brevbegrunnelse $nasjonalEllerFellesBegrunnelse")
         }
@@ -321,6 +323,7 @@ class BrevPeriodeContext(
                             vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
                             vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             vedtaksperiodeFom = fom,
+                            endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
                         )
                     }
 
@@ -362,7 +365,7 @@ class BrevPeriodeContext(
         }
 
         else ->
-            begrunnelserForPeriodeContext.hentPersonerMedVilkårResultaterSomPasserMedBegrunnelseOgPeriode(
+            begrunnelserForPeriodeContext.hentPersonerSomPasserMedBegrunnelseOgPeriode(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
@@ -550,6 +553,7 @@ class BrevPeriodeContext(
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
+        endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
@@ -563,9 +567,13 @@ class BrevPeriodeContext(
                 }
 
             Vedtaksperiodetype.OPPHØR -> {
+                val opphørGrunnetFulltidsBarnehageplassAugust2024 =
+                    endretUtbetalingAndeler.any { it.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 } && vedtaksperiodeFom == DATO_LOVENDRING_2024
+
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
                 when {
                     sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
+                    opphørGrunnetFulltidsBarnehageplassAugust2024 -> vedtaksperiodeFom.tilMånedÅr()
                     fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
                     else -> månedenFørFom.tilMånedÅr()
                 }
@@ -659,12 +667,13 @@ class BrevPeriodeContext(
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> =
         personResultater.associate { personResultat ->
-            val vilkårTilVilkårResultaterMap = personResultat.vilkårResultater.groupBy { it.vilkårType }
-
-            personResultat.aktør to
-                vilkårTilVilkårResultaterMap.mapValues { (vilkår, vilkårResultater) ->
-                    forskyvVilkårResultater(vilkår, vilkårResultater).tilTidslinje()
-                }
+            val vilkårTilTidslinje =
+                personResultat.vilkårResultater
+                    .groupBy { it.vilkårType }
+                    .mapValues { (vilkår) ->
+                        forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
+                    }
+            personResultat.aktør to vilkårTilTidslinje
         }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
