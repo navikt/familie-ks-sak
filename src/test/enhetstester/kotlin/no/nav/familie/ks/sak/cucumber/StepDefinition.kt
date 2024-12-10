@@ -236,8 +236,19 @@ class StepDefinition {
     /**
      * Mulige verdier: | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats |
      */
-    @Så("forvent følgende andeler tilkjent ytelse for behandling {}")
+    @Så("med følgende andeler tilkjent ytelse for behandling {}")
     fun `med andeler tilkjent ytelse`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        andelerTilkjentYtelse[behandlingId] = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
+    }
+
+    /**
+     * Mulige verdier: | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats |
+     */
+    @Så("forvent følgende andeler tilkjent ytelse for behandling {}")
+    fun `forvent følgende andeler tilkjent ytelse`(
         behandlingId: Long,
         dataTable: DataTable,
     ) {
