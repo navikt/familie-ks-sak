@@ -61,6 +61,7 @@ object EndretUtbetalingAndelValidator {
         årsak: Årsak?,
         endretUtbetalingAndel: EndretUtbetalingAndel,
         vilkårsvurdering: Vilkårsvurdering?,
+        kanBrukeÅrsakAlleredeUtbetalt: Boolean = false,
     ) {
         checkNotNull(årsak) { "Årsak kan ikke være null" }
         when (årsak) {
@@ -89,7 +90,7 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
-            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel)
+            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel, kanBrukeÅrsakAlleredeUtbetalt)
 
             Årsak.ENDRE_MOTTAKER,
             ->
@@ -107,7 +108,13 @@ object EndretUtbetalingAndelValidator {
         }
     }
 
-    private fun validerAlleredeUtbetalt(endretUtbetalingAndel: EndretUtbetalingAndel) {
+    private fun validerAlleredeUtbetalt(
+        endretUtbetalingAndel: EndretUtbetalingAndel,
+        kanBrukeÅrsakAlleredeUtbetalt: Boolean,
+    ) {
+        if (!kanBrukeÅrsakAlleredeUtbetalt) {
+            throw FunksjonellFeil("Årsak Allerede utbetalt er ikke implementert enda!!")
+        }
         if (endretUtbetalingAndel.tom?.isAfter(YearMonth.now()) == true) {
             throw FunksjonellFeil("Du har valgt årsaken allerede utbetalt. Du kan ikke velge denne årsaken og en til og med dato frem i tid. Ta kontakt med superbruker om du er usikker på hva du skal gjøre.")
         }
