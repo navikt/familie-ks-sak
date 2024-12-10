@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
@@ -694,7 +695,7 @@ class VedtaksperiodeService(
     ): VedtaksperiodeMedBegrunnelser =
         VedtaksperiodeMedBegrunnelser(
             vedtak = vedtak,
-            fom = periode.fom,
+            fom = periode.fom?.førsteDagIInneværendeMåned(),
             tom = periode.tom?.sisteDagIMåned(),
             type = Vedtaksperiodetype.AVSLAG,
         ).apply {
