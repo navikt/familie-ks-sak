@@ -17,7 +17,7 @@ object EndringIVilkårsvurderingUtil {
         forrigePersonResultater: Set<PersonResultat>,
     ): Tidslinje<Boolean> {
         val tidslinjePerVilkår =
-            Vilkår.entries.map { vilkår ->
+            Vilkår.entries.filter { it != Vilkår.BARNETS_ALDER }.map { vilkår ->
                 val vilkårTidslinje =
                     lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
                         nåværendeOppfylteVilkårResultaterForPerson =
