@@ -24,7 +24,6 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -147,7 +146,7 @@ class EndretUtbetalingAndelServiceTest {
         val endringsårsakbegrunnelser = endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()
 
         // Assert
-        assertThat(endringsårsakbegrunnelser).hasSize(9)
-        assertEquals(2, endringsårsakbegrunnelser[BegrunnelseType.AVSLAG]?.size)
+        assertThat(endringsårsakbegrunnelser.size, Is(9))
+        assertThat(endringsårsakbegrunnelser[BegrunnelseType.AVSLAG]?.size, Is(2))
     }
 }
