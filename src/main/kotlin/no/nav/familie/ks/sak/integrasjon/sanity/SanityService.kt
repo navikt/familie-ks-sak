@@ -15,7 +15,10 @@ class SanityService(
         try {
             cachedSanityKlient
                 .hentSanityBegrunnelserCached()
-                .also { sanityBegrunnelse -> sanityBegrunnelseCache = sanityBegrunnelse }
+                .filter { !it.ikkeIBruk }
+                .also { sanityBegrunnelse ->
+                    sanityBegrunnelseCache = sanityBegrunnelse
+                }
         } catch (e: Exception) {
             if (sanityBegrunnelseCache.isEmpty()) {
                 throw e
