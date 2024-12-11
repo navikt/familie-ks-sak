@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.common.exception
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.core.NestedExceptionUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -86,6 +89,33 @@ class ApiExceptionHandler {
         )
 
         return ResponseEntity.status(feil.eksternTjenesteFeil.status).body(feil.eksternTjenesteFeil)
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadableException(httpMessageNotReadableException: HttpMessageNotReadableException): ResponseEntity<Ressurs<Nothing>> {
+        val errorMessage =
+            when (httpMessageNotReadableException.cause) {
+                is InvalidFormatException -> {
+                    val invalidFormatException = httpMessageNotReadableException.cause as InvalidFormatException
+                    "Ugyldig verdi ${invalidFormatException.value} for felt ${invalidFormatException.path.joinToString(".")}"
+                }
+                is MismatchedInputException -> {
+                    val mismatchedInputException = httpMessageNotReadableException.cause as MismatchedInputException
+                    "Mangler verdi for felt ${mismatchedInputException.path.joinToString(".")}"
+                }
+                else -> {
+                    logger.error("Ukjent feil ved lesing av request. Se securelogger for mer informasjon")
+                    secureLogger.error("Ukjent feil ved lesing av request", httpMessageNotReadableException)
+                    httpMessageNotReadableException.message ?: "Ukjent feil ved lesing av request"
+                }
+            }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            Ressurs.failure(
+                errorMessage = errorMessage,
+                frontendFeilmelding = errorMessage,
+            ),
+        )
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
