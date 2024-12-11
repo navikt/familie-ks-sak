@@ -23,7 +23,7 @@ data class EndretUtbetalingAndelRequestDto(
     val begrunnelser: List<NasjonalEllerFellesBegrunnelse>,
 )
 
-fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFellesBegrunnelse> {
+fun EndretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser(): List<NasjonalEllerFellesBegrunnelse> {
     if (this.erEksplisittAvslagPåSøknad == false) {
         return emptyList()
     }

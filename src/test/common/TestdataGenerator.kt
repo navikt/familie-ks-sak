@@ -709,7 +709,7 @@ fun lagEndretUtbetalingAndel(
     avtaletidspunktDeltBosted: LocalDate? = LocalDate.now().minusMonths(1),
     søknadstidspunkt: LocalDate? = LocalDate.now().minusMonths(1),
     begrunnelse: String? = "test",
-    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    vedtaksbegrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
     erEksplisittAvslagPåSøknad: Boolean? = false,
 ): EndretUtbetalingAndel =
     EndretUtbetalingAndel(
@@ -723,7 +723,7 @@ fun lagEndretUtbetalingAndel(
         avtaletidspunktDeltBosted = avtaletidspunktDeltBosted,
         søknadstidspunkt = søknadstidspunkt,
         begrunnelse = begrunnelse,
-        begrunnelser = begrunnelser,
+        vedtaksbegrunnelser = vedtaksbegrunnelser,
         erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 

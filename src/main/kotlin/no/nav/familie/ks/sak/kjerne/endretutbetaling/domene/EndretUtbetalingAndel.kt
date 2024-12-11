@@ -14,7 +14,7 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
-import no.nav.familie.ks.sak.api.dto.mapTilBegrunnelser
+import no.nav.familie.ks.sak.api.dto.mapTilVedtaksbegrunnelser
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
@@ -63,7 +63,7 @@ data class EndretUtbetalingAndel(
     var begrunnelse: String? = null,
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = IBegrunnelseListConverter::class)
-    var begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    var vedtaksbegrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
     @Column(name = "er_eksplisitt_avslag_paa_soknad")
     var erEksplisittAvslagPåSøknad: Boolean? = null,
 ) : BaseEntitet() {
@@ -121,7 +121,7 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         begrunnelse = this.begrunnelse,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty(),
-        begrunnelser = this.begrunnelser,
+        vedtaksbegrunnelser = this.vedtaksbegrunnelser,
     )
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
@@ -136,7 +136,7 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     this.avtaletidspunktDeltBosted = endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted
     this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
-    this.begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+    this.vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
     this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
     return this
 }
