@@ -90,7 +90,8 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     "tom": "2024-08",
                     "årsak": "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024",
                     "søknadstidspunkt": "2024-08-20",
-                    "begrunnelse": "gyldig request"
+                    "begrunnelse": "gyldig request",
+                    "begrunnelser": []
                 }
                 """.trimIndent()
 
@@ -154,7 +155,8 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     "tom": "2024-08",
                     "årsak": "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024",
                     "søknadstidspunkt": "2024-08-20",
-                    "begrunnelse": "gyldig request"
+                    "begrunnelse": "gyldig request",
+                    "begrunnelser": []
                 }
                 """.trimIndent()
 
@@ -224,7 +226,8 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     "tom": "2024-08",
                     "årsak": "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024",
                     "søknadstidspunkt": "2024-08-20",
-                    "begrunnelse": "gyldig request"
+                    "begrunnelse": "gyldig request",
+                    "begrunnelser": []
                 }
                 """.trimIndent()
 
