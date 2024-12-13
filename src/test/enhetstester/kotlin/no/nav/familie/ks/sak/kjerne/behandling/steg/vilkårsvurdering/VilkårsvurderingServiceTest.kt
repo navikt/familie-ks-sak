@@ -193,6 +193,7 @@ class VilkårsvurderingServiceTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     resultat = SanityResultat.INNVILGET,
                 ),
             )
