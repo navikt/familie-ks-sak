@@ -128,6 +128,7 @@ class EndretUtbetalingAndelServiceTest {
                     resultat = SanityResultat.AVSLAG,
                     skalAlltidVises = false,
                     støtterFritekst = false,
+                    ikkeIBruk = false,
                 ),
                 SanityBegrunnelse(
                     NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER.sanityApiNavn,
@@ -143,6 +144,7 @@ class EndretUtbetalingAndelServiceTest {
                     resultat = SanityResultat.AVSLAG,
                     skalAlltidVises = false,
                     støtterFritekst = false,
+                    ikkeIBruk = false,
                 ),
             )
 
