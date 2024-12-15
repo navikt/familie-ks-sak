@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -15,6 +16,7 @@ data class EndretUtbetalingAndelResponsDto(
     val avtaletidspunktDeltBosted: LocalDate?,
     val søknadstidspunkt: LocalDate?,
     val begrunnelse: String?,
+    val begrunnelser: List<NasjonalEllerFellesBegrunnelse>,
     val erEksplisittAvslagPåSøknad: Boolean?,
     val erTilknyttetAndeler: Boolean,
 )
