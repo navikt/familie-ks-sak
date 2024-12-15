@@ -562,7 +562,19 @@ class BrevPeriodeContext(
             Vedtaksperiodetype.AVSLAG ->
                 when {
                     vedtaksperiodeFom == TIDENES_MORGEN && vedtaksperiodeTom == TIDENES_ENDE -> ""
-                    vedtaksperiodeTom == TIDENES_ENDE -> vedtaksperiodeFom.tilMånedÅr()
+                    vedtaksperiodeTom == TIDENES_ENDE -> {
+                        val vilkårMedEksplisitteAvslag = vilkårResultaterForRelevantePersoner.filter { it.erEksplisittAvslagPåSøknad == true }
+                        val avslagsperiodeStarterMånedEtterVilkår =
+                            vilkårMedEksplisitteAvslag.any {
+                                it.periodeFom?.plusMonths(1)?.toYearMonth() == vedtaksperiodeFom.toYearMonth()
+                            }
+
+                        if (avslagsperiodeStarterMånedEtterVilkår) {
+                            vedtaksperiodeFom.minusMonths(1).tilMånedÅr()
+                        } else {
+                            vedtaksperiodeFom.tilMånedÅr()
+                        }
+                    }
                     else -> "${vedtaksperiodeFom.tilMånedÅr()} til ${vedtaksperiodeTom.tilMånedÅr()}"
                 }
 

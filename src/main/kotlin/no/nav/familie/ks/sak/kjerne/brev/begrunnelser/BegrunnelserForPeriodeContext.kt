@@ -221,6 +221,7 @@ class BegrunnelserForPeriodeContext(
         val filtrerPåVilkårType =
             filtrerPersonerUtenUtbetalingVedInnvilget
                 .filtrerPåVilkårType(sanityBegrunnelse.vilkår)
+
         val filtrerPåTriggere =
             filtrerPåVilkårType
                 .filtrerPåTriggere(
@@ -237,19 +238,21 @@ class BegrunnelserForPeriodeContext(
                     sanityBegrunnelse.type,
                 )
 
-        val filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType =
+        val personerMedVilkårResultaterSomPasserVedtaksperioden =
             filtrerPåUtdypendeVilkårsvurdering
                 .filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
                     begrunnelse.finnVilkårResultatIderSomPasserMedVedtaksperiodeDato(),
                     sanityBegrunnelse.type,
                 )
 
-        val personerMedVilkårResultaterSomPasserVedtaksperioden: Map<Person, List<VilkårResultat>> =
-            filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType
-
         val personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden = hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
 
-        return (personerMedVilkårResultaterSomPasserVedtaksperioden.keys + personerMedOvergangsordningAndel + personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode + personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden).toSet()
+        return (
+            personerMedVilkårResultaterSomPasserVedtaksperioden.keys +
+                personerMedOvergangsordningAndel +
+                personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode +
+                personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden
+        ).toSet()
     }
 
     fun hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse: SanityBegrunnelse): Set<Person> =
@@ -285,8 +288,6 @@ class BegrunnelserForPeriodeContext(
             BegrunnelseType.REDUKSJON,
             BegrunnelseType.EØS_REDUKSJON,
             BegrunnelseType.EØS_INNVILGET,
-            BegrunnelseType.AVSLAG,
-            BegrunnelseType.EØS_AVSLAG,
             BegrunnelseType.ENDRET_UTBETALING,
             BegrunnelseType.INNVILGET,
             -> finnVilkårResultaterSomStarterSamtidigSomPeriode()
@@ -295,6 +296,10 @@ class BegrunnelserForPeriodeContext(
             BegrunnelseType.ETTER_ENDRET_UTBETALING,
             BegrunnelseType.OPPHØR,
             -> finnVilkårResultaterSomSlutterFørPeriode()
+
+            BegrunnelseType.AVSLAG,
+            BegrunnelseType.EØS_AVSLAG,
+            -> finnVilkårResultaterSomStarterSamtidigSomPeriode() + finnVilkårResultaterSomSlutterFørPeriode()
 
             BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
@@ -332,7 +337,8 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.INNVILGET,
         -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
 
-        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
+        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG ->
+            finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomEllerRettFørPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
 
         BegrunnelseType.EØS_OPPHØR,
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
@@ -344,7 +350,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
     }
 
-    private fun finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse: IBegrunnelse): Map<Person, List<VilkårResultat>> =
+    private fun finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomEllerRettFørPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse: IBegrunnelse): Map<Person, List<VilkårResultat>> =
         personResultater
             .mapNotNull { personResultat ->
                 val person = personopplysningGrunnlag.personer.find { it.aktør == personResultat.aktør }
@@ -354,7 +360,9 @@ class BegrunnelserForPeriodeContext(
                     vilkårResultater
                         .filter { it.resultat == Resultat.IKKE_OPPFYLT }
                         .filter {
-                            (it.periodeFom ?: TIDENES_MORGEN).toYearMonth() == vedtaksperiode.fom.toYearMonth()
+                            val vilkårFom = (it.periodeFom ?: TIDENES_MORGEN).toYearMonth()
+
+                            (vilkårFom == vedtaksperiode.fom.toYearMonth() || vilkårFom.plusMonths(1) == vedtaksperiode.fom.toYearMonth())
                         }.filter { it.begrunnelser.contains(standardBegrunnelse) }
 
                 if (person != null && ikkeOppfylteVilkårSomStarterISammePeriode.isNotEmpty()) {
