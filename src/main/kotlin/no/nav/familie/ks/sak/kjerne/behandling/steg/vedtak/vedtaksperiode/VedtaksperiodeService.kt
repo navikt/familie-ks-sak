@@ -520,7 +520,7 @@ class VedtaksperiodeService(
 
                     val avslagsbegrunnelser =
                         endretUtbetalinger
-                            .map { it.begrunnelser }
+                            .map { it.vedtaksbegrunnelser }
                             .flatten()
                             .toSet()
                             .toList()

@@ -144,7 +144,7 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     val periode get() = endretUtbetalingAndel.periode
     val person get() = endretUtbetalingAndel.person
     val begrunnelse get() = endretUtbetalingAndel.begrunnelse
-    val begrunnelser get() = endretUtbetalingAndel.begrunnelser
+    val vedtaksbegrunnelser get() = endretUtbetalingAndel.vedtaksbegrunnelser
     val søknadstidspunkt get() = endretUtbetalingAndel.søknadstidspunkt
     val avtaletidspunktDeltBosted get() = endretUtbetalingAndel.avtaletidspunktDeltBosted
     val prosent get() = endretUtbetalingAndel.prosent

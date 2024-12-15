@@ -19,10 +19,10 @@ class EndretUtbetalingAndelRequestDtoKtTest {
                 )
 
             // Act
-            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+            val vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).isEmpty()
+            assertThat(vedtaksbegrunnelser).isEmpty()
         }
 
         @Test
@@ -35,10 +35,10 @@ class EndretUtbetalingAndelRequestDtoKtTest {
                 )
 
             // Act
-            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+            val vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+            assertThat(vedtaksbegrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
         }
 
         @Test
@@ -51,10 +51,10 @@ class EndretUtbetalingAndelRequestDtoKtTest {
                 )
 
             // Act
-            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+            val vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+            assertThat(vedtaksbegrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
         }
 
         @Test
@@ -68,10 +68,10 @@ class EndretUtbetalingAndelRequestDtoKtTest {
                 )
 
             // Act
-            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+            val vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER)
+            assertThat(vedtaksbegrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER)
         }
 
         @Test
@@ -84,10 +84,10 @@ class EndretUtbetalingAndelRequestDtoKtTest {
                 )
 
             // Act
-            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+            val vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+            assertThat(vedtaksbegrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
         }
 
         @Test
@@ -100,10 +100,10 @@ class EndretUtbetalingAndelRequestDtoKtTest {
                 )
 
             // Act
-            val begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+            val vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilVedtaksbegrunnelser()
 
             // Assert
-            assertThat(begrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
+            assertThat(vedtaksbegrunnelser).containsOnly(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
         }
     }
 }
