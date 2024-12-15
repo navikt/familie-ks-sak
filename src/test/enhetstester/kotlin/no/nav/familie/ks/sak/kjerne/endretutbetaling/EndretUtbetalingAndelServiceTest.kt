@@ -7,12 +7,17 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -57,6 +62,39 @@ class EndretUtbetalingAndelServiceTest {
 
         verify(exactly = 1) { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) }
         verify(exactly = 3) { endretUtbetalingAndelRepository.save(any()) }
+    }
+
+    @Test
+    fun `kopierEndretUtbetalingAndelFraForrigeBehandling - skal sette avslag til false og tømme begrunnelser ved kopiering av endret utbetaling andel`() {
+        // Arrange
+        val gammelBehandling = lagBehandling()
+        val nyBehandling = lagBehandling()
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                årsak = Årsak.ETTERBETALING_3MND,
+                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE),
+                erEksplisittAvslagPåSøknad = true,
+            )
+        val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
+
+        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
+            listOf(
+                endretUtbetalingAndel,
+            )
+        every { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) } returnsArgument 0
+
+        // Act
+        endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+
+        // Assert
+        verify(exactly = 1) { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) }
+        verify(exactly = 1) { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) }
+
+        val lagretEndretUtbetalingAndel = lagretEndretUtbetalingAndelSlot.captured
+
+        assertThat(lagretEndretUtbetalingAndel.begrunnelser, Is(emptyList()))
+        assertThat(lagretEndretUtbetalingAndel.erEksplisittAvslagPåSøknad, Is(false))
+        assertThat(lagretEndretUtbetalingAndel.årsak, Is(Årsak.ETTERBETALING_3MND))
     }
 
     @Test
