@@ -48,6 +48,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
+import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -84,6 +85,7 @@ class BehandlingServiceTest {
     private val mockOvergangsordningAndelService = mockk<OvergangsordningAndelService>()
     private val mockOppgaveService = mockk<OppgaveService>()
     private val mockSakStatistikkService = mockk<SakStatistikkService>()
+    private val mockKorrigertVedtakRepository = mockk<KorrigertVedtakRepository>()
 
     private val behandlingService =
         BehandlingService(
@@ -111,6 +113,7 @@ class BehandlingServiceTest {
             overgangsordningAndelService = mockOvergangsordningAndelService,
             oppgaveService = mockOppgaveService,
             sakStatistikkService = mockSakStatistikkService,
+            korrigertVedtakRepository = mockKorrigertVedtakRepository,
         )
 
     private val søker = randomAktør()
@@ -179,6 +182,7 @@ class BehandlingServiceTest {
         every { mockUtenlandskPeriodebeløpRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { mockValutakursRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { mockKorrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) } returns null
+        every { mockKorrigertVedtakRepository.finnAktivtKorrigertVedtakPåBehandling(behandling.id) } returns null
         every { mockBrevmottakerService.hentBrevmottakere(any()) } returns emptyList()
         every { mockOvergangsordningAndelService.hentOvergangsordningAndeler(any()) } returns emptyList()
     }
