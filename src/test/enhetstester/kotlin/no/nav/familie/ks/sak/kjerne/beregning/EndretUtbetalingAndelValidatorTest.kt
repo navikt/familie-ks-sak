@@ -767,10 +767,12 @@ class EndretUtbetalingAndelValidatorTest {
         }
 
         @Test
-        fun `skal kaste feil når årsak er ALLEREDE_UTBETALT`() {
+        fun `skal kaste feil når årsak er ALLEREDE_UTBETALT og unleash-togglen er skrudd av`() {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
+                    periodeFom = YearMonth.of(2024, 8),
+                    periodeTom = YearMonth.of(2024, 8),
                     årsak = Årsak.ALLEREDE_UTBETALT,
                 )
 
@@ -781,11 +783,32 @@ class EndretUtbetalingAndelValidatorTest {
                         Årsak.ALLEREDE_UTBETALT,
                         endretUtbetalingAndel,
                         null,
+                        kanBrukeÅrsakAlleredeUtbetalt = false,
                     )
                 }
-            assertThat(exception.message).isEqualTo(
-                "Årsak ${Årsak.ALLEREDE_UTBETALT.visningsnavn} er ikke implementert enda!!",
-            )
+
+            assertThat(exception.message).isEqualTo("Årsak Allerede utbetalt er ikke implementert enda!!")
+        }
+
+        @Test
+        fun `skal ikke kaste feil når årsak er ALLEREDE_UTBETALT`() {
+            // Arrange
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    periodeFom = YearMonth.of(2024, 8),
+                    periodeTom = YearMonth.of(2024, 8),
+                    årsak = Årsak.ALLEREDE_UTBETALT,
+                )
+
+            // Act & assert
+            assertDoesNotThrow {
+                EndretUtbetalingAndelValidator.validerÅrsak(
+                    Årsak.ALLEREDE_UTBETALT,
+                    endretUtbetalingAndel,
+                    null,
+                    kanBrukeÅrsakAlleredeUtbetalt = true,
+                )
+            }
         }
     }
 }

@@ -238,6 +238,62 @@ class EndringIVilkårsvurderingUtilTest {
     }
 
     @Test
+    fun `Endring i vilkårsvurdering - skal ikke lage periode med endring hvis det er barnets alder som er endret`() {
+        val nåværendeVilkårResultat =
+            setOf(
+                VilkårResultat(
+                    behandlingId = 0,
+                    personResultat = null,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2024, 5, 9),
+                    periodeTom = LocalDate.of(2024, 7, 31),
+                    begrunnelse = "Test",
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                ),
+                VilkårResultat(
+                    behandlingId = 0,
+                    personResultat = null,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2024, 8, 1),
+                    periodeTom = LocalDate.of(2024, 12, 9),
+                    begrunnelse = "Test",
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                ),
+            )
+
+        val forrigeVilkårResultat =
+            setOf(
+                VilkårResultat(
+                    behandlingId = 0,
+                    personResultat = null,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2024, 5, 9),
+                    periodeTom = LocalDate.of(2025, 5, 9),
+                    begrunnelse = "Test",
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                ),
+            )
+
+        val aktør = randomAktør()
+
+        val perioderMedEndring =
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                ).tilPerioder()
+                .filter { it.verdi == true }
+
+        Assertions.assertTrue(perioderMedEndring.isEmpty())
+    }
+
+    @Test
     fun `Endring i vilkårsvurdering - skal ikke lage periode med endring hvis eneste endring er å sette obligatoriske utdypende vilkårsvurderinger`() {
         val fødselsdato = LocalDate.of(2015, 1, 1)
         val forrigeVilkårResultat =

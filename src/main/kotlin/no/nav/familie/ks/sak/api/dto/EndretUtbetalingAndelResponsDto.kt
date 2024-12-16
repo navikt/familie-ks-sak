@@ -19,4 +19,5 @@ data class EndretUtbetalingAndelResponsDto(
     val begrunnelser: List<NasjonalEllerFellesBegrunnelse>,
     val erEksplisittAvslagPåSøknad: Boolean?,
     val erTilknyttetAndeler: Boolean,
+    val begrunnelser: List<NasjonalEllerFellesBegrunnelse>,
 )

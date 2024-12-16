@@ -27,6 +27,7 @@ data class SanityBegrunnelse(
     val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>,
     val støtterFritekst: Boolean,
     val skalAlltidVises: Boolean,
+    val ikkeIBruk: Boolean,
     // EØS
     val annenForeldersAktivitet: List<KompetanseAktivitet> = emptyList(),
     val barnetsBostedsland: List<BarnetsBostedsland> = emptyList(),
@@ -121,6 +122,7 @@ data class SanityBegrunnelseDto(
     val hjemler: List<String> = emptyList(),
     val stotterFritekst: Boolean?,
     val skalAlltidVises: Boolean?,
+    val ikkeIBruk: Boolean?,
     val annenForeldersAktivitet: List<String> = emptyList(),
     val barnetsBostedsland: List<String> = emptyList(),
     val kompetanseResultat: List<String> = emptyList(),
@@ -157,6 +159,7 @@ data class SanityBegrunnelseDto(
                 },
             støtterFritekst = stotterFritekst ?: false,
             skalAlltidVises = skalAlltidVises ?: false,
+            ikkeIBruk = ikkeIBruk ?: false,
             annenForeldersAktivitet = annenForeldersAktivitet.mapNotNull { finnEnumverdi(it, KompetanseAktivitet.entries, apiNavn) },
             barnetsBostedsland = barnetsBostedsland.mapNotNull { finnEnumverdi(it, BarnetsBostedsland.entries, apiNavn) },
             kompetanseResultat = kompetanseResultat.mapNotNull { finnEnumverdi(it, KompetanseResultat.entries, apiNavn) },
