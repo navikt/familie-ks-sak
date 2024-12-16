@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -48,7 +49,7 @@ class BeregningService(
     fun hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(behandlingId: Long): List<AndelTilkjentYtelse> =
         andelTilkjentYtelseRepository
             .finnAndelerTilkjentYtelseForBehandling(behandlingId)
-            .filter { it.erAndelSomSkalSendesTilOppdrag() }
+            .filtrerAndelerSomSkalSendesTilOppdrag()
 
     fun hentTilkjentYtelseForBehandlingerIverksattMotØkonomi(fagsakId: Long): List<TilkjentYtelse> {
         val iverksatteBehandlinger = behandlingRepository.finnByFagsakAndAvsluttet(fagsakId)
@@ -57,9 +58,36 @@ class BeregningService(
                 .finnByBehandlingAndHasUtbetalingsoppdrag(
                     it.id,
                 )?.takeIf { tilkjentYtelse ->
-                    tilkjentYtelse.andelerTilkjentYtelse.any { aty -> aty.erAndelSomSkalSendesTilOppdrag() }
+                    tilkjentYtelse.andelerTilkjentYtelse.filtrerAndelerSomSkalSendesTilOppdrag().isNotEmpty()
                 }
         }
+    }
+
+    /**
+     For at endret utbetaling andeler skal fungere så må man generere andeler før man kobler endringene på andelene.
+     Dette er fordi en endring regnes som gyldig når den overlapper med en andel og har gyldig årsak.
+     Hvis man ikke genererer andeler før man kobler på endringene så vil ingen av endringene ses på som gyldige, altså ikke oppdatere noen andeler.
+     Dette gjøres spesifikt fra vilkårsvurdering steget da på dette tidspunktet så har man ikke generert andeler.
+     */
+    fun oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(
+        behandling: Behandling,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        vilkårsvurdering: Vilkårsvurdering,
+    ) {
+        val tilkjentYtelse =
+            tilkjentYtelseService.beregnTilkjentYtelse(
+                vilkårsvurdering = vilkårsvurdering,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                endretUtbetalingAndeler = emptyList(),
+            )
+
+        tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
+
+        this.oppdaterTilkjentYtelsePåBehandling(
+            behandling,
+            personopplysningGrunnlag,
+            vilkårsvurdering,
+        )
     }
 
     fun oppdaterTilkjentYtelsePåBehandling(
@@ -185,7 +213,7 @@ class BeregningService(
             .finnLøpendeAndelerTilkjentYtelseForBehandlinger(
                 behandlingIder,
                 avstemmingstidspunkt.toLocalDate().toYearMonth(),
-            ).filter { it.erAndelSomSkalSendesTilOppdrag() }
+            ).filtrerAndelerSomSkalSendesTilOppdrag()
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 }

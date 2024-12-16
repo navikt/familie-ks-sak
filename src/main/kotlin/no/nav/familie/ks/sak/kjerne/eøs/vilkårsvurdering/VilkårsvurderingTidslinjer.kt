@@ -1,14 +1,14 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
-import no.nav.familie.ks.sak.common.tidslinje.beskjærEtter
-import no.nav.familie.ks.sak.common.tidslinje.inneholder
-import no.nav.familie.ks.sak.common.tidslinje.tomTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.beskjærEtter
+import no.nav.familie.tidslinje.inneholder
+import no.nav.familie.tidslinje.tomTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombiner
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
 
 class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
@@ -24,7 +24,7 @@ class VilkårsvurderingTidslinjer(
             aktør to
                 personResultat.vilkårResultater
                     .groupBy { it.vilkårType }
-                    .map { tilVilkårRegelverkResultatTidslinje(it.key, it.value) }
+                    .map { tilVilkårRegelverkResultatTidslinje(it.key, personResultat.vilkårResultater.toList()) }
         }
 
     private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)

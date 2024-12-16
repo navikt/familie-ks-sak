@@ -4,9 +4,11 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilBrev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -22,6 +24,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
@@ -37,16 +42,21 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Hjemmeltekst
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.KorrigertVedtakData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.SignaturVedtak
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.UtbetalingOvergangsordning
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Avslag
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.FortsattInnvilget
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Førstegangsvedtak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.OpphørMedEndring
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.Opphørt
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakEndring
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakOvergangsordning
+import no.nav.familie.ks.sak.kjerne.brev.hjemler.HjemmeltekstUtleder
+import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrollsakBrevDtoUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
+import no.nav.familie.unleash.UnleashService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
@@ -65,10 +75,13 @@ class GenererBrevService(
     private val sammensattKontrollsakService: SammensattKontrollsakService,
     private val etterbetalingService: EtterbetalingService,
     private val simuleringService: SimuleringService,
-    private val opprettSammensattKontrollsakBrevDtoService: OpprettSammensattKontrollsakBrevDtoService,
+    private val sammensattKontrollsakBrevDtoUtleder: SammensattKontrollsakBrevDtoUtleder,
     private val søkersMeldepliktService: SøkersMeldepliktService,
     private val opprettGrunnlagOgSignaturDataService: OpprettGrunnlagOgSignaturDataService,
     private val brevmalService: BrevmalService,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val hjemmeltekstUtleder: HjemmeltekstUtleder,
+    private val unleashService: UnleashService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -114,7 +127,7 @@ class GenererBrevService(
 
             val vedtaksbrev =
                 when {
-                    sammensattKontrollsak != null -> opprettSammensattKontrollsakBrevDtoService.opprett(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
+                    sammensattKontrollsak != null -> sammensattKontrollsakBrevDtoUtleder.utled(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
@@ -144,6 +157,7 @@ class GenererBrevService(
         val fellesdataForVedtaksbrev = lagDataForVedtaksbrev(vedtak)
         val etterbetaling = etterbetalingService.hentEtterbetaling(vedtak)
         val søkerHarMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
+        val andeler by lazy { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id) }
 
         return when (vedtaksbrevmal) {
             Brevmal.VEDTAK_FØRSTEGANGSVEDTAK -> {
@@ -179,6 +193,16 @@ class GenererBrevService(
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
+
+            Brevmal.VEDTAK_OVERGANGSORDNING -> {
+                val sumAvOvergangsordningsAndeler = andeler.filter { it.type == YtelseType.OVERGANGSORDNING }.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
+
+                VedtakOvergangsordning(
+                    mal = Brevmal.VEDTAK_OVERGANGSORDNING,
+                    fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
+                    utbetalingOvergangsordning = UtbetalingOvergangsordning(utbetalingsbelop = formaterBeløp(sumAvOvergangsordningsAndeler)),
+                )
+            }
 
             Brevmal.VEDTAK_OPPHØRT ->
                 Opphørt(
@@ -241,13 +265,21 @@ class GenererBrevService(
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
         val hjemler =
-            hentHjemler(
-                behandlingId = vedtak.behandling.id,
-                utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
-                målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
-                sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
-                vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
-            )
+            if (unleashService.isEnabled(FeatureToggleConfig.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV, false)) {
+                hjemmeltekstUtleder.utledHjemmeltekst(
+                    behandlingId = vedtak.behandling.id,
+                    vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+                    utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
+                )
+            } else {
+                hentHjemler(
+                    behandlingId = vedtak.behandling.id,
+                    utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
+                    målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
+                    sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
+                    vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+                )
+            }
 
         return FellesdataForVedtaksbrev(
             enhet = personopplysningsgrunnlagOgSignaturData.enhet,
@@ -297,6 +329,7 @@ class GenererBrevService(
         )
     }
 
+    @Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
     private fun hentHjemler(
         behandlingId: Long,
         utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,

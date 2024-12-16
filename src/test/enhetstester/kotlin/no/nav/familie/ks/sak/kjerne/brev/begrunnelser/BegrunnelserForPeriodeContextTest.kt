@@ -288,6 +288,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                ikkeIBruk = false,
                 resultat = SanityResultat.INNVILGET,
             )
         val personResultatBarn =
@@ -365,6 +366,7 @@ class BegrunnelserForPeriodeContextTest {
                     endretUtbetalingsperiode = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     resultat = SanityResultat.INNVILGET,
                 ),
             )
@@ -443,6 +445,7 @@ class BegrunnelserForPeriodeContextTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
                     barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
                     kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
@@ -483,6 +486,7 @@ class BegrunnelserForPeriodeContextTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
                     barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
                     kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
@@ -523,6 +527,7 @@ class BegrunnelserForPeriodeContextTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
                     barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
                     kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
@@ -564,6 +569,7 @@ class BegrunnelserForPeriodeContextTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
                     barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
                     kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
@@ -609,6 +615,7 @@ class BegrunnelserForPeriodeContextTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
                     barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
                     kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
@@ -653,6 +660,7 @@ class BegrunnelserForPeriodeContextTest {
                     endringsårsaker = emptyList(),
                     støtterFritekst = false,
                     skalAlltidVises = false,
+                    ikkeIBruk = false,
                     annenForeldersAktivitet = listOf(KompetanseAktivitet.ARBEIDER),
                     barnetsBostedsland = listOf(BarnetsBostedsland.NORGE),
                     kompetanseResultat = listOf(KompetanseResultat.NORGE_ER_PRIMÆRLAND),
@@ -694,6 +702,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                ikkeIBruk = false,
                 resultat = SanityResultat.INNVILGET,
             ),
             SanityBegrunnelse(
@@ -709,6 +718,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                ikkeIBruk = false,
                 resultat = SanityResultat.INNVILGET,
             ),
             SanityBegrunnelse(
@@ -724,6 +734,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                ikkeIBruk = false,
                 resultat = SanityResultat.INNVILGET,
             ),
             SanityBegrunnelse(
@@ -739,6 +750,7 @@ class BegrunnelserForPeriodeContextTest {
                 endringsårsaker = emptyList(),
                 støtterFritekst = false,
                 skalAlltidVises = false,
+                ikkeIBruk = false,
                 resultat = SanityResultat.INNVILGET,
             ),
         )
@@ -795,6 +807,7 @@ class BegrunnelserForPeriodeContextTest {
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
+            overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
         )
     }
@@ -830,6 +843,7 @@ class BegrunnelserForPeriodeContextTest {
             personResultater = emptyList(),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
+            overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
         )
     }

@@ -1,11 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.forskyvVilkårResultater
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
 
 /**
  * Lager tidslinje av VilkårRegelverkResultat for ett vilkår og én aktør
@@ -19,9 +19,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.
  */
 fun tilVilkårRegelverkResultatTidslinje(
     vilkår: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ): Tidslinje<VilkårRegelverkResultat> {
-    val oppfyltEllerIkkeAktueltVilkårer = vilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
+    val oppfyltEllerIkkeAktueltVilkårer = alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
     val forskjøvetVilkårResultatPerioder = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
 

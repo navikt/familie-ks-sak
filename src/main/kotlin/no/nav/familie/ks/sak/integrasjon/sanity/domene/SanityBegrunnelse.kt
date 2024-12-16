@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.integrasjon.sanity.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
@@ -26,6 +27,7 @@ data class SanityBegrunnelse(
     val endretUtbetalingsperiode: List<EndretUtbetalingsperiodeTrigger>,
     val støtterFritekst: Boolean,
     val skalAlltidVises: Boolean,
+    val ikkeIBruk: Boolean,
     // EØS
     val annenForeldersAktivitet: List<KompetanseAktivitet> = emptyList(),
     val barnetsBostedsland: List<BarnetsBostedsland> = emptyList(),
@@ -36,6 +38,11 @@ data class SanityBegrunnelse(
     val hjemlerSeperasjonsavtalenStorbritannina: List<String> = emptyList(),
     val resultat: SanityResultat,
 )
+
+fun SanityBegrunnelse.erOvergangsordningBegrunnelse() =
+    apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn ||
+        apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED.sanityApiNavn ||
+        apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING.sanityApiNavn
 
 enum class SanityBegrunnelseType {
     STANDARD,
@@ -115,6 +122,7 @@ data class SanityBegrunnelseDto(
     val hjemler: List<String> = emptyList(),
     val stotterFritekst: Boolean?,
     val skalAlltidVises: Boolean?,
+    val ikkeIBruk: Boolean?,
     val annenForeldersAktivitet: List<String> = emptyList(),
     val barnetsBostedsland: List<String> = emptyList(),
     val kompetanseResultat: List<String> = emptyList(),
@@ -151,6 +159,7 @@ data class SanityBegrunnelseDto(
                 },
             støtterFritekst = stotterFritekst ?: false,
             skalAlltidVises = skalAlltidVises ?: false,
+            ikkeIBruk = ikkeIBruk ?: false,
             annenForeldersAktivitet = annenForeldersAktivitet.mapNotNull { finnEnumverdi(it, KompetanseAktivitet.entries, apiNavn) },
             barnetsBostedsland = barnetsBostedsland.mapNotNull { finnEnumverdi(it, BarnetsBostedsland.entries, apiNavn) },
             kompetanseResultat = kompetanseResultat.mapNotNull { finnEnumverdi(it, KompetanseResultat.entries, apiNavn) },

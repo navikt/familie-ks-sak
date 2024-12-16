@@ -1,13 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Verdi
-import no.nav.familie.ks.sak.common.tidslinje.filtrerIkkeNull
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikePerioder
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammenLikeTidslinjer
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.erMellom
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -20,6 +13,13 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Verdi
+import no.nav.familie.tidslinje.filtrerIkkeNull
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikeTidslinjer
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -61,6 +61,7 @@ object EndretUtbetalingAndelValidator {
         årsak: Årsak?,
         endretUtbetalingAndel: EndretUtbetalingAndel,
         vilkårsvurdering: Vilkårsvurdering?,
+        kanBrukeÅrsakAlleredeUtbetalt: Boolean = false,
     ) {
         checkNotNull(årsak) { "Årsak kan ikke være null" }
         when (årsak) {
@@ -83,7 +84,39 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
-            else -> throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+            Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 -> {
+                validerFulltidsplassIBarnehageAugust2024(
+                    endretUtbetalingAndel,
+                )
+            }
+
+            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel, kanBrukeÅrsakAlleredeUtbetalt)
+
+            Årsak.ENDRE_MOTTAKER,
+            ->
+                throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
+        }
+    }
+
+    private fun validerFulltidsplassIBarnehageAugust2024(
+        endretUtbetalingAndel: EndretUtbetalingAndel,
+    ) {
+        val august2024 = YearMonth.of(2024, 8)
+        if (endretUtbetalingAndel.fom != august2024 || endretUtbetalingAndel.tom != august2024) {
+            val årsak = endretUtbetalingAndel.årsak ?: throw IllegalStateException("Årsak må være satt")
+            throw FunksjonellFeil("Årsak \"${årsak.visningsnavn}\" er bare mulig å sette til august 2024")
+        }
+    }
+
+    private fun validerAlleredeUtbetalt(
+        endretUtbetalingAndel: EndretUtbetalingAndel,
+        kanBrukeÅrsakAlleredeUtbetalt: Boolean,
+    ) {
+        if (!kanBrukeÅrsakAlleredeUtbetalt) {
+            throw FunksjonellFeil("Årsak Allerede utbetalt er ikke implementert enda!!")
+        }
+        if (endretUtbetalingAndel.tom?.isAfter(YearMonth.now()) == true) {
+            throw FunksjonellFeil("Du har valgt årsaken allerede utbetalt. Du kan ikke velge denne årsaken og en til og med dato frem i tid. Ta kontakt med superbruker om du er usikker på hva du skal gjøre.")
         }
     }
 

@@ -1,12 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombiner
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -20,6 +13,13 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.klipp
+import no.nav.familie.tidslinje.utvidelser.kombiner
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -65,9 +65,10 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
             .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
     val forskjøvedeVilkårResultater =
-        vilkårResultaterForAktørMap.map { (vilkårType, vilkårResultater) ->
-            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje()
+        vilkårResultaterForAktørMap.map {
+            forskyvVilkårResultater(it.key, vilkårResultaterForAktør.toList()).tilTidslinje()
         }
+
     return forskjøvedeVilkårResultater
 }
 
@@ -84,11 +85,11 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
 
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
-    vilkårResultater: List<VilkårResultat>,
+    alleVilkårResultater: List<VilkårResultat>,
 ): List<Periode<VilkårResultat>> {
-    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, alleVilkårResultater).tilTidslinje()
 
-    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, vilkårResultater).tilTidslinje()
+    val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, alleVilkårResultater).tilTidslinje()
 
     val klippetTidslinje2021 =
         forskjøvetVilkårResultaterTidslinje2021.klipp(
@@ -110,12 +111,17 @@ fun forskyvVilkårResultater(
 private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
     if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
-private fun alleVilkårOppfyltEllerNull(
+fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
     personType: PersonType,
+    vilkårSomIkkeSkalSjekkesPå: List<Vilkår> = emptyList(),
 ): List<VilkårResultat>? {
     val skalHenteEøsSpesifikkeVilkår = vilkårResultater.any { it?.vurderesEtter == Regelverk.EØS_FORORDNINGEN && it.vilkårType == Vilkår.BOSATT_I_RIKET }
-    val vilkårForPerson = Vilkår.hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
+    val vilkårForPerson =
+        Vilkår
+            .hentVilkårFor(personType, skalHenteEøsSpesifikkeVilkår)
+            .filter { it !in vilkårSomIkkeSkalSjekkesPå }
+            .toSet()
 
     return if (erAlleVilkårForPersonEntenOppfyltEllerIkkeAktuelt(vilkårForPerson, vilkårResultater)) {
         vilkårResultater.filterNotNull()

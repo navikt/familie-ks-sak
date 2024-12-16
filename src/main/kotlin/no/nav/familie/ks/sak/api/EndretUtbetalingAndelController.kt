@@ -3,9 +3,11 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -13,6 +15,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -40,14 +43,13 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.UPDATE,
-            handling = "Oppdater endretutbetalingandel",
+            handling = "oppdatere endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
             behandling,
-            endretUtbetalingAndelId,
             endretUtbetalingAndelRequestDto,
         )
 
@@ -66,7 +68,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.DELETE,
-            handling = "Fjern endretutbetalingandel",
+            handling = "fjerne endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -90,7 +92,7 @@ class EndretUtbetalingAndelController(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.CREATE,
-            handling = "Lagre endretutbetalingandel",
+            handling = "lagre endretutbetalingandel",
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -102,4 +104,9 @@ class EndretUtbetalingAndelController(
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
+
+    @GetMapping(
+        path = ["/endret-utbetaling-vedtaksbegrunnelser"],
+    )
+    fun hentBegrunnelser(): ResponseEntity<Ressurs<Map<BegrunnelseType, List<SanityBegrunnelseMedEndringsårsakResponseDto>>>> = ResponseEntity.ok(Ressurs.success(endretUtbetalingAndelService.hentSanityBegrunnelserMedEndringsårsak()))
 }

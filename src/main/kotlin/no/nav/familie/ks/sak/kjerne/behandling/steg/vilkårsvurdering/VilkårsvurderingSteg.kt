@@ -4,10 +4,6 @@ import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.tidslinje.TidslinjePeriodeMedDato
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.klipp
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.validerIngenOverlapp
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
@@ -29,6 +25,10 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.TidslinjePeriodeMedDato
+import no.nav.familie.tidslinje.utvidelser.klipp
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.validerIngenOverlapp
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -60,7 +60,7 @@ class VilkårsvurderingSteg(
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
-        beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
+        beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(behandling, personopplysningGrunnlag, vilkårsvurdering)
 
         // sjekker og tilpasser kompetanse skjema når vilkårer er vurdert etter EØS forordingen
         // eller det ligger allerede en kompetanse

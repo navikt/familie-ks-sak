@@ -1,10 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.Tidslinje
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.tilPeriode
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
 
 object EndringIEndretUtbetalingAndelUtil {
     fun lagEndringIEndretUbetalingAndelPerPersonTidslinje(
@@ -16,9 +17,11 @@ object EndringIEndretUtbetalingAndelUtil {
 
         val endringerTidslinje =
             nåværendeTidslinje.kombinerMed(forrigeTidslinje) { nåværende, forrige ->
+                val erFulltidsplassIBarnehageAugust2024MedEksplisittAvslag = nåværende?.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 && nåværende.erEksplisittAvslagPåSøknad == true
                 (
                     nåværende?.avtaletidspunktDeltBosted != forrige?.avtaletidspunktDeltBosted ||
-                        nåværende?.årsak != forrige?.årsak
+                        nåværende?.årsak != forrige?.årsak &&
+                        !erFulltidsplassIBarnehageAugust2024MedEksplisittAvslag
                 )
             }
 

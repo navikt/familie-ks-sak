@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
-import no.nav.familie.ks.sak.api.dto.KorrigertVedtakDto
+import no.nav.familie.ks.sak.api.dto.KorrigertVedtakRequestDto
 import no.nav.familie.ks.sak.api.dto.tilKorrigertVedtak
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -32,7 +32,7 @@ class KorrigertVedtakController(
     @PostMapping(path = ["/behandling/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun opprettKorrigertVedtakPåBehandling(
         @PathVariable behandlingId: Long,
-        @RequestBody korrigertVedtakDto: KorrigertVedtakDto,
+        @RequestBody korrigertVedtakRequestDto: KorrigertVedtakRequestDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
@@ -42,7 +42,7 @@ class KorrigertVedtakController(
         )
 
         val behandling = behandlingService.hentBehandling(behandlingId)
-        val korrigertVedtak = korrigertVedtakDto.tilKorrigertVedtak(behandling)
+        val korrigertVedtak = korrigertVedtakRequestDto.tilKorrigertVedtak(behandling)
 
         korrigertVedtakService.lagreKorrigertVedtakOgDeaktiverGamle(korrigertVedtak)
 

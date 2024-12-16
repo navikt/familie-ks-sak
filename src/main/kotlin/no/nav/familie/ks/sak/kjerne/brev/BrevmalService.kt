@@ -34,6 +34,7 @@ class BrevmalService {
             BehandlingÅrsak.BARNEHAGELISTE,
             BehandlingÅrsak.LOVENDRING_2024,
             BehandlingÅrsak.OVERGANGSORDNING_2024,
+            BehandlingÅrsak.IVERKSETTE_KA_VEDTAK,
             -> hentVedtaksbrevmal(behandling)
         }
 
@@ -46,26 +47,20 @@ class BrevmalService {
             )
         }
 
-        if (behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024) {
-            return Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
-        }
+        val behandlingType = behandling.type
+        val behandlingÅrsak = behandling.opprettetÅrsak
 
         val brevmal =
-            when (behandling.type) {
-                BehandlingType.FØRSTEGANGSBEHANDLING ->
-                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(
-                        behandlingsresultat = behandling.resultat,
-                    )
+            when {
+                behandlingÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> Brevmal.ENDRING_AV_FRAMTIDIG_OPPHØR
+                behandlingÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024 -> Brevmal.VEDTAK_OVERGANGSORDNING
+                behandlingType == BehandlingType.FØRSTEGANGSBEHANDLING -> utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(behandlingsresultat = behandling.resultat)
+                behandlingType == BehandlingType.REVURDERING -> utledBrevmalFraBehandlingsresultatForRevurdering(behandlingsresultat = behandling.resultat)
 
-                BehandlingType.REVURDERING ->
-                    utledBrevmalFraBehandlingsresultatForRevurdering(
-                        behandlingsresultat = behandling.resultat,
+                else ->
+                    throw Feil(
+                        "Kunne ikke utlede hvilket brevmal som skulle benyttes behandling type $behandlingType og årsak $behandlingÅrsak",
                     )
-
-                BehandlingType.TEKNISK_ENDRING -> throw FunksjonellFeil(
-                    melding = "Brev ikke støttet for behandlingstype=${behandling.type}",
-                    frontendFeilmelding = frontendFeilmelding,
-                )
             }
 
         return if (brevmal.erVedtaksbrev) {

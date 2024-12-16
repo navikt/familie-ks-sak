@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.6</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>no.nav.familie.ks.sak</groupId>
+    <artifactId>familie-ks-sak</artifactId>
+    <version>${revision}${sha1}${changelist}</version>
+    <name>familie-ks-sak</name>
+    <description>Saksbehandling Kontantstøtte</description>
+
+    <properties>
+        <!-- Versjon -->
+        <revision>1</revision>
+        <sha1/>
+        <changelist>-SNAPSHOT</changelist>
+
+        <!-- Java/Kotlin -->
+        <java.version>21</java.version>
+        <kotlin.version>2.0.21</kotlin.version>
+        <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
+        <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
+        <kotlinx.version>1.9.0</kotlinx.version>
+
+        <!-- Spring -->
+        <spring-boot-dependencies.version>3.3.6</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <springdoc.version>2.6.0</springdoc.version>
+
+        <!-- Nav felles -->
+        <felles.version>3.20241121151626_836e7ca</felles.version>
+        <nav-token-client.version>5.0.11</nav-token-client.version>
+        <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
+
+        <!-- Nav Familie-->
+        <prosessering.version>2.20241118095311_c66bd61</prosessering.version>
+        <felles-kontrakter.version>3.0_20241127135607_0f52105</felles-kontrakter.version>
+        <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20241202154750_04e0171</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
+        <utbetalingsgenerator.version>1.0_20241021103522_3adb9fa</utbetalingsgenerator.version>
+
+        <!-- Database -->
+        <jsqlparser.version>5.0</jsqlparser.version>
+
+        <!-- Kafka -->
+        <avro.version>1.12.0</avro.version>
+        <confluent.version>7.7.1</confluent.version>
+
+        <!-- Annet -->
+        <nv-i18n.version>1.29</nv-i18n.version>
+        <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
+        <unleash.version>9.2.5</unleash.version>
+
+        <!-- Test -->
+        <cucumber.version>7.20.1</cucumber.version>
+        <rest-assured.version>5.5.0</rest-assured.version>
+        <mock-oauth2-server.version>2.1.10</mock-oauth2-server.version>
+        <testcontainers.postgresql.version>1.20.4</testcontainers.postgresql.version>
+        <mockk.version>1.13.13</mockk.version>
+        <wiremock.version>3.9.2</wiremock.version>
+        <okhttp3.version>4.9.0</okhttp3.version> <!-- Må settes for å kjøre opp mock-oauth2-server i unit-tester -->
+        <springmockk.version>4.0.2</springmockk.version>
+
+        <!-- Plugin -->
+        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+        <ktlint-cli.version>1.3.1</ktlint-cli.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <cyclonedx-maven-plugin.version>2.9.0</cyclonedx-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+
+        <!-- Sonar -->
+        <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
+        <sonar.organization>navikt</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.sources>src/main</sonar.sources>
+        <sonar.tests>src/test</sonar.tests>
+        <sonar.projectKey>navikt_familie-ks-sak</sonar.projectKey>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.familie.felles</groupId>
+                <artifactId>felles</artifactId>
+                <version>${felles.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-bom</artifactId>
+                <version>${kotlin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-bom</artifactId>
+                <version>${cucumber.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Kotlin -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>${kotlinx.version}</version>
+            <type>pom</type>
+        </dependency>
+
+        <!-- Spring/Spring-boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <!-- Doc/Swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-common</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+        <!-- NAV felles -->
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-client-spring</artifactId>
+            <version>${nav-token-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-client-core</artifactId>
+            <version>${nav-token-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nav-foedselsnummer</groupId>
+            <artifactId>core</artifactId>
+            <version>${nav-foedselsnummer.version}</version>
+        </dependency>
+
+        <!-- NAV familie -->
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>sikkerhet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie</groupId>
+            <artifactId>prosessering-core</artifactId>
+            <version>${prosessering.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>leader</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>unleash</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>http-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>modell</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>valutakurs-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>metrikker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>tidslinje</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.kontrakter</groupId>
+            <artifactId>felles</artifactId>
+            <version>${felles-kontrakter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.kontrakter</groupId>
+            <artifactId>kontantstotte</artifactId>
+            <version>${felles-kontrakter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.eksterne.kontrakter</groupId>
+            <artifactId>bisys</artifactId>
+            <version>${eksterne-kontrakter-bisys.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.eksterne.kontrakter</groupId>
+            <artifactId>stonadsstatistikk-ks</artifactId>
+            <version>${familie.kontrakter.stønadsstatistikk}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.eksterne.kontrakter</groupId>
+            <artifactId>saksstatistikk</artifactId>
+            <version>${familie.kontrakter.saksstatistikk}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>familie-utbetalingsgenerator</artifactId>
+            <version>${utbetalingsgenerator.version}</version>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>${jsqlparser.version}</version>
+        </dependency>
+
+        <!-- Kafka -->
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-avro-serializer</artifactId>
+            <version>${confluent.version}</version>
+        </dependency>
+
+        <!-- Annet -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+        </dependency>
+        <dependency>
+            <!-- Kryptisk navn, men gir oss ISO koder som CountryCode, LanguageCode etc.-->
+            <groupId>com.neovisionaries</groupId>
+            <artifactId>nv-i18n</artifactId>
+            <version>${nv-i18n.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.papertrailapp</groupId>
+            <artifactId>logback-syslog4j</artifactId>
+            <version>${logback-syslog4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.getunleash</groupId>
+            <artifactId>unleash-client-java</artifactId>
+            <version>${unleash.version}</version>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>spring-mock-mvc</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>kotlin-extensions</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-validation-spring-test</artifactId>
+            <version>${nav-token-client.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>mock-oauth2-server</artifactId>
+            <version>${mock-oauth2-server.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>nav-foedselsnummer</groupId>
+            <artifactId>testutils</artifactId>
+            <version>${nav-foedselsnummer.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.postgresql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk-jvm</artifactId>
+            <version>${mockk.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ninja-squad</groupId>
+            <artifactId>springmockk</artifactId>
+            <version>${springmockk.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mockito</groupId>
+                    <artifactId>mockito-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/navikt/familie-felles</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <finalName>${project.artifactId}</finalName>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${maven-antrun-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>ktlint</id>
+                            <phase>verify</phase>
+                            <configuration>
+                                <target name="ktlint">
+                                    <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
+                                          classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                                        <arg value="src/**/*.kt"/>
+                                    </java>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>ktlint-format</id>
+                            <configuration>
+                                <target name="ktlint">
+                                    <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
+                                          classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                                        <arg value="-F"/>
+                                        <arg value="src/**/*.kt"/>
+                                        <!-- Trenger dette for å kjøre ktlint med java 17 -->
+                                        <jvmarg value="--add-opens"/>
+                                        <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
+                                    </java>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.pinterest.ktlint</groupId>
+                            <artifactId>ktlint-cli</artifactId>
+                            <version>${ktlint-cli.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <version>${avro.version}</version>
+
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>idl-protocol</goal>
+                            <goal>schema</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/avro</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                            <stringType>String</stringType>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <configuration>
+                    <args>
+                        <arg>-Xjsr305=strict</arg>
+                    </args>
+                    <compilerPlugins>
+                        <plugin>spring</plugin>
+                        <plugin>jpa</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-noarg</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <!-- exclude tags -->
+                    <!--suppress UnresolvedMavenProperty -->
+                    <excludedGroups>${excludedGroups}</excludedGroups>
+                    <threadCount>1</threadCount>
+                    <runOrder>random</runOrder>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/test/integrasjonstester/kotlin</source>
+                                <source>${project.basedir}/src/test/enhetstester/kotlin</source>
+                                <source>${project.basedir}/src/test/common</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-banned-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>org.junit.*:*:*:jar:compile</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- For å få dependency graph i SLSA som pushes av docker-build-push parameter byosbom -->
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>${cyclonedx-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>makeAggregateBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>jacoco</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <destFile>
+                                        ${project.build.directory}/jacoco/${jacocoTestDirectory}/jacoco.exec
+                                    </destFile>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <dataFile>
+                                        ${project.build.directory}/jacoco/${jacocoTestDirectory}/jacoco.exec
+                                    </dataFile>
+                                    <outputDirectory>
+                                        ${project.build.directory}/jacoco/${jacocoTestDirectory}
+                                    </outputDirectory>
+                                    <formats>
+                                        <format>XML</format>
+                                    </formats>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

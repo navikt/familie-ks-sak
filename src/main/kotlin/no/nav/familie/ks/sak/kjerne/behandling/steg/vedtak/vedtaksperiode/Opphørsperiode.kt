@@ -1,9 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.Udefinert
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -12,6 +8,8 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -19,9 +17,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2021.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.lov2024.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Udefinert
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import java.time.LocalDate
 
 data class Opphørsperiode(
@@ -55,7 +58,7 @@ fun mapTilOpphørsperioder(
             listOf(
                 Opphørsperiode(
                     periodeFom = forrigeUtbetalingsperioder.minOf { it.periodeFom },
-                    periodeTom = forrigeUtbetalingsperioder.maxOf { it.periodeTom },
+                    periodeTom = null,
                 ),
             )
         } else {
@@ -113,7 +116,13 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
 ): List<Opphørsperiode> {
-    val sisteUtbetalingsperiodeTom = utbetalingsperioder.maxOf { it.periodeTom }.toYearMonth()
+    val sisteUtbetalingsperiodeTom =
+        utbetalingsperioder
+            .filter { it.utbetaltPerMnd != 0 }
+            .ifEmpty { return emptyList() }
+            .maxOf { it.periodeTom }
+            .toYearMonth()
+
     val cutOffDato = inneværendeMåned().plusMonths(2)
 
     val erFramtidigOpphørPgaBarnehageplass =
@@ -165,16 +174,50 @@ private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: L
 
 fun Opphørsperiode.tilVedtaksperiodeMedBegrunnelse(
     vedtak: Vedtak,
-): VedtaksperiodeMedBegrunnelser =
-    VedtaksperiodeMedBegrunnelser(
+): VedtaksperiodeMedBegrunnelser {
+    val behandlingsÅrsak = vedtak.behandling.opprettetÅrsak
+
+    return VedtaksperiodeMedBegrunnelser(
         fom = this.periodeFom,
         tom = this.periodeTom,
         vedtak = vedtak,
         type = this.vedtaksperiodetype,
     ).also { vedtaksperiodeMedBegrunnelser ->
-        vedtaksperiodeMedBegrunnelser.settBegrunnelser(
-            begrunnelser.map {
-                it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
-            },
-        )
+        if (behandlingsÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024) {
+            settOvergangsordningOpphørBegrunnelser(vedtaksperiodeMedBegrunnelser)
+        } else {
+            settBegrunnelserPåPeriode(vedtaksperiodeMedBegrunnelser)
+        }
     }
+}
+
+private fun Opphørsperiode.settOvergangsordningOpphørBegrunnelser(
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
+) {
+    val behandlingKategori = vedtaksperiodeMedBegrunnelser.vedtak.behandling.kategori
+
+    when (behandlingKategori) {
+        BehandlingKategori.NASJONAL ->
+            vedtaksperiodeMedBegrunnelser.settBegrunnelser(
+                listOf(
+                    NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
+                ),
+            )
+        BehandlingKategori.EØS ->
+            vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
+                listOf(
+                    EØSBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR_EØS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
+                ),
+            )
+    }
+}
+
+private fun Opphørsperiode.settBegrunnelserPåPeriode(
+    vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
+) {
+    vedtaksperiodeMedBegrunnelser.settBegrunnelser(
+        begrunnelser.map {
+            it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
+        },
+    )
+}

@@ -32,6 +32,14 @@ data class Etterbetaling(
     )
 }
 
+data class UtbetalingOvergangsordning(
+    val utbetalingsbelop: Flettefelt,
+) {
+    constructor(utbetalingsbelop: String) : this(
+        flettefelt(utbetalingsbelop),
+    )
+}
+
 data class Hjemmeltekst(
     val hjemler: Flettefelt,
 ) {
@@ -69,5 +77,13 @@ data class RefusjonEøsUavklart(
 ) {
     constructor(perioderMedRefusjonEøsUavklart: Set<String>) : this(
         flettefelt(perioderMedRefusjonEøsUavklart.toList()),
+    )
+}
+
+data class FritekstAvsnitt(
+    val fritekstAvsnittTekst: Flettefelt,
+) {
+    constructor(fritekstAvsnittTekst: String) : this(
+        flettefelt(fritekstAvsnittTekst),
     )
 }

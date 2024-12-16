@@ -1,10 +1,11 @@
 package no.nav.familie.ks.sak.api.dto
 
-import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
+import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.DokumentInfo
 import no.nav.familie.kontrakter.felles.journalpost.Dokumentstatus
+import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.LogiskVedlegg
 import no.nav.familie.kontrakter.felles.journalpost.Sak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -36,12 +37,22 @@ data class JournalføringRequestDto(
     val journalførendeEnhet: String,
 )
 
-fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(sak: Sak) =
-    OppdaterJournalpostRequestDto(
+fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(
+    sak: Sak,
+    journalpost: Journalpost,
+): OppdaterJournalpostRequestDto {
+    val avsenderMottakerIdType =
+        when {
+            journalpost.kanal == "EESSI" -> journalpost.avsenderMottaker?.type
+            this.avsender.id != "" -> AvsenderMottakerIdType.FNR
+            else -> null
+        }
+
+    return OppdaterJournalpostRequestDto(
         avsenderMottaker =
             AvsenderMottaker(
                 id = avsender.id,
-                idType = if (avsender.id.isNotBlank()) BrukerIdType.FNR else null,
+                idType = avsenderMottakerIdType,
                 navn = avsender.navn,
             ),
         bruker =
@@ -61,6 +72,7 @@ fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(sak: Sak) =
                 )
             },
     )
+}
 
 data class NavnOgIdentDto(
     val navn: String,

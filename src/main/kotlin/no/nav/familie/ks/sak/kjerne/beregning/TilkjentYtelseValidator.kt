@@ -4,25 +4,31 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.KONTAKT_TEAMET_SUFFIX
 import no.nav.familie.ks.sak.common.exception.UtbetalingsikkerhetFeil
-import no.nav.familie.ks.sak.common.tidslinje.Periode
-import no.nav.familie.ks.sak.common.tidslinje.tilTidslinje
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.ks.sak.common.util.MånedPeriode
+import no.nav.familie.ks.sak.common.util.inkluderer
+import no.nav.familie.ks.sak.common.util.månederIPeriode
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.tilTidslinjeMedAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+import no.nav.familie.unleash.UnleashService
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.Period
@@ -46,7 +52,7 @@ object TilkjentYtelseValidator {
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-            val ordinæreAndeler = andeler.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+            val ordinæreAndeler = andeler.ordinæreAndeler()
 
             val stønadFom = ordinæreAndeler.minOf { it.stønadFom }
             val stønadTom = ordinæreAndeler.maxOf { it.stønadTom }
@@ -129,6 +135,7 @@ object TilkjentYtelseValidator {
         tilkjentYtelseForBehandling: TilkjentYtelse,
         barnMedAndreRelevanteTilkjentYtelser: List<Pair<Person, List<TilkjentYtelse>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        unleashService: UnleashService,
     ) {
         val barna = personopplysningGrunnlag.barna.sortedBy { it.fødselsdato }
 
@@ -143,9 +150,10 @@ object TilkjentYtelseValidator {
                     .flatMap { it.andelerTilkjentYtelse }
                     .filter { it.aktør == barn.aktør }
 
-            if (erOverlappAvAndeler(
+            if (erUgyldigOverlappAvAndeler(
                     andeler = andeler,
                     andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger,
+                    unleashService = unleashService,
                 )
             ) {
                 barnMedUtbetalingsikkerhetFeil.add(barn)
@@ -163,16 +171,37 @@ object TilkjentYtelseValidator {
         }
     }
 
-    private fun erOverlappAvAndeler(
+    private fun erUgyldigOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
         andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>,
-    ): Boolean =
-        andeler.any { andelTilkjentYtelse ->
-            andelerFraAndreBehandlinger.any {
-                andelTilkjentYtelse.overlapperMed(it) &&
-                    andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
+        unleashService: UnleashService,
+    ): Boolean {
+        if (unleashService.isEnabled(FeatureToggleConfig.TILLAT_OVERLAPP_I_UTBETALING)) {
+            val overlappendeMåneder =
+                andeler
+                    .flatMap { andel -> andel.periode.månederIPeriode().map { it to andel.prosent } }
+                    .filter { (måned, prosent) ->
+                        andelerFraAndreBehandlinger.any { andelFraAnnenBehandling ->
+                            andelFraAnnenBehandling.periode.inkluderer(måned) &&
+                                prosent + andelFraAnnenBehandling.prosent > BigDecimal(100)
+                        }
+                    }.map { it.first }
+
+            val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
+            return when {
+                overlappendeMåneder.isEmpty() -> false
+                overlappendeMåneder.size > 1 -> true
+                else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
+            }
+        } else {
+            return andeler.any { andelTilkjentYtelse ->
+                andelerFraAndreBehandlinger.any {
+                    andelTilkjentYtelse.overlapperMed(it) &&
+                        andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
+                }
             }
         }
+    }
 
     fun finnAktørIderMedUgyldigEtterbetalingsperiode(
         forrigeAndelerTilkjentYtelse: List<AndelTilkjentYtelse>?,

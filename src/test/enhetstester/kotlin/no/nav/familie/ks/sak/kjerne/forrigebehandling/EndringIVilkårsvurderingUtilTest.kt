@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -13,6 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -220,6 +220,62 @@ class EndringIVilkårsvurderingUtilTest {
                         listOf(
                             UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE,
                         ),
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                ),
+            )
+
+        val aktør = randomAktør()
+
+        val perioderMedEndring =
+            EndringIVilkårsvurderingUtil
+                .lagEndringIVilkårsvurderingTidslinje(
+                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                ).tilPerioder()
+                .filter { it.verdi == true }
+
+        Assertions.assertTrue(perioderMedEndring.isEmpty())
+    }
+
+    @Test
+    fun `Endring i vilkårsvurdering - skal ikke lage periode med endring hvis det er barnets alder som er endret`() {
+        val nåværendeVilkårResultat =
+            setOf(
+                VilkårResultat(
+                    behandlingId = 0,
+                    personResultat = null,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2024, 5, 9),
+                    periodeTom = LocalDate.of(2024, 7, 31),
+                    begrunnelse = "Test",
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                ),
+                VilkårResultat(
+                    behandlingId = 0,
+                    personResultat = null,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2024, 8, 1),
+                    periodeTom = LocalDate.of(2024, 12, 9),
+                    begrunnelse = "Test",
+                    utdypendeVilkårsvurderinger = emptyList(),
+                    vurderesEtter = Regelverk.NASJONALE_REGLER,
+                ),
+            )
+
+        val forrigeVilkårResultat =
+            setOf(
+                VilkårResultat(
+                    behandlingId = 0,
+                    personResultat = null,
+                    vilkårType = Vilkår.BARNETS_ALDER,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.of(2024, 5, 9),
+                    periodeTom = LocalDate.of(2025, 5, 9),
+                    begrunnelse = "Test",
+                    utdypendeVilkårsvurderinger = emptyList(),
                     vurderesEtter = Regelverk.NASJONALE_REGLER,
                 ),
             )

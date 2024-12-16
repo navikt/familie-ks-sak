@@ -75,6 +75,7 @@ class CucumberMock(
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepositoryMock,
             vilkårsvurderingRepository = vilkårsvurderingRepositoryMock,
+            unleashService = mockUnleashService(isEnabledDefault = false),
         )
 
     val personidentService =

@@ -17,7 +17,6 @@ class InfotrygdFeedClientMock {
     fun mockInfotrygdReplikaClient(): InfotrygdReplikaClient {
         val infotrygdReplikaClient = mockk<InfotrygdReplikaClient>(relaxed = true)
 
-        every { infotrygdReplikaClient.harKontantstøtteIInfotrygd(any()) } returns false
         every { infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns emptyList()
         every { infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(any()) } returns InnsynResponse(emptyList())
 

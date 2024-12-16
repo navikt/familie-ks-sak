@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
-import no.nav.familie.ks.sak.common.tidslinje.Periode
 import no.nav.familie.ks.sak.common.util.StringListConverter
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -22,6 +21,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.finnTilOgMedDato
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseListConverter
+import no.nav.familie.tidslinje.Periode
 import org.hibernate.annotations.Immutable
 import java.math.BigDecimal
 import java.time.LocalDate
