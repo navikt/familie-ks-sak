@@ -639,8 +639,8 @@ class BrevPeriodeContext(
                         it.tom == utvidetVedtaksperiodeMedBegrunnelser.tom?.toYearMonth()
                 }?.antallTimer
 
-        return antallTimerIBarnehageplassVilkår
-            ?: antallTimerIOvergangsordningsAndel
+        return antallTimerIOvergangsordningsAndel
+            ?: antallTimerIBarnehageplassVilkår
             ?: BigDecimal.ZERO
     }
 

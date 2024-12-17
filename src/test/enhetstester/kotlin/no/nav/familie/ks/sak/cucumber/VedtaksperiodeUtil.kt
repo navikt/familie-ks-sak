@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.DomenebegrepAndelTilkjentYtelse
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.parseBigDecimal
+import no.nav.familie.ks.sak.common.domeneparser.parseBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseEnumListe
@@ -60,6 +61,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils
 import java.math.BigDecimal
@@ -434,6 +436,32 @@ fun lagPersonGrunnlag(dataTable: DataTable): Map<Long, PersonopplysningGrunnlag>
                 personer = personer.toMutableSet(),
             )
         }.associateBy { it.behandlingId }
+
+fun lagOvergangsordningAndeler(
+    dataTable: DataTable,
+    behandlingId: Long,
+    behandlinger: MutableMap<Long, Behandling>,
+    personGrunnlag: Map<Long, PersonopplysningGrunnlag>,
+) = dataTable.asMaps().map { rad ->
+    val aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)
+    OvergangsordningAndel(
+        id = 0,
+        fom = parseDato(Domenebegrep.FRA_DATO, rad).toYearMonth(),
+        tom = parseDato(Domenebegrep.TIL_DATO, rad).toYearMonth(),
+        behandlingId = behandlinger.finnBehandling(behandlingId).id,
+        person =
+            personGrunnlag
+                .finnPersonGrunnlagForBehandling(behandlingId)
+                .personer
+                .find { aktørId == it.aktør.aktørId }!!,
+        deltBosted = parseBoolean(VedtaksperiodeMedBegrunnelserParser.DomenebegrepOvergangsordning.DELT_BOSTED, rad),
+        antallTimer =
+            parseBigDecimal(
+                VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ANTALL_TIMER,
+                rad,
+            ),
+    )
+}
 
 fun lagAndelerTilkjentYtelse(
     dataTable: DataTable,

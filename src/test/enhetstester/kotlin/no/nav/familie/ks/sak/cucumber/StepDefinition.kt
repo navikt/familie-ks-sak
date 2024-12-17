@@ -245,6 +245,17 @@ class StepDefinition {
     }
 
     /**
+     * Mulige verdier:| AktørId | Fra dato | Til dato | Delt bosted | Antall Timer
+     */
+    @Så("følgende overgangsordning andeler for behandling {}")
+    fun `med overgangsordning andeler`(
+        behandlingId: Long,
+        dataTable: DataTable,
+    ) {
+        overgangsordningAndeler[behandlingId] = lagOvergangsordningAndeler(dataTable, behandlingId, behandlinger, persongrunnlag)
+    }
+
+    /**
      * Mulige verdier: | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats |
      */
     @Så("forvent følgende andeler tilkjent ytelse for behandling {}")

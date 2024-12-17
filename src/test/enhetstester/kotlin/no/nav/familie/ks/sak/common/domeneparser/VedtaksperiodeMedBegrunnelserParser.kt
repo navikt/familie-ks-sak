@@ -107,6 +107,12 @@ object VedtaksperiodeMedBegrunnelserParser {
         ÅRSAK("Årsak"),
     }
 
+    enum class DomenebegrepOvergangsordning(
+        override val nøkkel: String,
+    ) : Domenenøkkel {
+        DELT_BOSTED("Delt bosted"),
+    }
+
     enum class DomenebegrepAndelTilkjentYtelse(
         override val nøkkel: String,
     ) : Domenenøkkel {
