@@ -541,11 +541,23 @@ class VedtaksperiodeService(
                 "Fant ikke vilkårsvurdering for behandling $behandlingId ved generering av avslagsperioder",
             )
 
+        val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
+
         val periodegrupperteAvslagsvilkår: Map<NullablePeriode, List<VilkårResultat>> =
             vilkårsvurdering.personResultater
                 .flatMap { it.vilkårResultater }
                 .filter { it.erEksplisittAvslagPåSøknad == true }
-                .groupBy { NullablePeriode(it.periodeFom, it.periodeTom) }
+                .groupBy {
+                    val finnesAndelForPersonSomSlutterSammeMånedSomFomIVilkårResultat =
+                        andelerTilkjentYtelse.any { andel ->
+                            andel.aktør == it.personResultat?.aktør && andel.stønadTom == it.periodeFom?.toYearMonth()
+                        }
+                    if (finnesAndelForPersonSomSlutterSammeMånedSomFomIVilkårResultat) {
+                        NullablePeriode(it.periodeFom?.plusMonths(1), it.periodeTom)
+                    } else {
+                        NullablePeriode(it.periodeFom, it.periodeTom)
+                    }
+                }
 
         val avslagsperioder =
             periodegrupperteAvslagsvilkår
