@@ -13,7 +13,7 @@ fun forskyvFomBasertPåGraderingsforskjell2024(
     return when (graderingsforskjellMellomDenneOgForrigePeriode) {
         Graderingsforskjell.LIK,
         Graderingsforskjell.ØKNING,
-        Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+        Graderingsforskjell.REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
         -> fomDato.førsteDagIInneværendeMåned()
 
         Graderingsforskjell.REDUKSJON,

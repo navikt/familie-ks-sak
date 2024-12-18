@@ -10,7 +10,7 @@ enum class Graderingsforskjell {
     ØKNING,
     REDUKSJON,
     ØKNING_FRA_FULL_BARNEHAGEPLASS,
-    REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+    REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
     LIK,
 }
 
@@ -43,8 +43,8 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode2024(
             vilkårResultatForrigePerioden != null
 
     return when {
-        graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden.equals(BigDecimal(0)) && fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt
-        -> Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
+        graderingForrigePeriode > graderingDennePerioden && graderingForrigePeriode.equals(BigDecimal(100)) && fomDennePeriodenErSammeMånedSomAlleAndreVilkårBlirOppfylt
+        -> Graderingsforskjell.REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT
 
         harSluttetIFulltidBarnehageDennePerioden
         -> Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS

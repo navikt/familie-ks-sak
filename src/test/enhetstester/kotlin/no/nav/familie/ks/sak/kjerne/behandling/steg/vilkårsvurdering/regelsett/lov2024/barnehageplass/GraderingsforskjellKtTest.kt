@@ -10,21 +10,21 @@ import java.time.YearMonth
 
 class GraderingsforskjellKtTest {
     @Test
-    fun `skal utlede REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT når det er en reduksjon til full barnehageplass i graderingen til vilkårsresultatet fra forrige og denne perioden og alle andre vilkår er oppfylt samme måned`() {
+    fun `skal utlede REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT når det er en reduksjon til deltid barnehageplass i graderingen til vilkårsresultatet fra forrige og denne perioden og alle andre vilkår er oppfylt samme måned`() {
         // Arrange
         val vilkårResultatForrigePeriode =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
                 periodeFom = null,
                 periodeTom = LocalDate.of(2024, 1, 15),
-                antallTimer = BigDecimal(20),
+                antallTimer = BigDecimal(0),
             )
         val vilkårResultatDennePeriode =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
                 periodeFom = LocalDate.of(2024, 1, 16),
                 periodeTom = null,
-                antallTimer = BigDecimal(40),
+                antallTimer = BigDecimal(20),
             )
 
         val tidligsteÅrMånedAlleAndreVilkårErOppfylt = YearMonth.of(2024, 1)
@@ -39,7 +39,7 @@ class GraderingsforskjellKtTest {
 
         // Assert
         assertThat(graderingsforskjell).isEqualTo(
-            Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+            Graderingsforskjell.REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
         )
     }
 
