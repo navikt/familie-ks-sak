@@ -132,7 +132,7 @@ class TomForskyverKtTest {
             val forskjøvetTom =
                 forskyvTomBasertPåGraderingsforskjell2024(
                     tomDato,
-                    Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+                    Graderingsforskjell.REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
                 )
 
             // Assert
@@ -148,7 +148,7 @@ class TomForskyverKtTest {
             val forskjøvetTom =
                 forskyvTomBasertPåGraderingsforskjell2024(
                     tomDato,
-                    Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+                    Graderingsforskjell.REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
                 )
 
             // Assert
@@ -164,7 +164,7 @@ class TomForskyverKtTest {
             val forskjøvetTom =
                 forskyvTomBasertPåGraderingsforskjell2024(
                     tomDato,
-                    Graderingsforskjell.REDUKSJON_TIL_FULL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
+                    Graderingsforskjell.REDUKSJON_TIL_BARNEHAGEPLASS_SAMME_MÅNED_SOM_ANDRE_VILKÅR_FØRST_BLIR_OPPFYLT,
                 )
 
             // Assert
