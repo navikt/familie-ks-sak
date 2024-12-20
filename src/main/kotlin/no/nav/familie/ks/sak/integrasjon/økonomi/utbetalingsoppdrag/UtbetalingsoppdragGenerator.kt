@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndelerPerAktør
 import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
@@ -60,11 +61,14 @@ class UtbetalingsoppdragGenerator {
             sisteAndelPerKjede = sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() },
         )
 
-    private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId =
-        AndelDataLongId(
+    private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId {
+        val fom = if (this.type == YtelseType.OVERGANGSORDNING) YearMonth.of(2024, 12) else periode.fom
+        val tom = if (this.type == YtelseType.OVERGANGSORDNING) YearMonth.of(2024, 12) else periode.tom
+
+        return AndelDataLongId(
             id = id,
-            fom = periode.fom,
-            tom = periode.tom,
+            fom = fom,
+            tom = tom,
             beløp = kalkulertUtbetalingsbeløp,
             personIdent = aktør.aktivFødselsnummer(),
             type = type.tilYtelseType(),
@@ -72,6 +76,7 @@ class UtbetalingsoppdragGenerator {
             forrigePeriodeId = forrigePeriodeOffset,
             kildeBehandlingId = kildeBehandlingId,
         )
+    }
 
     private fun TilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler: Boolean): List<AndelDataLongId> {
         val ordinæreAndeler = this.ordinæreAndelertilAndelDataLongId()
