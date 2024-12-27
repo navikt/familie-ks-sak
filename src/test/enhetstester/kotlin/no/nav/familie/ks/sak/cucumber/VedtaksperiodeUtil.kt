@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.cucumber
 import io.cucumber.datatable.DataTable
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
-import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.DomenebegrepAndelTilkjentYtelse
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser

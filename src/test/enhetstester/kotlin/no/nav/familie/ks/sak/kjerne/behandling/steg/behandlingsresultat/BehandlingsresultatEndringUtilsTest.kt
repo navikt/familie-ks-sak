@@ -636,7 +636,6 @@ class BehandlingsresultatEndringUtilsTest {
         assertTrue(erEndringIEndretAndeler)
     }
 
-
     @Test
     fun `Endring i endret utbetaling andel - skal returnere false hvis prosent er endret`() {
         val barn = lagPerson(aktør = randomAktør())

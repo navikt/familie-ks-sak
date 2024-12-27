@@ -128,7 +128,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger(
     val andel get() = andelTilkjentYtelse
     val endreteUtbetalinger get() = endreteUtbetalingerAndeler
 
-    val erInnvilget get() = this.endreteUtbetalinger.none { it.prosent == BigDecimal.ZERO}
+    val erInnvilget get() = this.endreteUtbetalinger.none { it.prosent == BigDecimal.ZERO }
 
     companion object {
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger = AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())

@@ -1,25 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.MånedPeriode
-import no.nav.familie.ks.sak.common.util.erMellom
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.tidslinje.Periode
-import no.nav.familie.tidslinje.Verdi
-import no.nav.familie.tidslinje.filtrerIkkeNull
-import no.nav.familie.tidslinje.tilTidslinje
-import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
-import no.nav.familie.tidslinje.utvidelser.slåSammenLikeTidslinjer
-import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.YearMonth

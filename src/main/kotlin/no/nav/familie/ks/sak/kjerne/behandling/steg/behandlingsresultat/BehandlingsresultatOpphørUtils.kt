@@ -134,7 +134,6 @@ object BehandlingsresultatOpphørUtils {
                     ->
                         // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
                         if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse
-
                 }
             }.tilAndelTilkjentYtelse()
     }

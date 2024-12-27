@@ -148,7 +148,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     prosent = BigDecimal(100),
                     periodeFom = fom,
                     periodeTom = tom,
-                    årsak = Årsak.ALLEREDE_UTBETALT
+                    årsak = Årsak.ALLEREDE_UTBETALT,
                 ),
             )
         val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
