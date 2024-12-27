@@ -13,7 +13,6 @@ data class EndretUtbetalingAndelResponsDto(
     val fom: YearMonth?,
     val tom: YearMonth?,
     val årsak: Årsak?,
-    val avtaletidspunktDeltBosted: LocalDate?,
     val søknadstidspunkt: LocalDate?,
     val begrunnelse: String?,
     val erEksplisittAvslagPåSøknad: Boolean?,

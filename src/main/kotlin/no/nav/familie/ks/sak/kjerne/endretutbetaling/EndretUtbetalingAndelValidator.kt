@@ -65,18 +65,6 @@ object EndretUtbetalingAndelValidator {
     ) {
         checkNotNull(årsak) { "Årsak kan ikke være null" }
         when (årsak) {
-            Årsak.DELT_BOSTED -> {
-                val deltBostedPerioder =
-                    finnDeltBostedPerioder(
-                        person = endretUtbetalingAndel.person,
-                        vilkårsvurdering = vilkårsvurdering,
-                    )
-                validerDeltBosted(
-                    endretUtbetalingAndel = endretUtbetalingAndel,
-                    deltBostedPerioder = deltBostedPerioder,
-                )
-            }
-
             Årsak.ETTERBETALING_3MND -> {
                 validerEtterbetaling3Måned(
                     endretUtbetalingAndel = endretUtbetalingAndel,
@@ -91,10 +79,6 @@ object EndretUtbetalingAndelValidator {
             }
 
             Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel, kanBrukeÅrsakAlleredeUtbetalt)
-
-            Årsak.ENDRE_MOTTAKER,
-            ->
-                throw FunksjonellFeil("Årsak ${årsak.visningsnavn} er ikke implementert enda!!")
         }
     }
 
@@ -144,94 +128,6 @@ object EndretUtbetalingAndelValidator {
         }
     }
 
-    /**
-     * Funksjon som finner delt bosted perioder for spesifikk person
-     * @param[person] Person kan enten være SØKER eller BARN
-     * @param[vilkårsvurdering] Vilkårsvurdering for å finne ut hvilke perioder har DELT_BOSTED
-     * @return List<Periode<Long>> returnerer delt bosted perioder hvor Periode har behandlingId som verdi*/
-    fun finnDeltBostedPerioder(
-        person: Person?,
-        vilkårsvurdering: Vilkårsvurdering?,
-    ): List<Periode<Long>> {
-        if (vilkårsvurdering == null || person == null) return emptyList()
-        val deltBostedPerioder =
-            when (person.type) {
-                PersonType.SØKER -> {
-                    // Endret Utbetaling med delt bosted kan pekes både på søker og barn selv om kun barnas vilkår settes til delt bosted
-                    // For søker, hentes delt bosted vilkårsresultater fra barnas vilkår
-                    // Hvis det er flere perioder(p.g.a flere barn), slås overlappende perioder sammen
-                    val deltBostedVilkårResultater =
-                        vilkårsvurdering.personResultater.flatMap { personResultat ->
-                            personResultat.vilkårResultater.filter {
-                                it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) &&
-                                    it.resultat == Resultat.OPPFYLT
-                            }
-                        }
-
-                    val deltBostedPerioder =
-                        deltBostedVilkårResultater
-                            .groupBy { it.personResultat?.aktør }
-                            .flatMap { (_, vilkårResultater) -> vilkårResultater.mapNotNull { it.tilPeriode(vilkår = vilkårResultater) } }
-
-                    // slår sammen overlappende perioder
-                    deltBostedPerioder
-                        .filter { it.fom != null && it.tom != null }
-                        .map { listOf(it).tilTidslinje() }
-                        .slåSammenLikeTidslinjer { _, _ -> Verdi(person.personopplysningGrunnlag.behandlingId) }
-                        .slåSammenLikePerioder()
-                        .tilPerioder()
-                }
-
-                else -> { // For barn, hentes det delt bosted for spesikt barn
-                    val personensVilkår = vilkårsvurdering.personResultater.single { it.aktør == person.aktør }
-                    val deltBostedVilkårResultater =
-                        personensVilkår.vilkårResultater.filter {
-                            it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED) && it.resultat == Resultat.OPPFYLT
-                        }
-
-                    deltBostedVilkårResultater
-                        .mapNotNull { it.tilPeriode(vilkår = deltBostedVilkårResultater) }
-                        .tilTidslinje()
-                        .tilPerioder()
-                }
-            }
-        // det slår sammen alle delt bosted perioder som er sammenhengende
-        return deltBostedPerioder
-            .tilTidslinje()
-            .slåSammenLikePerioder()
-            .tilPerioder()
-            .filtrerIkkeNull()
-    }
-
-    private fun validerDeltBosted(
-        endretUtbetalingAndel: EndretUtbetalingAndel,
-        deltBostedPerioder: List<Periode<Long>>,
-    ) {
-        val fom = endretUtbetalingAndel.fom
-        val tom = endretUtbetalingAndel.tom
-        if (fom == null || tom == null) {
-            throw FunksjonellFeil("Du må sette fom og tom.")
-        }
-        val endringsperiode = MånedPeriode(fom, tom)
-
-        if (!deltBostedPerioder.any {
-                endringsperiode.erMellom(
-                    MånedPeriode(
-                        fom = checkNotNull(it.fom).toYearMonth(),
-                        tom = checkNotNull(it.tom).toYearMonth(),
-                    ),
-                )
-            }
-        ) {
-            throw FunksjonellFeil(
-                melding = "Det finnes ingen delt bosted perioder i perioden det opprettes en endring med årsak delt bosted for.",
-                frontendFeilmelding =
-                    "Du har valgt årsaken 'delt bosted', " +
-                        "denne samstemmer ikke med vurderingene gjort på vilkårsvurderingssiden i perioden du har valgt.",
-            )
-        }
-    }
-
     private fun validerEtterbetaling3Måned(
         endretUtbetalingAndel: EndretUtbetalingAndel,
         kravDato: LocalDateTime,
@@ -253,7 +149,7 @@ object EndretUtbetalingAndelValidator {
         årsak: Årsak?,
         skalUtbetales: Boolean,
     ) {
-        if (skalUtbetales && (årsak == Årsak.ENDRE_MOTTAKER || årsak == Årsak.ALLEREDE_UTBETALT)) {
+        if (skalUtbetales && årsak == Årsak.ALLEREDE_UTBETALT) {
             val feilmelding = "Du kan ikke velge denne årsaken og si at kontantstøtten skal utbetales."
             throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
         }

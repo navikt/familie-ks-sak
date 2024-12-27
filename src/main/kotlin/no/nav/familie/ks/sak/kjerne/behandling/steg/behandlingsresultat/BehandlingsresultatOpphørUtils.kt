@@ -129,14 +129,12 @@ object BehandlingsresultatOpphørUtils {
 
                 when (endringsperiodeÅrsak) {
                     Årsak.ALLEREDE_UTBETALT,
-                    Årsak.ENDRE_MOTTAKER,
                     Årsak.ETTERBETALING_3MND,
                     Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                     ->
                         // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
                         if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse
 
-                    Årsak.DELT_BOSTED -> andelTilkjentYtelse
                 }
             }.tilAndelTilkjentYtelse()
     }

@@ -636,29 +636,6 @@ class BehandlingsresultatEndringUtilsTest {
         assertTrue(erEndringIEndretAndeler)
     }
 
-    @Test
-    fun `Endring i endret utbetaling andel - skal returnere true hvis avtaletidspunktDeltBosted er endret`() {
-        val barn = lagPerson(aktør = randomAktør())
-
-        val forrigeEndretAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = 0,
-                person = barn,
-                prosent = BigDecimal.ZERO,
-                periodeFom = jan22,
-                periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
-            )
-
-        val erEndringIEndretAndeler =
-            erEndringIEndretUtbetalingAndelerForPerson(
-                forrigeEndretAndelerForPerson = listOf(forrigeEndretAndel),
-                nåværendeEndretAndelerForPerson = listOf(forrigeEndretAndel.copy(avtaletidspunktDeltBosted = feb22.førsteDagIInneværendeMåned())),
-            )
-
-        assertTrue(erEndringIEndretAndeler)
-    }
 
     @Test
     fun `Endring i endret utbetaling andel - skal returnere false hvis prosent er endret`() {
@@ -670,8 +647,7 @@ class BehandlingsresultatEndringUtilsTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val erEndringIEndretAndeler =
@@ -693,8 +669,7 @@ class BehandlingsresultatEndringUtilsTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val erEndringIEndretAndeler =
@@ -717,8 +692,7 @@ class BehandlingsresultatEndringUtilsTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val erEndringIEndretAndeler =
@@ -741,8 +715,7 @@ class BehandlingsresultatEndringUtilsTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val forrigeEndretAndelBarn2 =

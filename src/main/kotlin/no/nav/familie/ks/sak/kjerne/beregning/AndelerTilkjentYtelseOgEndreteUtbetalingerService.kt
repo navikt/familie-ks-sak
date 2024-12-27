@@ -128,7 +128,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger(
     val andel get() = andelTilkjentYtelse
     val endreteUtbetalinger get() = endreteUtbetalingerAndeler
 
-    val erInnvilget get() = this.endreteUtbetalinger.none { it.prosent == BigDecimal.ZERO && !it.erÅrsakDeltBosted() }
+    val erInnvilget get() = this.endreteUtbetalinger.none { it.prosent == BigDecimal.ZERO}
 
     companion object {
         fun utenEndringer(andelTilkjentYtelse: AndelTilkjentYtelse): AndelTilkjentYtelseMedEndreteUtbetalinger = AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList())
@@ -146,7 +146,6 @@ data class EndretUtbetalingAndelMedAndelerTilkjentYtelse(
     val begrunnelse get() = endretUtbetalingAndel.begrunnelse
     val begrunnelser get() = endretUtbetalingAndel.begrunnelser
     val søknadstidspunkt get() = endretUtbetalingAndel.søknadstidspunkt
-    val avtaletidspunktDeltBosted get() = endretUtbetalingAndel.avtaletidspunktDeltBosted
     val prosent get() = endretUtbetalingAndel.prosent
     val aktivtFødselsnummer get() = endretUtbetalingAndel.person?.aktør?.aktivFødselsnummer()
     val årsak get() = endretUtbetalingAndel.årsak

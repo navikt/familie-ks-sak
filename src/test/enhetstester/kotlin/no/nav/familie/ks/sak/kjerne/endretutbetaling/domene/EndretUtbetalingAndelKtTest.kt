@@ -23,8 +23,7 @@ class EndretUtbetalingAndelKtTest {
                     prosent = BigDecimal(100),
                     fom = YearMonth.now().minusMonths(1),
                     tom = YearMonth.now(),
-                    årsak = Årsak.ENDRE_MOTTAKER,
-                    avtaletidspunktDeltBosted = LocalDate.now(),
+                    årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                     søknadstidspunkt = LocalDate.now().minusMonths(1),
                     begrunnelse = "en annen begrunnelse",
                     erEksplisittAvslagPåSøknad = false,
@@ -38,8 +37,7 @@ class EndretUtbetalingAndelKtTest {
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(2),
                     periodeTom = YearMonth.now().plusMonths(2),
-                    årsak = Årsak.DELT_BOSTED,
-                    avtaletidspunktDeltBosted = LocalDate.now().minusMonths(2),
+                    årsak = Årsak.ALLEREDE_UTBETALT,
                     søknadstidspunkt = LocalDate.now().minusMonths(2),
                     begrunnelse = "en begrunnelse",
                 )
@@ -59,7 +57,6 @@ class EndretUtbetalingAndelKtTest {
             assertThat(oppdatertEndretUtbetalingAndel.fom).isEqualTo(endretUtbetalingAndelRequestDto.fom)
             assertThat(oppdatertEndretUtbetalingAndel.tom).isEqualTo(endretUtbetalingAndelRequestDto.tom)
             assertThat(oppdatertEndretUtbetalingAndel.årsak).isEqualTo(endretUtbetalingAndelRequestDto.årsak)
-            assertThat(oppdatertEndretUtbetalingAndel.avtaletidspunktDeltBosted).isEqualTo(endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted)
             assertThat(oppdatertEndretUtbetalingAndel.søknadstidspunkt).isEqualTo(endretUtbetalingAndelRequestDto.søknadstidspunkt)
             assertThat(oppdatertEndretUtbetalingAndel.begrunnelse).isEqualTo(endretUtbetalingAndelRequestDto.begrunnelse)
             assertThat(oppdatertEndretUtbetalingAndel.begrunnelser).containsOnly()

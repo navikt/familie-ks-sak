@@ -388,11 +388,6 @@ fun lagEndredeUtbetalinger(
                         ?: Årsak.ALLEREDE_UTBETALT,
                 søknadstidspunkt = parseValgfriDato(Domenebegrep.SØKNADSTIDSPUNKT, rad) ?: LocalDate.now(),
                 begrunnelse = "Fordi at...",
-                avtaletidspunktDeltBosted =
-                    parseValgfriDato(
-                        BrevPeriodeParser.DomenebegrepBrevBegrunnelse.AVTALETIDSPUNKT_DELT_BOSTED,
-                        rad,
-                    ),
                 erEksplisittAvslagPåSøknad =
                     parseValgfriBoolean(
                         VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ER_EKSPLISITT_AVSLAG,

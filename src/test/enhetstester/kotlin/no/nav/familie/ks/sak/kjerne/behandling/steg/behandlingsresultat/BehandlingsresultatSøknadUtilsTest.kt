@@ -134,48 +134,9 @@ internal class BehandlingsresultatSøknadUtilsTest {
         assertThat(søknadsResultat[0], Is(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER))
     }
 
-    @Test
-    fun `utledSøknadResultatFraAndelerTilkjentYtelse skal returnere INNVILGET dersom beløp på nåværende andel er 0 og det finnes endringsperiode som DELT_BOSTED`() {
-        val barn1Aktør = randomAktør()
-        val barn1Person = lagPerson(aktør = barn1Aktør)
-
-        val andel =
-            lagAndelTilkjentYtelse(
-                fom = jan22,
-                tom = aug22,
-                beløp = 0,
-                prosent = BigDecimal.ZERO,
-                aktør = barn1Aktør,
-            )
-
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                person = barn1Person,
-                periodeFom = jan22,
-                periodeTom = aug22,
-                prosent = BigDecimal(100),
-                behandlingId = 123L,
-                årsak = Årsak.DELT_BOSTED,
-            )
-
-        val søknadsResultat =
-            utledSøknadResultatFraAndelerTilkjentYtelse(
-                forrigeAndeler = emptyList(),
-                nåværendeAndeler =
-                    listOf(
-                        andel.copy(kalkulertUtbetalingsbeløp = 0),
-                    ),
-                personerFremstiltKravFor = listOf(barn1Aktør),
-                endretUtbetalingAndeler = listOf(endretUtbetalingAndel),
-            ).filter { it != Søknadsresultat.INGEN_RELEVANTE_ENDRINGER }
-
-        assertThat(søknadsResultat.size, Is(1))
-        assertThat(søknadsResultat[0], Is(Søknadsresultat.INNVILGET))
-    }
-
     @ParameterizedTest
-    @EnumSource(value = Årsak::class, mode = EnumSource.Mode.EXCLUDE, names = ["DELT_BOSTED"])
-    fun `utledSøknadResultatFraAndelerTilkjentYtelse skal returnere AVSLÅTT dersom beløp på nåværende andel er 0 og det finnes endringsperiode som ikke er DELT_BOSTED`(
+    @EnumSource(value = Årsak::class)
+    fun `utledSøknadResultatFraAndelerTilkjentYtelse skal returnere AVSLÅTT dersom beløp på nåværende andel er 0 og det finnes endringsperioder`(
         årsak: Årsak,
     ) {
         val barn1Aktør = randomAktør()
