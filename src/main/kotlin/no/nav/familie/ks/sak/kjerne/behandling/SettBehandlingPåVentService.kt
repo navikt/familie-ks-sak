@@ -31,7 +31,7 @@ class SettBehandlingPåVentService(
 
         stegService.settBehandlingstegPåVent(behandling, frist, årsak)
 
-        oppgaveService.forlengFristÅpneOppgaverPåBehandling(
+        oppgaveService.settNyFristÅpneOppgaverPåBehandling(
             behandlingId = behandling.id,
             nyFrist = frist,
         )
@@ -47,7 +47,7 @@ class SettBehandlingPåVentService(
 
         stegService.oppdaterBehandlingstegFristOgÅrsak(behandling, frist, årsak)
 
-        oppgaveService.forlengFristÅpneOppgaverPåBehandling(
+        oppgaveService.settNyFristÅpneOppgaverPåBehandling(
             behandlingId = behandlingId,
             nyFrist = frist,
         )

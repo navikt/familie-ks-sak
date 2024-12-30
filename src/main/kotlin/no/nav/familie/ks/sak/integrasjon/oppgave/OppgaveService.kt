@@ -156,7 +156,7 @@ class OppgaveService(
         integrasjonClient.ferdigstillOppgave(oppgaveId)
     }
 
-    fun forlengFristÅpneOppgaverPåBehandling(
+    fun settNyFristÅpneOppgaverPåBehandling(
         behandlingId: Long,
         nyFrist: LocalDate,
     ) {
