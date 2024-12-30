@@ -179,7 +179,8 @@ class OppgaveService(
 
                 else -> {
                     val nyFrist = LocalDate.parse(gammelOppgave.fristFerdigstillelse).plus(forlengelse)
-                    val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist?.toString())
+                    logger.info("$nyFrist - $forlengelse - ${gammelOppgave.fristFerdigstillelse}")
+                    val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
                     integrasjonClient.oppdaterOppgave(oppgaveOppdatering)
                 }
             }
