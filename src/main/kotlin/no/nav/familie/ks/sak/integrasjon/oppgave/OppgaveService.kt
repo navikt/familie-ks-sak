@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -159,7 +158,7 @@ class OppgaveService(
 
     fun forlengFristÅpneOppgaverPåBehandling(
         behandlingId: Long,
-        forlengelse: Period,
+        nyFrist: LocalDate,
     ) {
         val dbOppgaver = oppgaveRepository.findByBehandlingIdAndIkkeFerdigstilt(behandlingId)
 
@@ -178,8 +177,6 @@ class OppgaveService(
                     logger.warn("Oppgave ${dbOppgave.gsakId} er allerede avsluttet. Frist ikke forlenget.")
 
                 else -> {
-                    val nyFrist = LocalDate.parse(gammelOppgave.fristFerdigstillelse).plus(forlengelse)
-                    logger.info("$nyFrist - $forlengelse - ${gammelOppgave.fristFerdigstillelse}")
                     val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
                     integrasjonClient.oppdaterOppgave(oppgaveOppdatering)
                 }
