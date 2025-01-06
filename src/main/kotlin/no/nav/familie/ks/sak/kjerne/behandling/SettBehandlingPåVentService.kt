@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.Period
 
 @Service
 class SettBehandlingPåVentService(
@@ -32,9 +31,9 @@ class SettBehandlingPåVentService(
 
         stegService.settBehandlingstegPåVent(behandling, frist, årsak)
 
-        oppgaveService.forlengFristÅpneOppgaverPåBehandling(
+        oppgaveService.settNyFristÅpneOppgaverPåBehandling(
             behandlingId = behandling.id,
-            forlengelse = Period.between(LocalDate.now(), frist),
+            nyFrist = frist,
         )
     }
 
@@ -46,11 +45,11 @@ class SettBehandlingPåVentService(
     ) {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
-        val gammelFrist = stegService.oppdaterBehandlingstegFristOgÅrsak(behandling, frist, årsak)
+        stegService.oppdaterBehandlingstegFristOgÅrsak(behandling, frist, årsak)
 
-        oppgaveService.forlengFristÅpneOppgaverPåBehandling(
+        oppgaveService.settNyFristÅpneOppgaverPåBehandling(
             behandlingId = behandlingId,
-            forlengelse = Period.between(gammelFrist, frist),
+            nyFrist = frist,
         )
     }
 
