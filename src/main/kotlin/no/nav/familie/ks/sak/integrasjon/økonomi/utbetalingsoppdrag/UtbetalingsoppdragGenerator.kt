@@ -64,16 +64,22 @@ class UtbetalingsoppdragGenerator {
         )
     }
 
-    private fun endreSisteAndelPerKjedeHvisOvergangsordningandel(sisteAndelPerKjede: Map<IdentOgType, AndelTilkjentYtelse>, forrigeTilkjentYtelse: TilkjentYtelse?): Map<IdentOgType, AndelDataLongId> {
-        if (forrigeTilkjentYtelse == null || sisteAndelPerKjede.none { it.value.type == YtelseType.OVERGANGSORDNING })
+    private fun endreSisteAndelPerKjedeHvisOvergangsordningandel(
+        sisteAndelPerKjede: Map<IdentOgType, AndelTilkjentYtelse>,
+        forrigeTilkjentYtelse: TilkjentYtelse?,
+    ): Map<IdentOgType, AndelDataLongId> {
+        if (forrigeTilkjentYtelse == null || sisteAndelPerKjede.none { it.value.type == YtelseType.OVERGANGSORDNING }) {
             return sisteAndelPerKjede.mapValues { it.value.tilAndelDataLongId() }
+        }
 
         return sisteAndelPerKjede.mapValues { (identOgType, andelTilkjentYtelse) ->
             if (andelTilkjentYtelse.type == YtelseType.OVERGANGSORDNING) {
-                val overgangsordningsAndelerForAktørSisteTilkjentYtelse = forrigeTilkjentYtelse.overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId()
-                    .filter { it.personIdent == identOgType.ident }
-                    .singleOrNull { it.fom == OVERGANGSORDNING_UTBETALINGSMÅNED && it.tom == OVERGANGSORDNING_UTBETALINGSMÅNED }
-                    ?: throw IllegalStateException("Kunne ikke utlede siste andel per kjede der type er overgangsordningsandel")
+                val overgangsordningsAndelerForAktørSisteTilkjentYtelse =
+                    forrigeTilkjentYtelse
+                        .overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId()
+                        .filter { it.personIdent == identOgType.ident }
+                        .singleOrNull { it.fom == OVERGANGSORDNING_UTBETALINGSMÅNED && it.tom == OVERGANGSORDNING_UTBETALINGSMÅNED }
+                        ?: throw IllegalStateException("Greide ikke å utlede overgangsordning andel fra siste tilkjente ytelse for behandling ${andelTilkjentYtelse.behandlingId}")
 
                 overgangsordningsAndelerForAktørSisteTilkjentYtelse
             } else {
@@ -82,8 +88,8 @@ class UtbetalingsoppdragGenerator {
         }
     }
 
-    private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId {
-        return AndelDataLongId(
+    private fun AndelTilkjentYtelse.tilAndelDataLongId(): AndelDataLongId =
+        AndelDataLongId(
             id = id,
             fom = periode.fom,
             tom = periode.tom,
@@ -94,7 +100,6 @@ class UtbetalingsoppdragGenerator {
             forrigePeriodeId = forrigePeriodeOffset,
             kildeBehandlingId = kildeBehandlingId,
         )
-    }
 
     private fun TilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler: Boolean): List<AndelDataLongId> {
         val ordinæreAndeler = this.ordinæreAndelertilAndelDataLongId()
@@ -122,7 +127,7 @@ class UtbetalingsoppdragGenerator {
                 val førsteAndel = overgangsordningAndeler.minBy { it.stønadFom }
                 val kalkulertUtbetalingsbeløp =
                     overgangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() } +
-                            (ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned[aktør]?.kalkulertUtbetalingsbeløp ?: 0)
+                        (ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned[aktør]?.kalkulertUtbetalingsbeløp ?: 0)
                 AndelDataLongId(
                     id = førsteAndel.id,
                     fom = OVERGANGSORDNING_UTBETALINGSMÅNED,

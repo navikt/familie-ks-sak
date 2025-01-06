@@ -15,11 +15,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
-import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
@@ -94,7 +92,6 @@ class UtbetalingsoppdragService(
         val nyTilkjentYtelse = tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId = vedtak.behandling.id)
 
         val sisteAndelPerKjede = hentSisteAndelTilkjentYtelse(vedtak.behandling.fagsak)
-
         val beregnetUtbetalingsoppdrag =
             utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
                 saksbehandlerId = saksbehandlerId,
