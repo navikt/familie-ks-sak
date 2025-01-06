@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import no.nav.familie.ks.sak.TestClockProvider
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.Periode
@@ -71,6 +72,7 @@ internal class KompetanseServiceTest {
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
             overgangsordningAndelRepository = overgangsordningAndelRepository,
             unleashService = unleashService,
+            clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(LocalDate.of(2024, 10, 1)),
         )
 
     private val kompetanseService: KompetanseService =

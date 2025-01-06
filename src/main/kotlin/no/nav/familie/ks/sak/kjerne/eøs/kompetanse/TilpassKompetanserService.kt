@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
@@ -43,6 +44,7 @@ class TilpassKompetanserService(
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
     private val unleashService: UnleashService,
+    private val clockProvider: ClockProvider,
 ) {
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
 
@@ -119,15 +121,15 @@ class TilpassKompetanserService(
                 }
             }.tilSkjemaer()
     }
-}
 
-private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
-    this.mapValues { (_, tidslinjer) ->
-        tidslinjer
-            .filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
-            .filtrerIkkeNull()
-            .forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned = LocalDate.now().førsteDagINesteMåned())
-    }
+    private fun Map<Aktør, Tidslinje<RegelverkResultat>>.tilBarnasEøsRegelverkTidslinjer() =
+        this.mapValues { (_, tidslinjer) ->
+            tidslinjer
+                .filtrer { it?.regelverk == Regelverk.EØS_FORORDNINGEN }
+                .filtrerIkkeNull()
+                .forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned = LocalDate.now(clockProvider.get()).førsteDagINesteMåned())
+        }
+}
 
 private fun <T> Tidslinje<T>.forlengTomdatoTilUendeligOmTomErSenereEnn(førsteDagINesteMåned: LocalDate): Tidslinje<T & Any> {
     val tom = this.tilPerioderIkkeNull().mapNotNull { it.tom }.maxOrNull()
