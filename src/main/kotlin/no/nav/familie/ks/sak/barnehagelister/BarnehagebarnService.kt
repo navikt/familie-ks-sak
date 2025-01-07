@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.barnehagelister
 
+import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
+import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnInfotrygdDto
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
@@ -152,6 +154,21 @@ class BarnehagebarnService(
             "antalltimeribarnehage" -> "antall_timer_i_barnehage"
             else -> sortBy
         }
+
+    @Transactional
+    fun erBarnehageBarnMottattTidligere(barnehagebarn: Barnehagebarn): Boolean {
+        val barnehageBarnMedSammeIdent = barnehagebarnRepository.getByIdent(barnehagebarn.ident)
+        //TODO: Test hva som skjer hvis getByIdent() ikke finner noe barn
+        return barnehageBarnMedSammeIdent != null &&
+                barnehageBarnMedSammeIdent.fom == barnehagebarn.fom
+                && barnehageBarnMedSammeIdent.tom == barnehagebarn.tom
+                && barnehageBarnMedSammeIdent.arkivReferanse == barnehagebarn.arkivReferanse
+    }
+
+    @Transactional
+    fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
+        barnehagebarnRepository.save(barnehagebarn)
+    }
 
     companion object {
         val LØPENDE_FAGSAK_STATUS = listOf("LØPENDE")

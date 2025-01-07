@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDate
 import java.util.UUID
 
 interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , JpaSpecificationExecutor<Barnehagebarn>
@@ -208,4 +209,14 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnInfotrygdDtoInterface>
+
+
+    @Query("""
+        SELECT bb FROM barnehagebarn bb 
+            WHERE bb.ident = :ident 
+                AND bb.fom = :fom 
+                AND bb.tom = :tom 
+                AND bb.arkiv_referanse = :arkivReferanse
+    """, nativeQuery = true)
+    fun findByFraTilOgArkivReferanse(ident: String, tom: LocalDate?, arkivReferanse: String?): List<Barnehagebarn>
 }
