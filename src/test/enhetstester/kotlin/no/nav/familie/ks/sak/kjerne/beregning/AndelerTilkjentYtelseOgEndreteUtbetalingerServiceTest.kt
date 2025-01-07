@@ -21,11 +21,9 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
@@ -42,16 +40,8 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     @MockK
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
 
-    @MockK
-    private lateinit var unleashService: UnleashService
-
     @InjectMockKs
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @BeforeEach
-    fun setup() {
-        every { unleashService.isEnabled(any()) } returns false
-    }
 
     val søker = randomAktør()
     private val barn1 = randomAktør()
