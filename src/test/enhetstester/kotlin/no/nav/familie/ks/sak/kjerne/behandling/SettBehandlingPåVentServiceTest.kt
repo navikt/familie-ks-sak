@@ -46,7 +46,7 @@ class SettBehandlingPåVentServiceTest {
     fun `settBehandlingPåVent - skal sette behandling på vent og forlenge frist på oppgave`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
         every { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) } just runs
-        every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
+        every { oppgaveService.settNyFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
         val frist = LocalDate.now().plusWeeks(1)
         settBehandlingPåVentService.settBehandlingPåVent(
@@ -57,7 +57,7 @@ class SettBehandlingPåVentServiceTest {
 
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
         verify(exactly = 1) { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) }
-        verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
+        verify(exactly = 1) { oppgaveService.settNyFristÅpneOppgaverPåBehandling(any(), any()) }
     }
 
     @Test
@@ -159,7 +159,7 @@ class SettBehandlingPåVentServiceTest {
             )
         } returns gammelFrist
 
-        every { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) } just runs
+        every { oppgaveService.settNyFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
         settBehandlingPåVentService.oppdaterFristOgÅrsak(
             behandling.id,
@@ -175,7 +175,7 @@ class SettBehandlingPåVentServiceTest {
                 VenteÅrsak.AVVENTER_DOKUMENTASJON,
             )
         }
-        verify(exactly = 1) { oppgaveService.forlengFristÅpneOppgaverPåBehandling(any(), any()) }
+        verify(exactly = 1) { oppgaveService.settNyFristÅpneOppgaverPåBehandling(any(), any()) }
     }
 
     @Test
