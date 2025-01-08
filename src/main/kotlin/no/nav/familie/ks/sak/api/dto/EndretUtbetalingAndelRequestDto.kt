@@ -15,7 +15,6 @@ data class EndretUtbetalingAndelRequestDto(
     val fom: YearMonth,
     val tom: YearMonth,
     val årsak: Årsak,
-    val avtaletidspunktDeltBosted: LocalDate?,
     val søknadstidspunkt: LocalDate,
     val begrunnelse: String,
     val erEksplisittAvslagPåSøknad: Boolean?,
@@ -28,8 +27,6 @@ fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFell
         return emptyList()
     }
     return when (this.årsak) {
-        Årsak.DELT_BOSTED,
-        Årsak.ENDRE_MOTTAKER,
         Årsak.ETTERBETALING_3MND,
         -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
 

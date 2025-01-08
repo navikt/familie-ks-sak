@@ -55,8 +55,6 @@ data class EndretUtbetalingAndel(
     @Enumerated(EnumType.STRING)
     @Column(name = "aarsak")
     var årsak: Årsak? = null,
-    @Column(name = "avtaletidspunkt_delt_bosted")
-    var avtaletidspunktDeltBosted: LocalDate? = null,
     @Column(name = "soknadstidspunkt")
     var søknadstidspunkt: LocalDate? = null,
     @Column(name = "begrunnelse")
@@ -89,10 +87,6 @@ data class EndretUtbetalingAndel(
                 frontendFeilmelding = "Du kan ikke sette en f.o.m. dato som er etter t.o.m. dato",
             )
         }
-
-        if (årsak == Årsak.DELT_BOSTED && avtaletidspunktDeltBosted == null) {
-            throw FunksjonellFeil("Avtaletidspunkt skal være utfylt når årsak er delt bosted: $this")
-        }
     }
 
     fun manglerObligatoriskFelt() =
@@ -104,8 +98,6 @@ data class EndretUtbetalingAndel(
             this.årsak,
             this.søknadstidspunkt,
         ).any { it == null }
-
-    fun erÅrsakDeltBosted() = this.årsak == Årsak.DELT_BOSTED
 }
 
 fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelResponsDto() =
@@ -116,7 +108,6 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         fom = this.fom,
         tom = this.tom,
         årsak = this.årsak,
-        avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted,
         søknadstidspunkt = this.søknadstidspunkt,
         begrunnelse = this.begrunnelse,
         begrunnelser = this.begrunnelser,
@@ -133,7 +124,6 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     this.fom = endretUtbetalingAndelRequestDto.fom
     this.tom = endretUtbetalingAndelRequestDto.tom
     this.årsak = endretUtbetalingAndelRequestDto.årsak
-    this.avtaletidspunktDeltBosted = endretUtbetalingAndelRequestDto.avtaletidspunktDeltBosted
     this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
     this.begrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
@@ -144,9 +134,7 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
 enum class Årsak(
     val visningsnavn: String,
 ) {
-    DELT_BOSTED("Delt bosted"),
     ETTERBETALING_3MND("Etterbetaling 3 måneder"),
-    ENDRE_MOTTAKER("Foreldrene bor sammen, endret mottaker"),
     ALLEREDE_UTBETALT("Allerede utbetalt"),
     FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024("Fulltidsplass i barnehage august 2024"),
 }
@@ -182,19 +170,6 @@ data class UtfyltEndretUtbetalingAndel(
     override val begrunnelse: String,
 ) : IUtfyltEndretUtbetalingAndel
 
-data class UtfyltEndretUtbetalingAndelDeltBosted(
-    override val id: Long,
-    override val behandlingId: Long,
-    override val person: Person,
-    override val prosent: BigDecimal,
-    override val fom: YearMonth,
-    override val tom: YearMonth,
-    override val årsak: Årsak,
-    override val søknadstidspunkt: LocalDate,
-    override val begrunnelse: String,
-    val avtaletidspunktDeltBosted: LocalDate,
-) : IUtfyltEndretUtbetalingAndel
-
 fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel =
     if (this.manglerObligatoriskFelt()) {
         TomEndretUtbetalingAndel(
@@ -202,30 +177,15 @@ fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel =
             this.behandlingId,
         )
     } else {
-        if (this.erÅrsakDeltBosted()) {
-            UtfyltEndretUtbetalingAndelDeltBosted(
-                id = this.id,
-                behandlingId = this.behandlingId,
-                person = this.person!!,
-                prosent = this.prosent!!,
-                fom = this.fom!!,
-                tom = this.tom!!,
-                årsak = this.årsak!!,
-                avtaletidspunktDeltBosted = this.avtaletidspunktDeltBosted!!,
-                søknadstidspunkt = this.søknadstidspunkt!!,
-                begrunnelse = this.begrunnelse!!,
-            )
-        } else {
-            UtfyltEndretUtbetalingAndel(
-                id = this.id,
-                behandlingId = this.behandlingId,
-                person = this.person!!,
-                prosent = this.prosent!!,
-                fom = this.fom!!,
-                tom = this.tom!!,
-                årsak = this.årsak!!,
-                søknadstidspunkt = this.søknadstidspunkt!!,
-                begrunnelse = this.begrunnelse!!,
-            )
-        }
+        UtfyltEndretUtbetalingAndel(
+            id = this.id,
+            behandlingId = this.behandlingId,
+            person = this.person!!,
+            prosent = this.prosent!!,
+            fom = this.fom!!,
+            tom = this.tom!!,
+            årsak = this.årsak!!,
+            søknadstidspunkt = this.søknadstidspunkt!!,
+            begrunnelse = this.begrunnelse!!,
+        )
     }
