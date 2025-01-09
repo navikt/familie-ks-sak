@@ -40,5 +40,4 @@ class BarnehagelisteConsumer(
         barnehageBarnService.lagreBarnehageBarn(barnehagebarn)
         ack.acknowledge()
     }
-
 }
