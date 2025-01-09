@@ -179,7 +179,7 @@ class KafkaConfig(
         )
 
     companion object {
-        const val BARNEHAGELISTE_TOPIC = "alf.aapen-altinn-barnehageliste-mottatt"
+        const val BARNEHAGELISTE_AAPEN_TOPIC = "alf.aapen-altinn-barnehageliste-mottatt"
         const val BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-behandling-v1"
         const val SISTE_TILSTAND_BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-siste-tilstand-behandling-v1"
         const val SAK_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-sak-v1"

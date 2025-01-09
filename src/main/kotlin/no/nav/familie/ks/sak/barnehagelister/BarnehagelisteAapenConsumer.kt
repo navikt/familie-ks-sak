@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 @Service
 @Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
-class BarnehagelisteConsumer(
+class BarnehagelisteAapenConsumer(
     val barnehageListeService: BarnehageListeService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -21,7 +21,7 @@ class BarnehagelisteConsumer(
     @KafkaListener(
         id = "familie-ks-sak-barnehageliste",
         groupId = "familie-ks-sak-barnehageliste-group",
-        topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
+        topics = [KafkaConfig.BARNEHAGELISTE_AAPEN_TOPIC],
         containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
     )
     fun listen(
