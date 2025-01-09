@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -50,7 +51,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
 
     @BeforeEach
     fun setup() {
-        every { unleashService.isEnabled(any()) } returns false
+        every { unleashService.isEnabled(any()) } returns true
     }
 
     val søker = randomAktør()
@@ -120,7 +121,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     @Test
     fun `finnEndreteUtbetalingerMedAndelerTilkjentYtelse finner endrete utbetalinger med overlappende andeler`() {
         val fom = YearMonth.now().minusMonths(6)
-        val tom = YearMonth.now().plusMonths(5)
+        val tom = YearMonth.now().minusMonths(1)
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(
                 // begge 2 er overlappende perioder og følger med
@@ -134,7 +135,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     behandling = behandling,
                     aktør = søker,
                     stønadFom = YearMonth.now().minusMonths(2),
-                    stønadTom = YearMonth.now().plusMonths(5),
+                    stønadTom = YearMonth.now().minusMonths(1),
                 ),
             )
 
@@ -147,6 +148,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                     prosent = BigDecimal(100),
                     periodeFom = fom,
                     periodeTom = tom,
+                    årsak = Årsak.ALLEREDE_UTBETALT,
                 ),
             )
         val personResultatForBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
@@ -177,7 +179,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
         assertTrue { andelerTilkjentYtelse.any { it.stønadFom == YearMonth.now().minusMonths(6) } }
         assertTrue { andelerTilkjentYtelse.any { it.stønadTom == YearMonth.now().minusMonths(3) } }
         assertTrue { andelerTilkjentYtelse.any { it.stønadFom == YearMonth.now().minusMonths(2) } }
-        assertTrue { andelerTilkjentYtelse.any { it.stønadTom == YearMonth.now().plusMonths(5) } }
+        assertTrue { andelerTilkjentYtelse.any { it.stønadTom == YearMonth.now().minusMonths(1) } }
         assertTrue { andelerTilkjentYtelse.any { it.prosent == BigDecimal(100) } }
         assertTrue { andelerTilkjentYtelse.any { it.kalkulertUtbetalingsbeløp == maksBeløp() } }
     }

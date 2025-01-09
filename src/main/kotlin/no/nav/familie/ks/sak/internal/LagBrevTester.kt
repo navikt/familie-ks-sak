@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.IUtfyltEndretUtbetalingAndel
-import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.UtfyltEndretUtbetalingAndelDeltBosted
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.tilIEndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
@@ -287,7 +286,7 @@ private fun hentEndretUtbetalingRader(endredeUtbetalinger: List<EndretUtbetaling
                 it.fom.førsteDagIInneværendeMåned().tilddMMyyyy()
             }|${
                 it.tom.sisteDagIInneværendeMåned().tilddMMyyyy()
-            }|${it.årsak} | ${it.prosent} | ${it.søknadstidspunkt.tilddMMyyyy()} | ${if (it is UtfyltEndretUtbetalingAndelDeltBosted) it.avtaletidspunktDeltBosted else ""} |"""
+            }|${it.årsak} | ${it.prosent} | ${it.søknadstidspunkt.tilddMMyyyy()} |"""
         } ?: ""
 
 private fun hentTekstForKompetanse(

@@ -58,7 +58,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val nåværendeEndretAndel = forrigeEndretAndel.copy(prosent = BigDecimal(100))
@@ -86,8 +86,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val forrigeEndretAndelBarn2 =
@@ -125,8 +124,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = jan22.førsteDagIInneværendeMåned(),
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val nåværendeEndretAndel = forrigeEndretAndel.copy(tom = des22)
@@ -154,7 +152,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
-                årsak = Årsak.DELT_BOSTED,
+                årsak = Årsak.ALLEREDE_UTBETALT,
             )
 
         val perioderMedEndring =

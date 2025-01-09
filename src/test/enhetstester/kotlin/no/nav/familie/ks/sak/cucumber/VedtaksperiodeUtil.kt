@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.cucumber
 import io.cucumber.datatable.DataTable
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
-import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.DomenebegrepAndelTilkjentYtelse
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
@@ -388,11 +387,6 @@ fun lagEndredeUtbetalinger(
                         ?: Årsak.ALLEREDE_UTBETALT,
                 søknadstidspunkt = parseValgfriDato(Domenebegrep.SØKNADSTIDSPUNKT, rad) ?: LocalDate.now(),
                 begrunnelse = "Fordi at...",
-                avtaletidspunktDeltBosted =
-                    parseValgfriDato(
-                        BrevPeriodeParser.DomenebegrepBrevBegrunnelse.AVTALETIDSPUNKT_DELT_BOSTED,
-                        rad,
-                    ),
                 erEksplisittAvslagPåSøknad =
                     parseValgfriBoolean(
                         VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ER_EKSPLISITT_AVSLAG,

@@ -121,9 +121,7 @@ object BehandlingsresultatSøknadUtils {
                                     throw Feil("Andel er satt til 0 kr, men det skyldes verken differanseberegning eller endret utbetaling andel")
                                 }
 
-                            Årsak.DELT_BOSTED -> Søknadsresultat.INNVILGET
                             Årsak.ALLEREDE_UTBETALT,
-                            Årsak.ENDRE_MOTTAKER,
                             Årsak.ETTERBETALING_3MND,
                             Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                             -> Søknadsresultat.AVSLÅTT
