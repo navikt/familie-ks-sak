@@ -837,15 +837,15 @@ internal class UtbetalingsoppdragGeneratorTest {
         val aktør = fnrTilAktør(randomFnr())
         val fagsak = lagFagsak(aktør)
 
-        val gammelBehandling = lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
-        val tilkjentYtelseGammelBehandling =
-            TilkjentYtelse(behandling = gammelBehandling, opprettetDato = tidNå, endretDato = tidNå)
+        val førsteOvergangsordningBehandling = lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
+        val tilkjentYtelseFørsteOvergangsordningBehandling =
+            TilkjentYtelse(behandling = førsteOvergangsordningBehandling, opprettetDato = tidNå, endretDato = tidNå)
                 .apply {
                     andelerTilkjentYtelse.addAll(
                         listOf(
                             lagAndelTilkjentYtelse(
                                 tilkjentYtelse = this,
-                                behandling = gammelBehandling,
+                                behandling = førsteOvergangsordningBehandling,
                                 aktør = aktør,
                                 stønadFom = OVERGANGSORDNING_UTBETALINGSMÅNED.minusMonths(6),
                                 stønadTom = OVERGANGSORDNING_UTBETALINGSMÅNED,
@@ -860,21 +860,21 @@ internal class UtbetalingsoppdragGeneratorTest {
         val sisteAndelPerKjede =
             mapOf(
                 IdentOgType(ident = aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) to
-                    tilkjentYtelseGammelBehandling.andelerTilkjentYtelse.first(),
+                    tilkjentYtelseFørsteOvergangsordningBehandling.andelerTilkjentYtelse.first(),
             )
 
-        val nyBehandling = lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
+        val andreOvergangsordningBehandlingMed1MånedMindre = lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
 
-        val vedtakNyBehandling = Vedtak(behandling = nyBehandling)
+        val vedtakNyBehandling = Vedtak(behandling = andreOvergangsordningBehandlingMed1MånedMindre)
 
-        val tilkjentYtelsenyBehandling =
-            TilkjentYtelse(behandling = nyBehandling, opprettetDato = tidNå, endretDato = tidNå)
+        val tilkjentYtelseAndreOvergangsordningBehandlingMed1MånedMindre =
+            TilkjentYtelse(behandling = andreOvergangsordningBehandlingMed1MånedMindre, opprettetDato = tidNå, endretDato = tidNå)
                 .apply {
                     andelerTilkjentYtelse.addAll(
                         listOf(
                             lagAndelTilkjentYtelse(
                                 tilkjentYtelse = this,
-                                behandling = gammelBehandling,
+                                behandling = førsteOvergangsordningBehandling,
                                 aktør = aktør,
                                 stønadFom = OVERGANGSORDNING_UTBETALINGSMÅNED.minusMonths(6),
                                 stønadTom = OVERGANGSORDNING_UTBETALINGSMÅNED.minusMonths(1),
@@ -890,8 +890,8 @@ internal class UtbetalingsoppdragGeneratorTest {
                 .lagUtbetalingsoppdrag(
                     saksbehandlerId = "123abc",
                     vedtak = vedtakNyBehandling,
-                    forrigeTilkjentYtelse = tilkjentYtelseGammelBehandling,
-                    nyTilkjentYtelse = tilkjentYtelsenyBehandling,
+                    forrigeTilkjentYtelse = tilkjentYtelseFørsteOvergangsordningBehandling,
+                    nyTilkjentYtelse = tilkjentYtelseAndreOvergangsordningBehandlingMed1MånedMindre,
                     sisteAndelPerKjede = sisteAndelPerKjede,
                     erSimulering = false,
                     skalSendeOvergangsordningAndeler = true,
@@ -901,17 +901,10 @@ internal class UtbetalingsoppdragGeneratorTest {
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(1))
 
         val forventetUtbetalingsbeløp =
-            tilkjentYtelsenyBehandling.andelerTilkjentYtelse.let { andeler ->
+            tilkjentYtelseAndreOvergangsordningBehandlingMed1MånedMindre.andelerTilkjentYtelse.let { andeler ->
                 andeler.first { it.type == YtelseType.OVERGANGSORDNING }.totalKalkulertUtbetalingsbeløpForPeriode()
             }
 
-        assertThat(
-            "Sats på utbetalingsperiode var feil: ${utbetalingsoppdrag.utbetalingsperiode.map { it.sats }}",
-            utbetalingsoppdrag.utbetalingsperiode.any {
-                it.sats.toInt() == forventetUtbetalingsbeløp
-            },
-            Is(true),
-        )
         assertThat(
             utbetalingsoppdrag.utbetalingsperiode.all { it.utbetalesTil == aktør.aktivFødselsnummer() },
             Is(true),

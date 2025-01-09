@@ -78,8 +78,9 @@ class UtbetalingsoppdragGenerator {
                     forrigeTilkjentYtelse
                         .overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId()
                         .filter { it.personIdent == identOgType.ident }
+                        // Vi henter ut andeler som har fom/tom i desember siden uavhengig av hva fom/tom er på andelen så blir den justert til desember opp mot oppdrag for overgangsordning
                         .singleOrNull { it.fom == OVERGANGSORDNING_UTBETALINGSMÅNED && it.tom == OVERGANGSORDNING_UTBETALINGSMÅNED }
-                        ?: throw IllegalStateException("Greide ikke å utlede overgangsordning andel fra siste tilkjente ytelse for behandling ${andelTilkjentYtelse.behandlingId}")
+                        ?: error("Greide ikke å utlede overgangsordning andel fra siste tilkjente ytelse for behandling ${andelTilkjentYtelse.behandlingId}")
 
                 overgangsordningsAndelerForAktørSisteTilkjentYtelse
             } else {
