@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -73,25 +72,5 @@ class EndretUtbetalingAndelTest {
             }
         assertEquals("fom må være lik eller komme før tom", exception.message)
         assertEquals("Du kan ikke sette en f.o.m. dato som er etter t.o.m. dato", exception.frontendFeilmelding)
-    }
-
-    @Test
-    fun `validerUtfyltEndring skal kaste feil når EndretUtbetalingAndel har årsak Delt Bosted, men avtaletidspunktDeltBosted er ikke fylt ut`() {
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                behandlingId = behandling.id,
-                person = person,
-                prosent = BigDecimal(50),
-                årsak = Årsak.DELT_BOSTED,
-                avtaletidspunktDeltBosted = null,
-            )
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                endretUtbetalingAndel.validerUtfyltEndring()
-            }
-        assertEquals(
-            "Avtaletidspunkt skal være utfylt når årsak er delt bosted: $endretUtbetalingAndel",
-            exception.message,
-        )
     }
 }

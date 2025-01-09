@@ -26,7 +26,7 @@ class EndretUtbetalingAndelTidslinjeService(
 
 internal fun Iterable<EndretUtbetalingAndel>.tilBarnasSkalIkkeUtbetalesTidslinjer(): Map<Aktør, Tidslinje<Boolean>> =
     this
-        .filter { it.årsak in listOf(Årsak.ETTERBETALING_3MND, Årsak.ALLEREDE_UTBETALT, Årsak.ENDRE_MOTTAKER) && it.prosent == BigDecimal.ZERO }
+        .filter { it.årsak in listOf(Årsak.ETTERBETALING_3MND, Årsak.ALLEREDE_UTBETALT) && it.prosent == BigDecimal.ZERO }
         .filter { it.person?.type == PersonType.BARN }
         .filter { it.person?.aktør != null }
         .groupBy { checkNotNull(it.person?.aktør) }

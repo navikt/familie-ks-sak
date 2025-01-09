@@ -334,8 +334,8 @@ class BehandlingsresultatOpphørUtilsTest {
     }
 
     @ParameterizedTest
-    @EnumSource(Årsak::class, names = ["ALLEREDE_UTBETALT", "ENDRE_MOTTAKER", "ETTERBETALING_3MND", "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024"])
-    internal fun `filtrerBortIrrelevanteAndeler - skal filtrere andeler som har 0 i beløp og endret utbetaling andel med årsak ALLEREDE_UTBETALT, ENDRE_MOTTAKER eller ETTERBETALING_3ÅR`(årsak: Årsak) {
+    @EnumSource(Årsak::class, names = ["ALLEREDE_UTBETALT", "ETTERBETALING_3MND", "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024"])
+    internal fun `filtrerBortIrrelevanteAndeler - skal filtrere andeler som har 0 i beløp og endret utbetaling andel med årsak ALLEREDE_UTBETALT, FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024  eller ETTERBETALING_3ÅR`(årsak: Årsak) {
         val barn = lagPerson(aktør = randomAktør())
         val barnAktør = barn.aktør
 
@@ -383,57 +383,6 @@ class BehandlingsresultatOpphørUtilsTest {
 
         assertEquals(andelerEtterFiltrering.minOf { it.stønadFom }, for1mndSiden)
         assertEquals(andelerEtterFiltrering.maxOf { it.stønadTom }, om1mnd)
-    }
-
-    @Test
-    internal fun `filtrerBortIrrelevanteAndeler - skal ikke filtrere andeler som har 0 i beløp og endret utbetaling andel med årsak DELT_BOSTED`() {
-        val barn = lagPerson(aktør = randomAktør())
-        val barnAktør = barn.aktør
-
-        val andeler =
-            listOf(
-                lagAndelTilkjentYtelse(
-                    fom = for3mndSiden,
-                    tom = for2mndSiden,
-                    beløp = 0,
-                    aktør = barnAktør,
-                ),
-                lagAndelTilkjentYtelse(
-                    fom = for1mndSiden,
-                    tom = om1mnd,
-                    beløp = 1400,
-                    aktør = barnAktør,
-                ),
-                lagAndelTilkjentYtelse(
-                    fom = om4mnd,
-                    tom = om4mnd,
-                    beløp = 0,
-                    aktør = barnAktør,
-                ),
-            )
-
-        val endretUtBetalingAndeler =
-            listOf(
-                lagEndretUtbetalingAndel(
-                    person = barn,
-                    prosent = BigDecimal.ZERO,
-                    periodeFom = for3mndSiden,
-                    periodeTom = for2mndSiden,
-                    årsak = Årsak.DELT_BOSTED,
-                ),
-                lagEndretUtbetalingAndel(
-                    person = barn,
-                    prosent = BigDecimal.ZERO,
-                    periodeFom = om4mnd,
-                    periodeTom = om4mnd,
-                    årsak = Årsak.DELT_BOSTED,
-                ),
-            )
-
-        val andelerEtterFiltrering = andeler.filtrerBortIrrelevanteAndeler(endretUtBetalingAndeler)
-
-        assertEquals(andelerEtterFiltrering.minOf { it.stønadFom }, for3mndSiden)
-        assertEquals(andelerEtterFiltrering.maxOf { it.stønadTom }, om4mnd)
     }
 
     @Test
@@ -510,7 +459,7 @@ class BehandlingsresultatOpphørUtilsTest {
                     prosent = BigDecimal.ZERO,
                     periodeFom = for1mndSiden,
                     periodeTom = om4mnd,
-                    årsak = Årsak.ENDRE_MOTTAKER,
+                    årsak = Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                 ),
             )
 

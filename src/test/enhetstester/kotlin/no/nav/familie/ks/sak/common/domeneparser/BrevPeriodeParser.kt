@@ -13,7 +13,6 @@ object BrevPeriodeParser {
         MÅLFORM("Målform"),
         BELØP("Beløp"),
         SØKNADSTIDSPUNKT("Søknadstidspunkt"),
-        AVTALETIDSPUNKT_DELT_BOSTED("Avtaletidspunkt delt bosted"),
         TYPE("Type"),
         GJELDER_ANDRE_FORELDER("Gjelder andre forelder"),
     }
