@@ -10,7 +10,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
+@Profile("!dev-postgres-preprod & !postgres")
 class BarnehagelisteConsumer(
     val barnehageBarnService: BarnehagebarnService,
 ) {
@@ -20,13 +20,12 @@ class BarnehagelisteConsumer(
         id = "familie-ks-barnehagelister",
         groupId = "familie-ks-barnehagelister-group",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
-        containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
     )
     fun listen(
-        consumerRecord: String,
+        message: String,
         ack: Acknowledgment,
     ) {
-        val barnehagebarn: Barnehagebarn = objectMapper.readValue(consumerRecord, Barnehagebarn::class.java)
+        val barnehagebarn: Barnehagebarn = objectMapper.readValue(message, Barnehagebarn::class.java)
 
         logger.info("Barnehagebarn mottatt på kafka med id ${barnehagebarn.id}")
 

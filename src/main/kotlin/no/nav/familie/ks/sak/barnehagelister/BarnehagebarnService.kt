@@ -152,15 +152,15 @@ class BarnehagebarnService(
     // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding, kunne muligens brukt barnehagebarn.id i stedet
     @Transactional
     fun erBarnehageBarnMottattTidligere(barnehagebarn: Barnehagebarn): Boolean =
-        barnehagebarnRepository.findByIdent(barnehagebarn.ident)?.let { barnehageBarnMedSammeIdent ->
+        barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).any { barnehageBarnMedSammeIdent ->
             barnehageBarnMedSammeIdent.fom == barnehagebarn.fom &&
                 barnehageBarnMedSammeIdent.tom == barnehagebarn.tom &&
                 barnehageBarnMedSammeIdent.arkivReferanse == barnehagebarn.arkivReferanse
-        } ?: false
+        }
 
     @Transactional
     fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
-        barnehagebarnRepository.save(barnehagebarn)
+        barnehagebarnRepository.saveAndFlush(barnehagebarn)
     }
 
     companion object {
