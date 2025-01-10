@@ -19,7 +19,7 @@ data class EndretUtbetalingAndelRequestDto(
     val begrunnelse: String,
     val erEksplisittAvslagPåSøknad: Boolean?,
     @JsonDeserialize(using = IBegrunnelseDeserializer::class)
-    val begrunnelser: List<NasjonalEllerFellesBegrunnelse>,
+    val vedtakbegrunnelser: List<NasjonalEllerFellesBegrunnelse>,
 )
 
 fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFellesBegrunnelse> {
@@ -32,7 +32,7 @@ fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFell
 
         Årsak.ALLEREDE_UTBETALT,
         ->
-            this.begrunnelser
+            this.vedtakbegrunnelser
 
         Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
         -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)

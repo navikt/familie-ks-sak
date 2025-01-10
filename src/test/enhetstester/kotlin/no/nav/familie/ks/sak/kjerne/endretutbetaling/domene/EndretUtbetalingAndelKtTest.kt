@@ -59,7 +59,7 @@ class EndretUtbetalingAndelKtTest {
             assertThat(oppdatertEndretUtbetalingAndel.årsak).isEqualTo(endretUtbetalingAndelRequestDto.årsak)
             assertThat(oppdatertEndretUtbetalingAndel.søknadstidspunkt).isEqualTo(endretUtbetalingAndelRequestDto.søknadstidspunkt)
             assertThat(oppdatertEndretUtbetalingAndel.begrunnelse).isEqualTo(endretUtbetalingAndelRequestDto.begrunnelse)
-            assertThat(oppdatertEndretUtbetalingAndel.begrunnelser).containsOnly()
+            assertThat(oppdatertEndretUtbetalingAndel.vedtakbegrunnelser).containsOnly()
             assertThat(oppdatertEndretUtbetalingAndel.erEksplisittAvslagPåSøknad).isEqualTo(endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad)
         }
     }
