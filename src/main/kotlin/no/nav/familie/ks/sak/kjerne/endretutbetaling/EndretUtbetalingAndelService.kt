@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerIngenOverlappendeEndring
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerPeriodeInnenforTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerTomDato
-import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerUtbetalingMotÅrsak
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator.validerÅrsak
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
@@ -27,7 +26,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @Service
 class EndretUtbetalingAndelService(
@@ -83,11 +81,6 @@ class EndretUtbetalingAndelService(
             endretUtbetalingAndel = endretUtbetalingAndel,
             vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id),
             kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggleConfig.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
-        )
-
-        validerUtbetalingMotÅrsak(
-            årsak = endretUtbetalingAndel.årsak,
-            skalUtbetales = endretUtbetalingAndel.prosent != BigDecimal(0),
         )
 
         validerIngenOverlappendeEndring(
