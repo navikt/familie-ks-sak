@@ -20,7 +20,7 @@ class BarnetsAlderVilkårValidator(
         skalBrukeNyValideringForAdopsjonsbarn: Boolean = true,
     ): List<String> {
         val vilkårLovverkInformasjonForBarn =
-            if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
+            if (perioder.any { it.verdi.erAdopsjonOppfylt() } && skalBrukeNyValideringForAdopsjonsbarn) {
                 val fomAdoptertBarn = perioder.minOf { it.fom }.toYearMonth()
                 val tomAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth()
 
