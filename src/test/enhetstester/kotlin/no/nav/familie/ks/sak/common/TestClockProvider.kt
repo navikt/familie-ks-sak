@@ -1,6 +1,5 @@
-package no.nav.familie.ks.sak
+package no.nav.familie.ks.sak.common
 
-import no.nav.familie.ks.sak.common.ClockProvider
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
