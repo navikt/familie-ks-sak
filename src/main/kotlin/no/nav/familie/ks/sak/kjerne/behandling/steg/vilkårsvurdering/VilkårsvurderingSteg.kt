@@ -7,6 +7,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.NY_ADOPSJON_BARNETS_ALDER_VALIDERING
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -44,6 +46,7 @@ class VilkårsvurderingSteg(
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
     private val barnetsVilkårValidator: BarnetsVilkårValidator,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -129,7 +132,7 @@ class VilkårsvurderingSteg(
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
-        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering, personopplysningGrunnlag.barna)
+        barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering = vilkårsvurdering, barna = personopplysningGrunnlag.barna, skalBrukeNyValideringForAdopsjonsbarn = unleashNextMedContextService.isEnabled(NY_ADOPSJON_BARNETS_ALDER_VALIDERING))
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
