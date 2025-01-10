@@ -132,16 +132,6 @@ object EndretUtbetalingAndelValidator {
         }
     }
 
-    fun validerUtbetalingMotÅrsak(
-        årsak: Årsak?,
-        skalUtbetales: Boolean,
-    ) {
-        if (skalUtbetales && årsak == Årsak.ALLEREDE_UTBETALT) {
-            val feilmelding = "Du kan ikke velge denne årsaken og si at kontantstøtten skal utbetales."
-            throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
-        }
-    }
-
     fun validerTomDato(
         tomDato: YearMonth?,
         gyldigTomEtterDagensDato: YearMonth?,
