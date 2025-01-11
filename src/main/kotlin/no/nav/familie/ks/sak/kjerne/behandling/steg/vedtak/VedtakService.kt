@@ -42,7 +42,7 @@ class VedtakService(
 
     fun opprettOgInitierNyttVedtakForBehandling(
         behandling: Behandling,
-        kopierVedtakBegrunnelser: Boolean = false,
+        kopiervedtaksbegrunnelser: Boolean = false,
     ) {
         behandling.steg.takeUnless { it !== BehandlingSteg.BESLUTTE_VEDTAK && it !== BehandlingSteg.REGISTRERE_PERSONGRUNNLAG }
             ?: throw Feil("Forsøker å initiere vedtak på steg ${behandling.steg}")
@@ -54,7 +54,7 @@ class VedtakService(
 
         val nyttVedtak = Vedtak(behandling = behandling)
 
-        if (kopierVedtakBegrunnelser && deaktivertVedtak != null) {
+        if (kopiervedtaksbegrunnelser && deaktivertVedtak != null) {
             vedtaksperiodeService.kopierOverVedtaksperioder(
                 deaktivertVedtak = deaktivertVedtak,
                 aktivtVedtak = nyttVedtak,
