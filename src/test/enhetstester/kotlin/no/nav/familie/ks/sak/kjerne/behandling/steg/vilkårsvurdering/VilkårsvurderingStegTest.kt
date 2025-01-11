@@ -86,7 +86,7 @@ class VilkårsvurderingStegTest {
 
     private val fagsak = lagFagsak(søker)
 
-    private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+    private val behandling = lagBehandling(id = 1, fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
     @BeforeEach
     fun init() {
@@ -630,7 +630,7 @@ class VilkårsvurderingStegTest {
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
 
-        val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val forrigeBehandling = lagBehandling(id = 0, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val forrigeVilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultatIForrigeVilkårsvurdering =
             PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker)
@@ -723,7 +723,7 @@ class VilkårsvurderingStegTest {
         barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
 
-        val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val forrigeBehandling = lagBehandling(id = 0, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val forrigeVilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultatIForrigeVilkårsvurdering =
             PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker)

@@ -289,7 +289,7 @@ fun lagBehandling(
     resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
-    id: Long = nesteBehandlingId(),
+    id: Long = 0L,
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
         setOf(
