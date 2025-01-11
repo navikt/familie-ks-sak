@@ -91,7 +91,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     "årsak": "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024",
                     "søknadstidspunkt": "2024-08-20",
                     "begrunnelse": "gyldig request",
-                    "begrunnelser": []
+                    "vedtaksbegrunnelser": []
                 }
                 """.trimIndent()
 
