@@ -105,7 +105,7 @@ class EndretUtbetalingAndelServiceTest {
 
         val lagretEndretUtbetalingAndel = lagretEndretUtbetalingAndelSlot.captured
 
-        assertThat(lagretEndretUtbetalingAndel.vedtakbegrunnelser, Is(emptyList()))
+        assertThat(lagretEndretUtbetalingAndel.vedtaksbegrunnelser, Is(emptyList()))
         assertThat(lagretEndretUtbetalingAndel.erEksplisittAvslagPåSøknad, Is(false))
         assertThat(lagretEndretUtbetalingAndel.årsak, Is(Årsak.ETTERBETALING_3MND))
     }

@@ -61,7 +61,7 @@ data class EndretUtbetalingAndel(
     var begrunnelse: String? = null,
     @Column(name = "vedtak_begrunnelse_spesifikasjoner")
     @Convert(converter = IBegrunnelseListConverter::class)
-    var vedtakbegrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    var vedtaksbegrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
     @Column(name = "er_eksplisitt_avslag_paa_soknad")
     var erEksplisittAvslagPåSøknad: Boolean? = null,
 ) : BaseEntitet() {
@@ -110,7 +110,7 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
         årsak = this.årsak,
         søknadstidspunkt = this.søknadstidspunkt,
         begrunnelse = this.begrunnelse,
-        vedtakbegrunnelser = this.vedtakbegrunnelser,
+        vedtaksbegrunnelser = this.vedtaksbegrunnelser,
         erEksplisittAvslagPåSøknad = this.erEksplisittAvslagPåSøknad,
         erTilknyttetAndeler = this.andelerTilkjentYtelse.isNotEmpty(),
     )
@@ -126,7 +126,7 @@ fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     this.årsak = endretUtbetalingAndelRequestDto.årsak
     this.søknadstidspunkt = endretUtbetalingAndelRequestDto.søknadstidspunkt
     this.begrunnelse = endretUtbetalingAndelRequestDto.begrunnelse
-    this.vedtakbegrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
+    this.vedtaksbegrunnelser = endretUtbetalingAndelRequestDto.mapTilBegrunnelser()
     this.erEksplisittAvslagPåSøknad = endretUtbetalingAndelRequestDto.erEksplisittAvslagPåSøknad
     return this
 }
