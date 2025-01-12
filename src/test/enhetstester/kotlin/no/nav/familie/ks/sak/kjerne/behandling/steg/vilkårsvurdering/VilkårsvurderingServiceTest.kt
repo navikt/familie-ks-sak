@@ -184,7 +184,7 @@ class VilkårsvurderingServiceTest {
                     NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
                     "innvilgetIkkeBarnehage",
                     SanityBegrunnelseType.STANDARD,
-                    Vilkår.values().toList(),
+                    Vilkår.entries,
                     rolle = emptyList(),
                     triggere = emptyList(),
                     utdypendeVilkårsvurderinger = emptyList(),
