@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
+import no.nav.familie.ks.sak.internal.UtledFagsakSomHarUtbetalingSammeMånedSomBarnehagestart
 import no.nav.familie.ks.sak.internal.kontantstøtteOvergangsordningBrevNovember2024.DistribuerInformasjonsbrevOvergangsordningNovember2024
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -87,6 +88,7 @@ class ForvaltningController(
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
     private val distribuerInformasjonsbrevOvergangsordningNovember2024: DistribuerInformasjonsbrevOvergangsordningNovember2024,
+    private val utledFagsakSomHarUtbetalingSammeMånedSomBarnehagestart: UtledFagsakSomHarUtbetalingSammeMånedSomBarnehagestart,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -369,6 +371,16 @@ class ForvaltningController(
         )
 
         distribuerInformasjonsbrevOvergangsordningNovember2024.opprettTaskerForÅJournalføreOgSendeUtInformasjonsbrevOvergangsordningNovember2024()
+    }
+
+    @GetMapping(path = ["/fagsaker/logg-fagsaker-som-har-betaling-samme-maned-som-start-i-barnehage"])
+    fun loggFagsakerSomHarBetalingSammeMånedSomStartIBarnehage() {
+        tilgangService.validerTilgangTilHandling(
+            handling = "logg faksaker som har utbetaling samme måned som barn starter i barnehage",
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+        )
+
+        utledFagsakSomHarUtbetalingSammeMånedSomBarnehagestart.utledFagsakerSomHarUtbetalingSammeMånedSomBarnehagestart()
     }
 
     @GetMapping(path = ["/fagsaker/fagsak-som-skal-ha-overgangsordning-november-brev-2024"])
