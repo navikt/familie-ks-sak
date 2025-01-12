@@ -62,7 +62,7 @@ class UtledFagsakSomHarUtbetalingSammeMånedSomBarnehagestart(
                         vilkårsvurdering?.personResultater
                             ?.filter { person.aktør == it.aktør }
                             ?.flatMap { it.vilkårResultater }
-                            ?.filter { it.antallTimer != null && it.antallTimer > BigDecimal(40) }
+                            ?.filter { it.antallTimer != null && it.antallTimer > BigDecimal(32) }
                             ?.map { it.periodeFom?.toYearMonth() } ?: emptyList()
                     val månedÅrSomAndelSlutterForBarn = andeler.map { it.stønadTom }
 
