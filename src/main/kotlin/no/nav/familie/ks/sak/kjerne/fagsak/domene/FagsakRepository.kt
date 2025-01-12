@@ -59,7 +59,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                                    AND ty.utbetalingsoppdrag IS NOT NULL
                                  ORDER BY b.fk_fagsak_id, b.aktivert_tid DESC)
         
-        SELECT DISTINCT f.id
+        SELECT f.*
         FROM fagsak f
                  JOIN behandling b ON f.id = b.fk_fagsak_id
                  JOIN sisteiverksatte sistiverksattBehandling ON sistiverksattBehandling.id = b.id
@@ -67,7 +67,7 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
         WHERE aty.stonad_tom > '2024-07-31 00:00:00'
           AND aty.stonad_tom < '2025-01-01 00:00:00'
         """,
-        nativeQuery = true
+        nativeQuery = true,
     )
-    fun finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperiAugustSeptemberNovemberEllerDesember2024(): List<Fagsak>
+    fun finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperMellomAugOgDes2024(): List<Fagsak>
 }

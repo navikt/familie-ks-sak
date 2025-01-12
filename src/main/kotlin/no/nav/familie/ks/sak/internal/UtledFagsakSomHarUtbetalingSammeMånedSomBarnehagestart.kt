@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.internal
 
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -17,58 +15,59 @@ import java.time.YearMonth
 class UtledFagsakSomHarUtbetalingSammeMånedSomBarnehagestart(
     private val fagsakRepository: FagsakRepository,
     private val behandlingService: BehandlingService,
-    private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
 ) {
-
-    val relevanteMåneder =
-        listOf(
-            YearMonth.of(2024, 8),
-            YearMonth.of(2024, 9),
-            YearMonth.of(2024, 10),
-            YearMonth.of(2024, 11),
-            YearMonth.of(2024, 12),
-        )
-
     fun utledFagsakerSomHarUtbetalingSammeMånedSomBarnehagestart() {
-        // Hent fagsaker som har sist iverksatt behandling som hadde en andel som varte fram til august, september, oktober, november eller desember 2024.
-        val fagsaker = fagsakRepository.finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperiAugustSeptemberNovemberEllerDesember2024()
+        // Ved start av fulltidplass barnehage så vil andelen ende. Relevante andeler er andeler som sluttes å utbetales i august - des 2024
+        val relevanteSluttMånederForAndel = (8..12).map { YearMonth.of(2024, it) }
+
+        // Hent fagsaker som har sist iverksatt behandling som hadde en andel som varte fram til august - des 2024.
+        val fagsaker = fagsakRepository.finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperMellomAugOgDes2024()
+
+        // Henter sist iverksatte behandling igjen for fagsaker. Dette bare for å være 100% sikker, slik at vi ikke lener oss for mye på selve SQL spørringen.
         val sistIverksatteBehandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErIverksatt(it.id) }
 
-        val sistIverksatteBehandlingerMedAndelSomGårUtIAugustSeptemberNovemberEllerDesember2024 =
-            sistIverksatteBehandlinger.mapNotNull { behandling ->
-                val andelerIBehandling = andelerTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
+        // Av disse behandlingene ønsker vi å filtrere bort de som ikke har andeler som slutter i august-des 2024.
+        // Dette skal egentlig allerede gjøres av SQL spørringen, men vi tar en dobbelsjekk til.
 
-                Pair(behandling, andelerIBehandling).takeIf { andelerIBehandling.any { it.stønadTom in relevanteMåneder } }
-            }.toMap()
+        val behandlingerOgRelevanteAndeler =
+            sistIverksatteBehandlinger
+                .associateWith { behandling ->
+                    andelerTilkjentYtelseRepository
+                        .finnAndelerTilkjentYtelseForBehandling(behandling.id)
+                        .filter { it.stønadTom in relevanteSluttMånederForAndel }
+                }.filterValues { it.isNotEmpty() }
 
-        // Sjekk hvilke barn som får utbetaling i august, september, november og desember 2024
+        // Av alle behandlinger som har utbetaling som slutter de relevantene månedene, beholder vi bare de som har andel samtidig som barn starter fulltid i barnehage.
         val behandlingerMedBarnSomFårBetalingSammeMånedSomBarnehageStart =
-            sistIverksatteBehandlingerMedAndelSomGårUtIAugustSeptemberNovemberEllerDesember2024.filter {
-                val behandling = it.key
-                val andeler = it.value
-                val personOpplysningGrunnlagForBehandling = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+            behandlingerOgRelevanteAndeler.filter { (behandling, andeler) ->
+
+                val personOpplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
                 val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id)
+                val barnSomFårSisteUtbetaling = andeler.map { it.aktør }.distinct()
 
-                val barnSomFårSisteUtbetalingIDisseMånedeneIBehandling = andeler.filter { it.stønadTom in relevanteMåneder }.map { it.aktør }.distinct()
-
-                barnSomFårSisteUtbetalingIDisseMånedeneIBehandling.any { aktør ->
-                    val person = personOpplysningGrunnlagForBehandling.personer.singleOrNull { it.aktør == aktør }
-                    val fødselsdato = person?.fødselsdato ?: error("Finner ikke fødselsdato på barn med aktør id ${aktør.aktørId}")
+                barnSomFårSisteUtbetaling.any { barn ->
+                    val person = personOpplysningGrunnlag.personer.singleOrNull { it.aktør == barn }
+                    val fødselsdato = person?.fødselsdato ?: error("Finner ikke fødselsdato på barn med aktør id ${barn.aktørId}")
                     val månedÅrBarnEr13Måneder = fødselsdato.plusMonths(13).toYearMonth()
-                    val månedÅrSomBarnStarterIFulltidBarnehageplass =
-                        vilkårsvurdering?.personResultater
-                            ?.filter { person.aktør == it.aktør }
+
+                    val månederBarnStarterIFulltidBarnehage =
+                        vilkårsvurdering
+                            ?.personResultater
+                            ?.filter { it.aktør == barn }
                             ?.flatMap { it.vilkårResultater }
                             ?.filter { it.antallTimer != null && it.antallTimer > BigDecimal(32) }
-                            ?.map { it.periodeFom?.toYearMonth() } ?: emptyList()
-                    val månedÅrSomAndelSlutterForBarn = andeler.map { it.stønadTom }
+                            ?.mapNotNull { it.periodeFom?.toYearMonth() }
+                            .orEmpty()
 
-                    val barnStarterIFulltidBarnehageSammeMånedSom13Måned = månedÅrBarnEr13Måneder in månedÅrSomBarnStarterIFulltidBarnehageplass
+                    val andelSluttMånederForBarn = andeler.filter { it.aktør == barn }.map { it.stønadTom }
 
-                    barnStarterIFulltidBarnehageSammeMånedSom13Måned && månedÅrSomAndelSlutterForBarn.contains(månedÅrBarnEr13Måneder)
+                    val barnStarterIFulltidBarnehageplassMånedenBarnBlir13Måned = månedÅrBarnEr13Måneder in månederBarnStarterIFulltidBarnehage
+                    val barnFårAndelSammeMånedSomBarnEr13Måned = månedÅrBarnEr13Måneder in andelSluttMånederForBarn
+
+                    barnStarterIFulltidBarnehageplassMånedenBarnBlir13Måned && barnFårAndelSammeMånedSomBarnEr13Måned
                 }
             }
 
