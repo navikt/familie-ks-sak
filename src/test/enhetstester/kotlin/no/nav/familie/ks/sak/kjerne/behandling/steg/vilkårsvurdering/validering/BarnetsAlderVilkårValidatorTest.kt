@@ -290,7 +290,7 @@ class BarnetsAlderVilkårValidatorTest {
             lagPerson(
                 aktør = randomAktør(),
                 fødselsdato = fødselsedato,
-                personType = PersonType.BARN
+                personType = PersonType.BARN,
             )
 
         val vilkårResultatPeriode =
@@ -307,7 +307,7 @@ class BarnetsAlderVilkårValidatorTest {
                 perioder = vilkårResultatPerioder,
                 barn = person,
                 periodeFomBarnetsAlderLov2024 = fødselsedato.plusMonths(13),
-                periodeTomBarnetsAlderLov2024 = fødselsedato.plusMonths(19)
+                periodeTomBarnetsAlderLov2024 = fødselsedato.plusMonths(19),
             )
         }.returns(listOf("feilmelding"))
 
@@ -323,7 +323,7 @@ class BarnetsAlderVilkårValidatorTest {
                 perioder = vilkårResultatPerioder,
                 barn = person,
                 periodeFomBarnetsAlderLov2024 = fødselsedato.plusMonths(13),
-                periodeTomBarnetsAlderLov2024 = fødselsedato.plusMonths(19)
+                periodeTomBarnetsAlderLov2024 = fødselsedato.plusMonths(19),
             )
         }
     }
