@@ -3,9 +3,9 @@ package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import no.nav.familie.ks.sak.TestClockProvider
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned

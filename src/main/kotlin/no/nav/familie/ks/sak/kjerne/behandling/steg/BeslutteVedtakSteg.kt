@@ -109,7 +109,7 @@ class BeslutteVedtakSteg(
 
             vedtakService.opprettOgInitierNyttVedtakForBehandling(
                 behandling = behandling,
-                kopierVedtakBegrunnelser = true,
+                kopiervedtaksbegrunnelser = true,
             )
 
             val behandleUnderkjentVedtakTask =

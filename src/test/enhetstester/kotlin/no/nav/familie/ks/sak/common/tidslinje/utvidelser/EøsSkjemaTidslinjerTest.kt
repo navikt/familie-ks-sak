@@ -1,10 +1,10 @@
-package no.nav.familie.tidslinje.utvidelser
+package no.nav.familie.ks.sak.common.tidslinje.utvidelser
 
-import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinje
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
