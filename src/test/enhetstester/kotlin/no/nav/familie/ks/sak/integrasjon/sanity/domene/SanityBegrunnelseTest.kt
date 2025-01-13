@@ -8,20 +8,26 @@ import org.junit.jupiter.api.Test
 class SanityBegrunnelseTest {
     @Test
     fun `erOvergangsordningBegrunnelse skal returnere true hvis begrunnelse er en overgangsordning begrunnelse`() {
-        // Arrange && Act
+        // Arrange
         val sanityBegrunnelse = lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn)
 
+        // Act
+        val erOvergangsordningBegrunnelse = sanityBegrunnelse.erOvergangsordningBegrunnelse()
+
         // Assert
-        assertThat(sanityBegrunnelse.erOvergangsordningBegrunnelse()).isTrue()
+        assertThat(erOvergangsordningBegrunnelse).isTrue()
     }
 
     @Test
     fun `erOvergangsordningBegrunnelse skal returnere true hvis begrunnelse er en opphør overgangsordning begrunnelse`() {
-        // Arrange && Act
+        // Arrange
         val sanityBegrunnelse = lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.sanityApiNavn)
 
+        // Act
+        val erOvergangsordningBegrunnelse = sanityBegrunnelse.erOvergangsordningBegrunnelse()
+
         // Assert
-        assertThat(sanityBegrunnelse.erOvergangsordningBegrunnelse()).isTrue()
+        assertThat(erOvergangsordningBegrunnelse).isTrue()
     }
 
     @Test
