@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.barnehagelister
 
-import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.config.KafkaConfig
