@@ -7,7 +7,7 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
-import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteConsumer
+import no.nav.familie.ks.sak.barnehagelister.KSBarnehagelisterConsumer
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +20,7 @@ import org.springframework.kafka.support.Acknowledgment
 import java.time.LocalDate
 import java.util.UUID
 
-class BarnehagelisteConsumerTest : OppslagSpringRunnerTest() {
+class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var barnehagebarnRepository: BarnehagebarnRepository
 
@@ -28,7 +28,7 @@ class BarnehagelisteConsumerTest : OppslagSpringRunnerTest() {
     private lateinit var barnehagebarnService: BarnehagebarnService
 
     @Autowired
-    private lateinit var barnehagelisteConsumer: BarnehagelisteConsumer
+    private lateinit var KSBarnehagelisterConsumer: KSBarnehagelisterConsumer
 
     val acknowledgment = mockk<Acknowledgment>()
 
@@ -53,7 +53,7 @@ class BarnehagelisteConsumerTest : OppslagSpringRunnerTest() {
         val melding = objectMapper.writeValueAsString(barnehagebarnMedLikFomTomOgArkivReferanse)
 
         // Act
-        barnehagelisteConsumer.listen(melding, acknowledgment)
+        KSBarnehagelisterConsumer.listen(melding, acknowledgment)
 
         // Assert
         val barnehagebarnInDb = barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).single()
@@ -68,7 +68,7 @@ class BarnehagelisteConsumerTest : OppslagSpringRunnerTest() {
         val melding = objectMapper.writeValueAsString(barnehagebarn)
 
         // Act
-        barnehagelisteConsumer.listen(melding, acknowledgment)
+        KSBarnehagelisterConsumer.listen(melding, acknowledgment)
 
         // Assert
         val barnehagebarnInDb = barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).single()
@@ -86,7 +86,7 @@ class BarnehagelisteConsumerTest : OppslagSpringRunnerTest() {
         val melding = objectMapper.writeValueAsString(nyttBarnehagebarn)
 
         // Act
-        barnehagelisteConsumer.listen(melding, acknowledgment)
+        KSBarnehagelisterConsumer.listen(melding, acknowledgment)
 
         // Assert
         val barnehagebarnInDb = barnehagebarnRepository.findAllByIdent(barnehagebarn.ident)
