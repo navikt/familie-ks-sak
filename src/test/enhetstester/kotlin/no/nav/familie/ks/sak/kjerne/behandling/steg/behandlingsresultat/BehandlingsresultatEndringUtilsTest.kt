@@ -39,7 +39,6 @@ class BehandlingsresultatEndringUtilsTest {
     private val barn1Aktør = randomAktør()
 
     val jan22 = YearMonth.of(2022, 1)
-    val feb22 = YearMonth.of(2022, 2)
     val mai22 = YearMonth.of(2022, 5)
     val aug22 = YearMonth.of(2022, 8)
     val des22 = YearMonth.of(2022, 12)
@@ -57,7 +56,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigePersonResultat = emptySet(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
-                personerIBehandling = emptySet(),
                 personerIForrigeBehandling = emptySet(),
             )
 
@@ -87,7 +85,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigePersonResultat = emptySet(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
-                personerIBehandling = setOf(person),
                 personerIForrigeBehandling = setOf(person),
             )
 
@@ -177,7 +174,6 @@ class BehandlingsresultatEndringUtilsTest {
                 nåværendePersonResultat = setOf(nåværendePersonResultat),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
-                personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
             )
 
@@ -221,7 +217,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigePersonResultat = emptySet(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
-                personerIBehandling = setOf(barnPerson),
                 personerIForrigeBehandling = setOf(barnPerson),
             )
 
@@ -253,7 +248,6 @@ class BehandlingsresultatEndringUtilsTest {
                 forrigePersonResultat = emptySet(),
                 forrigeEndretAndeler = listOf(forrigeEndretAndel),
                 nåværendeEndretAndeler = listOf(forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)),
-                personerIBehandling = setOf(barn),
                 personerIForrigeBehandling = setOf(barn),
             )
 

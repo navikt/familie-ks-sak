@@ -40,13 +40,12 @@ object BehandlingsresultatEndringUtils {
         forrigePersonResultat: Set<PersonResultat>,
         nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
-        personerIBehandling: Set<Person>,
         personerIForrigeBehandling: Set<Person>,
     ): Endringsresultat {
         val logger: Logger = LoggerFactory.getLogger("utledEndringsresultatLogger")
         val secureLogger = LoggerFactory.getLogger("secureLogger")
 
-        val relevantePersoner = (personerIBehandling.map { it.aktør } + personerIForrigeBehandling.map { it.aktør }).distinct()
+        val relevantePersoner = personerIForrigeBehandling.map { it.aktør }
 
         val endringerForRelevantePersoner =
             relevantePersoner.any { aktør ->
