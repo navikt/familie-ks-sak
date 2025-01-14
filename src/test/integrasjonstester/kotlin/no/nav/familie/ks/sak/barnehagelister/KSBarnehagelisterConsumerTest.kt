@@ -70,7 +70,6 @@ class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
         val melding = objectMapper.writeValueAsString(barnehagebarn)
         val consumerRecord = ConsumerRecord("", 0, 0L, barnehagebarn.id.toString(), melding)
 
-
         // Act
         ksBarnehagelisterConsumer.listen(consumerRecord, acknowledgment)
 
@@ -89,7 +88,6 @@ class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
 
         val melding = objectMapper.writeValueAsString(nyttBarnehagebarn)
         val consumerRecord = ConsumerRecord("", 0, 0L, barnehagebarn.id.toString(), melding)
-
 
         // Act
         ksBarnehagelisterConsumer.listen(consumerRecord, acknowledgment)
