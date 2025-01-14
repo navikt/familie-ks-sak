@@ -42,7 +42,8 @@ data class SanityBegrunnelse(
 fun SanityBegrunnelse.erOvergangsordningBegrunnelse() =
     apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING.sanityApiNavn ||
         apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED.sanityApiNavn ||
-        apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING.sanityApiNavn
+        apiNavn == NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING.sanityApiNavn ||
+        apiNavn == NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.sanityApiNavn
 
 enum class SanityBegrunnelseType {
     STANDARD,
