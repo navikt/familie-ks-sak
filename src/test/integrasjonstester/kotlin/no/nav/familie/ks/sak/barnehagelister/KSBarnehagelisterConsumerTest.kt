@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.KSBarnehagelisterConsumer
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
     private lateinit var barnehagebarnService: BarnehagebarnService
 
     @Autowired
-    private lateinit var KSBarnehagelisterConsumer: KSBarnehagelisterConsumer
+    private lateinit var ksBarnehagelisterConsumer: KSBarnehagelisterConsumer
 
     val acknowledgment = mockk<Acknowledgment>()
 
@@ -51,9 +52,10 @@ class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
             )
 
         val melding = objectMapper.writeValueAsString(barnehagebarnMedLikFomTomOgArkivReferanse)
+        val consumerRecord = ConsumerRecord("", 0, 0L, barnehagebarn.id.toString(), melding)
 
         // Act
-        KSBarnehagelisterConsumer.listen(melding, acknowledgment)
+        ksBarnehagelisterConsumer.listen(consumerRecord, acknowledgment)
 
         // Assert
         val barnehagebarnInDb = barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).single()
@@ -66,9 +68,11 @@ class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
     fun `skal lagre ned nytt barnehagebarn hvis det ikke er noe barn fra før`() {
         // Arrange
         val melding = objectMapper.writeValueAsString(barnehagebarn)
+        val consumerRecord = ConsumerRecord("", 0, 0L, barnehagebarn.id.toString(), melding)
+
 
         // Act
-        KSBarnehagelisterConsumer.listen(melding, acknowledgment)
+        ksBarnehagelisterConsumer.listen(consumerRecord, acknowledgment)
 
         // Assert
         val barnehagebarnInDb = barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).single()
@@ -84,9 +88,11 @@ class KSBarnehagelisterConsumerTest : OppslagSpringRunnerTest() {
         barnehagebarnService.lagreBarnehageBarn(barnehagebarn)
 
         val melding = objectMapper.writeValueAsString(nyttBarnehagebarn)
+        val consumerRecord = ConsumerRecord("", 0, 0L, barnehagebarn.id.toString(), melding)
+
 
         // Act
-        KSBarnehagelisterConsumer.listen(melding, acknowledgment)
+        ksBarnehagelisterConsumer.listen(consumerRecord, acknowledgment)
 
         // Assert
         val barnehagebarnInDb = barnehagebarnRepository.findAllByIdent(barnehagebarn.ident)
