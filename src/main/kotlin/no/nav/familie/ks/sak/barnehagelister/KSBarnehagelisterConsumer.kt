@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.barnehagelister
 
+import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.config.KafkaConfig
@@ -10,6 +11,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Service
 import no.nav.familie.unleash.UnleashService
+import org.apache.kafka.clients.consumer.ConsumerRecord
 
 
 @Service
@@ -24,19 +26,19 @@ class KSBarnehagelisterConsumer(
         id = "familie-ks-barnehagelister",
         groupId = "familie-ks-barnehagelister-group",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
-        containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
+        containerFactory = "earliestConsumerFactory",
         )
     fun listen(
-        message: String,
+        consumerRecord: ConsumerRecord<String, String>,
         ack: Acknowledgment,
     ) {
-        val barnehagebarn: Barnehagebarn = objectMapper.readValue(message, Barnehagebarn::class.java)
+        logger.info("Barnehagebarn mottatt fra familie-ks-barnehagelister med id ${consumerRecord.key()}")
 
-        logger.info("Barnehagebarn mottatt fra familie-ks-barnehagelister med id ${barnehagebarn.id}")
+        val barnehagebarn: Barnehagebarn = objectMapper.readValue(consumerRecord.value(), Barnehagebarn::class.java)
 
         // Sjekk at vi ikke har mottat meldingen tidligere
         if (barnehageBarnService.erBarnehageBarnMottattTidligere(barnehagebarn)) {
-            logger.info("Barnehagebarn med id ${barnehagebarn.id} er mottatt tidligere. Hopper over")
+            logger.info("Barnehagebarn med id ${consumerRecord.key()} er mottatt tidligere. Hopper over")
             ack.acknowledge()
             return
         }
