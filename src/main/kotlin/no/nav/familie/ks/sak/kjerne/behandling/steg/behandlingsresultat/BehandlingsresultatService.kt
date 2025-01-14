@@ -48,7 +48,6 @@ class BehandlingsresultatService(
 
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
 
-        val personerIBehandling = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id).personer.toSet()
         val personerIForrigeBehandling = forrigeBehandling?.let { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = forrigeBehandling.id).personer.toSet() } ?: emptySet()
 
         val forrigeVilkårsvurdering = forrigeBehandling?.id?.let { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = it) }
@@ -95,7 +94,6 @@ class BehandlingsresultatService(
                     nåværendeKompetanser = kompetanser.toList(),
                     forrigeKompetanser = forrigeKompetanser.toList(),
                     personerFremstiltKravFor = personerFremstiltKravFor,
-                    personerIBehandling = personerIBehandling,
                     personerIForrigeBehandling = personerIForrigeBehandling,
                 )
             } else {
