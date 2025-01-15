@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -71,6 +72,14 @@ enum class BehandlingSteg(
             .replace('_', ' ')
             .lowercase()
             .replaceFirstChar { it.uppercase() }
+
+    fun nesteGyldigeSteg(behandling: Behandling) =
+        entries
+            .filter {
+                it.sekvens > this.sekvens &&
+                    behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
+                    behandling.resultat in it.gyldigForResultater
+            }.minByOrNull { it.sekvens }!!
 }
 
 enum class BehandlingStegStatus(
