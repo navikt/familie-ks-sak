@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ManueltBrevDtoTest {
+    val mottakerNavn = "Mottaker Navnesen"
+    val mottakerIdent = randomFnr()
+
     @Nested
     inner class TilBrev {
         @Test
@@ -19,24 +22,27 @@ class ManueltBrevDtoTest {
                     fritekstAvsnitt = "Fritekst avsnitt",
                 )
 
-            val brevDto = manueltBrevDto.tilBrev(saksbehandlerNavn = "Saks Behandlersen")
-
-            assertThat(brevDto.mal).isEqualTo(Brevmal.UTBETALING_ETTER_KA_VEDTAK)
-
-            val delmalData = brevDto.data.delmalData as UtbetalingEtterKAVedtakDataDto.DelmalData
-            assertThat(delmalData.signatur.saksbehandler).containsExactly("Saks Behandlersen")
-            assertThat(delmalData.fritekstAvsnitt?.fritekstAvsnittTekst).containsExactly("Fritekst avsnitt")
+            val brevDto = manueltBrevDto.tilBrev("Saks Behandlersen").data as UtbetalingEtterKAVedtakDataDto
+            with(brevDto.flettefelter) {
+                assertThat(fodselsnummer).containsExactly(mottakerIdent)
+                assertThat(navn).containsExactly(mottakerNavn)
+                assertThat(gjelder).isNull()
+            }
+            assertThat(brevDto.fritekst).isEqualTo("Fritekst avsnitt")
+            assertThat(brevDto.delmalData.signatur.saksbehandler).containsExactly("Saks Behandlersen")
         }
     }
 
     private fun lagManueltBrevDto(
         brevmal: Brevmal,
-        mottakerIdent: String = randomFnr(),
+        mottakerNavn: String = this.mottakerNavn,
+        mottakerIdent: String = this.mottakerIdent,
         fritekstAvsnitt: String? = null,
         enhet: Enhet = Enhet("1234", "Enhet"),
     ) = ManueltBrevDto(
         brevmal = brevmal,
         mottakerIdent = mottakerIdent,
+        mottakerNavn = mottakerNavn,
         fritekstAvsnitt = fritekstAvsnitt,
         enhet = enhet,
     )
