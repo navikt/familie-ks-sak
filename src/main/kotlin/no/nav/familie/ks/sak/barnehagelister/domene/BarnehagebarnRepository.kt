@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query
 import java.util.UUID
 
 interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , JpaSpecificationExecutor<Barnehagebarn>
-    fun findAllByIdent(ident: String): List<Barnehagebarn>
+    fun getByIdent(ident: String): Barnehagebarn
 
     @Query(
         """

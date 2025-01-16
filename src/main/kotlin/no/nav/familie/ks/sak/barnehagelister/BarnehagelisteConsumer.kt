@@ -21,7 +21,7 @@ class BarnehagelisteConsumer(
     @KafkaListener(
         id = "familie-ks-sak-barnehageliste",
         groupId = "familie-ks-sak-barnehageliste-group",
-        topics = [KafkaConfig.BARNEHAGELISTE_AAPEN_TOPIC],
+        topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
         containerFactory = "earliestConcurrentKafkaListenerContainerFactoryAvro",
     )
     fun listen(

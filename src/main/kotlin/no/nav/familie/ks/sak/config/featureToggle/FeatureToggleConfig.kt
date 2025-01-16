@@ -11,7 +11,6 @@ class FeatureToggleConfig {
         const val OVERGANGSORDNING = "familie-ks-sak.overgangsordning"
         const val GODKJENNE_OVERGANGSORDNING = "familie-ks-sak.godkjenne-overgangsordning"
         const val TILLAT_OVERLAPP_I_UTBETALING = "familie-ks-sak.tillat-overlapp-i-utbetaling"
-        const val LAGRE_BARNEHAGEBARN_I_KS = "familie-ks-sak.lagre-barnehagebarn-i-ks"
 
         // Ikke operasjonelle
         const val OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER = "familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"

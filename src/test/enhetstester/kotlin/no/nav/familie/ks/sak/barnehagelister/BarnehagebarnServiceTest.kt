@@ -403,14 +403,15 @@ class BarnehagebarnServiceTest {
         endringsType: String,
         kommuneNavn: String,
         kommuneNr: String,
-    ) = mockk<BarnehagebarnInfotrygdDtoInterface>().apply {
-        every { getIdent() } returns ident
-        every { getFom() } returns LocalDate.now()
-        every { getTom() } returns LocalDate.now()
-        every { getAntallTimerIBarnehage() } returns 40.0
-        every { getEndringstype() } returns endringsType
-        every { getKommuneNavn() } returns kommuneNavn
-        every { getKommuneNr() } returns kommuneNr
-        every { getEndretTid() } returns LocalDateTime.now()
-    }
+    ) =
+        mockk<BarnehagebarnInfotrygdDtoInterface>().apply {
+            every { getIdent() } returns ident
+            every { getFom() } returns LocalDate.now()
+            every { getTom() } returns LocalDate.now()
+            every { getAntallTimerIBarnehage() } returns 40.0
+            every { getEndringstype() } returns endringsType
+            every { getKommuneNavn() } returns kommuneNavn
+            every { getKommuneNr() } returns kommuneNr
+            every { getEndretTid() } returns LocalDateTime.now()
+        }
 }
