@@ -68,7 +68,7 @@ class VilkårsvurderingSteg(
             vilkårsvurdering.personResultater.any {
                 it.vilkårResultater.any { vilkårResultat -> vilkårResultat.vurderesEtter == Regelverk.EØS_FORORDNINGEN }
             } ||
-                    kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
+                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
 
         if (finnesKompetanserEllerVilkårVurdertEtterEøs) {
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
@@ -172,10 +172,10 @@ class VilkårsvurderingSteg(
         if (vilkårSomEnderEtterSøkersDød.isNotEmpty()) {
             throw FunksjonellFeil(
                 "Ved behandlingsårsak \"Dødsfall\" må vilkårene på søker avsluttes " + "senest dagen søker døde, men " +
-                        slåSammen(
-                            vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" },
-                        ) +
-                        " vilkåret til søker slutter etter søkers død.",
+                    slåSammen(
+                        vilkårSomEnderEtterSøkersDød.map { "\"" + it.beskrivelse + "\"" },
+                    ) +
+                    " vilkåret til søker slutter etter søkers død.",
             )
         }
     }
@@ -186,8 +186,8 @@ class VilkårsvurderingSteg(
                 .filter { vilkårResultat ->
                     val gradertBarnehageplass =
                         vilkårResultat.antallTimer != null &&
-                                vilkårResultat.antallTimer > BigDecimal(0) &&
-                                vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
+                            vilkårResultat.antallTimer > BigDecimal(0) &&
+                            vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
                     val deltBosted =
                         vilkårResultat.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.DELT_BOSTED)
@@ -222,7 +222,7 @@ class VilkårsvurderingSteg(
                 if (barnetsAlder != null && barnehageplass == null) {
                     throw FunksjonellFeil(
                         "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
-                                "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
+                            "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
                     )
                 }
             }
@@ -243,8 +243,8 @@ class VilkårsvurderingSteg(
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
-                            " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
-                            "Du må fjerne denne perioden for å kunne fortsette",
+                        " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
+                        "Du må fjerne denne perioden for å kunne fortsette",
                 )
             }
         }
@@ -258,7 +258,7 @@ class VilkårsvurderingSteg(
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
-                            "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
+                        "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
                 )
             }
         }
