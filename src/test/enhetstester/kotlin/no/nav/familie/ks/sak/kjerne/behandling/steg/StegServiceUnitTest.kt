@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
+import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -343,11 +344,13 @@ class StegServiceUnitTest {
                 ),
             )
 
+        val taskSlot = slot<Task>()
+
         every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeBehandling
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeBehandling.id) } returns forrigeBehandlingAndeler
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns behandlingAndeler
         every { vedtakRepository.findByBehandlingAndAktiv(any()) } returns lagVedtak()
-        every { taskService.save(any()) } returns mockk()
+        every { taskService.save(capture(taskSlot)) } returns mockk()
 
         val behandlingsStegDto =
             BesluttVedtakDto(
@@ -360,6 +363,7 @@ class StegServiceUnitTest {
 
         // Assert
         assertThat(nesteSteg).isEqualTo(BehandlingSteg.JOURNALFØR_VEDTAKSBREV)
+        assertThat(taskSlot.captured.type).isEqualTo("journalførVedtaksbrev")
     }
 
     @Test
