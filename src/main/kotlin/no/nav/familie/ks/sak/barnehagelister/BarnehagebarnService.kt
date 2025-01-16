@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.barnehagelister
 
-import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
-import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnInfotrygdDto
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
@@ -53,31 +51,34 @@ class BarnehagebarnService(
     private fun hentAlleBarnehageBarn(
         hentForKunLøpendeFagsak: Boolean,
         pageable: PageRequest,
-    ) = if (hentForKunLøpendeFagsak) {
-        barnehagebarnRepository.findBarnehagebarn(LØPENDE_FAGSAK_STATUS, pageable)
-    } else {
-        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
-    }
+    ) =
+        if (hentForKunLøpendeFagsak) {
+            barnehagebarnRepository.findBarnehagebarn(LØPENDE_FAGSAK_STATUS, pageable)
+        } else {
+            barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
+        }
 
     private fun hentBarnehageBarnMedKommuneNavn(
         hentForKunLøpendeFagsak: Boolean,
         kommuneNavn: String,
         pageable: PageRequest,
-    ) = if (hentForKunLøpendeFagsak) {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavn(LØPENDE_FAGSAK_STATUS, kommuneNavn, pageable)
-    } else {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(kommuneNavn, pageable)
-    }
+    ) =
+        if (hentForKunLøpendeFagsak) {
+            barnehagebarnRepository.findBarnehagebarnByKommuneNavn(LØPENDE_FAGSAK_STATUS, kommuneNavn, pageable)
+        } else {
+            barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(kommuneNavn, pageable)
+        }
 
     private fun hentBarnehageBarnMedIdent(
         hentForKunLøpendeFagsak: Boolean,
         ident: String,
         pageable: PageRequest,
-    ) = if (hentForKunLøpendeFagsak) {
-        barnehagebarnRepository.findBarnehagebarnByIdent(LØPENDE_FAGSAK_STATUS, ident, pageable)
-    } else {
-        barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(ident, pageable)
-    }
+    ) =
+        if (hentForKunLøpendeFagsak) {
+            barnehagebarnRepository.findBarnehagebarnByIdent(LØPENDE_FAGSAK_STATUS, ident, pageable)
+        } else {
+            barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(ident, pageable)
+        }
 
     private fun BarnehagebarnRequestParams.toSort() =
         if (sortAsc) {
@@ -91,54 +92,57 @@ class BarnehagebarnService(
         kommuneNavn: String,
         barna: List<String>,
         pageable: PageRequest,
-    ) = if (skalHaLøpendeFagsak) {
-        barnehagebarnRepository
-            .findBarnehagebarnByKommuneNavnInfotrygd(kommuneNavn, barna, pageable)
-            .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
-    } else {
-        barnehagebarnRepository
-            .findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
-                kommuneNavn,
-                pageable,
-            ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, barna.contains(it.getIdent())) }
-    }
+    ) =
+        if (skalHaLøpendeFagsak) {
+            barnehagebarnRepository
+                .findBarnehagebarnByKommuneNavnInfotrygd(kommuneNavn, barna, pageable)
+                .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
+        } else {
+            barnehagebarnRepository
+                .findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
+                    kommuneNavn,
+                    pageable,
+                ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, barna.contains(it.getIdent())) }
+        }
 
     private fun hentInfotrygdBarnehagebarnFraIdent(
         skalHaLøpendeFagsak: Boolean,
         ident: String,
         barna: List<String>,
         pageable: PageRequest,
-    ) = if (skalHaLøpendeFagsak) {
-        barnehagebarnRepository
-            .findBarnehagebarnByIdentInfotrygd(ident, barna, pageable)
-            .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
-    } else {
-        barnehagebarnRepository
-            .findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(ident, pageable)
-            .map {
-                BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
-                    it,
-                    barna.contains(it.getIdent()),
-                )
-            }
-    }
+    ) =
+        if (skalHaLøpendeFagsak) {
+            barnehagebarnRepository
+                .findBarnehagebarnByIdentInfotrygd(ident, barna, pageable)
+                .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
+        } else {
+            barnehagebarnRepository
+                .findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(ident, pageable)
+                .map {
+                    BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
+                        it,
+                        barna.contains(it.getIdent()),
+                    )
+                }
+        }
 
     private fun hentAlleBarnehageBarnInfotrygd(
         skalHaLøpendeFagsak: Boolean,
         barna: List<String>,
         pageable: PageRequest,
-    ) = if (skalHaLøpendeFagsak) {
-        barnehagebarnRepository
-            .findBarnehagebarnInfotrygd(barna, pageable)
-            .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
-    } else {
-        barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable).map {
-            BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
-                it,
-                barna.contains(it.getIdent()),
-            )
+    ) =
+        if (skalHaLøpendeFagsak) {
+            barnehagebarnRepository
+                .findBarnehagebarnInfotrygd(barna, pageable)
+                .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
+        } else {
+            barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable).map {
+                BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
+                    it,
+                    barna.contains(it.getIdent()),
+                )
+            }
         }
-    }
 
     private fun getCorrectSortBy(sortBy: String): String =
         when (sortBy.lowercase()) {
@@ -148,20 +152,6 @@ class BarnehagebarnService(
             "antalltimeribarnehage" -> "antall_timer_i_barnehage"
             else -> sortBy
         }
-
-    // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding, kunne muligens brukt barnehagebarn.id i stedet
-    @Transactional
-    fun erBarnehageBarnMottattTidligere(barnehagebarn: Barnehagebarn): Boolean =
-        barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).any { barnehageBarnMedSammeIdent ->
-            barnehageBarnMedSammeIdent.fom == barnehagebarn.fom &&
-                barnehageBarnMedSammeIdent.tom == barnehagebarn.tom &&
-                barnehageBarnMedSammeIdent.arkivReferanse == barnehagebarn.arkivReferanse
-        }
-
-    @Transactional
-    fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
-        barnehagebarnRepository.saveAndFlush(barnehagebarn)
-    }
 
     companion object {
         val LØPENDE_FAGSAK_STATUS = listOf("LØPENDE")
