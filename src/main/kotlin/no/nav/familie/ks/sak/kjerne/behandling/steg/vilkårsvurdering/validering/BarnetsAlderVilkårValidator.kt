@@ -20,10 +20,11 @@ class BarnetsAlderVilkårValidator(
     ): List<String> {
         val vilkårLovverkInformasjonForBarn =
             if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
-                val fomAdoptertBarn = perioder.minOf { it.fom }.toYearMonth()
-                val tomAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth()
-
-                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, periodeFomForAdoptertBarn = fomAdoptertBarn, periodeTomForAdoptertBarn = tomAdoptertBarn)
+                VilkårLovverkInformasjonForBarn(
+                    fødselsdato = barn.fødselsdato,
+                    periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
+                    periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth()
+                )
             } else {
                 VilkårLovverkInformasjonForBarn(barn.fødselsdato)
             }
