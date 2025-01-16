@@ -245,19 +245,9 @@ fun nesteVedtakId(): Long {
     return gjeldendeVedtakId
 }
 
-fun nesteBehandlingId(): Long {
-    gjeldendeBehandlingId += ID_INKREMENT
-    return gjeldendeBehandlingId
-}
-
 fun nestePersonId(): Long {
     gjeldendePersonId += ID_INKREMENT
     return gjeldendePersonId
-}
-
-fun nesteUtvidetVedtaksperiodeId(): Long {
-    gjeldendeUtvidetVedtaksperiodeId += ID_INKREMENT
-    return gjeldendeUtvidetVedtaksperiodeId
 }
 
 fun lagLogg(
