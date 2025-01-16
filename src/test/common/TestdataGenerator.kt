@@ -711,7 +711,7 @@ fun lagEndretUtbetalingAndel(
         årsak = årsak,
         søknadstidspunkt = søknadstidspunkt,
         begrunnelse = begrunnelse,
-        begrunnelser = begrunnelser,
+        vedtaksbegrunnelser = begrunnelser,
         erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 
