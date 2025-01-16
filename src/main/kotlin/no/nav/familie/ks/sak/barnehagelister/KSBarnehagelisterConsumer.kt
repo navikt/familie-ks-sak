@@ -13,7 +13,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("!dev-postgres-preprod & !postgres")
+@Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class KSBarnehagelisterConsumer(
     val barnehageBarnService: BarnehagebarnService,
     val unleashService: UnleashService,
