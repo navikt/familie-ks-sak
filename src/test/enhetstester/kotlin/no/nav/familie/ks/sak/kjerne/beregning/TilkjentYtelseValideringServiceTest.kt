@@ -55,7 +55,7 @@ class TilkjentYtelseValideringServiceTest {
     private val barn1 = randomAktør()
     private val barn2 = randomAktør()
     private val barn3MedUtbetalinger = randomAktør()
-    private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+    private val behandling = lagBehandling(id = 1, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val personopplysningGrunnlag =
         lagPersonopplysningGrunnlag(
             behandling.id,
@@ -162,7 +162,7 @@ class TilkjentYtelseValideringServiceTest {
                     ),
             )
 
-        val forrigeBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val forrigeBehandling = lagBehandling(id = 0, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         val forrigeTilkjentYtelse =
             TilkjentYtelse(

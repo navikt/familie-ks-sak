@@ -133,7 +133,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             val gamleOvergangsordningAndeler =
                 listOf(
                     OvergangsordningAndel(
-                        id = 0,
                         behandlingId = behandling.id,
                         person = barn1,
                         antallTimer = BigDecimal(20),
@@ -141,7 +140,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                         tom = barn1.fødselsdato.plusMonths(21).toYearMonth(),
                     ),
                     OvergangsordningAndel(
-                        id = 1,
                         behandlingId = behandling.id,
                         person = barn1,
                         antallTimer = BigDecimal.ZERO,
@@ -149,7 +147,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                         tom = barn1.fødselsdato.plusMonths(23).toYearMonth(),
                     ),
                     OvergangsordningAndel(
-                        id = 2,
                         behandlingId = behandling.id,
                         person = barn2,
                         fom = barn2.fødselsdato.plusMonths(20).toYearMonth(),

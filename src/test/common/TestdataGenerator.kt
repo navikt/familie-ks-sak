@@ -245,19 +245,9 @@ fun nesteVedtakId(): Long {
     return gjeldendeVedtakId
 }
 
-fun nesteBehandlingId(): Long {
-    gjeldendeBehandlingId += ID_INKREMENT
-    return gjeldendeBehandlingId
-}
-
 fun nestePersonId(): Long {
     gjeldendePersonId += ID_INKREMENT
     return gjeldendePersonId
-}
-
-fun nesteUtvidetVedtaksperiodeId(): Long {
-    gjeldendeUtvidetVedtaksperiodeId += ID_INKREMENT
-    return gjeldendeUtvidetVedtaksperiodeId
 }
 
 fun lagLogg(
@@ -289,7 +279,7 @@ fun lagBehandling(
     resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
-    id: Long = nesteBehandlingId(),
+    id: Long = 0L,
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
         setOf(

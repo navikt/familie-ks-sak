@@ -68,7 +68,7 @@ class StegServiceUnitTest {
     @InjectMockKs
     private lateinit var stegService: StegService
 
-    private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+    private val behandling = lagBehandling(id = 1, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
     @Test
     fun `settBehandlingstegTilstandPåVent - skal sette årsak frist og status på behandlingstegtilstand til nåværende behandlingssteg`() {
@@ -172,7 +172,7 @@ class StegServiceUnitTest {
     @Test
     fun `skal iverksette mot oppdrag hvis det er endring i ordinære andeler`() {
         // Arrange
-        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandling = lagBehandling(id = 0, fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
         val forrigeBehandlingAndeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -215,7 +215,7 @@ class StegServiceUnitTest {
     @Test
     fun `skal iverksette mot oppdrag hvis det er endring i overgangsordningandeler`() {
         // Arrange
-        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandling = lagBehandling(id = 0, fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
         val forrigeBehandlingAndeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -274,7 +274,7 @@ class StegServiceUnitTest {
     @Test
     fun `skal iverksette mot oppdrag hvis det mangler andeler i ny behandling`() {
         // Arrange
-        val forrigeBehandling = lagBehandling(fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
+        val forrigeBehandling = lagBehandling(id = 0, fagsak = behandling.fagsak, resultat = Behandlingsresultat.INNVILGET)
         val forrigeBehandlingAndeler =
             listOf(
                 lagAndelTilkjentYtelse(
