@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.common.util.månederIPeriode
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -28,7 +27,6 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.unleash.UnleashService
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.Period
@@ -135,7 +133,6 @@ object TilkjentYtelseValidator {
         tilkjentYtelseForBehandling: TilkjentYtelse,
         barnMedAndreRelevanteTilkjentYtelser: List<Pair<Person, List<TilkjentYtelse>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        unleashService: UnleashService,
     ) {
         val barna = personopplysningGrunnlag.barna.sortedBy { it.fødselsdato }
 
@@ -153,7 +150,6 @@ object TilkjentYtelseValidator {
             if (erUgyldigOverlappAvAndeler(
                     andeler = andeler,
                     andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger,
-                    unleashService = unleashService,
                 )
             ) {
                 barnMedUtbetalingsikkerhetFeil.add(barn)
@@ -174,32 +170,22 @@ object TilkjentYtelseValidator {
     private fun erUgyldigOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
         andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>,
-        unleashService: UnleashService,
     ): Boolean {
-        if (unleashService.isEnabled(FeatureToggleConfig.TILLAT_OVERLAPP_I_UTBETALING)) {
-            val overlappendeMåneder =
-                andeler
-                    .flatMap { andel -> andel.periode.månederIPeriode().map { it to andel.prosent } }
-                    .filter { (måned, prosent) ->
-                        andelerFraAndreBehandlinger.any { andelFraAnnenBehandling ->
-                            andelFraAnnenBehandling.periode.inkluderer(måned) &&
-                                prosent + andelFraAnnenBehandling.prosent > BigDecimal(100)
-                        }
-                    }.map { it.first }
+        val overlappendeMåneder =
+            andeler
+                .flatMap { andel -> andel.periode.månederIPeriode().map { it to andel.prosent } }
+                .filter { (måned, prosent) ->
+                    andelerFraAndreBehandlinger.any { andelFraAnnenBehandling ->
+                        andelFraAnnenBehandling.periode.inkluderer(måned) &&
+                            prosent + andelFraAnnenBehandling.prosent > BigDecimal(100)
+                    }
+                }.map { it.first }
 
-            val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
-            return when {
-                overlappendeMåneder.isEmpty() -> false
-                overlappendeMåneder.size > 1 -> true
-                else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
-            }
-        } else {
-            return andeler.any { andelTilkjentYtelse ->
-                andelerFraAndreBehandlinger.any {
-                    andelTilkjentYtelse.overlapperMed(it) &&
-                        andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
-                }
-            }
+        val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
+        return when {
+            overlappendeMåneder.isEmpty() -> false
+            overlappendeMåneder.size > 1 -> true
+            else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
         }
     }
 

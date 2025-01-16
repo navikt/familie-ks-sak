@@ -21,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
-import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -51,9 +50,6 @@ class TilkjentYtelseValideringServiceTest {
     @MockK
     private lateinit var behandlingService: BehandlingService
 
-    @MockK
-    private lateinit var unleashService: UnleashService
-
     private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
 
     private val barn1 = randomAktør()
@@ -82,10 +78,7 @@ class TilkjentYtelseValideringServiceTest {
                 personopplysningGrunnlagService = personopplysningGrunnlagService,
                 personidentService = personidentService,
                 behandlingService = behandlingService,
-                unleashService = unleashService,
             )
-
-        every { unleashService.isEnabled(any()) } returns true
 
         every {
             beregningService.hentRelevanteTilkjentYtelserForBarn(
