@@ -23,11 +23,13 @@ data class Barnehagebarn(
     @Column(name = "ANTALL_TIMER_I_BARNEHAGE", nullable = false, updatable = true)
     var antallTimerIBarnehage: Double,
     @Column(name = "ENDRINGSTYPE", nullable = false, updatable = false)
-    var endringstype: String,
+    var endringstype: String = "",
     @Column(name = "KOMMUNE_NAVN", nullable = false, updatable = false)
     var kommuneNavn: String,
     @Column(name = "KOMMUNE_NR", nullable = false, updatable = false)
     var kommuneNr: String,
     @Column(name = "ARKIV_REFERANSE", nullable = false, updatable = false)
     var arkivReferanse: String,
+    @Column(name = "KILDE", nullable = true, updatable = false)
+    var kilde: String? = null,
 ) : BaseEntitet()

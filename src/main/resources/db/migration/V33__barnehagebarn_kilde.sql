@@ -1,0 +1,1 @@
+ALTER TABLE barnehagebarn ADD COLUMN kilde VARCHAR;

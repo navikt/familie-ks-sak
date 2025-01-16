@@ -9,9 +9,12 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
+import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.KafkaConfig
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -104,6 +107,8 @@ internal class HenleggBehandlingServiceTest {
             exception.message,
         )
     }
+
+
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling for årsak TEKNISK_VEDLIKEHOLD når toggelen er ikke på`() {
