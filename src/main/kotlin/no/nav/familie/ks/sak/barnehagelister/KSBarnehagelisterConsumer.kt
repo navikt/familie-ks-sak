@@ -24,7 +24,7 @@ class KSBarnehagelisterConsumer(
         id = "familie-ks-barnehagelister",
         groupId = "familie-ks-barnehagelister-group",
         topics = [KafkaConfig.BARNEHAGELISTE_TOPIC],
-        containerFactory = "earliestConsumerFactory",
+        containerFactory = "earliestConcurrentKafkaListenerContainerFactory",
     )
     fun listen(
         consumerRecord: ConsumerRecord<String, String>,
