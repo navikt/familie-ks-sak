@@ -13,8 +13,6 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.NY_ADOPSJON_BARNETS_ALDER_VALIDERING
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -58,7 +56,6 @@ class VilkårsvurderingStegTest {
     private val søknadGrunnlagService: SøknadGrunnlagService = mockk()
     private val beregningService: BeregningService = mockk()
     private val kompetanseService: KompetanseService = mockk()
-    private val unleashService: UnleashNextMedContextService = mockk()
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
@@ -82,7 +79,6 @@ class VilkårsvurderingStegTest {
             beregningService,
             kompetanseService,
             barnetsVilkårValidator,
-            unleashService,
         )
 
     private val søker = randomAktør()
@@ -98,15 +94,15 @@ class VilkårsvurderingStegTest {
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
             every { søknadGrunnlagMock.tilSøknadDto() } returns
-                SøknadDto(
-                    søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
-                    barnaMedOpplysninger =
-                        listOf(
-                            BarnMedOpplysningerDto(ident = "barn1"),
-                            BarnMedOpplysningerDto("barn2"),
-                        ),
-                    "begrunnelse",
-                )
+                    SøknadDto(
+                        søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                        barnaMedOpplysninger =
+                            listOf(
+                                BarnMedOpplysningerDto(ident = "barn1"),
+                                BarnMedOpplysningerDto("barn2"),
+                            ),
+                        "begrunnelse",
+                    )
         }
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
@@ -120,7 +116,6 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
-        every { unleashService.isEnabled(NY_ADOPSJON_BARNETS_ALDER_VALIDERING) } returns true
     }
 
     @Test
@@ -248,11 +243,11 @@ class VilkårsvurderingStegTest {
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
             every { søknadGrunnlagMock.tilSøknadDto() } returns
-                SøknadDto(
-                    søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
-                    barnaMedOpplysninger = emptyList(),
-                    "begrunnelse",
-                )
+                    SøknadDto(
+                        søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                        barnaMedOpplysninger = emptyList(),
+                        "begrunnelse",
+                    )
         }
 
         val personopplysningGrunnlag =
@@ -339,7 +334,7 @@ class VilkårsvurderingStegTest {
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
-                "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
+                    "Hele eller deler av perioden der barnets alder vilkåret er oppfylt er ikke vurdert.",
             exception.message,
         )
     }
@@ -381,8 +376,8 @@ class VilkårsvurderingStegTest {
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
-                " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
-                "Du må fjerne denne perioden for å kunne fortsette",
+                    " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
+                    "Du må fjerne denne perioden for å kunne fortsette",
             exception.message,
         )
     }
@@ -427,7 +422,7 @@ class VilkårsvurderingStegTest {
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
-                "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
+                    "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
             exception.message,
         )
     }

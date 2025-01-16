@@ -17,10 +17,9 @@ class BarnetsAlderVilkårValidator(
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
-        skalBrukeNyValideringForAdopsjonsbarn: Boolean = true,
     ): List<String> {
         val vilkårLovverkInformasjonForBarn =
-            if (perioder.any { it.verdi.erAdopsjonOppfylt() } && skalBrukeNyValideringForAdopsjonsbarn) {
+            if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
                 val fomAdoptertBarn = perioder.minOf { it.fom }.toYearMonth()
                 val tomAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth()
 
