@@ -32,9 +32,7 @@ class KSBarnehagelisterConsumer(
     ) {
         logger.info("Barnehagebarn mottatt fra familie-ks-barnehagelister med id ${consumerRecord.key()}")
 
-        val barnehagebarn: Barnehagebarn = objectMapper
-            .readValue(consumerRecord.value(), Barnehagebarn::class.java)
-            .copy(kildeTopic = KafkaConfig.BARNEHAGELISTE_TOPIC)
+        val barnehagebarn: Barnehagebarn = objectMapper.readValue(consumerRecord.value(), Barnehagebarn::class.java)
 
         // Sjekk at vi ikke har mottat meldingen tidligere
         if (barnehageBarnService.erBarnehageBarnMottattTidligere(barnehagebarn)) {
