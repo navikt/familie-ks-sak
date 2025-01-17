@@ -62,7 +62,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelse,
                 sisteAndelPerKjede = emptyMap(),
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
@@ -152,7 +151,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = TilkjentYtelse(behandling = behandling, opprettetDato = tidNå, endretDato = tidNå),
                 sisteAndelPerKjede = andelTilkjentYtelser.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
@@ -242,7 +240,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 sisteAndelPerKjede = emptyMap(),
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(beregnetUtbetalingsoppdragLongId1.andeler)
@@ -290,7 +287,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 sisteAndelPerKjede = oppdaterteAndelerTilkjentYtelseFørsteBehandling.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
@@ -371,7 +367,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 sisteAndelPerKjede = emptyMap(),
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(oppdatertTilkjentYtelseIFørsteBehandling.andeler)
@@ -412,7 +407,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 sisteAndelPerKjede = oppdaterteAndelerTilkjentYtelseFørsteBehandling.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val utbetalingsoppdrag = oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag
@@ -500,7 +494,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 sisteAndelPerKjede = emptyMap(),
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(oppdatertTilkjentYtelseIFørsteBehandling.andeler)
@@ -548,7 +541,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIAndreBehandling,
                 sisteAndelPerKjede = oppdaterteAndelerTilkjentYtelseFørsteBehandling.groupBy { andelTilkjentYtelse -> IdentOgType(ident = andelTilkjentYtelse.aktør.aktivFødselsnummer(), type = YtelsetypeKS.ORDINÆR_KONTANTSTØTTE) }.filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }.mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = false,
             )
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
@@ -617,7 +609,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelseIFørsteBehandling,
                 sisteAndelPerKjede = emptyMap(),
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = true,
             )
 
         val oppdaterteAndelerTilkjentYtelseFørsteBehandling = tilkjentYtelseIFørsteBehandling.tilAndelerMedOppdatertOffset(oppdatertTilkjentYtelseIFørsteBehandling.andeler)
@@ -673,7 +664,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                         .filterValues { andelTilkjentYtelse -> andelTilkjentYtelse.any { it.periodeOffset != null } }
                         .mapValues { it.value.maxBy { andelTilkjentYtelse -> andelTilkjentYtelse.periodeOffset!! } },
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = true,
             )
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
@@ -710,7 +700,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                 nyTilkjentYtelse = tilkjentYtelse,
                 sisteAndelPerKjede = emptyMap(),
                 erSimulering = false,
-                skalSendeOvergangsordningAndeler = true,
             )
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
@@ -801,7 +790,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                     nyTilkjentYtelse = tilkjentYtelsenyBehandling,
                     sisteAndelPerKjede = sisteAndelPerKjede,
                     erSimulering = false,
-                    skalSendeOvergangsordningAndeler = true,
                 ).utbetalingsoppdrag
 
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
@@ -894,7 +882,6 @@ internal class UtbetalingsoppdragGeneratorTest {
                     nyTilkjentYtelse = tilkjentYtelseAndreOvergangsordningBehandlingMed1MånedMindre,
                     sisteAndelPerKjede = sisteAndelPerKjede,
                     erSimulering = false,
-                    skalSendeOvergangsordningAndeler = true,
                 ).utbetalingsoppdrag
 
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))

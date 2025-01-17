@@ -6,8 +6,6 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.OVERGANGSORDNING
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -34,7 +32,6 @@ class OvergangsordningAndelController(
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     @PutMapping(path = ["/{behandlingId}/{overgangsordningAndelId}"])
     fun oppdaterOvergangsordningAndelOgOppdaterTilkjentYtelse(
@@ -42,8 +39,6 @@ class OvergangsordningAndelController(
         @PathVariable overgangsordningAndelId: Long,
         @Valid @RequestBody overgangsordningAndelDto: OvergangsordningAndelDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        validerAtOvergangsordningToggleErPå()
-
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -69,8 +64,6 @@ class OvergangsordningAndelController(
         @PathVariable behandlingId: Long,
         @PathVariable overgangsordningAndelId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        validerAtOvergangsordningToggleErPå()
-
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -94,8 +87,6 @@ class OvergangsordningAndelController(
     fun opprettTomOvergangsordningAndel(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        validerAtOvergangsordningToggleErPå()
-
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -114,11 +105,5 @@ class OvergangsordningAndelController(
         tilbakestillBehandlingService.tilbakestillBehandlingTilBehandlingsresultat(behandlingId = behandling.id)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
-    }
-
-    private fun validerAtOvergangsordningToggleErPå() {
-        if (!unleashNextMedContextService.isEnabled(OVERGANGSORDNING)) {
-            throw FunksjonellFeil("Behandling med årsak overgangsordning er ikke tilgjengelig")
-        }
     }
 }

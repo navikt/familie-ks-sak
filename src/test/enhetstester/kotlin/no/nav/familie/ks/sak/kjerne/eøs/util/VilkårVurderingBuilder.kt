@@ -107,7 +107,6 @@ data class VilkårsvurderingBuilder(
                         unleashService = mockUnleashService(false),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
-                unleashService = mockUnleashService(true),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
@@ -154,15 +153,14 @@ data class UtdypendeVilkårRegelverkResultat(
 fun String.tilUtdypendeVilkårRegelverkResultatTidslinje(
     vilkår: Vilkår,
     start: YearMonth,
-) =
-    this.tilTidslinje(start) { char ->
-        when (char.lowercaseChar()) {
-            '+' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null)
-            'n' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, NASJONALE_REGLER)
-            'x' -> UtdypendeVilkårRegelverkResultat(vilkår, IKKE_OPPFYLT, null)
-            'e' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN)
-            'é' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN, DELT_BOSTED)
-            'd' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null, DELT_BOSTED)
-            else -> null
-        }
+) = this.tilTidslinje(start) { char ->
+    when (char.lowercaseChar()) {
+        '+' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null)
+        'n' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, NASJONALE_REGLER)
+        'x' -> UtdypendeVilkårRegelverkResultat(vilkår, IKKE_OPPFYLT, null)
+        'e' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN)
+        'é' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN, DELT_BOSTED)
+        'd' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null, DELT_BOSTED)
+        else -> null
     }
+}

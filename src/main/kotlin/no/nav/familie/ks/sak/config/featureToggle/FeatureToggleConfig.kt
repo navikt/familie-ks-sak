@@ -8,9 +8,6 @@ class FeatureToggleConfig {
         const val KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV = "familie-ks-sak.behandling.korreksjon-vedtaksbrev"
         const val KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER = "familie-ks-sak.kan-opprette-og-endre-sammensatte-kontrollsaker"
         const val KAN_KJORE_LOVENDRING_FLERE_GANGER = "familie-ks-sak.kan-kjore-lovendring-flere-ganger"
-        const val OVERGANGSORDNING = "familie-ks-sak.overgangsordning"
-        const val GODKJENNE_OVERGANGSORDNING = "familie-ks-sak.godkjenne-overgangsordning"
-        const val TILLAT_OVERLAPP_I_UTBETALING = "familie-ks-sak.tillat-overlapp-i-utbetaling"
 
         // Ikke operasjonelle
         const val OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER = "familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"
