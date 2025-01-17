@@ -13,8 +13,6 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.OVERGANGSORDNING
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
@@ -47,9 +45,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
     private lateinit var overgangsordningAndelRepository: OvergangsordningAndelRepository
 
     @MockkBean
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
-
-    @MockkBean
     private lateinit var integrasjonClient: IntegrasjonClient
 
     private var token = ""
@@ -76,7 +71,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
         )
         every { integrasjonClient.hentLand(any()) } returns "Norge"
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
-        every { unleashNextMedContextService.isEnabled(OVERGANGSORDNING) } returns true
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
     }
 
@@ -133,7 +127,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             val gamleOvergangsordningAndeler =
                 listOf(
                     OvergangsordningAndel(
-                        id = 0,
                         behandlingId = behandling.id,
                         person = barn1,
                         antallTimer = BigDecimal(20),
@@ -141,7 +134,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                         tom = barn1.fødselsdato.plusMonths(21).toYearMonth(),
                     ),
                     OvergangsordningAndel(
-                        id = 1,
                         behandlingId = behandling.id,
                         person = barn1,
                         antallTimer = BigDecimal.ZERO,
@@ -149,7 +141,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                         tom = barn1.fødselsdato.plusMonths(23).toYearMonth(),
                     ),
                     OvergangsordningAndel(
-                        id = 2,
                         behandlingId = behandling.id,
                         person = barn2,
                         fom = barn2.fødselsdato.plusMonths(20).toYearMonth(),
@@ -227,21 +218,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
 
     @Nested
     inner class OpprettTomOvergangsordningAndel {
-        @Test
-        fun `skal returnere funksjonell feil dersom toggle ikke er skrudd på`() {
-            every { unleashNextMedContextService.isEnabled(OVERGANGSORDNING) } returns false
-
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                post("$overgangsordningAndelControllerUrl/${behandling.id}")
-            } Then {
-                statusCode(200)
-                body("status", Is("FUNKSJONELL_FEIL"))
-                body("frontendFeilmelding", Is("Behandling med årsak overgangsordning er ikke tilgjengelig"))
-            }
-        }
-
         @Test
         fun `skal returnere funksjonell feil dersom behandling ikke har årsak OVERGANGSORDNING_2024`() {
             opprettSøkerFagsakOgBehandling(

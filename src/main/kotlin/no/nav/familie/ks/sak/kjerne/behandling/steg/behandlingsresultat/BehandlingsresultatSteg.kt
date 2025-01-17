@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -14,7 +13,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -32,7 +30,6 @@ class BehandlingsresultatSteg(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
-    private val unleashService: UnleashService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -56,7 +53,7 @@ class BehandlingsresultatSteg(
             personResultaterForBarn = personResultaterForBarn,
         )
 
-        if (behandling.erOvergangsordning() && unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
+        if (behandling.erOvergangsordning()) {
             val overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId)
             val sisteVedtatteBehandling =
                 behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)

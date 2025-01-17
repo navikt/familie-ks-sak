@@ -6,11 +6,37 @@ import java.time.LocalDate
 data class UtbetalingEtterKAVedtakBrevDto(
     override val mal: Brevmal = Brevmal.UTBETALING_ETTER_KA_VEDTAK,
     override val data: UtbetalingEtterKAVedtakDataDto,
-) : BrevDto
+) : BrevDto {
+    constructor(
+        navn: String,
+        fodselsnummer: String,
+        fritekst: String? = null,
+        enhet: String,
+        saksbehandlerNavn: String,
+    ) : this(
+        data =
+            UtbetalingEtterKAVedtakDataDto(
+                flettefelter =
+                    UtbetalingEtterKAVedtakDataDto.FlettefelterDto(
+                        navn = navn,
+                        fodselsnummer = fodselsnummer,
+                    ),
+                delmalData =
+                    UtbetalingEtterKAVedtakDataDto.DelmalData(
+                        SignaturDelmal(
+                            enhet = enhet,
+                            saksbehandlerNavn = saksbehandlerNavn,
+                        ),
+                    ),
+                fritekst = fritekst,
+            ),
+    )
+}
 
 data class UtbetalingEtterKAVedtakDataDto(
     override val delmalData: DelmalData,
     override val flettefelter: FlettefelterDto,
+    val fritekst: String? = null,
 ) : BrevDataDto {
     data class FlettefelterDto(
         override val navn: Flettefelt,
@@ -28,6 +54,5 @@ data class UtbetalingEtterKAVedtakDataDto(
 
     data class DelmalData(
         val signatur: SignaturDelmal,
-        val fritekstAvsnitt: FritekstAvsnitt?,
     )
 }

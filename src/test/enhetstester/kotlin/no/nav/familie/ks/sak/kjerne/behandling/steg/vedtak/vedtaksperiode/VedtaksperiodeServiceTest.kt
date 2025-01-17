@@ -364,7 +364,7 @@ internal class VedtaksperiodeServiceTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList()))
 
-        val revurdering = lagBehandling()
+        val revurdering = lagBehandling(id = 2)
         val andelTilkjentYtelseForRevurdering =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
@@ -421,7 +421,7 @@ internal class VedtaksperiodeServiceTest {
                 AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
             )
 
-        val revurdering = lagBehandling()
+        val revurdering = lagBehandling(id = 2)
         val andelTilkjentYtelseForRevurdering1 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),

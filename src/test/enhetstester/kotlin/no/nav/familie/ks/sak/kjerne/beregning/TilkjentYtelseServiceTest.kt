@@ -66,7 +66,7 @@ internal class TilkjentYtelseServiceTest {
 
     private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, mockUnleashService(true))
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock)
 
     @BeforeEach
     fun init() {

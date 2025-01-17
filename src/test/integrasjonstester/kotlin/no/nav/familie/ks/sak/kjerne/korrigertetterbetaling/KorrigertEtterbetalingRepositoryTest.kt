@@ -24,7 +24,6 @@ class KorrigertEtterbetalingRepositoryTest(
     fun `finnAktivtKorrigeringPåBehandling skal returnere null dersom det ikke eksisterer en aktiv etterbetaling korrigering på behandling`() {
         val inaktivKorrigertEtterbetaling =
             KorrigertEtterbetaling(
-                id = 10000001,
                 årsak = KorrigertEtterbetalingÅrsak.REFUSJON_FRA_ANDRE_MYNDIGHETER,
                 begrunnelse = "Test på inaktiv korrigering",
                 beløp = 1000,
@@ -44,7 +43,6 @@ class KorrigertEtterbetalingRepositoryTest(
     fun `finnAktivtKorrigeringPåBehandling skal returnere aktiv korrigering på behandling dersom det finnes`() {
         val aktivKorrigertEtterbetaling =
             KorrigertEtterbetaling(
-                id = 10000002,
                 årsak = KorrigertEtterbetalingÅrsak.REFUSJON_FRA_ANDRE_MYNDIGHETER,
                 begrunnelse = "Test på aktiv korrigering",
                 beløp = 1000,
@@ -65,7 +63,6 @@ class KorrigertEtterbetalingRepositoryTest(
     fun `Det skal kastes DataIntegrityViolationException dersom det forsøkes å lagre aktivt korrigering når det allerede finnes en`() {
         val aktivKorrigertEtterbetaling =
             KorrigertEtterbetaling(
-                id = 10000007,
                 årsak = KorrigertEtterbetalingÅrsak.REFUSJON_FRA_ANDRE_MYNDIGHETER,
                 begrunnelse = "Test på aktiv korrigering",
                 beløp = 1000,
@@ -75,7 +72,6 @@ class KorrigertEtterbetalingRepositoryTest(
 
         val aktivKorrigertEtterbetaling2 =
             KorrigertEtterbetaling(
-                id = 10000008,
                 årsak = KorrigertEtterbetalingÅrsak.REFUSJON_FRA_ANDRE_MYNDIGHETER,
                 begrunnelse = "Test på aktiv korrigering",
                 beløp = 1000,
@@ -94,7 +90,6 @@ class KorrigertEtterbetalingRepositoryTest(
     fun `hentAlleKorrigeringPåBehandling skal returnere alle KorrigertEtterbetaling på behandling`() {
         val aktivKorrigertEtterbetaling =
             KorrigertEtterbetaling(
-                id = 10000003,
                 årsak = KorrigertEtterbetalingÅrsak.REFUSJON_FRA_ANDRE_MYNDIGHETER,
                 begrunnelse = "1",
                 beløp = 1000,
@@ -104,7 +99,6 @@ class KorrigertEtterbetalingRepositoryTest(
 
         val inaktivKorrigertEtterbetaling =
             KorrigertEtterbetaling(
-                id = 10000004,
                 årsak = KorrigertEtterbetalingÅrsak.REFUSJON_FRA_ANDRE_MYNDIGHETER,
                 begrunnelse = "2",
                 beløp = 1000,

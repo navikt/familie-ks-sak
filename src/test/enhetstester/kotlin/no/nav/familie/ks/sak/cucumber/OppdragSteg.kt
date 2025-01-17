@@ -107,7 +107,6 @@ class OppdragSteg {
             sisteAndelPerKjede = sisteAndelPerIdent,
             nyTilkjentYtelse = tilkjentYtelse,
             erSimulering = erSimulering,
-            skalSendeOvergangsordningAndeler = true,
         )
     }
 

@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import io.mockk.every
-import io.mockk.mockk
 import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -24,9 +22,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtB
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -50,13 +46,6 @@ internal class TilkjentYtelseValidatorTest {
         )
     var vilkårsvurdering = lagVilkårsvurdering(søkerAktør = søker.aktør, behandling = behandling, resultat = Resultat.OPPFYLT, søkerPeriodeFom = LocalDate.of(2021, 1, 1))
     private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
-
-    private val unleashService = mockk<UnleashService>()
-
-    @BeforeEach
-    fun setup() {
-        every { unleashService.isEnabled(any()) } returns true
-    }
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 11 måneder`() {
@@ -339,7 +328,6 @@ internal class TilkjentYtelseValidatorTest {
                         Pair(person, andreTilkjenteYtelser),
                     ),
                     personopplysningGrunnlag,
-                    unleashService = unleashService,
                 )
             }
 
@@ -393,7 +381,6 @@ internal class TilkjentYtelseValidatorTest {
                 Pair(person, andreTilkjenteYtelser),
             ),
             personopplysningGrunnlag,
-            unleashService = unleashService,
         )
     }
 
