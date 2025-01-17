@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.barnehagelister
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
+import no.nav.familie.ks.sak.barnehagelister.domene.KSBarnehagebarnDTO
 import no.nav.familie.ks.sak.config.KafkaConfig
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.unleash.UnleashService
@@ -34,8 +35,8 @@ class KSBarnehagelisterConsumer(
 
         val barnehagebarn: Barnehagebarn =
             objectMapper
-                .readValue(consumerRecord.value(), Barnehagebarn::class.java)
-                .copy(kildeTopic = KafkaConfig.BARNEHAGELISTE_TOPIC)
+                .readValue(consumerRecord.value(), KSBarnehagebarnDTO::class.java)
+                .tilBarnehagebarn()
 
         // Sjekk at vi ikke har mottat meldingen tidligere
         if (barnehageBarnService.erBarnehageBarnMottattTidligere(barnehagebarn)) {
