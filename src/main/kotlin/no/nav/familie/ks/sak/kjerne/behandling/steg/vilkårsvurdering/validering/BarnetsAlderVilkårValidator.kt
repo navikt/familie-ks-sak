@@ -23,7 +23,7 @@ class BarnetsAlderVilkårValidator(
                 VilkårLovverkInformasjonForBarn(
                     fødselsdato = barn.fødselsdato,
                     periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
-                    periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth()
+                    periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth(),
                 )
             } else {
                 VilkårLovverkInformasjonForBarn(barn.fødselsdato)
