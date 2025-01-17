@@ -34,7 +34,7 @@ class KSBarnehagelisterConsumer(
 
         val barnehagebarn: Barnehagebarn = objectMapper
             .readValue(consumerRecord.value(), Barnehagebarn::class.java)
-            .copy(kilde = KafkaConfig.BARNEHAGELISTE_TOPIC)
+            .copy(kildeTopic = KafkaConfig.BARNEHAGELISTE_TOPIC)
 
         // Sjekk at vi ikke har mottat meldingen tidligere
         if (barnehageBarnService.erBarnehageBarnMottattTidligere(barnehagebarn)) {

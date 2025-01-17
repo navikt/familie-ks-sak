@@ -46,7 +46,7 @@ data class BarnInfolinje(
             kommuneNavn = kommuneNavn,
             kommuneNr = kommuneNr,
             arkivReferanse = arkivReferanse,
-            kilde = KafkaConfig.BARNEHAGELISTE_AAPEN_TOPIC,
+            kildeTopic = KafkaConfig.BARNEHAGELISTE_AAPEN_TOPIC,
         )
 }
 
