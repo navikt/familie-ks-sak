@@ -59,22 +59,11 @@ class EndretUtbetalingAndelService(
             hentEndredeUtbetalingAndeler(behandling.id)
                 .filter { it.id != endretUtbetalingAndelRequestDto.id }
 
-        val gyldigTomEtterDagensDato =
-            beregnGyldigTomIFremtiden(
-                andreEndredeAndelerPåBehandling = andreEndredeAndelerPåBehandling,
-                endretUtbetalingAndel = endretUtbetalingAndel,
-                andelTilkjentYtelser = andelTilkjentYtelser,
-            )
-
         validerTomDato(
             tomDato = endretUtbetalingAndel.tom,
-            gyldigTomEtterDagensDato = gyldigTomEtterDagensDato,
+            gyldigTomEtterDagensDato = endretUtbetalingAndel.tom,
             årsak = endretUtbetalingAndel.årsak,
         )
-
-        if (endretUtbetalingAndel.tom == null) {
-            endretUtbetalingAndel.tom = gyldigTomEtterDagensDato
-        }
 
         validerÅrsak(
             årsak = endretUtbetalingAndel.årsak,
