@@ -133,20 +133,11 @@ object EndretUtbetalingAndelValidator {
     }
 
     fun validerTomDato(
-        tomDato: YearMonth?,
-        gyldigTomEtterDagensDato: YearMonth?,
-        årsak: Årsak?,
+        tomDato: YearMonth,
     ) {
         val dagensDato = YearMonth.now()
-        if (årsak == Årsak.ALLEREDE_UTBETALT && tomDato?.isAfter(dagensDato) == true) {
-            val feilmelding =
-                "For årsak '${årsak.visningsnavn}' kan du ikke legge inn til og med dato som er i neste måned eller senere."
-
-            throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
-        }
-        if (tomDato?.isAfter(dagensDato) == true && tomDato != gyldigTomEtterDagensDato) {
-            val feilmelding =
-                "Du kan ikke legge inn til og med dato som er i neste måned eller senere. Om det gjelder en løpende periode vil systemet legge inn riktig dato for deg."
+        if (tomDato.isAfter(dagensDato)) {
+            val feilmelding = "Du kan ikke legge inn til og med dato som er i neste måned eller senere."
 
             throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
         }

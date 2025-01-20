@@ -32,8 +32,8 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = listOf(),
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato,
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
@@ -63,7 +63,7 @@ class BarnetsAlderVilkårValidator2021Test {
                                 ),
                             resultat = Resultat.OPPFYLT,
                         ),
-                    fom = fødselsdato,
+                    fom = fødselsdato.plusYears(5),
                     tom = fødselsdato.plusYears(6).withMonth(Month.SEPTEMBER.value),
                 ),
             )
@@ -73,8 +73,8 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = perioder,
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato,
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
@@ -107,8 +107,8 @@ class BarnetsAlderVilkårValidator2021Test {
                                 ),
                             resultat = Resultat.OPPFYLT,
                         ),
-                    fom = fødselsdato,
-                    tom = fødselsdato.plusYears(1).plusDays(1),
+                    fom = fødselsdato.plusYears(1),
+                    tom = fødselsdato.plusYears(2).plusDays(1),
                 ),
             )
 
@@ -117,8 +117,8 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = perioder,
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato,
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
@@ -129,7 +129,7 @@ class BarnetsAlderVilkårValidator2021Test {
     }
 
     @Test
-    fun `skal returnere feil om perioden sin fom er ulike barnets fødselsdato for barn som ikke er adoptert`() {
+    fun `skal returnere feil om perioden sin fom er ulik måneden barnet blir 1 år for barn som ikke er adoptert`() {
         // Arrange
         val fødselsdato = LocalDate.of(2022, 7, 31)
 
@@ -143,8 +143,8 @@ class BarnetsAlderVilkårValidator2021Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato,
-                    tom = fødselsdato.plusYears(1),
+                    fom = fødselsdato.plusYears(1).plusDays(1),
+                    tom = fødselsdato.plusYears(2),
                 ),
             )
 
@@ -153,8 +153,8 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = perioder,
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato.minusDays(1),
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
@@ -179,8 +179,8 @@ class BarnetsAlderVilkårValidator2021Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato,
-                    tom = fødselsdato.plusYears(1).plusDays(1),
+                    fom = fødselsdato.plusYears(1),
+                    tom = fødselsdato.plusYears(2).minusDays(1),
                 ),
             )
 
@@ -189,8 +189,8 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = perioder,
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato,
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
@@ -214,7 +214,7 @@ class BarnetsAlderVilkårValidator2021Test {
             dødsfall =
                 lagDødsfall(
                     person = person,
-                    dødsfallDato = fødselsdato.plusYears(1).plusDays(2),
+                    dødsfallDato = fødselsdato.plusYears(2).plusDays(2),
                 )
         }
 
@@ -222,8 +222,8 @@ class BarnetsAlderVilkårValidator2021Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato,
-                    tom = fødselsdato.plusYears(1).plusDays(1),
+                    fom = fødselsdato.plusYears(1),
+                    tom = fødselsdato.plusYears(2).plusDays(1),
                 ),
             )
 
@@ -232,8 +232,8 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = perioder,
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato,
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
@@ -244,7 +244,7 @@ class BarnetsAlderVilkårValidator2021Test {
     }
 
     @Test
-    fun `skal ikke returne feil når ingen feil blir oppdaget`() {
+    fun `skal ikke returne feil når tom-dato er lik dødsfalldato`() {
         // Arrange
         val fødselsdato = LocalDate.of(2022, 7, 31)
 
@@ -257,7 +257,7 @@ class BarnetsAlderVilkårValidator2021Test {
             dødsfall =
                 lagDødsfall(
                     person = person,
-                    dødsfallDato = fødselsdato.plusYears(1),
+                    dødsfallDato = fødselsdato.plusYears(2).minusDays(10),
                 )
         }
 
@@ -265,21 +265,8 @@ class BarnetsAlderVilkårValidator2021Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato,
-                    tom = fødselsdato.plusYears(1),
-                ),
-                IkkeNullbarPeriode(
-                    verdi =
-                        lagVilkårResultat(
-                            vilkårType = Vilkår.BARNETS_ALDER,
-                            utdypendeVilkårsvurderinger =
-                                listOf(
-                                    UtdypendeVilkårsvurdering.ADOPSJON,
-                                ),
-                            resultat = Resultat.OPPFYLT,
-                        ),
-                    fom = fødselsdato,
-                    tom = fødselsdato.plusYears(1),
+                    fom = fødselsdato.plusYears(1),
+                    tom = fødselsdato.plusYears(2).minusDays(10),
                 ),
             )
 
@@ -288,8 +275,41 @@ class BarnetsAlderVilkårValidator2021Test {
             barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                 perioder = perioder,
                 barn = person,
-                periodeFomBarnetsAlderLov2021 = fødselsdato,
-                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
+            )
+
+        // Assert
+        assertThat(validerBarnetsAlderVilkår).isEmpty()
+    }
+
+    @Test
+    fun `skal ikke returne feil når ingen feil blir oppdaget`() {
+        // Arrange
+        val fødselsdato = LocalDate.of(2022, 7, 31)
+
+        val person =
+            lagPerson(
+                aktør = randomAktør(),
+                fødselsdato = fødselsdato,
+            )
+
+        val perioder =
+            listOf(
+                IkkeNullbarPeriode(
+                    verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
+                    fom = fødselsdato.plusYears(1),
+                    tom = fødselsdato.plusYears(2),
+                ),
+            )
+
+        // Act
+        val validerBarnetsAlderVilkår =
+            barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
+                perioder = perioder,
+                barn = person,
+                periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1),
+                periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2),
             )
 
         // Assert
