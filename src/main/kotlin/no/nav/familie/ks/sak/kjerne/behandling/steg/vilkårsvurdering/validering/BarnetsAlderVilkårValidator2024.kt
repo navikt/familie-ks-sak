@@ -30,8 +30,8 @@ class BarnetsAlderVilkårValidator2024 {
                         ) ->
                         "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år."
 
-                    it.verdi.erAdopsjonOppfylt() && it.fom.plusMonths(7) < it.tom ->
-                        "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 7 måneder."
+                    it.verdi.erAdopsjonOppfylt() && it.fom.plusMonths(6) < it.tom ->
+                        "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 6 måneder."
 
                     !it.verdi.erAdopsjonOppfylt() && !it.fom.isEqual(maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024)) ->
                         "F.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 13 måneder eller 01.08.24 dersom barnet fyller 13 måneder før 01.08.24."
