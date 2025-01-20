@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.endretutbetaling
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -59,11 +60,9 @@ class EndretUtbetalingAndelService(
             hentEndredeUtbetalingAndeler(behandling.id)
                 .filter { it.id != endretUtbetalingAndelRequestDto.id }
 
-        validerTomDato(
-            tomDato = endretUtbetalingAndel.tom,
-            gyldigTomEtterDagensDato = endretUtbetalingAndel.tom,
-            årsak = endretUtbetalingAndel.årsak,
-        )
+        val tomDatoPåEndretUtbetalingAndel = endretUtbetalingAndel.tom ?: throw Feil("Tom dato må være satt på dette tidspunktet.")
+
+        validerTomDato(tomDato = tomDatoPåEndretUtbetalingAndel)
 
         validerÅrsak(
             årsak = endretUtbetalingAndel.årsak,
