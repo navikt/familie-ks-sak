@@ -19,7 +19,6 @@ class BarnetsVilkårValidator(
     fun validerAtDatoErKorrektIBarnasVilkår(
         vilkårsvurdering: Vilkårsvurdering,
         barna: List<Person>,
-        skalBrukeNyValideringForAdopsjonsbarn: Boolean = true,
     ) {
         val funksjonelleFeil = mutableListOf<String>()
 
@@ -69,7 +68,6 @@ class BarnetsVilkårValidator(
                 barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                     perioder = barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
                     barn = barn,
-                    skalBrukeNyValideringForAdopsjonsbarn = skalBrukeNyValideringForAdopsjonsbarn,
                 )
             funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)
         }

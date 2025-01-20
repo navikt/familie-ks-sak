@@ -17,14 +17,14 @@ class BarnetsAlderVilkårValidator(
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
-        skalBrukeNyValideringForAdopsjonsbarn: Boolean = true,
     ): List<String> {
         val vilkårLovverkInformasjonForBarn =
-            if (perioder.any { it.verdi.erAdopsjonOppfylt() } && skalBrukeNyValideringForAdopsjonsbarn) {
-                val fomAdoptertBarn = perioder.minOf { it.fom }.toYearMonth()
-                val tomAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth()
-
-                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, periodeFomForAdoptertBarn = fomAdoptertBarn, periodeTomForAdoptertBarn = tomAdoptertBarn)
+            if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
+                VilkårLovverkInformasjonForBarn(
+                    fødselsdato = barn.fødselsdato,
+                    periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
+                    periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth(),
+                )
             } else {
                 VilkårLovverkInformasjonForBarn(barn.fødselsdato)
             }
