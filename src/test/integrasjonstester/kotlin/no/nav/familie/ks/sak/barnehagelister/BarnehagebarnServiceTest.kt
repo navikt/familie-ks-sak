@@ -66,4 +66,32 @@ class BarnehagebarnServiceTest(
         // Assert
         assertThat(erBarnehagebarnMottattTidligere).isFalse()
     }
+
+    @Test
+    fun `erBarnehageBarnMottattTidligere returnerer false hvis tom er ulik`() {
+        // Arrange
+        val barnehagebarnMedUlikFom = barnehagebarn.copy(tom = LocalDate.now().plusMonths(1))
+
+        barnehagebarnService.lagreBarnehageBarn(barnehagebarn)
+
+        // Act
+        val erBarnehagebarnMottattTidligere = barnehagebarnService.erBarnehageBarnMottattTidligere(barnehagebarnMedUlikFom)
+
+        // Assert
+        assertThat(erBarnehagebarnMottattTidligere).isFalse()
+    }
+
+    @Test
+    fun `erBarnehageBarnMottattTidligere returnerer false hvis arkivReferanse er ulik`() {
+        // Arrange
+        val barnehagebarnMedUlikFom = barnehagebarn.copy(arkivReferanse = UUID.randomUUID().toString())
+
+        barnehagebarnService.lagreBarnehageBarn(barnehagebarn)
+
+        // Act
+        val erBarnehagebarnMottattTidligere = barnehagebarnService.erBarnehageBarnMottattTidligere(barnehagebarnMedUlikFom)
+
+        // Assert
+        assertThat(erBarnehagebarnMottattTidligere).isFalse()
+    }
 }
