@@ -35,8 +35,7 @@ class BarnehageListeService(
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .registerModule(JavaTimeModule())
 
-    fun erBarnehagelisteMottattTidligere(meldingId: String): Boolean =
-        barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
+    fun erBarnehagelisteMottattTidligere(meldingId: String): Boolean = barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
 
     fun hentUarkiverteBarnehagelisteUuider(): List<String> = barnehagelisteMottattRepository.findAllIds()
 
