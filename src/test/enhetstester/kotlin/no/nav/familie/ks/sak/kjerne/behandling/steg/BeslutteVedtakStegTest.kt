@@ -5,7 +5,6 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
-import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
@@ -30,7 +29,6 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -80,45 +78,6 @@ class BeslutteVedtakStegTest {
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
-    }
-
-    @Test
-    fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024, feature toggle GODKJENNE_OVERGANGSORDNING er av og resultat er GODKJENT`() {
-        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
-        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
-
-        val beslutning =
-            BesluttVedtakDto(
-                beslutning = Beslutning.GODKJENT,
-                begrunnelse = "GODKJENT",
-            )
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, beslutning) }
-
-        assertThat(
-            funksjonellFeil.message,
-            Is("Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå."),
-        )
-    }
-
-    @Test
-    fun `utførSteg skal ikke kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024, feature toggle GODKJENNE_OVERGANGSORDNING er av og resultat er UNDERKJENT`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
-        every { behandlingService.hentBehandling(200) } returns behandling
-        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
-        every { brevmottakerService.hentBrevmottakere(any()) } returns mockk()
-        every { totrinnskontrollService.besluttTotrinnskontroll(any(), any(), any(), any(), any()) } returns mockk(relaxed = true)
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
-        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
-        justRun { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
-
-        val beslutning =
-            BesluttVedtakDto(
-                beslutning = Beslutning.UNDERKJENT,
-                begrunnelse = "UNDERKJENT",
-            )
-
-        assertDoesNotThrow { beslutteVedtakSteg.utførSteg(200, beslutning) }
     }
 
     @Test

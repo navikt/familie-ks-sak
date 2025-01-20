@@ -566,7 +566,6 @@ internal class UtbetalingsperiodeUtilTest {
                         unleashService = mockUnleashService(false),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
-                unleashService = mockUnleashService(true),
             )
 
         val tilkjentYtelse =
