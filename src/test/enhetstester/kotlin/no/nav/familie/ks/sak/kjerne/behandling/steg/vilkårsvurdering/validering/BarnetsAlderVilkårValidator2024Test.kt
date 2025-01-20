@@ -85,7 +85,7 @@ class BarnetsAlderVilkårValidator2024Test {
     }
 
     @Test
-    fun `skal returnere feil om differansen mellom fom og tom er mer enn syv måneder for barn som er adoptert`() {
+    fun `skal returnere feil om differansen mellom fom og tom er mer enn seks måneder for barn som er adoptert`() {
         // Arrange
         val fødselsdato = LocalDate.of(2023, 10, 17)
 
@@ -108,7 +108,7 @@ class BarnetsAlderVilkårValidator2024Test {
                             resultat = Resultat.OPPFYLT,
                         ),
                     fom = fødselsdato.plusYears(1),
-                    tom = fødselsdato.plusYears(2),
+                    tom = fødselsdato.plusYears(1).plusMonths(7),
                 ),
             )
 
@@ -124,7 +124,7 @@ class BarnetsAlderVilkårValidator2024Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 7 måneder.",
+            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 6 måneder.",
         )
     }
 
