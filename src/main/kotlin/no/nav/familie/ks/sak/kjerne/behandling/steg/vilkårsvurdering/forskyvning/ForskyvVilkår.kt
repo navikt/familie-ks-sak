@@ -37,13 +37,24 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
         )
     }
 
-fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(
+private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(
     person: Person,
 ): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
 
     return forskjøvedeVilkårResultater
         .kombiner { it.toList() }
+        .tilPerioderIkkeNull()
+        .tilTidslinje()
+}
+
+fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
+    person: Person,
+): Tidslinje<List<VilkårResultat>> {
+    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
+
+    return forskjøvedeVilkårResultater
+        .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
         .tilPerioderIkkeNull()
         .tilTidslinje()
 }
@@ -66,17 +77,6 @@ private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
         }
 
     return forskjøvedeVilkårResultater
-}
-
-fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
-    person: Person,
-): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
-
-    return forskjøvedeVilkårResultater
-        .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
-        .tilPerioderIkkeNull()
-        .tilTidslinje()
 }
 
 fun forskyvVilkårResultater(
