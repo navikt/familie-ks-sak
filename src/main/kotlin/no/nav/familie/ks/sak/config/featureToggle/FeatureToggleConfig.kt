@@ -7,6 +7,7 @@ class FeatureToggleConfig {
         const val TEKNISK_ENDRING = "familie-ks-sak.behandling.teknisk-endring"
         const val KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV = "familie-ks-sak.behandling.korreksjon-vedtaksbrev"
         const val KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER = "familie-ks-sak.kan-opprette-og-endre-sammensatte-kontrollsaker"
+        const val LAGRE_BARNEHAGEBARN_I_KS = "familie-ks-sak.lagre-barnehagebarn-i-ks"
 
         // Ikke operasjonelle
         const val OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER = "familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"
