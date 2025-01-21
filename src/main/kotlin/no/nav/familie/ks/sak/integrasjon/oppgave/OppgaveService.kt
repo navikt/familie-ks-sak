@@ -230,11 +230,7 @@ class OppgaveService(
         fagsakId: Long,
         beskrivelse: String? = null,
     ): String =
-        if (beskrivelse != null) {
-            beskrivelse + "\n"
-        } else {
-            ""
-        } + (
+        beskrivelse?.let { it + "\n" } + (
             "----- Opprettet av familie-ks-sak ${
                 LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
             } --- \n" +
