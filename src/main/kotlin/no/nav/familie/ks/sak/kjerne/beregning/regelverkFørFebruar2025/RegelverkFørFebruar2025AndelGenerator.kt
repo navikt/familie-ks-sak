@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator.Companion.kombinerForskjøvedeTidslinjerTilOppfyltTidslinje
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator.Companion.lagAndelerTilkjentYtelse
