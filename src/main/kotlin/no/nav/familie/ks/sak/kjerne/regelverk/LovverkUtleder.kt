@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.regelverk
 import java.time.LocalDate
 
 object LovverkUtleder {
-    // TODO: Korriger dato når endelig lovendring er vedtatt
     val FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025 = LocalDate.of(2024, 1, 1)
 
     // TODO: Legg inn støtte for adopsjon
