@@ -4,8 +4,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import no.nav.familie.ks.sak.kjerne.regelverk.Lovverk
 import org.springframework.stereotype.Component
 
 @Component

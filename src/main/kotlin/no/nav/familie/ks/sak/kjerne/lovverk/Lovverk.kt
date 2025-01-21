@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.regelverk
+package no.nav.familie.ks.sak.kjerne.lovverk
 
 // TODO: Disse navnene må oppdateres når endelig lovendring er vedtatt
 enum class Lovverk {

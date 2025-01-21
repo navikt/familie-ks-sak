@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.regelverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
