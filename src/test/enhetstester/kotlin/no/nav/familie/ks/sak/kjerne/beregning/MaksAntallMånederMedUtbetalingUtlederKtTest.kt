@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
