@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
+package no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025
 
 import io.mockk.every
 import io.mockk.mockk
@@ -21,7 +21,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 class RegelverkFørFebruar2025AndelGeneratorTest {
-    private val regelverkFørFebruar2025AndelGenerator: RegelverkFørFebruar2025AndelGenerator = RegelverkFørFebruar2025AndelGenerator()
+    private val lovverkFørFebruar2025AndelGenerator: LovverkFørFebruar2025AndelGenerator = LovverkFørFebruar2025AndelGenerator()
 
     @Test
     fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som kun treffer regelverk etter august 2024`() {
@@ -66,7 +66,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
 
         // Act
         val andelerTilkjentYtelse =
-            regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
+            lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
                 barn = barnRegelverkAugust2024,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,
@@ -98,7 +98,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
 
         // Act
         val andelerTilkjentYtelse =
-            regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
+            lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
                 barn = barnRegelverkAugust2024,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,
@@ -166,7 +166,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
 
         // Act
         val andelerTilkjentYtelse =
-            regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
+            lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
                 barn = barnRegelverkFørOgEtterAugust2024,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,
@@ -205,7 +205,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
 
         // Act
         val andelerTilkjentYtelse =
-            regelverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
+            lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
                 barn = barn,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,

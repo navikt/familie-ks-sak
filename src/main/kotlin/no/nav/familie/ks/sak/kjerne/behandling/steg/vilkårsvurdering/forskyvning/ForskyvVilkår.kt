@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.regelverk.Lovverk
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
@@ -81,11 +82,11 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
 fun forskyvVilkårResultater(
     vilkårType: Vilkår,
     alleVilkårResultater: List<VilkårResultat>,
-    regelverk: no.nav.familie.ks.sak.kjerne.regelverk.Regelverk = no.nav.familie.ks.sak.kjerne.regelverk.Regelverk.FØR_LOVENDRING_2025,
+    lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,
 ): List<Periode<VilkårResultat>> =
-    when (regelverk) {
-        no.nav.familie.ks.sak.kjerne.regelverk.Regelverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(vilkårType, alleVilkårResultater)
-        no.nav.familie.ks.sak.kjerne.regelverk.Regelverk.LOVENDRING_FEBRUAR_2025 -> TODO()
+    when (lovverk) {
+        Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(vilkårType, alleVilkårResultater)
+        Lovverk.LOVENDRING_FEBRUAR_2025 -> TODO()
     }
 
 private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =

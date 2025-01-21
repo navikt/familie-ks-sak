@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025
+package no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.toYearMonth
