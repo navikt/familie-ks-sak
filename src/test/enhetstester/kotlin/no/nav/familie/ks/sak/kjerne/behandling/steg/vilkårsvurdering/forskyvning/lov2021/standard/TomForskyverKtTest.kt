@@ -4,7 +4,7 @@ import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.TilknyttetVilkårResultater
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.regelverkFørFebruar2025.lov2021.standard.forskyvTom
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2021.standard.forskyvTom
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

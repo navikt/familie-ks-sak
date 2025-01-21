@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.regelverkFørFebruar2025.ForskyvVilkårFørFebruar2025
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.ForskyvVilkårFørFebruar2025
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType

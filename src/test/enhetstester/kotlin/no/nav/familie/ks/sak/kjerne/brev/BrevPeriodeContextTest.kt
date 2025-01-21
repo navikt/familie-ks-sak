@@ -31,7 +31,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
@@ -462,7 +462,7 @@ fun lagBrevPeriodeContext(
 
     val andelerTilkjentYtelse =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFørFebruar2025AndelGenerator(), RegelverkLovendringFebruar2025AndelGenerator())),
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFørFebruar2025AndelGenerator(), LovverkFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(false),
         ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
 

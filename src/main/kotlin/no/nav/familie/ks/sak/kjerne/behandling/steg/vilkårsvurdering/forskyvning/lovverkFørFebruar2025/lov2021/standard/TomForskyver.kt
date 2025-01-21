@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.regelverkFørFebruar2025.lov2021.standard
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2021.standard
 
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned

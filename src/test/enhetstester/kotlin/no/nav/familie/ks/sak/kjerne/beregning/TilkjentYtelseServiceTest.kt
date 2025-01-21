@@ -25,7 +25,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
-import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
@@ -60,7 +60,7 @@ internal class TilkjentYtelseServiceTest {
 
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashService(false),
         )
 

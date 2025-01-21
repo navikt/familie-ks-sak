@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.regelverk.Lovverk
 import org.junit.jupiter.api.Assertions.assertInstanceOf
@@ -18,16 +18,16 @@ class AndelGeneratorLookupTest(
     @EnumSource(value = Lovverk::class)
     fun `skal finne alle implementasjoner av AndelGenerator`(lovverk: Lovverk) {
         // Act
-        val andelGenerator = andelGeneratorLookup.hentGeneratorForRegelverk(lovverk)
+        val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(lovverk)
 
         // Assert
         assertNotNull(andelGenerator)
     }
 
     @Test
-    fun `skal finne RegelverkFørFebruar2025AndelGenerator når regelverk er FØR_LOVENDRING_2025`() {
+    fun `skal finne LovverkFørFebruar2025AndelGenerator når lovverk er FØR_LOVENDRING_2025`() {
         // Act
-        val andelGenerator = andelGeneratorLookup.hentGeneratorForRegelverk(Lovverk.FØR_LOVENDRING_2025)
+        val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(Lovverk.FØR_LOVENDRING_2025)
 
         // Assert
         assertNotNull(andelGenerator)
@@ -35,12 +35,12 @@ class AndelGeneratorLookupTest(
     }
 
     @Test
-    fun `skal finne RegelverkLovendringFebruar2025AndelGenerator når regelverk er LOVENDRING_FEBRUAR_2025`() {
+    fun `skal finne LovverkFebruar2025AndelGenerator når lovverk er LOVENDRING_FEBRUAR_2025`() {
         // Act
-        val andelGenerator = andelGeneratorLookup.hentGeneratorForRegelverk(Lovverk.LOVENDRING_FEBRUAR_2025)
+        val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(Lovverk.LOVENDRING_FEBRUAR_2025)
 
         // Assert
         assertNotNull(andelGenerator)
-        assertInstanceOf(RegelverkLovendringFebruar2025AndelGenerator::class.java, andelGenerator)
+        assertInstanceOf(LovverkFebruar2025AndelGenerator::class.java, andelGenerator)
     }
 }

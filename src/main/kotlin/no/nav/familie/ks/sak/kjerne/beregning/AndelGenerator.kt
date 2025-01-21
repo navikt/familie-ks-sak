@@ -53,6 +53,6 @@ interface AndelGenerator {
     class Lookup(
         private val andelGeneratorer: List<AndelGenerator>,
     ) {
-        fun hentGeneratorForRegelverk(lovverk: Lovverk) = andelGeneratorer.single { it.lovverk == lovverk }
+        fun hentGeneratorForLovverk(lovverk: Lovverk) = andelGeneratorer.single { it.lovverk == lovverk }
     }
 }

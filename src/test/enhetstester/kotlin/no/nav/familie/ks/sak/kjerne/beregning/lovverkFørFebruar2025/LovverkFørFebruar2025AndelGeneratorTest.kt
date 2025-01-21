@@ -20,36 +20,36 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class RegelverkFørFebruar2025AndelGeneratorTest {
+class LovverkFørFebruar2025AndelGeneratorTest {
     private val lovverkFørFebruar2025AndelGenerator: LovverkFørFebruar2025AndelGenerator = LovverkFørFebruar2025AndelGenerator()
 
     @Test
-    fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som kun treffer regelverk etter august 2024`() {
+    fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som kun treffer lovverk etter august 2024`() {
         // Arrange
         val søker = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(1991, 3, 16))), personType = PersonType.SØKER)
-        val barnRegelverkAugust2024 = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(2023, 8, 8))), personType = PersonType.BARN)
+        val barnLovverkAugust2024 = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(2023, 8, 8))), personType = PersonType.BARN)
         val vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling())
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
-        val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkAugust2024.aktør)
+        val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnLovverkAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
         val barnetsVilkår =
             lagVilkårResultater(
-                person = barnRegelverkAugust2024,
+                person = barnLovverkAugust2024,
                 personResultat = barnetsPersonResultat,
                 overstyrendeVilkårResultater =
                     listOf(
                         lagVilkårResultat(
                             personResultat = barnetsPersonResultat,
                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                            periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(1),
-                            periodeTom = barnRegelverkAugust2024.fødselsdato.plusYears(2),
+                            periodeFom = barnLovverkAugust2024.fødselsdato.plusYears(1),
+                            periodeTom = barnLovverkAugust2024.fødselsdato.plusYears(2),
                             behandlingId = 0L,
                             antallTimer = null,
                         ),
                         lagVilkårResultat(
                             personResultat = barnetsPersonResultat,
                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                            periodeFom = barnRegelverkAugust2024.fødselsdato.plusYears(2).plusDays(1),
+                            periodeFom = barnLovverkAugust2024.fødselsdato.plusYears(2).plusDays(1),
                             periodeTom = null,
                             antallTimer = BigDecimal(40),
                             resultat = Resultat.IKKE_OPPFYLT,
@@ -67,7 +67,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         // Act
         val andelerTilkjentYtelse =
             lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
-                barn = barnRegelverkAugust2024,
+                barn = barnLovverkAugust2024,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,
                 vilkårsvurdering = vilkårsvurdering,
@@ -80,15 +80,15 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
     }
 
     @Test
-    fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som kun treffer regelverk før august 2024`() {
+    fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som kun treffer lovverk før august 2024`() {
         // Arrange
         val søker = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(1991, 3, 16))), personType = PersonType.SØKER)
-        val barnRegelverkAugust2024 = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(2022, 7, 8))), personType = PersonType.BARN)
+        val barnLovverkAugust2024 = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(2022, 7, 8))), personType = PersonType.BARN)
         val vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling())
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
-        val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkAugust2024.aktør)
+        val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnLovverkAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
-        val barnetsVilkår = lagVilkårResultater(person = barnRegelverkAugust2024, personResultat = barnetsPersonResultat)
+        val barnetsVilkår = lagVilkårResultater(person = barnLovverkAugust2024, personResultat = barnetsPersonResultat)
         søkersPersonResultat.setSortedVilkårResultater(søkersVilkår.toSet())
         barnetsPersonResultat.setSortedVilkårResultater(barnetsVilkår.toSet())
         vilkårsvurdering.personResultater = setOf(søkersPersonResultat, barnetsPersonResultat)
@@ -99,7 +99,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         // Act
         val andelerTilkjentYtelse =
             lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
-                barn = barnRegelverkAugust2024,
+                barn = barnLovverkAugust2024,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,
                 vilkårsvurdering = vilkårsvurdering,
@@ -124,32 +124,32 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
     }
 
     @Test
-    fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som treffer regelverk før og etter august 2024`() {
+    fun `skal kombinere og mappe VilkårResultater til andeler tilkjent ytelse for barn som treffer lovverk før og etter august 2024`() {
         // Arrange
         val søker = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(1991, 3, 16))), personType = PersonType.SØKER)
-        val barnRegelverkFørOgEtterAugust2024 = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(2022, 9, 8))), personType = PersonType.BARN)
+        val barnLovverkFørOgEtterAugust2024 = lagPerson(aktør = randomAktør(fnr = randomFnr(fødselsdato = LocalDate.of(2022, 9, 8))), personType = PersonType.BARN)
         val vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling())
         val søkersPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
-        val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnRegelverkFørOgEtterAugust2024.aktør)
+        val barnetsPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnLovverkFørOgEtterAugust2024.aktør)
         val søkersVilkår = lagVilkårResultater(person = søker, personResultat = søkersPersonResultat)
         val barnetsVilkår =
             lagVilkårResultater(
-                person = barnRegelverkFørOgEtterAugust2024,
+                person = barnLovverkFørOgEtterAugust2024,
                 personResultat = barnetsPersonResultat,
                 overstyrendeVilkårResultater =
                     listOf(
                         lagVilkårResultat(
                             personResultat = barnetsPersonResultat,
                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                            periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(1),
-                            periodeTom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2),
+                            periodeFom = barnLovverkFørOgEtterAugust2024.fødselsdato.plusYears(1),
+                            periodeTom = barnLovverkFørOgEtterAugust2024.fødselsdato.plusYears(2),
                             behandlingId = 0L,
                             antallTimer = null,
                         ),
                         lagVilkårResultat(
                             personResultat = barnetsPersonResultat,
                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                            periodeFom = barnRegelverkFørOgEtterAugust2024.fødselsdato.plusYears(2).plusDays(1),
+                            periodeFom = barnLovverkFørOgEtterAugust2024.fødselsdato.plusYears(2).plusDays(1),
                             periodeTom = null,
                             antallTimer = BigDecimal(40),
                             resultat = Resultat.IKKE_OPPFYLT,
@@ -167,7 +167,7 @@ class RegelverkFørFebruar2025AndelGeneratorTest {
         // Act
         val andelerTilkjentYtelse =
             lovverkFørFebruar2025AndelGenerator.beregnAndelerForBarn(
-                barn = barnRegelverkFørOgEtterAugust2024,
+                barn = barnLovverkFørOgEtterAugust2024,
                 søker = søker,
                 tilkjentYtelse = tilkjentYtelse,
                 vilkårsvurdering = vilkårsvurdering,

@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.regelverkFørFebruar2025.lov2021.forskyvEtterLovgivning2021
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2021.forskyvEtterLovgivning2021
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
