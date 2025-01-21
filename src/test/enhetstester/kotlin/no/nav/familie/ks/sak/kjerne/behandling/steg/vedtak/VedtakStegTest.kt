@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -20,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
+import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -50,6 +52,9 @@ class VedtakStegTest {
 
     @MockK
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
+
+    @MockK
+    private lateinit var unleashService: UnleashService
 
     @InjectMockKs
     private lateinit var vedtakSteg: VedtakSteg
@@ -104,6 +109,7 @@ class VedtakStegTest {
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
+        every { unleashService.isEnabled(FeatureToggleConfig.FYLL_INN_SB_NAVN_I_GODKJENNE_VEDTAK_OPPGAVE) } returns true
 
         vedtakSteg.utførSteg(200)
 
