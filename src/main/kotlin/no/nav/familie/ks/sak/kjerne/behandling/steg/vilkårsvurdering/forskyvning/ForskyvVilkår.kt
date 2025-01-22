@@ -40,7 +40,7 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
 private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(
     person: Person,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
+    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyList()
 
     return forskjøvedeVilkårResultater
         .kombiner { it.toList() }
@@ -51,7 +51,7 @@ private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeFor
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = forskyvVilkårResultaterForPerson(person)
+    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyList()
 
     return forskjøvedeVilkårResultater
         .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
@@ -59,27 +59,21 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
         .tilTidslinje()
 }
 
-private fun Collection<PersonResultat>.forskyvVilkårResultaterForPerson(
-    person: Person,
-): List<Tidslinje<VilkårResultat>> {
-    val personResultat = this.find { it.aktør == person.aktør }
-
-    val vilkårResultaterForAktør = personResultat?.vilkårResultater ?: emptyList()
-
+fun PersonResultat.forskyvVilkårResultater(): List<Tidslinje<VilkårResultat>> {
     val vilkårResultaterForAktørMap =
-        vilkårResultaterForAktør
+        this.vilkårResultater
             .groupByTo(mutableMapOf()) { it.vilkårType }
             .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
     val forskjøvedeVilkårResultater =
         vilkårResultaterForAktørMap.map {
-            forskyvVilkårResultater(it.key, vilkårResultaterForAktør.toList()).tilTidslinje()
+            forskyvVilkårResultaterForPerson(it.key, vilkårResultater.toList()).tilTidslinje()
         }
 
     return forskjøvedeVilkårResultater
 }
 
-fun forskyvVilkårResultater(
+fun forskyvVilkårResultaterForPerson(
     vilkårType: Vilkår,
     alleVilkårResultater: List<VilkårResultat>,
     lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,

@@ -36,7 +36,7 @@ class ForskyvVilkårKtTest {
 
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
+                forskyvVilkårResultaterForPerson(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
                 )
@@ -76,7 +76,7 @@ class ForskyvVilkårKtTest {
 
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
+                forskyvVilkårResultaterForPerson(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
                 )
@@ -108,7 +108,7 @@ class ForskyvVilkårKtTest {
 
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
+                forskyvVilkårResultaterForPerson(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
                 )
@@ -140,7 +140,7 @@ class ForskyvVilkårKtTest {
 
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
+                forskyvVilkårResultaterForPerson(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
                 )
@@ -167,7 +167,7 @@ class ForskyvVilkårKtTest {
 
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
+                forskyvVilkårResultaterForPerson(
                     Vilkår.BARNETS_ALDER,
                     vilkårResultater,
                 )

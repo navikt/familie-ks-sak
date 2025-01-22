@@ -26,7 +26,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultaterForPerson
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -683,7 +683,7 @@ class BrevPeriodeContext(
                 personResultat.vilkårResultater
                     .groupBy { it.vilkårType }
                     .mapValues { (vilkår) ->
-                        forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
+                        forskyvVilkårResultaterForPerson(vilkår, personResultat.vilkårResultater.toList()).tilTidslinje()
                     }
             personResultat.aktør to vilkårTilTidslinje
         }

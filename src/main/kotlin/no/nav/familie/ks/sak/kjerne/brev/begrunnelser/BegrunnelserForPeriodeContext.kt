@@ -21,7 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultaterForPerson
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -309,7 +309,7 @@ class BegrunnelserForPeriodeContext(
             personResultat.vilkårResultater
                 .groupBy { it.vilkårType }
                 .flatMap { (vilkår) ->
-                    forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList())
+                    forskyvVilkårResultaterForPerson(vilkår, personResultat.vilkårResultater.toList())
                         .filter { it.fom == vedtaksperiode.fom }
                         .map { it.verdi.id }
                 }
@@ -320,7 +320,7 @@ class BegrunnelserForPeriodeContext(
             personResultat.vilkårResultater
                 .groupBy { it.vilkårType }
                 .flatMap { (vilkår) ->
-                    forskyvVilkårResultater(vilkår, personResultat.vilkårResultater.toList())
+                    forskyvVilkårResultaterForPerson(vilkår, personResultat.vilkårResultater.toList())
                         .filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
                         .map { it.verdi.id }
                 }

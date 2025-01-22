@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultaterForPerson
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
@@ -23,7 +23,7 @@ fun tilVilkårRegelverkResultatTidslinje(
 ): Tidslinje<VilkårRegelverkResultat> {
     val oppfyltEllerIkkeAktueltVilkårer = alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
-    val forskjøvetVilkårResultatPerioder = forskyvVilkårResultater(vilkår, oppfyltEllerIkkeAktueltVilkårer)
+    val forskjøvetVilkårResultatPerioder = forskyvVilkårResultaterForPerson(vilkår, oppfyltEllerIkkeAktueltVilkårer)
 
     return forskjøvetVilkårResultatPerioder.map { it.tilVilkårRegelverkResultatPeriode() }.tilTidslinje()
 }
