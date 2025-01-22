@@ -40,9 +40,9 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
 private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeForPerson(
     person: Person,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyList()
+    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyMap()
 
-    return forskjøvedeVilkårResultater
+    return forskjøvedeVilkårResultater.values
         .kombiner { it.toList() }
         .tilPerioderIkkeNull()
         .tilTidslinje()
@@ -51,22 +51,22 @@ private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeFor
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyList()
+    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyMap()
 
-    return forskjøvedeVilkårResultater
+    return forskjøvedeVilkårResultater.values
         .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
         .tilPerioderIkkeNull()
         .tilTidslinje()
 }
 
-fun PersonResultat.forskyvVilkårResultater(): List<Tidslinje<VilkårResultat>> {
+fun PersonResultat.forskyvVilkårResultater(): Map<Vilkår, Tidslinje<VilkårResultat>> {
     val vilkårResultaterForAktørMap =
         this.vilkårResultater
             .groupByTo(mutableMapOf()) { it.vilkårType }
             .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
     val forskjøvedeVilkårResultater =
-        vilkårResultaterForAktørMap.map {
+        vilkårResultaterForAktørMap.mapValues {
             forskyvVilkårResultaterForPerson(it.key, vilkårResultater.toList()).tilTidslinje()
         }
 

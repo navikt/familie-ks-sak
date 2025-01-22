@@ -163,8 +163,10 @@ class VedtaksperiodeService(
                 .mapNotNull { personResultat ->
                     personResultat
                         .forskyvVilkårResultater()
+                        .filterKeys { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it) }
+                        .values
                         .flatMap { it.tilPerioderIkkeNull() }
-                        .filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.verdi.vilkårType) && it.verdi.periodeFom != null }
+                        .filter { it.verdi.periodeFom != null }
                         .mapNotNull { it.verdi.periodeTom }
                         .maxOrNull()
                 }.maxOfOrNull { it } ?: TIDENES_MORGEN
