@@ -51,7 +51,6 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelServic
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -162,16 +161,12 @@ class VedtaksperiodeService(
         val sisteTomPåVilkårSomAlltidSkalKunneBegrunnes =
             vilkårsvurdering.personResultater
                 .mapNotNull { personResultat ->
-
-                    val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes = personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
-
-                    val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes = vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes.groupByTo(mutableMapOf()) { it.vilkårType }.mapValues { it.value }
-
-                    vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
-                        .flatMap { (vilkårType, vilkårResultater) ->
-                            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
-                        }.mapNotNull { it.verdi.periodeTom }
-                        .maxOfOrNull { it }
+                    personResultat
+                        .forskyvVilkårResultater()
+                        .flatMap { it.tilPerioderIkkeNull() }
+                        .filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.verdi.vilkårType) && it.verdi.periodeFom != null }
+                        .mapNotNull { it.verdi.periodeTom }
+                        .maxOrNull()
                 }.maxOfOrNull { it } ?: TIDENES_MORGEN
 
         return maxOf(
