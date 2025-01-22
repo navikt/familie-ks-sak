@@ -65,8 +65,8 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
-                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
+                    personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, aktør),
+                    forrigePersonResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
 
@@ -117,8 +117,8 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
 
@@ -176,8 +176,8 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
 
@@ -229,8 +229,8 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
 
@@ -285,8 +285,8 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
 
@@ -334,8 +334,8 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                    forrigePersonResultater = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
 

@@ -679,7 +679,7 @@ class BrevPeriodeContext(
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> =
         personResultater.associate { personResultat ->
-            personResultat.aktør to personResultat.forskyvVilkårResultater()
+            personResultat.aktør to personResultat.forskyvVilkårResultater().mapValues { it.value.tilTidslinje() }
         }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {

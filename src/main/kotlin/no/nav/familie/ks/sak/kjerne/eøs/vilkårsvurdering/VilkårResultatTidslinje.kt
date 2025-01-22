@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultaterForPerson
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
@@ -17,16 +15,11 @@ import no.nav.familie.tidslinje.tilTidslinje
  * fom og tom lik null tolkes som fra uendelig lenge siden til uendelig lenge til, som ville skapt overlapp med oppfylt vilkår
  * Overlapp er ikke støttet av tidsliner, og ville gitt exception
  */
-fun tilVilkårRegelverkResultatTidslinje(
-    vilkår: Vilkår,
-    alleVilkårResultater: List<VilkårResultat>,
-): Tidslinje<VilkårRegelverkResultat> {
-    val oppfyltEllerIkkeAktueltVilkårer = alleVilkårResultater.filter { it.erOppfylt() || it.erIkkeAktuelt() }
-
-    val forskjøvetVilkårResultatPerioder = forskyvVilkårResultaterForPerson(vilkår, oppfyltEllerIkkeAktueltVilkårer)
-
-    return forskjøvetVilkårResultatPerioder.map { it.tilVilkårRegelverkResultatPeriode() }.tilTidslinje()
-}
+fun Collection<Periode<VilkårResultat>>.tilVilkårRegelverkResultatTidslinje(): Tidslinje<VilkårRegelverkResultat> =
+    this
+        .filter { periode -> periode.verdi.erOppfylt() || periode.verdi.erIkkeAktuelt() }
+        .map { periode -> periode.tilVilkårRegelverkResultatPeriode() }
+        .tilTidslinje()
 
 fun Periode<VilkårResultat>.tilVilkårRegelverkResultatPeriode(): Periode<VilkårRegelverkResultat> {
     val vilkårResultat = this.verdi

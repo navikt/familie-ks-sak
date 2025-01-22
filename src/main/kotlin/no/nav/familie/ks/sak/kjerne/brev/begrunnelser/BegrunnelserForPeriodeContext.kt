@@ -21,7 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultaterForPerson
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -34,6 +34,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.klipp
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
@@ -306,24 +307,20 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnVilkårResultaterSomStarterSamtidigSomPeriode() =
         personResultater.flatMap { personResultat ->
-            personResultat.vilkårResultater
-                .groupBy { it.vilkårType }
-                .flatMap { (vilkår) ->
-                    forskyvVilkårResultaterForPerson(vilkår, personResultat.vilkårResultater.toList())
-                        .filter { it.fom == vedtaksperiode.fom }
-                        .map { it.verdi.id }
-                }
+            personResultat
+                .forskyvVilkårResultater()
+                .flatMap { it.value }
+                .filter { it.fom == vedtaksperiode.fom }
+                .map { it.verdi.id }
         }
 
     private fun finnVilkårResultaterSomSlutterFørPeriode() =
         personResultater.flatMap { personResultat ->
-            personResultat.vilkårResultater
-                .groupBy { it.vilkårType }
-                .flatMap { (vilkår) ->
-                    forskyvVilkårResultaterForPerson(vilkår, personResultat.vilkårResultater.toList())
-                        .filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
-                        .map { it.verdi.id }
-                }
+            personResultat
+                .forskyvVilkårResultater()
+                .flatMap { it.value }
+                .filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
+                .map { it.verdi.id }
         }
 
     private fun hentRelevanteVilkårResultaterForVedtaksperiode(

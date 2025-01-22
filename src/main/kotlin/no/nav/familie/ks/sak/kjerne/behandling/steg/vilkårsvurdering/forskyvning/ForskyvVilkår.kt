@@ -42,7 +42,8 @@ private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeFor
 ): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyMap()
 
-    return forskjøvedeVilkårResultater.values
+    return forskjøvedeVilkårResultater
+        .map { it.value.tilTidslinje() }
         .kombiner { it.toList() }
         .tilPerioderIkkeNull()
         .tilTidslinje()
@@ -53,13 +54,14 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
 ): Tidslinje<List<VilkårResultat>> {
     val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyMap()
 
-    return forskjøvedeVilkårResultater.values
+    return forskjøvedeVilkårResultater
+        .map { it.value.tilTidslinje() }
         .kombiner { alleVilkårOppfyltEllerNull(it, person.type) }
         .tilPerioderIkkeNull()
         .tilTidslinje()
 }
 
-fun PersonResultat.forskyvVilkårResultater(): Map<Vilkår, Tidslinje<VilkårResultat>> {
+fun PersonResultat.forskyvVilkårResultater(): Map<Vilkår, List<Periode<VilkårResultat>>> {
     val vilkårResultaterForAktørMap =
         this.vilkårResultater
             .groupByTo(mutableMapOf()) { it.vilkårType }
@@ -67,7 +69,7 @@ fun PersonResultat.forskyvVilkårResultater(): Map<Vilkår, Tidslinje<VilkårRes
 
     val forskjøvedeVilkårResultater =
         vilkårResultaterForAktørMap.mapValues {
-            forskyvVilkårResultaterForPerson(it.key, vilkårResultater.toList()).tilTidslinje()
+            forskyvVilkårResultaterForPerson(it.key, vilkårResultater.toList())
         }
 
     return forskjøvedeVilkårResultater

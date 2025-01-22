@@ -51,7 +51,6 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelServic
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -165,9 +164,8 @@ class VedtaksperiodeService(
                         .forskyvVilkårResultater()
                         .filterKeys { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it) }
                         .values
-                        .flatMap { it.tilPerioderIkkeNull() }
-                        .filter { it.verdi.periodeFom != null }
-                        .mapNotNull { it.verdi.periodeTom }
+                        .flatten()
+                        .mapNotNull { it.tom }
                         .maxOrNull()
                 }.maxOfOrNull { it } ?: TIDENES_MORGEN
 

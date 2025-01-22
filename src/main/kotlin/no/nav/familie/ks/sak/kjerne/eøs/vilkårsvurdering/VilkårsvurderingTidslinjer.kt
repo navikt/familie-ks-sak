@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -22,9 +23,10 @@ class VilkårsvurderingTidslinjer(
     private val vilkårResultaterTidslinjeMap =
         aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
             aktør to
-                personResultat.vilkårResultater
-                    .groupBy { it.vilkårType }
-                    .map { tilVilkårRegelverkResultatTidslinje(it.key, personResultat.vilkårResultater.toList()) }
+                personResultat
+                    .forskyvVilkårResultater()
+                    .values
+                    .map { it.tilVilkårRegelverkResultatTidslinje() }
         }
 
     private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)
