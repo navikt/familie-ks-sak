@@ -89,7 +89,7 @@ class BehandlingsresultatService(
                     forrigeAndeler = forrigeAndelerTilkjentYtelse,
                     nåværendeEndretAndeler = endretUtbetalingAndeler,
                     forrigeEndretAndeler = forrigeEndretUtbetalingAndeler,
-                    personResultater = nåværendePersonResultat,
+                    nåværendePersonResultater = nåværendePersonResultat,
                     forrigePersonResultater = forrigePersonResultat,
                     nåværendeKompetanser = kompetanser.toList(),
                     forrigeKompetanser = forrigeKompetanser.toList(),

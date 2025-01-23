@@ -65,7 +65,7 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, aktør),
+                    nåværendePersonResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, aktør),
                     forrigePersonResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
@@ -117,7 +117,7 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
                     forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
@@ -176,7 +176,7 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
                     forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
@@ -229,7 +229,7 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
                     forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
@@ -285,7 +285,7 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
                     forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }
@@ -334,7 +334,7 @@ class EndringIVilkårsvurderingUtilTest {
         val perioderMedEndring =
             EndringIVilkårsvurderingUtil
                 .lagEndringIVilkårsvurderingTidslinje(
-                    personResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                    nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
                     forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
                 ).tilPerioder()
                 .filter { it.verdi == true }

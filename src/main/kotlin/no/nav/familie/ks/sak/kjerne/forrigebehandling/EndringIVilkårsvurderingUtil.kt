@@ -13,17 +13,17 @@ import no.nav.familie.tidslinje.utvidelser.kombinerMed
 
 object EndringIVilkårsvurderingUtil {
     fun lagEndringIVilkårsvurderingTidslinje(
-        personResultat: PersonResultat?,
+        nåværendePersonResultat: PersonResultat?,
         forrigePersonResultat: PersonResultat?,
     ): Tidslinje<Boolean> {
-        val nåværendeVilkårResultatTidslinjePerVilkår = personResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
-        val tidligereVilkårResultatTidslinjePerVilkår = forrigePersonResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
+        val nåværendeForskjøvedeVilkårTidslinjer = nåværendePersonResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
+        val tidligereForskjøvedeVilkårTidslinjer = forrigePersonResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
 
         val tidslinjePerVilkår =
             Vilkår.entries.filter { it != Vilkår.BARNETS_ALDER }.map { vilkår ->
                 lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
-                    nåværendeVilkårResultatTidslinje = nåværendeVilkårResultatTidslinjePerVilkår.getOrDefault(vilkår, tomTidslinje()),
-                    tidligereVilkårResultatTidslinje = tidligereVilkårResultatTidslinjePerVilkår.getOrDefault(vilkår, tomTidslinje()),
+                    nåværendeForskjøvetVilkårTidslinje = nåværendeForskjøvedeVilkårTidslinjer.getOrDefault(vilkår, tomTidslinje()),
+                    tidligereForskjøvetVilkårTidslinje = tidligereForskjøvedeVilkårTidslinjer.getOrDefault(vilkår, tomTidslinje()),
                 )
             }
 
@@ -39,11 +39,11 @@ object EndringIVilkårsvurderingUtil {
     // 2. Endringer i regelverk
     // 3. Splitt i vilkårsvurderingen
     private fun lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
-        nåværendeVilkårResultatTidslinje: Tidslinje<VilkårResultat>,
-        tidligereVilkårResultatTidslinje: Tidslinje<VilkårResultat>,
+        nåværendeForskjøvetVilkårTidslinje: Tidslinje<VilkårResultat>,
+        tidligereForskjøvetVilkårTidslinje: Tidslinje<VilkårResultat>,
     ): Tidslinje<Boolean> {
         val endringIVilkårResultat =
-            nåværendeVilkårResultatTidslinje.kombinerMed(tidligereVilkårResultatTidslinje) { nåværende, forrige ->
+            nåværendeForskjøvetVilkårTidslinje.kombinerMed(tidligereForskjøvetVilkårTidslinje) { nåværende, forrige ->
                 if (nåværende == null || forrige == null) return@kombinerMed false
 
                 val erEndringerIUtdypendeVilkårsvurdering =
