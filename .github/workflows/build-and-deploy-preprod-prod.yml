@@ -7,7 +7,7 @@ on:
 jobs:
   bygg-og-kjor-tester:
     name: Bygg og test
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -28,7 +28,7 @@ jobs:
 
   bygg-og-push-til-github:
     name: Bygg app/image, push til github
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -65,7 +65,7 @@ jobs:
   deploy-til-preprod:
     name: Deploy to dev-gcp
     needs: [ bygg-og-kjor-tester, bygg-og-push-til-github ]
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
@@ -78,7 +78,7 @@ jobs:
   deploy-til-prod:
     name: Deploy til prod-gcp
     needs: [ bygg-og-kjor-tester, bygg-og-push-til-github ]
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
