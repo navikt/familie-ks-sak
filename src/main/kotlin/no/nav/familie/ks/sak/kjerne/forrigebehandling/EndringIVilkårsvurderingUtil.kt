@@ -20,10 +20,12 @@ object EndringIVilkårsvurderingUtil {
         val tidligereVilkårResultatTidslinjePerVilkår = forrigePersonResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
 
         val tidslinjePerVilkår =
-            nåværendeVilkårResultatTidslinjePerVilkår
-                .entries
-                .filter { it.key != Vilkår.BARNETS_ALDER }
-                .map { lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(it.value, tidligereVilkårResultatTidslinjePerVilkår[it.key] ?: tomTidslinje()) }
+            Vilkår.entries.filter { it != Vilkår.BARNETS_ALDER }.map { vilkår ->
+                lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
+                    nåværendeVilkårResultatTidslinje = nåværendeVilkårResultatTidslinjePerVilkår.getOrDefault(vilkår, tomTidslinje()),
+                    tidligereVilkårResultatTidslinje = tidligereVilkårResultatTidslinjePerVilkår.getOrDefault(vilkår, tomTidslinje()),
+                )
+            }
 
         return tidslinjePerVilkår.kombiner { finnesMinstEnEndringIPeriode(it) }
     }
