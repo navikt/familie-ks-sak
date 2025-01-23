@@ -61,32 +61,11 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
         .tilTidslinje()
 }
 
-fun PersonResultat.forskyvVilkårResultater(): Map<Vilkår, List<Periode<VilkårResultat>>> {
-    val vilkårResultaterForAktørMap =
-        this.vilkårResultater
-            .groupByTo(mutableMapOf()) { it.vilkårType }
-            .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
-
-    val forskjøvedeVilkårResultater =
-        vilkårResultaterForAktørMap.mapValues {
-            forskyvVilkårResultaterForPerson(it.key, vilkårResultater.toList())
-        }
-
-    return forskjøvedeVilkårResultater
-}
-
-fun forskyvVilkårResultaterForPerson(
-    vilkårType: Vilkår,
-    alleVilkårResultater: List<VilkårResultat>,
-    lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,
-): List<Periode<VilkårResultat>> =
+fun PersonResultat.forskyvVilkårResultater(lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025): Map<Vilkår, List<Periode<VilkårResultat>>> =
     when (lovverk) {
-        Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(vilkårType, alleVilkårResultater)
+        Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(personResultat = this)
         Lovverk.LOVENDRING_FEBRUAR_2025 -> TODO()
     }
-
-private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
-    if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 
 fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
