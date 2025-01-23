@@ -822,6 +822,23 @@ fun lagPersonResultat(
     return personResultat
 }
 
+fun lagPersonResultatFraVilkårResultater(
+    vilkårResultater: Set<VilkårResultat>,
+    aktør: Aktør,
+): PersonResultat {
+    val vilkårsvurdering =
+        lagVilkårsvurdering(
+            behandling = lagBehandling(),
+            resultat = Resultat.OPPFYLT,
+            søkerAktør = randomAktør(),
+        )
+    val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = aktør)
+
+    personResultat.setSortedVilkårResultater(vilkårResultater)
+
+    return personResultat
+}
+
 fun lagBeregnetUtbetalingsoppdrag(
     vedtak: Vedtak,
     utbetlingsperioder: List<no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsperiode> = emptyList(),
