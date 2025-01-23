@@ -51,8 +51,6 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelServic
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.tidslinje.tilTidslinje
-import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -162,16 +160,13 @@ class VedtaksperiodeService(
         val sisteTomPåVilkårSomAlltidSkalKunneBegrunnes =
             vilkårsvurdering.personResultater
                 .mapNotNull { personResultat ->
-
-                    val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes = personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
-
-                    val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes = vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes.groupByTo(mutableMapOf()) { it.vilkårType }.mapValues { it.value }
-
-                    vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
-                        .flatMap { (vilkårType, vilkårResultater) ->
-                            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
-                        }.mapNotNull { it.verdi.periodeTom }
-                        .maxOfOrNull { it }
+                    personResultat
+                        .forskyvVilkårResultater()
+                        .filterKeys { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it) }
+                        .values
+                        .flatten()
+                        .mapNotNull { it.tom }
+                        .maxOrNull()
                 }.maxOfOrNull { it } ?: TIDENES_MORGEN
 
         return maxOf(

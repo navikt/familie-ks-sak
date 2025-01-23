@@ -36,8 +36,8 @@ object BehandlingsresultatEndringUtils {
         personerFremstiltKravFor: List<Aktør>,
         nåværendeKompetanser: List<Kompetanse>,
         forrigeKompetanser: List<Kompetanse>,
-        nåværendePersonResultat: Set<PersonResultat>,
-        forrigePersonResultat: Set<PersonResultat>,
+        nåværendePersonResultater: Set<PersonResultat>,
+        forrigePersonResultater: Set<PersonResultat>,
         nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
         personerIForrigeBehandling: Set<Person>,
@@ -49,8 +49,8 @@ object BehandlingsresultatEndringUtils {
 
         val endringerForRelevantePersoner =
             relevantePersoner.any { aktør ->
-                val nåværendePersonResultatForPerson = nåværendePersonResultat.filter { it.aktør == aktør }.toSet()
-                val forrigePersonResultatForPerson = forrigePersonResultat.filter { it.aktør == aktør }.toSet()
+                val nåværendePersonResultat = nåværendePersonResultater.singleOrNull { it.aktør == aktør }
+                val forrigePersonResultat = forrigePersonResultater.singleOrNull { it.aktør == aktør }
 
                 val nåværendeAndelerForPerson = nåværendeAndeler.filter { it.aktør == aktør }
                 val forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør }
@@ -80,8 +80,8 @@ object BehandlingsresultatEndringUtils {
 
                 val erEndringIVilkårsvurderingForPerson =
                     erEndringIVilkårsvurderingForPerson(
-                        nåværendePersonResultaterForPerson = nåværendePersonResultatForPerson,
-                        forrigePersonResultaterForPerson = forrigePersonResultatForPerson,
+                        nåværendePersonResultat = nåværendePersonResultat,
+                        forrigePersonResultat = forrigePersonResultat,
                     )
 
                 val erEndringIKompetanseForPerson =
@@ -113,7 +113,7 @@ object BehandlingsresultatEndringUtils {
 
                     val endredeAndelTilkjentYtelseForPerson = if (erEndringIBeløpForPerson) "nye AndelerTilkjentYtelse for aktør ${aktør.aktørId}: $nåværendeAndeler , " else ""
                     val endredeKompetanserForPerson = if (erEndringIKompetanseForPerson) "nye kompetanser for aktør ${aktør.aktørId}: $nåværendeKompetanser ," else ""
-                    val endredeVilkårsvurderingerForPerson = if (erEndringIVilkårsvurderingForPerson) "nye personresultater for aktør ${aktør.aktørId}: $nåværendePersonResultat ," else ""
+                    val endredeVilkårsvurderingerForPerson = if (erEndringIVilkårsvurderingForPerson) "nye personresultater for aktør ${aktør.aktørId}: $nåværendePersonResultater ," else ""
                     val endredeEndretUtbetalingAndelerForPerson = if (erEndringIEndretUtbetalingAndelerForPerson) "nye endretUtbetalingAndeler for aktør ${aktør.aktørId}: $nåværendeEndretAndeler" else ""
 
                     secureLogger.info(
@@ -192,13 +192,13 @@ internal fun erEndringIKompetanseForPerson(
 }
 
 internal fun erEndringIVilkårsvurderingForPerson(
-    nåværendePersonResultaterForPerson: Set<PersonResultat>,
-    forrigePersonResultaterForPerson: Set<PersonResultat>,
+    nåværendePersonResultat: PersonResultat?,
+    forrigePersonResultat: PersonResultat?,
 ): Boolean {
     val endringIVilkårsvurderingTidslinje =
         EndringIVilkårsvurderingUtil.lagEndringIVilkårsvurderingTidslinje(
-            nåværendePersonResultaterForPerson = nåværendePersonResultaterForPerson,
-            forrigePersonResultater = forrigePersonResultaterForPerson,
+            nåværendePersonResultat = nåværendePersonResultat,
+            forrigePersonResultat = forrigePersonResultat,
         )
 
     return endringIVilkårsvurderingTidslinje.tilPerioder().any { it.verdi == true }

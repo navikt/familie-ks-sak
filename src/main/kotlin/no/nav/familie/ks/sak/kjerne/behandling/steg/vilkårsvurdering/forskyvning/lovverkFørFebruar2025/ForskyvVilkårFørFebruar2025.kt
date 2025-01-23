@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2021.forskyvEtterLovgivning2021
@@ -14,12 +15,25 @@ import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 object ForskyvVilkårFørFebruar2025 {
     fun forskyvVilkårResultater(
-        vilkårType: Vilkår,
-        alleVilkårResultater: List<VilkårResultat>,
-    ): List<Periode<VilkårResultat>> {
-        val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, alleVilkårResultater).tilTidslinje()
+        personResultat: PersonResultat,
+    ): Map<Vilkår, List<Periode<VilkårResultat>>> {
+        val vilkårResultaterForAktørMap =
+            personResultat.vilkårResultater
+                .groupByTo(mutableMapOf()) { it.vilkårType }
+                .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
-        val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, alleVilkårResultater).tilTidslinje()
+        return vilkårResultaterForAktørMap.mapValues {
+            forskyvVilkår(vilkårType = it.key, alleVilkårResultaterForPerson = personResultat.vilkårResultater.toList())
+        }
+    }
+
+    private fun forskyvVilkår(
+        vilkårType: Vilkår,
+        alleVilkårResultaterForPerson: List<VilkårResultat>,
+    ): List<Periode<VilkårResultat>> {
+        val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, alleVilkårResultaterForPerson).tilTidslinje()
+
+        val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, alleVilkårResultaterForPerson).tilTidslinje()
 
         val klippetTidslinje2021 =
             forskjøvetVilkårResultaterTidslinje2021.klipp(
@@ -37,4 +51,7 @@ object ForskyvVilkårFørFebruar2025 {
             .kombinerMed(klippetTidslinje2024) { vilkår2021, vilkår2024 -> vilkår2021 ?: vilkår2024 }
             .tilPerioderIkkeNull()
     }
+
+    private fun List<VilkårResultat>.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat(): List<VilkårResultat> =
+        if (this.any { !it.erAvslagUtenPeriode() }) this.filterNot { it.erAvslagUtenPeriode() } else this
 }

@@ -557,7 +557,7 @@ internal class VedtaksperiodeServiceTest {
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2027, 12, 12)))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2027, 12, 31)))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }

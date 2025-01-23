@@ -52,8 +52,8 @@ class BehandlingsresultatEndringUtilsTest {
                 personerFremstiltKravFor = emptyList(),
                 nåværendeKompetanser = emptyList(),
                 forrigeKompetanser = emptyList(),
-                nåværendePersonResultat = emptySet(),
-                forrigePersonResultat = emptySet(),
+                nåværendePersonResultater = emptySet(),
+                forrigePersonResultater = emptySet(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
                 personerIForrigeBehandling = emptySet(),
@@ -81,8 +81,8 @@ class BehandlingsresultatEndringUtilsTest {
                 personerFremstiltKravFor = emptyList(),
                 forrigeKompetanser = emptyList(),
                 nåværendeKompetanser = emptyList(),
-                nåværendePersonResultat = emptySet(),
-                forrigePersonResultat = emptySet(),
+                nåværendePersonResultater = emptySet(),
+                forrigePersonResultater = emptySet(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
                 personerIForrigeBehandling = setOf(person),
@@ -170,8 +170,8 @@ class BehandlingsresultatEndringUtilsTest {
                 personerFremstiltKravFor = emptyList(),
                 forrigeKompetanser = emptyList(),
                 nåværendeKompetanser = emptyList(),
-                forrigePersonResultat = setOf(forrigePersonResultat),
-                nåværendePersonResultat = setOf(nåværendePersonResultat),
+                forrigePersonResultater = setOf(forrigePersonResultat),
+                nåværendePersonResultater = setOf(nåværendePersonResultat),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
                 personerIForrigeBehandling = setOf(barn),
@@ -213,8 +213,8 @@ class BehandlingsresultatEndringUtilsTest {
                             .copy(søkersAktivitet = KompetanseAktivitet.ARBEIDER_PÅ_NORSK_SOKKEL)
                             .apply { behandlingId = nåværendeBehandling.id },
                     ),
-                nåværendePersonResultat = emptySet(),
-                forrigePersonResultat = emptySet(),
+                nåværendePersonResultater = emptySet(),
+                forrigePersonResultater = emptySet(),
                 nåværendeEndretAndeler = emptyList(),
                 forrigeEndretAndeler = emptyList(),
                 personerIForrigeBehandling = setOf(barnPerson),
@@ -244,8 +244,8 @@ class BehandlingsresultatEndringUtilsTest {
                 personerFremstiltKravFor = emptyList(),
                 forrigeKompetanser = emptyList(),
                 nåværendeKompetanser = emptyList(),
-                nåværendePersonResultat = emptySet(),
-                forrigePersonResultat = emptySet(),
+                nåværendePersonResultater = emptySet(),
+                forrigePersonResultater = emptySet(),
                 forrigeEndretAndeler = listOf(forrigeEndretAndel),
                 nåværendeEndretAndeler = listOf(forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)),
                 personerIForrigeBehandling = setOf(barn),
@@ -1049,8 +1049,8 @@ class BehandlingsresultatEndringUtilsTest {
 
         val erEndringIVilkårvurderingForPerson =
             erEndringIVilkårsvurderingForPerson(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))
@@ -1099,8 +1099,8 @@ class BehandlingsresultatEndringUtilsTest {
 
         val erEndringIVilkårvurderingForPerson =
             erEndringIVilkårsvurderingForPerson(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1149,8 +1149,8 @@ class BehandlingsresultatEndringUtilsTest {
 
         val erEndringIVilkårvurderingForPerson =
             erEndringIVilkårsvurderingForPerson(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1204,8 +1204,8 @@ class BehandlingsresultatEndringUtilsTest {
 
         val erEndringIVilkårvurderingForPerson =
             erEndringIVilkårsvurderingForPerson(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(true))
@@ -1254,8 +1254,8 @@ class BehandlingsresultatEndringUtilsTest {
 
         val erEndringIVilkårvurderingForPerson =
             erEndringIVilkårsvurderingForPerson(
-                nåværendePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                forrigePersonResultaterForPerson = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+                nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
+                forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
             )
 
         assertThat(erEndringIVilkårvurderingForPerson, Is(false))

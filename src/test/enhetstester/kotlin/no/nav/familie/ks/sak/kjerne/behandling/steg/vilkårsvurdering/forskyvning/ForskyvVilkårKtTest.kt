@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning
 
+import no.nav.familie.ks.sak.data.lagPersonResultatFraVilkårResultater
 import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.assertj.core.api.Assertions.assertThat
@@ -21,7 +23,7 @@ class ForskyvVilkårKtTest {
         fun `skal ikke lage opphold i vilkår som ligger back to back`() {
             // Arrange
             val vilkårResultater =
-                listOf(
+                setOf(
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
@@ -34,12 +36,14 @@ class ForskyvVilkårKtTest {
                     ),
                 )
 
+            val personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, randomAktør())
+
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
-                    Vilkår.BARNETS_ALDER,
-                    vilkårResultater,
-                )
+                personResultat
+                    .forskyvVilkårResultater()
+                    .values
+                    .flatten()
 
             // Arrange
             assertThat(forskjøvedeVilkårResultater).hasSize(2)
@@ -53,7 +57,7 @@ class ForskyvVilkårKtTest {
         fun `skal lage opphold i vilkårene ved perioder som ikke er back to back`() {
             // Arrange
             val vilkårResultater =
-                listOf(
+                setOf(
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
@@ -74,12 +78,14 @@ class ForskyvVilkårKtTest {
                     ),
                 )
 
+            val personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, randomAktør())
+
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
-                    Vilkår.BARNETS_ALDER,
-                    vilkårResultater,
-                )
+                personResultat
+                    .forskyvVilkårResultater()
+                    .values
+                    .flatten()
 
             // Assert
             assertThat(forskjøvedeVilkårResultater).hasSize(2)
@@ -93,7 +99,7 @@ class ForskyvVilkårKtTest {
         fun `skal ikke lage opphold i vilkår som ligger back to back i månedsskifte`() {
             // Arrange
             val vilkårResultater =
-                listOf(
+                setOf(
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
@@ -106,12 +112,14 @@ class ForskyvVilkårKtTest {
                     ),
                 )
 
+            val personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, randomAktør())
+
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
-                    Vilkår.BARNETS_ALDER,
-                    vilkårResultater,
-                )
+                personResultat
+                    .forskyvVilkårResultater()
+                    .values
+                    .flatten()
 
             // Assert
             assertThat(forskjøvedeVilkårResultater).hasSize(2)
@@ -125,7 +133,7 @@ class ForskyvVilkårKtTest {
         fun `skal bare lage opphold i vilkår som varer lengre enn en hel måned`() {
             // Arrange
             val vilkårResultater =
-                listOf(
+                setOf(
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
@@ -138,12 +146,14 @@ class ForskyvVilkårKtTest {
                     ),
                 )
 
+            val personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, randomAktør())
+
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
-                    Vilkår.BARNETS_ALDER,
-                    vilkårResultater,
-                )
+                personResultat
+                    .forskyvVilkårResultater()
+                    .values
+                    .flatten()
 
             // Assert
             assertThat(forskjøvedeVilkårResultater).hasSize(1)
@@ -157,7 +167,7 @@ class ForskyvVilkårKtTest {
         fun `skal filtrere bort peroder som ikke gjelder for noen måneder`() {
             // Arrange
             val vilkårResultater =
-                listOf(
+                setOf(
                     lagVilkårResultat(
                         vilkårType = Vilkår.BARNETS_ALDER,
                         periodeFom = august.atDay(15),
@@ -165,12 +175,14 @@ class ForskyvVilkårKtTest {
                     ),
                 )
 
+            val personResultat = lagPersonResultatFraVilkårResultater(vilkårResultater, randomAktør())
+
             // Act
             val forskjøvedeVilkårResultater =
-                forskyvVilkårResultater(
-                    Vilkår.BARNETS_ALDER,
-                    vilkårResultater,
-                )
+                personResultat
+                    .forskyvVilkårResultater()
+                    .values
+                    .flatten()
 
             // Assert
             assertThat(forskjøvedeVilkårResultater).isEmpty()
