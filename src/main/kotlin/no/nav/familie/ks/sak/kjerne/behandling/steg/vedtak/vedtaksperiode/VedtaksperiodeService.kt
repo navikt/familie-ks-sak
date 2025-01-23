@@ -165,7 +165,7 @@ class VedtaksperiodeService(
                         .filterKeys { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it) }
                         .values
                         .flatten()
-                        .mapNotNull { it.tom }
+                        .mapNotNull { it.verdi.periodeTom }
                         .maxOrNull()
                 }.maxOfOrNull { it } ?: TIDENES_MORGEN
 
