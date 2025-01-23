@@ -23,17 +23,17 @@ object ForskyvVilkårFørFebruar2025 {
                 .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
         return vilkårResultaterForAktørMap.mapValues {
-            forskyvVilkår(it.key, personResultat.vilkårResultater.toList())
+            forskyvVilkår(vilkårType = it.key, alleVilkårResultaterForPerson = personResultat.vilkårResultater.toList())
         }
     }
 
-    fun forskyvVilkår(
+    private fun forskyvVilkår(
         vilkårType: Vilkår,
-        alleVilkårResultater: List<VilkårResultat>,
+        alleVilkårResultaterForPerson: List<VilkårResultat>,
     ): List<Periode<VilkårResultat>> {
-        val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, alleVilkårResultater).tilTidslinje()
+        val forskjøvetVilkårResultaterTidslinje2021 = forskyvEtterLovgivning2021(vilkårType, alleVilkårResultaterForPerson).tilTidslinje()
 
-        val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, alleVilkårResultater).tilTidslinje()
+        val forskjøvetVilkårResultaterTidslinje2024 = forskyvEtterLovgivning2024(vilkårType, alleVilkårResultaterForPerson).tilTidslinje()
 
         val klippetTidslinje2021 =
             forskjøvetVilkårResultaterTidslinje2021.klipp(
