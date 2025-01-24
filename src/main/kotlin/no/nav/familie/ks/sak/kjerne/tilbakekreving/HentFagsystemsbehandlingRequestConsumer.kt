@@ -23,7 +23,7 @@ class HentFagsystemsbehandlingRequestConsumer(
 
     @KafkaListener(
         id = "familie-ks-sak",
-        topics = [KafkaConfig.FAGSYSTEMSBEHANDLING_REQUEST_TBK_TOPIC],
+        topics = ["\${TILBAKEKREVING_REQUEST_TOPIC}"],
         containerFactory = "concurrentKafkaListenerContainerFactory",
     )
     fun listen(
