@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2021.forskyvEtterLovgivning2021
@@ -19,7 +20,7 @@ object ForskyvVilkårFørFebruar2025 {
     ): Map<Vilkår, List<Periode<VilkårResultat>>> {
         val vilkårResultaterForAktørMap =
             personResultat.vilkårResultater
-                .filter { it.periodeFom != null }
+                .filter { it.resultat != Resultat.IKKE_VURDERT }
                 .groupByTo(mutableMapOf()) { it.vilkårType }
                 .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
