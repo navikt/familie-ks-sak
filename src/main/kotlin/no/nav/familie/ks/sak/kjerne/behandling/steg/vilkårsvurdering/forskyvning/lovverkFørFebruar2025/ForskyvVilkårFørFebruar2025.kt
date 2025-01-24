@@ -19,6 +19,7 @@ object ForskyvVilkårFørFebruar2025 {
     ): Map<Vilkår, List<Periode<VilkårResultat>>> {
         val vilkårResultaterForAktørMap =
             personResultat.vilkårResultater
+                .filter { it.periodeFom != null }
                 .groupByTo(mutableMapOf()) { it.vilkårType }
                 .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
