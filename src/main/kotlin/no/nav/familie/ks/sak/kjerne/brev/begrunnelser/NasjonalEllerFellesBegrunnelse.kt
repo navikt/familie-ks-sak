@@ -11,6 +11,14 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetIkkeBarnehageAdopsjon"
     },
+    INNVILGET_IKKE_BARNEHAGE_0125 {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetIkkeBarnehage0125"
+    },
+    INNVILGET_DELTIDSPLASS_BARNEHAGE_0125 {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetDeltidsplassBarnehage0125"
+    },
     INNVILGET_OVERGANGSORDNING {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetOvergangsordning"
