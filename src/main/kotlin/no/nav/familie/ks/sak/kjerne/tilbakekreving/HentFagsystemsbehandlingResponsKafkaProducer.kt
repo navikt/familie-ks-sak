@@ -23,7 +23,7 @@ interface KafkaProducer {
 class HentFagsystemsbehandlingResponsKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     @Value("\${TILBAKEKREVING_RESPONSE_TOPIC}")
-    val tilbakekrevingResponseTopic: String
+    val tilbakekrevingResponseTopic: String,
 ) : KafkaProducer {
     override fun sendFagsystemsbehandlingRespons(
         melding: HentFagsystemsbehandlingRespons,
