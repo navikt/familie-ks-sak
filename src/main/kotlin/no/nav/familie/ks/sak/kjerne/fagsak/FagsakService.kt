@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -114,7 +115,7 @@ class FagsakService(
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
         val fagsak = hentFagsak(fagsakId)
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-        val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
+        val tilbakekrevingsbehandlinger = emptyList<no.nav.familie.kontrakter.felles.tilbakekreving.Behandling>()
 
         val sistIverksatteBehandling =
             alleBehandlinger
