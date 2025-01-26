@@ -25,7 +25,7 @@ object ForskyvVilkårFørFebruar2025 {
                 .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
         return vilkårResultaterForAktørMap.mapValues {
-            forskyvVilkår(vilkårType = it.key, alleVilkårResultaterForPerson = it.value)
+            forskyvVilkår(vilkårType = it.key, alleVilkårResultaterForPerson = personResultat.vilkårResultater.filter { it.resultat != Resultat.IKKE_VURDERT }.toList())
         }
     }
 
