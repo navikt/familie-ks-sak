@@ -196,11 +196,11 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
         førsteAndel.stønadTom
             .sisteDagIInneværendeMåned()
             .erDagenFør(nesteAndel.stønadFom.førsteDagIInneværendeMåned()) &&
-                førsteAndel.prosent == BigDecimal(0) &&
-                nesteAndel.prosent ==
-                BigDecimal(
-                    0,
-                ) &&
-                førsteAndel.endreteUtbetalinger.isNotEmpty() &&
-                førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
+            førsteAndel.prosent == BigDecimal(0) &&
+            nesteAndel.prosent ==
+            BigDecimal(
+                0,
+            ) &&
+            førsteAndel.endreteUtbetalinger.isNotEmpty() &&
+            førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
 }

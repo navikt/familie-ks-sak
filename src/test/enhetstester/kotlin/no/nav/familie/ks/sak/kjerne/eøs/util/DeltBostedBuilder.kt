@@ -84,7 +84,7 @@ fun Iterable<DeltBosted>.tilEndreteUtebetalingAndeler(): List<EndretUtbetalingAn
                         periodeFom = deltBosted.fom!!,
                         periodeTom = deltBosted.tom!!,
                         prosent = deltBosted.prosent!!.toBigDecimal(),
-                        årsak = Årsak.ETTERBETALING_3MND
+                        årsak = Årsak.ETTERBETALING_3MND,
                     )
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, emptyList())
             }
