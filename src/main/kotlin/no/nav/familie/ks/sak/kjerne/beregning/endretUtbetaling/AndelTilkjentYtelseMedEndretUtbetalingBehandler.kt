@@ -50,7 +50,7 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
 
                         val nyttNasjonaltPeriodebeløp =
                             if (endretUtbetalingErAlleredeUtbetaltSomFortsattSkalUtbetales) {
-                                andelForPerson.sats
+                                andelForPerson.kalkulertUtbetalingsbeløp
                             } else {
                                 andelForPerson.sats.avrundetHeltallAvProsent(endretUtbetalingMedAndeler.prosent!!)
                             }
