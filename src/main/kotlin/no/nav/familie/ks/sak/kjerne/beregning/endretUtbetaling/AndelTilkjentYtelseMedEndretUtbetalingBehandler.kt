@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbet
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.medEndring
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import java.math.BigDecimal
 import java.time.YearMonth
 
@@ -43,15 +44,27 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
                 // Legger til nye AndelTilkjentYtelse for perioder som er berørt av endringer.
                 nyeAndelerForPerson.addAll(
                     perioderMedEndring.map { månedPeriodeEndret ->
-                        val endretUtbetalingMedAndeler =
-                            endringerForPerson.single { it.overlapperMed(månedPeriodeEndret) }
+                        val endretUtbetalingMedAndeler = endringerForPerson.single { it.overlapperMed(månedPeriodeEndret) }
+                        val endretUtbetalingErAlleredeUtbetaltSomFortsattSkalUtbetales =
+                            endretUtbetalingMedAndeler.årsak == Årsak.ALLEREDE_UTBETALT && endretUtbetalingMedAndeler.prosent!! > BigDecimal.ZERO
+
                         val nyttNasjonaltPeriodebeløp =
-                            andelForPerson.sats
-                                .avrundetHeltallAvProsent(endretUtbetalingMedAndeler.prosent!!)
+                            if (endretUtbetalingErAlleredeUtbetaltSomFortsattSkalUtbetales) {
+                                andelForPerson.sats
+                            } else {
+                                andelForPerson.sats.avrundetHeltallAvProsent(endretUtbetalingMedAndeler.prosent!!)
+                            }
+
+                        val andelProsent =
+                            if (endretUtbetalingErAlleredeUtbetaltSomFortsattSkalUtbetales) {
+                                andelForPerson.prosent
+                            } else {
+                                endretUtbetalingMedAndeler.prosent!!
+                            }
 
                         val andelTilkjentYtelse =
                             andelForPerson.copy(
-                                prosent = endretUtbetalingMedAndeler.prosent!!,
+                                prosent = andelProsent,
                                 stønadFom = månedPeriodeEndret.fom,
                                 stønadTom = månedPeriodeEndret.tom,
                                 kalkulertUtbetalingsbeløp = nyttNasjonaltPeriodebeløp,
@@ -183,11 +196,11 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
         førsteAndel.stønadTom
             .sisteDagIInneværendeMåned()
             .erDagenFør(nesteAndel.stønadFom.førsteDagIInneværendeMåned()) &&
-            førsteAndel.prosent == BigDecimal(0) &&
-            nesteAndel.prosent ==
-            BigDecimal(
-                0,
-            ) &&
-            førsteAndel.endreteUtbetalinger.isNotEmpty() &&
-            førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
+                førsteAndel.prosent == BigDecimal(0) &&
+                nesteAndel.prosent ==
+                BigDecimal(
+                    0,
+                ) &&
+                førsteAndel.endreteUtbetalinger.isNotEmpty() &&
+                førsteAndel.endreteUtbetalinger.singleOrNull() == nesteAndel.endreteUtbetalinger.singleOrNull()
 }

@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.jan
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -83,6 +84,7 @@ fun Iterable<DeltBosted>.tilEndreteUtebetalingAndeler(): List<EndretUtbetalingAn
                         periodeFom = deltBosted.fom!!,
                         periodeTom = deltBosted.tom!!,
                         prosent = deltBosted.prosent!!.toBigDecimal(),
+                        årsak = Årsak.ETTERBETALING_3MND
                     )
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, emptyList())
             }
