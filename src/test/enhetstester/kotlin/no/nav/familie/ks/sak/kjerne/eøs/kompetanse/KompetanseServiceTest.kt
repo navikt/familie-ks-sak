@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -38,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -55,11 +57,13 @@ internal class KompetanseServiceTest {
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
+    private val unleashService: UnleashService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
             vilkårsvurderingService = vilkårsvurderingService,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            unleashService = unleashService,
         )
     private val tilpassKompetanserService =
         TilpassKompetanserService(
@@ -472,6 +476,7 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
                     barnAktør = listOf(barn1, barn2),
                 )
+            every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER) } returns true
         }
 
         @Test

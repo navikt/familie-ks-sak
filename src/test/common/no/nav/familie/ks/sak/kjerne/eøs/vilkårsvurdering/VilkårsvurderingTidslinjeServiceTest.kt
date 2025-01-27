@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +31,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 internal class VilkårsvurderingTidslinjeServiceTest {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+    val unleashService = mockk<UnleashService>()
 
     private lateinit var vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService
 
@@ -39,6 +41,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
             VilkårsvurderingTidslinjeService(
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
                 vilkårsvurderingService = vilkårsvurderingService,
+                unleashService = unleashService,
             )
     }
 
