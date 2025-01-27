@@ -4,9 +4,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.tidslinje.Tidslinje
-import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.tomTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
@@ -16,14 +15,11 @@ object EndringIVilkårsvurderingUtil {
         nåværendePersonResultat: PersonResultat?,
         forrigePersonResultat: PersonResultat?,
     ): Tidslinje<Boolean> {
-        val nåværendeForskjøvedeVilkårTidslinjer = nåværendePersonResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
-        val tidligereForskjøvedeVilkårTidslinjer = forrigePersonResultat?.forskyvVilkårResultater()?.mapValues { it.value.filter { periode -> periode.verdi.erOppfylt() }.tilTidslinje() } ?: emptyMap()
-
         val tidslinjePerVilkår =
             Vilkår.entries.filter { it != Vilkår.BARNETS_ALDER }.map { vilkår ->
                 lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
-                    nåværendeForskjøvetVilkårTidslinje = nåværendeForskjøvedeVilkårTidslinjer.getOrDefault(vilkår, tomTidslinje()),
-                    tidligereForskjøvetVilkårTidslinje = tidligereForskjøvedeVilkårTidslinjer.getOrDefault(vilkår, tomTidslinje()),
+                    nåværendeVilkårTidslinje = nåværendePersonResultat?.vilkårResultater?.filter { it.erOppfylt() && it.vilkårType == vilkår }?.tilTidslinje() ?: tomTidslinje(),
+                    tidligereVilkårTidslinje = forrigePersonResultat?.vilkårResultater?.filter { it.erOppfylt() && it.vilkårType == vilkår }?.tilTidslinje() ?: tomTidslinje(),
                 )
             }
 
@@ -39,11 +35,11 @@ object EndringIVilkårsvurderingUtil {
     // 2. Endringer i regelverk
     // 3. Splitt i vilkårsvurderingen
     private fun lagEndringIVilkårsvurderingForPersonOgVilkårTidslinje(
-        nåværendeForskjøvetVilkårTidslinje: Tidslinje<VilkårResultat>,
-        tidligereForskjøvetVilkårTidslinje: Tidslinje<VilkårResultat>,
+        nåværendeVilkårTidslinje: Tidslinje<VilkårResultat>,
+        tidligereVilkårTidslinje: Tidslinje<VilkårResultat>,
     ): Tidslinje<Boolean> {
         val endringIVilkårResultat =
-            nåværendeForskjøvetVilkårTidslinje.kombinerMed(tidligereForskjøvetVilkårTidslinje) { nåværende, forrige ->
+            nåværendeVilkårTidslinje.kombinerMed(tidligereVilkårTidslinje) { nåværende, forrige ->
                 if (nåværende == null || forrige == null) return@kombinerMed false
 
                 val erEndringerIUtdypendeVilkårsvurdering =

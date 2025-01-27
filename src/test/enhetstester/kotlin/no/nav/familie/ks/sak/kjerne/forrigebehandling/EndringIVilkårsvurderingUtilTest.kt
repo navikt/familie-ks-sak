@@ -123,8 +123,8 @@ class EndringIVilkårsvurderingUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
-        Assertions.assertEquals(feb22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
-        Assertions.assertEquals(apr22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
+        Assertions.assertEquals(fødselsdato, perioderMedEndring.single().fom)
+        Assertions.assertEquals(mai22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
     }
 
     @Test
@@ -182,7 +182,7 @@ class EndringIVilkårsvurderingUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertEquals(1, perioderMedEndring.size)
-        Assertions.assertEquals(jun22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
+        Assertions.assertEquals(mai22.atDay(8), perioderMedEndring.single().fom)
     }
 
     @Test
