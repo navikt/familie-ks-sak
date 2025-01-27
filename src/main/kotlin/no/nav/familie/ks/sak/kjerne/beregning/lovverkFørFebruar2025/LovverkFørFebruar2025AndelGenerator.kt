@@ -23,11 +23,15 @@ class LovverkFørFebruar2025AndelGenerator : AndelGenerator {
     ): List<AndelTilkjentYtelse> {
         val søkersVilkårResultaterForskjøvetTidslinje =
             vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
-                søker,
+                person = søker,
+                lovverk = lovverk,
             )
 
         val barnetsVilkårResultaterForskjøvetTidslinje =
-            vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(barn)
+            vilkårsvurdering.personResultater.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
+                person = barn,
+                lovverk = lovverk,
+            )
 
         val oppfyltTidslinje = kombinerForskjøvedeTidslinjerTilOppfyltTidslinje(søkersVilkårResultaterForskjøvetTidslinje, barnetsVilkårResultaterForskjøvetTidslinje)
 

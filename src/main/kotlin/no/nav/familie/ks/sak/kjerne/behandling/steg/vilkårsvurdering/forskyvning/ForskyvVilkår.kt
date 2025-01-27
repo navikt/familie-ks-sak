@@ -51,8 +51,9 @@ private fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeFor
 
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårErOppfyltForPerson(
     person: Person,
+    lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,
 ): Tidslinje<List<VilkårResultat>> {
-    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater() ?: emptyMap()
+    val forskjøvedeVilkårResultater = this.find { it.aktør == person.aktør }?.forskyvVilkårResultater(lovverk = lovverk) ?: emptyMap()
 
     return forskjøvedeVilkårResultater
         .map { it.value.tilTidslinje() }
@@ -61,7 +62,9 @@ fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeDerVilkårE
         .tilTidslinje()
 }
 
-fun PersonResultat.forskyvVilkårResultater(lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025): Map<Vilkår, List<Periode<VilkårResultat>>> =
+fun PersonResultat.forskyvVilkårResultater(
+    lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,
+): Map<Vilkår, List<Periode<VilkårResultat>>> =
     when (lovverk) {
         Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(personResultat = this)
         Lovverk.LOVENDRING_FEBRUAR_2025 -> TODO()
