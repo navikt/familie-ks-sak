@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
@@ -137,5 +138,91 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun `oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler - endret utbetalingsandel skal ikke overstyre andel ved allerede utbetalt med prosent høyere enn 0`() {
+        val fom = YearMonth.of(2018, 1)
+        val tom = YearMonth.of(2019, 1)
+
+        val utbetalingsandeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    stønadFom = fom,
+                    stønadTom = tom,
+                    aktør = søker,
+                    behandling = behandling,
+                    prosent = BigDecimal(75),
+                    kalkulertUtbetalingsbeløp = 6000,
+                ),
+            )
+
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                person = søkerPerson,
+                periodeFom = fom,
+                periodeTom = tom,
+                prosent = BigDecimal(100),
+                årsak = Årsak.ALLEREDE_UTBETALT,
+            )
+
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
+
+        val andelerTilkjentYtelse =
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+                utbetalingsandeler,
+                listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+            )
+        val andelTilkjentYtelse = andelerTilkjentYtelse.single()
+
+        assertEquals(1, andelerTilkjentYtelse.size)
+        assertEquals(BigDecimal(75), andelTilkjentYtelse.prosent)
+        assertEquals(6000, andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
+        assertEquals(1, andelTilkjentYtelse.endreteUtbetalinger.size)
+    }
+
+    @Test
+    fun `oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler - endret utbetalingsandel skal overstyre andel ved allerede utbetalt med prosent høyere lik 0`() {
+        val fom = YearMonth.of(2018, 1)
+        val tom = YearMonth.of(2019, 1)
+
+        val utbetalingsandeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    stønadFom = fom,
+                    stønadTom = tom,
+                    aktør = søker,
+                    behandling = behandling,
+                    prosent = BigDecimal(75),
+                    kalkulertUtbetalingsbeløp = 6000,
+                ),
+            )
+
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                person = søkerPerson,
+                periodeFom = fom,
+                periodeTom = tom,
+                prosent = BigDecimal(0),
+                årsak = Årsak.ALLEREDE_UTBETALT,
+            )
+
+        val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+            EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
+
+        val andelerTilkjentYtelse =
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+                utbetalingsandeler,
+                listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+            )
+        val andelTilkjentYtelse = andelerTilkjentYtelse.single()
+
+        assertEquals(1, andelerTilkjentYtelse.size)
+        assertEquals(BigDecimal(0), andelTilkjentYtelse.prosent)
+        assertEquals(0, andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
+        assertEquals(1, andelTilkjentYtelse.endreteUtbetalinger.size)
     }
 }
