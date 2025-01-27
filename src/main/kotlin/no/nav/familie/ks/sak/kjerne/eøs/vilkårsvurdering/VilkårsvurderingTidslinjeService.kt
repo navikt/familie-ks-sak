@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -12,18 +13,20 @@ import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.filtrerIkkeNull
 import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 
 @Service
 class VilkårsvurderingTidslinjeService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
+    private val unleashService: UnleashService,
 ) {
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
 
-        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag)
+        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER))
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {
@@ -54,6 +57,6 @@ class VilkårsvurderingTidslinjeService(
         lagVilkårsvurderingTidslinjer(behandlingId.id)
             .barnasTidslinjer()
             .mapValues { (_, tidslinjer) ->
-                tidslinjer.regelverkResultatTidslinje
+                tidslinjer.kombinertRegelverkResultatTidslinje
             }
 }
