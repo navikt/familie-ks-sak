@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.standard
 
-import java.time.LocalDate
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.TilknyttetVilkårResultater
+import java.time.LocalDate
 
 fun forskyvTom(
     tilknyttetVilkårResultater: TilknyttetVilkårResultater,

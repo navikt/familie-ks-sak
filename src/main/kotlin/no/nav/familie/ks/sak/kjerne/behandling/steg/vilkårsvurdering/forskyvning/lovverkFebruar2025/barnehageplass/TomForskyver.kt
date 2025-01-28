@@ -27,5 +27,4 @@ fun forskyvTomBasertPåGraderingsforskjell(
     }
 }
 
-fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør() =
-    forskyvTomBasertPåGraderingsforskjell(this, Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING)?.toYearMonth()
+fun LocalDate?.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør() = forskyvTomBasertPåGraderingsforskjell(this, Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING)?.toYearMonth()
