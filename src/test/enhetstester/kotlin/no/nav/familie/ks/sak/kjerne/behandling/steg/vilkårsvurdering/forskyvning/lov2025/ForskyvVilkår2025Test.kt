@@ -2,12 +2,12 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.forskyvEtterLovgivning2025
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.forskyvEtterLovgivning2025
 
 class ForskyvVilkår2025Test {
     @Test
@@ -15,8 +15,8 @@ class ForskyvVilkår2025Test {
         // Arrange
         val vilkårResultat =
             lagVilkårResultat(
-                periodeFom = LocalDate.of(2024, 7, 1),
-                periodeTom = LocalDate.of(2024, 12, 31),
+                periodeFom = LocalDate.of(2025, 1, 1),
+                periodeTom = LocalDate.of(2025, 12, 31),
                 vilkårType = Vilkår.BARNEHAGEPLASS,
             )
 
@@ -27,8 +27,8 @@ class ForskyvVilkår2025Test {
 
         // Assert
         assertThat(forskjøvetVilkårResultat).hasSize(1)
-        assertThat(forskjøvetVilkårResultat[0].fom).isEqualTo(LocalDate.of(2024, 8, 1))
-        assertThat(forskjøvetVilkårResultat[0].tom).isEqualTo(LocalDate.of(2024, 12, 31))
+        assertThat(forskjøvetVilkårResultat[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetVilkårResultat[0].tom).isEqualTo(LocalDate.of(2025, 12, 31))
         assertThat(forskjøvetVilkårResultat[0].verdi).isEqualTo(vilkårResultat)
     }
 
@@ -42,8 +42,8 @@ class ForskyvVilkår2025Test {
         // Arrange
         val vilkårResultat =
             lagVilkårResultat(
-                periodeFom = LocalDate.of(2024, 7, 1),
-                periodeTom = LocalDate.of(2024, 12, 31),
+                periodeFom = LocalDate.of(2025, 1, 1),
+                periodeTom = LocalDate.of(2025, 6, 30),
                 vilkårType = vilkår,
             )
 
@@ -54,8 +54,8 @@ class ForskyvVilkår2025Test {
 
         // Assert
         assertThat(forskjøvetVilkårResultat).hasSize(1)
-        assertThat(forskjøvetVilkårResultat[0].fom).isEqualTo(LocalDate.of(2024, 8, 1))
-        assertThat(forskjøvetVilkårResultat[0].tom).isEqualTo(LocalDate.of(2024, 11, 30))
+        assertThat(forskjøvetVilkårResultat[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetVilkårResultat[0].tom).isEqualTo(LocalDate.of(2025, 5, 31))
         assertThat(forskjøvetVilkårResultat[0].verdi).isEqualTo(vilkårResultat)
     }
 }

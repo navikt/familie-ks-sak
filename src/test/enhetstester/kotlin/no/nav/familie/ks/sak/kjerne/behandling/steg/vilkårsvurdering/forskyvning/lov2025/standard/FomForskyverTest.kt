@@ -18,24 +18,24 @@ class FomForskyverTest {
     @Test
     fun `skal forskyve fom dato til første dag i neste måned om input dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFomDato = forskyvFom(fomDato)
 
         // Assert
-        assertThat(forskjøvetFomDato).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFomDato).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato til første dag i neste måned om input dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFomDato = forskyvFom(fomDato)
 
         // Assert
-        assertThat(forskjøvetFomDato).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFomDato).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 }

@@ -10,16 +10,16 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class ForskyvBarnehageplass2025Test {
-    private val januar = YearMonth.of(2022, 1)
-    private val februar = YearMonth.of(2022, 2)
-    private val mars = YearMonth.of(2022, 3)
-    private val april = YearMonth.of(2022, 4)
-    private val juli = YearMonth.of(2022, 7)
-    private val august = YearMonth.of(2022, 8)
-    private val september = YearMonth.of(2022, 9)
-    private val oktober = YearMonth.of(2022, 10)
-    private val november = YearMonth.of(2022, 11)
-    private val desember = YearMonth.of(2022, 12)
+    private val januar = YearMonth.of(2025, 1)
+    private val februar = YearMonth.of(2025, 2)
+    private val mars = YearMonth.of(2025, 3)
+    private val april = YearMonth.of(2025, 4)
+    private val juli = YearMonth.of(2025, 7)
+    private val august = YearMonth.of(2025, 8)
+    private val september = YearMonth.of(2025, 9)
+    private val oktober = YearMonth.of(2025, 10)
+    private val november = YearMonth.of(2025, 11)
+    private val desember = YearMonth.of(2025, 12)
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
     @Test
@@ -188,6 +188,7 @@ class ForskyvBarnehageplass2025Test {
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
+    // TODO: Gå gjennom Spesialhåndtering og rundskriv
     @Test
     fun `Spesialhåndtering 2 - Barnet reduserer barnehageplass i slutten av september, skal ha mer KS fra oktober`() {
         // Arrange
@@ -696,14 +697,14 @@ class ForskyvBarnehageplass2025Test {
             listOf(
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
-                    periodeFom = LocalDate.of(2022, 1, 14),
-                    periodeTom = LocalDate.of(2022, 2, 13),
+                    periodeFom = LocalDate.of(2025, 1, 14),
+                    periodeTom = LocalDate.of(2025, 2, 13),
                     antallTimer = BigDecimal.valueOf(8),
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
-                    periodeFom = LocalDate.of(2022, 2, 15),
-                    periodeTom = LocalDate.of(2022, 4, 14),
+                    periodeFom = LocalDate.of(2025, 2, 15),
+                    periodeTom = LocalDate.of(2025, 4, 14),
                     antallTimer = BigDecimal.valueOf(16),
                 ),
             )
@@ -714,7 +715,7 @@ class ForskyvBarnehageplass2025Test {
         // Assert
         assertThat(forskjøvedeVilkårResultater).hasSize(1)
 
-        assertThat(forskjøvedeVilkårResultater.single().fom).isEqualTo(LocalDate.of(2022, 3, 1))
-        assertThat(forskjøvedeVilkårResultater.single().tom).isEqualTo(LocalDate.of(2022, 3, 31))
+        assertThat(forskjøvedeVilkårResultater.single().fom).isEqualTo(LocalDate.of(2025, 3, 1))
+        assertThat(forskjøvedeVilkårResultater.single().tom).isEqualTo(LocalDate.of(2025, 3, 31))
     }
 }

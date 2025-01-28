@@ -23,7 +23,7 @@ class FomForskyverTest {
     @Test
     fun `skal forskyve fom dato for graderingsforskjell LIK til første dag i neste måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -33,13 +33,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell LIK til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -49,13 +49,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell ØKNING_GRUNNET_SLUTT_I_BARNEHAGE til første dag i neste måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -65,13 +65,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell ØKNING_GRUNNET_SLUTT_I_BARNEHAGE til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -81,13 +81,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell ØKNING til første dag i neste måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -97,13 +97,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell ØKNING til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -113,13 +113,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING til første dag i neste måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -129,13 +129,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING til første dag i neste måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -145,13 +145,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING til første dag i neste måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -161,13 +161,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING til første dag i neste måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -177,13 +177,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell REDUKSJON_GÅR_TIL_INGEN_UTBETALING til første dag i måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -193,13 +193,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell REDUKSJON_GÅR_TIL_INGEN_UTBETALING til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -209,13 +209,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell REDUKSJON til første dag i måneden når fom dato er siste dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 31)
+        val fomDato = LocalDate.of(2025, 1, 31)
 
         // Act
         val forskjøvetFom =
@@ -225,13 +225,13 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 
     @Test
     fun `skal forskyve fom dato for graderingsforskjell REDUKSJON til første dag i måneden når fom dato er første dag i måneden`() {
         // Arrange
-        val fomDato = LocalDate.of(2024, 7, 1)
+        val fomDato = LocalDate.of(2025, 1, 1)
 
         // Act
         val forskjøvetFom =
@@ -241,6 +241,6 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2024, 7, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 1, 1))
     }
 }

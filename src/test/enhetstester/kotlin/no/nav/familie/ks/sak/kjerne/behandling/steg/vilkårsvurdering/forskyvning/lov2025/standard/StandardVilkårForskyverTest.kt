@@ -61,7 +61,7 @@ class StandardVilkårForskyverTest {
                 vilkårType = Vilkår.MEDLEMSKAP,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = null,
-                periodeTom = LocalDate.of(2024, 7, 31),
+                periodeTom = LocalDate.of(2025, 2, 28),
             )
 
         val vilkårResultater = listOf(vilkårResultat)
@@ -72,7 +72,7 @@ class StandardVilkårForskyverTest {
         // Assert
         assertThat(forskjøvetVilkårResultater).hasSize(1)
         assertThat(forskjøvetVilkårResultater[0].fom).isNull()
-        assertThat(forskjøvetVilkårResultater[0].tom).isEqualTo(LocalDate.of(2024, 6, 30))
+        assertThat(forskjøvetVilkårResultater[0].tom).isEqualTo(LocalDate.of(2025, 1, 31))
         assertThat(forskjøvetVilkårResultater[0].verdi).isEqualTo(vilkårResultat)
     }
 
@@ -83,7 +83,7 @@ class StandardVilkårForskyverTest {
             lagVilkårResultat(
                 vilkårType = Vilkår.MEDLEMSKAP,
                 resultat = Resultat.OPPFYLT,
-                periodeFom = LocalDate.of(2024, 7, 31),
+                periodeFom = LocalDate.of(2025, 1, 31),
                 periodeTom = null,
             )
 
@@ -94,7 +94,7 @@ class StandardVilkårForskyverTest {
 
         // Assert
         assertThat(forskjøvetVilkårResultater).hasSize(1)
-        assertThat(forskjøvetVilkårResultater[0].fom).isEqualTo(LocalDate.of(2024, 8, 1))
+        assertThat(forskjøvetVilkårResultater[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
         assertThat(forskjøvetVilkårResultater[0].tom).isNull()
         assertThat(forskjøvetVilkårResultater[0].verdi).isEqualTo(vilkårResultat)
     }
@@ -106,8 +106,8 @@ class StandardVilkårForskyverTest {
             lagVilkårResultat(
                 vilkårType = Vilkår.MEDLEMSKAP,
                 resultat = Resultat.OPPFYLT,
-                periodeFom = LocalDate.of(2024, 3, 1),
-                periodeTom = LocalDate.of(2024, 7, 31),
+                periodeFom = LocalDate.of(2025, 1, 1),
+                periodeTom = LocalDate.of(2025, 5, 31),
             )
 
         val vilkårResultater = listOf(vilkårResultat)
@@ -117,8 +117,8 @@ class StandardVilkårForskyverTest {
 
         // Assert
         assertThat(forskjøvetVilkårResultater).hasSize(1)
-        assertThat(forskjøvetVilkårResultater[0].fom).isEqualTo(LocalDate.of(2024, 4, 1))
-        assertThat(forskjøvetVilkårResultater[0].tom).isEqualTo(LocalDate.of(2024, 6, 30))
+        assertThat(forskjøvetVilkårResultater[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetVilkårResultater[0].tom).isEqualTo(LocalDate.of(2025, 4, 30))
         assertThat(forskjøvetVilkårResultater[0].verdi).isEqualTo(vilkårResultat)
     }
 
@@ -129,16 +129,16 @@ class StandardVilkårForskyverTest {
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
                 resultat = Resultat.IKKE_AKTUELT,
-                periodeFom = LocalDate.of(2024, 1, 1),
-                periodeTom = LocalDate.of(2025, 1, 1),
+                periodeFom = LocalDate.of(2025, 1, 1),
+                periodeTom = LocalDate.of(2026, 1, 1),
             )
 
         val vilkårResultat2 =
             lagVilkårResultat(
                 vilkårType = Vilkår.MEDLEMSKAP,
                 resultat = Resultat.OPPFYLT,
-                periodeFom = LocalDate.of(2024, 3, 1),
-                periodeTom = LocalDate.of(2024, 7, 31),
+                periodeFom = LocalDate.of(2025, 3, 1),
+                periodeTom = LocalDate.of(2025, 7, 31),
             )
 
         val vilkårResultater = listOf(vilkårResultat1, vilkårResultat2)
@@ -149,12 +149,12 @@ class StandardVilkårForskyverTest {
         // Assert
         assertThat(forskjøvetVilkårResultater).hasSize(2)
 
-        assertThat(forskjøvetVilkårResultater[0].fom).isEqualTo(LocalDate.of(2024, 2, 1))
-        assertThat(forskjøvetVilkårResultater[0].tom).isEqualTo(LocalDate.of(2024, 12, 31))
+        assertThat(forskjøvetVilkårResultater[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetVilkårResultater[0].tom).isEqualTo(LocalDate.of(2025, 12, 31))
         assertThat(forskjøvetVilkårResultater[0].verdi).isEqualTo(vilkårResultat1)
 
-        assertThat(forskjøvetVilkårResultater[1].fom).isEqualTo(LocalDate.of(2024, 4, 1))
-        assertThat(forskjøvetVilkårResultater[1].tom).isEqualTo(LocalDate.of(2024, 6, 30))
+        assertThat(forskjøvetVilkårResultater[1].fom).isEqualTo(LocalDate.of(2025, 4, 1))
+        assertThat(forskjøvetVilkårResultater[1].tom).isEqualTo(LocalDate.of(2025, 6, 30))
         assertThat(forskjøvetVilkårResultater[1].verdi).isEqualTo(vilkårResultat2)
     }
 }

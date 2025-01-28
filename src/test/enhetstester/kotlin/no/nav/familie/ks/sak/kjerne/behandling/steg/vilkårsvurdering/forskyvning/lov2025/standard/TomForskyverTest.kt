@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lov2025.standard
 
-import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.TilknyttetVilkårResultater
@@ -18,7 +17,7 @@ class TomForskyverTest {
                 gjeldende =
                     lagVilkårResultat(
                         vilkårType = Vilkår.BOR_MED_SØKER,
-                        periodeFom = LocalDate.of(2024, 7, 31),
+                        periodeFom = LocalDate.of(2025, 1, 31),
                         periodeTom = null,
                     ),
                 neste = null,
@@ -39,8 +38,8 @@ class TomForskyverTest {
                 gjeldende =
                     lagVilkårResultat(
                         vilkårType = Vilkår.BOR_MED_SØKER,
-                        periodeFom = LocalDate.of(2024, 7, 31),
-                        periodeTom = LocalDate.of(2024, 8, 1),
+                        periodeFom = LocalDate.of(2025, 1, 31),
+                        periodeTom = LocalDate.of(2025, 2, 1),
                     ),
                 neste =
                     lagVilkårResultat(
@@ -54,7 +53,7 @@ class TomForskyverTest {
         val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
 
         // Assert
-        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 7, 31))
+        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2025, 1, 31))
     }
 
     @Test
@@ -66,12 +65,12 @@ class TomForskyverTest {
                     lagVilkårResultat(
                         vilkårType = Vilkår.BOR_MED_SØKER,
                         periodeFom = LocalDate.of(2024, 3, 1),
-                        periodeTom = LocalDate.of(2024, 7, 1),
+                        periodeTom = LocalDate.of(2025, 1, 1),
                     ),
                 neste =
                     lagVilkårResultat(
                         vilkårType = Vilkår.BOR_MED_SØKER,
-                        periodeFom = LocalDate.of(2024, 7, 2),
+                        periodeFom = LocalDate.of(2025, 1, 2),
                         periodeTom = LocalDate.of(2024, 12, 31),
                     ),
             )
@@ -80,75 +79,6 @@ class TomForskyverTest {
         val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
 
         // Assert
-        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 7, 31))
-    }
-
-    @Test
-    fun `skal returnere siste dag i forrige måned når BARNETS_ALDER vilkår fom dato er et år og en dag før dato for lovendring 2024`() {
-        // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = DATO_LOVENDRING_2024.minusDays(1).minusYears(1),
-                periodeTom = DATO_LOVENDRING_2024.minusDays(1),
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = null,
-            )
-
-        // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
-
-        // Assert
-        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 6, 30))
-    }
-
-    @Test
-    fun `skal returnere siste dag i forrige måned når BARNETS_ALDER vilkår tom dato er ett år for lovendring 2024`() {
-        // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = DATO_LOVENDRING_2024.minusYears(1),
-                periodeTom = DATO_LOVENDRING_2024,
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = null,
-            )
-
-        // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
-
-        // Assert
-        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 7, 31))
-    }
-
-    @Test
-    fun `skal returnere siste dag i forrige måned når BARNETS_ALDER vilkår tom dato er et år og 2 dager før lovendring 2024`() {
-        // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = DATO_LOVENDRING_2024.minusDays(2).minusYears(1),
-                periodeTom = DATO_LOVENDRING_2024,
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = null,
-            )
-
-        // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
-
-        // Assert
-        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 7, 31))
+        assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2025, 1, 31))
     }
 }
