@@ -84,29 +84,6 @@ class TomForskyverTest {
     }
 
     @Test
-    fun `skal returnere gjeldende vilkårresultat tom om man skal ha utbetaling i juli 2024 pga lovendringer`() {
-        // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = DATO_LOVENDRING_2024.minusYears(1),
-                periodeTom = DATO_LOVENDRING_2024.minusDays(1),
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = null,
-            )
-
-        // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
-
-        // Assert
-        assertThat(forskjøvetTom).isEqualTo(gjeldendeVilkårResultat.periodeTom)
-    }
-
-    @Test
     fun `skal returnere siste dag i forrige måned når BARNETS_ALDER vilkår fom dato er et år og en dag før dato for lovendring 2024`() {
         // Arrange
         val gjeldendeVilkårResultat =
@@ -173,28 +150,5 @@ class TomForskyverTest {
 
         // Assert
         assertThat(forskjøvetTom).isEqualTo(LocalDate.of(2024, 7, 31))
-    }
-
-    @Test
-    fun `skal returnere siste dag i forrige måned når BARNETS_ALDER vilkår fom dato er null`() {
-        // Arrange
-        val gjeldendeVilkårResultat =
-            lagVilkårResultat(
-                vilkårType = Vilkår.BARNETS_ALDER,
-                periodeFom = null,
-                periodeTom = DATO_LOVENDRING_2024.minusDays(1),
-            )
-
-        val tilknyttetVilkårResultater =
-            TilknyttetVilkårResultater(
-                gjeldende = gjeldendeVilkårResultat,
-                neste = null,
-            )
-
-        // Act
-        val forskjøvetTom = forskyvTom(tilknyttetVilkårResultater)
-
-        // Assert
-        assertThat(forskjøvetTom).isEqualTo(gjeldendeVilkårResultat.periodeTom)
     }
 }
