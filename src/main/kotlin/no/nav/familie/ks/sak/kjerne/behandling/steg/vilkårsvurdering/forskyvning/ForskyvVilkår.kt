@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -7,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.ForskyvVilkårFørFebruar2025
 import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -15,6 +17,8 @@ import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
@@ -69,6 +73,84 @@ fun PersonResultat.forskyvVilkårResultater(
         Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(personResultat = this)
         Lovverk.LOVENDRING_FEBRUAR_2025 -> TODO()
     }
+
+fun PersonResultat.forskyvVilkårResultaterEtterLovverkTidslinje(lovverkTidslinje: Tidslinje<Lovverk>): Map<Vilkår, List<Periode<VilkårResultat>>> {
+    val forskjøvedeVilkårResultaterEtterMuligeLovverk =
+        lovverkTidslinje
+            .tilPerioderIkkeNull()
+            .map { it.verdi }
+            .toSet()
+            .map { forskyvningsLovverk ->
+                this
+                    .forskyvVilkårResultater(forskyvningsLovverk)
+                    .mapValues {
+                        it.value
+                            .tilTidslinje()
+                            .kombinerMed(lovverkTidslinje) { vilkårResultat, lovverk ->
+                                if (forskyvningsLovverk == lovverk) {
+                                    vilkårResultat
+                                } else {
+                                    null
+                                }
+                            }.tilPerioderIkkeNull()
+                    }
+            }
+
+    return forskjøvedeVilkårResultaterEtterMuligeLovverk
+        .flatMap { it.keys }
+        .associateWith { key ->
+            forskjøvedeVilkårResultaterEtterMuligeLovverk
+                .flatMap { it.getOrDefault(key, emptyList()) }
+        }
+}
+
+fun Collection<PersonResultat>.forskyvVilkårResultater(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> {
+    val barnasForskjøvedeVilkårResultater =
+        this.filter { !it.erSøkersResultater() }.associate { personResultat ->
+            val lovverk =
+                LovverkUtleder.utledLovverkForBarn(
+                    personopplysningGrunnlag.barna.single { it.aktør == personResultat.aktør }.fødselsdato,
+                    skalBestemmeLovverkBasertPåFødselsdato = false,
+                )
+            personResultat.aktør to personResultat.forskyvVilkårResultater(lovverk)
+        }
+
+    val barnasLovverkTidslinje =
+        barnasForskjøvedeVilkårResultater
+            .map { entry ->
+                entry.value.tilLovverkTidslinje(personopplysningGrunnlag.barna.single { it.aktør == entry.key })
+            }.kombiner {
+                val lovverk = it.toSet()
+                if (lovverk.size > 1) {
+                    throw Feil("Støtter ikke overlappende lovverk")
+                }
+                lovverk.single()
+            }
+
+    val søkersForskjøvedeVilkårResultater = this.single { it.erSøkersResultater() }.forskyvVilkårResultaterEtterLovverkTidslinje(barnasLovverkTidslinje)
+
+    return barnasForskjøvedeVilkårResultater.plus(Pair(this.single { it.erSøkersResultater() }.aktør, søkersForskjøvedeVilkårResultater))
+}
+
+fun Map<Vilkår, List<Periode<VilkårResultat>>>.tilLovverkTidslinje(barn: Person): Tidslinje<Lovverk> =
+    this.values
+        .map { perioder ->
+            perioder
+                .map { periode ->
+                    Periode(
+                        fom = periode.fom,
+                        tom = periode.tom,
+                        verdi =
+                            LovverkUtleder.utledLovverkForBarn(
+                                barn.fødselsdato,
+                                skalBestemmeLovverkBasertPåFødselsdato = false,
+                            ),
+                    )
+                }.tilTidslinje()
+                .slåSammenLikePerioder()
+        }.kombiner {
+            it.toSet().single()
+        }
 
 fun alleVilkårOppfyltEllerNull(
     vilkårResultater: Iterable<VilkårResultat?>,
