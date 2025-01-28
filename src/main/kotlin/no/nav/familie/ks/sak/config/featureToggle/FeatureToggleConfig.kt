@@ -16,6 +16,5 @@ class FeatureToggleConfig {
 
         const val BRUK_OMSKRIVING_AV_HJEMLER_I_BREV = "familie-ks-sak.bruk_omskriving_av_hjemler_i_brev"
         const val ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK = "familie-ks-sak.allerede-utbetalt"
-        const val FYLL_INN_SB_NAVN_I_GODKJENNE_VEDTAK_OPPGAVE = "familie-ks-sak.sb-navn-i-godkjenne-vedtak-oppgave"
     }
 }
