@@ -59,7 +59,7 @@ class CucumberMock(
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
-            unleashService = mockUnleashService(isEnabledDefault = false),
+            unleashService = mockUnleashNextMedContextService(),
         )
     val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock)
 
