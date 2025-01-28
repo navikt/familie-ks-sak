@@ -188,7 +188,6 @@ class ForskyvBarnehageplass2025Test {
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
-    // TODO: Gå gjennom Spesialhåndtering og rundskriv
     @Test
     fun `Spesialhåndtering 2 - Barnet reduserer barnehageplass i slutten av september, skal ha mer KS fra oktober`() {
         // Arrange
