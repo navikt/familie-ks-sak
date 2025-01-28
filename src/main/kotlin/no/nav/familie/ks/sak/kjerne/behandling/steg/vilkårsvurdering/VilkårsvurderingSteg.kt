@@ -58,7 +58,7 @@ class VilkårsvurderingSteg(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
 
         if (personopplysningGrunnlag.barna.any { it.fødselsdato.isAfter(LocalDate.of(2023, 12, 31)) } &&
-            !unleashNextMedContextService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER)
+            !unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025)
         ) {
             throw FunksjonellFeil("Barn født 1.1.24 eller senere kan ikke behandles før nytt regelverk er støttet i løsningen")
         }
@@ -278,7 +278,7 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashNextMedContextService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER))
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025))
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",

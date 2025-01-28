@@ -31,7 +31,7 @@ class BeregnAndelTilkjentYtelseServiceTest {
         every { personopplysningGrunnlag.søker } returns lagPerson(aktør = randomAktør())
         every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 12, 31)))
 
-        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER, false) } returns true
+        every { unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025, false) } returns true
         every { andelGeneratorLookup.hentGeneratorForLovverk(any()) } returns andelGenerator
         every { andelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 

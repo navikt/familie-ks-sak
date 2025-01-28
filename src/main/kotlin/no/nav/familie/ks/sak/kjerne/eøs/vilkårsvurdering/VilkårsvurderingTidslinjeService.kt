@@ -26,7 +26,7 @@ class VilkårsvurderingTidslinjeService(
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
 
-        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER))
+        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025))
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {

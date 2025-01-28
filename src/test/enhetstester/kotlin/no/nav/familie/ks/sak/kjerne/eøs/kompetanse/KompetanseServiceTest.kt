@@ -476,7 +476,7 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
                     barnAktør = listOf(barn1, barn2),
                 )
-            every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER) } returns true
+            every { unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025) } returns true
         }
 
         @Test
