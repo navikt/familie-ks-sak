@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -13,14 +14,13 @@ import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.filtrerIkkeNull
 import no.nav.familie.tidslinje.tilTidslinje
-import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 
 @Service
 class VilkårsvurderingTidslinjeService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val unleashService: UnleashService,
+    private val unleashService: UnleashNextMedContextService,
 ) {
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)

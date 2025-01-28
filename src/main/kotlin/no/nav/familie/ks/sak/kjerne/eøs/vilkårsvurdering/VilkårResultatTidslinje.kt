@@ -34,10 +34,3 @@ fun Periode<VilkårResultat>.tilVilkårRegelverkResultatPeriode(): Periode<Vilk�
         verdi = VilkårRegelverkResultat(vilkårResultat.vilkårType, vilkårResultat.tilRegelverkResultat(), utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger),
     )
 }
-
-fun VilkårResultat.tilVilkårRegelverkResultatPeriode(): Periode<VilkårRegelverkResultat> =
-    Periode(
-        fom = this.periodeFom,
-        tom = this.periodeTom,
-        verdi = VilkårRegelverkResultat(this.vilkårType, this.tilRegelverkResultat(), utdypendeVilkårsvurderinger = this.utdypendeVilkårsvurderinger),
-    )

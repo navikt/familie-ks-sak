@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -39,7 +40,6 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -57,7 +57,7 @@ internal class KompetanseServiceTest {
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
-    private val unleashService: UnleashService = mockk()
+    private val unleashService: UnleashNextMedContextService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(

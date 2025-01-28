@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -21,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.tilTidslinje
-import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,7 +31,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 internal class VilkårsvurderingTidslinjeServiceTest {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     val vilkårsvurderingService = mockk<VilkårsvurderingService>()
-    val unleashService = mockk<UnleashService>()
+    val unleashService = mockk<UnleashNextMedContextService>()
 
     private lateinit var vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService
 
