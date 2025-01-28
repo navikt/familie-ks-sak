@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
@@ -13,9 +14,9 @@ import no.nav.familie.tidslinje.tilTidslinje
  * Antakelsen er at IKKE_OPPFYLT i ALLE tilfeller kan ignoreres for beregning,
  * og evt bare brukes for info i brev
  */
-fun PersonResultat.tilVilkårRegelverkResultatTidslinje(): List<Tidslinje<VilkårRegelverkResultat>> =
+fun PersonResultat.tilVilkårRegelverkResultatTidslinje(lovverk: Lovverk): List<Tidslinje<VilkårRegelverkResultat>> =
     this
-        .forskyvVilkårResultater()
+        .forskyvVilkårResultater(lovverk = lovverk)
         .values
         .map {
             it

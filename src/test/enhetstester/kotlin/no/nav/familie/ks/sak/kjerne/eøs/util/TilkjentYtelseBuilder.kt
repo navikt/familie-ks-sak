@@ -104,7 +104,7 @@ class TilkjentYtelseBuilder(
                             )
                         }
                     }
-                }.tilAndelerTilkjentYtelse()
+                }.flatMap { it.tilAndelerTilkjentYtelse() }
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
         return this

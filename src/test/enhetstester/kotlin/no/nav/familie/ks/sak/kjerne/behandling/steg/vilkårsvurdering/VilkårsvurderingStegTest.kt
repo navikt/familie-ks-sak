@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
@@ -42,6 +43,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -85,10 +87,10 @@ class VilkårsvurderingStegTest {
             unleashService,
         )
 
-    private val søker = randomAktør()
-    private val barn = randomAktør()
+    private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+    private val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
 
-    private val fagsak = lagFagsak(søker)
+    private val fagsak = lagFagsak(søker.aktør)
 
     private val behandling = lagBehandling(id = 1, fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
@@ -111,16 +113,17 @@ class VilkårsvurderingStegTest {
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer(),
-                søkerAktør = søker,
-                barnasIdenter = listOf(barn.aktivFødselsnummer()),
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
             )
 
         every { søknadGrunnlagService.finnAktiv(behandling.id) } returns søknadGrunnlagMock
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
-        every { unleashService.isEnabled(FeatureToggleConfig.BRUK_NY_LØYPE_FOR_GENERERING_AV_ANDELER) } returns false
+        every { unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025) } returns true
     }
 
     @Test
@@ -132,14 +135,14 @@ class VilkårsvurderingStegTest {
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer(),
-                søkerAktør = søker,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
                 søkerDødsDato = LocalDate.of(2020, 12, 12),
                 barnasIdenter = listOf(barn.aktivFødselsnummer()),
             )
 
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -180,8 +183,8 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis det er periode overlapp mellom delt bosted og gradert barnehageplass vilkår`() {
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -258,12 +261,12 @@ class VilkårsvurderingStegTest {
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer(),
-                søkerAktør = søker,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
             )
 
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -310,12 +313,12 @@ class VilkårsvurderingStegTest {
     fun `utførSteg - skal kaste feil hvis barnehageplass perioder ikke dekker perioder i barnets alder vilkår`() {
         val vilkårsvurdering =
             lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
+                søkerAktør = søker.aktør,
                 behandling = behandling,
             )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnFødselsDato = LocalDate.of(2020, 4, 1)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
@@ -348,12 +351,12 @@ class VilkårsvurderingStegTest {
     fun `utførSteg - skal kaste feil hvis barnehageplass perioder starter etter siste dato i barnets alder vilkår`() {
         val vilkårsvurdering =
             lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
+                søkerAktør = søker.aktør,
                 behandling = behandling,
             )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnFødselsDato = LocalDate.of(2020, 4, 1)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
@@ -391,12 +394,12 @@ class VilkårsvurderingStegTest {
     fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned`() {
         val vilkårsvurdering =
             lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
+                søkerAktør = søker.aktør,
                 behandling = behandling,
             )
         val søkerPersonResultat = vilkårsvurdering.personResultater.first()
 
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnFødselsDato = LocalDate.of(2020, 4, 1)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
@@ -435,7 +438,7 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal kaste feil når det er blanding av regelverk på vilkårene for barnet`() {
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
         // BOSATT I RIKET er vurdert etter både NASJONALE_REGLER og EØS_FORORDNINGEN
         // mens MEDLEMSKAP er vurdert etter kun NASJONALE_REGLER
         søkerPersonResultat.setSortedVilkårResultater(
@@ -478,13 +481,12 @@ class VilkårsvurderingStegTest {
             ),
         )
 
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn)
-        val barnFødselsDato = LocalDate.of(2021, 3, 17)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
-                barnFødselsdato = barnFødselsDato,
-                barnehageplassPerioder = listOf(NullablePeriode(fom = barnFødselsDato.plusYears(1), tom = null) to null),
+                barnFødselsdato = barn.fødselsdato,
+                barnehageplassPerioder = listOf(NullablePeriode(fom = barn.fødselsdato.plusYears(1), tom = null) to null),
                 regelverk = Regelverk.EØS_FORORDNINGEN,
                 behandlingId = behandling.id,
             )
@@ -503,8 +505,8 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal validere vilkårsvurderingen`() {
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -519,14 +521,13 @@ class VilkårsvurderingStegTest {
                 ),
             ),
         )
-        val barnFødselsDato = LocalDate.now().minusYears(2)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
-                barnFødselsdato = barnFødselsDato,
+                barnFødselsdato = barn.fødselsdato,
                 barnehageplassPerioder =
                     listOf(
-                        NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
+                        NullablePeriode(barn.fødselsdato.plusYears(1), barn.fødselsdato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
             )
@@ -555,8 +556,8 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal oppdatere behandlingstema med EØS hvis nåværende behandling inneholder vilkår vurdert etter EØS ordningen`() {
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -576,10 +577,10 @@ class VilkårsvurderingStegTest {
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
-                barnFødselsdato = barnFødselsDato,
+                barnFødselsdato = barn.fødselsdato,
                 barnehageplassPerioder =
                     listOf(
-                        NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
+                        NullablePeriode(barn.fødselsdato.plusYears(1), barn.fødselsdato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
             )
@@ -604,8 +605,8 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal oppdatere behandlingstema med EØS hvis forrige behandling inneholder løpende vilkår vurdert etter EØS ordningen`() {
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -621,14 +622,13 @@ class VilkårsvurderingStegTest {
                 ),
             ),
         )
-        val barnFødselsDato = LocalDate.now().minusYears(2)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
-                barnFødselsdato = barnFødselsDato,
+                barnFødselsdato = barn.fødselsdato,
                 barnehageplassPerioder =
                     listOf(
-                        NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
+                        NullablePeriode(barn.fødselsdato.plusYears(1), barn.fødselsdato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
             )
@@ -638,9 +638,9 @@ class VilkårsvurderingStegTest {
         val forrigeBehandling = lagBehandling(id = 0, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val forrigeVilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultatIForrigeVilkårsvurdering =
-            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker)
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultatIForrigeVilkårsvurdering =
-            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = barn)
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
             setOf(
@@ -697,8 +697,8 @@ class VilkårsvurderingStegTest {
     @Test
     fun `utførSteg - skal ikke oppdatere behandlingstema med EØS hvis forrige behandling inneholder løpende vilkår vurdert etter EØS ordningen men som er utløpt`() {
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
-        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker)
-        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
@@ -718,10 +718,10 @@ class VilkårsvurderingStegTest {
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
-                barnFødselsdato = barnFødselsDato,
+                barnFødselsdato = barn.fødselsdato,
                 barnehageplassPerioder =
                     listOf(
-                        NullablePeriode(barnFødselsDato.plusYears(1), barnFødselsDato.plusYears(2)) to null,
+                        NullablePeriode(barn.fødselsdato.plusYears(1), barn.fødselsdato.plusYears(2)) to null,
                     ),
                 behandlingId = behandling.id,
             )
@@ -731,9 +731,9 @@ class VilkårsvurderingStegTest {
         val forrigeBehandling = lagBehandling(id = 0, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val forrigeVilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultatIForrigeVilkårsvurdering =
-            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker)
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultatIForrigeVilkårsvurdering =
-            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = barn)
+            PersonResultat(vilkårsvurdering = forrigeVilkårsvurderingForSøker, aktør = barn.aktør)
 
         søkerPersonResultatIForrigeVilkårsvurdering.setSortedVilkårResultater(
             setOf(
@@ -754,12 +754,12 @@ class VilkårsvurderingStegTest {
         val vilkårResultaterForBarnIForrigeVilkårsvurdering =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultatIForrigeVilkårsvurdering,
-                barnFødselsdato = barnIForrigeVilkårsvurderingFødselsDato,
+                barnFødselsdato = barn.fødselsdato,
                 barnehageplassPerioder =
                     listOf(
                         NullablePeriode(
-                            barnIForrigeVilkårsvurderingFødselsDato.plusYears(1),
-                            barnIForrigeVilkårsvurderingFødselsDato.plusYears(2),
+                            barn.fødselsdato.plusYears(1),
+                            barn.fødselsdato.plusYears(2),
                         ) to null,
                     ),
                 behandlingId = forrigeBehandling.id,
