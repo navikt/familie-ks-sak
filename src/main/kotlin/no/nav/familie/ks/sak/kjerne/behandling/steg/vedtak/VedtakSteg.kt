@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.FYLL_INN_SB_NAVN_I_GODKJENNE_VEDTAK_OPPGAVE
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -19,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
-import no.nav.familie.unleash.UnleashService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -35,7 +33,6 @@ class VedtakSteg(
     private val oppgaveService: OppgaveService,
     private val vedtakService: VedtakService,
     private val vedtaksperiodeService: VedtaksperiodeService,
-    private val unleashService: UnleashService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
@@ -58,7 +55,7 @@ class VedtakSteg(
                     behandlingId = behandling.id,
                     oppgavetype = Oppgavetype.GodkjenneVedtak,
                     fristForFerdigstillelse = LocalDate.now(),
-                    beskrivelse = if (unleashService.isEnabled(FYLL_INN_SB_NAVN_I_GODKJENNE_VEDTAK_OPPGAVE)) SikkerhetContext.hentSaksbehandlerNavn() else null,
+                    beskrivelse = SikkerhetContext.hentSaksbehandlerNavn(),
                 )
 
             taskService.save(godkjenneVedtakTask)
