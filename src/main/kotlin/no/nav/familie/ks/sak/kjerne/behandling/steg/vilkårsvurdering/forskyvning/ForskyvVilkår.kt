@@ -115,6 +115,7 @@ fun Collection<PersonResultat>.forskyvVilkårResultater(personopplysningGrunnlag
             personResultat.aktør to personResultat.forskyvVilkårResultater(lovverk)
         }
 
+    // Lager LovverkTidslinje basert på barnas forskjøvede vilkårResultater
     val barnasLovverkTidslinje =
         barnasForskjøvedeVilkårResultater
             .map { entry ->
@@ -127,6 +128,7 @@ fun Collection<PersonResultat>.forskyvVilkårResultater(personopplysningGrunnlag
                 lovverk.single()
             }
 
+    // Forskyver søker etter alle lovverk og kombinerer med lovverktidslinje
     val søkersForskjøvedeVilkårResultater = this.single { it.erSøkersResultater() }.forskyvVilkårResultaterEtterLovverkTidslinje(barnasLovverkTidslinje)
 
     return barnasForskjøvedeVilkårResultater.plus(Pair(this.single { it.erSøkersResultater() }.aktør, søkersForskjøvedeVilkårResultater))
