@@ -82,7 +82,7 @@ class VilkårsvurderingStegTest {
             beregningService,
             kompetanseService,
             barnetsVilkårValidator,
-            unleashService
+            unleashService,
         )
 
     private val søker = randomAktør()
