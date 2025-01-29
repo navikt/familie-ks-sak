@@ -12,6 +12,7 @@ fun utledMaksAntallMånederMedUtbetaling(
     barnetsAlderVilkårResultater: List<VilkårResultat>,
 ): Long =
     when (vilkårLovverkInformasjonForBarn.lovverk) {
+        VilkårLovverk.LOVVERK_2025 -> TODO("Lovverk 2025 er ikke støttet")
         VilkårLovverk.LOVVERK_2024,
         VilkårLovverk.LOVVERK_2021_OG_2024,
         -> 7L

@@ -52,6 +52,7 @@ class BarnetsAlderVilkårValidator(
                     periodeFomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
                     periodeTomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024,
                 )
+            VilkårLovverk.LOVVERK_2025 -> TODO("Lovverk 2025 er ikke støttet.")
         }
     }
 }
