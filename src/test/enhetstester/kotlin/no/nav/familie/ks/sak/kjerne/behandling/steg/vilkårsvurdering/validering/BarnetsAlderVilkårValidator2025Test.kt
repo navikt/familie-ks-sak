@@ -19,7 +19,7 @@ class BarnetsAlderVilkårValidator2025Test {
     @Test
     fun `skal returnere ingen feil når perioder er en tom liste`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -43,7 +43,7 @@ class BarnetsAlderVilkårValidator2025Test {
     @Test
     fun `skal returnere feil når tom dato settes til etter august året barnet fyller 6 år for barn som er adoptert`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -85,9 +85,9 @@ class BarnetsAlderVilkårValidator2025Test {
     }
 
     @Test
-    fun `skal returnere feil om differansen mellom fom og tom er mer enn et år en periode for barn som er adoptert`() {
+    fun `skal returnere feil om differansen mellom fom og tom er mer enn 8 måneder en periode for barn som er adoptert`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -129,9 +129,9 @@ class BarnetsAlderVilkårValidator2025Test {
     }
 
     @Test
-    fun `skal returnere feil om perioden sin fom er ulik måneden barnet blir 1 år for barn som ikke er adoptert`() {
+    fun `skal returnere feil om perioden sin fom er ulik måneden barnet blir 12 måneder for barn som ikke er adoptert`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -143,8 +143,8 @@ class BarnetsAlderVilkårValidator2025Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato.plusYears(1).plusDays(1),
-                    tom = fødselsdato.plusYears(2),
+                    fom = fødselsdato.plusMonths(12).plusDays(1),
+                    tom = fødselsdato.plusMonths(20),
                 ),
             )
 
@@ -165,9 +165,9 @@ class BarnetsAlderVilkårValidator2025Test {
     }
 
     @Test
-    fun `skal returnere feil dersom tom dato for periode er ulik barnets 2 års dag eller 31 juli 2024 og barnet ikke er dødt eller adoptert`() {
+    fun `skal returnere feil dersom tom dato for periode er ulik datoen barnet fyller 20 måneder og barnet ikke er dødt eller adoptert`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -179,8 +179,8 @@ class BarnetsAlderVilkårValidator2025Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato.plusYears(1),
-                    tom = fødselsdato.plusYears(2).minusDays(1),
+                    fom = fødselsdato.plusMonths(12),
+                    tom = fødselsdato.plusMonths(20).minusDays(1),
                 ),
             )
 
@@ -201,9 +201,9 @@ class BarnetsAlderVilkårValidator2025Test {
     }
 
     @Test
-    fun `skal returnere feil dersom tom dato for periode er ulik barnets 2 års dag eller 31 juli 2024 og barnets dødsdato er ulik periode tom for barn som ikke er adoptert`() {
+    fun `skal returnere feil dersom tom dato for periode er ulik datoen barnet fyller 20 måneder og barnets dødsdato er ulik periode tom for barn som ikke er adoptert`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -214,7 +214,7 @@ class BarnetsAlderVilkårValidator2025Test {
             dødsfall =
                 lagDødsfall(
                     person = person,
-                    dødsfallDato = fødselsdato.plusYears(2).plusDays(2),
+                    dødsfallDato = fødselsdato.plusMonths(20).plusDays(2),
                 )
         }
 
@@ -222,8 +222,8 @@ class BarnetsAlderVilkårValidator2025Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato.plusYears(1),
-                    tom = fødselsdato.plusYears(2).plusDays(1),
+                    fom = fødselsdato.plusMonths(12),
+                    tom = fødselsdato.plusMonths(20).plusDays(1),
                 ),
             )
 
@@ -246,7 +246,7 @@ class BarnetsAlderVilkårValidator2025Test {
     @Test
     fun `skal ikke returne feil når tom-dato er lik dødsfalldato`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
@@ -257,7 +257,7 @@ class BarnetsAlderVilkårValidator2025Test {
             dødsfall =
                 lagDødsfall(
                     person = person,
-                    dødsfallDato = fødselsdato.plusYears(2).minusDays(10),
+                    dødsfallDato = fødselsdato.plusMonths(20).minusDays(10),
                 )
         }
 
@@ -265,8 +265,8 @@ class BarnetsAlderVilkårValidator2025Test {
             listOf(
                 IkkeNullbarPeriode(
                     verdi = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER),
-                    fom = fødselsdato.plusYears(1),
-                    tom = fødselsdato.plusYears(2).minusDays(10),
+                    fom = fødselsdato.plusMonths(12),
+                    tom = fødselsdato.plusMonths(20).minusDays(10),
                 ),
             )
 
@@ -286,7 +286,7 @@ class BarnetsAlderVilkårValidator2025Test {
     @Test
     fun `skal ikke returne feil når ingen feil blir oppdaget`() {
         // Arrange
-        val fødselsdato = LocalDate.of(2024, 7, 31)
+        val fødselsdato = LocalDate.of(2024, 1, 1)
 
         val person =
             lagPerson(
