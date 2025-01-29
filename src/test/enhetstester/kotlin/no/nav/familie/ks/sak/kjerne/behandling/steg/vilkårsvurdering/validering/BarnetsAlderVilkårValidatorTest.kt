@@ -20,11 +20,13 @@ class BarnetsAlderVilkårValidatorTest {
     val barnetsAlderVilkårValidator2021: BarnetsAlderVilkårValidator2021 = mockk()
     val barnetsAlderVilkårValidator2024: BarnetsAlderVilkårValidator2024 = mockk()
     val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024 = mockk()
+    val barnetsAlderVilkårValidator2025: BarnetsAlderVilkårValidator2025 = mockk()
     val barnetsAlderVilkårValidator =
         BarnetsAlderVilkårValidator(
             barnetsAlderVilkårValidator2021,
             barnetsAlderVilkårValidator2024,
             barnetsAlderVilkårValidator2021og2024,
+            barnetsAlderVilkårValidator2025
         )
 
     @Test
