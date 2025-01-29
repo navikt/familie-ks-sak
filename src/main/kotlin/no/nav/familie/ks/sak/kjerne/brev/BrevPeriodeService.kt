@@ -79,7 +79,7 @@ class BrevPeriodeService(
                 BrevPeriodeContext(
                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                     sanityBegrunnelser = sanityBegrunnelser,
-                    persongrunnlag = personopplysningGrunnlag,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
                     personResultater = vilkårsvurdering.personResultater.toList(),
                     andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
                     uregistrerteBarn =

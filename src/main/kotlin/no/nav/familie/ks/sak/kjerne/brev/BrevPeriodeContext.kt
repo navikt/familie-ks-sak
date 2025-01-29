@@ -66,7 +66,7 @@ import java.time.LocalDate
 class BrevPeriodeContext(
     private val utvidetVedtaksperiodeMedBegrunnelser: UtvidetVedtaksperiodeMedBegrunnelser,
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
-    private val persongrunnlag: PersonopplysningGrunnlag,
+    private val personopplysningGrunnlag: PersonopplysningGrunnlag,
     private val personResultater: List<PersonResultat>,
     private val andelTilkjentYtelserMedEndreteUtbetalinger: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     private val uregistrerteBarn: List<BarnMedOpplysningerDto>,
@@ -184,7 +184,7 @@ class BrevPeriodeContext(
             (identerIBegrunnelene + identerMedUtbetaling)
                 .toSet()
                 .mapNotNull { personIdent ->
-                    persongrunnlag.personer.find { it.aktør.aktivFødselsnummer() == personIdent }
+                    personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == personIdent }
                 }.filter { it.type == PersonType.BARN }
 
         return barnIPeriode
@@ -263,7 +263,7 @@ class BrevPeriodeContext(
         BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
-            personopplysningGrunnlag = persongrunnlag,
+            personopplysningGrunnlag = personopplysningGrunnlag,
             overgangsordningAndeler = overgangsordningAndeler,
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
@@ -344,7 +344,7 @@ class BrevPeriodeContext(
                             begrunnelse = begrunnelse,
                         ),
                     maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor,
-                    maalform = persongrunnlag.søker.målform.tilSanityFormat(),
+                    maalform = personopplysningGrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
                     vedtakBegrunnelseType = begrunnelse.begrunnelseType,
@@ -396,7 +396,7 @@ class BrevPeriodeContext(
                 .filter { utvidetVedtaksperiodeMedBegrunnelser.tom == null || it.stønadTom >= utvidetVedtaksperiodeMedBegrunnelser.tom.toYearMonth() }
 
         val aktørerMedUtbetalingIVedtaksperiode = innvilgedeAndelerIPeriode.map { it.aktør }.toSet()
-        return aktørerMedUtbetalingIVedtaksperiode.map { aktør -> persongrunnlag.personer.single { it.aktør == aktør } }.toSet()
+        return aktørerMedUtbetalingIVedtaksperiode.map { aktør -> personopplysningGrunnlag.personer.single { it.aktør == aktør } }.toSet()
     }
 
     fun hentEøsBegrunnelseDataDtoer(): List<EØSBegrunnelseDto> =
@@ -474,7 +474,7 @@ class BrevPeriodeContext(
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
                             barnIBegrunnelse = barnIBegrunnelse,
-                            barnPåBehandling = persongrunnlag.barna,
+                            barnPåBehandling = personopplysningGrunnlag.barna,
                             uregistrerteBarn = uregistrerteBarn,
                             gjelderSøker = gjelderSøker,
                         )
@@ -486,7 +486,7 @@ class BrevPeriodeContext(
                             sanityBegrunnelseType = sanityBegrunnelse.type,
                             barnasFodselsdatoer = barnasFødselsdagerForAvslagOgOpphør.tilBrevTekst(),
                             antallBarn = barnIBegrunnelse.size,
-                            maalform = persongrunnlag.søker.målform.tilSanityFormat(),
+                            maalform = personopplysningGrunnlag.søker.målform.tilSanityFormat(),
                             gjelderSoker = gjelderSøker,
                             antallTimerBarnehageplass = antallTimerBarnehageplass,
                         ),
@@ -497,7 +497,7 @@ class BrevPeriodeContext(
                             kompetanse.barnAktører
                                 .mapNotNull { barnAktør ->
                                     if (gjelderSøker && begrunnelseGjelderOpphørFraForrigeBehandling) {
-                                        persongrunnlag.barna
+                                        personopplysningGrunnlag.barna
                                     } else {
                                         personerGjeldendeForBegrunnelse
                                     }.find { it.aktør == barnAktør }
@@ -515,7 +515,7 @@ class BrevPeriodeContext(
                                 sokersAktivitetsland = kompetanse.søkersAktivitetsland.tilLandNavn(landkoder).navn,
                                 barnasFodselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato.tilBrevTekst(),
                                 antallBarn = hentAntallBarnForBegrunnelse(barnasFødselsdatoer = barnIBegrunnelseOgIKompetanseFødselsdato, begrunnelse = begrunnelse),
-                                maalform = persongrunnlag.søker.målform.tilSanityFormat(),
+                                maalform = personopplysningGrunnlag.søker.målform.tilSanityFormat(),
                                 antallTimerBarnehageplass = antallTimerBarnehageplass,
                             )
                         } else {
@@ -678,9 +678,7 @@ class BrevPeriodeContext(
     }
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> =
-        personResultater.associate { personResultat ->
-            personResultat.aktør to personResultat.forskyvVilkårResultater().mapValues { it.value.tilTidslinje() }
-        }
+        personResultater.forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
         val vedtaksperiodeTidslinje =

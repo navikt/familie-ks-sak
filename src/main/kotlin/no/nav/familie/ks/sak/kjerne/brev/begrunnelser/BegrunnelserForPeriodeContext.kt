@@ -305,23 +305,25 @@ class BegrunnelserForPeriodeContext(
             BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
 
-    private fun finnVilkårResultaterSomStarterSamtidigSomPeriode() =
-        personResultater.flatMap { personResultat ->
-            personResultat
-                .forskyvVilkårResultater()
-                .flatMap { it.value }
-                .filter { it.fom == vedtaksperiode.fom }
-                .map { it.verdi.id }
-        }
+    private fun finnVilkårResultaterSomStarterSamtidigSomPeriode(): List<Long> =
+        personResultater
+            .forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
+            .flatMap { entry ->
+                entry.value
+                    .flatMap { it.value }
+                    .filter { periode -> periode.fom == vedtaksperiode.fom }
+                    .map { periode -> periode.verdi.id }
+            }
 
-    private fun finnVilkårResultaterSomSlutterFørPeriode() =
-        personResultater.flatMap { personResultat ->
-            personResultat
-                .forskyvVilkårResultater()
-                .flatMap { it.value }
-                .filter { it.tom?.plusDays(1) == vedtaksperiode.fom }
-                .map { it.verdi.id }
-        }
+    private fun finnVilkårResultaterSomSlutterFørPeriode(): List<Long> =
+        personResultater
+            .forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
+            .flatMap { entry ->
+                entry.value
+                    .flatMap { it.value }
+                    .filter { periode -> periode.tom?.plusDays(1) == vedtaksperiode.fom }
+                    .map { periode -> periode.verdi.id }
+            }
 
     private fun hentRelevanteVilkårResultaterForVedtaksperiode(
         standardBegrunnelse: IBegrunnelse,
