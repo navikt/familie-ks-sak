@@ -1,10 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning
 
+import jan
+import mai
+import no.nav.familie.ks.sak.common.util.toLocalDate
+import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonResultatFraVilkårResultater
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -186,6 +192,51 @@ class ForskyvVilkårKtTest {
 
             // Assert
             assertThat(forskjøvedeVilkårResultater).isEmpty()
+        }
+
+        @Test
+        fun `skal forskyve barn og søker hver for seg og søker skal forskyves basert på barnas lovverk tidslinje`() {
+            // Arrange
+            val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+            val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = jan(2020).toLocalDate())
+            val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = mai(2023).toLocalDate())
+            val barn3 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = jan(2024).toLocalDate())
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(søkerAktør = søker.aktør, barnAktør = listOf(barn.aktør, barn2.aktør, barn3.aktør), barnasFødselsdatoer = listOf(barn.fødselsdato, barn2.fødselsdato, barn3.fødselsdato))
+
+            val vilkårResultaterBarn = setOf(lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER, periodeFom = barn.fødselsdato.plusYears(1), periodeTom = barn.fødselsdato.plusYears(2)))
+            val vilkårResultaterBarn2 = setOf(lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER, periodeFom = barn2.fødselsdato.plusYears(1), periodeTom = barn2.fødselsdato.plusMonths(19)))
+            val vilkårResultaterBarn3 = setOf(lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER, periodeFom = barn3.fødselsdato.plusMonths(13), periodeTom = barn3.fødselsdato.plusMonths(19)))
+            val vilkårResultaterSøker =
+                setOf(
+                    lagVilkårResultat(vilkårType = Vilkår.BOSATT_I_RIKET, periodeFom = søker.fødselsdato, periodeTom = barn.fødselsdato.plusMonths(15)),
+                    lagVilkårResultat(vilkårType = Vilkår.BOSATT_I_RIKET, periodeFom = barn.fødselsdato.plusMonths(20), periodeTom = null),
+                )
+
+            val personResultater =
+                listOf(
+                    lagPersonResultatFraVilkårResultater(
+                        vilkårResultaterBarn,
+                        barn.aktør,
+                    ),
+                    lagPersonResultatFraVilkårResultater(
+                        vilkårResultaterBarn2,
+                        barn2.aktør,
+                    ),
+                    lagPersonResultatFraVilkårResultater(
+                        vilkårResultaterBarn3,
+                        barn3.aktør,
+                    ),
+                    lagPersonResultatFraVilkårResultater(
+                        vilkårResultaterSøker,
+                        søker.aktør,
+                    ),
+                )
+
+            // Act
+            val forskjøvedeVilkårResultater = personResultater.forskyvVilkårResultater(personopplysningGrunnlag)
+
+            // Assert
+            assertThat(forskjøvedeVilkårResultater).hasSize(4)
         }
     }
 }
