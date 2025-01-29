@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2021
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2021og2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2024
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2025
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -64,6 +65,7 @@ class VilkårsvurderingStegTest {
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
+    private val barnetsAlderVilkårValidator2025 = BarnetsAlderVilkårValidator2025()
     private val barnetsVilkårValidator: BarnetsVilkårValidator =
         BarnetsVilkårValidator(
             BarnetsAlderVilkårValidator(
@@ -73,6 +75,7 @@ class VilkårsvurderingStegTest {
                     barnetsAlderVilkårValidator2021,
                     barnetsAlderVilkårValidator2024,
                 ),
+                barnetsAlderVilkårValidator2025,
             ),
         )
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =

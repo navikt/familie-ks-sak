@@ -39,6 +39,7 @@ class BarnetsVilkårValidatorTest {
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
+    private val barnetsAlderVilkårValidator2025 = BarnetsAlderVilkårValidator2025()
 
     private val barnetsVilkårValidator: BarnetsVilkårValidator =
         BarnetsVilkårValidator(
@@ -49,6 +50,7 @@ class BarnetsVilkårValidatorTest {
                     barnetsAlderVilkårValidator2021,
                     barnetsAlderVilkårValidator2024,
                 ),
+                barnetsAlderVilkårValidator2025,
             ),
         )
 
