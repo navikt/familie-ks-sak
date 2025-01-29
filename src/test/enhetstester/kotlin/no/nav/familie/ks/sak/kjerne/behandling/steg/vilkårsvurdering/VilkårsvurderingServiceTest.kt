@@ -26,11 +26,13 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,6 +52,9 @@ class VilkårsvurderingServiceTest {
     @MockK
     private lateinit var personidentService: PersonidentService
 
+    @MockK
+    private lateinit var unleashService: UnleashService
+
     @InjectMockKs
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
@@ -58,6 +63,11 @@ class VilkårsvurderingServiceTest {
     private val fagsak = lagFagsak(søker)
 
     private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+    @BeforeEach
+    fun setUp() {
+        every { unleashService.isEnabled(any()) } returns false
+    }
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
