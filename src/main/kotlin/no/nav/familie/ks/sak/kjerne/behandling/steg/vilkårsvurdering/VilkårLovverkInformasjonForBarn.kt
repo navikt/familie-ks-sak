@@ -31,6 +31,8 @@ data class VilkårLovverkInformasjonForBarn(
 
         val erTruffetAvLovverk2021 = periodeFomForAdoptertBarn?.isBefore(DATO_LOVENDRING_2024.toYearMonth()) ?: periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
         val erTruffetAvLovverk2024 = periodeTomForAdoptertBarn?.toLocalDate()?.erSammeEllerEtter(DATO_LOVENDRING_2024) ?: periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
+        // TODO : Ta denne i bruk for å sette lovverk variabelen
+        // val erTruffetAvLovverk2025 = fødselsdato.erSammeEllerEtter(LocalDate.of(2024, 1, 1))
 
         this.lovverk =
             when {
