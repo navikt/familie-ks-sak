@@ -80,7 +80,7 @@ class BarnetsAlderVilkårValidator2025Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år.",
+            "Du kan ikke sette en t.o.m dato på barnets aldersvilkår som er etter august året barnet fyller 6 år.",
         )
     }
 
@@ -124,7 +124,7 @@ class BarnetsAlderVilkårValidator2025Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 8 måneder.",
+            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets aldersvilkår kan ikke være mer enn 8 måneder.",
         )
     }
 
@@ -160,7 +160,7 @@ class BarnetsAlderVilkårValidator2025Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "F.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 12 måneder.",
+            "F.o.m datoen på barnets aldersvilkår må være lik datoen barnet fyller 12 måneder.",
         )
     }
 
@@ -196,7 +196,7 @@ class BarnetsAlderVilkårValidator2025Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "T.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 20 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
+            "T.o.m datoen på barnets aldersvilkår må være lik datoen barnet fyller 20 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
         )
     }
 
@@ -239,7 +239,7 @@ class BarnetsAlderVilkårValidator2025Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "T.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 20 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
+            "T.o.m datoen på barnets aldersvilkår må være lik datoen barnet fyller 20 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.",
         )
     }
 
