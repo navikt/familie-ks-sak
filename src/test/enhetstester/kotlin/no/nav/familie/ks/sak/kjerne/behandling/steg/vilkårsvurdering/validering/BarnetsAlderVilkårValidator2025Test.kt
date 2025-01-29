@@ -124,7 +124,7 @@ class BarnetsAlderVilkårValidator2025Test {
         // Assert
         assertThat(validerBarnetsAlderVilkår).hasSize(1)
         assertThat(validerBarnetsAlderVilkår).contains(
-            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år.",
+            "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 8 måneder.",
         )
     }
 
