@@ -17,6 +17,8 @@ data class VilkårLovverkInformasjonForBarn(
     val periodeTomBarnetsAlderLov2021: LocalDate
     val periodeFomBarnetsAlderLov2024: LocalDate
     val periodeTomBarnetsAlderLov2024: LocalDate
+    val periodeFomBarnetsAlderLov2025: LocalDate
+    val periodeTomBarnetsAlderLov2025: LocalDate
     val lovverk: VilkårLovverk
 
     init {
@@ -24,8 +26,13 @@ data class VilkårLovverkInformasjonForBarn(
         this.periodeTomBarnetsAlderLov2021 = fødselsdato.plusYears(2)
         this.periodeFomBarnetsAlderLov2024 = fødselsdato.plusMonths(13)
         this.periodeTomBarnetsAlderLov2024 = fødselsdato.plusMonths(19)
+        this.periodeFomBarnetsAlderLov2025 = fødselsdato.plusMonths(12)
+        this.periodeTomBarnetsAlderLov2025 = fødselsdato.plusMonths(20)
+
         val erTruffetAvLovverk2021 = periodeFomForAdoptertBarn?.isBefore(DATO_LOVENDRING_2024.toYearMonth()) ?: periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
         val erTruffetAvLovverk2024 = periodeTomForAdoptertBarn?.toLocalDate()?.erSammeEllerEtter(DATO_LOVENDRING_2024) ?: periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
+        // TODO : Ta denne i bruk for å sette lovverk variabelen
+        // val erTruffetAvLovverk2025 = fødselsdato.erSammeEllerEtter(LocalDate.of(2024, 1, 1))
 
         this.lovverk =
             when {

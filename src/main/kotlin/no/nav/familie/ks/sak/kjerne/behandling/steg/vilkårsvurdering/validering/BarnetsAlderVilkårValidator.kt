@@ -13,6 +13,7 @@ class BarnetsAlderVilkårValidator(
     val barnetsAlderVilkårValidator2021: BarnetsAlderVilkårValidator2021,
     val barnetsAlderVilkårValidator2024: BarnetsAlderVilkårValidator2024,
     val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024,
+    val barnetsAlderVilkårValidator2025: BarnetsAlderVilkårValidator2025,
 ) {
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
@@ -51,6 +52,14 @@ class BarnetsAlderVilkårValidator(
                     barn = barn,
                     periodeFomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
                     periodeTomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024,
+                )
+
+            VilkårLovverk.LOVVERK_2025 ->
+                barnetsAlderVilkårValidator2025.validerBarnetsAlderVilkår(
+                    perioder = perioder,
+                    barn = barn,
+                    periodeFomBarnetsAlderLov2025 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2025,
+                    periodeTomBarnetsAlderLov2025 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2025,
                 )
         }
     }
