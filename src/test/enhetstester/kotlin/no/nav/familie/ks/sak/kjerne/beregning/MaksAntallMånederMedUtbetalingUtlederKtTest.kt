@@ -1,12 +1,12 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
@@ -37,7 +37,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -60,7 +60,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -83,7 +83,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -106,7 +106,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
