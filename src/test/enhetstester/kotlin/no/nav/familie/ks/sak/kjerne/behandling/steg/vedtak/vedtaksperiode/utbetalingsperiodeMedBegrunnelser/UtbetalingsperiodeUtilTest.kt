@@ -121,6 +121,7 @@ internal class UtbetalingsperiodeUtilTest {
 
         val personResultater =
             setOf(
+                vilkårsvurdering.lagGodkjentPersonResultatForSøker(søker),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn1),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )
@@ -204,6 +205,7 @@ internal class UtbetalingsperiodeUtilTest {
 
         val personResultater =
             setOf(
+                vilkårsvurdering.lagGodkjentPersonResultatForSøker(søker),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn1),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )

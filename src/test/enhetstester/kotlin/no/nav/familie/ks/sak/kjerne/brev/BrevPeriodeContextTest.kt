@@ -505,7 +505,7 @@ fun lagBrevPeriodeContext(
                 emptyList(),
             ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
-        persongrunnlag = persongrunnlag,
+        personopplysningGrunnlag = persongrunnlag,
         personResultater = personResultater,
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
         uregistrerteBarn = emptyList(),
