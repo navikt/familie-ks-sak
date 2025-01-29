@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
@@ -40,23 +38,19 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 @ExtendWith(MockKExtension::class)
 class VilkårsvurderingServiceTest {
-    @MockK
-    private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var sanityService: SanityService
-
-    @MockK
-    private lateinit var personidentService: PersonidentService
-
-    @MockK
-    private lateinit var unleashService: UnleashService
-
-    @InjectMockKs
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
+    private val vilkårsvurderingRepository: VilkårsvurderingRepository = mockk()
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
+    private val sanityService: SanityService = mockk()
+    private val personidentService: PersonidentService = mockk()
+    private val unleashService: UnleashService = mockk()
+    private val vilkårsvurderingService =
+        VilkårsvurderingService(
+            vilkårsvurderingRepository,
+            personopplysningGrunnlagService,
+            sanityService,
+            personidentService,
+            unleashService,
+        )
 
     private val søker = randomAktør()
 
