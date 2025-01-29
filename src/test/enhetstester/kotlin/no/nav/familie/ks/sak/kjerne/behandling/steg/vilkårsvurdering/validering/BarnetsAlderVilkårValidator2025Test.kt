@@ -107,8 +107,8 @@ class BarnetsAlderVilkårValidator2025Test {
                                 ),
                             resultat = Resultat.OPPFYLT,
                         ),
-                    fom = fødselsdato.plusYears(1),
-                    tom = fødselsdato.plusYears(2).plusDays(1),
+                    fom = fødselsdato.plusMonths(12),
+                    tom = fødselsdato.plusMonths(20).plusDays(1),
                 ),
             )
 
