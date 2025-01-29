@@ -50,7 +50,7 @@ class BarnetsVilkårValidatorTest {
                     barnetsAlderVilkårValidator2021,
                     barnetsAlderVilkårValidator2024,
                 ),
-                barnetsAlderVilkårValidator2025
+                barnetsAlderVilkårValidator2025,
             ),
         )
 

@@ -26,7 +26,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator2021,
             barnetsAlderVilkårValidator2024,
             barnetsAlderVilkårValidator2021og2024,
-            barnetsAlderVilkårValidator2025
+            barnetsAlderVilkårValidator2025,
         )
 
     @Test

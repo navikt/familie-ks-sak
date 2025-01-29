@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2021
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2021og2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2024
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2025
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
@@ -52,7 +53,6 @@ import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsAlderVilkårValidator2025
 
 class VilkårsvurderingStegTest {
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
@@ -75,7 +75,7 @@ class VilkårsvurderingStegTest {
                     barnetsAlderVilkårValidator2021,
                     barnetsAlderVilkårValidator2024,
                 ),
-                barnetsAlderVilkårValidator2025
+                barnetsAlderVilkårValidator2025,
             ),
         )
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
