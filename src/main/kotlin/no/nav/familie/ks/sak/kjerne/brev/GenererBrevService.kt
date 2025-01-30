@@ -265,7 +265,7 @@ class GenererBrevService(
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
         val hjemler =
-            if (unleashService.isEnabled(FeatureToggleConfig.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV, false)) {
+            if (unleashService.isEnabled(FeatureToggleConfig.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV.navn, false)) {
                 hjemmeltekstUtleder.utledHjemmeltekst(
                     behandlingId = vedtak.behandling.id,
                     vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
@@ -390,40 +390,39 @@ class GenererBrevService(
 
     fun hentDødsfallbrevData(
         vedtak: Vedtak,
-    ) =
-        opprettGrunnlagOgSignaturDataService.opprett(vedtak).let { data ->
-            Dødsfall(
-                data =
-                    DødsfallData(
-                        delmalData =
-                            DødsfallData.DelmalData(
-                                signaturVedtak =
-                                    SignaturVedtak(
-                                        enhet = data.enhet,
-                                        saksbehandler = data.saksbehandler,
-                                        beslutter = data.beslutter,
-                                    ),
-                            ),
-                        flettefelter =
-                            DødsfallData.Flettefelter(
-                                navn = data.grunnlag.søker.navn,
-                                fodselsnummer =
-                                    data.grunnlag.søker.aktør
-                                        .aktivFødselsnummer(),
-                                // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
-                                // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
-                                navnAvdode =
-                                    data.grunnlag.søker.navn
-                                        .storForbokstavIAlleNavn(),
-                                virkningstidspunkt =
-                                    hentVirkningstidspunkt(
-                                        opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
-                                        behandlingId = vedtak.behandling.id,
-                                    ),
-                            ),
-                    ),
-            )
-        }
+    ) = opprettGrunnlagOgSignaturDataService.opprett(vedtak).let { data ->
+        Dødsfall(
+            data =
+                DødsfallData(
+                    delmalData =
+                        DødsfallData.DelmalData(
+                            signaturVedtak =
+                                SignaturVedtak(
+                                    enhet = data.enhet,
+                                    saksbehandler = data.saksbehandler,
+                                    beslutter = data.beslutter,
+                                ),
+                        ),
+                    flettefelter =
+                        DødsfallData.Flettefelter(
+                            navn = data.grunnlag.søker.navn,
+                            fodselsnummer =
+                                data.grunnlag.søker.aktør
+                                    .aktivFødselsnummer(),
+                            // Selv om det er feil å anta at alle navn er på dette formatet er det ønskelig å skrive
+                            // det slik, da uppercase kan oppleves som skrikende i et brev som skal være skånsomt
+                            navnAvdode =
+                                data.grunnlag.søker.navn
+                                    .storForbokstavIAlleNavn(),
+                            virkningstidspunkt =
+                                hentVirkningstidspunkt(
+                                    opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                                    behandlingId = vedtak.behandling.id,
+                                ),
+                        ),
+                ),
+        )
+    }
 
     private fun hentVirkningstidspunkt(
         opphørsperioder: List<Opphørsperiode>,

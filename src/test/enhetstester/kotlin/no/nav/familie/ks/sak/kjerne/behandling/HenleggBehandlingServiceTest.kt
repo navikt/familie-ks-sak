@@ -107,7 +107,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling for årsak TEKNISK_VEDLIKEHOLD når toggelen er ikke på`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) } returns false
+        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE.navn) } returns false
 
         val exception =
             assertThrows<Feil> {
@@ -130,7 +130,7 @@ internal class HenleggBehandlingServiceTest {
         val tekniskEndringBehandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns tekniskEndringBehandling
-        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING) } returns false
+        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING.navn) } returns false
 
         val exception =
             assertThrows<FunksjonellFeil> {

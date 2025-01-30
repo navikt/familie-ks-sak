@@ -17,7 +17,7 @@ class SammensattKontrollsakValidator(
     private val behandlingService: BehandlingService,
 ) {
     fun validerHentSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER.navn)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å hente sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,
@@ -31,7 +31,7 @@ class SammensattKontrollsakValidator(
     }
 
     fun validerOpprettSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER.navn)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å opprette sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,
@@ -45,7 +45,7 @@ class SammensattKontrollsakValidator(
     }
 
     fun validerOppdaterSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER.navn)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å oppdatere sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,
@@ -59,7 +59,7 @@ class SammensattKontrollsakValidator(
     }
 
     fun validerSlettSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!unleashService.isEnabled(FeatureToggleConfig.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER.navn)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å slette sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,

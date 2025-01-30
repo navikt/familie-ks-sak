@@ -44,7 +44,7 @@ class KSBarnehagelisterConsumer(
             ack.acknowledge()
             return
         }
-        if (unleashService.isEnabled(FeatureToggleConfig.LAGRE_BARNEHAGEBARN_I_KS)) {
+        if (unleashService.isEnabled(FeatureToggleConfig.LAGRE_BARNEHAGEBARN_I_KS.navn)) {
             barnehageBarnService.lagreBarnehageBarn(barnehagebarn)
         }
 

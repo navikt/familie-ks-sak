@@ -34,8 +34,7 @@ class ArbeidsfordelingService(
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val unleashService: UnleashService,
 ) {
-    fun hentAlleBehandlingerPåEnhet(enhetId: String) =
-        arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
+    fun hentAlleBehandlingerPåEnhet(enhetId: String) = arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
 
     fun hentArbeidsfordelingPåBehandling(behandlingId: Long) =
         arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
@@ -58,7 +57,7 @@ class ArbeidsfordelingService(
                 )
             } else {
                 val arbeidsfordelingsenhet =
-                    if (unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)) {
+                    if (unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false)) {
                         val arbeidsfordelingsenhet = hentArbeidsfordelingsenhet(behandling)
                         tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(arbeidsfordelingsenhet, NavIdent(SikkerhetContext.hentSaksbehandler()))
                     } else {
@@ -209,8 +208,7 @@ class ArbeidsfordelingService(
         }
     }
 
-    private fun identMedAdressebeskyttelse(aktør: Aktør) =
-        aktør.aktivFødselsnummer() to personopplysningerService.hentPersoninfoEnkel(aktør).adressebeskyttelseGradering
+    private fun identMedAdressebeskyttelse(aktør: Aktør) = aktør.aktivFødselsnummer() to personopplysningerService.hentPersoninfoEnkel(aktør).adressebeskyttelseGradering
 
     private fun identMedAdressebeskyttelse(ident: String) =
         IdentMedAdressebeskyttelse(

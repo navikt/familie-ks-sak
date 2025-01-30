@@ -53,7 +53,7 @@ class OppgaveServiceTest {
 
     @BeforeEach
     fun setup() {
-        every { mockedUnleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false) } returns true
+        every { mockedUnleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false) } returns true
     }
 
     @Nested

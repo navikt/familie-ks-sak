@@ -66,7 +66,7 @@ class OppgaveService(
                 .hentArbeidsfordelingPåBehandling(behandlingId)
                 .tilArbeidsfordelingsenhet()
 
-        val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)
+        val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false)
 
         val navIdent = tilordnetNavIdent?.let { NavIdent(it) }
         val tilordnetRessurs =
@@ -147,8 +147,7 @@ class OppgaveService(
 
     fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto = integrasjonClient.hentOppgaver(finnOppgaveRequest)
 
-    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> =
-        oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
+    fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> = oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
 
     fun ferdigstillOppgave(oppgave: Oppgave) {
         val oppgaveId = oppgave.id
@@ -220,11 +219,10 @@ class OppgaveService(
 
     fun oppdaterBehandlingstypePåOppgaverFraBehandling(
         behandling: Behandling,
-    ) =
-        hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
-            val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
-            integrasjonClient.oppdaterOppgave(oppgave.copy(behandlingstype = behandling.kategori.tilOppgavebehandlingType().value))
-        }
+    ) = hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
+        val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
+        integrasjonClient.oppdaterOppgave(oppgave.copy(behandlingstype = behandling.kategori.tilOppgavebehandlingType().value))
+    }
 
     private fun lagOppgaveTekst(
         fagsakId: Long,

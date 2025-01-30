@@ -152,7 +152,7 @@ internal class ArbeidsfordelingServiceTest {
             } returns null
 
             every {
-                unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)
+                unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false)
             } returns true
 
             every { personopplysningerService.hentPersoninfoEnkel(any()).adressebeskyttelseGradering } returns null

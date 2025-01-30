@@ -38,7 +38,7 @@ class BeregnAndelTilkjentYtelseService(
         val regelverk =
             LovverkUtleder.utledLovverkForBarn(
                 fødselsdato = barn.fødselsdato,
-                skalBestemmeLovverkBasertPåFødselsdato = unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025),
+                skalBestemmeLovverkBasertPåFødselsdato = unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025.navn),
             )
         val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(regelverk)
         val andeler = andelGenerator.beregnAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)

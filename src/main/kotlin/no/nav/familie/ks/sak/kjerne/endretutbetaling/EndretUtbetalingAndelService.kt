@@ -68,7 +68,7 @@ class EndretUtbetalingAndelService(
             årsak = endretUtbetalingAndel.årsak,
             endretUtbetalingAndel = endretUtbetalingAndel,
             vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id),
-            kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggleConfig.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
+            kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggleConfig.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK.navn),
         )
 
         validerIngenOverlappendeEndring(
@@ -120,8 +120,7 @@ class EndretUtbetalingAndelService(
     }
 
     @Transactional
-    fun opprettTomEndretUtbetalingAndel(behandling: Behandling) =
-        endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
+    fun opprettTomEndretUtbetalingAndel(behandling: Behandling) = endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
 
     @Transactional
     fun kopierEndretUtbetalingAndelFraForrigeBehandling(
