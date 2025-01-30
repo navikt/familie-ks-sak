@@ -2,14 +2,14 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.forskyvEtterLovgivning2025
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.ForskyvVilkårLovendringFebruar2025.forskyvVilkårResultater
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 
-class ForskyvVilkår2025Test {
+class ForskyvVilkårLovendringFebruar2025Test {
     @Test
     fun `skal forskyve barnehageplass vilkår`() {
         // Arrange
@@ -20,16 +20,16 @@ class ForskyvVilkår2025Test {
                 vilkårType = Vilkår.BARNEHAGEPLASS,
             )
 
-        val vilkårResultater = listOf(vilkårResultat)
+        val vilkårResultater = setOf(vilkårResultat)
 
         // Act
-        val forskjøvetVilkårResultat = forskyvEtterLovgivning2025(Vilkår.BARNEHAGEPLASS, vilkårResultater)
+        val forskjøvetVilkårResultat = forskyvVilkårResultater(vilkårResultater)
 
         // Assert
         assertThat(forskjøvetVilkårResultat).hasSize(1)
-        assertThat(forskjøvetVilkårResultat[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
-        assertThat(forskjøvetVilkårResultat[0].tom).isEqualTo(LocalDate.of(2025, 12, 31))
-        assertThat(forskjøvetVilkårResultat[0].verdi).isEqualTo(vilkårResultat)
+        assertThat(forskjøvetVilkårResultat.get(Vilkår.BARNEHAGEPLASS)!!.single().fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetVilkårResultat.get(Vilkår.BARNEHAGEPLASS)!!.single().tom).isEqualTo(LocalDate.of(2025, 12, 31))
+        assertThat(forskjøvetVilkårResultat.get(Vilkår.BARNEHAGEPLASS)!!.single().verdi).isEqualTo(vilkårResultat)
     }
 
     @ParameterizedTest
@@ -47,15 +47,15 @@ class ForskyvVilkår2025Test {
                 vilkårType = vilkår,
             )
 
-        val vilkårResultater = listOf(vilkårResultat)
+        val vilkårResultater = setOf(vilkårResultat)
 
         // Act
-        val forskjøvetVilkårResultat = forskyvEtterLovgivning2025(vilkår, vilkårResultater)
+        val forskjøvetVilkårResultat = forskyvVilkårResultater(vilkårResultater)
 
         // Assert
         assertThat(forskjøvetVilkårResultat).hasSize(1)
-        assertThat(forskjøvetVilkårResultat[0].fom).isEqualTo(LocalDate.of(2025, 2, 1))
-        assertThat(forskjøvetVilkårResultat[0].tom).isEqualTo(LocalDate.of(2025, 5, 31))
-        assertThat(forskjøvetVilkårResultat[0].verdi).isEqualTo(vilkårResultat)
+        assertThat(forskjøvetVilkårResultat.get(vilkår)!!.single().fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetVilkårResultat.get(vilkår)!!.single().tom).isEqualTo(LocalDate.of(2025, 5, 31))
+        assertThat(forskjøvetVilkårResultat.get(vilkår)!!.single().verdi).isEqualTo(vilkårResultat)
     }
 }

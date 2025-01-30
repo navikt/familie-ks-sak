@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.ForskyvVilkårEtterFebruar2025
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.ForskyvVilkårLovendringFebruar2025
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.ForskyvVilkårFørFebruar2025
 import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -67,8 +67,8 @@ fun PersonResultat.forskyvVilkårResultater(
     lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,
 ): Map<Vilkår, List<Periode<VilkårResultat>>> =
     when (lovverk) {
-        Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(personResultat = this)
-        Lovverk.LOVENDRING_FEBRUAR_2025 -> ForskyvVilkårEtterFebruar2025.forskyvVilkårResultater(this.vilkårResultater.toList())
+        Lovverk.FØR_LOVENDRING_2025 -> ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(this.vilkårResultater)
+        Lovverk.LOVENDRING_FEBRUAR_2025 -> ForskyvVilkårLovendringFebruar2025.forskyvVilkårResultater(this.vilkårResultater)
     }
 
 fun alleVilkårOppfyltEllerNull(
