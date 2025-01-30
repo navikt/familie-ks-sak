@@ -51,7 +51,7 @@ class OpprettBehandlingService(
     @Transactional
     fun opprettBehandling(opprettBehandlingRequest: OpprettBehandlingDto): Behandling {
         if (opprettBehandlingRequest.behandlingÅrsak == BehandlingÅrsak.IVERKSETTE_KA_VEDTAK &&
-            !unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK.navn)
+            !unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK)
         ) {
             throw FunksjonellFeil(
                 melding = "Kan ikke opprette behandling med årsak Iverksette KA-vedtak.",

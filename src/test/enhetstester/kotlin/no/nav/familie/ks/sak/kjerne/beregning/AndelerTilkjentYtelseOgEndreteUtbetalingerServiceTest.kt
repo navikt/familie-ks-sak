@@ -6,6 +6,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
@@ -22,7 +24,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -44,14 +45,15 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
 
     @MockK
-    private lateinit var unleashService: UnleashService
+    private lateinit var unleashService: UnleashNextMedContextService
 
     @InjectMockKs
     private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
 
     @BeforeEach
     fun setup() {
-        every { unleashService.isEnabled(any()) } returns true
+        every { unleashService.isEnabled(any<String>()) } returns true
+        every { unleashService.isEnabled(any<FeatureToggle>()) } returns true
     }
 
     val søker = randomAktør()

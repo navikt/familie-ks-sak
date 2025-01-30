@@ -74,7 +74,8 @@ internal class HenleggBehandlingServiceTest {
     @BeforeEach
     fun init() {
         every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
-        every { unleashService.isEnabled(any()) } returns true
+        every { unleashService.isEnabled(any<String>()) } returns true
+        every { unleashService.isEnabled(any<FeatureToggle>()) } returns true
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { loggService.opprettHenleggBehandlingLogg(any(), any(), any()) } just runs
         every { behandlingRepository.finnBehandlinger(behandling.fagsak.id) } returns listOf(behandling)
@@ -107,7 +108,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling for årsak TEKNISK_VEDLIKEHOLD når toggelen er ikke på`() {
-        every { unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE.navn) } returns false
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) } returns false
 
         val exception =
             assertThrows<Feil> {
@@ -130,7 +131,7 @@ internal class HenleggBehandlingServiceTest {
         val tekniskEndringBehandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns tekniskEndringBehandling
-        every { unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING.navn) } returns false
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING) } returns false
 
         val exception =
             assertThrows<FunksjonellFeil> {

@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -56,7 +57,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
-import no.nav.familie.unleash.UnleashService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
@@ -81,7 +81,7 @@ class GenererBrevService(
     private val brevmalService: BrevmalService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val hjemmeltekstUtleder: HjemmeltekstUtleder,
-    private val unleashService: UnleashService,
+    private val unleashService: UnleashNextMedContextService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -265,7 +265,7 @@ class GenererBrevService(
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
         val hjemler =
-            if (unleashService.isEnabled(FeatureToggle.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV.navn, false)) {
+            if (unleashService.isEnabled(FeatureToggle.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV, false)) {
                 hjemmeltekstUtleder.utledHjemmeltekst(
                     behandlingId = vedtak.behandling.id,
                     vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,

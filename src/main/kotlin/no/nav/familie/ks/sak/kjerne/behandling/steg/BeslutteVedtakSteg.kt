@@ -52,7 +52,7 @@ class BeslutteVedtakSteg(
 
         if (behandling.erTekniskEndring() &&
             !unleashService.isEnabled(
-                FeatureToggle.TEKNISK_ENDRING.navn,
+                FeatureToggle.TEKNISK_ENDRING,
                 behandling.id,
             )
         ) {
@@ -121,7 +121,7 @@ class BeslutteVedtakSteg(
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
 
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) ->
+                !unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
                 throw FunksjonellFeil(
                     melding =
                         "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +

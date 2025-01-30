@@ -58,4 +58,6 @@ class UnleashNextMedContextService(
         toggle: FeatureToggle,
         defaultValue: Boolean,
     ): Boolean = unleashService.isEnabled(toggle.navn, defaultValue)
+
+    fun isEnabled(toggleId: String) = unleashService.isEnabled(toggleId)
 }

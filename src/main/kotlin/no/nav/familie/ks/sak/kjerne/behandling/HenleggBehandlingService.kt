@@ -104,7 +104,7 @@ class HenleggBehandlingService(
         val behandlingId = behandling.id
         when {
             HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggÅrsak &&
-                !unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE.navn) -> {
+                !unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
                 throw Feil(
                     "Teknisk vedlikehold henleggele er ikke påslått for " +
                         "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
@@ -121,7 +121,7 @@ class HenleggBehandlingService(
                 )
             }
 
-            behandling.erTekniskEndring() && !unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING.navn) -> {
+            behandling.erTekniskEndring() && !unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING) -> {
                 throw FunksjonellFeil(
                     "Du har ikke tilgang til å henlegge en behandling " +
                         "som er opprettet med årsak=${behandling.opprettetÅrsak.visningsnavn}. " +

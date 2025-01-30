@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.KSBarnehagebarnDTO
 import no.nav.familie.ks.sak.config.KafkaConfig
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.unleash.UnleashService
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Profile("!integrasjonstest & !dev-postgres-preprod & !postgres")
 class KSBarnehagelisterConsumer(
     val barnehageBarnService: BarnehagebarnService,
-    val unleashService: UnleashService,
+    val unleashService: UnleashNextMedContextService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -44,7 +44,7 @@ class KSBarnehagelisterConsumer(
             ack.acknowledge()
             return
         }
-        if (unleashService.isEnabled(FeatureToggle.LAGRE_BARNEHAGEBARN_I_KS.navn)) {
+        if (unleashService.isEnabled(FeatureToggle.LAGRE_BARNEHAGEBARN_I_KS)) {
             barnehageBarnService.lagreBarnehageBarn(barnehagebarn)
         }
 
