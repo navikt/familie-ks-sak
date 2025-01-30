@@ -782,8 +782,10 @@ class BegrunnelserForPeriodeContextTest {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
             personResultater
-                .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-                .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
+                .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                ).filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
                 .values
                 .first()
                 .startsTidspunkt
@@ -813,6 +815,7 @@ class BegrunnelserForPeriodeContextTest {
             kompetanser = emptyList(),
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
+            skalBestemmeLovverkBasertPåFødselsdato = true,
         )
     }
 
@@ -887,6 +890,7 @@ class BegrunnelserForPeriodeContextTest {
             erFørsteVedtaksperiode = false,
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
+            skalBestemmeLovverkBasertPåFødselsdato = true,
         )
     }
 }

@@ -19,25 +19,30 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.tomTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.tidslinje.utvidelser.map
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     this
-        .forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
-        .mapValues { entry ->
+        .forskyvVilkårResultater(
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+        ).mapValues { entry ->
             val person = personopplysningGrunnlag.personer.single { it.aktør == entry.key }
             entry.value.tilOppfylteVilkårTidslinje(person.type)
         }
 
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     this
-        .forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
-        .mapValues {
+        .forskyvVilkårResultater(
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+        ).mapValues {
             it.value.tilVilkårResultaterTidslinje()
         }
 
@@ -64,6 +69,27 @@ private fun Map<Vilkår, List<Periode<VilkårResultat>>>.tilVilkårResultaterTid
         .tilPerioderIkkeNull()
         .tilTidslinje()
 
+fun Collection<PersonResultat>.forskyvVilkårResultater(
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> {
+    // Forskyver barnas vilkår basert på barnets lovverk
+    val barnasForskjøvedeVilkårResultater = this.forskyvBarnasVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato)
+
+    // Lager lovverk-tidslinje basert på barnas forskjøvede VilkårResultater
+    val lovverkTidslinje =
+        LovverkTidslinjeGenerator.generer(
+            barnasForskjøvedeVilkårResultater = barnasForskjøvedeVilkårResultater,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+        )
+
+    // Forskyver søker etter alle lovverk og kombinerer med lovverk-tidslinje
+    val søkersForskjøvedeVilkårResultater = this.single { it.erSøkersResultater() }.forskyvSøkersVilkårResultater(lovverkTidslinje = lovverkTidslinje)
+
+    return barnasForskjøvedeVilkårResultater.plus(Pair(this.single { it.erSøkersResultater() }.aktør, søkersForskjøvedeVilkårResultater))
+}
+
 fun PersonResultat.forskyvVilkårResultater(
     lovverk: Lovverk = Lovverk.FØR_LOVENDRING_2025,
 ): Map<Vilkår, List<Periode<VilkårResultat>>> =
@@ -72,17 +98,20 @@ fun PersonResultat.forskyvVilkårResultater(
         Lovverk.LOVENDRING_FEBRUAR_2025 -> TODO()
     }
 
-fun Collection<PersonResultat>.forskyvBarnasVilkårResultater(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> =
+private fun Collection<PersonResultat>.forskyvBarnasVilkårResultater(
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> =
     this.filter { !it.erSøkersResultater() }.associate { personResultat ->
         val lovverk =
             LovverkUtleder.utledLovverkForBarn(
                 personopplysningGrunnlag.barna.single { it.aktør == personResultat.aktør }.fødselsdato,
-                skalBestemmeLovverkBasertPåFødselsdato = false,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             )
         personResultat.aktør to personResultat.forskyvVilkårResultater(lovverk)
     }
 
-fun PersonResultat.forskyvSøkersVilkårResultater(lovverkTidslinje: Tidslinje<Lovverk>): Map<Vilkår, List<Periode<VilkårResultat>>> {
+private fun PersonResultat.forskyvSøkersVilkårResultater(lovverkTidslinje: Tidslinje<Lovverk>): Map<Vilkår, List<Periode<VilkårResultat>>> {
     if (!this.erSøkersResultater()) throw Feil("PersonResultat må være søkers resultat")
     // Forskyver alle VilkårResultater etter alle lovverk og kombinerer resulterende VilkårResultat-tidslinje med Lovverk-tidslinja.
     // Dette fører til at VilkårResultat-tidslinja per lovverk blir avgrenset til hvor lenge et bestemt lovverk er gjeldende.
@@ -114,23 +143,6 @@ fun PersonResultat.forskyvSøkersVilkårResultater(lovverkTidslinje: Tidslinje<L
                 .reduce { kombinertTidslinje, tidslinjeForLovverk -> kombinertTidslinje.kombinerMed(tidslinjeForLovverk) { a, b -> a ?: b } }
                 .tilPerioderIkkeNull()
         }
-}
-
-fun Collection<PersonResultat>.forskyvVilkårResultater(personopplysningGrunnlag: PersonopplysningGrunnlag): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> {
-    // Forskyver barnas vilkår basert på barnets lovverk
-    val barnasForskjøvedeVilkårResultater = this.forskyvBarnasVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
-
-    // Lager lovverk-tidslinje basert på barnas forskjøvede VilkårResultater
-    val lovverkTidslinje =
-        LovverkTidslinjeGenerator.generer(
-            barnasForskjøvedeVilkårResultater = barnasForskjøvedeVilkårResultater,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-        )
-
-    // Forskyver søker etter alle lovverk og kombinerer med lovverk-tidslinje
-    val søkersForskjøvedeVilkårResultater = this.single { it.erSøkersResultater() }.forskyvSøkersVilkårResultater(lovverkTidslinje = lovverkTidslinje)
-
-    return barnasForskjøvedeVilkårResultater.plus(Pair(this.single { it.erSøkersResultater() }.aktør, søkersForskjøvedeVilkårResultater))
 }
 
 fun alleVilkårOppfyltEllerNull(

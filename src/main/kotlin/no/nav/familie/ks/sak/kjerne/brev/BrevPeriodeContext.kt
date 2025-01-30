@@ -74,6 +74,7 @@ class BrevPeriodeContext(
     private val landkoder: Map<String, String>,
     private val erFørsteVedtaksperiode: Boolean,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
+    private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -270,6 +271,7 @@ class BrevPeriodeContext(
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
             kompetanser = kompetanser,
             andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
+            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
         )
 
     fun hentNasjonalOgFellesBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> =
@@ -678,7 +680,11 @@ class BrevPeriodeContext(
     }
 
     private fun hentForskjøvedeVilkårResultater(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> =
-        personResultater.forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
+        personResultater
+            .forskyvVilkårResultater(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            ).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
         val vedtaksperiodeTidslinje =

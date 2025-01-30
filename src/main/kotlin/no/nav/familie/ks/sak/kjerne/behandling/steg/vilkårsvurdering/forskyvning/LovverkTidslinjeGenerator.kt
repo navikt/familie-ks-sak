@@ -19,7 +19,7 @@ object LovverkTidslinjeGenerator {
     fun generer(
         barnasForskjøvedeVilkårResultater: Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean = false,
+        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> =
         barnasForskjøvedeVilkårResultater
             .map { (aktør, forskjøvedeVilkårResultater) ->

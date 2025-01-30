@@ -200,12 +200,10 @@ class ForskyvVilkårKtTest {
             val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
             val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = jan(2020).toLocalDate())
             val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = mai(2023).toLocalDate())
-            val barn3 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = jan(2024).toLocalDate())
-            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(søkerAktør = søker.aktør, barnAktør = listOf(barn.aktør, barn2.aktør, barn3.aktør), barnasFødselsdatoer = listOf(barn.fødselsdato, barn2.fødselsdato, barn3.fødselsdato))
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(søkerAktør = søker.aktør, barnAktør = listOf(barn.aktør, barn2.aktør), barnasFødselsdatoer = listOf(barn.fødselsdato, barn2.fødselsdato))
 
             val vilkårResultaterBarn = setOf(lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER, periodeFom = barn.fødselsdato.plusYears(1), periodeTom = barn.fødselsdato.plusYears(2)))
             val vilkårResultaterBarn2 = setOf(lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER, periodeFom = barn2.fødselsdato.plusYears(1), periodeTom = barn2.fødselsdato.plusMonths(19)))
-            val vilkårResultaterBarn3 = setOf(lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER, periodeFom = barn3.fødselsdato.plusMonths(13), periodeTom = barn3.fødselsdato.plusMonths(19)))
             val vilkårResultaterSøker =
                 setOf(
                     lagVilkårResultat(vilkårType = Vilkår.BOSATT_I_RIKET, periodeFom = søker.fødselsdato, periodeTom = barn.fødselsdato.plusMonths(15)),
@@ -223,20 +221,16 @@ class ForskyvVilkårKtTest {
                         barn2.aktør,
                     ),
                     lagPersonResultatFraVilkårResultater(
-                        vilkårResultaterBarn3,
-                        barn3.aktør,
-                    ),
-                    lagPersonResultatFraVilkårResultater(
                         vilkårResultaterSøker,
                         søker.aktør,
                     ),
                 )
 
             // Act
-            val forskjøvedeVilkårResultater = personResultater.forskyvVilkårResultater(personopplysningGrunnlag)
+            val forskjøvedeVilkårResultater = personResultater.forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato = true)
 
             // Assert
-            assertThat(forskjøvedeVilkårResultater).hasSize(4)
+            assertThat(forskjøvedeVilkårResultater).hasSize(3)
         }
     }
 }

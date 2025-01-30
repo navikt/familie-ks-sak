@@ -513,6 +513,7 @@ fun lagBrevPeriodeContext(
         erFørsteVedtaksperiode = false,
         kompetanser = emptyList(),
         landkoder = LANDKODER,
+        skalBestemmeLovverkBasertPåFødselsdato = true,
     )
 }
 

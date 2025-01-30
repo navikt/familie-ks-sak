@@ -51,6 +51,7 @@ class BegrunnelserForPeriodeContext(
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
     private val erFørsteVedtaksperiode: Boolean,
     private val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
+    private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val aktørIderMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person.aktør.aktørId }
@@ -307,8 +308,10 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnVilkårResultaterSomStarterSamtidigSomPeriode(): List<Long> =
         personResultater
-            .forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
-            .flatMap { entry ->
+            .forskyvVilkårResultater(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            ).flatMap { entry ->
                 entry.value
                     .flatMap { it.value }
                     .filter { periode -> periode.fom == vedtaksperiode.fom }
@@ -317,8 +320,10 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnVilkårResultaterSomSlutterFørPeriode(): List<Long> =
         personResultater
-            .forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
-            .flatMap { entry ->
+            .forskyvVilkårResultater(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            ).flatMap { entry ->
                 entry.value
                     .flatMap { it.value }
                     .filter { periode -> periode.tom?.plusDays(1) == vedtaksperiode.fom }
@@ -373,8 +378,10 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt(): Map<Person, List<VilkårResultat>> =
         personResultater
-            .tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-            .mapKeys { (aktør, _) -> aktør.hentPerson() }
+            .tilForskjøvetVilkårResultatTidslinjeMap(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val perioderMedVilkårForPerson = vilkårResultatTidslinjeForPerson.tilPerioder()
                 val månedenFørVedtaksperioden = vedtaksperiode.fom.minusMonths(1)
@@ -423,8 +430,10 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnPersonerMedVilkårResultaterSomGjelderIPeriode(): Map<Person, List<VilkårResultat>> =
         personResultater
-            .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-            .mapKeys { (aktør, _) -> aktør.hentPerson() }
+            .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val forskøvedeVilkårResultaterMedSammeFom =
                     vilkårResultatTidslinjeForPerson
@@ -443,8 +452,10 @@ class BegrunnelserForPeriodeContext(
 
     private fun finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode(): Map<Person, List<VilkårResultat>> =
         personResultater
-            .tilForskjøvetVilkårResultatTidslinjeMap(personopplysningGrunnlag)
-            .mapKeys { (aktør, _) -> aktør.hentPerson() }
+            .tilForskjøvetVilkårResultatTidslinjeMap(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, tidslinje) ->
                 val vilkårResultatSomSlutterFørVedtaksperiode =
                     tidslinje
