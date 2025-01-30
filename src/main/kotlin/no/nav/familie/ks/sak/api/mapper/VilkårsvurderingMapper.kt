@@ -19,7 +19,7 @@ object VilkårsvurderingMapper {
             personIdent = personResultat.aktør.aktivFødselsnummer(),
             vilkårResultater = personResultat.vilkårResultater.map { lagVilkårResultatRespons(it) },
             andreVurderinger = personResultat.andreVurderinger.map { lagAnnenVurderingRespons(it) },
-            lovverk = LovverkUtleder.utledLovverkForBarn(person.fødselsdato!!, true),
+            lovverk = if (personResultat.erSøkersResultater()) null else LovverkUtleder.utledLovverkForBarn(person.fødselsdato!!, true),
         )
 
     private fun lagVilkårResultatRespons(vilkårResultat: VilkårResultat) =

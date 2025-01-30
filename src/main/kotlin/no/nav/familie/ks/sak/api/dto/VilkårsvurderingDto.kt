@@ -19,7 +19,7 @@ data class PersonResultatResponsDto(
     val personIdent: String,
     val vilkårResultater: List<VilkårResultatDto>,
     val andreVurderinger: List<AnnenVurderingDto>,
-    val lovverk: Lovverk,
+    val lovverk: Lovverk?,
 )
 
 data class EndreVilkårResultatDto(
