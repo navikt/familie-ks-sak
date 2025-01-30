@@ -19,6 +19,7 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.tomTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.map
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
@@ -83,13 +84,11 @@ fun Collection<PersonResultat>.forskyvBarnasVilkårResultater(personopplysningGr
 
 fun PersonResultat.forskyvSøkersVilkårResultater(lovverkTidslinje: Tidslinje<Lovverk>): Map<Vilkår, List<Periode<VilkårResultat>>> {
     if (!this.erSøkersResultater()) throw Feil("PersonResultat må være søkers resultat")
-    // Forskyver alle VilkårResultater etter alle lovverk og kombinerer resulterende VilkårResultat-tidslinje med lovverkTidslinja.
+    // Forskyver alle VilkårResultater etter alle lovverk og kombinerer resulterende VilkårResultat-tidslinje med Lovverk-tidslinja.
     // Dette fører til at VilkårResultat-tidslinja per lovverk blir avgrenset til hvor lenge et bestemt lovverk er gjeldende.
+    val lovverkIBehandling = lovverkTidslinje.tilPerioderIkkeNull().map { it.verdi }.toSet()
     val forskjøvedeVilkårResultaterEtterMuligeLovverkAvgrensetAvLovverkTidslinje =
-        lovverkTidslinje
-            .tilPerioderIkkeNull()
-            .map { it.verdi }
-            .toSet()
+        lovverkIBehandling
             .map { forskyvningsLovverk ->
                 this
                     .forskyvVilkårResultater(forskyvningsLovverk)
@@ -121,14 +120,14 @@ fun Collection<PersonResultat>.forskyvVilkårResultater(personopplysningGrunnlag
     // Forskyver barnas vilkår basert på barnets lovverk
     val barnasForskjøvedeVilkårResultater = this.forskyvBarnasVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag)
 
-    // Lager LovverkTidslinje basert på barnas forskjøvede vilkårResultater
+    // Lager lovverk-tidslinje basert på barnas forskjøvede VilkårResultater
     val lovverkTidslinje =
         LovverkTidslinjeGenerator.generer(
             barnasForskjøvedeVilkårResultater = barnasForskjøvedeVilkårResultater,
             personopplysningGrunnlag = personopplysningGrunnlag,
         )
 
-    // Forskyver søker etter alle lovverk og kombinerer med lovverkstidslinje
+    // Forskyver søker etter alle lovverk og kombinerer med lovverk-tidslinje
     val søkersForskjøvedeVilkårResultater = this.single { it.erSøkersResultater() }.forskyvSøkersVilkårResultater(lovverkTidslinje = lovverkTidslinje)
 
     return barnasForskjøvedeVilkårResultater.plus(Pair(this.single { it.erSøkersResultater() }.aktør, søkersForskjøvedeVilkårResultater))
