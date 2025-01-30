@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -16,16 +15,16 @@ import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 object ForskyvVilkårFørFebruar2025 {
     fun forskyvVilkårResultater(
-        personResultat: PersonResultat,
+        vilkårResultater: Set<VilkårResultat>,
     ): Map<Vilkår, List<Periode<VilkårResultat>>> {
         val vilkårResultaterForAktørMap =
-            personResultat.vilkårResultater
+            vilkårResultater
                 .filter { it.resultat != Resultat.IKKE_VURDERT }
                 .groupByTo(mutableMapOf()) { it.vilkårType }
                 .mapValues { if (it.key == Vilkår.BOR_MED_SØKER) it.value.fjernAvslagUtenPeriodeHvisDetFinsAndreVilkårResultat() else it.value }
 
         return vilkårResultaterForAktørMap.mapValues {
-            forskyvVilkår(vilkårType = it.key, alleVilkårResultaterForPerson = personResultat.vilkårResultater.filter { it.resultat != Resultat.IKKE_VURDERT }.toList())
+            forskyvVilkår(vilkårType = it.key, alleVilkårResultaterForPerson = vilkårResultater.filter { it.resultat != Resultat.IKKE_VURDERT }.toList())
         }
     }
 
