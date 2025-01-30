@@ -12,7 +12,7 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -107,7 +107,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling for årsak TEKNISK_VEDLIKEHOLD når toggelen er ikke på`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE.navn) } returns false
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE.navn) } returns false
 
         val exception =
             assertThrows<Feil> {
@@ -130,7 +130,7 @@ internal class HenleggBehandlingServiceTest {
         val tekniskEndringBehandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns tekniskEndringBehandling
-        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING.navn) } returns false
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING.navn) } returns false
 
         val exception =
             assertThrows<FunksjonellFeil> {

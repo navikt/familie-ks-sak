@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -265,7 +265,7 @@ class GenererBrevService(
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
         val hjemler =
-            if (unleashService.isEnabled(FeatureToggleConfig.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV.navn, false)) {
+            if (unleashService.isEnabled(FeatureToggle.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV.navn, false)) {
                 hjemmeltekstUtleder.utledHjemmeltekst(
                     behandlingId = vedtak.behandling.id,
                     vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,

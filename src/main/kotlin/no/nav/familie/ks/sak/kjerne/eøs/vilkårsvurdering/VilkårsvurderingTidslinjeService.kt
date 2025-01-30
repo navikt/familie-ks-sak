@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
@@ -26,7 +26,7 @@ class VilkårsvurderingTidslinjeService(
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
 
-        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025.navn))
+        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025.navn))
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {

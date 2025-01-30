@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -52,7 +52,7 @@ class BeslutteVedtakSteg(
 
         if (behandling.erTekniskEndring() &&
             !unleashService.isEnabled(
-                FeatureToggleConfig.TEKNISK_ENDRING.navn,
+                FeatureToggle.TEKNISK_ENDRING.navn,
                 behandling.id,
             )
         ) {
@@ -121,11 +121,11 @@ class BeslutteVedtakSteg(
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
 
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) ->
+                !unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) ->
                 throw FunksjonellFeil(
                     melding =
                         "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
-                            "toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn} false",
+                            "toggle ${FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn} false",
                     frontendFeilmelding =
                         "Du har ikke tilgang til å beslutte for denne behandlingen. " +
                             "Ta kontakt med teamet dersom dette ikke stemmer.",

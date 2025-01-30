@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -58,7 +58,7 @@ class VilkårsvurderingSteg(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
 
         if (personopplysningGrunnlag.barna.any { it.fødselsdato.isAfter(LocalDate.of(2023, 12, 31)) } &&
-            !unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025.navn)
+            !unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025.navn)
         ) {
             throw FunksjonellFeil("Barn født 1.1.24 eller senere kan ikke behandles før nytt regelverk er støttet i løsningen")
         }
@@ -278,7 +278,7 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025.navn))
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025.navn))
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",

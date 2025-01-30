@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.config.featureToggle
 
-enum class FeatureToggleConfig(
+enum class FeatureToggle(
     val navn: String,
 ) {
     // Operasjonelle

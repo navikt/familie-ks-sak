@@ -10,7 +10,7 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
@@ -74,7 +74,7 @@ class BeslutteVedtakStegTest {
     @BeforeEach
     fun init() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) } returns false
+        every { unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
@@ -107,7 +107,7 @@ class BeslutteVedtakStegTest {
     @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandling årsaken er satt til KORREKSJON_VEDTAKSBREV og SB ikke har feature togglet på `() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV)
-        every { unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) } returns false
+        every { unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn) } returns false
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
@@ -190,7 +190,7 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `Skal kaste feil dersom saksbehandler uten tilgang til teknisk endring prøve å godkjenne en behandling med årsak=teknisk endring`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING.navn, any()) } returns false
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING.navn, any()) } returns false
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 

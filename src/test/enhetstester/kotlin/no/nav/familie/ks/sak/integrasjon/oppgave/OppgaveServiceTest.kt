@@ -13,7 +13,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -53,7 +53,7 @@ class OppgaveServiceTest {
 
     @BeforeEach
     fun setup() {
-        every { mockedUnleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false) } returns true
+        every { mockedUnleashService.isEnabled(FeatureToggle.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false) } returns true
     }
 
     @Nested

@@ -14,13 +14,13 @@ class UnleashNextMedContextService(
     private val arbeidsfordelingService: ArbeidsfordelingService,
 ) {
     fun isEnabled(
-        toggleId: String,
+        toggle: FeatureToggle,
         behandlingId: Long,
     ): Boolean {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
         return unleashService.isEnabled(
-            toggleId,
+            toggle.navn,
             properties =
                 mapOf(
                     UnleashContextFields.FAGSAK_ID to behandling.fagsak.id.toString(),
@@ -34,23 +34,28 @@ class UnleashNextMedContextService(
 
     fun isEnabledForFagsak(
         fagsakId: Long,
-        toggleId: String,
+        toggle: FeatureToggle,
     ): Boolean =
         unleashService.isEnabled(
-            toggleId,
+            toggle.navn,
             properties =
                 mapOf(
                     UnleashContextFields.FAGSAK_ID to fagsakId.toString(),
                 ),
         )
 
-    fun isEnabled(toggleId: String): Boolean =
+    fun isEnabled(toggle: FeatureToggle): Boolean =
         unleashService.isEnabled(
-            toggleId,
+            toggle.navn,
             properties =
                 mapOf(
                     UnleashContextFields.NAV_IDENT to SikkerhetContext.hentSaksbehandler(),
                     UnleashContextFields.EPOST to SikkerhetContext.hentSaksbehandlerEpost(),
                 ),
         )
+
+    fun isEnabled(
+        toggle: FeatureToggle,
+        defaultValue: Boolean,
+    ): Boolean = unleashService.isEnabled(toggle.navn, defaultValue)
 }

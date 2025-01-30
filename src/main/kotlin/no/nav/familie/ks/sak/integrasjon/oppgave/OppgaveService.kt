@@ -11,7 +11,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
@@ -66,7 +66,7 @@ class OppgaveService(
                 .hentArbeidsfordelingPåBehandling(behandlingId)
                 .tilArbeidsfordelingsenhet()
 
-        val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false)
+        val opprettSakPåRiktigEnhetOgSaksbehandlerToggleErPå = unleashService.isEnabled(FeatureToggle.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER.navn, false)
 
         val navIdent = tilordnetNavIdent?.let { NavIdent(it) }
         val tilordnetRessurs =
