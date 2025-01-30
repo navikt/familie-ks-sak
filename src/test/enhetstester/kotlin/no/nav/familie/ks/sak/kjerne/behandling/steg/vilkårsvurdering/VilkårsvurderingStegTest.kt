@@ -76,6 +76,7 @@ class VilkårsvurderingStegTest {
                     barnetsAlderVilkårValidator2024,
                 ),
                 barnetsAlderVilkårValidator2025,
+                unleashService,
             ),
         )
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
