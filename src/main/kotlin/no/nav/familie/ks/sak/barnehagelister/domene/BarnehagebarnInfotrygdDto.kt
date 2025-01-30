@@ -8,7 +8,7 @@ data class BarnehagebarnInfotrygdDto(
     val fom: LocalDate,
     val tom: LocalDate?,
     val antallTimerIBarnehage: Double,
-    val endringstype: String,
+    val endringstype: String?,
     val kommuneNavn: String,
     val kommuneNr: String,
     val harFagsak: Boolean,
