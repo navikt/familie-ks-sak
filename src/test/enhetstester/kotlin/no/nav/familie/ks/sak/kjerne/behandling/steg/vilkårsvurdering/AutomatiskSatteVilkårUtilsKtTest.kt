@@ -84,6 +84,29 @@ class AutomatiskSatteVilkårUtilsKtTest {
         }
     }
 
+    @Test
+    fun `skal bruke gammelt regelverk for barn født før første januar 2024 hvis toggle er skrudd på`() {
+        val fødselsDatoFørJan24 = LocalDate.of(2023, 12, 31)
+
+        // Act
+        val barnetsAlderVilkår =
+            lagAutomatiskGenererteVilkårForBarnetsAlder(
+                personResultat = personResultat,
+                behandlingId = behandlingId,
+                fødselsdato = fødselsDatoFørJan24,
+                skalBrukeRegelverk2025 = true,
+            )
+
+        // Assert
+        assertThat(barnetsAlderVilkår).hasSize(1)
+        assertThat(barnetsAlderVilkår).anySatisfy {
+            validerFellesfelter(it)
+            assertThat(it.periodeFom).isEqualTo(fødselsDatoFørJan24.plusMonths(13))
+            assertThat(it.periodeTom).isEqualTo(fødselsDatoFørJan24.plusMonths(19))
+            assertThat(it.utdypendeVilkårsvurderinger).isEmpty()
+        }
+    }
+
     private fun validerFellesfelter(it: VilkårResultat) {
         assertThat(it.personResultat).isEqualTo(personResultat)
         assertThat(it.erAutomatiskVurdert).isTrue()
