@@ -66,6 +66,7 @@ import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 
 @ExtendWith(MockKExtension::class)
 internal class VedtaksperiodeServiceTest {
@@ -119,6 +120,9 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
+        every {
+            unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025)
+        } returns true
     }
 
     @Test

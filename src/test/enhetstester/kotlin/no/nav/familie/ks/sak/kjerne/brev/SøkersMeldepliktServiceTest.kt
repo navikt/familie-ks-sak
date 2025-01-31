@@ -55,7 +55,7 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = { vilkårsvurdering ->
-                        lagPersonResultat(
+                        setOf( lagPersonResultat(
                             vilkårsvurdering = vilkårsvurdering,
                             aktør = randomAktør(),
                             lagVilkårResultater = { personResultat ->
@@ -70,7 +70,7 @@ class SøkersMeldepliktServiceTest {
                                     ),
                                 )
                             },
-                        )
+                        ))
                     },
                 )
 
@@ -107,18 +107,20 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = { vilkårsvurdering ->
-                        lagPersonResultat(
-                            vilkårsvurdering = vilkårsvurdering,
-                            aktør = randomAktør(),
-                            lagVilkårResultater = { personResultat ->
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = personResultat,
-                                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                                        utdypendeVilkårsvurderinger = emptyList(),
-                                    ),
-                                )
-                            },
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = vilkårsvurdering,
+                                aktør = randomAktør(),
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = personResultat,
+                                            vilkårType = Vilkår.BOSATT_I_RIKET,
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                    )
+                                },
+                            )
                         )
                     },
                 )
@@ -156,21 +158,23 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = { vilkårsvurdering ->
-                        lagPersonResultat(
-                            vilkårsvurdering = vilkårsvurdering,
-                            aktør = randomAktør(),
-                            lagVilkårResultater = { personResultat ->
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = personResultat,
-                                        vilkårType = Vilkår.BARNETS_ALDER,
-                                        utdypendeVilkårsvurderinger =
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = vilkårsvurdering,
+                                aktør = randomAktør(),
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = personResultat,
+                                            vilkårType = Vilkår.BARNETS_ALDER,
+                                            utdypendeVilkårsvurderinger =
                                             listOf(
                                                 UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
                                             ),
-                                    ),
-                                )
-                            },
+                                        ),
+                                    )
+                                },
+                            )
                         )
                     },
                 )
@@ -219,21 +223,23 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = { vilkårsvurdering ->
-                        lagPersonResultat(
-                            vilkårsvurdering = vilkårsvurdering,
-                            aktør = randomAktør(),
-                            lagVilkårResultater = { personResultat ->
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = personResultat,
-                                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                                        utdypendeVilkårsvurderinger =
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = vilkårsvurdering,
+                                aktør = randomAktør(),
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = personResultat,
+                                            vilkårType = Vilkår.BOSATT_I_RIKET,
+                                            utdypendeVilkårsvurderinger =
                                             listOf(
                                                 UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
                                             ),
-                                    ),
-                                )
-                            },
+                                        ),
+                                    )
+                                },
+                            )
                         )
                     },
                 )
@@ -266,16 +272,18 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = {
-                        lagPersonResultat(
-                            vilkårsvurdering = it,
-                            lagVilkårResultater = {
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = it,
-                                        søkerHarMeldtFraOmBarnehageplass = true,
-                                    ),
-                                )
-                            },
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                lagVilkårResultater = {
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = it,
+                                            søkerHarMeldtFraOmBarnehageplass = true,
+                                        ),
+                                    )
+                                },
+                            )
                         )
                     },
                 )
@@ -305,16 +313,18 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = {
-                        lagPersonResultat(
-                            vilkårsvurdering = it,
-                            lagVilkårResultater = {
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = it,
-                                        søkerHarMeldtFraOmBarnehageplass = false,
-                                    ),
-                                )
-                            },
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                lagVilkårResultater = {
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = it,
+                                            søkerHarMeldtFraOmBarnehageplass = false,
+                                        ),
+                                    )
+                                },
+                            )
                         )
                     },
                 )
@@ -344,16 +354,18 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = {
-                        lagPersonResultat(
-                            vilkårsvurdering = it,
-                            lagVilkårResultater = {
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = it,
-                                        søkerHarMeldtFraOmBarnehageplass = null,
-                                    ),
-                                )
-                            },
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                lagVilkårResultater = {
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = it,
+                                            søkerHarMeldtFraOmBarnehageplass = null,
+                                        ),
+                                    )
+                                },
+                            )
                         )
                     },
                 )

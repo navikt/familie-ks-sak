@@ -45,7 +45,8 @@ fun mapTilOpphørsperioder(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vilkårsvurdering: Vilkårsvurdering,
-): List<Opphørsperiode> {
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
             mapTilUtbetalingsperioder(
@@ -72,7 +73,7 @@ fun mapTilOpphørsperioder(
             } else {
                 listOf(
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, personopplysningGrunnlag),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
@@ -121,6 +122,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ): List<Opphørsperiode> {
     val sisteUtbetalingsperiodeTom =
         utbetalingsperioder
@@ -144,7 +146,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
                             ?: error("Barn i personopplysningsgrunnlaget samsvarer ikke med barnet i vilkårsresultat")
 
                     val forskjøvetTomForSisteUtbetalingsperiodePgaFremtidigOpphør =
-                        forskyvTomBasertPåLovverkForSisteUtbetalingsperiodePgaFremtidigOpphør(barnet, barnehageplassVilkårResultat.periodeTom!!)
+                        forskyvTomBasertPåLovverkForSisteUtbetalingsperiodePgaFremtidigOpphør(barnet, barnehageplassVilkårResultat.periodeTom!!, skalBestemmeLovverkBasertPåFødselsdato)
 
                     barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true &&
                         forskjøvetTomForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
@@ -168,8 +170,9 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
 private fun forskyvTomBasertPåLovverkForSisteUtbetalingsperiodePgaFremtidigOpphør(
     barnet: Person,
     periodeTom: LocalDate,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ): YearMonth? {
-    val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barnet.fødselsdato, false)
+    val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barnet.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato)
 
     val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
         when (lovverk) {
