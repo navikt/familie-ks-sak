@@ -46,7 +46,7 @@ fun mapTilOpphørsperioder(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vilkårsvurdering: Vilkårsvurdering,
     skalBestemmeLovverkBasertPåFødselsdato: Boolean,
-    ): List<Opphørsperiode> {
+): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
             mapTilUtbetalingsperioder(

@@ -55,22 +55,24 @@ class SøkersMeldepliktServiceTest {
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
                     lagPersonResultat = { vilkårsvurdering ->
-                        setOf( lagPersonResultat(
-                            vilkårsvurdering = vilkårsvurdering,
-                            aktør = randomAktør(),
-                            lagVilkårResultater = { personResultat ->
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = personResultat,
-                                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                                        utdypendeVilkårsvurderinger =
-                                            listOf(
-                                                UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
-                                            ),
-                                    ),
-                                )
-                            },
-                        ))
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = vilkårsvurdering,
+                                aktør = randomAktør(),
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            personResultat = personResultat,
+                                            vilkårType = Vilkår.BOSATT_I_RIKET,
+                                            utdypendeVilkårsvurderinger =
+                                                listOf(
+                                                    UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
+                                                ),
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
                     },
                 )
 
@@ -120,7 +122,7 @@ class SøkersMeldepliktServiceTest {
                                         ),
                                     )
                                 },
-                            )
+                            ),
                         )
                     },
                 )
@@ -168,13 +170,13 @@ class SøkersMeldepliktServiceTest {
                                             personResultat = personResultat,
                                             vilkårType = Vilkår.BARNETS_ALDER,
                                             utdypendeVilkårsvurderinger =
-                                            listOf(
-                                                UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
-                                            ),
+                                                listOf(
+                                                    UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
+                                                ),
                                         ),
                                     )
                                 },
-                            )
+                            ),
                         )
                     },
                 )
@@ -233,13 +235,13 @@ class SøkersMeldepliktServiceTest {
                                             personResultat = personResultat,
                                             vilkårType = Vilkår.BOSATT_I_RIKET,
                                             utdypendeVilkårsvurderinger =
-                                            listOf(
-                                                UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
-                                            ),
+                                                listOf(
+                                                    UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
+                                                ),
                                         ),
                                     )
                                 },
-                            )
+                            ),
                         )
                     },
                 )
@@ -283,7 +285,7 @@ class SøkersMeldepliktServiceTest {
                                         ),
                                     )
                                 },
-                            )
+                            ),
                         )
                     },
                 )
@@ -324,7 +326,7 @@ class SøkersMeldepliktServiceTest {
                                         ),
                                     )
                                 },
-                            )
+                            ),
                         )
                     },
                 )
@@ -365,7 +367,7 @@ class SøkersMeldepliktServiceTest {
                                         ),
                                     )
                                 },
-                            )
+                            ),
                         )
                     },
                 )
