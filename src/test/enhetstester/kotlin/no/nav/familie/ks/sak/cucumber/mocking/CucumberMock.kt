@@ -132,6 +132,7 @@ class CucumberMock(
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             sanityService = mockk(),
             personidentService = personidentService,
+            unleashService = mockUnleashNextMedContextService(),
         )
 }
 

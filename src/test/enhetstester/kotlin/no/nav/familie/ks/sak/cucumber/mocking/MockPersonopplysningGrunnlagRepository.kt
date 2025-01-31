@@ -10,7 +10,7 @@ fun mockPersonopplysningGrunnlagRepository(stepDefinition: StepDefinition): Pers
 
     every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } answers {
         val behandlingsId = firstArg<Long>()
-        stepDefinition.persongrunnlag[behandlingsId]
+        stepDefinition.personopplysningGrunnlagMap[behandlingsId]
             ?: error("Fant ikke personopplysninggrunnlag for behandling $behandlingsId")
     }
     return personopplysningGrunnlagRepository
