@@ -1,16 +1,53 @@
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
+
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import java.time.LocalDate
 
 fun lagAutomatiskGenererteVilkårForBarnetsAlder(
     personResultat: PersonResultat,
-    behandling: Behandling,
+    behandlingId: Long,
+    fødselsdato: LocalDate,
+    erAdopsjon: Boolean = false,
+    skalBrukeRegelverk2025: Boolean = false,
+): List<VilkårResultat> {
+    val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato, skalBrukeRegelverk2025)
+    return when (lovverk) {
+        Lovverk.FØR_LOVENDRING_2025 -> lagAutomatiskGenererteVilkårForBarnetsAlder2021og2024(personResultat, behandlingId, fødselsdato, erAdopsjon)
+        Lovverk.LOVENDRING_FEBRUAR_2025 -> lagAutomatiskGenererteVilkårForBarnetsAlder2025(personResultat, behandlingId, fødselsdato, erAdopsjon)
+    }
+}
+
+private fun lagAutomatiskGenererteVilkårForBarnetsAlder2025(
+    personResultat: PersonResultat,
+    behandlingId: Long,
+    fødselsdato: LocalDate,
+    erAdopsjon: Boolean = false,
+): List<VilkårResultat> =
+    listOf(
+        VilkårResultat(
+            personResultat = personResultat,
+            erAutomatiskVurdert = true,
+            resultat = Resultat.OPPFYLT,
+            vilkårType = Vilkår.BARNETS_ALDER,
+            begrunnelse = "Vurdert og satt automatisk",
+            behandlingId = behandlingId,
+            periodeFom = fødselsdato.plusMonths(12),
+            periodeTom = fødselsdato.plusMonths(20),
+            utdypendeVilkårsvurderinger = if (erAdopsjon) listOf(UtdypendeVilkårsvurdering.ADOPSJON) else emptyList(),
+        ),
+    )
+
+private fun lagAutomatiskGenererteVilkårForBarnetsAlder2021og2024(
+    personResultat: PersonResultat,
+    behandlingId: Long,
     fødselsdato: LocalDate,
     erAdopsjon: Boolean = false,
 ): List<VilkårResultat> {
@@ -31,7 +68,7 @@ fun lagAutomatiskGenererteVilkårForBarnetsAlder(
                 resultat = Resultat.OPPFYLT,
                 vilkårType = Vilkår.BARNETS_ALDER,
                 begrunnelse = "Vurdert og satt automatisk",
-                behandlingId = behandling.id,
+                behandlingId = behandlingId,
                 periodeFom = periodeFomBarnetsAlderLov2021,
                 periodeTom = minOf(periodeTomBarnetsAlderLov2021, DATO_LOVENDRING_2024.minusDays(1)),
                 utdypendeVilkårsvurderinger = if (erAdopsjon) listOf(UtdypendeVilkårsvurdering.ADOPSJON) else emptyList(),
@@ -48,7 +85,7 @@ fun lagAutomatiskGenererteVilkårForBarnetsAlder(
                 resultat = Resultat.OPPFYLT,
                 vilkårType = Vilkår.BARNETS_ALDER,
                 begrunnelse = "Vurdert og satt automatisk",
-                behandlingId = behandling.id,
+                behandlingId = behandlingId,
                 periodeFom = maxOf(periodeFomBarnetsAlderLov2024, DATO_LOVENDRING_2024),
                 periodeTom = periodeTomBarnetsAlderLov2024,
                 utdypendeVilkårsvurderinger = if (erAdopsjon) listOf(UtdypendeVilkårsvurdering.ADOPSJON) else emptyList(),

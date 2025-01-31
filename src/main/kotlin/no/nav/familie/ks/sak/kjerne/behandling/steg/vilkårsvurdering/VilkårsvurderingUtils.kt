@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -240,6 +239,7 @@ fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBrukeRegelverk2025: Boolean = false,
 ): Vilkårsvurdering =
     Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -266,8 +266,9 @@ fun genererInitiellVilkårsvurdering(
                                     Vilkår.BARNETS_ALDER -> {
                                         lagAutomatiskGenererteVilkårForBarnetsAlder(
                                             personResultat = personResultat,
-                                            behandling = behandling,
+                                            behandlingId = behandling.id,
                                             fødselsdato = person.fødselsdato,
+                                            skalBrukeRegelverk2025 = skalBrukeRegelverk2025,
                                         )
                                     }
 

@@ -567,6 +567,7 @@ fun lagVilkårResultat(
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     antallTimer: BigDecimal? = null,
     søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
+    erEksplisittAvslagPåSøknad: Boolean? = null,
 ): VilkårResultat =
     VilkårResultat(
         id = id,
@@ -581,6 +582,7 @@ fun lagVilkårResultat(
         vurderesEtter = regelverk,
         antallTimer = antallTimer,
         søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
+        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 
 fun lagVilkårResultaterForBarn(
