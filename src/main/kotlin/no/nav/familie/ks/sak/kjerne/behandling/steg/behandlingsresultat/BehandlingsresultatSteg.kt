@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -30,6 +32,7 @@ class BehandlingsresultatSteg(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -51,6 +54,7 @@ class BehandlingsresultatSteg(
             tilkjentYtelse = tilkjentYtelseNåværendeBehandling,
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
             personResultaterForBarn = personResultaterForBarn,
+            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025),
         )
 
         if (behandling.erOvergangsordning()) {
