@@ -505,7 +505,7 @@ fun lagBrevPeriodeContext(
                 emptyList(),
             ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
-        persongrunnlag = persongrunnlag,
+        personopplysningGrunnlag = persongrunnlag,
         personResultater = personResultater,
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
         uregistrerteBarn = emptyList(),
@@ -513,6 +513,7 @@ fun lagBrevPeriodeContext(
         erFørsteVedtaksperiode = false,
         kompetanser = emptyList(),
         landkoder = LANDKODER,
+        skalBestemmeLovverkBasertPåFødselsdato = true,
     )
 }
 

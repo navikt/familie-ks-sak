@@ -143,7 +143,7 @@ fun lagVilkårsvurdering(
                     PersonResultat(
                         vilkårsvurdering = vilkårvurdering,
                         aktør =
-                            stepDefinition.persongrunnlag[behandlingId]!!
+                            stepDefinition.personopplysningGrunnlagMap[behandlingId]!!
                                 .personer
                                 .single { it.aktør.aktørId == aktørId }
                                 .aktør,

@@ -4,6 +4,7 @@ import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonResultatFraVilkårResultater
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -16,6 +17,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -48,12 +50,14 @@ class BegrunnelserForPeriodeContextTest {
 
     private fun feb(år: Int) = YearMonth.of(år, 2)
 
-    private val barnAktør = randomAktør()
-    private val søkerAktør = randomAktør()
-    private val persongrunnlag =
+    private val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 3, 10))
+    private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+    private val barnAktør = barn.aktør
+    private val søkerAktør = søker.aktør
+    private val personopplysningGrunnlag =
         lagPersonopplysningGrunnlag(
-            barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
             barnAktør = listOf(barnAktør),
+            barnasFødselsdatoer = listOf(barn.fødselsdato),
             søkerPersonIdent = søkerAktør.aktivFødselsnummer(),
             søkerAktør = søkerAktør,
         )
@@ -778,8 +782,10 @@ class BegrunnelserForPeriodeContextTest {
         // Må forskyve personresultatene for å finne riktig dato for vedtaksperiode.
         val vedtaksperiodeStartsTidpunkt =
             personResultater
-                .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(persongrunnlag)
-                .filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
+                .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                ).filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
                 .values
                 .first()
                 .startsTidspunkt
@@ -802,13 +808,14 @@ class BegrunnelserForPeriodeContextTest {
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
-            personopplysningGrunnlag = persongrunnlag,
+            personopplysningGrunnlag = personopplysningGrunnlag,
             personResultater = personResultater,
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             kompetanser = emptyList(),
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
+            skalBestemmeLovverkBasertPåFødselsdato = true,
         )
     }
 
@@ -835,16 +842,55 @@ class BegrunnelserForPeriodeContextTest {
                 støtterFritekst = false,
             )
 
+        val vilkårResultaterForSøker =
+            Vilkår
+                .hentVilkårFor(søker.type)
+                .map {
+                    lagVilkårResultat(
+                        periodeFom = søker.fødselsdato,
+                        periodeTom = null,
+                        vilkårType = it,
+                        resultat = Resultat.OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                    )
+                }.toSet()
+
+        val vilkårResultaterBarn =
+            Vilkår
+                .hentVilkårFor(barn.type)
+                .map {
+                    lagVilkårResultat(
+                        periodeFom = barn.fødselsdato.plusYears(1),
+                        periodeTom = barn.fødselsdato.plusYears(2),
+                        vilkårType = it,
+                        resultat = Resultat.OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                    )
+                }.toSet()
+
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
             kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
-            personopplysningGrunnlag = persongrunnlag,
-            personResultater = emptyList(),
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            personResultater =
+                listOf(
+                    lagPersonResultatFraVilkårResultater(
+                        vilkårResultater = vilkårResultaterForSøker,
+                        aktør = søkerAktør,
+                    ),
+                    lagPersonResultatFraVilkårResultater(
+                        vilkårResultater = vilkårResultaterBarn,
+                        aktør = barnAktør,
+                    ),
+                ),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
+            skalBestemmeLovverkBasertPåFødselsdato = true,
         )
     }
 }

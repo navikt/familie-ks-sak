@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
@@ -107,6 +108,17 @@ internal class TilkjentYtelseServiceTest {
                 ),
             )
 
+        vilkårsvurdering.personResultater +=
+            lagPersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barn1,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = barnPerson.fødselsdato.plusYears(1),
+                periodeTom = barnPerson.fødselsdato.plusYears(2),
+                lagFullstendigVilkårResultat = true,
+                personType = PersonType.BARN,
+            )
+
         // act
         val tilkjentYtelse =
             tilkjentYtelseService.beregnTilkjentYtelse(
@@ -115,16 +127,18 @@ internal class TilkjentYtelseServiceTest {
             )
 
         // assert
-        assertTilkjentYtelse(tilkjentYtelse, 2)
+        assertTilkjentYtelse(tilkjentYtelse, 3)
+
+        val søkersAndeler = tilkjentYtelse.andelerTilkjentYtelse.filter { it.aktør == barn1 }
         assertAndelTilkjentYtelse(
-            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 9) },
+            andelTilkjentYtelse = søkersAndeler.first { it.stønadFom == YearMonth.of(2024, 9) },
             prosent = BigDecimal(100),
             periodeFom = YearMonth.of(2024, 9).toLocalDate(),
             periodeTom = YearMonth.of(2024, 10).toLocalDate(),
             type = YtelseType.OVERGANGSORDNING,
         )
         assertAndelTilkjentYtelse(
-            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 12) },
+            andelTilkjentYtelse = søkersAndeler.first { it.stønadFom == YearMonth.of(2024, 12) },
             prosent = BigDecimal(50),
             periodeFom = YearMonth.of(2024, 12).toLocalDate(),
             periodeTom = YearMonth.of(2025, 1).toLocalDate(),
@@ -143,6 +157,17 @@ internal class TilkjentYtelseServiceTest {
                 ),
             )
 
+        vilkårsvurdering.personResultater +=
+            lagPersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barn1,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = barnPerson.fødselsdato.plusYears(1),
+                periodeTom = barnPerson.fødselsdato.plusYears(2),
+                lagFullstendigVilkårResultat = true,
+                personType = PersonType.BARN,
+            )
+
         // act
         val tilkjentYtelse =
             tilkjentYtelseService.beregnTilkjentYtelse(
@@ -151,7 +176,7 @@ internal class TilkjentYtelseServiceTest {
             )
 
         // assert
-        assertTrue(tilkjentYtelse.andelerTilkjentYtelse.isEmpty())
+        assertTrue(tilkjentYtelse.andelerTilkjentYtelse.none { it.type == YtelseType.OVERGANGSORDNING })
     }
 
     @Test

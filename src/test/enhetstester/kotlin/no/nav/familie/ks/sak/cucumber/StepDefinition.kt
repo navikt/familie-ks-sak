@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -82,7 +83,7 @@ class StepDefinition {
     var fagsaker: Map<Long, Fagsak> = emptyMap()
     var behandlinger = mutableMapOf<Long, Behandling>()
     var behandlingTilForrigeBehandling = mapOf<Long, Long?>()
-    var persongrunnlag = mutableMapOf<Long, PersonopplysningGrunnlag>()
+    var personopplysningGrunnlagMap = mutableMapOf<Long, PersonopplysningGrunnlag>()
     var vilkårsvurdering = mutableMapOf<Long, Vilkårsvurdering>()
     var vedtaksperioderMedBegrunnelser = mutableMapOf<Long, List<VedtaksperiodeMedBegrunnelser>>()
     var kompetanser = mutableMapOf<Long, List<Kompetanse>>()
@@ -133,7 +134,7 @@ class StepDefinition {
     @Og("følgende persongrunnlag")
     fun `følgende persongrunnlag`(dataTable: DataTable) {
         val nyePersongrunnlag = lagPersonGrunnlag(dataTable)
-        persongrunnlag.putAll(nyePersongrunnlag)
+        personopplysningGrunnlagMap.putAll(nyePersongrunnlag)
     }
 
     /**
@@ -170,7 +171,7 @@ class StepDefinition {
     fun `følgende endrede utbetalinger`(
         dataTable: DataTable,
     ) {
-        endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.asMaps(), persongrunnlag)
+        endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.asMaps(), personopplysningGrunnlagMap)
     }
 
     /**
@@ -182,7 +183,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        kompetanser = lagKompetanser(dataTable.asMaps(), persongrunnlag, behandlingId)
+        kompetanser = lagKompetanser(dataTable.asMaps(), personopplysningGrunnlagMap, behandlingId)
     }
 
     /**
@@ -194,7 +195,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        valutakurs[behandlingId] = lagValutakurs(dataTable.asMaps(), persongrunnlag, behandlingId)
+        valutakurs[behandlingId] = lagValutakurs(dataTable.asMaps(), personopplysningGrunnlagMap, behandlingId)
     }
 
     /**
@@ -206,7 +207,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        utenlandskPeriodebeløp[behandlingId] = lagUtenlandskperiodeBeløp(dataTable.asMaps(), persongrunnlag, behandlingId)
+        utenlandskPeriodebeløp[behandlingId] = lagUtenlandskperiodeBeløp(dataTable.asMaps(), personopplysningGrunnlagMap, behandlingId)
     }
 
     @Og("andeler er beregnet for behandling {}")
@@ -218,7 +219,7 @@ class StepDefinition {
                 .tilkjentYtelseService
                 .beregnTilkjentYtelse(
                     vilkårsvurdering = vilkårsvurdering[behandlingId]!!,
-                    personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                    personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                     endretUtbetalingAndeler = endredeUtbetalinger[behandlingId]?.map { EndretUtbetalingAndelMedAndelerTilkjentYtelse(it, emptyList()) } ?: emptyList(),
                 ).andelerTilkjentYtelse
                 .toList()
@@ -241,7 +242,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        andelerTilkjentYtelse[behandlingId] = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
+        andelerTilkjentYtelse[behandlingId] = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, personopplysningGrunnlagMap)
     }
 
     /**
@@ -252,7 +253,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        overgangsordningAndeler[behandlingId] = lagOvergangsordningAndeler(dataTable, behandlingId, behandlinger, persongrunnlag)
+        overgangsordningAndeler[behandlingId] = lagOvergangsordningAndeler(dataTable, behandlingId, behandlinger, personopplysningGrunnlagMap)
     }
 
     /**
@@ -264,7 +265,7 @@ class StepDefinition {
         dataTable: DataTable,
     ) {
         val beregnetTilkjentYtelse = andelerTilkjentYtelse[behandlingId]!!
-        val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, persongrunnlag)
+        val forventedeAndeler = lagAndelerTilkjentYtelse(dataTable, behandlingId, behandlinger, personopplysningGrunnlagMap)
 
         assertThat(beregnetTilkjentYtelse)
             .usingRecursiveComparison()
@@ -364,13 +365,14 @@ class StepDefinition {
                                 BegrunnelserForPeriodeContext(
                                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                                     sanityBegrunnelser = sanityBegrunnelserMock,
-                                    personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                                    personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                                     personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
                                     endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),
                                     erFørsteVedtaksperiode = index == 0,
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                                    skalBestemmeLovverkBasertPåFødselsdato = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }.find { it.fom == forventet.fom && it.tom == forventet.tom }
@@ -407,7 +409,7 @@ class StepDefinition {
         val vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser[behandlingId]!!
         return vedtaksperioderMedBegrunnelser.map {
             it.tilUtvidetVedtaksperiodeMedBegrunnelser(
-                personopplysningGrunnlag = persongrunnlag[behandlingId]!!,
+                personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                 dagensDato = dagensDato,
                 sanityBegrunnelser = emptyList(),
@@ -461,7 +463,7 @@ class StepDefinition {
     ) = BrevPeriodeContext(
         utvidetVedtaksperiodeMedBegrunnelser = this,
         sanityBegrunnelser = sanityBegrunnelserMock,
-        persongrunnlag = persongrunnlag[behandlingId]!!,
+        personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
         personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
         andelTilkjentYtelserMedEndreteUtbetalinger = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
         overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
@@ -470,6 +472,7 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
+        skalBestemmeLovverkBasertPåFødselsdato = true,
     ).genererBrevPeriodeDto()
 
     /**
@@ -580,7 +583,7 @@ class StepDefinition {
         val personidentService = mockk<PersonidentService>()
         every { personidentService.hentAktør(any()) } answers {
             val personId = firstArg<String>()
-            persongrunnlag.flatMap { it.value.personer }.first { it.id.toString() == personId }.aktør
+            personopplysningGrunnlagMap.flatMap { it.value.personer }.first { it.id.toString() == personId }.aktør
         }
 
         val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
@@ -690,6 +693,7 @@ class StepDefinition {
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
+                unleashNextMedContextService = mockUnleashNextMedContextService(),
             )
 
         return VedtaksperiodeService(
@@ -706,11 +710,12 @@ class StepDefinition {
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
+            unleashNextMedContextService = mockUnleashNextMedContextService(),
         )
     }
 
     private fun lagRegistrertebarn(behandlingId: Long): List<BarnMedOpplysningerDto> =
-        persongrunnlag[behandlingId]
+        personopplysningGrunnlagMap[behandlingId]
             ?.personer
             ?.filter { it.type == PersonType.BARN }
             ?.map { person ->
@@ -723,14 +728,14 @@ class StepDefinition {
     private fun mockPersonopplysningGrunnlagService(): PersonopplysningGrunnlagService {
         val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
         every { personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any<Long>()) } answers {
-            persongrunnlag[firstArg()]
+            personopplysningGrunnlagMap[firstArg()]
         }
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any<Long>()) } answers {
-            persongrunnlag[firstArg()]!!
+            personopplysningGrunnlagMap[firstArg()]!!
         }
         every { personopplysningGrunnlagService.hentBarna(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            persongrunnlag[behandlingId]!!.barna
+            personopplysningGrunnlagMap[behandlingId]!!.barna
         }
         return personopplysningGrunnlagService
     }
