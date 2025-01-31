@@ -1,15 +1,17 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import java.time.LocalDate
 import java.time.YearMonth
 
 data class VilkårLovverkInformasjonForBarn(
     val fødselsdato: LocalDate,
+    val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     val periodeFomForAdoptertBarn: YearMonth? = null,
     val periodeTomForAdoptertBarn: YearMonth? = null,
 ) {
@@ -19,7 +21,7 @@ data class VilkårLovverkInformasjonForBarn(
     val periodeTomBarnetsAlderLov2024: LocalDate
     val periodeFomBarnetsAlderLov2025: LocalDate
     val periodeTomBarnetsAlderLov2025: LocalDate
-    val lovverk: VilkårLovverk
+    val vilkårLovverk: VilkårLovverk
 
     init {
         this.periodeFomBarnetsAlderLov2021 = fødselsdato.plusYears(1)
@@ -29,17 +31,22 @@ data class VilkårLovverkInformasjonForBarn(
         this.periodeFomBarnetsAlderLov2025 = fødselsdato.plusMonths(12)
         this.periodeTomBarnetsAlderLov2025 = fødselsdato.plusMonths(20)
 
+        val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato, skalBestemmeLovverkBasertPåFødselsdato)
+
+        this.vilkårLovverk =
+            when (lovverk) {
+                Lovverk.LOVENDRING_FEBRUAR_2025 -> VilkårLovverk.LOVVERK_2025
+                Lovverk.FØR_LOVENDRING_2025 -> utledVilkårLovverkFørLovendring2025()
+            }
+    }
+
+    private fun utledVilkårLovverkFørLovendring2025(): VilkårLovverk {
         val erTruffetAvLovverk2021 = periodeFomForAdoptertBarn?.isBefore(DATO_LOVENDRING_2024.toYearMonth()) ?: periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
         val erTruffetAvLovverk2024 = periodeTomForAdoptertBarn?.toLocalDate()?.erSammeEllerEtter(DATO_LOVENDRING_2024) ?: periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
-        // TODO : Ta denne i bruk for å sette lovverk variabelen
-        // val erTruffetAvLovverk2025 = fødselsdato.erSammeEllerEtter(LocalDate.of(2024, 1, 1))
-
-        this.lovverk =
-            when {
-                erTruffetAvLovverk2021 && erTruffetAvLovverk2024 -> VilkårLovverk.LOVVERK_2021_OG_2024
-                erTruffetAvLovverk2021 -> VilkårLovverk.LOVVERK_2021
-                erTruffetAvLovverk2024 -> VilkårLovverk.LOVVERK_2024
-                else -> throw Feil("Forventer at barnet blir truffet at minst et lovverk: $this")
-            }
+        return when {
+            erTruffetAvLovverk2021 && erTruffetAvLovverk2024 -> VilkårLovverk.LOVVERK_2021_OG_2024
+            erTruffetAvLovverk2021 -> VilkårLovverk.LOVVERK_2021
+            else -> VilkårLovverk.LOVVERK_2024
+        }
     }
 }
