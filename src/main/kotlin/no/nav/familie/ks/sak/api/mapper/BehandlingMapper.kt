@@ -91,7 +91,12 @@ object BehandlingMapper {
         søknadsgrunnlag = søknadsgrunnlag,
         personer = personer,
         personResultater =
-            personResultater?.map { VilkårsvurderingMapper.lagPersonResultatRespons(it) }
+            personResultater?.map { personResultat ->
+                VilkårsvurderingMapper.lagPersonResultatRespons(
+                    personResultat,
+                    personer.find { it.personIdent == personResultat.aktør.aktivFødselsnummer() }!!,
+                )
+            }
                 ?: emptyList(),
         behandlingPåVent =
             behandling.behandlingStegTilstand

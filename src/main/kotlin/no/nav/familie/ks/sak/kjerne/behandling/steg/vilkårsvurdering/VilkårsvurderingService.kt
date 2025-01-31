@@ -4,6 +4,8 @@ import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -30,6 +32,7 @@ class VilkårsvurderingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
+    private val unleashService: UnleashNextMedContextService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -49,6 +52,7 @@ class VilkårsvurderingService(
                 behandling,
                 vilkårsvurderingFraForrigeBehandling,
                 personopplysningGrunnlag,
+                unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
 
         vilkårsvurderingFraForrigeBehandling?.let {
@@ -94,8 +98,7 @@ class VilkårsvurderingService(
 
     fun finnAktivVilkårsvurdering(behandlingId: Long): Vilkårsvurdering? = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
 
-    fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> =
-        standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser())
+    fun hentVilkårsbegrunnelser(): Map<BegrunnelseType, List<VedtakBegrunnelseTilknyttetVilkårResponseDto>> = standardbegrunnelserTilNedtrekksmenytekster(sanityService.hentSanityBegrunnelser())
 
     @Transactional
     fun endreVilkårPåBehandling(

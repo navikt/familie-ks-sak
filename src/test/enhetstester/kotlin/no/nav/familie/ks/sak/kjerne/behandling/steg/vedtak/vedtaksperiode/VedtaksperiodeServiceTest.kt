@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
@@ -106,6 +107,9 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK(relaxed = true)
     private lateinit var kompetanseService: KompetanseService
+
+    @MockK
+    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService

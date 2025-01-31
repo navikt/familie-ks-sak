@@ -1,0 +1,88 @@
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning
+
+import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombiner
+import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+
+object LovverkTidslinjeGenerator {
+    fun generer(
+        barnasForskjøvedeVilkårResultater: Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>>,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    ): Tidslinje<Lovverk> =
+        barnasForskjøvedeVilkårResultater
+            .map { (aktør, forskjøvedeVilkårResultater) ->
+                // Konverterer forskjøvede VilkårResultater til Lovverk-tidslinje per barn
+                forskjøvedeVilkårResultater.tilLovverkTidslinje(
+                    barn = personopplysningGrunnlag.barna.single { it.aktør == aktør },
+                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                )
+            }
+            // Kombinerer alle Lovverk-tidslinjer til en felles Lovverk-tidslinje.
+            // Lovverk-tidslinjene kan overlappe, men lovverket i de overlappende periodene må være det samme.
+            .kombiner {
+                val lovverkIPeriode = it.toSet()
+                if (lovverkIPeriode.size > 1) {
+                    throw Feil("Støtter ikke overlappende lovverk")
+                }
+                lovverkIPeriode.single()
+            }.tilPerioderIkkeNull()
+            .sortedBy { it.fom }
+            .erstattFørsteFomOgSisteTomMedNull()
+            .kombinerEtterfølgendeElementer()
+            // Sørger for at et lovverk strekker seg helt frem til neste startdato for neste lovverk
+            .map { (lovverkPeriode, nesteLovverkPeriode) -> Periode(verdi = lovverkPeriode.verdi, fom = lovverkPeriode.fom, tom = nesteLovverkPeriode?.fom?.minusDays(1)) }
+            .tilTidslinje()
+
+    private fun Map<Vilkår, List<Periode<VilkårResultat>>>.tilLovverkTidslinje(
+        barn: Person,
+        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    ): Tidslinje<Lovverk> =
+        // Konverterer alle VilkårResultatPerioder per vilkår til Lovverk-tidslinjer og kombinerer disse til en felles tidslinje.
+        this.values
+            .map { perioder ->
+                perioder
+                    .map { periode ->
+                        Periode(
+                            fom = periode.fom,
+                            tom = periode.tom,
+                            verdi =
+                                LovverkUtleder.utledLovverkForBarn(
+                                    fødselsdato = barn.fødselsdato,
+                                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                                ),
+                        )
+                    }.tilTidslinje()
+                    .slåSammenLikePerioder()
+            }.kombiner {
+                it.toSet().single()
+            }
+
+    private fun List<Periode<Lovverk>>.erstattFørsteFomOgSisteTomMedNull(): List<Periode<Lovverk>> =
+        // Sørger for at lovverk-tidslinje strekker seg fra TIDENES_MORGEN til TIDENES_ENDE.
+        // Da er vi sikre på at tidslinja dekker søkers vilkår.
+        this.mapIndexed { index, periode ->
+            when (index) {
+                0 -> Periode(verdi = periode.verdi, fom = null, tom = periode.tom)
+                this.lastIndex -> Periode(verdi = periode.verdi, fom = periode.fom, tom = null)
+                else -> periode
+            }
+        }
+
+    private fun List<Periode<Lovverk>>.kombinerEtterfølgendeElementer(): List<Pair<Periode<Lovverk>, Periode<Lovverk>?>> {
+        if (this.isEmpty()) return emptyList()
+
+        return this.zipWithNext() + Pair(this.last(), null)
+    }
+}
