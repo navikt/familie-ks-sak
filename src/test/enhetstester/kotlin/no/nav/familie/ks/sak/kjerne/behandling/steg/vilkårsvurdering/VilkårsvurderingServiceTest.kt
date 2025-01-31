@@ -5,6 +5,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -60,7 +61,8 @@ class VilkårsvurderingServiceTest {
 
     @BeforeEach
     fun setUp() {
-        every { unleashService.isEnabled(any()) } returns true
+        every { unleashService.isEnabled(any<String>()) } returns true
+        every { unleashService.isEnabled(any<FeatureToggle>()) } returns true
     }
 
     @Test
