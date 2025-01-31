@@ -5,6 +5,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -24,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.unleash.UnleashService
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -42,7 +42,7 @@ class VilkårsvurderingServiceTest {
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     private val sanityService: SanityService = mockk()
     private val personidentService: PersonidentService = mockk()
-    private val unleashService: UnleashService = mockk()
+    private val unleashService: UnleashNextMedContextService = mockk()
     private val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository,
@@ -60,7 +60,7 @@ class VilkårsvurderingServiceTest {
 
     @BeforeEach
     fun setUp() {
-        every { unleashService.isEnabled(any()) } returns false
+        every { unleashService.isEnabled(any()) } returns true
     }
 
     @Test

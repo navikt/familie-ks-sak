@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -21,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.unleash.UnleashService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,7 +32,7 @@ class VilkårsvurderingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
-    private val unleashService: UnleashService,
+    private val unleashService: UnleashNextMedContextService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
