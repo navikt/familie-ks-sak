@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvni
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.barnehageplass.Graderingsforskjell
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.barnehageplass.forskyvTomBasertPåGraderingsforskjell
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2025
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -15,7 +15,7 @@ class TomForskyverTest {
         val dagensDato = LocalDate.of(2025, 1, 31)
 
         // Act
-        val forskjøvetTom = dagensDato.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
+        val forskjøvetTom = dagensDato.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2025()
 
         // Assert
         assertThat(forskjøvetTom).isEqualTo(YearMonth.of(2025, 1))
@@ -27,7 +27,7 @@ class TomForskyverTest {
         val dagensDato = null
 
         // Act
-        val forskjøvetTom = dagensDato.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
+        val forskjøvetTom = dagensDato.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2025()
 
         // Assert
         assertThat(forskjøvetTom).isNull()

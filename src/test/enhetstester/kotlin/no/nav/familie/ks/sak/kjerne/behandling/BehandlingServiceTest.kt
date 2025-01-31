@@ -234,17 +234,19 @@ class BehandlingServiceTest {
             lagVilkårsvurdering(
                 behandling = behandling,
                 lagPersonResultat = { vilkårsvurdering ->
-                    lagPersonResultat(
-                        vilkårsvurdering = vilkårsvurdering,
-                        aktør = barn,
-                        lagVilkårResultater = { personResultat ->
-                            setOf(
-                                lagVilkårResultat(
-                                    personResultat = personResultat,
-                                    vilkårType = Vilkår.BARNETS_ALDER,
-                                ),
-                            )
-                        },
+                    setOf(
+                        lagPersonResultat(
+                            vilkårsvurdering = vilkårsvurdering,
+                            aktør = barn,
+                            lagVilkårResultater = { personResultat ->
+                                setOf(
+                                    lagVilkårResultat(
+                                        personResultat = personResultat,
+                                        vilkårType = Vilkår.BARNETS_ALDER,
+                                    ),
+                                )
+                            },
+                        ),
                     )
                 },
             )

@@ -451,6 +451,7 @@ class VedtaksperiodeService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vilkårsvurdering = vilkårsvurdering,
+            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025),
         )
     }
 
