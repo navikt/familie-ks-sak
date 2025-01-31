@@ -59,7 +59,7 @@ object LovverkTidslinjeGenerator {
                             tom = periode.tom,
                             verdi =
                                 LovverkUtleder.utledLovverkForBarn(
-                                    barn.fødselsdato,
+                                    fødselsdato = barn.fødselsdato,
                                     skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                                 ),
                         )
@@ -74,8 +74,8 @@ object LovverkTidslinjeGenerator {
         // Da er vi sikre på at tidslinja dekker søkers vilkår.
         this.mapIndexed { index, periode ->
             when (index) {
-                0 -> Periode(verdi = periode.verdi, null, tom = periode.tom)
-                this.lastIndex -> Periode(verdi = periode.verdi, periode.fom, tom = null)
+                0 -> Periode(verdi = periode.verdi, fom = null, tom = periode.tom)
+                this.lastIndex -> Periode(verdi = periode.verdi, fom = periode.fom, tom = null)
                 else -> periode
             }
         }
