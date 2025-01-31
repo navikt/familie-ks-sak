@@ -14,18 +14,23 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFebruar2025.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2025
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2021.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.lovverkFørFebruar2025.lov2024.barnehageplass.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Udefinert
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import java.time.LocalDate
+import java.time.YearMonth
 
 data class Opphørsperiode(
     override val periodeFom: LocalDate,
@@ -67,7 +72,7 @@ fun mapTilOpphørsperioder(
             } else {
                 listOf(
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
-                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering),
+                    finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, personopplysningGrunnlag),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
@@ -115,6 +120,7 @@ private fun maxOfOpphørsperiodeTom(
 private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     utbetalingsperioder: List<Utbetalingsperiode>,
     vilkårsvurdering: Vilkårsvurdering,
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
 ): List<Opphørsperiode> {
     val sisteUtbetalingsperiodeTom =
         utbetalingsperioder
@@ -127,18 +133,21 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
 
     val erFramtidigOpphørPgaBarnehageplass =
         vilkårsvurdering.personResultater.any { personResultat ->
+
             personResultat.vilkårResultater
                 .filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS }
                 .filter { it.periodeTom != null }
                 .any { barnehageplassVilkårResultat ->
-                    val periodeTom = barnehageplassVilkårResultat.periodeTom!!
-                    val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
-                        when (periodeTom.isBefore(DATO_LOVENDRING_2024)) {
-                            true -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
-                            false -> periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
-                        }
+
+                    val barnet =
+                        personopplysningGrunnlag.barna.find { it.aktør == personResultat.aktør }
+                            ?: error("Barn i personopplysningsgrunnlaget samsvarer ikke med barnet i vilkårsresultat")
+
+                    val forskjøvetTomForSisteUtbetalingsperiodePgaFremtidigOpphør =
+                        forskyvTomBasertPåLovverkForSisteUtbetalingsperiodePgaFremtidigOpphør(barnet, barnehageplassVilkårResultat.periodeTom!!)
+
                     barnehageplassVilkårResultat.søkerHarMeldtFraOmBarnehageplass == true &&
-                        periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
+                        forskjøvetTomForSisteUtbetalingsperiodePgaFremtidigOpphør == sisteUtbetalingsperiodeTom
                 }
         }
 
@@ -154,6 +163,29 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
     } else {
         emptyList()
     }
+}
+
+private fun forskyvTomBasertPåLovverkForSisteUtbetalingsperiodePgaFremtidigOpphør(
+    barnet: Person,
+    periodeTom: LocalDate,
+): YearMonth? {
+    val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barnet.fødselsdato, false)
+
+    val periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør =
+        when (lovverk) {
+            Lovverk.FØR_LOVENDRING_2025 -> {
+                if (periodeTom.isBefore(DATO_LOVENDRING_2024)) {
+                    periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør()
+                } else {
+                    periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2024()
+                }
+            }
+
+            Lovverk.LOVENDRING_FEBRUAR_2025 -> {
+                periodeTom.tilForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør2025()
+            }
+        }
+    return periodeTomForskjøvetTomMånedForSisteUtbetalingsperiodePgaFremtidigOpphør
 }
 
 private fun finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder: List<Utbetalingsperiode>): List<Opphørsperiode> {
@@ -203,6 +235,7 @@ private fun Opphørsperiode.settOvergangsordningOpphørBegrunnelser(
                     NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
                 ),
             )
+
         BehandlingKategori.EØS ->
             vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
                 listOf(
