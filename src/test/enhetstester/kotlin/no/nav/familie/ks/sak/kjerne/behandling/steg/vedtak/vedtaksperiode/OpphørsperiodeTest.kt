@@ -24,16 +24,22 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
+import no.nav.familie.ks.sak.data.lagPersonResultat
+import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 
 class OpphørsperiodeTest {
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val søkerFnr = randomFnr()
     private val barn1Fnr = randomFnr()
+    private val barn2Fnr = randomFnr()
 
-    val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id, søkerFnr, listOf(barn1Fnr))
+    val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandling.id, søkerFnr, listOf(barn1Fnr, barn2Fnr))
 
     val søker = fnrTilAktør(søkerFnr)
     val barn1 = fnrTilAktør(barn1Fnr)
+    val barn2 = fnrTilAktør(barn2Fnr)
 
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -42,6 +48,68 @@ class OpphørsperiodeTest {
 
     @Nested
     inner class MapTilOpphørsperioderTest {
+        @Test
+        fun `asdfasda`() {
+            val periodeTomFørsteAndel = inneværendeMåned().minusYears(2)
+            val periodeFomAndreAndel = inneværendeMåned().minusYears(1)
+            val periodeTomAndreAndel = inneværendeMåned().minusMonths(10)
+            val periodeFomSisteAndel = inneværendeMåned().minusMonths(4)
+
+            val andel1TilBarn1 =
+                AndelTilkjentYtelseMedEndreteUtbetalinger(
+                    lagAndelTilkjentYtelse(
+                        behandling = behandling,
+                        stønadFom = inneværendeMåned().minusYears(4),
+                        stønadTom = periodeTomFørsteAndel,
+                        sats = 1054,
+                        aktør = barn1,
+                    ),
+                    emptyList(),
+                )
+
+            val andel2TilBarn1 =
+                AndelTilkjentYtelseMedEndreteUtbetalinger(
+                    lagAndelTilkjentYtelse(
+                        behandling = behandling,
+                        stønadFom = periodeFomAndreAndel,
+                        stønadTom = periodeTomAndreAndel,
+                        sats = 1054,
+                        aktør = barn1,
+                    ),
+                    emptyList(),
+                )
+
+            val vilkårsvurdering = lagVilkårsvurdering(
+                lagPersonResultat = { vilkårsvurdering ->
+                    lagPersonResultat(
+                        vilkårsvurdering = vilkårsvurdering,
+                        lagVilkårResultater = { personResultat ->
+                            setOf(
+                                lagVilkårResultat(
+                                    personResultat = personResultat,
+                                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                                    periodeTom = LocalDate.of(2024, 1, 1),
+                                )
+                            )
+                        }
+                    )
+                }
+            )
+
+            val opphørsperioder =
+                mapTilOpphørsperioder(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    andelerTilkjentYtelse = listOf(andel1TilBarn1, andel2TilBarn1),
+                    vilkårsvurdering = vilkårsvurdering,
+                )
+
+            assertEquals(2, opphørsperioder.size)
+            assertEquals(periodeTomFørsteAndel.nesteMåned(), opphørsperioder[0].periodeFom.toYearMonth())
+            assertEquals(periodeFomAndreAndel.forrigeMåned(), opphørsperioder[0].periodeTom?.toYearMonth())
+            assertEquals(periodeTomAndreAndel.nesteMåned(), opphørsperioder[1].periodeFom.toYearMonth())
+            assertEquals(periodeFomSisteAndel.forrigeMåned(), opphørsperioder[1].periodeTom?.toYearMonth())
+        }
+
         @Test
         fun `skal utlede opphørsperiode mellom oppfylte perioder`() {
             val periodeTomFørsteAndel = inneværendeMåned().minusYears(2)
