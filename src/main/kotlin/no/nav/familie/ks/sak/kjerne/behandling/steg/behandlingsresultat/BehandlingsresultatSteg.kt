@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -54,7 +54,7 @@ class BehandlingsresultatSteg(
             tilkjentYtelse = tilkjentYtelseNåværendeBehandling,
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
             personResultaterForBarn = personResultaterForBarn,
-            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025),
+            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
         )
 
         if (behandling.erOvergangsordning()) {

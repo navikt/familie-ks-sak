@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.config.featureToggle
 
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.unleash.UnleashContextFields
@@ -11,21 +11,25 @@ import org.springframework.stereotype.Service
 class UnleashNextMedContextService(
     private val unleashService: UnleashService,
     private val behandlingRepository: BehandlingRepository,
-    private val arbeidsfordelingService: ArbeidsfordelingService,
+    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
 ) {
     fun isEnabled(
-        toggleId: String,
+        toggle: FeatureToggle,
         behandlingId: Long,
     ): Boolean {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
 
         return unleashService.isEnabled(
-            toggleId,
+            toggle.navn,
             properties =
                 mapOf(
                     UnleashContextFields.FAGSAK_ID to behandling.fagsak.id.toString(),
                     UnleashContextFields.BEHANDLING_ID to behandling.id.toString(),
-                    UnleashContextFields.ENHET_ID to arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id).behandlendeEnhetId,
+                    UnleashContextFields.ENHET_ID to
+                        (
+                            arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
+                                ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
+                        ).behandlendeEnhetId,
                     UnleashContextFields.NAV_IDENT to SikkerhetContext.hentSaksbehandler(),
                     UnleashContextFields.EPOST to SikkerhetContext.hentSaksbehandlerEpost(),
                 ),
@@ -34,23 +38,30 @@ class UnleashNextMedContextService(
 
     fun isEnabledForFagsak(
         fagsakId: Long,
-        toggleId: String,
+        toggle: FeatureToggle,
     ): Boolean =
         unleashService.isEnabled(
-            toggleId,
+            toggle.navn,
             properties =
                 mapOf(
                     UnleashContextFields.FAGSAK_ID to fagsakId.toString(),
                 ),
         )
 
-    fun isEnabled(toggleId: String): Boolean =
+    fun isEnabled(toggle: FeatureToggle): Boolean =
         unleashService.isEnabled(
-            toggleId,
+            toggle.navn,
             properties =
                 mapOf(
                     UnleashContextFields.NAV_IDENT to SikkerhetContext.hentSaksbehandler(),
                     UnleashContextFields.EPOST to SikkerhetContext.hentSaksbehandlerEpost(),
                 ),
         )
+
+    fun isEnabled(
+        toggle: FeatureToggle,
+        defaultValue: Boolean,
+    ): Boolean = unleashService.isEnabled(toggle.navn, defaultValue)
+
+    fun isEnabled(toggleId: String) = unleashService.isEnabled(toggleId)
 }

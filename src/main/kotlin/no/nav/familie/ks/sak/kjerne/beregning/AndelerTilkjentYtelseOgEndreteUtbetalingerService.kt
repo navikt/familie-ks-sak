@@ -4,7 +4,8 @@ import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -15,7 +16,6 @@ import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.slåSammen
-import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -26,11 +26,10 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
-    private val unleashService: UnleashService,
+    private val unleashService: UnleashNextMedContextService,
 ) {
     @Transactional
-    fun finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long): List<AndelTilkjentYtelseMedEndreteUtbetalinger> =
-        lagKombinator(behandlingId).lagAndelerMedEndringer()
+    fun finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long): List<AndelTilkjentYtelseMedEndreteUtbetalinger> = lagKombinator(behandlingId).lagAndelerMedEndringer()
 
     @Transactional
     fun finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId: Long): List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> =
@@ -46,7 +45,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
                         årsak = endretUtbetalingAndelMedAndelTilkjentYtelse.årsak,
                         endretUtbetalingAndel = endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
                         vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId),
-                        kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggleConfig.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
+                        kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggle.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
                     )
                 }
         }
@@ -73,11 +72,9 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
         }
 }
 
-fun Collection<AndelTilkjentYtelse>.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endretUtbetalingAndeler: Collection<EndretUtbetalingAndel>) =
-    AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(this, endretUtbetalingAndeler).lagAndelerMedEndringer()
+fun Collection<AndelTilkjentYtelse>.tilAndelerTilkjentYtelseMedEndreteUtbetalinger(endretUtbetalingAndeler: Collection<EndretUtbetalingAndel>) = AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(this, endretUtbetalingAndeler).lagAndelerMedEndringer()
 
-fun Collection<EndretUtbetalingAndel>.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>) =
-    AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(andelerTilkjentYtelse, this).lagEndreteUtbetalingMedAndeler()
+fun Collection<EndretUtbetalingAndel>.tilEndretUtbetalingAndelMedAndelerTilkjentYtelse(andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>) = AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(andelerTilkjentYtelse, this).lagEndreteUtbetalingMedAndeler()
 
 private class AndelTilkjentYtelseOgEndreteUtbetalingerKombinator(
     private val andelerTilkjentYtelse: Collection<AndelTilkjentYtelse>,
@@ -119,8 +116,7 @@ data class AndelTilkjentYtelseMedEndreteUtbetalinger(
     val kalkulertUtbetalingsbeløp get() = andelTilkjentYtelse.kalkulertUtbetalingsbeløp
     val aktør get() = andelTilkjentYtelse.aktør
 
-    fun medTom(tom: YearMonth): AndelTilkjentYtelseMedEndreteUtbetalinger =
-        AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse.copy(stønadTom = tom), endreteUtbetalinger)
+    fun medTom(tom: YearMonth): AndelTilkjentYtelseMedEndreteUtbetalinger = AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse.copy(stønadTom = tom), endreteUtbetalinger)
 
     val stønadFom get() = andelTilkjentYtelse.stønadFom
     val stønadTom get() = andelTilkjentYtelse.stønadTom
@@ -179,8 +175,7 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinjer(): List<Tidsli
         ).tilTidslinje()
     }
 
-fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagVertikalePerioder(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> =
-    this.tilTidslinjer().slåSammen()
+fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagVertikalePerioder(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> = this.tilTidslinjer().slåSammen()
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilKombinertTidslinjePerAktør(): Tidslinje<Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>> {
     val andelTilkjentYtelsePerPerson = groupBy { it.aktør }

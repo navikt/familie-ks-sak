@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
@@ -31,7 +31,7 @@ class BeregnAndelTilkjentYtelseServiceTest {
         every { personopplysningGrunnlag.søker } returns lagPerson(aktør = randomAktør())
         every { personopplysningGrunnlag.barna } returns listOf(lagPerson(aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 12, 31)))
 
-        every { unleashService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025) } returns true
+        every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
         every { andelGeneratorLookup.hentGeneratorForLovverk(any()) } returns andelGenerator
         every { andelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 

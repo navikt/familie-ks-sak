@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -36,7 +36,7 @@ class BarnetsAlderVilkårValidatorTest {
 
     @BeforeEach
     fun beforeEach() {
-        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025) } returns true
+        every { unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
     }
 
     @Test
