@@ -1,4 +1,4 @@
-kubectl config use-context dev-gcp
+kubectl config use-context nais-dev
 PODNAVN=$(kubectl -n teamfamilie get pods --field-selector=status.phase==Running -o name | grep familie-ks-sak | grep -v "frontend" |  sed "s/^.\{4\}//" | head -n 1);
 
 PODVARIABLER="$(kubectl -n teamfamilie exec -c familie-ks-sak -it "$PODNAVN" -- printenv)"
