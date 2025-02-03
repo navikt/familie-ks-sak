@@ -131,7 +131,7 @@ class UtbetalingsoppdragService(
 
     private fun hentSisteAndelTilkjentYtelse(fagsak: Fagsak) =
         andelTilkjentYtelseRepository
-            .hentSisteAndelPerIdentOgType(fagsakId = fagsak.id)
+            .hentSisteAndelPerIdent(fagsakId = fagsak.id)
             .associateBy { IdentOgType(it.aktør.aktivFødselsnummer(), it.type.tilYtelseType()) }
 
     private fun utledOpphør(

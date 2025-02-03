@@ -789,13 +789,13 @@ internal class UtbetalingsperiodeServiceTest {
     ) {
         if (forrigeTilkjentYtelse == null) {
             every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns null
-            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(behandling.fagsak.id) } returns emptyList()
+            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdent(behandling.fagsak.id) } returns emptyList()
         } else {
             every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeTilkjentYtelse.behandling
 
             every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(forrigeTilkjentYtelse.behandling.id) } returns forrigeTilkjentYtelse
 
-            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(behandling.fagsak.id) } returns
+            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdent(behandling.fagsak.id) } returns
                 forrigeTilkjentYtelse.andelerTilkjentYtelse
                     .filtrerAndelerSomSkalSendesTilOppdrag()
                     .groupBy { it.aktør.aktivFødselsnummer() }
