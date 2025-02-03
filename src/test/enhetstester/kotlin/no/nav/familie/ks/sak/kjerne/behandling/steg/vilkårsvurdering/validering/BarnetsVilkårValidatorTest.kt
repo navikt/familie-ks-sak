@@ -6,7 +6,7 @@ import junit.framework.TestCase.assertEquals
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
@@ -63,7 +63,7 @@ class BarnetsVilkårValidatorTest {
 
     @BeforeEach
     fun beforeEach() {
-        every { unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025) } returns true
+        every { unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
     }
 
     @Test

@@ -4,7 +4,7 @@ import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -104,7 +104,7 @@ class HenleggBehandlingService(
         val behandlingId = behandling.id
         when {
             HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggÅrsak &&
-                !unleashService.isEnabled(FeatureToggleConfig.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
+                !unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
                 throw Feil(
                     "Teknisk vedlikehold henleggele er ikke påslått for " +
                         "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
@@ -121,7 +121,7 @@ class HenleggBehandlingService(
                 )
             }
 
-            behandling.erTekniskEndring() && !unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING) -> {
+            behandling.erTekniskEndring() && !unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING) -> {
                 throw FunksjonellFeil(
                     "Du har ikke tilgang til å henlegge en behandling " +
                         "som er opprettet med årsak=${behandling.opprettetÅrsak.visningsnavn}. " +

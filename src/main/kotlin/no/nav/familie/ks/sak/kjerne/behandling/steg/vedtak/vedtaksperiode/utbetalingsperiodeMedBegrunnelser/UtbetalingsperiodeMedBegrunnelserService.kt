@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -34,7 +34,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
         val forskjøvetVilkårResultatTidslinjeMap =
             vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025),
+                skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
 
         return hentPerioderMedUtbetaling(

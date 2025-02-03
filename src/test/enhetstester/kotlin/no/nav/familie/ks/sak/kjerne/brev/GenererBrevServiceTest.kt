@@ -6,6 +6,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
@@ -28,7 +29,6 @@ import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrol
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
-import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,7 +42,7 @@ class GenererBrevServiceTest {
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     val saksbehandlerContext: SaksbehandlerContext = mockk()
     val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
-    val unleashService = mockk<UnleashService>()
+    val unleashService = mockk<UnleashNextMedContextService>()
 
     val genererBrevService =
         GenererBrevService(

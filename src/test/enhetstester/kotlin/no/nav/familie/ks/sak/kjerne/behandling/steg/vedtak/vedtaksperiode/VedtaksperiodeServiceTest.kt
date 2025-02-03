@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -121,7 +121,7 @@ internal class VedtaksperiodeServiceTest {
     fun setup() {
         behandling = lagBehandling()
         every {
-            unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025)
+            unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
         } returns true
     }
 

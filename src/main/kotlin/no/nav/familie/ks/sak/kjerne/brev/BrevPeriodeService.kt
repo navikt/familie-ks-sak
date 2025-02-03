@@ -4,7 +4,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -93,7 +93,7 @@ class BrevPeriodeService(
                     kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
                     landkoder = integrasjonClient.hentLandkoderISO2(),
                     overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId),
-                    skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggleConfig.STØTTER_LOVENDRING_2025),
+                    skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
                 ).genererBrevPeriodeDto()
             }
     }

@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -108,7 +109,6 @@ class OpprettBehandlingServiceTest {
             )
         every { stegService.utførSteg(any(), any()) } returns Unit
         every { behandlingMetrikker.tellNøkkelTallVedOpprettelseAvBehandling(behandling) } just runs
-        every { unleashNextMedContextService.isEnabled(any()) } returns true
     }
 
     @Test
@@ -337,7 +337,7 @@ class OpprettBehandlingServiceTest {
 
     @Test
     fun `opprettBehandling - skal kaste feil dersom behandlingsårsak er IVERKSETTE_KA_VEDTAK og toggle ikke er skrudd på`() {
-        every { unleashNextMedContextService.isEnabled(any()) } returns false
+        every { unleashNextMedContextService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK) } returns false
 
         val funksjonellFeil =
             assertThrows<FunksjonellFeil> {
