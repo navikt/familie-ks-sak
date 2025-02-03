@@ -1360,10 +1360,12 @@ fun lagVilkårsvurdering(
     id: Long = 0L,
     behandling: Behandling = lagBehandling(),
     aktiv: Boolean = true,
-    lagPersonResultat: (vilkårsvurdering: Vilkårsvurdering) -> PersonResultat = {
-        lagPersonResultat(
-            vilkårsvurdering = it,
-            aktør = randomAktør(),
+    lagPersonResultat: (vilkårsvurdering: Vilkårsvurdering) -> Set<PersonResultat> = {
+        setOf(
+            lagPersonResultat(
+                vilkårsvurdering = it,
+                aktør = randomAktør(),
+            ),
         )
     },
 ): Vilkårsvurdering {
@@ -1374,7 +1376,7 @@ fun lagVilkårsvurdering(
             aktiv = aktiv,
         )
     val personResultat = lagPersonResultat(vilkårsvurdering)
-    vilkårsvurdering.personResultater = setOf(personResultat)
+    vilkårsvurdering.personResultater = personResultat
     return vilkårsvurdering
 }
 
