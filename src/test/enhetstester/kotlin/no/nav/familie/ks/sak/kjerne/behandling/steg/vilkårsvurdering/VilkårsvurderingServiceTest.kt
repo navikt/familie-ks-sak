@@ -61,8 +61,7 @@ class VilkårsvurderingServiceTest {
 
     @BeforeEach
     fun setUp() {
-        every { unleashService.isEnabled(any<String>()) } returns true
-        every { unleashService.isEnabled(any<FeatureToggle>()) } returns true
+        every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
     }
 
     @Test

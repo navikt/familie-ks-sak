@@ -109,8 +109,6 @@ class OpprettBehandlingServiceTest {
             )
         every { stegService.utførSteg(any(), any()) } returns Unit
         every { behandlingMetrikker.tellNøkkelTallVedOpprettelseAvBehandling(behandling) } just runs
-        every { unleashNextMedContextService.isEnabled(any<String>()) } returns true
-        every { unleashNextMedContextService.isEnabled(any<FeatureToggle>()) } returns true
     }
 
     @Test
@@ -339,8 +337,7 @@ class OpprettBehandlingServiceTest {
 
     @Test
     fun `opprettBehandling - skal kaste feil dersom behandlingsårsak er IVERKSETTE_KA_VEDTAK og toggle ikke er skrudd på`() {
-        every { unleashNextMedContextService.isEnabled(any<String>()) } returns false
-        every { unleashNextMedContextService.isEnabled(any<FeatureToggle>()) } returns false
+        every { unleashNextMedContextService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK) } returns false
 
         val funksjonellFeil =
             assertThrows<FunksjonellFeil> {

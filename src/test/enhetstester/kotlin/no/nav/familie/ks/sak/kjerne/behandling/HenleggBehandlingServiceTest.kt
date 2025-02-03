@@ -74,8 +74,7 @@ internal class HenleggBehandlingServiceTest {
     @BeforeEach
     fun init() {
         every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
-        every { unleashService.isEnabled(any<String>()) } returns true
-        every { unleashService.isEnabled(any<FeatureToggle>()) } returns true
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) } returns true
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { loggService.opprettHenleggBehandlingLogg(any(), any(), any()) } just runs
         every { behandlingRepository.finnBehandlinger(behandling.fagsak.id) } returns listOf(behandling)

@@ -52,8 +52,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
 
     @BeforeEach
     fun setup() {
-        every { unleashService.isEnabled(any<String>()) } returns true
-        every { unleashService.isEnabled(any<FeatureToggle>()) } returns true
+        every { unleashService.isEnabled(FeatureToggle.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK) } returns true
     }
 
     val søker = randomAktør()
