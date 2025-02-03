@@ -297,7 +297,10 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarIkkeKontantstotteIAnnetLand"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
-
+    INNVILGET_TILLEGSTEKST_TO_ARBEIDSLAND_MER_ENN_25_PROSENT_ARBEID_I_NORGE {
+        override val sanityApiNavn = "innvilgetTilleggstekstToArbeidslandMerEnn25ProsentArbeidINorge"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
     INNVILGET_SELVSTENDIG_RETT_TILLEGGSBEGRUNNELSE_VEDTAK_FOR_SED {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggsbegrunnelseVedtakForSed"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
@@ -318,6 +321,11 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
+    INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_TO_ARBEIDSLAND_MER_ENN_25_PROSENT_I_NORGE {
+        override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstToArbeidslandMerEnn25INorge"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
     INNVILGET_TILLEGGSTEKST_DELT_BOSTED {
         override val sanityApiNavn = "innvilgetTilleggstekstDeltBosted"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
@@ -332,7 +340,6 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstIkkeKontantstotteIAnnetLand"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
-
     INNVILGET_TILLEGGSTEKST_SEKUNDÆR_DELT_BOSTED_ANNEN_FORELDER_IKKE_RETT {
         override val sanityApiNavn = "innvilgetTilleggstekstSekundarDeltBostedAnnenForelderIkkeRett"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
@@ -340,6 +347,11 @@ enum class EØSBegrunnelse : IBegrunnelse {
 
     INNVILGET_PRIMÆRLAND_TO_ARBEIDSLAND_NORGE_UTBETALER {
         override val sanityApiNavn = "innvilgetPrimarlandToArbeidslandNorgeUtbetaler"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+
+    INNVILGET_PRIMÆRLAND_OPPHOLD_ANNET_EØS_LAND_NORGE_LOVVALGSLAND {
+        override val sanityApiNavn = "innvilgetPrimarlandOppholdAnnetEosLandNorgeLovvalgsland"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
 
