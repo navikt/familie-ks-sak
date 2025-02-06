@@ -17,6 +17,8 @@ fun forskyvFomBasertPåGraderingsforskjell(
         -> fomDato.minusDays(1).plusMonths(1).førsteDagIInneværendeMåned()
 
         Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING,
+        -> fomDato.minusDays(1).plusMonths(2).førsteDagIInneværendeMåned()
+
         Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING,
         -> fomDato.plusMonths(1).førsteDagIInneværendeMåned()
 
