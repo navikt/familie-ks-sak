@@ -325,7 +325,7 @@ class BegrunnelserForPeriodeContext(
             ).flatMap { entry ->
                 entry.value
                     .flatMap { it.value }
-                    .filter { periode -> periode.tom?.plusMonths(1)?.toYearMonth() == vedtaksperiode.fom.toYearMonth() }
+                    .filter { periode -> periode.tom?.plusDays(1) == vedtaksperiode.fom }
                     .map { periode -> periode.verdi.id }
             }
 
