@@ -14,6 +14,7 @@ enum class FeatureToggle(
     OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER("familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"),
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
     STØTTER_LOVENDRING_2025("familie-ks-sak.stotter-lovendring-2025"),
+    STØTTER_ADOPSJON("familie-ks-sak.stotter-adopsjon"),
 
     BRUK_OMSKRIVING_AV_HJEMLER_I_BREV("familie-ks-sak.bruk_omskriving_av_hjemler_i_brev"),
     ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK("familie-ks-sak.allerede-utbetalt"),
