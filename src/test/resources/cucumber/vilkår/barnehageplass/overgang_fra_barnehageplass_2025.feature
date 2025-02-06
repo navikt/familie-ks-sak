@@ -12,13 +12,11 @@ Egenskap: Overgang fra barnehageplass
       | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori |
       | 1            | 1        |                     | SØKNAD           | NASJONAL            |
 
-
   Scenario: Kontantstøtte skal innvilges i desember dersom barnet slutter i fulltids barnehageplass 31 oktober.
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
       | 1            | 2       | BARN       | 05.08.2024  |
-
 
     Og følgende dagens dato 11.06.2025
 
@@ -44,7 +42,6 @@ Egenskap: Overgang fra barnehageplass
       | 1            | 1       | SØKER      | 19.06.1988  |
       | 1            | 2       | BARN       | 05.08.2024  |
 
-
     Og følgende dagens dato 11.06.2025
 
     Og følgende vilkårresultater for behandling 1
@@ -68,7 +65,6 @@ Egenskap: Overgang fra barnehageplass
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
       | 1            | 2       | BARN       | 05.08.2024  |
-
 
     Og følgende dagens dato 11.06.2025
 
@@ -94,7 +90,6 @@ Egenskap: Overgang fra barnehageplass
       | 1            | 1       | SØKER      | 19.06.1988  |
       | 1            | 2       | BARN       | 05.08.2024  |
 
-
     Og følgende dagens dato 11.06.2025
 
     Og følgende vilkårresultater for behandling 1
@@ -118,7 +113,6 @@ Egenskap: Overgang fra barnehageplass
       | BehandlingId | AktørId | Persontype | Fødselsdato |
       | 1            | 1       | SØKER      | 19.06.1988  |
       | 1            | 2       | BARN       | 05.08.2024  |
-
 
     Og følgende dagens dato 11.06.2025
 
