@@ -47,6 +47,8 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.UtfyltKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilTidslinje
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -326,6 +328,8 @@ class BrevPeriodeContext(
                             vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             vedtaksperiodeFom = fom,
                             endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
+                            barnasFødselsdatoer = barnasFødselsdatoer,
+                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         )
                     }
 
@@ -556,9 +560,12 @@ class BrevPeriodeContext(
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
+        barnasFødselsdatoer: List<LocalDate>,
+        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
+        val alleLovverkForBarna = barnasFødselsdatoer.map { LovverkUtleder.utledLovverkForBarn(it, skalBestemmeLovverkBasertPåFødselsdato) }
 
         return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
@@ -586,6 +593,7 @@ class BrevPeriodeContext(
 
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
                 when {
+                    alleLovverkForBarna.all { it == Lovverk.LOVENDRING_FEBRUAR_2025 } -> vedtaksperiodeFom.tilMånedÅr()
                     sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
                     opphørGrunnetFulltidsBarnehageplassAugust2024 -> vedtaksperiodeFom.tilMånedÅr()
                     fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
