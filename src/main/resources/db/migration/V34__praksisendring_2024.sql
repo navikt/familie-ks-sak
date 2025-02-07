@@ -4,7 +4,7 @@ CREATE TABLE praksisendring_2024
     fk_fagsak_id                       BIGINT REFERENCES fagsak NOT NULL,
     fk_po_person_id                    BIGINT REFERENCES po_person NOT NULL,
     fk_aktoer_id                       VARCHAR REFERENCES AKTOER (AKTOER_ID) NOT NULL,
-    barnehagestart                     TIMESTAMP(3) not null ,
+    utbetalingsmaned                   TIMESTAMP(3) not null ,
     versjon                            BIGINT       DEFAULT 0                       NOT NULL,
     opprettet_av                       VARCHAR      DEFAULT 'VL'::CHARACTER VARYING NOT NULL,
     opprettet_tid                      TIMESTAMP(3) DEFAULT LOCALTIMESTAMP          NOT NULL,

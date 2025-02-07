@@ -65,7 +65,7 @@ class Praksisendring2024ServiceTest {
                     id = 0,
                     fagsakId = fagsakId,
                     aktør = barn,
-                    barnehagestart = fødselsdato.plusMonths(13).toYearMonth(),
+                    utbetalingsmåned = fødselsdato.plusMonths(13).toYearMonth(),
                 ),
             )
 
@@ -202,13 +202,13 @@ class Praksisendring2024ServiceTest {
                     id = 0,
                     fagsakId = fagsakId,
                     aktør = barn1,
-                    barnehagestart = fødselsdatoBarn1.plusMonths(13).toYearMonth(),
+                    utbetalingsmåned = fødselsdatoBarn1.plusMonths(13).toYearMonth(),
                 ),
                 Praksisendring2024(
                     id = 0,
                     fagsakId = fagsakId,
                     aktør = barn2,
-                    barnehagestart = fødselsdatoBarn2.plusMonths(13).toYearMonth(),
+                    utbetalingsmåned = fødselsdatoBarn2.plusMonths(13).toYearMonth(),
                 ),
             )
 
@@ -262,7 +262,7 @@ class Praksisendring2024ServiceTest {
                     id = 0,
                     fagsakId = fagsakId,
                     aktør = barn2,
-                    barnehagestart = fødselsdatoBarn2.plusMonths(13).toYearMonth(),
+                    utbetalingsmåned = fødselsdatoBarn2.plusMonths(13).toYearMonth(),
                 ),
             )
 
@@ -321,7 +321,7 @@ class Praksisendring2024ServiceTest {
                     id = 0,
                     fagsakId = fagsakId,
                     aktør = barn,
-                    barnehagestart = fødselsdatoBarn.plusMonths(13).toYearMonth(),
+                    utbetalingsmåned = fødselsdatoBarn.plusMonths(13).toYearMonth(),
                 ),
             )
 

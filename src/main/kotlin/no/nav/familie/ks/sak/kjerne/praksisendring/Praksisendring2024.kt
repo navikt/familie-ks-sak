@@ -31,7 +31,7 @@ data class Praksisendring2024(
     @OneToOne(optional = false)
     @JoinColumn(name = "fk_aktoer_id", nullable = false, updatable = false)
     val aktør: Aktør,
-    @Column(name = "barnehagestart")
+    @Column(name = "utbetalingsmaned")
     @Convert(converter = YearMonthConverter::class)
-    val barnehagestart: YearMonth,
+    val utbetalingsmåned: YearMonth,
 ) : BaseEntitet()

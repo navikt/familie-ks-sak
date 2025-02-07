@@ -127,10 +127,10 @@ class Praksisendring2024Service(
 
         val harTidligereFåttKontantstøtteVed13Måned =
             praksisendring2024ForFagsak.any {
-                barn13Måneder == it.barnehagestart && barn.aktør == it.aktør
+                barn13Måneder == it.utbetalingsmåned && barn.aktør == it.aktør
             }
 
-        return starterIBarnehageSammeMånedSom13Måneder && andreVilkårErOppfyltSammeMånedSom13Måneder && harTidligereFåttKontantstøtteVed13Måned
+        return harTidligereFåttKontantstøtteVed13Måned
     }
 
     private fun erDeltBostedIMåned(
