@@ -6,6 +6,7 @@ import io.mockk.mockk
 import jan
 import jul
 import no.nav.familie.ks.sak.common.util.NullablePeriode
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.SKAL_GENERERE_ANDELER_FOR_PRAKSISENDRING_2024
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
@@ -36,7 +37,8 @@ import java.time.YearMonth
 
 class Praksisendring2024ServiceTest {
     private val unleashService = mockk<UnleashNextMedContextService>()
-    private val praksisendring2024Service = Praksisendring2024Service(unleashService)
+    private val mockPraksisendring2024Repository = mockk<Praksisendring2024Repository>()
+    private val praksisendring2024Service = Praksisendring2024Service(unleashService, mockPraksisendring2024Repository)
 
     @BeforeEach
     fun setUp() {
@@ -45,7 +47,7 @@ class Praksisendring2024ServiceTest {
 
     @ParameterizedTest
     @ValueSource(ints = [8, 9, 10, 11, 12])
-    fun `skal generere andel for barn som blir 13 måneder i aug-des 2024`(måned: Int) {
+    fun `skal generere andel for barn som blir 13 måneder og som tidligere har fått utbetalt i aug-des 2024`(måned: Int) {
         // Arrange
         val utbetalingsmåned = YearMonth.of(2024, måned)
         val (barn, fødselsdato) = lagBarn(utbetalingsmåned)
@@ -53,6 +55,19 @@ class Praksisendring2024ServiceTest {
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(barn = listOf(barn))
         val tilkjentYtelse = lagInitiellTilkjentYtelse()
         val vilkårsvurdering = lagVilkårsvurderingMedBarnehageplassFomMåned13(setOf(barn to fødselsdato))
+        val fagsakId = vilkårsvurdering.behandling.fagsak.id
+
+        every {
+            mockPraksisendring2024Repository.finnPraksisendring2024ForFagsak(fagsakId)
+        } returns
+            listOf(
+                Praksisendring2024(
+                    id = 0,
+                    fagsakId = fagsakId,
+                    aktør = barn,
+                    utbetalingsmåned = fødselsdato.plusMonths(13).toYearMonth(),
+                ),
+            )
 
         // Act
         val andelerForPraksisendring2024 =
@@ -74,6 +89,34 @@ class Praksisendring2024ServiceTest {
             assertThat(sats).isEqualTo(7500)
             assertThat(prosent).isEqualTo(BigDecimal(100))
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [8, 9, 10, 11, 12])
+    fun `skal ikke generere andel for barn som blir 13 måneder og som tidligere ikke har fått utbetalt i aug-des 2024`(måned: Int) {
+        // Arrange
+        val utbetalingsmåned = YearMonth.of(2024, måned)
+        val (barn, fødselsdato) = lagBarn(utbetalingsmåned)
+
+        val personopplysningGrunnlag = lagPersonopplysningGrunnlag(barn = listOf(barn))
+        val tilkjentYtelse = lagInitiellTilkjentYtelse()
+        val vilkårsvurdering = lagVilkårsvurderingMedBarnehageplassFomMåned13(setOf(barn to fødselsdato))
+        val fagsakId = vilkårsvurdering.behandling.fagsak.id
+
+        every {
+            mockPraksisendring2024Repository.finnPraksisendring2024ForFagsak(fagsakId)
+        } returns emptyList()
+
+        // Act
+        val andelerForPraksisendring2024 =
+            praksisendring2024Service.genererAndelerForPraksisendring2024(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                vilkårsvurdering = vilkårsvurdering,
+                tilkjentYtelse = tilkjentYtelse,
+            )
+
+        // Assert
+        assertThat(andelerForPraksisendring2024).isEmpty()
     }
 
     @Test
@@ -149,6 +192,25 @@ class Praksisendring2024ServiceTest {
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(barn = listOf(barn1, barn2))
         val tilkjentYtelse = lagInitiellTilkjentYtelse()
         val vilkårsvurdering = lagVilkårsvurderingMedBarnehageplassFomMåned13(setOf(barn1 to fødselsdatoBarn1, barn2 to fødselsdatoBarn2))
+        val fagsakId = vilkårsvurdering.behandling.fagsak.id
+
+        every {
+            mockPraksisendring2024Repository.finnPraksisendring2024ForFagsak(fagsakId)
+        } returns
+            listOf(
+                Praksisendring2024(
+                    id = 0,
+                    fagsakId = fagsakId,
+                    aktør = barn1,
+                    utbetalingsmåned = fødselsdatoBarn1.plusMonths(13).toYearMonth(),
+                ),
+                Praksisendring2024(
+                    id = 0,
+                    fagsakId = fagsakId,
+                    aktør = barn2,
+                    utbetalingsmåned = fødselsdatoBarn2.plusMonths(13).toYearMonth(),
+                ),
+            )
 
         // Act
         val andelerForPraksisendring2024 =
@@ -190,6 +252,19 @@ class Praksisendring2024ServiceTest {
         val personopplysningGrunnlag = lagPersonopplysningGrunnlag(barn = listOf(barn1, barn2))
         val tilkjentYtelse = lagInitiellTilkjentYtelse()
         val vilkårsvurdering = lagVilkårsvurderingMedBarnehageplassFomMåned13(setOf(barn1 to fødselsdatoBarn1, barn2 to fødselsdatoBarn2))
+        val fagsakId = vilkårsvurdering.behandling.fagsak.id
+
+        every {
+            mockPraksisendring2024Repository.finnPraksisendring2024ForFagsak(fagsakId)
+        } returns
+            listOf(
+                Praksisendring2024(
+                    id = 0,
+                    fagsakId = fagsakId,
+                    aktør = barn2,
+                    utbetalingsmåned = fødselsdatoBarn2.plusMonths(13).toYearMonth(),
+                ),
+            )
 
         // Act
         val andelerForPraksisendring2024 =
@@ -235,6 +310,20 @@ class Praksisendring2024ServiceTest {
                     ),
                 )
             }
+
+        val fagsakId = vilkårsvurdering.behandling.fagsak.id
+
+        every {
+            mockPraksisendring2024Repository.finnPraksisendring2024ForFagsak(fagsakId)
+        } returns
+            listOf(
+                Praksisendring2024(
+                    id = 0,
+                    fagsakId = fagsakId,
+                    aktør = barn,
+                    utbetalingsmåned = fødselsdatoBarn.plusMonths(13).toYearMonth(),
+                ),
+            )
 
         // Act
         val andelerForPraksisendring2024 =
