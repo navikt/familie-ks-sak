@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAnde
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -18,6 +19,7 @@ import java.time.LocalDate
 class TilkjentYtelseService(
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
+    private val praksisendring2024Service: Praksisendring2024Service,
 ) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
@@ -47,7 +49,17 @@ class TilkjentYtelseService(
                 tilkjentYtelse = tilkjentYtelse,
             )
 
-        val alleAndelerTilkjentYtelse = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } + overgangsordningAndelerSomAndelTilkjentYtelse
+        val andelerForPraksisendring2024 =
+            praksisendring2024Service.genererAndelerForPraksisendring2024(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                vilkårsvurdering = vilkårsvurdering,
+                tilkjentYtelse = tilkjentYtelse,
+            )
+
+        val alleAndelerTilkjentYtelse =
+            andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } +
+                overgangsordningAndelerSomAndelTilkjentYtelse +
+                andelerForPraksisendring2024
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(alleAndelerTilkjentYtelse)
         return tilkjentYtelse

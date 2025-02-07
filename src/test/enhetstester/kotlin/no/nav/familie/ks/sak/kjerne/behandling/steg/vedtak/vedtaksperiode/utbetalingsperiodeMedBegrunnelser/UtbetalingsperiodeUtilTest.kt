@@ -35,6 +35,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import no.nav.familie.tidslinje.Periode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -580,6 +581,7 @@ internal class UtbetalingsperiodeUtilTest {
                         unleashService = mockUnleashNextMedContextService(),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
+                praksisendring2024Service = mockPraksisendring2024Service(),
             )
 
         val tilkjentYtelse =
@@ -615,5 +617,10 @@ internal class UtbetalingsperiodeUtilTest {
     private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
         mockk<OvergangsordningAndelRepository>().apply {
             every { hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
+        }
+
+    private fun mockPraksisendring2024Service() =
+        mockk<Praksisendring2024Service>().apply {
+            every { genererAndelerForPraksisendring2024(any(), any(), any()) } returns emptyList()
         }
 }

@@ -31,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFør
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -66,8 +67,9 @@ internal class TilkjentYtelseServiceTest {
         )
 
     private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()
+    private val praksisendring2024Service: Praksisendring2024Service = mockk()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock)
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service)
 
     @BeforeEach
     fun init() {
@@ -81,6 +83,7 @@ internal class TilkjentYtelseServiceTest {
             )
 
         every { overgangsordningAndelRepositoryMock.hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
+        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns emptyList()
     }
 
     @Test
