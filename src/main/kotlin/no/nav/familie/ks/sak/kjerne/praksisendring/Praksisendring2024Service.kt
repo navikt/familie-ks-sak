@@ -25,6 +25,7 @@ import java.time.YearMonth
 @Service
 class Praksisendring2024Service(
     private val unleashService: UnleashNextMedContextService,
+    private val praksisendring2024Repository: Praksisendring2024Repository,
 ) {
     private val gyldigeMånederForPraksisendring = (8..12).map { YearMonth.of(2024, it) }
 
@@ -50,7 +51,9 @@ class Praksisendring2024Service(
             vilkårsvurdering.personResultater.find { it.aktør == barn.aktør }?.vilkårResultater
                 ?: error("Finner ikke vilkårresultater for barn")
 
-        if (!skalHaAndel(barn, barnetsVilkårResultater, tilkjentYtelse.andelerTilkjentYtelse)) {
+        val fagsakId = vilkårsvurdering.behandling.fagsak.id
+
+        if (!skalHaAndel(barn, barnetsVilkårResultater, tilkjentYtelse.andelerTilkjentYtelse, fagsakId)) {
             return null
         }
 
@@ -83,6 +86,7 @@ class Praksisendring2024Service(
         barn: Person,
         vilkårResultater: Set<VilkårResultat>,
         andelerTilkjentYtelse: Set<AndelTilkjentYtelse>,
+        fagsakId: Long,
     ): Boolean {
         val barn13Måneder = barn.fødselsdato.plusMonths(13).toYearMonth()
         if (barn13Måneder !in gyldigeMånederForPraksisendring) {
@@ -99,6 +103,10 @@ class Praksisendring2024Service(
                 it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.resultat == Resultat.IKKE_OPPFYLT
             }
 
+        if (!starterIBarnehageSammeMånedSom13Måneder) {
+            return false
+        }
+
         val vilkårResultaterUtenBarnehageplass = vilkårResultater.filter { it.vilkårType != Vilkår.BARNEHAGEPLASS }.toSet()
         val forskøvedeVilkår = ForskyvVilkårFørFebruar2025.forskyvVilkårResultater(vilkårResultaterUtenBarnehageplass)
 
@@ -111,9 +119,18 @@ class Praksisendring2024Service(
                 }
             }
 
-        // TODO: Sjekk at fagsak og barn ligger i uttrekk
+        if (!andreVilkårErOppfyltSammeMånedSom13Måneder) {
+            return false
+        }
 
-        return starterIBarnehageSammeMånedSom13Måneder && andreVilkårErOppfyltSammeMånedSom13Måneder
+        val praksisendring2024ForFagsak = praksisendring2024Repository.finnPraksisendring2024ForFagsak(fagsakId).ifEmpty { return false }
+
+        val harTidligereFåttKontantstøtteVed13Måned =
+            praksisendring2024ForFagsak.any {
+                barn13Måneder == it.barnehagestart && barn.aktør == it.aktør
+            }
+
+        return starterIBarnehageSammeMånedSom13Måneder && andreVilkårErOppfyltSammeMånedSom13Måneder && harTidligereFåttKontantstøtteVed13Måned
     }
 
     private fun erDeltBostedIMåned(
