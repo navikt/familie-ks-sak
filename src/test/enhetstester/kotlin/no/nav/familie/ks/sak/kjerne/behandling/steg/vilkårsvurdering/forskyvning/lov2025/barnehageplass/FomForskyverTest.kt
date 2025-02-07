@@ -117,7 +117,7 @@ class FomForskyverTest {
     }
 
     @Test
-    fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING til første dag i neste måneden når fom dato er siste dag i måneden`() {
+    fun `skal forskyve fom dato for graderingsforskjell INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING til første dag to måneder etter fom dato når fom dato er siste dag i måneden`() {
         // Arrange
         val fomDato = LocalDate.of(2025, 1, 31)
 
@@ -129,7 +129,7 @@ class FomForskyverTest {
             )
 
         // Assert
-        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvetFom).isEqualTo(LocalDate.of(2025, 3, 1))
     }
 
     @Test

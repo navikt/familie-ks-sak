@@ -41,8 +41,8 @@ fun finnGraderingsforskjellMellomDenneOgForrigePeriode(
     return when {
         graderingForrigePeriode > graderingDennePerioden && graderingDennePerioden == BigDecimal.ZERO -> Graderingsforskjell.REDUKSJON_GÅR_TIL_INGEN_UTBETALING
         graderingForrigePeriode > graderingDennePerioden -> Graderingsforskjell.REDUKSJON
-        sluttetIBarnehageDennePerioden -> Graderingsforskjell.ØKNING_GRUNNET_SLUTT_I_BARNEHAGE
         graderingForrigePeriode < graderingDennePerioden && graderingForrigePeriode == BigDecimal.ZERO -> if (erFørstePeriode) Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FØRSTE_PERIODE_TIL_ØKNING else Graderingsforskjell.INGEN_UTBETALING_GRUNNET_FULL_BARNEHAGEPLASS_TIL_ØKNING
+        sluttetIBarnehageDennePerioden -> Graderingsforskjell.ØKNING_GRUNNET_SLUTT_I_BARNEHAGE
         graderingForrigePeriode < graderingDennePerioden -> Graderingsforskjell.ØKNING
         else -> Graderingsforskjell.LIK
     }
