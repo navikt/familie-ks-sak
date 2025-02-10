@@ -39,8 +39,12 @@ class LovverkTidslinjeGeneratorTest {
                         Vilkår
                             .hentVilkårFor(barn.type)
                             .associateWith { vilkår ->
-                                val fom = barn.fødselsdato.plusYears(1)
-                                val tom = barn.fødselsdato.plusYears(2)
+                                val (fom, tom) =
+                                    if (vilkår == Vilkår.BARNETS_ALDER) {
+                                        barn.fødselsdato.plusMonths(12) to barn.fødselsdato.plusMonths(20)
+                                    } else {
+                                        barn.fødselsdato to null
+                                    }
                                 listOf(
                                     Periode(
                                         verdi =
@@ -51,7 +55,7 @@ class LovverkTidslinjeGeneratorTest {
                                                 periodeTom = tom,
                                             ),
                                         fom = fom.førsteDagIInneværendeMåned(),
-                                        tom = tom.sisteDagIMåned(),
+                                        tom = tom?.sisteDagIMåned(),
                                     ),
                                 )
                             }
@@ -94,8 +98,12 @@ class LovverkTidslinjeGeneratorTest {
                         Vilkår
                             .hentVilkårFor(barn.type)
                             .associateWith { vilkår ->
-                                val fom = barn.fødselsdato.plusYears(1)
-                                val tom = barn.fødselsdato.plusYears(2)
+                                val (fom, tom) =
+                                    if (vilkår == Vilkår.BARNETS_ALDER) {
+                                        barn.fødselsdato.plusMonths(12) to barn.fødselsdato.plusMonths(20)
+                                    } else {
+                                        barn.fødselsdato to null
+                                    }
                                 listOf(
                                     Periode(
                                         verdi =
@@ -106,7 +114,7 @@ class LovverkTidslinjeGeneratorTest {
                                                 periodeTom = tom,
                                             ),
                                         fom = fom.førsteDagIInneværendeMåned(),
-                                        tom = tom.sisteDagIMåned(),
+                                        tom = tom?.sisteDagIMåned(),
                                     ),
                                 )
                             }
@@ -149,8 +157,12 @@ class LovverkTidslinjeGeneratorTest {
                         Vilkår
                             .hentVilkårFor(barn.type)
                             .associateWith { vilkår ->
-                                val fom = barn.fødselsdato.plusYears(1)
-                                val tom = barn.fødselsdato.plusYears(2)
+                                val (fom, tom) =
+                                    if (vilkår == Vilkår.BARNETS_ALDER) {
+                                        barn.fødselsdato.plusMonths(12) to barn.fødselsdato.plusMonths(20)
+                                    } else {
+                                        barn.fødselsdato to null
+                                    }
                                 listOf(
                                     Periode(
                                         verdi =
@@ -161,7 +173,7 @@ class LovverkTidslinjeGeneratorTest {
                                                 periodeTom = tom,
                                             ),
                                         fom = fom.førsteDagIInneværendeMåned(),
-                                        tom = tom.sisteDagIMåned(),
+                                        tom = tom?.sisteDagIMåned(),
                                     ),
                                 )
                             }
@@ -204,8 +216,12 @@ class LovverkTidslinjeGeneratorTest {
                         Vilkår
                             .hentVilkårFor(barn.type)
                             .associateWith { vilkår ->
-                                val fom = barn.fødselsdato.plusYears(1)
-                                val tom = barn.fødselsdato.plusYears(2)
+                                val (fom, tom) =
+                                    if (vilkår == Vilkår.BARNETS_ALDER) {
+                                        barn.fødselsdato.plusMonths(12) to barn.fødselsdato.plusMonths(20)
+                                    } else {
+                                        barn.fødselsdato to null
+                                    }
                                 listOf(
                                     Periode(
                                         verdi =
@@ -216,7 +232,7 @@ class LovverkTidslinjeGeneratorTest {
                                                 periodeTom = tom,
                                             ),
                                         fom = fom.førsteDagIInneværendeMåned(),
-                                        tom = tom.sisteDagIMåned(),
+                                        tom = tom?.sisteDagIMåned(),
                                     ),
                                 )
                             }
@@ -271,8 +287,12 @@ class LovverkTidslinjeGeneratorTest {
                         Vilkår
                             .hentVilkårFor(barn.type)
                             .associateWith { vilkår ->
-                                val fom = barn.fødselsdato.plusYears(1)
-                                val tom = barn.fødselsdato.plusYears(2)
+                                val (fom, tom) =
+                                    if (vilkår == Vilkår.BARNETS_ALDER) {
+                                        barn.fødselsdato.plusMonths(12) to barn.fødselsdato.plusMonths(20)
+                                    } else {
+                                        barn.fødselsdato to null
+                                    }
                                 listOf(
                                     Periode(
                                         verdi =
@@ -283,7 +303,7 @@ class LovverkTidslinjeGeneratorTest {
                                                 periodeTom = tom,
                                             ),
                                         fom = fom.førsteDagIInneværendeMåned(),
-                                        tom = tom.sisteDagIMåned(),
+                                        tom = tom?.sisteDagIMåned(),
                                     ),
                                 )
                             }
