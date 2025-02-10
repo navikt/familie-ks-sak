@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.beskjærEtter
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
@@ -65,8 +66,8 @@ object LovverkTidslinjeGenerator {
                         )
                     }.tilTidslinje()
                     .slåSammenLikePerioder()
-            }.kombiner {
-                it.toSet().single()
+            }.reduce { acc, tidslinje ->
+                acc.beskjærEtter(tidslinje)
             }
 
     private fun List<Periode<Lovverk>>.erstattFørsteFomOgSisteTomMedNull(): List<Periode<Lovverk>> =
