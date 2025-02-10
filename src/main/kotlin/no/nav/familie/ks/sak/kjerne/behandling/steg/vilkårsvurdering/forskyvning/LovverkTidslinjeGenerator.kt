@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
-import no.nav.familie.tidslinje.beskjærEtter
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
@@ -50,25 +49,20 @@ object LovverkTidslinjeGenerator {
         barn: Person,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> =
-        // Konverterer alle VilkårResultatPerioder per vilkår til Lovverk-tidslinjer og kombinerer disse til en felles tidslinje.
-        this.values
-            .map { perioder ->
-                perioder
-                    .map { periode ->
-                        Periode(
-                            fom = periode.fom,
-                            tom = periode.tom,
-                            verdi =
-                                LovverkUtleder.utledLovverkForBarn(
-                                    fødselsdato = barn.fødselsdato,
-                                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
-                                ),
-                        )
-                    }.tilTidslinje()
-                    .slåSammenLikePerioder()
-            }.reduce { acc, tidslinje ->
-                acc.beskjærEtter(tidslinje)
-            }
+        this
+            .getOrElse(Vilkår.BARNETS_ALDER) { throw Feil("Finner ikke vilkår for barnets alder") }
+            .map { periode ->
+                Periode(
+                    fom = periode.fom,
+                    tom = periode.tom,
+                    verdi =
+                        LovverkUtleder.utledLovverkForBarn(
+                            fødselsdato = barn.fødselsdato,
+                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                        ),
+                )
+            }.tilTidslinje()
+            .slåSammenLikePerioder()
 
     private fun List<Periode<Lovverk>>.erstattFørsteFomOgSisteTomMedNull(): List<Periode<Lovverk>> =
         // Sørger for at lovverk-tidslinje strekker seg fra TIDENES_MORGEN til TIDENES_ENDE.
