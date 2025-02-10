@@ -8,29 +8,20 @@ import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
-import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
-import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilSanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.domene.FellesdataForVedtaksbrev
 import no.nav.familie.ks.sak.kjerne.brev.domene.VedtaksbrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
@@ -54,7 +45,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.vedtaksbrev.VedtakOvergang
 import no.nav.familie.ks.sak.kjerne.brev.hjemler.HjemmeltekstUtleder
 import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrollsakBrevDtoUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.springframework.http.HttpStatus
@@ -66,12 +56,9 @@ class GenererBrevService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val brevPeriodeService: BrevPeriodeService,
-    private val sanityService: SanityService,
-    private val vilkårsvurderingService: VilkårsvurderingService,
     private val korrigertVedtakService: KorrigertVedtakService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val saksbehandlerContext: SaksbehandlerContext,
-    private val refusjonEøsRepository: RefusjonEøsRepository,
     private val sammensattKontrollsakService: SammensattKontrollsakService,
     private val etterbetalingService: EtterbetalingService,
     private val simuleringService: SimuleringService,
@@ -81,7 +68,6 @@ class GenererBrevService(
     private val brevmalService: BrevmalService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val hjemmeltekstUtleder: HjemmeltekstUtleder,
-    private val unleashService: UnleashNextMedContextService,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -264,28 +250,18 @@ class GenererBrevService(
 
         val korrigertVedtak = korrigertVedtakService.finnAktivtKorrigertVedtakPåBehandling(vedtak.behandling.id)
 
-        val hjemler =
-            if (unleashService.isEnabled(FeatureToggle.BRUK_OMSKRIVING_AV_HJEMLER_I_BREV, false)) {
-                hjemmeltekstUtleder.utledHjemmeltekst(
-                    behandlingId = vedtak.behandling.id,
-                    vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
-                    utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
-                )
-            } else {
-                hentHjemler(
-                    behandlingId = vedtak.behandling.id,
-                    utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
-                    målform = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.målform,
-                    sanityBegrunnelser = sanityService.hentSanityBegrunnelser(),
-                    vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
-                )
-            }
+        val hjemmeltekst =
+            hjemmeltekstUtleder.utledHjemmeltekst(
+                behandlingId = vedtak.behandling.id,
+                vedtakKorrigertHjemmelSkalMedIBrev = korrigertVedtak != null,
+                utvidetVedtaksperioderMedBegrunnelser = oppdatertUtvidetVedtaksperioderMedBegrunnelser,
+            )
 
         return FellesdataForVedtaksbrev(
             enhet = personopplysningsgrunnlagOgSignaturData.enhet,
             saksbehandler = personopplysningsgrunnlagOgSignaturData.saksbehandler,
             beslutter = personopplysningsgrunnlagOgSignaturData.beslutter,
-            hjemmeltekst = Hjemmeltekst(hjemler),
+            hjemmeltekst = Hjemmeltekst(hjemmeltekst),
             søkerNavn = personopplysningsgrunnlagOgSignaturData.grunnlag.søker.navn,
             søkerFødselsnummer =
                 personopplysningsgrunnlagOgSignaturData.grunnlag.søker.aktør
@@ -326,37 +302,6 @@ class GenererBrevService(
                     NasjonalEllerFellesBegrunnelse.OPPHØR_NYTT_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS,
                 ),
             eøsBegrunnelserFraFrontend = listOf(),
-        )
-    }
-
-    @Deprecated("Refaktorert til ny kode med toggle, se HjemmeltekstUtleder")
-    private fun hentHjemler(
-        behandlingId: Long,
-        utvidetVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
-        målform: Målform,
-        sanityBegrunnelser: List<SanityBegrunnelse>,
-        vedtakKorrigertHjemmelSkalMedIBrev: Boolean = false,
-    ): String {
-        val vilkårsvurdering =
-            vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
-
-        val opplysningspliktHjemlerSkalMedIBrev =
-            vilkårsvurdering.finnOpplysningspliktVilkår()?.resultat == Resultat.IKKE_OPPFYLT
-
-        val refusjonEøs = refusjonEøsRepository.finnRefusjonEøsForBehandling(behandlingId = behandlingId)
-
-        val refusjonEøsHjemmelSkalMedIBrev = refusjonEøs.isNotEmpty()
-
-        return hentHjemmeltekst(
-            opplysningspliktHjemlerSkalMedIBrev = opplysningspliktHjemlerSkalMedIBrev,
-            målform = målform,
-            sanitybegrunnelserBruktIBrev =
-                utvidetVedtaksperioderMedBegrunnelser
-                    .flatMap<UtvidetVedtaksperiodeMedBegrunnelser, IBegrunnelse> { vedtaksperiode ->
-                        vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse } + vedtaksperiode.eøsBegrunnelser.map { it.begrunnelse }
-                    }.mapNotNull { it.tilSanityBegrunnelse(sanityBegrunnelser) },
-            vedtakKorrigertHjemmelSkalMedIBrev = vedtakKorrigertHjemmelSkalMedIBrev,
-            refusjonEøsHjemmelSkalMedIBrev = refusjonEøsHjemmelSkalMedIBrev,
         )
     }
 
