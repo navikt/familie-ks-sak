@@ -147,7 +147,7 @@ data class AndelTilkjentYtelse(
             this.differanseberegnetPeriodebeløp == andel.differanseberegnetPeriodebeløp
 }
 
-fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> = overgangsordningAndelerPerAktør().map { it.value.minBy { it.stønadFom } } + ordinæreAndeler().filter { it.kalkulertUtbetalingsbeløp != 0 }
+fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> = overgangsordningAndelerPerAktør().map { it.value.minBy { it.stønadFom } } + ordinæreOgPraksisendringAndeler().filter { it.kalkulertUtbetalingsbeløp != 0 }
 
 fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
     this.fold(emptyList()) { acc, andelTilkjentYtelse ->
@@ -166,7 +166,7 @@ fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp():
 
 fun AndelTilkjentYtelse.totalKalkulertUtbetalingsbeløpForPeriode(): Int = kalkulertUtbetalingsbeløp * stønadsPeriode().antallMåneder()
 
-fun Iterable<AndelTilkjentYtelse>.ordinæreAndeler() = this.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
+fun Iterable<AndelTilkjentYtelse>.ordinæreOgPraksisendringAndeler() = this.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE || it.type == YtelseType.PRAKSISENDRING_2024 }
 
 fun Iterable<AndelTilkjentYtelse>.overgangsordningAndelerPerAktør() = this.filter { it.type == YtelseType.OVERGANGSORDNING }.groupBy { it.aktør }
 

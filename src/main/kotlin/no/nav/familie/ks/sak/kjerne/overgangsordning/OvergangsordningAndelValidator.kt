@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreOgPraksisendringAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
@@ -48,8 +48,8 @@ object OvergangsordningAndelValidator {
         andelerForrigeBehandling: Set<AndelTilkjentYtelse>,
         barna: List<Person>,
     ) {
-        val nåværendeAndelerTidslinjer = andelerNåværendeBehandling.ordinæreAndeler().tilSeparateTidslinjerForBarna()
-        val forrigeAndelerTidslinjer = andelerForrigeBehandling.ordinæreAndeler().tilSeparateTidslinjerForBarna()
+        val nåværendeAndelerTidslinjer = andelerNåværendeBehandling.ordinæreOgPraksisendringAndeler().tilSeparateTidslinjerForBarna()
+        val forrigeAndelerTidslinjer = andelerForrigeBehandling.ordinæreOgPraksisendringAndeler().tilSeparateTidslinjerForBarna()
 
         nåværendeAndelerTidslinjer
             .outerJoin(forrigeAndelerTidslinjer) { nåværendeAndeler, forrigeAndeler ->
