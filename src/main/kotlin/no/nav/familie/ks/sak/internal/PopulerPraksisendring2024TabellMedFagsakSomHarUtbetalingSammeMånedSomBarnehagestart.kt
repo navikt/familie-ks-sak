@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.internal
 
 import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -31,7 +32,7 @@ class PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarn
         val fagsaker = fagsakRepository.finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperMellomAugOgDes2024()
 
         // Henter sist iverksatte behandling igjen for fagsaker. Dette bare for å være 100% sikker, slik at vi ikke lener oss for mye på selve SQL spørringen.
-        val sistIverksatteBehandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErIverksatt(it.id) }
+        val sistIverksatteBehandlinger = fagsaker.mapNotNull { behandlingService.hentSisteBehandlingSomErIverksatt(it) }
 
         // Vi henter behandlingene og andelene. Dersom behandlingen ikke har andeler som slutter i den relevante perioden, hopper vi over.
         val behandlingerOgRelevanteAndeler =
@@ -82,6 +83,8 @@ class PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarn
                     }
                 }
             }
+
+            secureLogger.info("PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart fullført OK.")
         }
     }
 }
