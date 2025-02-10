@@ -51,7 +51,9 @@ fun parseNasjonalEllerFellesBegrunnelse(rad: Tabellrad): BegrunnelseDtoMedData {
     return NasjonalOgFellesBegrunnelseDataDto(
         vedtakBegrunnelseType = begrunnelse.begrunnelseType,
         apiNavn = begrunnelse.sanityApiNavn,
+        sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
         gjelderSoker = parseValgfriBoolean(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.GJELDER_SØKER, rad) ?: false,
+        gjelderAndreForelder = parseValgfriBoolean(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.GJELDER_ANDRE_FORELDER, rad) ?: false,
         barnasFodselsdatoer =
             parseValgfriString(
                 BrevPeriodeParser.DomenebegrepBrevBegrunnelse.BARNAS_FØDSELSDATOER,
@@ -67,14 +69,17 @@ fun parseNasjonalEllerFellesBegrunnelse(rad: Tabellrad): BegrunnelseDtoMedData {
             (parseValgfriEnum<Målform>(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.MÅLFORM, rad) ?: Målform.NB)
                 .tilSanityFormat(),
         belop = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.BELØP, rad)?.replace(' ', ' ') ?: "",
+        antallTimerBarnehageplass = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.ANTALL_TIMER_BARNEHAGEPLASS, rad) ?: "",
         soknadstidspunkt =
             parseValgfriString(
                 BrevPeriodeParser.DomenebegrepBrevBegrunnelse.SØKNADSTIDSPUNKT,
                 rad,
             ) ?: "",
-        antallTimerBarnehageplass = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.ANTALL_TIMER_BARNEHAGEPLASS, rad) ?: "",
-        sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
-        gjelderAndreForelder = parseValgfriBoolean(BrevPeriodeParser.DomenebegrepBrevBegrunnelse.GJELDER_ANDRE_FORELDER, rad) ?: false,
+        maanedOgAarFoorVedtaksperiode =
+            parseValgfriString(
+                BrevPeriodeParser.DomenebegrepBrevBegrunnelse.MÅNED_OG_ÅR_FØR_VEDTAKSPERIODE,
+                rad,
+            ),
     )
 }
 

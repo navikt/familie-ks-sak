@@ -60,11 +60,11 @@ Egenskap: Opphør første periode
 
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til -
-      | Begrunnelse                          | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass |
-      | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
-      | OPPHØR_IKKE_BOSATT_I_NORGE           | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
-      | OPPHØR_FLYTTET_FRA_NORGE             | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
-      | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           |
+      | Begrunnelse                          | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
+      | OPPHØR_VURDERING_IKKE_BOSATT_I_NORGE | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           | august 2023                    |
+      | OPPHØR_IKKE_BOSATT_I_NORGE           | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           | august 2023                    |
+      | OPPHØR_FLYTTET_FRA_NORGE             | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           | august 2023                    |
+      | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | 1           | 25.08.22             | ja            | 0     | september 2023                       | true                   | 0                           | august 2023                    |
 
 
   Scenario: Når det er opphør første periode men ikke på barn ønsker vi at barnet ikke flettes inn
@@ -112,8 +112,8 @@ Egenskap: Opphør første periode
       | 01.12.2023 |          | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE |                 |            |
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.12.2023 til -
-      | Begrunnelse                          | Type     | Gjelder søker | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Gjelder andre forelder | Antall timer barnehageplass |
-      | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | Ja            | 0           | desember 2023                        | 0     | false                  |                             |
+      | Begrunnelse                          | Type     | Gjelder søker | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
+      | OPPHØR_FRA_START_IKKE_BOSATT_I_NORGE | STANDARD | Ja            | 0           | desember 2023                        | 0     | false                  |                             | november 2023                  |
 
   Scenario: Når det er ikke oppfylt fra første periode på revurdering ønsker vi å få opp riktige begrunnelser
     Og følgende dagens dato 14.02.2024
@@ -154,11 +154,11 @@ Egenskap: Opphør første periode
 
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til -
-      | Begrunnelse                                                   | Type     | Antall barn | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder |
-      | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR                      | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
-      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
-      | OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR              | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
-      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR | STANDARD | 0           | ja            | 0     | september 2023                       | false                  |
+      | Begrunnelse                                                   | Type     | Antall barn | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Måned og år før vedtaksperiode |
+      | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR                      | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
+      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
+      | OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR              | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
+      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
 
   Scenario: Når et vilkår ikke er oppfylt måneden før vedtaksperioden ønsker vi å få begrunnelser knyttet til vilkåret
     Og følgende persongrunnlag

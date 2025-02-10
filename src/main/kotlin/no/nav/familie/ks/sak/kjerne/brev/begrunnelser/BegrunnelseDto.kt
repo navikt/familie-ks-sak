@@ -58,6 +58,7 @@ data class NasjonalOgFellesBegrunnelseDataDto(
     val belop: String,
     val antallTimerBarnehageplass: String,
     val soknadstidspunkt: String,
+    val maanedOgAarFoorVedtaksperiode: String?,
 ) : BegrunnelseDtoMedData(
         apiNavn = apiNavn,
         type = BrevBegrunnelseType.BEGRUNNELSE,

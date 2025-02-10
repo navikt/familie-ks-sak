@@ -10,6 +10,7 @@ object BrevPeriodeParser {
         ANTALL_BARN("Antall barn"),
         ANTALL_TIMER_BARNEHAGEPLASS("Antall timer barnehageplass"),
         MÅNED_OG_ÅR_BEGRUNNELSEN_GJELDER_FOR("Måned og år begrunnelsen gjelder for"),
+        MÅNED_OG_ÅR_FØR_VEDTAKSPERIODE("Måned og år før vedtaksperiode"),
         MÅLFORM("Målform"),
         BELØP("Beløp"),
         SØKNADSTIDSPUNKT("Søknadstidspunkt"),
