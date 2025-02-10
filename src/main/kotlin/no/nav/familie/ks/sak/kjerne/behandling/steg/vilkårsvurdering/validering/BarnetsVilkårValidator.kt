@@ -66,8 +66,8 @@ class BarnetsVilkårValidator(
 
             val funksjonelleFeilBarnetsAlder =
                 barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
-                    barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
-                    barn,
+                    perioder = barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
+                    barn = barn,
                 )
             funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)
         }

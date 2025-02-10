@@ -14,8 +14,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
@@ -55,13 +55,15 @@ class CucumberMock(
     val personRepository = mockk<PersonRepository>()
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
+    val praksisendring2024Service = mockPraksisendring2024Service()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-            unleashService = mockUnleashService(isEnabledDefault = false),
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
+            unleashService = mockUnleashNextMedContextService(),
         )
-    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, mockUnleashService())
+
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service)
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(
@@ -75,7 +77,7 @@ class CucumberMock(
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepositoryMock,
             vilkårsvurderingRepository = vilkårsvurderingRepositoryMock,
-            unleashService = mockUnleashService(isEnabledDefault = false),
+            unleashService = mockUnleashNextMedContextService(isEnabledDefault = false),
         )
 
     val personidentService =
@@ -132,6 +134,7 @@ class CucumberMock(
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             sanityService = mockk(),
             personidentService = personidentService,
+            unleashService = mockUnleashNextMedContextService(),
         )
 }
 

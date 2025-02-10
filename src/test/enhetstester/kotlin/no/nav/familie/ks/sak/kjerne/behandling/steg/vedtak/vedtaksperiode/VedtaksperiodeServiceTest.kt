@@ -13,6 +13,8 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
@@ -107,6 +109,9 @@ internal class VedtaksperiodeServiceTest {
     @MockK(relaxed = true)
     private lateinit var kompetanseService: KompetanseService
 
+    @MockK
+    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
+
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
 
@@ -115,6 +120,9 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
+        every {
+            unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
+        } returns true
     }
 
     @Test
@@ -364,7 +372,7 @@ internal class VedtaksperiodeServiceTest {
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
         } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList()))
 
-        val revurdering = lagBehandling()
+        val revurdering = lagBehandling(id = 2)
         val andelTilkjentYtelseForRevurdering =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
@@ -421,7 +429,7 @@ internal class VedtaksperiodeServiceTest {
                 AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
             )
 
-        val revurdering = lagBehandling()
+        val revurdering = lagBehandling(id = 2)
         val andelTilkjentYtelseForRevurdering1 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),

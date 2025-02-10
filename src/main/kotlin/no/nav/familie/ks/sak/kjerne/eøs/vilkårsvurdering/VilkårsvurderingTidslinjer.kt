@@ -1,71 +1,61 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.tidslinje.beskjærEtter
 import no.nav.familie.tidslinje.inneholder
-import no.nav.familie.tidslinje.tomTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 
 class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
-    private val barna: List<Aktør> = personopplysningGrunnlag.barna.map { it.aktør }
-    private val søker: Aktør = personopplysningGrunnlag.søker.aktør
-
-    private val aktørTilPersonResultater = vilkårsvurdering.personResultater.associateBy { it.aktør }
-
-    private val vilkårResultaterTidslinjeMap =
-        aktørTilPersonResultater.entries.associate { (aktør, personResultat) ->
-            aktør to
-                personResultat.vilkårResultater
-                    .groupBy { it.vilkårType }
-                    .map { tilVilkårRegelverkResultatTidslinje(it.key, personResultat.vilkårResultater.toList()) }
+    private val barnasTidslinjer: Map<Person, BarnetsTidslinjer> =
+        personopplysningGrunnlag.barna.associateWith { barn ->
+            BarnetsTidslinjer(
+                barn = barn,
+                personResultater = vilkårsvurdering.personResultater,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            )
         }
 
-    private val søkersTidslinje: SøkersTidslinjer = SøkersTidslinjer(this, søker)
-
-    private val barnasTidslinjer: Map<Aktør, BarnetsTidslinjer> =
-        barna.associateWith { BarnetsTidslinjer(this, it) }
-
-    fun barnasTidslinjer(): Map<Aktør, BarnetsTidslinjer> = barnasTidslinjer.entries.associate { it.key to it.value }
-
-    class SøkersTidslinjer(
-        tidslinjer: VilkårsvurderingTidslinjer,
-        aktør: Aktør,
-    ) {
-        val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
-        val regelverkResultatTidslinje =
-            vilkårResultatTidslinjer.kombiner {
-                kombinerVilkårResultaterTilRegelverkResultat(PersonType.SØKER, it)
-            }
-    }
+    fun barnasTidslinjer(): Map<Aktør, BarnetsTidslinjer> = barnasTidslinjer.entries.associate { it.key.aktør to it.value }
 
     class BarnetsTidslinjer(
-        tidslinjer: VilkårsvurderingTidslinjer,
-        aktør: Aktør,
+        barn: Person,
+        personResultater: Set<PersonResultat>,
+        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
-        private val søkersTidslinje = tidslinjer.søkersTidslinje
+        private val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+        private val søkersTidslinje = personResultater.single { it.erSøkersResultater() }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
+        private val barnetsTidslinje = personResultater.single { it.aktør == barn.aktør }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
 
-        val vilkårResultatTidslinjer = tidslinjer.vilkårResultaterTidslinjeMap[aktør] ?: listOf(tomTidslinje())
-        val egetRegelverkResultatTidslinje =
-            vilkårResultatTidslinjer.kombiner {
+        val barnetsRegelverkResultatTidslinje =
+            barnetsTidslinje.kombiner {
                 kombinerVilkårResultaterTilRegelverkResultat(PersonType.BARN, it)
             }
-        val regelverkResultatTidslinje =
-            egetRegelverkResultatTidslinje
-                .kombinerMed(søkersTidslinje.regelverkResultatTidslinje) { barnetsResultat, søkersResultat ->
+
+        val søkersRegelverkResultatTidslinje =
+            søkersTidslinje.kombiner {
+                kombinerVilkårResultaterTilRegelverkResultat(PersonType.SØKER, it)
+            }
+        val kombinertRegelverkResultatTidslinje =
+            barnetsRegelverkResultatTidslinje
+                .kombinerMed(søkersRegelverkResultatTidslinje) { barnetsResultat, søkersResultat ->
                     barnetsResultat.kombinerMed(søkersResultat)
-                }.beskjærEtter(søkersTidslinje.regelverkResultatTidslinje)
+                }.beskjærEtter(søkersRegelverkResultatTidslinje)
     }
 
     fun harBlandetRegelverk(): Boolean =
-        søkersTidslinje.regelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK) ||
-            barnasTidslinjer().values.any {
-                it.egetRegelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK)
-            }
+        barnasTidslinjer().values.any {
+            it.barnetsRegelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK) ||
+                it.søkersRegelverkResultatTidslinje.inneholder(RegelverkResultat.OPPFYLT_BLANDET_REGELVERK)
+        }
 }

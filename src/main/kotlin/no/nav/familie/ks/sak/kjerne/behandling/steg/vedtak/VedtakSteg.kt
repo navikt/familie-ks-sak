@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.validerPerioderInneholderBegrunnelser
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -54,6 +55,7 @@ class VedtakSteg(
                     behandlingId = behandling.id,
                     oppgavetype = Oppgavetype.GodkjenneVedtak,
                     fristForFerdigstillelse = LocalDate.now(),
+                    beskrivelse = SikkerhetContext.hentSaksbehandlerNavn(),
                 )
 
             taskService.save(godkjenneVedtakTask)

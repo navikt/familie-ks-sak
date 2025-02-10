@@ -7,7 +7,6 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -22,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -43,8 +41,6 @@ internal class ArbeidsfordelingServiceTest {
 
     private val personidentService: PersonidentService = mockk()
 
-    private val unleashService: UnleashService = mockk()
-
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
 
     private val arbeidsfordelingService: ArbeidsfordelingService =
@@ -57,7 +53,6 @@ internal class ArbeidsfordelingServiceTest {
             loggService = loggService,
             personidentService = personidentService,
             tilpassArbeidsfordelingService = tilpassArbeidsfordelingService,
-            unleashService = unleashService,
         )
 
     @Test
@@ -150,10 +145,6 @@ internal class ArbeidsfordelingServiceTest {
             every {
                 arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id)
             } returns null
-
-            every {
-                unleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)
-            } returns true
 
             every { personopplysningerService.hentPersoninfoEnkel(any()).adressebeskyttelseGradering } returns null
 

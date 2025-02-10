@@ -10,16 +10,15 @@ import no.nav.familie.ks.sak.common.util.månederIPeriode
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreOgPraksisendringAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.tilTidslinjeMedAndeler
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -28,7 +27,6 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.unleash.UnleashService
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.Period
@@ -39,6 +37,7 @@ object TilkjentYtelseValidator {
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
+        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -52,7 +51,7 @@ object TilkjentYtelseValidator {
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-            val ordinæreAndeler = andeler.ordinæreAndeler()
+            val ordinæreAndeler = andeler.ordinæreOgPraksisendringAndeler()
 
             val stønadFom = ordinæreAndeler.minOf { it.stønadFom }
             val stønadTom = ordinæreAndeler.maxOf { it.stønadTom }
@@ -61,9 +60,14 @@ object TilkjentYtelseValidator {
 
             val vilkårLovverkInformasjonForBarn =
                 if (alleBarnetsAlderVilkårResultater.any { it.erAdopsjonOppfylt() }) {
-                    VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato, stønadFom, stønadTom)
+                    VilkårLovverkInformasjonForBarn(
+                        fødselsdato = relevantBarn.fødselsdato,
+                        skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                        periodeFomForAdoptertBarn = stønadFom,
+                        periodeTomForAdoptertBarn = stønadTom,
+                    )
                 } else {
-                    VilkårLovverkInformasjonForBarn(relevantBarn.fødselsdato)
+                    VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
                 }
 
             val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
@@ -135,7 +139,6 @@ object TilkjentYtelseValidator {
         tilkjentYtelseForBehandling: TilkjentYtelse,
         barnMedAndreRelevanteTilkjentYtelser: List<Pair<Person, List<TilkjentYtelse>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        unleashService: UnleashService,
     ) {
         val barna = personopplysningGrunnlag.barna.sortedBy { it.fødselsdato }
 
@@ -153,7 +156,6 @@ object TilkjentYtelseValidator {
             if (erUgyldigOverlappAvAndeler(
                     andeler = andeler,
                     andelerFraAndreBehandlinger = barnsAndelerFraAndreBehandlinger,
-                    unleashService = unleashService,
                 )
             ) {
                 barnMedUtbetalingsikkerhetFeil.add(barn)
@@ -174,32 +176,22 @@ object TilkjentYtelseValidator {
     private fun erUgyldigOverlappAvAndeler(
         andeler: List<AndelTilkjentYtelse>,
         andelerFraAndreBehandlinger: List<AndelTilkjentYtelse>,
-        unleashService: UnleashService,
     ): Boolean {
-        if (unleashService.isEnabled(FeatureToggleConfig.TILLAT_OVERLAPP_I_UTBETALING)) {
-            val overlappendeMåneder =
-                andeler
-                    .flatMap { andel -> andel.periode.månederIPeriode().map { it to andel.prosent } }
-                    .filter { (måned, prosent) ->
-                        andelerFraAndreBehandlinger.any { andelFraAnnenBehandling ->
-                            andelFraAnnenBehandling.periode.inkluderer(måned) &&
-                                prosent + andelFraAnnenBehandling.prosent > BigDecimal(100)
-                        }
-                    }.map { it.first }
+        val overlappendeMåneder =
+            andeler
+                .flatMap { andel -> andel.periode.månederIPeriode().map { it to andel.prosent } }
+                .filter { (måned, prosent) ->
+                    andelerFraAndreBehandlinger.any { andelFraAnnenBehandling ->
+                        andelFraAnnenBehandling.periode.inkluderer(måned) &&
+                            prosent + andelFraAnnenBehandling.prosent > BigDecimal(100)
+                    }
+                }.map { it.first }
 
-            val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
-            return when {
-                overlappendeMåneder.isEmpty() -> false
-                overlappendeMåneder.size > 1 -> true
-                else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
-            }
-        } else {
-            return andeler.any { andelTilkjentYtelse ->
-                andelerFraAndreBehandlinger.any {
-                    andelTilkjentYtelse.overlapperMed(it) &&
-                        andelTilkjentYtelse.prosent + it.prosent > BigDecimal(100)
-                }
-            }
+        val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
+        return when {
+            overlappendeMåneder.isEmpty() -> false
+            overlappendeMåneder.size > 1 -> true
+            else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
         }
     }
 

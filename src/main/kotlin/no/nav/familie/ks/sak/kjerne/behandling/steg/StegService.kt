@@ -179,13 +179,7 @@ class StegService(
         behandletSteg: BehandlingSteg,
         behandlingStegDto: BehandlingStegDto?,
     ): BehandlingSteg {
-        val nesteGyldigeStadier =
-            BehandlingSteg.entries
-                .filter {
-                    it.sekvens > behandletSteg.sekvens &&
-                        behandling.opprettetÅrsak in it.gyldigForÅrsaker &&
-                        behandling.resultat in it.gyldigForResultater
-                }.sortedBy { it.sekvens }
+        val nesteGyldigeSteg = behandletSteg.nesteGyldigeSteg(behandling)
         return when (behandletSteg) {
             AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
 
@@ -201,31 +195,32 @@ class StegService(
                 if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)) {
                     IVERKSETT_MOT_OPPDRAG
                 } else {
-                    nesteGyldigeStadier.first()
+                    nesteGyldigeSteg
                 }
 
             IVERKSETT_MOT_OPPDRAG ->
                 if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)) {
                     AVSLUTT_BEHANDLING
                 } else {
-                    nesteGyldigeStadier.first()
+                    nesteGyldigeSteg
                 }
 
-            else -> nesteGyldigeStadier.first()
+            else -> nesteGyldigeSteg
         }
     }
 
-    private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg =
-        when {
-            behandling.erTekniskEndring() -> if (!erEndringIUtbetaling(behandling)) AVSLUTT_BEHANDLING else IVERKSETT_MOT_OPPDRAG
-
-            !erEndringIUtbetaling(behandling) -> {
-                opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
-                JOURNALFØR_VEDTAKSBREV
+    private fun hentNesteStegOgOpprettTaskEtterBeslutteVedtak(behandling: Behandling): BehandlingSteg {
+        val nesteSteg =
+            if (erEndringIUtbetaling(behandling)) {
+                IVERKSETT_MOT_OPPDRAG
+            } else {
+                IVERKSETT_MOT_OPPDRAG.nesteGyldigeSteg(behandling)
             }
-
-            else -> IVERKSETT_MOT_OPPDRAG
+        if (nesteSteg == JOURNALFØR_VEDTAKSBREV) {
+            opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
         }
+        return nesteSteg
+    }
 
     fun erEndringIUtbetaling(behandling: Behandling): Boolean {
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id)

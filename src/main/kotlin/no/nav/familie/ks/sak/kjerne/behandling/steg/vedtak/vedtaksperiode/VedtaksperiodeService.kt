@@ -14,6 +14,8 @@ import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -36,7 +38,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbeta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.forskyvVilkårResultater
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -51,8 +53,6 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelServic
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import no.nav.familie.tidslinje.tilTidslinje
-import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -72,6 +72,7 @@ class VedtaksperiodeService(
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val kompetanseService: KompetanseService,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -162,16 +163,13 @@ class VedtaksperiodeService(
         val sisteTomPåVilkårSomAlltidSkalKunneBegrunnes =
             vilkårsvurdering.personResultater
                 .mapNotNull { personResultat ->
-
-                    val vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes = personResultat.vilkårResultater.filter { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it.vilkårType) && it.periodeFom != null }
-
-                    val vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes = vilkårResultaterForAktørSomAlltidSkalKunneBegrunnes.groupByTo(mutableMapOf()) { it.vilkårType }.mapValues { it.value }
-
-                    vilkårResultaterForAktørMapSomAlltidSkalKunneBegrunnes
-                        .flatMap { (vilkårType, vilkårResultater) ->
-                            forskyvVilkårResultater(vilkårType, vilkårResultater).tilTidslinje().tilPerioderIkkeNull()
-                        }.mapNotNull { it.verdi.periodeTom }
-                        .maxOfOrNull { it }
+                    personResultat
+                        .forskyvVilkårResultater()
+                        .filterKeys { listeAvVilkårSomAlltidSkalKunneBegrunnes.contains(it) }
+                        .values
+                        .flatten()
+                        .mapNotNull { it.verdi.periodeTom }
+                        .maxOrNull()
                 }.maxOfOrNull { it } ?: TIDENES_MORGEN
 
         return maxOf(
@@ -412,6 +410,7 @@ class VedtaksperiodeService(
                         kompetanser = utfylteKompetanser,
                         andelerTilkjentYtelse = andeler,
                         overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
+                        skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
                     ).hentGyldigeBegrunnelserForVedtaksperiode(),
             )
         }
@@ -452,6 +451,7 @@ class VedtaksperiodeService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vilkårsvurdering = vilkårsvurdering,
+            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
         )
     }
 

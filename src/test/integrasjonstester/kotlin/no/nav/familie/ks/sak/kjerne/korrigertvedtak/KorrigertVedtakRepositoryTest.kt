@@ -24,7 +24,6 @@ class KorrigertVedtakRepositoryTest(
     fun `finnAktivtKorrigertVedtakPåBehandling skal returnere null dersom det ikke eksisterer en aktiv korrigering av vedtak på behandling`() {
         val inaktivKorrigertVedtak =
             KorrigertVedtak(
-                id = 10000001,
                 vedtaksdato = LocalDate.now().minusDays(6),
                 begrunnelse = "Test på inaktiv korrigering",
                 behandling = behandling,
@@ -43,7 +42,6 @@ class KorrigertVedtakRepositoryTest(
     fun `finnAktivtKorrigertVedtakPåBehandling skal returnere aktiv korrigert vedtak når det eksisterer en aktiv korrigering av vedtak på behandling`() {
         val aktivKorrigertVedtak =
             KorrigertVedtak(
-                id = 10000001,
                 vedtaksdato = LocalDate.now().minusDays(6),
                 begrunnelse = "Test på aktiv korrigering",
                 behandling = behandling,
@@ -65,7 +63,6 @@ class KorrigertVedtakRepositoryTest(
     fun `Det skal kastes DataIntegrityViolationException dersom det forsøkes å lagre aktivt korrigert vedtak når det allerede finnes en`() {
         val aktivKorrigertVedtak1 =
             KorrigertVedtak(
-                id = 10000007,
                 begrunnelse = "Test på aktiv korrigering",
                 vedtaksdato = LocalDate.now().minusDays(6),
                 behandling = behandling,
@@ -74,7 +71,6 @@ class KorrigertVedtakRepositoryTest(
 
         val aktivKorrigertVedtak2 =
             KorrigertVedtak(
-                id = 10000008,
                 begrunnelse = "Test på aktiv korrigering",
                 vedtaksdato = LocalDate.now().minusDays(3),
                 behandling = behandling,

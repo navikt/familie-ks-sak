@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.tilfeldigPerson
@@ -23,11 +23,12 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.filtrerIkkeNull
@@ -103,11 +104,11 @@ data class VilkårsvurderingBuilder(
             TilkjentYtelseService(
                 beregnAndelTilkjentYtelseService =
                     BeregnAndelTilkjentYtelseService(
-                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-                        unleashService = mockUnleashService(false),
+                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
+                        unleashService = mockUnleashNextMedContextService(),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
-                unleashService = mockUnleashService(true),
+                praksisendring2024Service = mockPraksisendring2024Service(),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
@@ -115,6 +116,11 @@ data class VilkårsvurderingBuilder(
             personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
         )
     }
+
+    private fun mockPraksisendring2024Service() =
+        mockk<Praksisendring2024Service>().apply {
+            every { genererAndelerForPraksisendring2024(any(), any(), any()) } returns emptyList()
+        }
 
     private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
         mockk<OvergangsordningAndelRepository>().apply {
@@ -154,15 +160,14 @@ data class UtdypendeVilkårRegelverkResultat(
 fun String.tilUtdypendeVilkårRegelverkResultatTidslinje(
     vilkår: Vilkår,
     start: YearMonth,
-) =
-    this.tilTidslinje(start) { char ->
-        when (char.lowercaseChar()) {
-            '+' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null)
-            'n' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, NASJONALE_REGLER)
-            'x' -> UtdypendeVilkårRegelverkResultat(vilkår, IKKE_OPPFYLT, null)
-            'e' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN)
-            'é' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN, DELT_BOSTED)
-            'd' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null, DELT_BOSTED)
-            else -> null
-        }
+) = this.tilTidslinje(start) { char ->
+    when (char.lowercaseChar()) {
+        '+' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null)
+        'n' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, NASJONALE_REGLER)
+        'x' -> UtdypendeVilkårRegelverkResultat(vilkår, IKKE_OPPFYLT, null)
+        'e' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN)
+        'é' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, EØS_FORORDNINGEN, DELT_BOSTED)
+        'd' -> UtdypendeVilkårRegelverkResultat(vilkår, OPPFYLT, null, DELT_BOSTED)
+        else -> null
     }
+}

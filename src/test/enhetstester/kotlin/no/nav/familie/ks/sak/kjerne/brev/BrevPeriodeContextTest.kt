@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVedtaksbegrunnelse
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
@@ -31,8 +31,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
@@ -114,6 +114,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -167,6 +168,7 @@ class BrevPeriodeContextTest {
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -226,6 +228,7 @@ class BrevPeriodeContextTest {
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -279,6 +282,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -339,6 +343,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -399,6 +404,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -462,8 +468,8 @@ fun lagBrevPeriodeContext(
 
     val andelerTilkjentYtelse =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkFørFebruar2025AndelGenerator(), RegelverkLovendringFebruar2025AndelGenerator())),
-            unleashService = mockUnleashService(false),
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFørFebruar2025AndelGenerator(), LovverkFebruar2025AndelGenerator())),
+            unleashService = mockUnleashNextMedContextService(),
         ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
 
     val vedtaksperiodeMedBegrunnelser =
@@ -505,7 +511,7 @@ fun lagBrevPeriodeContext(
                 emptyList(),
             ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
-        persongrunnlag = persongrunnlag,
+        personopplysningGrunnlag = persongrunnlag,
         personResultater = personResultater,
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
         uregistrerteBarn = emptyList(),
@@ -513,6 +519,7 @@ fun lagBrevPeriodeContext(
         erFørsteVedtaksperiode = false,
         kompetanser = emptyList(),
         landkoder = LANDKODER,
+        skalBestemmeLovverkBasertPåFødselsdato = true,
     )
 }
 

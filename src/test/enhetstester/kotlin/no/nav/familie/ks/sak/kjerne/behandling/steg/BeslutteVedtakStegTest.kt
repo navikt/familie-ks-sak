@@ -5,13 +5,12 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
-import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
@@ -30,7 +29,6 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -76,49 +74,10 @@ class BeslutteVedtakStegTest {
     @BeforeEach
     fun init() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
+        every { unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
-    }
-
-    @Test
-    fun `utførSteg skal kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024, feature toggle GODKJENNE_OVERGANGSORDNING er av og resultat er GODKJENT`() {
-        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
-        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
-
-        val beslutning =
-            BesluttVedtakDto(
-                beslutning = Beslutning.GODKJENT,
-                begrunnelse = "GODKJENT",
-            )
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, beslutning) }
-
-        assertThat(
-            funksjonellFeil.message,
-            Is("Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå."),
-        )
-    }
-
-    @Test
-    fun `utførSteg skal ikke kaste FunksjonellFeil dersom behandlingen har årsak OVERGANGSORDNING_2024, feature toggle GODKJENNE_OVERGANGSORDNING er av og resultat er UNDERKJENT`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.OVERGANGSORDNING_2024)
-        every { behandlingService.hentBehandling(200) } returns behandling
-        every { unleashService.isEnabled(FeatureToggleConfig.GODKJENNE_OVERGANGSORDNING) } returns false
-        every { brevmottakerService.hentBrevmottakere(any()) } returns mockk()
-        every { totrinnskontrollService.besluttTotrinnskontroll(any(), any(), any(), any(), any()) } returns mockk(relaxed = true)
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
-        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
-        justRun { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
-
-        val beslutning =
-            BesluttVedtakDto(
-                beslutning = Beslutning.UNDERKJENT,
-                begrunnelse = "UNDERKJENT",
-            )
-
-        assertDoesNotThrow { beslutteVedtakSteg.utførSteg(200, beslutning) }
     }
 
     @Test
@@ -148,7 +107,7 @@ class BeslutteVedtakStegTest {
     @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandling årsaken er satt til KORREKSJON_VEDTAKSBREV og SB ikke har feature togglet på `() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV)
-        every { unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
+        every { unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
@@ -231,7 +190,7 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `Skal kaste feil dersom saksbehandler uten tilgang til teknisk endring prøve å godkjenne en behandling med årsak=teknisk endring`() {
-        every { unleashService.isEnabled(FeatureToggleConfig.TEKNISK_ENDRING, any()) } returns false
+        every { unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING, any<Long>()) } returns false
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 

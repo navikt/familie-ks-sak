@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreOgPraksisendringAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.overgangsordningAndelerPerAktør
 import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbeløpForPeriode
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -35,7 +35,6 @@ class UtbetalingsoppdragGenerator {
         nyTilkjentYtelse: TilkjentYtelse,
         sisteAndelPerKjede: Map<IdentOgType, AndelTilkjentYtelse>,
         erSimulering: Boolean,
-        skalSendeOvergangsordningAndeler: Boolean,
     ): BeregnetUtbetalingsoppdragLongId {
         val sisteAndelPerKjedeMedOvergangsordningAndelTattIHensyn = endreSisteAndelPerKjedeHvisOvergangsordningandel(sisteAndelPerKjede, forrigeTilkjentYtelse)
 
@@ -58,8 +57,8 @@ class UtbetalingsoppdragGenerator {
                     // Ved simulering når migreringsdato er endret, skal vi opphøre fra den nye datoen og ikke fra første utbetaling per kjede.
                     opphørKjederFraFørsteUtbetaling = erSimulering,
                 ),
-            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId(skalSendeOvergangsordningAndeler) ?: emptyList(),
-            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler),
+            forrigeAndeler = forrigeTilkjentYtelse?.tilAndelDataLongId() ?: emptyList(),
+            nyeAndeler = nyTilkjentYtelse.tilAndelDataLongId(),
             sisteAndelPerKjede = sisteAndelPerKjedeMedOvergangsordningAndelTattIHensyn,
         )
     }
@@ -102,25 +101,19 @@ class UtbetalingsoppdragGenerator {
             kildeBehandlingId = kildeBehandlingId,
         )
 
-    private fun TilkjentYtelse.tilAndelDataLongId(skalSendeOvergangsordningAndeler: Boolean): List<AndelDataLongId> {
-        val ordinæreAndeler = this.ordinæreAndelertilAndelDataLongId()
-        val overgangsordningAndeler =
-            when (skalSendeOvergangsordningAndeler) {
-                true -> this.overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId()
-                false -> emptyList()
-            }
-        return ordinæreAndeler + overgangsordningAndeler
-    }
+    private fun TilkjentYtelse.tilAndelDataLongId(): List<AndelDataLongId> =
+        this.ordinæreOgPraksisendringAndelerTilAndelDataLongId() +
+            this.overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId()
 
-    private fun TilkjentYtelse.ordinæreAndelertilAndelDataLongId(): List<AndelDataLongId> =
+    private fun TilkjentYtelse.ordinæreOgPraksisendringAndelerTilAndelDataLongId(): List<AndelDataLongId> =
         this
             .andelerTilkjentYtelse
-            .ordinæreAndeler()
+            .ordinæreOgPraksisendringAndeler()
             .map { it.tilAndelDataLongId() }
 
     private fun TilkjentYtelse.overgangsordningAndelerOgOrdinærForOvergangsordningUtbetalingsmånedTilAndelDataLongId(): List<AndelDataLongId> {
         val ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned =
-            ordinæreAndelerPerBarnIOvergangsordningUtbetalingMåned()
+            ordinæreOgPraksisendringAndelerPerBarnIOvergangsordningUtbetalingMåned()
         return this
             .andelerTilkjentYtelse
             .overgangsordningAndelerPerAktør()
@@ -143,9 +136,9 @@ class UtbetalingsoppdragGenerator {
             }
     }
 
-    private fun TilkjentYtelse.ordinæreAndelerPerBarnIOvergangsordningUtbetalingMåned(): Map<Aktør, AndelTilkjentYtelse?> =
+    private fun TilkjentYtelse.ordinæreOgPraksisendringAndelerPerBarnIOvergangsordningUtbetalingMåned(): Map<Aktør, AndelTilkjentYtelse?> =
         andelerTilkjentYtelse
-            .ordinæreAndeler()
+            .ordinæreOgPraksisendringAndeler()
             .groupBy { it.aktør }
             .mapValues { (_, andeler) ->
                 andeler.find { andel ->

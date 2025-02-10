@@ -42,8 +42,6 @@ class SammensattKontrollsakBrevDtoUtleder(
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
 
-            Brevmal.INFORMASJONSBREV_LOVENDRING_JULI_2024,
-            Brevmal.INFORMASJONSBREV_OVERGANGSORDNING_NOVEMBER_2024,
             Brevmal.INFORMASJONSBREV_DELT_BOSTED,
             Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
             Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,

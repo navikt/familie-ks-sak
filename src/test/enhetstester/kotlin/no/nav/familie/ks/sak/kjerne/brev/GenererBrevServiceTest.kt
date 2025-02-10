@@ -11,16 +11,13 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.hjemler.HjemmeltekstUtleder
@@ -28,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.sammensattkontrollsak.SammensattKontrol
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
-import no.nav.familie.unleash.UnleashService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,7 +38,6 @@ class GenererBrevServiceTest {
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     val saksbehandlerContext: SaksbehandlerContext = mockk()
     val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
-    val unleashService = mockk<UnleashService>()
 
     val genererBrevService =
         GenererBrevService(
@@ -51,12 +46,9 @@ class GenererBrevServiceTest {
             simuleringService = mockk<SimuleringService>(),
             vedtaksperiodeService = mockk<VedtaksperiodeService>(),
             brevPeriodeService = mockk<BrevPeriodeService>(),
-            sanityService = mockk<SanityService>(),
-            vilkårsvurderingService = mockk<VilkårsvurderingService>(),
             korrigertVedtakService = mockk<KorrigertVedtakService>(),
             feilutbetaltValutaService = mockk<FeilutbetaltValutaService>(),
             saksbehandlerContext = saksbehandlerContext,
-            refusjonEøsRepository = mockk<RefusjonEøsRepository>(),
             sammensattKontrollsakService = mockk<SammensattKontrollsakService>(),
             opprettGrunnlagOgSignaturDataService = mockk<OpprettGrunnlagOgSignaturDataService>(),
             etterbetalingService = mockk<EtterbetalingService>(),
@@ -65,7 +57,6 @@ class GenererBrevServiceTest {
             brevmalService = mockk<BrevmalService>(),
             andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>(),
             hjemmeltekstUtleder = mockk<HjemmeltekstUtleder>(),
-            unleashService = unleashService,
         )
 
     private val søker = randomAktør()

@@ -11,6 +11,14 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetIkkeBarnehageAdopsjon"
     },
+    INNVILGET_IKKE_BARNEHAGE_0125 {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetIkkeBarnehage0125"
+    },
+    INNVILGET_DELTIDSPLASS_BARNEHAGE_0125 {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetDeltidsplassBarnehage0125"
+    },
     INNVILGET_OVERGANGSORDNING {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetOvergangsordning"
@@ -705,6 +713,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
     },
 
+    INNVILGET_MÅNEDEN_ETTER_SLUTTET_I_FULLTIDSPLASS_0125 {
+        override val sanityApiNavn = "innvilgetMaanedenEtterSluttetIFulltidsplass0125"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
     INNVILGET_TREDJELANDSBORGER_MED_LOVLIG_OPPHOLD_SAMTIDIG_SOM_BOSATT_I_NORGE_0824 {
         override val sanityApiNavn = "innvilgetTredjelandsborgerMedLovligOppholdSamtidigSomBosattINorge0824"
         override val begrunnelseType = BegrunnelseType.INNVILGET

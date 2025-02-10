@@ -4,7 +4,6 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRespons
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
-import no.nav.familie.ks.sak.config.KafkaConfig
 import no.nav.familie.log.mdc.kjørMedCallId
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -23,7 +22,7 @@ class HentFagsystemsbehandlingRequestConsumer(
 
     @KafkaListener(
         id = "familie-ks-sak",
-        topics = [KafkaConfig.FAGSYSTEMSBEHANDLING_REQUEST_TBK_TOPIC],
+        topics = ["\${TILBAKEKREVING_REQUEST_TOPIC}"],
         containerFactory = "concurrentKafkaListenerContainerFactory",
     )
     fun listen(

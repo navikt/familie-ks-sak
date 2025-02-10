@@ -6,21 +6,21 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.tilYearMonth
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonResultatFraVilkårResultater
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
+import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDate
 import java.time.YearMonth
 
 @ExtendWith(MockKExtension::class)
@@ -33,48 +33,62 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
     // Fom mars2020 til tom juni2020 gir utbetaling bare i april2020 og mai2020
     @Test
     fun `lagFørskjøvetVilkårResultatTidslinjeMap - skal kutte først og siste måned`() {
-        val søker = randomAktør()
+        val søkerPerson = lagPerson(aktør = randomAktør(), personType = PersonType.SØKER)
+        val barnPerson = lagPerson(aktør = randomAktør(), personType = PersonType.BARN, fødselsdato = LocalDate.of(2021, 10, 5))
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
-                søkerAktør = søker,
-                behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer(),
-            )
-        val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
-
-        val vilkårsvurdering =
-            lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søkerPerson.aktør,
-                behandling = behandling,
-                resultat = Resultat.OPPFYLT,
+                behandlingId = behandling.id,
+                søkerPersonIdent = søkerPerson.aktør.aktivFødselsnummer(),
+                barnAktør = listOf(barnPerson.aktør),
+                barnasFødselsdatoer = listOf(barnPerson.fødselsdato),
             )
 
-        val personResultat =
-            PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = søkerPerson.aktør,
-            )
-        val vilkårResultater =
-            Vilkår.hentVilkårFor(søkerPerson.type).map {
-                VilkårResultat(
-                    personResultat = personResultat,
-                    periodeFom = mars2020.førsteDagIInneværendeMåned(),
-                    periodeTom = juni2020.sisteDagIInneværendeMåned(),
-                    vilkårType = it,
-                    resultat = Resultat.OPPFYLT,
-                    begrunnelse = "",
-                    behandlingId = vilkårsvurdering.behandling.id,
-                    utdypendeVilkårsvurderinger = emptyList(),
-                )
-            }
+        val vilkårResultaterSøker =
+            Vilkår
+                .hentVilkårFor(søkerPerson.type)
+                .map {
+                    lagVilkårResultat(
+                        periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                        periodeTom = juni2020.sisteDagIInneværendeMåned(),
+                        vilkårType = it,
+                        resultat = Resultat.OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                    )
+                }.toSet()
 
-        personResultat.setSortedVilkårResultater(vilkårResultater.toSet())
+        val vilkårResultaterBarn =
+            Vilkår
+                .hentVilkårFor(barnPerson.type)
+                .map {
+                    lagVilkårResultat(
+                        periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                        periodeTom = juni2020.sisteDagIInneværendeMåned(),
+                        vilkårType = it,
+                        resultat = Resultat.OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                    )
+                }.toSet()
+
+        val personResultater =
+            listOf(
+                lagPersonResultatFraVilkårResultater(
+                    aktør = søkerPerson.aktør,
+                    vilkårResultater = vilkårResultaterSøker,
+                ),
+                lagPersonResultatFraVilkårResultater(
+                    aktør = barnPerson.aktør,
+                    vilkårResultater = vilkårResultaterBarn,
+                ),
+            )
 
         val førskjøvetVilkårResultatTidslinjeMap =
-            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
 
-        Assertions.assertEquals(1, førskjøvetVilkårResultatTidslinjeMap.size)
+        Assertions.assertEquals(2, førskjøvetVilkårResultatTidslinjeMap.size)
 
         val forskjøvedeVedtaksperioder = førskjøvetVilkårResultatTidslinjeMap[søkerPerson.aktør]!!.tilPerioder()
 
@@ -84,55 +98,71 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
 
     @Test
     fun `lagFørskjøvetVilkårResultatTidslinjeMap - skal håndtere bor med søker-overlapp`() {
-        val søker = randomAktør()
+        val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2021, 10, 5))
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
-                søkerAktør = søker,
+                søkerAktør = søker.aktør,
                 behandlingId = behandling.id,
-                søkerPersonIdent = søker.aktivFødselsnummer(),
-            )
-        val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
-
-        val vilkårsvurdering =
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søkerPerson.aktør,
-                behandling = behandling,
-                resultat = Resultat.OPPFYLT,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
             )
 
-        val personResultat =
-            PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = søkerPerson.aktør,
-            ).also {
-                it.setSortedVilkårResultater(
-                    setOf(
-                        VilkårResultat(
-                            personResultat = it,
-                            periodeFom = mars2020.førsteDagIInneværendeMåned(),
-                            periodeTom = null,
-                            vilkårType = Vilkår.BOR_MED_SØKER,
-                            resultat = Resultat.OPPFYLT,
-                            begrunnelse = "",
-                            behandlingId = vilkårsvurdering.behandling.id,
-                        ),
-                        VilkårResultat(
-                            personResultat = it,
-                            periodeFom = null,
-                            periodeTom = null,
-                            vilkårType = Vilkår.BOR_MED_SØKER,
-                            resultat = Resultat.IKKE_OPPFYLT,
-                            begrunnelse = "",
-                            behandlingId = vilkårsvurdering.behandling.id,
-                            erEksplisittAvslagPåSøknad = true,
-                        ),
+        val vilkårResultaterSøker =
+            Vilkår
+                .hentVilkårFor(søker.type)
+                .map {
+                    lagVilkårResultat(
+                        periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                        periodeTom = juni2020.sisteDagIInneværendeMåned(),
+                        vilkårType = it,
+                        resultat = Resultat.OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                    )
+                }.toSet()
+
+        val vilkårResultaterBarn =
+            Vilkår
+                .hentVilkårFor(barn.type)
+                .map {
+                    lagVilkårResultat(
+                        periodeFom = mars2020.førsteDagIInneværendeMåned(),
+                        periodeTom = juni2020.sisteDagIInneværendeMåned(),
+                        vilkårType = it,
+                        resultat = Resultat.OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                    )
+                }.toSet()
+                .plus(
+                    lagVilkårResultat(
+                        periodeFom = null,
+                        periodeTom = null,
+                        vilkårType = Vilkår.BOR_MED_SØKER,
+                        resultat = Resultat.IKKE_OPPFYLT,
+                        begrunnelse = "",
+                        utdypendeVilkårsvurderinger = emptyList(),
+                        erEksplisittAvslagPåSøknad = true,
                     ),
                 )
-            }
+
+        val personResultater =
+            listOf(
+                lagPersonResultatFraVilkårResultater(
+                    aktør = søker.aktør,
+                    vilkårResultater = vilkårResultaterSøker,
+                ),
+                lagPersonResultatFraVilkårResultater(
+                    aktør = barn.aktør,
+                    vilkårResultater = vilkårResultaterBarn,
+                ),
+            )
 
         assertDoesNotThrow {
-            setOf(personResultat).tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag, true)
         }
     }
 }

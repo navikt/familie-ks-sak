@@ -101,49 +101,4 @@ interface BehandlingRepository : JpaRepository<Behandling, Long> {
             where b.id in (:behandlingIder) AND p.aktiv=true AND f.status = 'LØPENDE' """,
     )
     fun finnAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): List<Pair<Long, String>>
-
-    @Query(
-        value = """
-            SELECT b.*
-            FROM behandling b
-                     INNER JOIN tilkjent_ytelse ty ON ty.fk_behandling_id = b.id
-            WHERE b.soknad_mottatt_dato < '2024-02-01 00:00:00'
-              AND EXISTS (
-                SELECT 1
-                FROM vedtak v
-                WHERE v.fk_behandling_id = b.id
-                  AND v.vedtaksdato > '2024-03-01 00:00:00'
-            )
-              AND EXISTS (
-                SELECT 1
-                FROM andel_tilkjent_ytelse aty
-                WHERE aty.fk_behandling_id = b.id
-            )
-              AND NOT EXISTS (SELECT 1
-                              FROM behandling b2
-                                       INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
-                              WHERE b2.fk_fagsak_id = b.fk_fagsak_id
-                                AND vr.soker_har_meldt_fra_om_barnehageplass = true
-                                AND EXTRACT(MONTH FROM vr.periode_tom) = 7
-                                AND EXTRACT(YEAR FROM vr.periode_tom) = 2024)
-              AND NOT EXISTS (SELECT 1
-                              FROM behandling b2
-                                       INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
-                              WHERE b2.fk_fagsak_id = b.fk_fagsak_id
-                                AND vr.soker_har_meldt_fra_om_barnehageplass = true
-                                AND EXTRACT(MONTH FROM vr.periode_tom) = 8
-                                AND EXTRACT(YEAR FROM vr.periode_tom) = 2024)
-              AND NOT EXISTS (SELECT 1
-                              FROM behandling b2
-                                       INNER JOIN vilkar_resultat vr ON vr.fk_behandling_id = b2.id
-                              WHERE b2.fk_fagsak_id = b.fk_fagsak_id
-                                AND EXTRACT(MONTH FROM vr.periode_fom) = 8
-                                AND EXTRACT(YEAR FROM vr.periode_fom) = 2024
-                                AND vr.resultat = 'IKKE_OPPFYLT')
-              AND ty.utbetalingsoppdrag IS NOT NULL
-              AND b.status = 'AVSLUTTET'
-         """,
-        nativeQuery = true,
-    )
-    fun finnBehandlingerSomErSøktFørFebruar2024OgVedtattEtterFebruar2024(): List<Behandling>
 }

@@ -1,5 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
+import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -12,14 +15,27 @@ class BarnetsAlderVilkårValidator(
     val barnetsAlderVilkårValidator2021: BarnetsAlderVilkårValidator2021,
     val barnetsAlderVilkårValidator2024: BarnetsAlderVilkårValidator2024,
     val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024,
+    val barnetsAlderVilkårValidator2025: BarnetsAlderVilkårValidator2025,
+    val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
     ): List<String> {
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(barn.fødselsdato)
+        val skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
+        val vilkårLovverkInformasjonForBarn =
+            if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
+                VilkårLovverkInformasjonForBarn(
+                    fødselsdato = barn.fødselsdato,
+                    periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
+                    periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth(),
+                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                )
+            } else {
+                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+            }
 
-        return when (vilkårLovverkInformasjonForBarn.lovverk) {
+        return when (vilkårLovverkInformasjonForBarn.vilkårLovverk) {
             VilkårLovverk.LOVVERK_2021_OG_2024 ->
                 barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
                     perioder = perioder,
@@ -41,6 +57,14 @@ class BarnetsAlderVilkårValidator(
                     barn = barn,
                     periodeFomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
                     periodeTomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024,
+                )
+
+            VilkårLovverk.LOVVERK_2025 ->
+                barnetsAlderVilkårValidator2025.validerBarnetsAlderVilkår(
+                    perioder = perioder,
+                    barn = barn,
+                    periodeFomBarnetsAlderLov2025 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2025,
+                    periodeTomBarnetsAlderLov2025 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2025,
                 )
         }
     }

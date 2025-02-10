@@ -13,9 +13,6 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.OVERGANGSORDNING
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
-import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -25,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.core.IsNull
@@ -45,9 +41,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var overgangsordningAndelRepository: OvergangsordningAndelRepository
-
-    @MockkBean
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
 
     @MockkBean
     private lateinit var integrasjonClient: IntegrasjonClient
@@ -76,7 +69,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
         )
         every { integrasjonClient.hentLand(any()) } returns "Norge"
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
-        every { unleashNextMedContextService.isEnabled(OVERGANGSORDNING) } returns true
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
     }
 
@@ -121,19 +113,10 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
         @Test
         fun `skal oppdatere og slå sammen overgangsordningandeler`() {
             val barn1 = personopplysningGrunnlag.personer.first { it.aktør == barn }
-            val barn2 =
-                lagrePerson(
-                    lagPerson(
-                        aktør = lagreAktør(randomAktør(randomFnr(barnFødselsdato.plusMonths(2)))),
-                        personType = PersonType.BARN,
-                        personopplysningGrunnlag = personopplysningGrunnlag,
-                    ),
-                )
 
             val gamleOvergangsordningAndeler =
                 listOf(
                     OvergangsordningAndel(
-                        id = 0,
                         behandlingId = behandling.id,
                         person = barn1,
                         antallTimer = BigDecimal(20),
@@ -141,19 +124,11 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                         tom = barn1.fødselsdato.plusMonths(21).toYearMonth(),
                     ),
                     OvergangsordningAndel(
-                        id = 1,
                         behandlingId = behandling.id,
                         person = barn1,
                         antallTimer = BigDecimal.ZERO,
                         fom = barn1.fødselsdato.plusMonths(22).toYearMonth(),
                         tom = barn1.fødselsdato.plusMonths(23).toYearMonth(),
-                    ),
-                    OvergangsordningAndel(
-                        id = 2,
-                        behandlingId = behandling.id,
-                        person = barn2,
-                        fom = barn2.fødselsdato.plusMonths(20).toYearMonth(),
-                        tom = barn2.fødselsdato.plusMonths(23).toYearMonth(),
                     ),
                 )
 
@@ -188,19 +163,13 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                     path<List<Map<String, Any>>>("data.overgangsordningAndeler")
                         .map { objectMapper.convertValue(it, OvergangsordningAndelDto::class.java) }
                 assertThat(overgangsordningAndeler)
-                    .hasSize(2)
+                    .hasSize(1)
                     .anySatisfy {
                         // Forvent at overgangsordningandeler for barn 1 er slått sammen
                         assertThat(it.personIdent).isEqualTo(barn1.aktør.aktivFødselsnummer())
                         assertThat(it.antallTimer).isEqualTo(BigDecimal.ZERO)
                         assertThat(it.fom).isEqualTo(barn1.fødselsdato.plusMonths(20).toYearMonth())
                         assertThat(it.tom).isEqualTo(barn1.fødselsdato.plusMonths(23).toYearMonth())
-                    }.anySatisfy {
-                        // Forvent at overgangsordningandel for barn 2 er uendret
-                        assertThat(it.personIdent).isEqualTo(barn2.aktør.aktivFødselsnummer())
-                        assertThat(it.antallTimer).isEqualTo(BigDecimal.ZERO)
-                        assertThat(it.fom).isEqualTo(barn2.fødselsdato.plusMonths(20).toYearMonth())
-                        assertThat(it.tom).isEqualTo(barn2.fødselsdato.plusMonths(23).toYearMonth())
                     }
             }
         }
@@ -227,21 +196,6 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
 
     @Nested
     inner class OpprettTomOvergangsordningAndel {
-        @Test
-        fun `skal returnere funksjonell feil dersom toggle ikke er skrudd på`() {
-            every { unleashNextMedContextService.isEnabled(OVERGANGSORDNING) } returns false
-
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                post("$overgangsordningAndelControllerUrl/${behandling.id}")
-            } Then {
-                statusCode(200)
-                body("status", Is("FUNKSJONELL_FEIL"))
-                body("frontendFeilmelding", Is("Behandling med årsak overgangsordning er ikke tilgjengelig"))
-            }
-        }
-
         @Test
         fun `skal returnere funksjonell feil dersom behandling ikke har årsak OVERGANGSORDNING_2024`() {
             opprettSøkerFagsakOgBehandling(

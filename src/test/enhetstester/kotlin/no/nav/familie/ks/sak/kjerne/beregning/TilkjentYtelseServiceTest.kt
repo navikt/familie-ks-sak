@@ -7,9 +7,10 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
@@ -25,11 +26,12 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -60,13 +62,14 @@ internal class TilkjentYtelseServiceTest {
 
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-            unleashService = mockUnleashService(false),
+            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
+            unleashService = mockUnleashNextMedContextService(),
         )
 
     private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()
+    private val praksisendring2024Service: Praksisendring2024Service = mockk()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, mockUnleashService(true))
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service)
 
     @BeforeEach
     fun init() {
@@ -80,6 +83,7 @@ internal class TilkjentYtelseServiceTest {
             )
 
         every { overgangsordningAndelRepositoryMock.hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
+        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns emptyList()
     }
 
     @Test
@@ -107,6 +111,17 @@ internal class TilkjentYtelseServiceTest {
                 ),
             )
 
+        vilkårsvurdering.personResultater +=
+            lagPersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barn1,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = barnPerson.fødselsdato.plusYears(1),
+                periodeTom = barnPerson.fødselsdato.plusYears(2),
+                lagFullstendigVilkårResultat = true,
+                personType = PersonType.BARN,
+            )
+
         // act
         val tilkjentYtelse =
             tilkjentYtelseService.beregnTilkjentYtelse(
@@ -115,16 +130,18 @@ internal class TilkjentYtelseServiceTest {
             )
 
         // assert
-        assertTilkjentYtelse(tilkjentYtelse, 2)
+        assertTilkjentYtelse(tilkjentYtelse, 3)
+
+        val søkersAndeler = tilkjentYtelse.andelerTilkjentYtelse.filter { it.aktør == barn1 }
         assertAndelTilkjentYtelse(
-            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 9) },
+            andelTilkjentYtelse = søkersAndeler.first { it.stønadFom == YearMonth.of(2024, 9) },
             prosent = BigDecimal(100),
             periodeFom = YearMonth.of(2024, 9).toLocalDate(),
             periodeTom = YearMonth.of(2024, 10).toLocalDate(),
             type = YtelseType.OVERGANGSORDNING,
         )
         assertAndelTilkjentYtelse(
-            andelTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.first { it.stønadFom == YearMonth.of(2024, 12) },
+            andelTilkjentYtelse = søkersAndeler.first { it.stønadFom == YearMonth.of(2024, 12) },
             prosent = BigDecimal(50),
             periodeFom = YearMonth.of(2024, 12).toLocalDate(),
             periodeTom = YearMonth.of(2025, 1).toLocalDate(),
@@ -143,6 +160,17 @@ internal class TilkjentYtelseServiceTest {
                 ),
             )
 
+        vilkårsvurdering.personResultater +=
+            lagPersonResultat(
+                vilkårsvurdering = vilkårsvurdering,
+                aktør = barn1,
+                resultat = Resultat.OPPFYLT,
+                periodeFom = barnPerson.fødselsdato.plusYears(1),
+                periodeTom = barnPerson.fødselsdato.plusYears(2),
+                lagFullstendigVilkårResultat = true,
+                personType = PersonType.BARN,
+            )
+
         // act
         val tilkjentYtelse =
             tilkjentYtelseService.beregnTilkjentYtelse(
@@ -151,7 +179,7 @@ internal class TilkjentYtelseServiceTest {
             )
 
         // assert
-        assertTrue(tilkjentYtelse.andelerTilkjentYtelse.isEmpty())
+        assertTrue(tilkjentYtelse.andelerTilkjentYtelse.none { it.type == YtelseType.OVERGANGSORDNING })
     }
 
     @Test

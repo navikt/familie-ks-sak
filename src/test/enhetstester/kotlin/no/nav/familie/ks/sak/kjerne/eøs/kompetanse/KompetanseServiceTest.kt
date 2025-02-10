@@ -3,14 +3,15 @@ package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import no.nav.familie.ks.sak.TestClockProvider
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -39,7 +40,6 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -55,14 +55,15 @@ internal class KompetanseServiceTest {
     private val personidentService: PersonidentService = mockk()
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository = mockk()
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
-    private val unleashService: UnleashService = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
+    private val unleashService: UnleashNextMedContextService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
             vilkårsvurderingService = vilkårsvurderingService,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            unleashService = unleashService,
         )
     private val tilpassKompetanserService =
         TilpassKompetanserService(
@@ -71,7 +72,6 @@ internal class KompetanseServiceTest {
             vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
             overgangsordningAndelRepository = overgangsordningAndelRepository,
-            unleashService = unleashService,
             clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(LocalDate.of(2024, 10, 1)),
         )
 
@@ -97,7 +97,6 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
-        every { unleashService.isEnabled(any()) } returns true
         kompetanseRepository.deleteAll()
     }
 
@@ -477,6 +476,7 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
                     barnAktør = listOf(barn1, barn2),
                 )
+            every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
         }
 
         @Test
@@ -649,56 +649,6 @@ internal class KompetanseServiceTest {
 
             val kompetanser = kompetanseService.hentKompetanser(nasjonalBehandling.behandlingId).sortedBy { it.fom }
             assertThat(kompetanser).isEmpty()
-        }
-
-        @Test
-        fun `tilpassKompetanse skal ikke opprette tomme kompetanser for perioder med overgangsordningandeler hvis toggle er skrudd av`() {
-            every { unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING) } returns false
-
-            val vilkårFom = LocalDate.of(2024, 5, 1)
-            val vilkårTom = LocalDate.of(2024, 9, 1)
-            val kompetanseFom = vilkårFom.plusMonths(1).toYearMonth()
-            val kompetanseTom = vilkårTom.toYearMonth()
-
-            lagKompetanse(
-                behandlingId = behandlingId.id,
-                fom = kompetanseFom,
-                tom = kompetanseTom,
-                barnAktører = setOf(barn1, barn2),
-                resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-            ).lagreTil(kompetanseRepository)
-
-            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
-                lagVilkårsvurdering(
-                    søkersperiode = Periode(vilkårFom, vilkårTom),
-                    barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
-                )
-
-            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns
-                listOf(
-                    lagOvergangsordningAndel(
-                        aktør = barn1,
-                        fom = vilkårTom.plusMonths(1).toYearMonth(),
-                        tom = vilkårTom.plusMonths(2).toYearMonth(),
-                    ),
-                    lagOvergangsordningAndel(
-                        aktør = barn2,
-                        fom = vilkårTom.plusMonths(1).toYearMonth(),
-                        tom = vilkårTom.plusMonths(4).toYearMonth(),
-                    ),
-                )
-
-            kompetanseService.tilpassKompetanse(behandlingId)
-
-            val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
-            assertThat(kompetanser)
-                .hasSize(1)
-                .anySatisfy {
-                    assertThat(it.fom).isEqualTo(kompetanseFom)
-                    assertThat(it.tom).isEqualTo(kompetanseTom)
-                    assertThat(it.barnAktører).containsExactlyInAnyOrder(barn1, barn2)
-                    assertThat(it.resultat).isEqualTo(KompetanseResultat.NORGE_ER_SEKUNDÆRLAND)
-                }
         }
 
         @Test

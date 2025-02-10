@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -225,8 +226,7 @@ fun lagPersonopplysningGrunnlag(
     return personopplysningGrunnlag
 }
 
-fun Person.tilPersonEnkel() =
-    PersonEnkel(this.type, this.aktør, this.fødselsdato, this.dødsfall?.dødsfallDato, this.målform)
+fun Person.tilPersonEnkel() = PersonEnkel(this.type, this.aktør, this.fødselsdato, this.dødsfall?.dødsfallDato, this.målform)
 
 fun lagFagsak(
     aktør: Aktør = randomAktør(randomFnr()),
@@ -245,19 +245,9 @@ fun nesteVedtakId(): Long {
     return gjeldendeVedtakId
 }
 
-fun nesteBehandlingId(): Long {
-    gjeldendeBehandlingId += ID_INKREMENT
-    return gjeldendeBehandlingId
-}
-
 fun nestePersonId(): Long {
     gjeldendePersonId += ID_INKREMENT
     return gjeldendePersonId
-}
-
-fun nesteUtvidetVedtaksperiodeId(): Long {
-    gjeldendeUtvidetVedtaksperiodeId += ID_INKREMENT
-    return gjeldendeUtvidetVedtaksperiodeId
 }
 
 fun lagLogg(
@@ -289,7 +279,7 @@ fun lagBehandling(
     resultat: Behandlingsresultat = Behandlingsresultat.IKKE_VURDERT,
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
-    id: Long = nesteBehandlingId(),
+    id: Long = 0L,
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
         setOf(
@@ -409,8 +399,7 @@ fun lagStatsborgerskap(land: String = "NOR"): Statsborgerskap =
         bekreftelsesdato = LocalDate.of(1987, 9, 1),
     )
 
-fun lagInitieltTilkjentYtelse(behandling: Behandling) =
-    TilkjentYtelse(behandling = behandling, opprettetDato = LocalDate.now(), endretDato = LocalDate.now())
+fun lagInitieltTilkjentYtelse(behandling: Behandling) = TilkjentYtelse(behandling = behandling, opprettetDato = LocalDate.now(), endretDato = LocalDate.now())
 
 fun lagAndelTilkjentYtelse(
     tilkjentYtelse: TilkjentYtelse? = null,
@@ -476,18 +465,17 @@ fun tilfeldigPerson(
     aktør: Aktør = randomAktør(),
     personId: Long = nestePersonId(),
     dødsfall: Dødsfall? = null,
-) =
-    Person(
-        id = personId,
-        aktør = aktør,
-        fødselsdato = fødselsdato,
-        type = personType,
-        personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
-        navn = "",
-        kjønn = kjønn,
-        målform = Målform.NB,
-        dødsfall = dødsfall,
-    ).apply { sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.UGIFT, person = this)) }
+) = Person(
+    id = personId,
+    aktør = aktør,
+    fødselsdato = fødselsdato,
+    type = personType,
+    personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
+    navn = "",
+    kjønn = kjønn,
+    målform = Målform.NB,
+    dødsfall = dødsfall,
+).apply { sivilstander = mutableListOf(GrSivilstand(type = SIVILSTANDTYPE.UGIFT, person = this)) }
 
 fun lagVilkårsvurderingMedSøkersVilkår(
     søkerAktør: Aktør,
@@ -577,6 +565,7 @@ fun lagVilkårResultat(
     regelverk: Regelverk = Regelverk.NASJONALE_REGLER,
     antallTimer: BigDecimal? = null,
     søkerHarMeldtFraOmBarnehageplass: Boolean? = null,
+    erEksplisittAvslagPåSøknad: Boolean? = null,
 ): VilkårResultat =
     VilkårResultat(
         id = id,
@@ -591,6 +580,7 @@ fun lagVilkårResultat(
         vurderesEtter = regelverk,
         antallTimer = antallTimer,
         søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
+        erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
 
 fun lagVilkårResultaterForBarn(
@@ -626,6 +616,14 @@ fun lagVilkårResultaterForBarn(
                             periodeTom = perioderMedAntallTimer.first.tom,
                             behandlingId = behandlingId,
                             antallTimer = perioderMedAntallTimer.second,
+                            resultat =
+                                if (perioderMedAntallTimer.second == null ||
+                                    perioderMedAntallTimer.second!! < BigDecimal(33)
+                                ) {
+                                    Resultat.OPPFYLT
+                                } else {
+                                    Resultat.IKKE_OPPFYLT
+                                },
                         )
                     },
                 )
@@ -769,8 +767,7 @@ fun lagUtvidetVedtaksperiodeMedBegrunnelser(
     type: Vedtaksperiodetype = Vedtaksperiodetype.FORTSATT_INNVILGET,
     begrunnelser: List<NasjonalEllerFellesBegrunnelseDB> = emptyList(),
     eøsBegrunnelser: List<EØSBegrunnelseDB> = emptyList(),
-): UtvidetVedtaksperiodeMedBegrunnelser =
-    UtvidetVedtaksperiodeMedBegrunnelser(id = 0, fom = fom, tom = tom, type = type, begrunnelser = begrunnelser, eøsBegrunnelser = eøsBegrunnelser, støtterFritekst = false)
+): UtvidetVedtaksperiodeMedBegrunnelser = UtvidetVedtaksperiodeMedBegrunnelser(id = 0, fom = fom, tom = tom, type = type, begrunnelser = begrunnelser, eøsBegrunnelser = eøsBegrunnelser, støtterFritekst = false)
 
 fun lagPersonResultat(
     vilkårsvurdering: Vilkårsvurdering,
@@ -832,21 +829,37 @@ fun lagPersonResultat(
     return personResultat
 }
 
+fun lagPersonResultatFraVilkårResultater(
+    vilkårResultater: Set<VilkårResultat>,
+    aktør: Aktør,
+): PersonResultat {
+    val vilkårsvurdering =
+        lagVilkårsvurdering(
+            behandling = lagBehandling(),
+            resultat = Resultat.OPPFYLT,
+            søkerAktør = randomAktør(),
+        )
+    val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = aktør)
+
+    personResultat.setSortedVilkårResultater(vilkårResultater)
+
+    return personResultat
+}
+
 fun lagBeregnetUtbetalingsoppdrag(
     vedtak: Vedtak,
     utbetlingsperioder: List<no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsperiode> = emptyList(),
-) =
-    BeregnetUtbetalingsoppdragLongId(
-        no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag(
-            aktoer = "",
-            fagSystem = "KS",
-            saksnummer = "1234",
-            kodeEndring = no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.NY,
-            saksbehandlerId = "123abc",
-            utbetalingsperiode = utbetlingsperioder,
-        ),
-        listOf(AndelMedPeriodeIdLongId(id = 0L, periodeId = 0L, forrigePeriodeId = null, kildeBehandlingId = vedtak.behandling.id)),
-    )
+) = BeregnetUtbetalingsoppdragLongId(
+    no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag(
+        aktoer = "",
+        fagSystem = "KS",
+        saksnummer = "1234",
+        kodeEndring = no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.NY,
+        saksbehandlerId = "123abc",
+        utbetalingsperiode = utbetlingsperioder,
+    ),
+    listOf(AndelMedPeriodeIdLongId(id = 0L, periodeId = 0L, forrigePeriodeId = null, kildeBehandlingId = vedtak.behandling.id)),
+)
 
 fun lagUtbetalingsperiode(vedtak: Vedtak) =
     no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsperiode(
@@ -1201,13 +1214,12 @@ fun lagTestPersonopplysningGrunnlag(
 fun lagVedtak(
     behandling: Behandling = lagBehandling(),
     stønadBrevPdF: ByteArray? = null,
-) =
-    Vedtak(
-        id = nesteVedtakId(),
-        behandling = behandling,
-        vedtaksdato = LocalDateTime.now(),
-        stønadBrevPdf = stønadBrevPdF,
-    )
+) = Vedtak(
+    id = nesteVedtakId(),
+    behandling = behandling,
+    vedtaksdato = LocalDateTime.now(),
+    stønadBrevPdf = stønadBrevPdF,
+)
 
 fun lagVilkårsvurdering(
     søkerAktør: Aktør,
@@ -1351,10 +1363,12 @@ fun lagVilkårsvurdering(
     id: Long = 0L,
     behandling: Behandling = lagBehandling(),
     aktiv: Boolean = true,
-    lagPersonResultat: (vilkårsvurdering: Vilkårsvurdering) -> PersonResultat = {
-        lagPersonResultat(
-            vilkårsvurdering = it,
-            aktør = randomAktør(),
+    lagPersonResultat: (vilkårsvurdering: Vilkårsvurdering) -> Set<PersonResultat> = {
+        setOf(
+            lagPersonResultat(
+                vilkårsvurdering = it,
+                aktør = randomAktør(),
+            ),
         )
     },
 ): Vilkårsvurdering {
@@ -1365,7 +1379,7 @@ fun lagVilkårsvurdering(
             aktiv = aktiv,
         )
     val personResultat = lagPersonResultat(vilkårsvurdering)
-    vilkårsvurdering.personResultater = setOf(personResultat)
+    vilkårsvurdering.personResultater = personResultat
     return vilkårsvurdering
 }
 
@@ -1430,6 +1444,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
     belop: Int = 7500,
     antallTimerBarnehageplass: Int = 0,
     soknadstidspunkt: LocalDate = LocalDate.now(),
+    månedOgÅrFørVedtaksperiode: YearMonth = YearMonth.now().minusMonths(1),
 ): NasjonalOgFellesBegrunnelseDataDto =
     NasjonalOgFellesBegrunnelseDataDto(
         vedtakBegrunnelseType = vedtakBegrunnelseType,
@@ -1444,6 +1459,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
         belop = belop.toString(),
         antallTimerBarnehageplass = antallTimerBarnehageplass.toString(),
         soknadstidspunkt = soknadstidspunkt.tilKortString(),
+        maanedOgAarFoorVedtaksperiode = månedOgÅrFørVedtaksperiode.tilMånedÅrKort(),
     )
 
 fun lagBrevmottakerDto(

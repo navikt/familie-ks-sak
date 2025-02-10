@@ -5,8 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig.Companion.GODKJENNE_OVERGANGSORDNING
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -14,7 +13,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
@@ -54,7 +52,7 @@ class BeslutteVedtakSteg(
 
         if (behandling.erTekniskEndring() &&
             !unleashService.isEnabled(
-                FeatureToggleConfig.TEKNISK_ENDRING,
+                FeatureToggle.TEKNISK_ENDRING,
                 behandling.id,
             )
         ) {
@@ -64,15 +62,6 @@ class BeslutteVedtakSteg(
         }
 
         val besluttVedtakDto = behandlingStegDto as BesluttVedtakDto
-        if (
-            behandling.erOvergangsordning() &&
-            !unleashService.isEnabled(GODKJENNE_OVERGANGSORDNING) &&
-            besluttVedtakDto.beslutning == Beslutning.GODKJENT
-        ) {
-            throw FunksjonellFeil(
-                "Behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn} kan ikke godkjennes ennå.",
-            )
-        }
 
         validerAtBehandlingKanBesluttes(behandling)
 
@@ -132,11 +121,11 @@ class BeslutteVedtakSteg(
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
 
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !unleashService.isEnabled(FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
+                !unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
                 throw FunksjonellFeil(
                     melding =
                         "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
-                            "toggle ${FeatureToggleConfig.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV} false",
+                            "toggle ${FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn} false",
                     frontendFeilmelding =
                         "Du har ikke tilgang til å beslutte for denne behandlingen. " +
                             "Ta kontakt med teamet dersom dette ikke stemmer.",

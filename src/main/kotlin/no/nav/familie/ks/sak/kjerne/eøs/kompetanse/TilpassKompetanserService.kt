@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSeparateTidslinjerForBarna
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilSkjemaer
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.EøsSkjemaService
@@ -31,7 +30,6 @@ import no.nav.familie.tidslinje.utvidelser.filtrer
 import no.nav.familie.tidslinje.utvidelser.filtrerIkkeNull
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
-import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -43,7 +41,6 @@ class TilpassKompetanserService(
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
-    private val unleashService: UnleashService,
     private val clockProvider: ClockProvider,
 ) {
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
@@ -59,12 +56,7 @@ class TilpassKompetanserService(
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
 
         val barnasSkalIkkeUtbetalesTidslinjer = endretUtbetalingAndeler.tilBarnasSkalIkkeUtbetalesTidslinjer()
-        val utfylteOvergangsordningAndeler =
-            if (unleashService.isEnabled(FeatureToggleConfig.OVERGANGSORDNING)) {
-                overgangsordningAndeler.utfyltePerioder()
-            } else {
-                emptyList()
-            }
+        val utfylteOvergangsordningAndeler = overgangsordningAndeler.utfyltePerioder()
 
         val oppdaterteKompetanser =
             tilpassKompetanser(

@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashService
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
@@ -21,20 +21,21 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.regelsett.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 import no.nav.familie.ks.sak.kjerne.beregning.AndelGenerator
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.BeregnAndelTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkFørFebruar2025.RegelverkFørFebruar2025AndelGenerator
-import no.nav.familie.ks.sak.kjerne.beregning.regelverkLovendringFebruar2025.RegelverkLovendringFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2025AndelGenerator
+import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import no.nav.familie.tidslinje.Periode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -121,6 +122,7 @@ internal class UtbetalingsperiodeUtilTest {
 
         val personResultater =
             setOf(
+                vilkårsvurdering.lagGodkjentPersonResultatForSøker(søker),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn1),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )
@@ -129,7 +131,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato = true),
                 kompetanser = emptyList(),
             )
 
@@ -204,6 +206,7 @@ internal class UtbetalingsperiodeUtilTest {
 
         val personResultater =
             setOf(
+                vilkårsvurdering.lagGodkjentPersonResultatForSøker(søker),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn1),
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )
@@ -212,7 +215,11 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag),
+                forskjøvetVilkårResultatTidslinjeMap =
+                    personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                        personopplysningGrunnlag = personopplysningGrunnlag,
+                        skalBestemmeLovverkBasertPåFødselsdato = true,
+                    ),
                 kompetanser = emptyList(),
             )
 
@@ -232,7 +239,11 @@ internal class UtbetalingsperiodeUtilTest {
         @Test
         fun `Skal lage ny vedtaksperiode dersom vi får en ny kompetansene`() {
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
-            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            val forskjøvetVilkårResultatTidslinjeMap =
+                vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                )
 
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
@@ -271,7 +282,11 @@ internal class UtbetalingsperiodeUtilTest {
         @Test
         fun `Skal lage ny vedtaksperiode dersom det er endring i kompetansene`() {
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
-            val forskjøvetVilkårResultatTidslinjeMap = vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag)
+            val forskjøvetVilkårResultatTidslinjeMap =
+                vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                )
 
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
@@ -562,11 +577,11 @@ internal class UtbetalingsperiodeUtilTest {
             TilkjentYtelseService(
                 beregnAndelTilkjentYtelseService =
                     BeregnAndelTilkjentYtelseService(
-                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(RegelverkLovendringFebruar2025AndelGenerator(), RegelverkFørFebruar2025AndelGenerator())),
-                        unleashService = mockUnleashService(false),
+                        andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
+                        unleashService = mockUnleashNextMedContextService(),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
-                unleashService = mockUnleashService(true),
+                praksisendring2024Service = mockPraksisendring2024Service(),
             )
 
         val tilkjentYtelse =
@@ -602,5 +617,10 @@ internal class UtbetalingsperiodeUtilTest {
     private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
         mockk<OvergangsordningAndelRepository>().apply {
             every { hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
+        }
+
+    private fun mockPraksisendring2024Service() =
+        mockk<Praksisendring2024Service>().apply {
+            every { genererAndelerForPraksisendring2024(any(), any(), any()) } returns emptyList()
         }
 }

@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.tilAndelTilkjentYtelse
+import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilPeriode
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -135,6 +135,6 @@ object BehandlingsresultatOpphørUtils {
                         // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
                         if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse
                 }
-            }.tilAndelTilkjentYtelse()
+            }.tilAndelerTilkjentYtelse()
     }
 }

@@ -13,7 +13,6 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleConfig
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -27,9 +26,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordeling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.tilArbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -40,7 +37,6 @@ class OppgaveServiceTest {
     private val mockedBehandlingRepository: BehandlingRepository = mockk()
     private val mockedTilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
     private val mockedArbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository = mockk()
-    private val mockedUnleashService: UnleashService = mockk()
     private val oppgaveService: OppgaveService =
         OppgaveService(
             integrasjonClient = mockedIntegrasjonClient,
@@ -48,13 +44,7 @@ class OppgaveServiceTest {
             behandlingRepository = mockedBehandlingRepository,
             tilpassArbeidsfordelingService = mockedTilpassArbeidsfordelingService,
             arbeidsfordelingPåBehandlingRepository = mockedArbeidsfordelingPåBehandlingRepository,
-            unleashService = mockedUnleashService,
         )
-
-    @BeforeEach
-    fun setup() {
-        every { mockedUnleashService.isEnabled(FeatureToggleConfig.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false) } returns true
-    }
 
     @Nested
     inner class OpprettOppgaveTest {

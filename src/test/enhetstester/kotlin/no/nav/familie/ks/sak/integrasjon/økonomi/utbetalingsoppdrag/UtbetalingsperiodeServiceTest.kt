@@ -27,7 +27,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
-import no.nav.familie.unleash.UnleashService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -52,9 +51,6 @@ internal class UtbetalingsperiodeServiceTest {
 
     @MockK
     private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
-    private lateinit var unleashService: UnleashService
 
     @InjectMockKs
     private lateinit var utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator
@@ -789,13 +785,13 @@ internal class UtbetalingsperiodeServiceTest {
     ) {
         if (forrigeTilkjentYtelse == null) {
             every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns null
-            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(behandling.fagsak.id) } returns emptyList()
+            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdent(behandling.fagsak.id) } returns emptyList()
         } else {
             every { behandlingService.hentSisteBehandlingSomErIverksatt(behandling.fagsak.id) } returns forrigeTilkjentYtelse.behandling
 
             every { tilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(forrigeTilkjentYtelse.behandling.id) } returns forrigeTilkjentYtelse
 
-            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdentOgType(behandling.fagsak.id) } returns
+            every { andelTilkjentYtelseRepository.hentSisteAndelPerIdent(behandling.fagsak.id) } returns
                 forrigeTilkjentYtelse.andelerTilkjentYtelse
                     .filtrerAndelerSomSkalSendesTilOppdrag()
                     .groupBy { it.aktør.aktivFødselsnummer() }
@@ -809,7 +805,5 @@ internal class UtbetalingsperiodeServiceTest {
         every { behandlingService.hentBehandlingerPåFagsak(behandling.fagsak.id) } returns listOf(behandling)
 
         every { tilkjentYtelseRepository.save(capture(tilkjentYtelseSlot)) } returns mockk()
-
-        every { unleashService.isEnabled(any()) } returns true
     }
 }

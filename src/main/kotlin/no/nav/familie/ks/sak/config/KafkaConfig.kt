@@ -179,14 +179,13 @@ class KafkaConfig(
         )
 
     companion object {
-        const val BARNEHAGELISTE_TOPIC = "alf.aapen-altinn-barnehageliste-mottatt"
+        const val BARNEHAGELISTE_AAPEN_TOPIC = "alf.aapen-altinn-barnehageliste-mottatt"
+        const val BARNEHAGELISTE_TOPIC = "teamfamilie.privat-kontantstotte-barnehagelister"
         const val BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-behandling-v1"
         const val SISTE_TILSTAND_BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-siste-tilstand-behandling-v1"
         const val SAK_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-sak-v1"
         const val VEDTAK_TOPIC = "teamfamilie.aapen-kontantstotte-vedtak-v1"
         const val KONTANTSTØTTE_FEED_TOPIC = "teamfamilie.aapen-feed-kontantstotte-v1"
-        const val FAGSYSTEMSBEHANDLING_REQUEST_TBK_TOPIC = "teamfamilie.privat-tbk-hentfagsystemsbehandling-request-topic"
-        const val FAGSYSTEMSBEHANDLING_RESPONS_TBK_TOPIC = "teamfamilie.privat-tbk-hentfagsystemsbehandling-respons-topic"
         const val PDL_AKTOR_V2_TOPIC = "pdl.aktor-v2"
     }
 }
