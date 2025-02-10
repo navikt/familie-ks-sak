@@ -11,7 +11,6 @@ enum class FeatureToggle(
     LAGRE_BARNEHAGEBARN_I_KS("familie-ks-sak.lagre-barnehagebarn-i-ks"),
 
     // Ikke operasjonelle
-    OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER("familie-ba-ks-sak.opprett-sak-paa-riktig-enhet-og-saksbehandler"),
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
     STØTTER_LOVENDRING_2025("familie-ks-sak.stotter-lovendring-2025"),
     STØTTER_ADOPSJON("familie-ks-sak.stotter-adopsjon"),
