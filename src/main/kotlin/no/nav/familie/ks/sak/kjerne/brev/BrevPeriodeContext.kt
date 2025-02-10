@@ -319,7 +319,7 @@ class BrevPeriodeContext(
                         begrunnelse = begrunnelse,
                     )
 
-                val maanedOgAarBegrunnelsenGjelderFor =
+                val månedOgÅrBegrunnelsenGjelderFor =
                     this.utvidetVedtaksperiodeMedBegrunnelser.fom?.let { fom ->
                         hentMånedOgÅrForBegrunnelse(
                             vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
@@ -332,6 +332,8 @@ class BrevPeriodeContext(
                             skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         )
                     }
+
+                val månedOgÅrFørVedtaksperiode = utvidetVedtaksperiodeMedBegrunnelser.fom?.minusMonths(1)?.tilMånedÅr()
 
                 validerBrevbegrunnelse(
                     gjelderSøker = gjelderSøker,
@@ -349,7 +351,8 @@ class BrevPeriodeContext(
                             barnasFødselsdatoer = barnasFødselsdatoer,
                             begrunnelse = begrunnelse,
                         ),
-                    maanedOgAarBegrunnelsenGjelderFor = maanedOgAarBegrunnelsenGjelderFor,
+                    maanedOgAarBegrunnelsenGjelderFor = månedOgÅrBegrunnelsenGjelderFor,
+                    maanedOgAarFoorVedtaksperiode = månedOgÅrFørVedtaksperiode,
                     maalform = personopplysningGrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
@@ -584,6 +587,7 @@ class BrevPeriodeContext(
                             vedtaksperiodeFom.tilMånedÅr()
                         }
                     }
+
                     else -> "${vedtaksperiodeFom.tilMånedÅr()} til ${vedtaksperiodeTom.tilMånedÅr()}"
                 }
 

@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilKortString
+import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -1443,6 +1444,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
     belop: Int = 7500,
     antallTimerBarnehageplass: Int = 0,
     soknadstidspunkt: LocalDate = LocalDate.now(),
+    månedOgÅrFørVedtaksperiode: YearMonth = YearMonth.now().minusMonths(1),
 ): NasjonalOgFellesBegrunnelseDataDto =
     NasjonalOgFellesBegrunnelseDataDto(
         vedtakBegrunnelseType = vedtakBegrunnelseType,
@@ -1457,6 +1459,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
         belop = belop.toString(),
         antallTimerBarnehageplass = antallTimerBarnehageplass.toString(),
         soknadstidspunkt = soknadstidspunkt.tilKortString(),
+        maanedOgAarFoorVedtaksperiode = månedOgÅrFørVedtaksperiode.tilMånedÅrKort(),
     )
 
 fun lagBrevmottakerDto(

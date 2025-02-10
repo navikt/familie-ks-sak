@@ -72,8 +72,8 @@ Egenskap: Avslag perioder
       | 01.09.2024 |          | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE |                 |            |
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2024 til -
-      | Begrunnelse                      | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Måned og år begrunnelsen gjelder for |
-      | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE | STANDARD | Nei           | 08.06.23             | 1           | NB      | 0     |                  | 40                          | Nei                    | august 2024                          |
+      | Begrunnelse                      | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Måned og år begrunnelsen gjelder for | Måned og år før vedtaksperiode |
+      | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE | STANDARD | Nei           | 08.06.23             | 1           | NB      | 0     |                  | 40                          | Nei                    | august 2024                          | august 2024                    |
 
   Scenario: Avslagperioder som ikke starter samtidig som en andel slutter skal ha samme fom som vilkåret
     Gitt følgende fagsaker
@@ -148,5 +148,5 @@ Egenskap: Avslag perioder
       | 01.07.2024 |            | AVSLAG_FLYTTET_FRA_NORGE |                 |            |
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.07.2024 til -
-      | Begrunnelse              | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder |
-      | AVSLAG_FLYTTET_FRA_NORGE | STANDARD | Nei           | 15.05.23             | 1           | juli 2024                            | 0     |                  | 0                           |                        |
+      | Begrunnelse              | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Måned og år før vedtaksperiode |
+      | AVSLAG_FLYTTET_FRA_NORGE | STANDARD | Nei           | 15.05.23             | 1           | juli 2024                            | 0     |                  | 0                           |                        | juni 2024                      |

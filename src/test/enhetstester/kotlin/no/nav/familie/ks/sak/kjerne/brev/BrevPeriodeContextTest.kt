@@ -114,6 +114,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -167,6 +168,7 @@ class BrevPeriodeContextTest {
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -226,6 +228,7 @@ class BrevPeriodeContextTest {
                 belop = "3 000",
                 antallTimerBarnehageplass = "17",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -279,6 +282,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -339,6 +343,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
@@ -399,6 +404,7 @@ class BrevPeriodeContextTest {
                 belop = "7 500",
                 antallTimerBarnehageplass = "0",
                 soknadstidspunkt = "",
+                maanedOgAarFoorVedtaksperiode = "mars 2022",
             ),
             brevPeriodeDto?.begrunnelser?.single(),
         )
