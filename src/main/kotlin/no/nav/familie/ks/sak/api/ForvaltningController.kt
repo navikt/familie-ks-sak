@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
-import no.nav.familie.ks.sak.internal.PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -37,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.praksisendring.PopulerPraksisendring2024Task
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -86,7 +86,6 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
-    private val populerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart: PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -362,13 +361,16 @@ class ForvaltningController(
     }
 
     @PostMapping(path = ["/fagsaker/populer-praksisendring-24-medfagsaker-som-har-betaling-samme-maned-som-start-i-barnehage"])
-    fun loggFagsakerSomHarBetalingSammeMånedSomStartIBarnehage() {
+    fun opprettTaskSomPopulererPraksisendring2024Tabell(): ResponseEntity<String> {
         tilgangService.validerTilgangTilHandling(
-            handling = "logg faksaker som har utbetaling samme måned som barn starter i barnehage",
+            handling = "oppretter task som populer praksisendring",
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
         )
+        val task = PopulerPraksisendring2024Task.opprettTask()
 
-        populerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart.utfør()
+        taskService.save(task)
+
+        return ResponseEntity.ok("ok")
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")
