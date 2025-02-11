@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -87,6 +88,7 @@ class BehandlingService(
     private val oppgaveService: OppgaveService,
     private val sakStatistikkService: SakStatistikkService,
     private val korrigertVedtakRepository: KorrigertVedtakRepository,
+    private val adopsjonService: AdopsjonService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -115,7 +117,16 @@ class BehandlingService(
                 .flatMap { it.statsborgerskap }
                 .toSet()
                 .associate { it.landkode to statsborgerskapService.hentLand(it.landkode) }
-        val personResponser = personer.map { lagPersonRespons(it, landKodeOgLandNavn) }
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = behandlingId)
+
+        val personResponser =
+            personer.map { person ->
+                lagPersonRespons(
+                    person = person,
+                    landKodeOgLandNavn = landKodeOgLandNavn,
+                    adopsjon = adopsjonerIBehandling.firstOrNull { it.aktør == person.aktør },
+                )
+            }
 
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
@@ -136,7 +147,7 @@ class BehandlingService(
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         val utbetalingsperioder =
-            personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(it) }
+            personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag = it, adopsjonerIBehandling = adopsjonerIBehandling) }
                 ?: emptyList()
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
@@ -149,7 +160,7 @@ class BehandlingService(
                             vedtaksperiodeService
                                 .hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                                 .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser)
+                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser = sanityBegrunnelser, adopsjonerIBehandling = adopsjonerIBehandling)
                                 }.sortedBy { dto -> dto.fom }
                         } else {
                             emptyList()

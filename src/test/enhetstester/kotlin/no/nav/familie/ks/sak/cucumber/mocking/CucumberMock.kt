@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.cucumber.mocking
 
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
@@ -56,6 +57,7 @@ class CucumberMock(
     val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
     val praksisendring2024Service = mockPraksisendring2024Service()
+    val adopsjonServiceMock = mockAdopsjonService()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
@@ -103,6 +105,7 @@ class CucumberMock(
             vedtakRepository = vedtakRepositoryMock,
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             localDateProvider = mockedDateProvider,
+            adopsjonService = adopsjonServiceMock,
         )
 
     val beregningService =

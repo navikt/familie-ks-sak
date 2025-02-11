@@ -25,14 +25,14 @@ class AdopsjonRepositoryTest(
             Adopsjon(
                 aktør = barn,
                 behandlingId = behandling.id,
-                adopsjonsdato = LocalDate.now().minusYears(1)
+                adopsjonsdato = LocalDate.now().minusYears(1),
             )
 
         val adopsjon2 =
             Adopsjon(
                 aktør = barn,
                 behandlingId = behandling.id,
-                adopsjonsdato = LocalDate.now()
+                adopsjonsdato = LocalDate.now(),
             )
 
         adopsjonRepository.saveAndFlush(adopsjon)

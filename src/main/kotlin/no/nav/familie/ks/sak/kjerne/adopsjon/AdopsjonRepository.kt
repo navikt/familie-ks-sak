@@ -6,8 +6,11 @@ import org.springframework.data.jpa.repository.Query
 
 interface AdopsjonRepository : JpaRepository<Adopsjon, Long> {
     @Query(value = "SELECT a FROM Adopsjon a WHERE a.behandlingId = :behandlingId")
-    fun finnAlleAdopsjonerForBehandling(behandlingId: Long): List<Adopsjon>
+    fun hentAlleAdopsjonerForBehandling(behandlingId: Long): List<Adopsjon>
 
     @Query(value = "SELECT a FROM Adopsjon a WHERE a.behandlingId = :behandlingId AND a.aktør.aktørId = :aktorId")
-    fun finnAdopsjonForAktørIBehandling(behandlingId: Long, aktørId: AktørId): Adopsjon?
+    fun finnAdopsjonForAktørIBehandling(
+        behandlingId: Long,
+        aktørId: AktørId,
+    ): Adopsjon?
 }

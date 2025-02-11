@@ -75,6 +75,7 @@ data class PersonResponsDto(
     val registerhistorikk: RegisterHistorikkResponsDto? = null,
     val målform: Målform,
     val dødsfallDato: LocalDate? = null,
+    val adopsjonsdato: LocalDate? = null,
 )
 
 data class RegisterHistorikkResponsDto(

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.ks.sak.api.mapper.BehandlingMapper
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -32,6 +33,7 @@ data class UtbetalingsperiodeDetaljDto(
 
 fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeResponsDto(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): List<UtbetalingsperiodeResponsDto> {
     if (this.isEmpty()) return emptyList()
     return this.lagVertikalePerioder().tilPerioder().filtrerIkkeNull().map {
@@ -45,13 +47,14 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeRespons
                 andelerForPeriode.count { andel ->
                     personopplysningGrunnlag.barna.any { barn -> barn.aktør == andel.aktør }
                 },
-            utbetalingsperiodeDetaljer = andelerForPeriode.tilUtbetalingsperiodeDetaljDto(personopplysningGrunnlag),
+            utbetalingsperiodeDetaljer = andelerForPeriode.tilUtbetalingsperiodeDetaljDto(personopplysningGrunnlag, adopsjonerIBehandling),
         )
     }
 }
 
 private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalingsperiodeDetaljDto(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): List<UtbetalingsperiodeDetaljDto> =
     this.map { andel ->
         val personForAndel =
@@ -59,7 +62,7 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
                 ?: throw Feil("Fant ikke personopplysningsgrunnlag for andel")
 
         UtbetalingsperiodeDetaljDto(
-            person = BehandlingMapper.lagPersonRespons(personForAndel, emptyMap()),
+            person = BehandlingMapper.lagPersonRespons(person = personForAndel, landKodeOgLandNavn = emptyMap(), adopsjon = adopsjonerIBehandling.firstOrNull { it.aktør == personForAndel.aktør }),
             utbetaltPerMnd = andel.kalkulertUtbetalingsbeløp,
             erPåvirketAvEndring = andel.endreteUtbetalinger.isNotEmpty(),
             prosent = andel.prosent,
@@ -67,9 +70,11 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
         )
     }
 
-fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto() =
+fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto(
+    adopsjonerIBehandling: List<Adopsjon>,
+) =
     UtbetalingsperiodeDetaljDto(
-        person = BehandlingMapper.lagPersonRespons(this.person, emptyMap()),
+        person = BehandlingMapper.lagPersonRespons(person = this.person, landKodeOgLandNavn = emptyMap(), adopsjon = adopsjonerIBehandling.firstOrNull { it.aktør == this.person.aktør }),
         utbetaltPerMnd = this.utbetaltPerMnd,
         erPåvirketAvEndring = this.erPåvirketAvEndring,
         prosent = this.prosent,

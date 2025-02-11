@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHisto
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
@@ -131,6 +132,7 @@ object BehandlingMapper {
     fun lagPersonRespons(
         person: Person,
         landKodeOgLandNavn: Map<String, String>?,
+        adopsjon: Adopsjon?,
     ) = PersonResponsDto(
         type = person.type,
         fødselsdato = person.fødselsdato,
@@ -140,6 +142,7 @@ object BehandlingMapper {
         målform = person.målform,
         dødsfallDato = person.dødsfall?.dødsfallDato,
         registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn),
+        adopsjonsdato = adopsjon?.adopsjonsdato,
     )
 
     fun lagPersonerMedAndelTilkjentYtelseRespons(
