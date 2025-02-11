@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.internal.PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -85,6 +86,7 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
+    private val populerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart: PopulerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -357,6 +359,16 @@ class ForvaltningController(
         taskService.save(task)
 
         return ResponseEntity.ok("ok")
+    }
+
+    @PostMapping(path = ["/fagsaker/populer-praksisendring-24-medfagsaker-som-har-betaling-samme-maned-som-start-i-barnehage"])
+    fun loggFagsakerSomHarBetalingSammeMånedSomStartIBarnehage() {
+        tilgangService.validerTilgangTilHandling(
+            handling = "logg faksaker som har utbetaling samme måned som barn starter i barnehage",
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+        )
+
+        populerPraksisendring2024TabellMedFagsakSomHarUtbetalingSammeMånedSomBarnehagestart.utfør()
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")
