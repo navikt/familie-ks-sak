@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -33,6 +34,7 @@ class VilkårsvurderingService(
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
     private val unleashService: UnleashNextMedContextService,
+    private val adopsjonService: AdopsjonService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -110,6 +112,8 @@ class VilkårsvurderingService(
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
         val eksisterendeVilkårResultater = personResultat.vilkårResultater
+
+        adopsjonService.oppdaterAdopsjonsdato(behandlingId = behandlingId, aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
 
         val nyeOgEndredeVilkårResultater =
             endreVilkårResultat(eksisterendeVilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)

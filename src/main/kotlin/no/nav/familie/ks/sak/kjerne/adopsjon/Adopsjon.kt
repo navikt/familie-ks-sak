@@ -30,5 +30,5 @@ class Adopsjon(
     @Column(name = "fk_behandling_id", updatable = false, nullable = false)
     val behandlingId: Long,
     @Column(name = "adopsjonsdato", columnDefinition = "DATE")
-    var adopsjonsdato: LocalDate,
+    val adopsjonsdato: LocalDate,
 ) : BaseEntitet()

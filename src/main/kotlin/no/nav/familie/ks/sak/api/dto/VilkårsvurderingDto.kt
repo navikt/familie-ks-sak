@@ -24,6 +24,7 @@ data class PersonResultatResponsDto(
 
 data class EndreVilkårResultatDto(
     val personIdent: String,
+    val adopsjonsdato: LocalDate?,
     val endretVilkårResultat: VilkårResultatDto,
 )
 
