@@ -57,7 +57,7 @@ Egenskap:Praksisendring 2024
 
     Og når behandlingsresultatet er utledet for behandling 2
 
-    Så forvent at behandlingsresultatet er DELVIS_INNVILGET på behandling 2
+    Så forvent at behandlingsresultatet er AVSLÅTT på behandling 2
 
     Og vedtaksperioder er laget for behandling 2
 
