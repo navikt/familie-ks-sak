@@ -75,7 +75,6 @@ object BehandlingsresultatSøknadUtils {
         personerFremstiltKravFor: List<Aktør>,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
     ): List<Søknadsresultat> {
-
         val alleSøknadsresultater =
             personerFremstiltKravFor.flatMap { aktør ->
                 val ytelseTyper = (forrigeAndeler + nåværendeAndeler).map { it.type.tilYtelseType() }.distinct()
