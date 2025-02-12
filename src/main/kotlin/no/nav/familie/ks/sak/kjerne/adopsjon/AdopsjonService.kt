@@ -10,11 +10,11 @@ import java.time.LocalDate
 class AdopsjonService(
     private val adopsjonRepository: AdopsjonRepository,
 ) {
-    fun hentAlleAdopsjonerForBehandling(behandlingId: Long): List<Adopsjon> = adopsjonRepository.hentAlleAdopsjonerForBehandling(behandlingId)
+    fun hentAlleAdopsjonerForBehandling(behandlingId: BehandlingId): List<Adopsjon> = adopsjonRepository.hentAlleAdopsjonerForBehandling(behandlingId.id)
 
     @Transactional
-    fun oppdaterAdopsjonsdato(behandlingId: Long, aktør: Aktør, nyAdopsjonsdato: LocalDate?) {
-        val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId, aktør = aktør)
+    fun oppdaterAdopsjonsdato(behandlingId: BehandlingId, aktør: Aktør, nyAdopsjonsdato: LocalDate?) {
+        val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId.id, aktør = aktør)
 
         if (nåværendeAdopsjon?.adopsjonsdato != nyAdopsjonsdato) {
             if (nåværendeAdopsjon != null) {
@@ -22,7 +22,7 @@ class AdopsjonService(
                 adopsjonRepository.flush()
             }
             if (nyAdopsjonsdato != null) {
-                adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
+                adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId.id, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
             }
         }
     }
@@ -32,7 +32,7 @@ class AdopsjonService(
         behandlingId: BehandlingId,
         forrigeBehandlingId: BehandlingId,
     ) {
-        val adopsjonerForrigeBehandling = hentAlleAdopsjonerForBehandling(forrigeBehandlingId.id)
+        val adopsjonerForrigeBehandling = hentAlleAdopsjonerForBehandling(forrigeBehandlingId)
 
         adopsjonerForrigeBehandling.forEach { adopsjon ->
             val nyAdopsjon = Adopsjon(behandlingId = behandlingId.id, aktør = adopsjon.aktør, adopsjonsdato = adopsjon.adopsjonsdato)
