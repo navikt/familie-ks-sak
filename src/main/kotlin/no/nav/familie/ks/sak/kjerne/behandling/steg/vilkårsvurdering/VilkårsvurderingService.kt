@@ -112,9 +112,11 @@ class VilkårsvurderingService(
         val personResultat =
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
-        val eksisterendeVilkårResultater = personResultat.vilkårResultater
+        if (endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BARNETS_ALDER) {
+            adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
+        }
 
-        adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato, vilkår = endreVilkårResultatDto.endretVilkårResultat.vilkårType)
+        val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
         val nyeOgEndredeVilkårResultater =
             endreVilkårResultat(eksisterendeVilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)

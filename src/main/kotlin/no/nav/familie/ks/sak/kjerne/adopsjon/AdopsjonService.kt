@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.adopsjon
 
 import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -18,19 +17,16 @@ class AdopsjonService(
         behandlingId: BehandlingId,
         aktør: Aktør,
         nyAdopsjonsdato: LocalDate?,
-        vilkår: Vilkår,
     ) {
-        if (vilkår == Vilkår.BARNETS_ALDER) {
-            val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId.id, aktør = aktør)
+        val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId.id, aktør = aktør)
 
-            if (nåværendeAdopsjon?.adopsjonsdato != nyAdopsjonsdato) {
-                if (nåværendeAdopsjon != null) {
-                    adopsjonRepository.delete(nåværendeAdopsjon)
-                    adopsjonRepository.flush()
-                }
-                if (nyAdopsjonsdato != null) {
-                    adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId.id, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
-                }
+        if (nåværendeAdopsjon?.adopsjonsdato != nyAdopsjonsdato) {
+            if (nåværendeAdopsjon != null) {
+                adopsjonRepository.delete(nåværendeAdopsjon)
+                adopsjonRepository.flush()
+            }
+            if (nyAdopsjonsdato != null) {
+                adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId.id, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
             }
         }
     }
