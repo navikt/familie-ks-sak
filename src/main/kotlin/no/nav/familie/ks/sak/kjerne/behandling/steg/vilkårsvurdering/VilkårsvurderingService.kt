@@ -114,7 +114,7 @@ class VilkårsvurderingService(
 
         val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
-        adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
+        adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato, vilkår = endreVilkårResultatDto.endretVilkårResultat.vilkårType)
 
         val nyeOgEndredeVilkårResultater =
             endreVilkårResultat(eksisterendeVilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
