@@ -36,7 +36,7 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
 
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering, adopsjoner) }
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = true) }
     }
 
     @Test
@@ -55,7 +55,7 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
 
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering, adopsjoner) }
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = true) }
     }
 
     @Test
@@ -74,7 +74,26 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
 
-        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering, adopsjoner) }
+        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = true) }
+    }
+
+    @Test
+    fun `Skal ikke kaste feil hvis toggle er av, selv om det finnes adopsjon i utdypende vilkårsvurdering, men ikke adopsjonsdato for person`() {
+        val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
+        val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
+        val vilkårsvurdering =
+            lagVilkårsvurdering {
+                setOf(
+                    lagPersonResultat(vilkårsvurdering = it, aktør = søker.aktør),
+                    lagPersonResultat(vilkårsvurdering = it, aktør = barn.aktør, lagVilkårResultater = { personResultat -> lagVilkårResultaterForBarn(personResultat = personResultat, erAdopsjon = true, fødselsdato = barn.fødselsdato) }),
+                    lagPersonResultat(vilkårsvurdering = it, aktør = barn2.aktør, lagVilkårResultater = { personResultat -> lagVilkårResultaterForBarn(personResultat = personResultat, erAdopsjon = false, fødselsdato = barn2.fødselsdato) }),
+                )
+            }
+
+        val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
+
+        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = false) }
     }
 
     private fun lagVilkårResultaterForBarn(
