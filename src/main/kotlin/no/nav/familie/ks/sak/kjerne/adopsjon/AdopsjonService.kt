@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.adopsjon
 
 import jakarta.transaction.Transactional
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -23,6 +24,19 @@ class AdopsjonService(
             if (nyAdopsjonsdato != null) {
                 adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
             }
+        }
+    }
+
+    @Transactional
+    fun kopierAdopsjonerFraForrigeBehandling(
+        behandlingId: BehandlingId,
+        forrigeBehandlingId: BehandlingId,
+    ) {
+        val adopsjonerForrigeBehandling = hentAlleAdopsjonerForBehandling(forrigeBehandlingId.id)
+
+        adopsjonerForrigeBehandling.forEach { adopsjon ->
+            val nyAdopsjon = Adopsjon(behandlingId = behandlingId.id, aktør = adopsjon.aktør, adopsjonsdato = adopsjon.adopsjonsdato)
+            adopsjonRepository.save(nyAdopsjon)
         }
     }
 }
