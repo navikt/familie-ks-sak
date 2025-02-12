@@ -18,6 +18,7 @@ class JournalføringControllerTest {
         JournalføringController(
             innkommendeJournalføringService = innkommendeJournalføringService,
             tilgangService = tilgangService,
+            oppgaveService = mockk(),
         )
 
     @Nested
