@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class AdopsjonValidator {
-    fun validerAdopsjonIUtdypendeVilkårsvurderingOgFinnesAdopsjonsdato(
+    fun validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
         vilkårsvurdering: Vilkårsvurdering,
         adopsjonerIBehandling: List<Adopsjon>,
     ) {

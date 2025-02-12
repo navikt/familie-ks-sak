@@ -78,7 +78,7 @@ class VilkårsvurderingSteg(
 
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
 
-        adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgFinnesAdopsjonsdato(
+        adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
             vilkårsvurdering = vilkårsvurdering,
             adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
         )
