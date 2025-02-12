@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagTilbakekrevingsbehandlingResponsDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
@@ -130,7 +131,7 @@ class FagsakService(
                 val andeler =
                     andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
 
-                andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag = personopplysningGrunnlag, adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = it.id))
+                andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag = personopplysningGrunnlag, adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(it.id)))
             }
 
         return lagMinimalFagsakResponsDto(
