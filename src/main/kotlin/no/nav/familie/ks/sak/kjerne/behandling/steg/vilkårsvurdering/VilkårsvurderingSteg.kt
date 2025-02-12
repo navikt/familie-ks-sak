@@ -66,6 +66,12 @@ class VilkårsvurderingSteg(
         val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
 
+        if (vilkårsvurdering.personResultater.any { personResultat -> personResultat.vilkårResultater.any { it.erAdopsjonOppfylt() } } &&
+            !unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)
+        ) {
+            throw FunksjonellFeil("Adopsjonssaker kan ikke behandles før nytt regelverk er støttet i løsningen")
+        }
+
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)

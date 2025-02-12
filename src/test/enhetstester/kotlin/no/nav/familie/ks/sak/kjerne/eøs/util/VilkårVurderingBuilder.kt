@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFør
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.filtrerIkkeNull
@@ -107,6 +108,7 @@ data class VilkårsvurderingBuilder(
                         unleashService = mockUnleashNextMedContextService(),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
+                praksisendring2024Service = mockPraksisendring2024Service(),
             )
 
         return tilkjentYtelseService.beregnTilkjentYtelse(
@@ -114,6 +116,11 @@ data class VilkårsvurderingBuilder(
             personopplysningGrunnlag = this.byggPersonopplysningGrunnlag(),
         )
     }
+
+    private fun mockPraksisendring2024Service() =
+        mockk<Praksisendring2024Service>().apply {
+            every { genererAndelerForPraksisendring2024(any(), any(), any()) } returns emptyList()
+        }
 
     private fun mockOvergangsordningAndelRepository(): OvergangsordningAndelRepository =
         mockk<OvergangsordningAndelRepository>().apply {

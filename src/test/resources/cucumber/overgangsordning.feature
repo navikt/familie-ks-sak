@@ -79,5 +79,5 @@ Egenskap: Overgangsordning
       | 01.09.2024 | 31.10.2024 | INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING |                 |            |
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2024 til 31.10.2024
-      | Begrunnelse                                   | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Målform | Gjelder andre forelder |
-      | INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING | STANDARD | Nei           | 01.01.23             | 1           | september 2024                       | 1 500 |                  | 27                          |         | Ja                     |
+      | Begrunnelse                                   | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Målform | Gjelder andre forelder | Måned og år før vedtaksperiode |
+      | INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING | STANDARD | Nei           | 01.01.23             | 1           | september 2024                       | 1 500 |                  | 27                          |         | Ja                     | august 2024                    |

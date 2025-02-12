@@ -49,25 +49,20 @@ object LovverkTidslinjeGenerator {
         barn: Person,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> =
-        // Konverterer alle VilkårResultatPerioder per vilkår til Lovverk-tidslinjer og kombinerer disse til en felles tidslinje.
-        this.values
-            .map { perioder ->
-                perioder
-                    .map { periode ->
-                        Periode(
-                            fom = periode.fom,
-                            tom = periode.tom,
-                            verdi =
-                                LovverkUtleder.utledLovverkForBarn(
-                                    fødselsdato = barn.fødselsdato,
-                                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
-                                ),
-                        )
-                    }.tilTidslinje()
-                    .slåSammenLikePerioder()
-            }.kombiner {
-                it.toSet().single()
-            }
+        this
+            .getOrElse(Vilkår.BARNETS_ALDER) { throw Feil("Finner ikke vilkår for barnets alder") }
+            .map { periode ->
+                Periode(
+                    fom = periode.fom,
+                    tom = periode.tom,
+                    verdi =
+                        LovverkUtleder.utledLovverkForBarn(
+                            fødselsdato = barn.fødselsdato,
+                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                        ),
+                )
+            }.tilTidslinje()
+            .slåSammenLikePerioder()
 
     private fun List<Periode<Lovverk>>.erstattFørsteFomOgSisteTomMedNull(): List<Periode<Lovverk>> =
         // Sørger for at lovverk-tidslinje strekker seg fra TIDENES_MORGEN til TIDENES_ENDE.

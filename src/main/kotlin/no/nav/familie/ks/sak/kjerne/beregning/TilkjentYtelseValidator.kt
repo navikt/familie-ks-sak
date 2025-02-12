@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
-import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreAndeler
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreOgPraksisendringAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.domene.tilTidslinjeMedAndeler
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.utledMaksAntallMånederMedUtbetaling
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilBrevTekst
@@ -51,7 +51,7 @@ object TilkjentYtelseValidator {
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
         andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-            val ordinæreAndeler = andeler.ordinæreAndeler()
+            val ordinæreAndeler = andeler.ordinæreOgPraksisendringAndeler()
 
             val stønadFom = ordinæreAndeler.minOf { it.stønadFom }
             val stønadTom = ordinæreAndeler.maxOf { it.stønadTom }

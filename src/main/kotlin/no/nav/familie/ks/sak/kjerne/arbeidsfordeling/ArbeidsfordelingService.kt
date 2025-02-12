@@ -4,8 +4,6 @@ import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -32,7 +30,6 @@ class ArbeidsfordelingService(
     private val loggService: LoggService,
     private val personidentService: PersonidentService,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
-    private val unleashService: UnleashNextMedContextService,
 ) {
     fun hentAlleBehandlingerPåEnhet(enhetId: String) = arbeidsfordelingPåBehandlingRepository.hentAlleArbeidsfordelingPåBehandlingMedEnhet(enhetId)
 
@@ -57,12 +54,11 @@ class ArbeidsfordelingService(
                 )
             } else {
                 val arbeidsfordelingsenhet =
-                    if (unleashService.isEnabled(FeatureToggle.OPPRETT_SAK_PÅ_RIKTIG_ENHET_OG_SAKSBEHANDLER, false)) {
-                        val arbeidsfordelingsenhet = hentArbeidsfordelingsenhet(behandling)
-                        tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(arbeidsfordelingsenhet, NavIdent(SikkerhetContext.hentSaksbehandler()))
-                    } else {
-                        hentArbeidsfordelingsenhet(behandling)
-                    }
+                    tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                        hentArbeidsfordelingsenhet(behandling),
+                        NavIdent(SikkerhetContext.hentSaksbehandler()),
+                    )
+
                 when (aktivArbeidsfordelingPåBehandling) {
                     null ->
                         arbeidsfordelingPåBehandlingRepository.save(
@@ -72,6 +68,7 @@ class ArbeidsfordelingService(
                                 behandlendeEnhetNavn = arbeidsfordelingsenhet.enhetNavn,
                             ),
                         )
+
                     else -> {
                         if (!aktivArbeidsfordelingPåBehandling.manueltOverstyrt &&
                             (aktivArbeidsfordelingPåBehandling.behandlendeEnhetId != arbeidsfordelingsenhet.enhetId)

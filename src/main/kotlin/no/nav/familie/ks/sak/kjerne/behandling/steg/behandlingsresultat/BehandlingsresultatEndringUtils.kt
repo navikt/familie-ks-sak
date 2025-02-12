@@ -134,12 +134,12 @@ object BehandlingsresultatEndringUtils {
         erFremstiltKravForPerson: Boolean,
         opphørstidspunktForBehandling: YearMonth,
     ): Boolean {
-        val ytelseTyperForPerson = (nåværendeAndelerForPerson.map { it.type } + forrigeAndelerForPerson.map { it.type }).distinct()
+        val ytelseTyperForPerson = (nåværendeAndelerForPerson.map { it.type } + forrigeAndelerForPerson.map { it.type }).map { it.tilYtelseType() }
 
         return ytelseTyperForPerson.any { ytelseType ->
             erEndringIBeløpForPersonOgType(
-                nåværendeAndeler = nåværendeAndelerForPerson.filter { it.type == ytelseType },
-                forrigeAndeler = forrigeAndelerForPerson.filter { it.type == ytelseType },
+                nåværendeAndeler = nåværendeAndelerForPerson.filter { it.type.tilYtelseType() == ytelseType },
+                forrigeAndeler = forrigeAndelerForPerson.filter { it.type.tilYtelseType() == ytelseType },
                 opphørstidspunktForBehandling = opphørstidspunktForBehandling,
                 erFremstiltKravForPerson = erFremstiltKravForPerson,
             )

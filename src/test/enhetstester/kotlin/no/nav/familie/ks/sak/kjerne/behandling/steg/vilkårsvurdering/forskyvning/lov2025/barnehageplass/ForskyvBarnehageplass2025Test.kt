@@ -36,7 +36,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(15),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(8),
                 ),
             )
@@ -51,7 +51,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(september.atEndOfMonth())
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -69,7 +69,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(15),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = null,
                 ),
             )
@@ -84,7 +84,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(oktober.atEndOfMonth())
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(november.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -102,7 +102,7 @@ class ForskyvBarnehageplass2025Test {
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
                 periodeFom = oktober.atDay(1),
-                periodeTom = desember.atDay(1),
+                periodeTom = null,
                 antallTimer = BigDecimal.valueOf(17),
             )
 
@@ -118,7 +118,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(september.atEndOfMonth())
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -136,7 +136,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(15),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(17),
                 ),
             )
@@ -150,8 +150,8 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().fom).isEqualTo(september.atDay(1))
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(oktober.atEndOfMonth())
 
-        assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(november.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(desember.atDay(1))
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -169,7 +169,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = null,
                 ),
             )
@@ -184,7 +184,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(september.atEndOfMonth())
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -202,7 +202,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(8),
                 ),
             )
@@ -217,7 +217,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(september.atEndOfMonth())
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -235,7 +235,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(14),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(33),
                 ),
             )
@@ -250,7 +250,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(september.atEndOfMonth())
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -268,7 +268,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(14),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(8),
                 ),
             )
@@ -282,8 +282,8 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().fom).isEqualTo(september.atDay(1))
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(oktober.atEndOfMonth())
 
-        assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(november.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(desember.atDay(1))
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -307,7 +307,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = februar.atDay(24),
-                    periodeTom = mars.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(8),
                 ),
             )
@@ -316,11 +316,15 @@ class ForskyvBarnehageplass2025Test {
         val forskjøvedeVilkårResultater = forskyvBarnehageplassVilkår(vilkårResultater)
 
         // Assert
-        assertThat(forskjøvedeVilkårResultater).hasSize(1)
+        assertThat(forskjøvedeVilkårResultater).hasSize(2)
 
         assertThat(forskjøvedeVilkårResultater.first().fom).isEqualTo(februar.atDay(1))
         assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(februar.atEndOfMonth())
         assertThat(forskjøvedeVilkårResultater.first().verdi.antallTimer).isEqualTo(BigDecimal.valueOf(32))
+
+        assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(mars.atDay(1))
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
+        assertThat(forskjøvedeVilkårResultater.last().verdi.antallTimer).isEqualTo(BigDecimal.valueOf(8))
     }
 
     // Eksempel i src/test/resources/barnehageplassscenarioer
@@ -344,7 +348,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = februar.atDay(24),
-                    periodeTom = april.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(16),
                 ),
             )
@@ -360,7 +364,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().verdi.antallTimer).isEqualTo(BigDecimal.valueOf(32))
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(mars.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(mars.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
         assertThat(forskjøvedeVilkårResultater.last().verdi.antallTimer).isEqualTo(BigDecimal.valueOf(16))
     }
 
@@ -378,7 +382,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(35),
                 ),
             )
@@ -394,7 +398,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultaterForBarn1.first().verdi.antallTimer).isEqualTo(BigDecimal(17))
 
         assertThat(forskjøvedeVilkårResultaterForBarn1.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultaterForBarn1.last().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultaterForBarn1.last().tom).isNull()
         assertThat(forskjøvedeVilkårResultaterForBarn1.last().verdi.antallTimer).isEqualTo(BigDecimal(35))
     }
 
@@ -412,7 +416,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(16),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(40),
                 ),
             )
@@ -428,7 +432,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultaterForBarn2.first().verdi.antallTimer).isEqualTo(BigDecimal(24))
 
         assertThat(forskjøvedeVilkårResultaterForBarn2.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultaterForBarn2.last().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultaterForBarn2.last().tom).isNull()
         assertThat(forskjøvedeVilkårResultaterForBarn2.last().verdi.antallTimer).isEqualTo(BigDecimal(40))
     }
 
@@ -440,7 +444,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = september.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(15),
                 ),
             )
@@ -451,7 +455,7 @@ class ForskyvBarnehageplass2025Test {
         // Assert
         assertThat(forskjøvedeVilkårResultater).hasSize(1)
         assertThat(forskjøvedeVilkårResultater.first().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.first().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.first().tom).isNull()
         assertThat(forskjøvedeVilkårResultater.first().verdi.antallTimer).isEqualTo(BigDecimal(15))
     }
 
@@ -469,7 +473,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = BigDecimal(8),
                 ),
             )
@@ -485,7 +489,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().verdi.antallTimer).isNull()
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
         assertThat(forskjøvedeVilkårResultater.last().verdi.antallTimer).isEqualTo(BigDecimal(8))
     }
 
@@ -503,7 +507,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = null,
                 ),
             )
@@ -519,7 +523,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().verdi.antallTimer).isEqualTo(BigDecimal.valueOf(25))
 
         assertThat(forskjøvedeVilkårResultater.last().fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater.last().tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater.last().tom).isNull()
         assertThat(forskjøvedeVilkårResultater.last().verdi.antallTimer).isNull()
     }
 
@@ -543,7 +547,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(15),
                 ),
             )
@@ -563,7 +567,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater[1].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(33))
 
         assertThat(forskjøvedeVilkårResultater[2].fom).isEqualTo(november.atDay(1))
-        assertThat(forskjøvedeVilkårResultater[2].tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater[2].tom).isNull()
         assertThat(forskjøvedeVilkårResultater[2].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(15))
     }
 
@@ -587,7 +591,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = null,
                 ),
             )
@@ -606,8 +610,8 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater[1].tom).isEqualTo(september.atEndOfMonth())
         assertThat(forskjøvedeVilkårResultater[1].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(33))
 
-        assertThat(forskjøvedeVilkårResultater[2].fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater[2].tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater[2].fom).isEqualTo(november.atDay(1))
+        assertThat(forskjøvedeVilkårResultater[2].tom).isNull()
         assertThat(forskjøvedeVilkårResultater[2].verdi.antallTimer).isNull()
     }
 
@@ -631,7 +635,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = oktober.atDay(1),
-                    periodeTom = desember.atEndOfMonth(),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(15),
                 ),
             )
@@ -651,7 +655,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater[1].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(8))
 
         assertThat(forskjøvedeVilkårResultater[2].fom).isEqualTo(oktober.atDay(1))
-        assertThat(forskjøvedeVilkårResultater[2].tom).isEqualTo(desember.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater[2].tom).isNull()
         assertThat(forskjøvedeVilkårResultater[2].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(15))
     }
 
@@ -669,7 +673,7 @@ class ForskyvBarnehageplass2025Test {
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = november.atDay(1),
-                    periodeTom = desember.atDay(1),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(33),
                 ),
             )
@@ -685,7 +689,7 @@ class ForskyvBarnehageplass2025Test {
         assertThat(forskjøvedeVilkårResultater.first().verdi.antallTimer).isEqualTo(BigDecimal.valueOf(8))
 
         assertThat(forskjøvedeVilkårResultater[1].fom).isEqualTo(november.atDay(1))
-        assertThat(forskjøvedeVilkårResultater[1].tom).isEqualTo(november.atEndOfMonth())
+        assertThat(forskjøvedeVilkårResultater[1].tom).isNull()
         assertThat(forskjøvedeVilkårResultater[1].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(33))
     }
 
@@ -702,8 +706,8 @@ class ForskyvBarnehageplass2025Test {
                 ),
                 lagVilkårResultat(
                     vilkårType = Vilkår.BARNEHAGEPLASS,
-                    periodeFom = LocalDate.of(2025, 2, 15),
-                    periodeTom = LocalDate.of(2025, 4, 14),
+                    periodeFom = LocalDate.of(2025, 2, 14),
+                    periodeTom = null,
                     antallTimer = BigDecimal.valueOf(16),
                 ),
             )
@@ -714,7 +718,8 @@ class ForskyvBarnehageplass2025Test {
         // Assert
         assertThat(forskjøvedeVilkårResultater).hasSize(1)
 
-        assertThat(forskjøvedeVilkårResultater.single().fom).isEqualTo(LocalDate.of(2025, 3, 1))
-        assertThat(forskjøvedeVilkårResultater.single().tom).isEqualTo(LocalDate.of(2025, 3, 31))
+        assertThat(forskjøvedeVilkårResultater.single().fom).isEqualTo(LocalDate.of(2025, 2, 1))
+        assertThat(forskjøvedeVilkårResultater.single().tom).isNull()
+        assertThat(forskjøvedeVilkårResultater.single().verdi.antallTimer).isEqualTo(BigDecimal(16))
     }
 }
