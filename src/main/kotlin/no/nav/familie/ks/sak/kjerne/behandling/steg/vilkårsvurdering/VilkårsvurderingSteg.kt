@@ -80,7 +80,7 @@ class VilkårsvurderingSteg(
 
         adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
             vilkårsvurdering = vilkårsvurdering,
-            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
+            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id)),
         )
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
