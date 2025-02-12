@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.adopsjon
 
+import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -10,6 +11,7 @@ class AdopsjonService(
 ) {
     fun hentAlleAdopsjonerForBehandling(behandlingId: Long): List<Adopsjon> = adopsjonRepository.hentAlleAdopsjonerForBehandling(behandlingId)
 
+    @Transactional
     fun oppdaterAdopsjonsdato(behandlingId: Long, aktør: Aktør, nyAdopsjonsdato: LocalDate?) {
         val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId, aktør = aktør)
 
