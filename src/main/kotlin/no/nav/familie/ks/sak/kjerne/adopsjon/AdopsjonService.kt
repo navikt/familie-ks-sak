@@ -20,14 +20,16 @@ class AdopsjonService(
     ) {
         val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId.id, aktør = aktør)
 
-        if (nåværendeAdopsjon?.adopsjonsdato != nyAdopsjonsdato) {
-            if (nåværendeAdopsjon != null) {
-                adopsjonRepository.delete(nåværendeAdopsjon)
-                adopsjonRepository.flush()
-            }
-            if (nyAdopsjonsdato != null) {
-                adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId.id, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
-            }
+        if (nåværendeAdopsjon?.adopsjonsdato == nyAdopsjonsdato){
+            return
+        }
+
+        if (nåværendeAdopsjon != null) {
+            adopsjonRepository.delete(nåværendeAdopsjon)
+            adopsjonRepository.flush()
+        }
+        if (nyAdopsjonsdato != null) {
+            adopsjonRepository.saveAndFlush(Adopsjon(behandlingId = behandlingId.id, aktør = aktør, adopsjonsdato = nyAdopsjonsdato))
         }
     }
 
