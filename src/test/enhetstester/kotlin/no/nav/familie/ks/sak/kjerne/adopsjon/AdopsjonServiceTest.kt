@@ -130,4 +130,42 @@ class AdopsjonServiceTest {
         verify(exactly = 0) { adopsjonRepository.delete(any()) }
         verify(exactly = 0) { adopsjonRepository.saveAndFlush(any()) }
     }
+
+    @Test
+    fun `Skal kopiere adopsjoner fra forrige behandling`() {
+        // Arrange
+        val forrigeBehandlingId = BehandlingId(1.toLong())
+        val behandlingId = BehandlingId(2.toLong())
+        val barn1Aktør = randomAktør()
+        val barn2Aktør = randomAktør()
+
+        val adopsjonsdatoBarn1 = LocalDate.now().minusMonths(8)
+        val adopsjonsdatoBarn2 = LocalDate.now().minusMonths(11)
+
+        val adopsjonerForrigeBehandling = listOf(
+            Adopsjon(behandlingId = forrigeBehandlingId.id, aktør = barn1Aktør, adopsjonsdato = adopsjonsdatoBarn1),
+            Adopsjon(behandlingId = forrigeBehandlingId.id, aktør = barn2Aktør, adopsjonsdato = adopsjonsdatoBarn2),
+        )
+
+        every { adopsjonRepository.hentAlleAdopsjonerForBehandling(forrigeBehandlingId.id) } returns adopsjonerForrigeBehandling
+
+        val nyeAdopsjoner = mutableListOf<Adopsjon>()
+        every { adopsjonRepository.save(capture(nyeAdopsjoner)) } returns mockk()
+
+        // Act
+        adopsjonService.kopierAdopsjonerFraForrigeBehandling(behandlingId = behandlingId, forrigeBehandlingId = forrigeBehandlingId)
+
+        // Assert
+        verify(exactly = 2) { adopsjonRepository.save(any()) }
+
+        assertThat(nyeAdopsjoner).hasSize(2)
+
+        assertThat(nyeAdopsjoner[0].behandlingId).isEqualTo(behandlingId.id)
+        assertThat(nyeAdopsjoner[0].aktør).isEqualTo(barn1Aktør)
+        assertThat(nyeAdopsjoner[0].adopsjonsdato).isEqualTo(adopsjonsdatoBarn1)
+
+        assertThat(nyeAdopsjoner[1].behandlingId).isEqualTo(behandlingId.id)
+        assertThat(nyeAdopsjoner[1].aktør).isEqualTo(barn2Aktør)
+        assertThat(nyeAdopsjoner[1].adopsjonsdato).isEqualTo(adopsjonsdatoBarn2)
+    }
 }
