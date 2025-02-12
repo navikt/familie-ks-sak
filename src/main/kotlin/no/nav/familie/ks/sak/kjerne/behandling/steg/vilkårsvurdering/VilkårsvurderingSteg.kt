@@ -9,6 +9,8 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -47,6 +49,8 @@ class VilkårsvurderingSteg(
     private val kompetanseService: KompetanseService,
     private val barnetsVilkårValidator: BarnetsVilkårValidator,
     private val unleashNextMedContextService: UnleashNextMedContextService,
+    private val adopsjonValidator: AdopsjonValidator,
+    private val adopsjonService: AdopsjonService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -73,6 +77,11 @@ class VilkårsvurderingSteg(
         }
 
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
+
+        adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgFinnesAdopsjonsdato(
+            vilkårsvurdering = vilkårsvurdering,
+            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
+        )
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 

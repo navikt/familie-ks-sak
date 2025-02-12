@@ -58,7 +58,7 @@ class RegistrerPersonGrunnlagSteg(
 
             adopsjonService.kopierAdopsjonerFraForrigeBehandling(
                 behandlingId = BehandlingId(behandling.id),
-                forrigeBehandlingId = BehandlingId(sisteVedtattBehandling.id)
+                forrigeBehandlingId = BehandlingId(sisteVedtattBehandling.id),
             )
         }
     }

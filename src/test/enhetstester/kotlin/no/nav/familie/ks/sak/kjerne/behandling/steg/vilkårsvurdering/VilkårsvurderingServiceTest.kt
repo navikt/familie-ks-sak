@@ -53,7 +53,7 @@ class VilkårsvurderingServiceTest {
             sanityService,
             personidentService,
             unleashService,
-            adopsjonService
+            adopsjonService,
         )
 
     private val søker = randomAktør()

@@ -13,7 +13,11 @@ class AdopsjonService(
     fun hentAlleAdopsjonerForBehandling(behandlingId: BehandlingId): List<Adopsjon> = adopsjonRepository.hentAlleAdopsjonerForBehandling(behandlingId.id)
 
     @Transactional
-    fun oppdaterAdopsjonsdato(behandlingId: BehandlingId, aktør: Aktør, nyAdopsjonsdato: LocalDate?) {
+    fun oppdaterAdopsjonsdato(
+        behandlingId: BehandlingId,
+        aktør: Aktør,
+        nyAdopsjonsdato: LocalDate?,
+    ) {
         val nåværendeAdopsjon = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId = behandlingId.id, aktør = aktør)
 
         if (nåværendeAdopsjon?.adopsjonsdato != nyAdopsjonsdato) {
