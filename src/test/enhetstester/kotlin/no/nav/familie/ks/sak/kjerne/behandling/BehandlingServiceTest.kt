@@ -194,6 +194,7 @@ class BehandlingServiceTest {
         every { mockKorrigertVedtakRepository.finnAktivtKorrigertVedtakPåBehandling(behandling.id) } returns null
         every { mockBrevmottakerService.hentBrevmottakere(any()) } returns emptyList()
         every { mockOvergangsordningAndelService.hentOvergangsordningAndeler(any()) } returns emptyList()
+        every { mockAdopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
     @Test

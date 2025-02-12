@@ -82,8 +82,8 @@ class VilkårsvurderingStegTest {
                 unleashService,
             ),
         )
-
     private val adopsjonValidator = AdopsjonValidator()
+
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
         VilkårsvurderingSteg(
             personopplysningGrunnlagService,
@@ -135,6 +135,8 @@ class VilkårsvurderingStegTest {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
         every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
+        every { unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
     @Test
