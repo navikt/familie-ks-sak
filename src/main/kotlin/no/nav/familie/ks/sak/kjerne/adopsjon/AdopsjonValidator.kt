@@ -13,7 +13,7 @@ class AdopsjonValidator {
         adopsjonerIBehandling: List<Adopsjon>,
         støtterAdopsjonILøsningen: Boolean,
     ) {
-        if (!støtterAdopsjonILøsningen){
+        if (!støtterAdopsjonILøsningen) {
             return
         }
         vilkårsvurdering.personResultater.forEach { personResultat ->
