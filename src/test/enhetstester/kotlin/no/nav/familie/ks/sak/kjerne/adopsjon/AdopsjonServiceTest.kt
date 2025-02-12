@@ -142,10 +142,11 @@ class AdopsjonServiceTest {
         val adopsjonsdatoBarn1 = LocalDate.now().minusMonths(8)
         val adopsjonsdatoBarn2 = LocalDate.now().minusMonths(11)
 
-        val adopsjonerForrigeBehandling = listOf(
-            Adopsjon(behandlingId = forrigeBehandlingId.id, aktør = barn1Aktør, adopsjonsdato = adopsjonsdatoBarn1),
-            Adopsjon(behandlingId = forrigeBehandlingId.id, aktør = barn2Aktør, adopsjonsdato = adopsjonsdatoBarn2),
-        )
+        val adopsjonerForrigeBehandling =
+            listOf(
+                Adopsjon(behandlingId = forrigeBehandlingId.id, aktør = barn1Aktør, adopsjonsdato = adopsjonsdatoBarn1),
+                Adopsjon(behandlingId = forrigeBehandlingId.id, aktør = barn2Aktør, adopsjonsdato = adopsjonsdatoBarn2),
+            )
 
         every { adopsjonRepository.hentAlleAdopsjonerForBehandling(forrigeBehandlingId.id) } returns adopsjonerForrigeBehandling
 
