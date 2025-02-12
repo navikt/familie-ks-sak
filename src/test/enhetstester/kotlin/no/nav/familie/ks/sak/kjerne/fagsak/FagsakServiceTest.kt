@@ -98,7 +98,7 @@ class FagsakServiceTest {
     private lateinit var fagsakService: FagsakService
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
