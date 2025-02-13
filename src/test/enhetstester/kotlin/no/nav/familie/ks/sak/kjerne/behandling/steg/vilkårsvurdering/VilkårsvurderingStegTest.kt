@@ -23,6 +23,8 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -62,6 +64,7 @@ class VilkårsvurderingStegTest {
     private val beregningService: BeregningService = mockk()
     private val kompetanseService: KompetanseService = mockk()
     private val unleashService: UnleashNextMedContextService = mockk()
+    private val adopsjonService: AdopsjonService = mockk()
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
@@ -79,6 +82,8 @@ class VilkårsvurderingStegTest {
                 unleashService,
             ),
         )
+    private val adopsjonValidator = AdopsjonValidator()
+
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
         VilkårsvurderingSteg(
             personopplysningGrunnlagService,
@@ -89,6 +94,8 @@ class VilkårsvurderingStegTest {
             kompetanseService,
             barnetsVilkårValidator,
             unleashService,
+            adopsjonValidator,
+            adopsjonService,
         )
 
     private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
@@ -128,6 +135,8 @@ class VilkårsvurderingStegTest {
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
         every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
+        every { unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
     @Test
@@ -577,7 +586,6 @@ class VilkårsvurderingStegTest {
                 ),
             ),
         )
-        val barnFødselsDato = LocalDate.now().minusYears(2)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
@@ -718,7 +726,6 @@ class VilkårsvurderingStegTest {
                 ),
             ),
         )
-        val barnFødselsDato = LocalDate.now().minusYears(2)
         val vilkårResultaterForBarn =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultat,
@@ -754,7 +761,6 @@ class VilkårsvurderingStegTest {
             ),
         )
 
-        val barnIForrigeVilkårsvurderingFødselsDato = LocalDate.now().minusYears(2)
         val vilkårResultaterForBarnIForrigeVilkårsvurdering =
             lagVilkårResultaterForBarn(
                 personResultat = barnPersonResultatIForrigeVilkårsvurdering,

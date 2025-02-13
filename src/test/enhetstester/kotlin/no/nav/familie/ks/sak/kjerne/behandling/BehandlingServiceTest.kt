@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -92,6 +93,7 @@ class BehandlingServiceTest {
     private val mockOppgaveService = mockk<OppgaveService>()
     private val mockSakStatistikkService = mockk<SakStatistikkService>()
     private val mockKorrigertVedtakRepository = mockk<KorrigertVedtakRepository>()
+    private val mockAdopsjonService = mockk<AdopsjonService>()
 
     private val behandlingService =
         BehandlingService(
@@ -120,6 +122,7 @@ class BehandlingServiceTest {
             oppgaveService = mockOppgaveService,
             sakStatistikkService = mockSakStatistikkService,
             korrigertVedtakRepository = mockKorrigertVedtakRepository,
+            adopsjonService = mockAdopsjonService,
         )
 
     private val søker = randomAktør()
@@ -191,6 +194,7 @@ class BehandlingServiceTest {
         every { mockKorrigertVedtakRepository.finnAktivtKorrigertVedtakPåBehandling(behandling.id) } returns null
         every { mockBrevmottakerService.hentBrevmottakere(any()) } returns emptyList()
         every { mockOvergangsordningAndelService.hentOvergangsordningAndeler(any()) } returns emptyList()
+        every { mockAdopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
     @Test

@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -27,6 +28,7 @@ class RegistrerPersongrunnlagEnhetTest {
     private val kompetanseService: KompetanseService = mockk(relaxed = true)
     private val valutakursService: ValutakursService = mockk(relaxed = true)
     private val utenlandskPeriodebeløpService: UtenlandskPeriodebeløpService = mockk(relaxed = true)
+    private val adopsjonService: AdopsjonService = mockk(relaxed = true)
 
     private val registrerPersongrunnlagSteg =
         RegistrerPersonGrunnlagSteg(
@@ -41,6 +43,7 @@ class RegistrerPersongrunnlagEnhetTest {
                     utenlandskPeriodebeløpService = utenlandskPeriodebeløpService,
                     valutakursService = valutakursService,
                 ),
+            adopsjonService = adopsjonService,
         )
 
     @Test

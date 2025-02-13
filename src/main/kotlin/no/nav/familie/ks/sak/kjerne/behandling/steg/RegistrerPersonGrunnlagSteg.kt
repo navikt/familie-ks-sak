@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -22,6 +23,7 @@ class RegistrerPersonGrunnlagSteg(
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val eøsSkjemaerForNyBehandlingService: EøsSkjemaerForNyBehandlingService,
+    private val adopsjonService: AdopsjonService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.REGISTRERE_PERSONGRUNNLAG
 
@@ -52,6 +54,11 @@ class RegistrerPersonGrunnlagSteg(
             eøsSkjemaerForNyBehandlingService.kopierEøsSkjemaer(
                 forrigeBehandlingSomErVedtattId = BehandlingId(sisteVedtattBehandling.id),
                 behandlingId = BehandlingId(behandling.id),
+            )
+
+            adopsjonService.kopierAdopsjonerFraForrigeBehandling(
+                behandlingId = BehandlingId(behandling.id),
+                forrigeBehandlingId = BehandlingId(sisteVedtattBehandling.id),
             )
         }
     }

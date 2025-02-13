@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagTilbakekrevingsbehandlingResponsDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.LocalDateProvider
@@ -17,6 +18,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -56,6 +58,7 @@ class FagsakService(
     private val vedtakRepository: VedtakRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val localDateProvider: LocalDateProvider,
+    private val adopsjonService: AdopsjonService,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -128,7 +131,7 @@ class FagsakService(
                 val andeler =
                     andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
 
-                andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag)
+                andeler.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag = personopplysningGrunnlag, adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(it.id)))
             }
 
         return lagMinimalFagsakResponsDto(
