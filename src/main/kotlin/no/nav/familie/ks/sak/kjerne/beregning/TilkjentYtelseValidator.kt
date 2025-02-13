@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.util.månederIPeriode
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -37,6 +38,7 @@ object TilkjentYtelseValidator {
         tilkjentYtelse: TilkjentYtelse,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
+        adopsjonerIBehandling: List<Adopsjon>,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
@@ -57,17 +59,19 @@ object TilkjentYtelseValidator {
             val stønadTom = ordinæreAndeler.maxOf { it.stønadTom }
 
             val relevantBarn = barna.single { it.aktør == aktør }
+            val adopsjonsdatoForBarn = adopsjonerIBehandling.firstOrNull { it.aktør == aktør }?.adopsjonsdato
 
             val vilkårLovverkInformasjonForBarn =
                 if (alleBarnetsAlderVilkårResultater.any { it.erAdopsjonOppfylt() }) {
                     VilkårLovverkInformasjonForBarn(
                         fødselsdato = relevantBarn.fødselsdato,
+                        adopsjonsdato = adopsjonsdatoForBarn,
                         skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         periodeFomForAdoptertBarn = stønadFom,
                         periodeTomForAdoptertBarn = stønadTom,
                     )
                 } else {
-                    VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+                    VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, adopsjonsdato = adopsjonsdatoForBarn, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
                 }
 
             val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }

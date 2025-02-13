@@ -76,6 +76,7 @@ internal class TilkjentYtelseValidatorTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
         val feilmelding =
@@ -125,6 +126,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
         val feilmelding =
@@ -166,6 +168,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
         val feilmelding =
@@ -217,6 +220,7 @@ internal class TilkjentYtelseValidatorTest {
                 ),
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
         }
     }
@@ -247,6 +251,7 @@ internal class TilkjentYtelseValidatorTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
 
@@ -287,6 +292,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
 
@@ -533,6 +539,7 @@ internal class TilkjentYtelseValidatorTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
         }
     }
@@ -561,6 +568,7 @@ internal class TilkjentYtelseValidatorTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
         }
     }
@@ -589,6 +597,7 @@ internal class TilkjentYtelseValidatorTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
         }
     }
@@ -618,6 +627,7 @@ internal class TilkjentYtelseValidatorTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
         assertEquals(

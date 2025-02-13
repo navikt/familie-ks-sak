@@ -1,9 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class BarnetsVilkårValidator(
     val barnetsAlderVilkårValidator: BarnetsAlderVilkårValidator,
+    private val adopsjonService: AdopsjonService,
 ) {
     fun validerAtDatoErKorrektIBarnasVilkår(
         vilkårsvurdering: Vilkårsvurdering,
@@ -68,6 +71,7 @@ class BarnetsVilkårValidator(
                 barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                     perioder = barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
                     barn = barn,
+                    adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = BehandlingId(vilkårsvurdering.behandling.id))?.adopsjonsdato
                 )
             funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)
         }
