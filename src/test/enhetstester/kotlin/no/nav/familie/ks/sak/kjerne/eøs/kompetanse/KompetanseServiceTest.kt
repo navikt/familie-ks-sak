@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -58,12 +59,14 @@ internal class KompetanseServiceTest {
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
     private val unleashService: UnleashNextMedContextService = mockk()
+    private val adopsjonService: AdopsjonService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
             vilkårsvurderingService = vilkårsvurderingService,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
             unleashService = unleashService,
+            adopsjonService = adopsjonService,
         )
     private val tilpassKompetanserService =
         TilpassKompetanserService(

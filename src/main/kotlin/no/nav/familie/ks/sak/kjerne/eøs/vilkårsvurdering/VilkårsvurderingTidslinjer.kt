@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
@@ -11,10 +12,12 @@ import no.nav.familie.tidslinje.beskjærEtter
 import no.nav.familie.tidslinje.inneholder
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import java.time.LocalDate
 
 class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    adopsjonerIBehandling: List<Adopsjon>,
     skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val barnasTidslinjer: Map<Person, BarnetsTidslinjer> =
@@ -22,6 +25,7 @@ class VilkårsvurderingTidslinjer(
             BarnetsTidslinjer(
                 barn = barn,
                 personResultater = vilkårsvurdering.personResultater,
+                adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             )
         }
@@ -30,10 +34,11 @@ class VilkårsvurderingTidslinjer(
 
     class BarnetsTidslinjer(
         barn: Person,
+        adopsjonsdato: LocalDate?,
         personResultater: Set<PersonResultat>,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
-        private val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+        private val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
         private val søkersTidslinje = personResultater.single { it.erSøkersResultater() }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
         private val barnetsTidslinje = personResultater.single { it.aktør == barn.aktør }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
 
