@@ -366,10 +366,9 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
             if (personResultatForrigeBehandling == null) {
                 initieltPersonResultat.vilkårResultater
             } else {
-                initieltPersonResultat.vilkårResultater
+                initieltPersonResultat
                     .overskrivMedVilkårResultaterFraForrigeBehandling(
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
-                        nyttPersonResultat = initieltPersonResultat,
                     )
             }
 
@@ -377,20 +376,19 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
     }
 }
 
-private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeBehandling(
+private fun PersonResultat.overskrivMedVilkårResultaterFraForrigeBehandling(
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
-    nyttPersonResultat: PersonResultat,
 ): List<VilkårResultat> {
-    val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
+    val vilkårForPerson = this.vilkårResultater.map { it.vilkårType }.toSet()
 
     return vilkårForPerson.flatMap { vilkårType ->
         val vilkårResultaterAvSammeType: List<VilkårResultat> =
-            nyttPersonResultat.vilkårResultater.filter { it.vilkårType == vilkårType }
+            this.vilkårResultater.filter { it.vilkårType == vilkårType }
 
         val vilkårResultaterAvSammeTypeIForrigeBehandling =
             vilkårResultaterFraForrigeBehandling
                 .filter { it.vilkårType == vilkårType }
-                .map { it.kopier(personResultat = nyttPersonResultat) }
+                .map { it.kopier(personResultat = this) }
 
         val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
             when (vilkårType) {
