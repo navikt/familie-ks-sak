@@ -74,11 +74,11 @@ class BegrunnelserForPeriodeContext(
         return when (this.utvidetVedtaksperiodeMedBegrunnelser.type) {
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             Vedtaksperiodetype.AVSLAG,
-            -> tillateBegrunnelserForVedtakstype
+                -> tillateBegrunnelserForVedtakstype
 
             Vedtaksperiodetype.UTBETALING,
             Vedtaksperiodetype.OPPHØR,
-            -> tillateBegrunnelserForVedtakstype.filtrerErGyldigForVedtaksperiode()
+                -> tillateBegrunnelserForVedtakstype.filtrerErGyldigForVedtaksperiode()
         }
     }
 
@@ -105,7 +105,7 @@ class BegrunnelserForPeriodeContext(
 
         val personerSomMatcherBegrunnelseIPeriode =
             hentPersonerSomPasserMedBegrunnelseOgPeriode(this, sanityBegrunnelse) +
-                hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
+                    hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
 
         return when {
             sanityBegrunnelse.skalAlltidVises -> true
@@ -249,11 +249,11 @@ class BegrunnelserForPeriodeContext(
         val personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden = hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
 
         return (
-            personerMedVilkårResultaterSomPasserVedtaksperioden.keys +
-                personerMedOvergangsordningAndel +
-                personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode +
-                personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden
-        ).toSet()
+                personerMedVilkårResultaterSomPasserVedtaksperioden.keys +
+                        personerMedOvergangsordningAndel +
+                        personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode +
+                        personerMedEndretUtbetalingsAndelerSomPasserVedtaksperioden
+                ).toSet()
     }
 
     fun hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse: SanityBegrunnelse): Set<Person> =
@@ -263,7 +263,7 @@ class BegrunnelserForPeriodeContext(
                     endretUtbetalingAndel.periode.tom
                         .sisteDagIInneværendeMåned()
                         .erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) &&
-                        sanityBegrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
+                            sanityBegrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
 
                 val endretUtbetalingAndelStarterSamtidigSomVedtaksperiode = endretUtbetalingAndel.fom == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
 
@@ -280,7 +280,7 @@ class BegrunnelserForPeriodeContext(
                 vilkårResultaterSomPasserMedVedtaksperiodeDato.contains(
                     vilkårResultat.id,
                 ) ||
-                    begrunnelseType == SanityBegrunnelseType.STANDARD
+                        begrunnelseType == SanityBegrunnelseType.STANDARD
             }
         }.filterValues { it.isNotEmpty() }
 
@@ -291,16 +291,16 @@ class BegrunnelserForPeriodeContext(
             BegrunnelseType.EØS_INNVILGET,
             BegrunnelseType.ENDRET_UTBETALING,
             BegrunnelseType.INNVILGET,
-            -> finnVilkårResultaterSomStarterSamtidigSomPeriode()
+                -> finnVilkårResultaterSomStarterSamtidigSomPeriode()
 
             BegrunnelseType.EØS_OPPHØR,
             BegrunnelseType.ETTER_ENDRET_UTBETALING,
             BegrunnelseType.OPPHØR,
-            -> finnVilkårResultaterSomSlutterFørPeriode()
+                -> finnVilkårResultaterSomSlutterFørPeriode()
 
             BegrunnelseType.AVSLAG,
             BegrunnelseType.EØS_AVSLAG,
-            -> finnVilkårResultaterSomStarterSamtidigSomPeriode() + finnVilkårResultaterSomSlutterFørPeriode()
+                -> finnVilkårResultaterSomStarterSamtidigSomPeriode() + finnVilkårResultaterSomSlutterFørPeriode()
 
             BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
         }
@@ -338,7 +338,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.EØS_INNVILGET,
         BegrunnelseType.ENDRET_UTBETALING,
         BegrunnelseType.INNVILGET,
-        -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
+            -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
 
         BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG ->
             finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomEllerRettFørPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
@@ -346,7 +346,7 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.EØS_OPPHØR,
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
         BegrunnelseType.OPPHØR,
-        -> {
+            -> {
             if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
         }
 
@@ -462,7 +462,7 @@ class BegrunnelserForPeriodeContext(
                         .singleOrNull {
                             it.tom?.plusDays(1) == vedtaksperiode.fom
                         }?.verdi
-                        ?.filter { it.erOppfylt() }
+                        ?.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
                 if (vilkårResultatSomSlutterFørVedtaksperiode != null) {
                     Pair(person, vilkårResultatSomSlutterFørVedtaksperiode)
