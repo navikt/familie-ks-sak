@@ -413,6 +413,7 @@ class VedtaksperiodeService(
                         kompetanser = utfylteKompetanser,
                         andelerTilkjentYtelse = andeler,
                         overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
+                        adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id)),
                         skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
                     ).hentGyldigeBegrunnelserForVedtaksperiode(),
             )

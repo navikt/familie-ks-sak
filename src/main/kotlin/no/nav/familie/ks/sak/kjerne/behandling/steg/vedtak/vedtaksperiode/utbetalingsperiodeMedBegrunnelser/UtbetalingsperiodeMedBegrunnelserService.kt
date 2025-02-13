@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -18,6 +20,7 @@ class UtbetalingsperiodeMedBegrunnelserService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val kompetanseService: KompetanseService,
     private val unleashNextMedContextService: UnleashNextMedContextService,
+    private val adopsjonService: AdopsjonService,
 ) {
     fun hentUtbetalingsperioder(
         vedtak: Vedtak,
@@ -31,9 +34,12 @@ class UtbetalingsperiodeMedBegrunnelserService(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = vedtak.behandling.id)
 
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(vedtak.behandling.id))
+
         val forskjøvetVilkårResultatTidslinjeMap =
             vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
 

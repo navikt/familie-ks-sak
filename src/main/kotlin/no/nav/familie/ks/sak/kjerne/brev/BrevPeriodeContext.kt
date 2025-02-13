@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.begrunnelseGjelderOpphørFraForrigeBehandling
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -76,6 +77,7 @@ class BrevPeriodeContext(
     private val landkoder: Map<String, String>,
     private val erFørsteVedtaksperiode: Boolean,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
+    private val adopsjonerIBehandling: List<Adopsjon>,
     private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val personerMedUtbetaling =
@@ -273,6 +275,7 @@ class BrevPeriodeContext(
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
             kompetanser = kompetanser,
             andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
+            adopsjonerIBehandling = adopsjonerIBehandling,
             skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
         )
 
@@ -695,6 +698,7 @@ class BrevPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
 
