@@ -697,7 +697,7 @@ class StepDefinition {
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
                 unleashNextMedContextService = mockUnleashNextMedContextService(),
-                adopsjonService = mockAdopsjonService()
+                adopsjonService = mockAdopsjonService(),
             )
 
         return VedtaksperiodeService(

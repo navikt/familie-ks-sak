@@ -204,26 +204,31 @@ class BrevPeriodeContext(
             begrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
                 uregistrerteBarn.mapNotNull { it.fødselsdato }
 
-            gjelderSøker &&
+            else -> hentBarnSomSkalIBegrunnelse(gjelderSøker, personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse, begrunnelse).map { it.fødselsdato }
+        }
+
+    fun hentBarnSomSkalIBegrunnelse(
+        gjelderSøker: Boolean,
+        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse: Collection<Person>,
+        begrunnelse: IBegrunnelse,
+    ): List<Person> = when {
+        gjelderSøker &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
-                if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
-                    personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
-                        .filter { it.type == PersonType.BARN }
-                        .map { it.fødselsdato }
-                } else {
-                    (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
-                        .toSet()
-                        .filter { it.type == PersonType.BARN }
-                        .map { it.fødselsdato }
-                }
-            }
-
-            else ->
+            if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
                 personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
-                    .map { it.fødselsdato }
+            } else {
+                (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
+                    .toSet()
+                    .filter { it.type == PersonType.BARN }
+            }
         }
+
+        else ->
+            personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
+                .filter { it.type == PersonType.BARN }
+    }
 
     fun hentAntallBarnForBegrunnelse(
         barnasFødselsdatoer: List<LocalDate>,
@@ -331,7 +336,8 @@ class BrevPeriodeContext(
                             vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             vedtaksperiodeFom = fom,
                             endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
-                            barnasFødselsdatoer = barnasFødselsdatoer,
+                            barnSomSkalIBegrunnelse = hentBarnSomSkalIBegrunnelse(gjelderSøker, relevantePersoner, begrunnelse),
+                            adopsjonerIBehandling = adopsjonerIBehandling,
                             skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         )
                     }
@@ -566,12 +572,13 @@ class BrevPeriodeContext(
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
-        barnasFødselsdatoer: List<LocalDate>,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+        barnSomSkalIBegrunnelse: List<Person>,
+        adopsjonerIBehandling: List<Adopsjon>
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
-        val alleLovverkForBarna = barnasFødselsdatoer.map { LovverkUtleder.utledLovverkForBarn(it, skalBestemmeLovverkBasertPåFødselsdato) }
+        val alleLovverkForBarna = barnSomSkalIBegrunnelse.map { barn -> LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato) }
 
         return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
