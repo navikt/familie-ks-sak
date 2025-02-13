@@ -7,6 +7,7 @@ import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -711,6 +712,7 @@ class StepDefinition {
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
             unleashNextMedContextService = mockUnleashNextMedContextService(),
+            adopsjonService = mockAdopsjonService(),
         )
     }
 
