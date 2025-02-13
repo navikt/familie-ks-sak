@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validerin
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
+import mockAdopsjonService
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
@@ -59,6 +60,7 @@ class BarnetsVilkårValidatorTest {
                 barnetsAlderVilkårValidator2025,
                 unleashNextMedContextService,
             ),
+            mockAdopsjonService()
         )
 
     @BeforeEach
