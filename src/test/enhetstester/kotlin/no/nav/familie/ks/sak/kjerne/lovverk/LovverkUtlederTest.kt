@@ -10,7 +10,7 @@ class LovverkUtlederTest {
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.plusDays(1)
 
         // Act & Assert
-        assertThat(/* actual = */ LovverkUtleder.utledLovverkForBarn(fødselsdato, null, false)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = false)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
     }
 
     @Test
@@ -41,7 +41,7 @@ class LovverkUtlederTest {
     }
 
     @Test
-    fun `skal returnere lovverk LOVENDRING_FEBRUAR_2025 dersom adopsjonsdato er nøyaktig FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025, selv om fødselsdatoen er tidligere`(){
+    fun `skal returnere lovverk LOVENDRING_FEBRUAR_2025 dersom adopsjonsdato er nøyaktig FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025, selv om fødselsdatoen er tidligere`() {
         // Arrange
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusDays(1)
         val adopsjonsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025
@@ -51,7 +51,7 @@ class LovverkUtlederTest {
     }
 
     @Test
-    fun `skal returnere lovverk LOVENDRING_FEBRUAR_2025 dersom adopsjonsdato er senere enn FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025, selv om fødselsdatoen er tidligere`(){
+    fun `skal returnere lovverk LOVENDRING_FEBRUAR_2025 dersom adopsjonsdato er senere enn FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025, selv om fødselsdatoen er tidligere`() {
         // Arrange
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusDays(1)
         val adopsjonsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.plusDays(1)
@@ -61,7 +61,7 @@ class LovverkUtlederTest {
     }
 
     @Test
-    fun `skal returnere lovverk FØR_LOVENDRING_2025 dersom adopsjonsdato er tidligere enn FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025`(){
+    fun `skal returnere lovverk FØR_LOVENDRING_2025 dersom adopsjonsdato er tidligere enn FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025`() {
         // Arrange
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusMonths(1)
         val adopsjonsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusDays(1)
