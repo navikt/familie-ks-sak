@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
@@ -68,7 +67,7 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 1, 1).minusMonths(11))
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 1, 1).minusMonths(11), adopsjonsdato = null)
 
         val exception =
             assertThrows<FunksjonellFeil> {
@@ -110,7 +109,7 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtIJanuar2023.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 1, 1))
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 1, 1), adopsjonsdato = null)
 
         val exception =
             assertThrows<FunksjonellFeil> {
@@ -151,7 +150,7 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1))
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtIAugust2022.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1))
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1), adopsjonsdato = null)
 
         val exception =
             assertThrows<FunksjonellFeil> {
@@ -201,10 +200,10 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelse1, andelTilkjentYtelse2))
 
         val personResultatBarn1 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust2022.aktør)
-        val barnetsAlderVilkårResultaterBarn1 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn1, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1))
+        val barnetsAlderVilkårResultaterBarn1 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn1, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1), adopsjonsdato = null)
 
         val personResultatBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust2023.aktør)
-        val barnetsAlderVilkårResultaterBarn2 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn2, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 8, 1))
+        val barnetsAlderVilkårResultaterBarn2 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn2, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 8, 1), adopsjonsdato = null)
 
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
@@ -239,7 +238,7 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(listOf(andelTilkjentYtelseForSøker, andelTilkjentYtelseForBarn))
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5))
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5), adopsjonsdato = null)
 
         val exception =
             assertThrows<Feil> {
@@ -270,7 +269,7 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtJuli2023.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5))
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.now().minusYears(1).minusMonths(5), adopsjonsdato = null)
 
         val andeler = tilkjentYtelse.andelerTilkjentYtelse
 
@@ -511,14 +510,14 @@ internal class TilkjentYtelseValidatorTest {
     }
 
     @Test
-    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder`() {
+    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med lovverk fra februar 2025`() {
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
                     behandling = behandling,
                     aktør = barn.aktør,
-                    stønadFom = YearMonth.of(2024, 3),
-                    stønadTom = YearMonth.of(2024, 9),
+                    stønadFom = YearMonth.of(2025, 2),
+                    stønadTom = YearMonth.of(2025, 8),
                     sats = 5000,
                 ),
             )
@@ -526,21 +525,20 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 2, 1))
-        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2024, 2, 1), adopsjonsdato = LocalDate.of(2024, 4, 10))
 
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
             )
         }
     }
 
     @Test
-    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med gammelt regelverk`() {
+    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med lovverk før august 2024`() {
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -555,21 +553,20 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1))
-        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1), adopsjonsdato = LocalDate.of(2022, 10, 10))
 
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
             )
         }
     }
 
     @Test
-    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med nytt regelverk`() {
+    fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med regelverk august 2024`() {
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -584,14 +581,13 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 7, 1))
-        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 7, 1), adopsjonsdato = LocalDate.of(2023, 10, 10))
 
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
             )
         }
@@ -613,15 +609,14 @@ internal class TilkjentYtelseValidatorTest {
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
 
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 1, 1))
-        val barnetsAlderVilkårResultaterMedAdopsjon = barnetsAlderVilkårResultater.map { it.kopier(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON)) }
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 1, 1), adopsjonsdato = LocalDate.of(2023, 10, 10))
 
         val feil =
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterMedAdopsjon,
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
             }

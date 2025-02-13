@@ -10,9 +10,9 @@ import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -239,6 +239,7 @@ fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
+    adopsjonerIBehandling: List<Adopsjon>,
     skalBrukeRegelverk2025: Boolean = false,
 ): Vilkårsvurdering =
     Vilkårsvurdering(behandling = behandling).apply {
@@ -269,6 +270,7 @@ fun genererInitiellVilkårsvurdering(
                                             behandlingId = behandling.id,
                                             fødselsdato = person.fødselsdato,
                                             skalBrukeRegelverk2025 = skalBrukeRegelverk2025,
+                                            adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }?.adopsjonsdato,
                                         )
                                     }
 
@@ -366,7 +368,6 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
             } else {
                 initieltPersonResultat.vilkårResultater
                     .overskrivMedVilkårResultaterFraForrigeBehandling(
-                        kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
                         nyttPersonResultat = initieltPersonResultat,
                     )
@@ -379,7 +380,6 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
 private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeBehandling(
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
     nyttPersonResultat: PersonResultat,
-    kunForGodkjenteVilkår: Boolean,
 ): List<VilkårResultat> {
     val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
 

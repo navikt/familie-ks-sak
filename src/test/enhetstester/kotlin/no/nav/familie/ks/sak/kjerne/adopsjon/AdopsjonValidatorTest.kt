@@ -105,7 +105,7 @@ class AdopsjonValidatorTest {
             .hentVilkårFor(PersonType.BARN)
             .flatMap { vilkår ->
                 if (vilkår == Vilkår.BARNETS_ALDER) {
-                    lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = personResultat.vilkårsvurdering.behandling.id, fødselsdato = fødselsdato, erAdopsjon = erAdopsjon)
+                    lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = personResultat.vilkårsvurdering.behandling.id, fødselsdato = fødselsdato, adopsjonsdato = if (erAdopsjon) fødselsdato.plusMonths(2) else null)
                 } else {
                     listOf(
                         lagVilkårResultat(

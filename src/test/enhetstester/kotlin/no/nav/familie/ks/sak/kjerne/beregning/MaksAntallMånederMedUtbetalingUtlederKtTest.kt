@@ -31,13 +31,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2022, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = fødselsdato, adopsjonsdato = null)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -54,13 +54,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2022, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = fødselsdato, adopsjonsdato = null)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -77,13 +77,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2023, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = fødselsdato, adopsjonsdato = null)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
@@ -100,13 +100,13 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2024, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
                 aktør = tilfeldigPerson(fødselsdato = fødselsdato).aktør,
             )
-        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat, behandling.id, fødselsdato)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = fødselsdato, adopsjonsdato = null)
 
         // Act
         val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
