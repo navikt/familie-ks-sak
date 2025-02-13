@@ -71,7 +71,7 @@ class BarnetsVilkårValidator(
                 barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                     perioder = barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
                     barn = barn,
-                    adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = BehandlingId(vilkårsvurdering.behandling.id))?.adopsjonsdato
+                    adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = BehandlingId(vilkårsvurdering.behandling.id))?.adopsjonsdato,
                 )
             funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)
         }

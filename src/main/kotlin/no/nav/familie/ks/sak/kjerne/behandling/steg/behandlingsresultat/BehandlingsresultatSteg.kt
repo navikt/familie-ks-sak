@@ -58,7 +58,7 @@ class BehandlingsresultatSteg(
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
             personResultaterForBarn = personResultaterForBarn,
             skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
-            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId))
+            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId)),
         )
 
         if (behandling.erOvergangsordning()) {

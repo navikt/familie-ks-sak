@@ -72,7 +72,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 perioder = vilkårResultatPerioder,
                 barn = person,
-                adopsjonsdato = null
+                adopsjonsdato = null,
             )
 
         // Assert
@@ -160,7 +160,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 perioder = vilkårResultatPerioder,
                 barn = person,
-                adopsjonsdato = null
+                adopsjonsdato = null,
             )
 
         // Assert
@@ -204,7 +204,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 perioder = vilkårResultatPerioder,
                 barn = person,
-                adopsjonsdato = null
+                adopsjonsdato = null,
             )
 
         // Assert
@@ -247,7 +247,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 perioder = vilkårResultatPerioder,
                 barn = person,
-                adopsjonsdato = null
+                adopsjonsdato = null,
             )
 
         // Assert
@@ -289,7 +289,7 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                 perioder = vilkårResultatPerioder,
                 barn = person,
-                adopsjonsdato = null
+                adopsjonsdato = null,
             )
 
         // Assert
@@ -333,7 +333,7 @@ class BarnetsAlderVilkårValidatorTest {
         barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
             perioder = vilkårResultatPerioder,
             barn = person,
-            adopsjonsdato = DATO_LOVENDRING_2024.plusMonths(2)
+            adopsjonsdato = DATO_LOVENDRING_2024.plusMonths(2),
         )
 
         // Assert
