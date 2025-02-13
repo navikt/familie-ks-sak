@@ -211,24 +211,25 @@ class BrevPeriodeContext(
         gjelderSøker: Boolean,
         personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse: Collection<Person>,
         begrunnelse: IBegrunnelse,
-    ): List<Person> = when {
-        gjelderSøker &&
+    ): List<Person> =
+        when {
+            gjelderSøker &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
-            if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
+                if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
+                    personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
+                        .filter { it.type == PersonType.BARN }
+                } else {
+                    (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
+                        .toSet()
+                        .filter { it.type == PersonType.BARN }
+                }
+            }
+
+            else ->
                 personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
-            } else {
-                (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
-                    .toSet()
-                    .filter { it.type == PersonType.BARN }
-            }
         }
-
-        else ->
-            personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
-                .filter { it.type == PersonType.BARN }
-    }
 
     fun hentAntallBarnForBegrunnelse(
         barnasFødselsdatoer: List<LocalDate>,
@@ -574,7 +575,7 @@ class BrevPeriodeContext(
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
         barnSomSkalIBegrunnelse: List<Person>,
-        adopsjonerIBehandling: List<Adopsjon>
+        adopsjonerIBehandling: List<Adopsjon>,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)

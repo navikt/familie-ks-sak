@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -16,10 +17,12 @@ import java.time.LocalDate
 class BeregnAndelTilkjentYtelseServiceTest {
     private val unleashService: UnleashNextMedContextService = mockk()
     private val andelGeneratorLookup: AndelGenerator.Lookup = mockk()
+    private val adopsjonService: AdopsjonService = mockk()
     private val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = andelGeneratorLookup,
             unleashService = unleashService,
+            adopsjonService = adopsjonService,
         )
 
     @Test

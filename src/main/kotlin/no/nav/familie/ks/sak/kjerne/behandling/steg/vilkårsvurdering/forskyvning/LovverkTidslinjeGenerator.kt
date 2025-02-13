@@ -54,11 +54,12 @@ object LovverkTidslinjeGenerator {
         adopsjonsdato: LocalDate?,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> {
-        val lovverkForBarn = LovverkUtleder.utledLovverkForBarn(
-            fødselsdato = barn.fødselsdato,
-            adopsjonsdato = adopsjonsdato,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
-        )
+        val lovverkForBarn =
+            LovverkUtleder.utledLovverkForBarn(
+                fødselsdato = barn.fødselsdato,
+                adopsjonsdato = adopsjonsdato,
+                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            )
         return this
             .getOrElse(Vilkår.BARNETS_ALDER) { throw Feil("Finner ikke vilkår for barnets alder") }
             .map { periode ->
