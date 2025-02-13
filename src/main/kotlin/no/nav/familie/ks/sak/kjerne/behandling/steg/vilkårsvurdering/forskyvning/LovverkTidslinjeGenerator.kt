@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
@@ -14,11 +15,13 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+import java.time.LocalDate
 
 object LovverkTidslinjeGenerator {
     fun generer(
         barnasForskjøvedeVilkårResultater: Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
+        adopsjonerIBehandling: List<Adopsjon>,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> =
         barnasForskjøvedeVilkårResultater
@@ -26,6 +29,7 @@ object LovverkTidslinjeGenerator {
                 // Konverterer forskjøvede VilkårResultater til Lovverk-tidslinje per barn
                 forskjøvedeVilkårResultater.tilLovverkTidslinje(
                     barn = personopplysningGrunnlag.barna.single { it.aktør == aktør },
+                    adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == aktør }?.adopsjonsdato,
                     skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                 )
             }
@@ -47,22 +51,25 @@ object LovverkTidslinjeGenerator {
 
     private fun Map<Vilkår, List<Periode<VilkårResultat>>>.tilLovverkTidslinje(
         barn: Person,
+        adopsjonsdato: LocalDate?,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
-    ): Tidslinje<Lovverk> =
-        this
+    ): Tidslinje<Lovverk> {
+        val lovverkForBarn = LovverkUtleder.utledLovverkForBarn(
+            fødselsdato = barn.fødselsdato,
+            adopsjonsdato = adopsjonsdato,
+            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+        )
+        return this
             .getOrElse(Vilkår.BARNETS_ALDER) { throw Feil("Finner ikke vilkår for barnets alder") }
             .map { periode ->
                 Periode(
                     fom = periode.fom,
                     tom = periode.tom,
-                    verdi =
-                        LovverkUtleder.utledLovverkForBarn(
-                            fødselsdato = barn.fødselsdato,
-                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
-                        ),
+                    verdi = lovverkForBarn,
                 )
             }.tilTidslinje()
             .slåSammenLikePerioder()
+    }
 
     private fun List<Periode<Lovverk>>.erstattFørsteFomOgSisteTomMedNull(): List<Periode<Lovverk>> =
         // Sørger for at lovverk-tidslinje strekker seg fra TIDENES_MORGEN til TIDENES_ENDE.

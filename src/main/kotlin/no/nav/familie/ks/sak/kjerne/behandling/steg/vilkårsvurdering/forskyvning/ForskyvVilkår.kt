@@ -88,6 +88,7 @@ fun Collection<PersonResultat>.forskyvVilkårResultater(
         LovverkTidslinjeGenerator.generer(
             barnasForskjøvedeVilkårResultater = barnasForskjøvedeVilkårResultater,
             personopplysningGrunnlag = personopplysningGrunnlag,
+            adopsjonerIBehandling = adopsjonerIBehandling,
             skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
         )
 
