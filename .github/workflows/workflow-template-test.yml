@@ -1,12 +1,32 @@
 name: Workflow template test
 on:
   workflow_dispatch:
-
+    inputs:
+      deploy:
+        required: true
+        type: string
+        description: 'Deploye?'
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Hello
-        shell: bash
-        run: |
-          echo "hello world"
+  build-maven-app:
+    name: Build
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yml@main
+    with:
+      build-image: true
+      push-image: true
+    secrets: inherit
+  deploy-dev:
+    name: Deploy dev
+    if: inputs.deploy == 'true'
+    permissions:
+      id-token: write
+    needs: [ build-maven-app ]
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yml@main
+    with:
+      image: ${{ needs.build-maven-app.outputs.image }}
+      cluster: dev-gcp
+      resource: .deploy/app-preprod.yaml
+    secrets: inherit
