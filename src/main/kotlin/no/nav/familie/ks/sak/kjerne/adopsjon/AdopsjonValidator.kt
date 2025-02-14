@@ -48,11 +48,11 @@ class AdopsjonValidator(
         vilkårType: Vilkår,
         utypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>,
         nyAdopsjonsdato: LocalDate?,
-    ){
+    ) {
         if (!unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)) {
             return
         }
-        if (vilkårType != Vilkår.BARNETS_ALDER){
+        if (vilkårType != Vilkår.BARNETS_ALDER) {
             throw Feil("Prøver å oppdatere adopsjonsdato på $vilkårType, men adopsjonsdato kan ikke oppdateres for andre vilkår enn barnets alder")
         }
         val adopsjonIUtdypendeVilkårsvurdering = utypendeVilkårsvurdering.contains(UtdypendeVilkårsvurdering.ADOPSJON)

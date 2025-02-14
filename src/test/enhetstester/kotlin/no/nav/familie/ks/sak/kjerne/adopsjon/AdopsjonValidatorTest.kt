@@ -11,7 +11,11 @@ import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.*
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.BeforeEach
@@ -26,7 +30,7 @@ class AdopsjonValidatorTest {
     private val adopsjonValidator = AdopsjonValidator(unleashService = unleashServiceMock, adopsjonService = adopsjonServiceMock)
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         every { unleashServiceMock.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
     }
 
@@ -120,7 +124,7 @@ class AdopsjonValidatorTest {
     }
 
     @Test
-    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med ugyldig tilstand, men toggle for at vi støtter adopsjon er ikke påskrudd`(){
+    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med ugyldig tilstand, men toggle for at vi støtter adopsjon er ikke påskrudd`() {
         // Arrange
         every { unleashServiceMock.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns false
 
@@ -129,27 +133,27 @@ class AdopsjonValidatorTest {
     }
 
     @Test
-    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato på et annet vilkår enn barnets alder`(){
+    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato på et annet vilkår enn barnets alder`() {
         assertThrows<Feil> { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(vilkårType = Vilkår.BARNEHAGEPLASS, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = null) }
     }
 
     @Test
-    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato uten adopsjon i utdypende, men med adopsjonsdato`(){
+    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato uten adopsjon i utdypende, men med adopsjonsdato`() {
         assertThrows<FunksjonellFeil> { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
     }
 
     @Test
-    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med adopsjon i utdypende, men uten adopsjonsdato`(){
+    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med adopsjon i utdypende, men uten adopsjonsdato`() {
         assertThrows<FunksjonellFeil> { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = null) }
     }
 
     @Test
-    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med både adopsjon i utdypende og med adopsjonsdato`(){
+    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med både adopsjon i utdypende og med adopsjonsdato`() {
         assertDoesNotThrow { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
     }
 
     @Test
-    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med verken adopsjon i utdypende eller med adopsjonsdato`(){
+    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med verken adopsjon i utdypende eller med adopsjonsdato`() {
         assertDoesNotThrow { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = null) }
     }
 
