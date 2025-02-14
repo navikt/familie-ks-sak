@@ -7,7 +7,6 @@ import jan
 import jul
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagInitiellTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPersonResultat
@@ -34,9 +33,8 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class Praksisendring2024ServiceTest {
-    private val unleashService = mockk<UnleashNextMedContextService>()
     private val mockPraksisendring2024Repository = mockk<Praksisendring2024Repository>()
-    private val praksisendring2024Service = Praksisendring2024Service(unleashService, mockPraksisendring2024Repository)
+    private val praksisendring2024Service = Praksisendring2024Service(mockPraksisendring2024Repository)
 
     @ParameterizedTest
     @ValueSource(ints = [8, 9, 10, 11, 12])
