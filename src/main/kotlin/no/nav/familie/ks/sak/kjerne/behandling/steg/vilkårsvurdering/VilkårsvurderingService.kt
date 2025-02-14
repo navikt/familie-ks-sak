@@ -115,7 +115,7 @@ class VilkårsvurderingService(
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
         if (endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BARNETS_ALDER) {
-            adopsjonValidator.validerAtAdopsjonsdatoKanEndres(
+            adopsjonValidator.validerAtAdopsjonsdatoKanEndresFraVilkår(
                 vilkårType = endreVilkårResultatDto.endretVilkårResultat.vilkårType,
                 utypendeVilkårsvurdering = endreVilkårResultatDto.endretVilkårResultat.utdypendeVilkårsvurderinger,
                 nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato

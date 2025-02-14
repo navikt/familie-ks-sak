@@ -104,22 +104,22 @@ class AdopsjonValidatorTest {
 
     @Test
     fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato på et annet vilkår enn barnets alder`(){
-        assertThrows<Feil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNEHAGEPLASS, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = null) }
+        assertThrows<Feil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndresFraVilkår(vilkårType = Vilkår.BARNEHAGEPLASS, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = null) }
     }
 
     @Test
     fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato uten adopsjon i utdypende, men med adopsjonsdato`(){
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndresFraVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
     }
 
     @Test
     fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med adopsjon i utdypende, men uten adopsjonsdato`(){
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = null) }
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndresFraVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = null) }
     }
 
     @Test
     fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med både adopsjon i utdypende og med adopsjonsdato`(){
-        assertDoesNotThrow { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
+        assertDoesNotThrow { adopsjonValidator.validerAtAdopsjonsdatoKanEndresFraVilkår(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
     }
 
     private fun lagVilkårResultaterForBarn(
