@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -36,6 +37,7 @@ class VilkårsvurderingService(
     private val personidentService: PersonidentService,
     private val unleashService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
+    private val adopsjonValidator: AdopsjonValidator,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -113,6 +115,11 @@ class VilkårsvurderingService(
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
         if (endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BARNETS_ALDER) {
+            adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(
+                vilkår = endreVilkårResultatDto.endretVilkårResultat.vilkårType,
+                utdypendeVilkårsvurdering = endreVilkårResultatDto.endretVilkårResultat.utdypendeVilkårsvurderinger,
+                nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato,
+            )
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }
 

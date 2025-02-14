@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
-import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -52,13 +51,13 @@ class RegistrerPersonGrunnlagSteg(
             )
 
             eøsSkjemaerForNyBehandlingService.kopierEøsSkjemaer(
-                forrigeBehandlingSomErVedtattId = BehandlingId(sisteVedtattBehandling.id),
-                behandlingId = BehandlingId(behandling.id),
+                forrigeBehandlingSomErVedtattId = sisteVedtattBehandling.behandlingId,
+                behandlingId = behandling.behandlingId,
             )
 
             adopsjonService.kopierAdopsjonerFraForrigeBehandling(
-                behandlingId = BehandlingId(behandling.id),
-                forrigeBehandlingId = BehandlingId(sisteVedtattBehandling.id),
+                behandlingId = behandling.behandlingId,
+                forrigeBehandlingId = sisteVedtattBehandling.behandlingId,
             )
         }
     }
