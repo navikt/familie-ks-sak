@@ -41,8 +41,12 @@ class AdopsjonValidator {
     fun validerAtAdopsjonsdatoKanEndresFraVilkår(
         vilkårType: Vilkår,
         utypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>,
-        nyAdopsjonsdato: LocalDate?
+        nyAdopsjonsdato: LocalDate?,
+        støtterAdopsjonILøsningen: Boolean
     ){
+        if (!støtterAdopsjonILøsningen) {
+            return
+        }
         if (vilkårType != Vilkår.BARNETS_ALDER){
             throw Feil("Prøver å oppdatere adopsjonsdato på $vilkårType, men adopsjonsdato kan ikke oppdateres for andre vilkår enn barnets alder")
         }

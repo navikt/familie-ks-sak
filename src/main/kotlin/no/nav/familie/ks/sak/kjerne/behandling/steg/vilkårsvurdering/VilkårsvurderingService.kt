@@ -118,7 +118,8 @@ class VilkårsvurderingService(
             adopsjonValidator.validerAtAdopsjonsdatoKanEndresFraVilkår(
                 vilkårType = endreVilkårResultatDto.endretVilkårResultat.vilkårType,
                 utypendeVilkårsvurdering = endreVilkårResultatDto.endretVilkårResultat.utdypendeVilkårsvurderinger,
-                nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato
+                nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato,
+                støtterAdopsjonILøsningen = unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)
             )
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }
