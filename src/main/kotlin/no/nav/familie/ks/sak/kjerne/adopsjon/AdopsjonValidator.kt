@@ -13,14 +13,17 @@ import java.time.LocalDate
 @Component
 class AdopsjonValidator(
     private val unleashService: UnleashNextMedContextService,
+    private val adopsjonService: AdopsjonService,
 ) {
     fun validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
         vilkårsvurdering: Vilkårsvurdering,
-        adopsjonerIBehandling: List<Adopsjon>,
     ) {
         if (!unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)) {
             return
         }
+
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId)
+
         vilkårsvurdering.personResultater.forEach { personResultat ->
             val adopsjonForPerson = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }
 

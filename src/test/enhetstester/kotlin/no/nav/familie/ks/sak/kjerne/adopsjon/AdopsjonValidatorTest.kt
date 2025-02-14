@@ -22,7 +22,8 @@ import java.time.LocalDate
 
 class AdopsjonValidatorTest {
     private val unleashServiceMock: UnleashNextMedContextService = mockk()
-    private val adopsjonValidator = AdopsjonValidator(unleashService = unleashServiceMock)
+    private val adopsjonServiceMock: AdopsjonService = mockk()
+    private val adopsjonValidator = AdopsjonValidator(unleashService = unleashServiceMock, adopsjonService = adopsjonServiceMock)
 
     @BeforeEach
     fun setup(){
@@ -45,9 +46,10 @@ class AdopsjonValidatorTest {
             }
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
+        every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
 
         // Act & Assert
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner) }
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
     }
 
     @Test
@@ -66,9 +68,10 @@ class AdopsjonValidatorTest {
             }
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
+        every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
 
         // Act & Assert
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner) }
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
     }
 
     @Test
@@ -87,9 +90,10 @@ class AdopsjonValidatorTest {
             }
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
+        every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
 
         // Act & Assert
-        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner) }
+        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
     }
 
     @Test
@@ -108,11 +112,11 @@ class AdopsjonValidatorTest {
             }
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
-
+        every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
         every { unleashServiceMock.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns false
 
         // Act & Assert
-        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner) }
+        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
     }
 
     @Test
