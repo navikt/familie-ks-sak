@@ -44,7 +44,7 @@ class AdopsjonValidator(
         }
     }
 
-    fun validerAtAdopsjonsdatoKanEndresFraVilkår(
+    fun validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(
         vilkårType: Vilkår,
         utypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>,
         nyAdopsjonsdato: LocalDate?,
