@@ -41,6 +41,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
+                adopsjonerIBehandling = emptyList(),
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -91,6 +92,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag2,
+                adopsjonerIBehandling = emptyList(),
             )
 
         initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
@@ -117,6 +119,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag2,
+                adopsjonerIBehandling = emptyList(),
             )
         val barnVilkårResultaterUendret =
             initiellVilkårsvurderingUendret.personResultater.single { it.aktør.aktivFødselsnummer() == barnPersonIdent }.vilkårResultater
@@ -140,6 +143,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = mockk(relaxed = true),
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlagRevurdering,
+                adopsjonerIBehandling = emptyList(),
             )
 
         val persongrunnlagForrigeBehandling =
@@ -178,6 +182,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
+                adopsjonerIBehandling = emptyList(),
             )
         val vilkårsvurderingForrigeBehandling = Vilkårsvurdering(behandling = forrigeBehandling)
         val personResultat =
@@ -260,6 +265,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
+                adopsjonerIBehandling = emptyList(),
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
@@ -285,6 +291,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = forrigeVilkårsvurdering,
                 personopplysningGrunnlag = persongrunnlag,
+                adopsjonerIBehandling = emptyList(),
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
@@ -307,6 +314,7 @@ class OppdaterVilkårsvurderingTest {
                 behandling = nyBehandling,
                 forrigeVilkårsvurdering = null,
                 personopplysningGrunnlag = persongrunnlag,
+                adopsjonerIBehandling = emptyList(),
             )
 
         val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }

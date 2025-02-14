@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.tidslinje.IkkeNullbarPeriode
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class BarnetsAlderVilkårValidator(
@@ -21,18 +22,20 @@ class BarnetsAlderVilkårValidator(
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
+        adopsjonsdato: LocalDate?,
     ): List<String> {
         val skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
         val vilkårLovverkInformasjonForBarn =
             if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
                 VilkårLovverkInformasjonForBarn(
                     fødselsdato = barn.fødselsdato,
+                    adopsjonsdato = adopsjonsdato,
                     periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
                     periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth(),
                     skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                 )
             } else {
-                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
             }
 
         return when (vilkårLovverkInformasjonForBarn.vilkårLovverk) {

@@ -81,6 +81,7 @@ class VilkårsvurderingStegTest {
                 barnetsAlderVilkårValidator2025,
                 unleashService,
             ),
+            adopsjonService,
         )
     private val adopsjonValidator = AdopsjonValidator()
 

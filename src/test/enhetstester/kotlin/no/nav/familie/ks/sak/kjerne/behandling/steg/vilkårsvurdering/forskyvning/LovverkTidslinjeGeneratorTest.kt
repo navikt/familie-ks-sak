@@ -67,6 +67,7 @@ class LovverkTidslinjeGeneratorTest {
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
 
         // Assert
@@ -126,6 +127,7 @@ class LovverkTidslinjeGeneratorTest {
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
 
         // Assert
@@ -185,6 +187,7 @@ class LovverkTidslinjeGeneratorTest {
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
 
         // Assert
@@ -244,6 +247,7 @@ class LovverkTidslinjeGeneratorTest {
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 skalBestemmeLovverkBasertPåFødselsdato = true,
+                adopsjonerIBehandling = emptyList(),
             )
 
         // Assert
@@ -316,6 +320,7 @@ class LovverkTidslinjeGeneratorTest {
                     barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
             }
         assertThat(feil.message).isEqualTo("Støtter ikke overlappende lovverk")

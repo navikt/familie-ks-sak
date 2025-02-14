@@ -12,6 +12,11 @@ class AdopsjonService(
 ) {
     fun hentAlleAdopsjonerForBehandling(behandlingId: BehandlingId): List<Adopsjon> = adopsjonRepository.hentAlleAdopsjonerForBehandling(behandlingId.id)
 
+    fun finnAdopsjonForAktørIBehandling(
+        aktør: Aktør,
+        behandlingId: BehandlingId,
+    ): Adopsjon? = adopsjonRepository.finnAdopsjonForAktørIBehandling(behandlingId.id, aktør)
+
     @Transactional
     fun oppdaterAdopsjonsdato(
         behandlingId: BehandlingId,

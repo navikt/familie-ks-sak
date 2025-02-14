@@ -7,6 +7,7 @@ import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -372,6 +373,7 @@ class StepDefinition {
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
+                                    adopsjonerIBehandling = emptyList(), // TODO: Legg inn støtte for cucumber-tester
                                     skalBestemmeLovverkBasertPåFødselsdato = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
@@ -473,6 +475,7 @@ class StepDefinition {
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
         skalBestemmeLovverkBasertPåFødselsdato = true,
+        adopsjonerIBehandling = emptyList(), // TODO: Fiks før merge
     ).genererBrevPeriodeDto()
 
     /**
@@ -694,6 +697,7 @@ class StepDefinition {
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
                 unleashNextMedContextService = mockUnleashNextMedContextService(),
+                adopsjonService = mockAdopsjonService(),
             )
 
         return VedtaksperiodeService(
@@ -711,6 +715,7 @@ class StepDefinition {
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
             unleashNextMedContextService = mockUnleashNextMedContextService(),
+            adopsjonService = mockAdopsjonService(),
         )
     }
 

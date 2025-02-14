@@ -50,11 +50,14 @@ class VilkårsvurderingService(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id))
+
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling,
                 vilkårsvurderingFraForrigeBehandling,
                 personopplysningGrunnlag,
+                adopsjonerIBehandling,
                 unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
 

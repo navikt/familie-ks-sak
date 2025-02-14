@@ -97,6 +97,7 @@ class OpphørsperiodeTest {
                     andelerTilkjentYtelse = listOf(andelTilBarn1),
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             assertThat(opphørsperioder).hasSize(1)
@@ -150,6 +151,7 @@ class OpphørsperiodeTest {
                     andelerTilkjentYtelse = listOf(andelTilBarn),
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             assertThat(opphørsperioder).hasSize(1)
@@ -232,6 +234,7 @@ class OpphørsperiodeTest {
                     andelerTilkjentYtelse = listOf(andelTilBarn1, andelTilBarn2),
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             assertThat(opphørsperioder).hasSize(2)
@@ -290,6 +293,7 @@ class OpphørsperiodeTest {
                     andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             assertEquals(2, opphørsperioder.size)
@@ -320,6 +324,7 @@ class OpphørsperiodeTest {
                     andelerTilkjentYtelse = listOf(andelBarn1),
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             assertEquals(1, opphørsperioder.size)
@@ -348,6 +353,7 @@ class OpphørsperiodeTest {
                     andelerTilkjentYtelse = listOf(andelBarn1),
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             assertEquals(1, opphørsperioder.size)

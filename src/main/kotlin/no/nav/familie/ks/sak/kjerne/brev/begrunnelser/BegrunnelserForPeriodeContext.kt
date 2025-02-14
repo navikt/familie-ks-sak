@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.landkodeTilBarnetsBostedsland
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -45,6 +46,7 @@ class BegrunnelserForPeriodeContext(
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
     private val kompetanser: List<UtfyltKompetanse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
+    private val adopsjonerIBehandling: List<Adopsjon>,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
@@ -309,6 +311,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).flatMap { entry ->
                 entry.value
@@ -321,6 +324,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).flatMap { entry ->
                 entry.value
@@ -379,6 +383,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .tilForskjøvetVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
@@ -431,6 +436,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
@@ -453,6 +459,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .tilForskjøvetVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonerIBehandling,
                 skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, tidslinje) ->
