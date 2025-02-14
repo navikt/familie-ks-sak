@@ -1,15 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.adopsjon
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.*
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Test
@@ -22,6 +20,7 @@ class AdopsjonValidatorTest {
 
     @Test
     fun `Skal kaste feil om det finnes adopsjon i utdypende vilkårsvurdering, men ikke adopsjonsdato for person`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
@@ -36,11 +35,13 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = true) }
     }
 
     @Test
     fun `Skal kaste feil om det finnes adopsjonsdato for person, men adopsjon er ikke valgt i utdypende vilkårsvurdering`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
@@ -55,11 +56,13 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = true) }
     }
 
     @Test
     fun `Skal ikke kaste feil om det finnes både adopsjonsdato og adopsjon er valgt i utdypende vilkårsvurdering eller ingen av delene`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
@@ -74,11 +77,13 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
 
+        // Act & Assert
         assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = true) }
     }
 
     @Test
     fun `Skal ikke kaste feil hvis toggle er av, selv om det finnes adopsjon i utdypende vilkårsvurdering, men ikke adopsjonsdato for person`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
@@ -93,7 +98,28 @@ class AdopsjonValidatorTest {
 
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
 
+        // Act & Assert
         assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, adopsjonerIBehandling = adopsjoner, støtterAdopsjonILøsningen = false) }
+    }
+
+    @Test
+    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato på et annet vilkår enn barnets alder`(){
+        assertThrows<Feil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNEHAGEPLASS, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = null) }
+    }
+
+    @Test
+    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato uten adopsjon i utdypende, men med adopsjonsdato`(){
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = emptyList(), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
+    }
+
+    @Test
+    fun `Skal kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med adopsjon i utdypende, men uten adopsjonsdato`(){
+        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = null) }
+    }
+
+    @Test
+    fun `Skal ikke kaste feil hvis man validerer at man kan oppdatere adopsjonsdato med både adopsjon i utdypende og med adopsjonsdato`(){
+        assertDoesNotThrow { adopsjonValidator.validerAtAdopsjonsdatoKanEndres(vilkårType = Vilkår.BARNETS_ALDER, utypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = LocalDate.now().minusYears(1)) }
     }
 
     private fun lagVilkårResultaterForBarn(
