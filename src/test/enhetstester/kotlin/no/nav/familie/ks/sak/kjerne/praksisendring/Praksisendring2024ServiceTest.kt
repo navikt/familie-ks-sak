@@ -7,8 +7,6 @@ import jan
 import jul
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.SKAL_GENERERE_ANDELER_FOR_PRAKSISENDRING_2024
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagInitiellTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPersonResultat
@@ -26,7 +24,6 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import okt
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -36,14 +33,8 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class Praksisendring2024ServiceTest {
-    private val unleashService = mockk<UnleashNextMedContextService>()
     private val mockPraksisendring2024Repository = mockk<Praksisendring2024Repository>()
-    private val praksisendring2024Service = Praksisendring2024Service(unleashService, mockPraksisendring2024Repository)
-
-    @BeforeEach
-    fun setUp() {
-        every { unleashService.isEnabled(SKAL_GENERERE_ANDELER_FOR_PRAKSISENDRING_2024) } returns true
-    }
+    private val praksisendring2024Service = Praksisendring2024Service(mockPraksisendring2024Repository)
 
     @ParameterizedTest
     @ValueSource(ints = [8, 9, 10, 11, 12])
@@ -117,23 +108,6 @@ class Praksisendring2024ServiceTest {
 
         // Assert
         assertThat(andelerForPraksisendring2024).isEmpty()
-    }
-
-    @Test
-    fun `skal ikke generere andel hvis toggle er skrudd av`() {
-        // Arrange
-        every { unleashService.isEnabled(SKAL_GENERERE_ANDELER_FOR_PRAKSISENDRING_2024) } returns false
-
-        // Act
-        val andelerForPraksisendring2024 =
-            praksisendring2024Service.genererAndelerForPraksisendring2024(
-                personopplysningGrunnlag = mockk(),
-                vilkårsvurdering = mockk(),
-                tilkjentYtelse = mockk(),
-            )
-
-        // Assert
-        assertThat(andelerForPraksisendring2024).hasSize(0)
     }
 
     @Test
