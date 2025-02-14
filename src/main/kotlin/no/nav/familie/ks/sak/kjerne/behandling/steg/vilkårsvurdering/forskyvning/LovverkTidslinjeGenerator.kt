@@ -19,14 +19,12 @@ object LovverkTidslinjeGenerator {
     fun generer(
         barnasForskjøvedeVilkårResultater: Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>>,
         personopplysningGrunnlag: PersonopplysningGrunnlag,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> =
         barnasForskjøvedeVilkårResultater
             .map { (aktør, forskjøvedeVilkårResultater) ->
                 // Konverterer forskjøvede VilkårResultater til Lovverk-tidslinje per barn
                 forskjøvedeVilkårResultater.tilLovverkTidslinje(
                     barn = personopplysningGrunnlag.barna.single { it.aktør == aktør },
-                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                 )
             }
             // Kombinerer alle Lovverk-tidslinjer til en felles Lovverk-tidslinje.
@@ -47,7 +45,6 @@ object LovverkTidslinjeGenerator {
 
     private fun Map<Vilkår, List<Periode<VilkårResultat>>>.tilLovverkTidslinje(
         barn: Person,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Tidslinje<Lovverk> =
         this
             .getOrElse(Vilkår.BARNETS_ALDER) { throw Feil("Finner ikke vilkår for barnets alder") }
@@ -58,7 +55,6 @@ object LovverkTidslinjeGenerator {
                     verdi =
                         LovverkUtleder.utledLovverkForBarn(
                             fødselsdato = barn.fødselsdato,
-                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         ),
                 )
             }.tilTidslinje()

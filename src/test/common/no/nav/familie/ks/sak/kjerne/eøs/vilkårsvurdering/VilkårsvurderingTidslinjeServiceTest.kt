@@ -41,7 +41,6 @@ internal class VilkårsvurderingTidslinjeServiceTest {
             VilkårsvurderingTidslinjeService(
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
                 vilkårsvurderingService = vilkårsvurderingService,
-                unleashService = unleashService,
             )
     }
 

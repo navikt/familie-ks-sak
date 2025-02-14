@@ -239,7 +239,6 @@ fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBrukeRegelverk2025: Boolean = false,
 ): Vilkårsvurdering =
     Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -268,7 +267,6 @@ fun genererInitiellVilkårsvurdering(
                                             personResultat = personResultat,
                                             behandlingId = behandling.id,
                                             fødselsdato = person.fødselsdato,
-                                            skalBrukeRegelverk2025 = skalBrukeRegelverk2025,
                                         )
                                     }
 

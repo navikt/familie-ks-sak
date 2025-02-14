@@ -16,9 +16,8 @@ fun lagAutomatiskGenererteVilkårForBarnetsAlder(
     behandlingId: Long,
     fødselsdato: LocalDate,
     erAdopsjon: Boolean = false,
-    skalBrukeRegelverk2025: Boolean = false,
 ): List<VilkårResultat> {
-    val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato, skalBrukeRegelverk2025)
+    val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato)
     return when (lovverk) {
         Lovverk.FØR_LOVENDRING_2025 -> lagAutomatiskGenererteVilkårForBarnetsAlder2021og2024(personResultat, behandlingId, fødselsdato, erAdopsjon)
         Lovverk.LOVENDRING_FEBRUAR_2025 -> lagAutomatiskGenererteVilkårForBarnetsAlder2025(personResultat, behandlingId, fødselsdato, erAdopsjon)

@@ -372,7 +372,6 @@ class StepDefinition {
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
-                                    skalBestemmeLovverkBasertPåFødselsdato = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }.find { it.fom == forventet.fom && it.tom == forventet.tom }
@@ -472,7 +471,6 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
-        skalBestemmeLovverkBasertPåFødselsdato = true,
     ).genererBrevPeriodeDto()
 
     /**
@@ -710,7 +708,6 @@ class StepDefinition {
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
-            unleashNextMedContextService = mockUnleashNextMedContextService(),
         )
     }
 

@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -15,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.tidslinje.IkkeNullbarPeriode
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -33,11 +31,6 @@ class BarnetsAlderVilkårValidatorTest {
             barnetsAlderVilkårValidator2025,
             unleashNextMedContextService,
         )
-
-    @BeforeEach
-    fun beforeEach() {
-        every { unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
-    }
 
     @Test
     fun `skal returnere ingen feil når validering for 2021 og 2024 returnerer ingen feil`() {
