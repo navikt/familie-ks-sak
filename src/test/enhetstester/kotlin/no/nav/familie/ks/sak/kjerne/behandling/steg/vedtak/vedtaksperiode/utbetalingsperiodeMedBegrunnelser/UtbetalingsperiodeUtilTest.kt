@@ -131,7 +131,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, ),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag),
                 kompetanser = emptyList(),
             )
 
@@ -218,7 +218,7 @@ internal class UtbetalingsperiodeUtilTest {
                 forskjøvetVilkårResultatTidslinjeMap =
                     personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                         personopplysningGrunnlag = personopplysningGrunnlag,
-                        ),
+                    ),
                 kompetanser = emptyList(),
             )
 

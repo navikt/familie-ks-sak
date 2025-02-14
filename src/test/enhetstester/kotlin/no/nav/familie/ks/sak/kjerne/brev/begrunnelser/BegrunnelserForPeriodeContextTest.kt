@@ -814,7 +814,6 @@ class BegrunnelserForPeriodeContextTest {
             kompetanser = emptyList(),
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            
         )
     }
 
@@ -889,7 +888,6 @@ class BegrunnelserForPeriodeContextTest {
             erFørsteVedtaksperiode = false,
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            
         )
     }
 }

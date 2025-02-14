@@ -372,7 +372,7 @@ class StepDefinition {
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
-                                                ).hentGyldigeBegrunnelserForVedtaksperiode(),
+                                ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }.find { it.fom == forventet.fom && it.tom == forventet.tom }
                     ?: throw Feil(
@@ -471,7 +471,6 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
-
     ).genererBrevPeriodeDto()
 
     /**
