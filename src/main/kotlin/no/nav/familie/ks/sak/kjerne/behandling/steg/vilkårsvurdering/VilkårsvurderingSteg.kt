@@ -81,7 +81,6 @@ class VilkårsvurderingSteg(
         adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
             vilkårsvurdering = vilkårsvurdering,
             adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id)),
-            støtterAdopsjonILøsningen = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_ADOPSJON),
         )
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)

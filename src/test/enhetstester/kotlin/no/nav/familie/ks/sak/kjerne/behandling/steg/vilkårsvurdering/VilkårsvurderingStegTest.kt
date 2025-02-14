@@ -82,7 +82,7 @@ class VilkårsvurderingStegTest {
                 unleashService,
             ),
         )
-    private val adopsjonValidator = AdopsjonValidator()
+    private val adopsjonValidator = AdopsjonValidator(unleashService)
 
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
         VilkårsvurderingSteg(
