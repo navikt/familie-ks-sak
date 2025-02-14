@@ -8,14 +8,9 @@ object LovverkUtleder {
     // TODO: Legg inn støtte for adopsjon
     fun utledLovverkForBarn(
         fødselsdato: LocalDate,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
-    ): Lovverk {
-        if (!skalBestemmeLovverkBasertPåFødselsdato) {
-            return Lovverk.FØR_LOVENDRING_2025
-        }
-        return when {
+    ): Lovverk =
+        when {
             fødselsdato.isBefore(FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025) -> Lovverk.FØR_LOVENDRING_2025
             else -> Lovverk.LOVENDRING_FEBRUAR_2025
         }
-    }
 }

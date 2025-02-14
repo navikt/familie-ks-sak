@@ -784,7 +784,6 @@ class BegrunnelserForPeriodeContextTest {
             personResultater
                 .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 ).filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
                 .values
                 .first()
@@ -815,7 +814,7 @@ class BegrunnelserForPeriodeContextTest {
             kompetanser = emptyList(),
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            skalBestemmeLovverkBasertPåFødselsdato = true,
+            
         )
     }
 
@@ -890,7 +889,7 @@ class BegrunnelserForPeriodeContextTest {
             erFørsteVedtaksperiode = false,
             overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            skalBestemmeLovverkBasertPåFødselsdato = true,
+            
         )
     }
 }

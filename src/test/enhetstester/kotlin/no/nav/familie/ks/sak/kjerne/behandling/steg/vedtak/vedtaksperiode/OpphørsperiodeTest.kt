@@ -96,7 +96,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelTilBarn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             assertThat(opphørsperioder).hasSize(1)
@@ -149,7 +148,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelTilBarn),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             assertThat(opphørsperioder).hasSize(1)
@@ -231,7 +229,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelTilBarn1, andelTilBarn2),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             assertThat(opphørsperioder).hasSize(2)
@@ -289,7 +286,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             assertEquals(2, opphørsperioder.size)
@@ -319,7 +315,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelBarn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             assertEquals(1, opphørsperioder.size)
@@ -347,7 +342,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelBarn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             assertEquals(1, opphørsperioder.size)

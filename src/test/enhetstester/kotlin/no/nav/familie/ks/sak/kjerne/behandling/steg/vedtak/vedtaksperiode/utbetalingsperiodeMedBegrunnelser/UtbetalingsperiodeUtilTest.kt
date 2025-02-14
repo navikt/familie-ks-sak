@@ -131,7 +131,7 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato = true),
+                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, ),
                 kompetanser = emptyList(),
             )
 
@@ -218,8 +218,7 @@ internal class UtbetalingsperiodeUtilTest {
                 forskjøvetVilkårResultatTidslinjeMap =
                     personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                         personopplysningGrunnlag = personopplysningGrunnlag,
-                        skalBestemmeLovverkBasertPåFødselsdato = true,
-                    ),
+                        ),
                 kompetanser = emptyList(),
             )
 
@@ -242,7 +241,6 @@ internal class UtbetalingsperiodeUtilTest {
             val forskjøvetVilkårResultatTidslinjeMap =
                 vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             val vedtaksperioderUtenKompetanse =
@@ -285,7 +283,6 @@ internal class UtbetalingsperiodeUtilTest {
             val forskjøvetVilkårResultatTidslinjeMap =
                 vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 )
 
             val vedtaksperioderUtenKompetanse =

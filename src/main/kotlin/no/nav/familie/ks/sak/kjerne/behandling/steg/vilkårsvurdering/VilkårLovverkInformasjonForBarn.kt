@@ -11,7 +11,6 @@ import java.time.YearMonth
 
 data class VilkårLovverkInformasjonForBarn(
     val fødselsdato: LocalDate,
-    val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     val periodeFomForAdoptertBarn: YearMonth? = null,
     val periodeTomForAdoptertBarn: YearMonth? = null,
 ) {
@@ -31,7 +30,7 @@ data class VilkårLovverkInformasjonForBarn(
         this.periodeFomBarnetsAlderLov2025 = fødselsdato.plusMonths(12)
         this.periodeTomBarnetsAlderLov2025 = fødselsdato.plusMonths(20)
 
-        val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato, skalBestemmeLovverkBasertPåFødselsdato)
+        val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato)
 
         this.vilkårLovverk =
             when (lovverk) {

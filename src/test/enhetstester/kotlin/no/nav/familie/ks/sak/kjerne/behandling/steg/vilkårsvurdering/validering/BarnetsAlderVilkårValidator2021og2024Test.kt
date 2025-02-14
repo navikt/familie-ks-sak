@@ -30,7 +30,7 @@ class BarnetsAlderVilkårValidator2021og2024Test {
             barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
                 perioder = listOf(),
                 barn = person,
-                vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = person.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true),
+                vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = person.fødselsdato, ),
             )
 
         // Assert

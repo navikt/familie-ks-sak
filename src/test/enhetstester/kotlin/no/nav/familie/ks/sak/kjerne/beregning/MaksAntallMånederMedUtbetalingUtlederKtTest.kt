@@ -31,7 +31,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2022, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
@@ -54,7 +54,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2022, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
@@ -77,7 +77,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2023, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,
@@ -100,7 +100,7 @@ class MaksAntallMånederMedUtbetalingUtlederKtTest {
     ) {
         // Arrange
         val fødselsdato = LocalDate.of(2024, måned, 1)
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
         val personResultat =
             PersonResultat(
                 vilkårsvurdering = vilkårsvurdering,

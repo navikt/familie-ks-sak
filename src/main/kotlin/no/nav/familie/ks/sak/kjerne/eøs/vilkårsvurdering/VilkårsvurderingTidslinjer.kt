@@ -15,14 +15,12 @@ import no.nav.familie.tidslinje.utvidelser.kombinerMed
 class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val barnasTidslinjer: Map<Person, BarnetsTidslinjer> =
         personopplysningGrunnlag.barna.associateWith { barn ->
             BarnetsTidslinjer(
                 barn = barn,
                 personResultater = vilkårsvurdering.personResultater,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             )
         }
 
@@ -31,9 +29,8 @@ class VilkårsvurderingTidslinjer(
     class BarnetsTidslinjer(
         barn: Person,
         personResultater: Set<PersonResultat>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
-        private val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+        private val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato)
         private val søkersTidslinje = personResultater.single { it.erSøkersResultater() }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
         private val barnetsTidslinje = personResultater.single { it.aktør == barn.aktør }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
 

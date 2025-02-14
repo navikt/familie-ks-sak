@@ -5,7 +5,6 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -32,7 +31,6 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -61,11 +59,6 @@ class VilkårsvurderingServiceTest {
     private val fagsak = lagFagsak(søker)
 
     private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-
-    @BeforeEach
-    fun setUp() {
-        every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
-    }
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {

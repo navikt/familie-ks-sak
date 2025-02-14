@@ -76,7 +76,6 @@ class BrevPeriodeContext(
     private val landkoder: Map<String, String>,
     private val erFørsteVedtaksperiode: Boolean,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
-    private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -273,7 +272,6 @@ class BrevPeriodeContext(
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
             kompetanser = kompetanser,
             andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
         )
 
     fun hentNasjonalOgFellesBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> =
@@ -329,7 +327,6 @@ class BrevPeriodeContext(
                             vedtaksperiodeFom = fom,
                             endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
                             barnasFødselsdatoer = barnasFødselsdatoer,
-                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         )
                     }
 
@@ -564,11 +561,10 @@ class BrevPeriodeContext(
         vedtaksperiodeTom: LocalDate,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
         barnasFødselsdatoer: List<LocalDate>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
-        val alleLovverkForBarna = barnasFødselsdatoer.map { LovverkUtleder.utledLovverkForBarn(it, skalBestemmeLovverkBasertPåFødselsdato) }
+        val alleLovverkForBarna = barnasFødselsdatoer.map { LovverkUtleder.utledLovverkForBarn(it) }
 
         return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
@@ -695,7 +691,6 @@ class BrevPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {

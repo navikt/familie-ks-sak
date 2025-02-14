@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
@@ -22,17 +21,15 @@ class BarnetsAlderVilkårValidator(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
     ): List<String> {
-        val skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
         val vilkårLovverkInformasjonForBarn =
             if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
                 VilkårLovverkInformasjonForBarn(
                     fødselsdato = barn.fødselsdato,
                     periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
                     periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth(),
-                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                 )
             } else {
-                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato)
             }
 
         return when (vilkårLovverkInformasjonForBarn.vilkårLovverk) {

@@ -11,7 +11,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val fødselsdato: LocalDate = LocalDate.of(2022, 12, 31)
 
         // Act
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
 
         // Assert
         assertThat(vilkårLovverkInformasjonForBarn.vilkårLovverk).isEqualTo(VilkårLovverk.LOVVERK_2021)
@@ -29,7 +29,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val fødselsdato: LocalDate = LocalDate.of(2023, 8, 1)
 
         // Act
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
 
         // Assert
         assertThat(vilkårLovverkInformasjonForBarn.vilkårLovverk).isEqualTo(VilkårLovverk.LOVVERK_2024)
@@ -47,7 +47,7 @@ class VilkårLovverkInformasjonForBarnTest {
         val fødselsdato: LocalDate = LocalDate.of(2023, 7, 31)
 
         // Act
-        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, skalBestemmeLovverkBasertPåFødselsdato = true)
+        val vilkårLovverkInformasjonForBarn = VilkårLovverkInformasjonForBarn(fødselsdato = fødselsdato, )
 
         // Assert
         assertThat(vilkårLovverkInformasjonForBarn.vilkårLovverk).isEqualTo(VilkårLovverk.LOVVERK_2021_OG_2024)

@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -35,11 +34,7 @@ class BeregnAndelTilkjentYtelseService(
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> {
-        val regelverk =
-            LovverkUtleder.utledLovverkForBarn(
-                fødselsdato = barn.fødselsdato,
-                skalBestemmeLovverkBasertPåFødselsdato = unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
-            )
+        val regelverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato)
         val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(regelverk)
         val andeler = andelGenerator.beregnAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
         return andeler
