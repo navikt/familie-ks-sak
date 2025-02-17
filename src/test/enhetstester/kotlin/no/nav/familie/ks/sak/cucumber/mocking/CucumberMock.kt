@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -132,6 +133,8 @@ class CucumberMock(
             loggService = loggServiceMock,
         )
 
+    val adopsjonValidator = AdopsjonValidator(mockUnleashNextMedContextService(), adopsjonServiceMock)
+
     val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository = vilkårsvurderingRepositoryMock,
@@ -140,6 +143,7 @@ class CucumberMock(
             personidentService = personidentService,
             unleashService = mockUnleashNextMedContextService(),
             adopsjonService = adopsjonServiceMock,
+            adopsjonValidator = adopsjonValidator,
         )
 }
 

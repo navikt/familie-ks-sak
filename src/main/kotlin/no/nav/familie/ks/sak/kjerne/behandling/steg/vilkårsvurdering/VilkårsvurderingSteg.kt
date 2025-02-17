@@ -77,13 +77,9 @@ class VilkårsvurderingSteg(
             throw FunksjonellFeil("Adopsjonssaker kan ikke behandles før nytt regelverk er støttet i løsningen")
         }
 
-        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
+        adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering)
 
-        adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
-            vilkårsvurdering = vilkårsvurdering,
-            adopsjonerIBehandling = adopsjonerIBehandling,
-            støtterAdopsjonILøsningen = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_ADOPSJON),
-        )
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
 
         validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, adopsjonerIBehandling)
 
