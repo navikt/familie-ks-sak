@@ -42,7 +42,7 @@ data class VilkårLovverkInformasjonForBarn(
     }
 
     private fun utledVilkårLovverkFørLovendring2025(): VilkårLovverk {
-        // Dette lovverket trenger å se på de faktiske periodene man har oppfylt adopsjon i vilkårsvurderingen og kan ikke erstattes av adopsjondato
+        // Lovverk før 2025 trenger å se på de faktiske periodene man har oppfylt adopsjon i vilkårsvurderingen og kan ikke erstattes av adopsjondato
         val erTruffetAvLovverk2021 = periodeFomForAdoptertBarn?.isBefore(DATO_LOVENDRING_2024.toYearMonth()) ?: periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
         val erTruffetAvLovverk2024 = periodeTomForAdoptertBarn?.toLocalDate()?.erSammeEllerEtter(DATO_LOVENDRING_2024) ?: periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
         return when {
