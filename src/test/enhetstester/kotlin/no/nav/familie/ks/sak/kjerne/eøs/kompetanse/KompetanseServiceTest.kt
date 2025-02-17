@@ -100,6 +100,7 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
         kompetanseRepository.deleteAll()
     }
 
