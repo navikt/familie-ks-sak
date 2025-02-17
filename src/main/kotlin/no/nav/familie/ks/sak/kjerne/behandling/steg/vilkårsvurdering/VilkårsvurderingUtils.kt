@@ -85,8 +85,14 @@ fun endreVilkårResultat(
         endretVilkårResultat = endretVilkårResultatDto,
     )
 
-    val endretVilkårResultat =
-        endretVilkårResultatDto.tilVilkårResultat(eksisterendeVilkårResultater.single { it.id == endretVilkårResultatDto.id })
+    val eksisterendeVilkårsResultat =
+        eksisterendeVilkårResultater.singleOrNull { it.id == endretVilkårResultatDto.id }
+            ?: throw FunksjonellFeil(
+                "Fant ikke eksisterende vilkårsresultat med id: ${endretVilkårResultatDto.id}. Mulig knyttet til problem med flere faner",
+                "Fant ikke eksisterende vilkårsresultat med id: ${endretVilkårResultatDto.id}. Kontroller at vilkårsresultatet eksisterer ved å f.eks laste inn siden på nytt.",
+            )
+
+    val endretVilkårResultat = endretVilkårResultatDto.tilVilkårResultat(eksisterendeVilkårsResultat)
 
     val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeTrengerTilpassning) =
         eksisterendeVilkårResultater.partition {
