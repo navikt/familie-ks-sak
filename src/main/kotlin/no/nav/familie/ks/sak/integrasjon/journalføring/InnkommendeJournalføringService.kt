@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.journalføring
 
+import FerdigstillOppgaveKnyttJournalpostDto
 import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
@@ -108,6 +109,35 @@ class InnkommendeJournalføringService(
         )
 
         return tilknyttetFagsak.fagsakId ?: ""
+    }
+
+    fun knyttJournalpostTilFagsakOgFerdigstillOppgave(
+        request: FerdigstillOppgaveKnyttJournalpostDto,
+        oppgaveId: Long,
+    ): String {
+        val tilknyttedeBehandlingIder: MutableList<String> = request.tilknyttedeBehandlingIder.toMutableList()
+
+        val journalpost = hentJournalpost(request.journalpostId)
+        journalpost.sak?.fagsakId
+
+        if (request.opprettOgKnyttTilNyBehandling) {
+            val nyBehandling =
+                opprettBehandlingOgEvtFagsakForJournalføring(
+                    personIdent = request.bruker!!.id,
+                    saksbehandlerIdent = request.navIdent!!,
+                    type = request.nyBehandlingstype!!,
+                    årsak = request.nyBehandlingsårsak!!,
+                    kategori = request.kategori!!,
+                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                )
+            tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
+        }
+
+        val (sak) = lagreJournalpostOgKnyttFagsakTilJournalpost(tilknyttedeBehandlingIder, journalpost.journalpostId)
+
+        integrasjonClient.ferdigstillOppgave(oppgaveId = oppgaveId)
+
+        return sak.fagsakId ?: ""
     }
 
     private fun opprettBehandlingOgEvtFagsakForJournalføring(
