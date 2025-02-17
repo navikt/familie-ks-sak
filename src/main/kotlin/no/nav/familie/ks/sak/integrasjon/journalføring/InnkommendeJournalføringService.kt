@@ -123,11 +123,11 @@ class InnkommendeJournalføringService(
         if (request.opprettOgKnyttTilNyBehandling) {
             val nyBehandling =
                 opprettBehandlingOgEvtFagsakForJournalføring(
-                    personIdent = request.bruker.id,
-                    saksbehandlerIdent = request.navIdent,
-                    type = request.nyBehandlingstype,
-                    årsak = request.nyBehandlingsårsak,
-                    kategori = request.kategori,
+                    personIdent = request.bruker!!.id,
+                    saksbehandlerIdent = request.navIdent!!,
+                    type = request.nyBehandlingstype!!,
+                    årsak = request.nyBehandlingsårsak!!,
+                    kategori = request.kategori!!,
                     søknadMottattDato = request.datoMottatt?.toLocalDate(),
                 )
             tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
