@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.api
 
-import RestFerdigstillOppgaveKnyttJournalpost
+import FerdigstillOppgaveKnyttJournalpostDto
 import jakarta.validation.Valid
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
@@ -138,7 +138,7 @@ class OppgaveController(
     fun ferdigstillOppgaveOgKnyttJournalpostTilBehandling(
         @PathVariable oppgaveId: Long,
         @RequestBody @Valid
-        request: RestFerdigstillOppgaveKnyttJournalpost,
+        request: FerdigstillOppgaveKnyttJournalpostDto,
     ): ResponseEntity<Ressurs<String?>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,

@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.journalføring
 
-import RestFerdigstillOppgaveKnyttJournalpost
+import FerdigstillOppgaveKnyttJournalpostDto
 import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
@@ -112,7 +112,7 @@ class InnkommendeJournalføringService(
     }
 
     fun knyttJournalpostTilFagsakOgFerdigstillOppgave(
-        request: RestFerdigstillOppgaveKnyttJournalpost,
+        request: FerdigstillOppgaveKnyttJournalpostDto,
         oppgaveId: Long,
     ): String {
         val tilknyttedeBehandlingIder: MutableList<String> = request.tilknyttedeBehandlingIder.toMutableList()
