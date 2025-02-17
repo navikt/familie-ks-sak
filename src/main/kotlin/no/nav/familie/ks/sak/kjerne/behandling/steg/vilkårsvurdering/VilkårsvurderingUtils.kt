@@ -88,8 +88,8 @@ fun endreVilkårResultat(
     val eksisterendeVilkårsResultat =
         eksisterendeVilkårResultater.singleOrNull { it.id == endretVilkårResultatDto.id }
             ?: throw FunksjonellFeil(
-                "Fant ikke eksisterende vilkårsresultat med id: ${endretVilkårResultatDto.id}. Mulig knyttet til problem med flere faner",
-                "Fant ikke eksisterende vilkårsresultat med id: ${endretVilkårResultatDto.id}. Kontroller at vilkårsresultatet eksisterer ved å f.eks laste inn siden på nytt.",
+                melding = "Fant ikke eksisterende vilkårsresultat med id: ${endretVilkårResultatDto.id}. Mulig knyttet til problem med flere faner",
+                frontendFeilmelding = "Vilkårene har endret seg siden sist gang du lastet inn siden. Vennligst forsøk å laste inn siden på nytt",
             )
 
     val endretVilkårResultat = endretVilkårResultatDto.tilVilkårResultat(eksisterendeVilkårsResultat)
