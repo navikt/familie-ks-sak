@@ -290,12 +290,13 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(
-            vilkårsvurdering = vilkårsvurdering,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId),
-            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
-        )
+        val vilkårsvurderingTidslinjer =
+            VilkårsvurderingTidslinjer(
+                vilkårsvurdering = vilkårsvurdering,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId),
+                skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
+            )
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",
