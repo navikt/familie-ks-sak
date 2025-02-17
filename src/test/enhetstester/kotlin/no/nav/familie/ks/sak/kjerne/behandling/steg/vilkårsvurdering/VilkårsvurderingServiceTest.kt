@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -46,6 +47,7 @@ class VilkårsvurderingServiceTest {
     private val personidentService: PersonidentService = mockk()
     private val unleashService: UnleashNextMedContextService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
+    private val adopsjonValidator: AdopsjonValidator = mockk()
     private val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository,
@@ -54,6 +56,7 @@ class VilkårsvurderingServiceTest {
             personidentService,
             unleashService,
             adopsjonService,
+            adopsjonValidator,
         )
 
     private val søker = randomAktør()

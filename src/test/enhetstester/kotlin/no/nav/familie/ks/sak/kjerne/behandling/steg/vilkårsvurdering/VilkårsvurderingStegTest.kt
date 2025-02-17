@@ -82,7 +82,7 @@ class VilkårsvurderingStegTest {
                 unleashService,
             ),
         )
-    private val adopsjonValidator = AdopsjonValidator()
+    private val adopsjonValidator = AdopsjonValidator(unleashService, adopsjonService)
 
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
         VilkårsvurderingSteg(
@@ -95,7 +95,6 @@ class VilkårsvurderingStegTest {
             barnetsVilkårValidator,
             unleashService,
             adopsjonValidator,
-            adopsjonService,
         )
 
     private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
