@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.beregning
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
@@ -45,7 +46,7 @@ class BeregnAndelTilkjentYtelseServiceTest {
         every { andelGeneratorLookup.hentGeneratorForLovverk(any()) } returns andelGenerator
         every { andelGenerator.beregnAndelerForBarn(any(), any(), any(), any()) } returns emptyList()
 
-        every { vilkårsvurdering.behandling.id } returns 1
+        every { vilkårsvurdering.behandling.behandlingId } returns BehandlingId(1)
 
         // Act
         beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, mockk<TilkjentYtelse>())
