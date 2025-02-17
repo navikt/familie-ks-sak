@@ -96,6 +96,7 @@ class VilkårsvurderingStegTest {
             barnetsVilkårValidator,
             unleashService,
             adopsjonValidator,
+            adopsjonService
         )
 
     private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())

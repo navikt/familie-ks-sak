@@ -9,7 +9,6 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
-import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -79,9 +78,7 @@ class VilkårsvurderingSteg(
 
         adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering)
 
-        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
-
-        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling, adopsjonerIBehandling)
+        validerVilkårsvurdering(vilkårsvurdering, personopplysningGrunnlag, søknadDto, behandling)
 
         settBehandlingstemaBasertPåVilkårsvurdering(behandling, vilkårsvurdering)
 
@@ -143,7 +140,6 @@ class VilkårsvurderingSteg(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         søknadGrunnlagDto: SøknadDto?,
         behandling: Behandling,
-        adopsjonerIBehandling: List<Adopsjon>,
     ) {
         validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(personopplysningGrunnlag, søknadGrunnlagDto, behandling)
         if (behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL) {
@@ -156,7 +152,7 @@ class VilkårsvurderingSteg(
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering = vilkårsvurdering, barna = personopplysningGrunnlag.barna)
-        validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering, adopsjonerIBehandling)
+        validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
 
     private fun validerAtDetFinnesBarnIPersonopplysningsgrunnlaget(
@@ -293,9 +289,13 @@ class VilkårsvurderingSteg(
     private fun validerIkkeBlandetRegelverk(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         vilkårsvurdering: Vilkårsvurdering,
-        adopsjonerIBehandling: List<Adopsjon>,
     ) {
-        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, adopsjonerIBehandling, unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025))
+        val vilkårsvurderingTidslinjer = VilkårsvurderingTidslinjer(
+            vilkårsvurdering = vilkårsvurdering,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId),
+            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
+        )
         if (vilkårsvurderingTidslinjer.harBlandetRegelverk()) {
             throw FunksjonellFeil(
                 melding = "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",
