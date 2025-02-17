@@ -27,7 +27,7 @@ class BeregnAndelTilkjentYtelseServiceTest {
         )
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         every { adopsjonService.finnAdopsjonForAktørIBehandling(any(), any()) } returns null
     }
 

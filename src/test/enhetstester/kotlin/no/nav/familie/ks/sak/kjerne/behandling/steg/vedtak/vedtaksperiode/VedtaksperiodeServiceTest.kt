@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -111,6 +112,9 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK
     private lateinit var unleashNextMedContextService: UnleashNextMedContextService
+
+    @MockK
+    private lateinit var adopsjonService: AdopsjonService
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
