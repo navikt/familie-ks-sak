@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
-import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -71,7 +70,7 @@ class BarnetsVilkårValidator(
                 barnetsAlderVilkårValidator.validerVilkårBarnetsAlder(
                     perioder = barnetsAlderVilkårSomSkalValideresVidere.map { it.lagOgValiderPeriodeFraVilkår() },
                     barn = barn,
-                    adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = BehandlingId(vilkårsvurdering.behandling.id))?.adopsjonsdato,
+                    adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = vilkårsvurdering.behandling.behandlingId)?.adopsjonsdato,
                 )
             funksjonelleFeil.addAll(funksjonelleFeilBarnetsAlder)
         }

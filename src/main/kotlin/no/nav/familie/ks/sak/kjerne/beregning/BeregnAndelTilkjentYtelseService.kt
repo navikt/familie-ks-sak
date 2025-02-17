@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -41,7 +40,7 @@ class BeregnAndelTilkjentYtelseService(
         val regelverk =
             LovverkUtleder.utledLovverkForBarn(
                 fødselsdato = barn.fødselsdato,
-                adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = BehandlingId(vilkårsvurdering.behandling.id))?.adopsjonsdato,
+                adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = vilkårsvurdering.behandling.behandlingId)?.adopsjonsdato,
                 skalBestemmeLovverkBasertPåFødselsdato = unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
         val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(regelverk)
