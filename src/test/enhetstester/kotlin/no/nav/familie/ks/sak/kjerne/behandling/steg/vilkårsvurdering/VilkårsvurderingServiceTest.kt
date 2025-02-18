@@ -68,6 +68,7 @@ class VilkårsvurderingServiceTest {
     @BeforeEach
     fun setUp() {
         every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
     @Test

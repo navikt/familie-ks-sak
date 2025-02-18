@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
@@ -470,6 +471,7 @@ fun lagBrevPeriodeContext(
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFørFebruar2025AndelGenerator(), LovverkFebruar2025AndelGenerator())),
             unleashService = mockUnleashNextMedContextService(),
+            adopsjonService = mockAdopsjonService(),
         ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
 
     val vedtaksperiodeMedBegrunnelser =
@@ -520,6 +522,7 @@ fun lagBrevPeriodeContext(
         kompetanser = emptyList(),
         landkoder = LANDKODER,
         skalBestemmeLovverkBasertPåFødselsdato = true,
+        adopsjonerIBehandling = emptyList(),
     )
 }
 

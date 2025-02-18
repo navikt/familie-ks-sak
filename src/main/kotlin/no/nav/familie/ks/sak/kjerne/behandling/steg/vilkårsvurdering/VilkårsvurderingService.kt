@@ -52,11 +52,14 @@ class VilkårsvurderingService(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id))
+
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling,
                 vilkårsvurderingFraForrigeBehandling,
                 personopplysningGrunnlag,
+                adopsjonerIBehandling,
                 unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
 
@@ -119,6 +122,12 @@ class VilkårsvurderingService(
                 vilkår = endreVilkårResultatDto.endretVilkårResultat.vilkårType,
                 utdypendeVilkårsvurdering = endreVilkårResultatDto.endretVilkårResultat.utdypendeVilkårsvurderinger,
                 nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato,
+                barnetsFødselsdato =
+                    personopplysningGrunnlagService
+                        .hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+                        .barna
+                        .firstOrNull { it.aktør == personResultat.aktør }
+                        ?.fødselsdato ?: throw Feil("Finner ikke barn med aktørId ${personResultat.aktør} i personopplysningsgrunnlaget"),
             )
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }

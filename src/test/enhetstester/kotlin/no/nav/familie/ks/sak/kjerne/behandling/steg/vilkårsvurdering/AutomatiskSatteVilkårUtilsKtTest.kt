@@ -27,6 +27,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
+                adopsjonsdato = null,
                 skalBrukeRegelverk2025 = false,
             )
 
@@ -48,7 +49,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
-                erAdopsjon = false,
+                adopsjonsdato = null,
                 skalBrukeRegelverk2025 = true,
             )
 
@@ -70,7 +71,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
-                erAdopsjon = true,
+                adopsjonsdato = fødselsDato.plusMonths(10),
                 skalBrukeRegelverk2025 = true,
             )
 
@@ -94,6 +95,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDatoFørJan24,
+                adopsjonsdato = null,
                 skalBrukeRegelverk2025 = true,
             )
 

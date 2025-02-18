@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -35,6 +36,7 @@ object BehandlingsresultatValideringUtils {
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
         personResultaterForBarn: List<PersonResultat>,
         skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+        adopsjonerIBehandling: List<Adopsjon>,
     ) {
         val alleBarnetsAlderVilkårResultater = personResultaterForBarn.flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
 
@@ -44,6 +46,7 @@ object BehandlingsresultatValideringUtils {
             personopplysningGrunnlag = personopplysningGrunnlag,
             alleBarnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater,
             skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            adopsjonerIBehandling = adopsjonerIBehandling,
         )
 
         // valider EndretUtbetalingAndel

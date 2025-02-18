@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.beregning
 
 import io.mockk.every
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -64,6 +65,7 @@ internal class TilkjentYtelseServiceTest {
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
             unleashService = mockUnleashNextMedContextService(),
+            adopsjonService = mockAdopsjonService(),
         )
 
     private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()

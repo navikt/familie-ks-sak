@@ -81,6 +81,7 @@ class VilkårsvurderingStegTest {
                 barnetsAlderVilkårValidator2025,
                 unleashService,
             ),
+            adopsjonService,
         )
     private val adopsjonValidator = AdopsjonValidator(unleashService, adopsjonService)
 
@@ -95,6 +96,7 @@ class VilkårsvurderingStegTest {
             barnetsVilkårValidator,
             unleashService,
             adopsjonValidator,
+            adopsjonService,
         )
 
     private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
@@ -136,6 +138,7 @@ class VilkårsvurderingStegTest {
         every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
         every { unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
+        every { adopsjonService.finnAdopsjonForAktørIBehandling(any(), any()) } returns null
     }
 
     @Test

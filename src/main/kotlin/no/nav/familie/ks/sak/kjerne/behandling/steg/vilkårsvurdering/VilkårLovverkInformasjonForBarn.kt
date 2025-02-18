@@ -11,6 +11,7 @@ import java.time.YearMonth
 
 data class VilkårLovverkInformasjonForBarn(
     val fødselsdato: LocalDate,
+    val adopsjonsdato: LocalDate?,
     val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     val periodeFomForAdoptertBarn: YearMonth? = null,
     val periodeTomForAdoptertBarn: YearMonth? = null,
@@ -31,7 +32,7 @@ data class VilkårLovverkInformasjonForBarn(
         this.periodeFomBarnetsAlderLov2025 = fødselsdato.plusMonths(12)
         this.periodeTomBarnetsAlderLov2025 = fødselsdato.plusMonths(20)
 
-        val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato, skalBestemmeLovverkBasertPåFødselsdato)
+        val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
 
         this.vilkårLovverk =
             when (lovverk) {
@@ -41,6 +42,7 @@ data class VilkårLovverkInformasjonForBarn(
     }
 
     private fun utledVilkårLovverkFørLovendring2025(): VilkårLovverk {
+        // Lovverk før 2025 trenger å se på de faktiske periodene man har oppfylt adopsjon i vilkårsvurderingen og kan ikke erstattes av adopsjondato
         val erTruffetAvLovverk2021 = periodeFomForAdoptertBarn?.isBefore(DATO_LOVENDRING_2024.toYearMonth()) ?: periodeFomBarnetsAlderLov2021.isBefore(DATO_LOVENDRING_2024)
         val erTruffetAvLovverk2024 = periodeTomForAdoptertBarn?.toLocalDate()?.erSammeEllerEtter(DATO_LOVENDRING_2024) ?: periodeTomBarnetsAlderLov2024.erSammeEllerEtter(DATO_LOVENDRING_2024)
         return when {

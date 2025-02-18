@@ -33,7 +33,7 @@ class BarnetsAlderVilkårValidator2025 {
                         ) ->
                             "Du kan ikke sette en t.o.m dato på barnets aldersvilkår som er etter august året barnet fyller 6 år."
                         // Ved adopsjon skal det være lov å ha en differanse på 8 måneder slik at man får 7 måned med kontantstøtte.
-                        it.fom.plusMonths(7) < it.tom ->
+                        it.fom.plusMonths(8) < it.tom ->
                             "Differansen mellom f.o.m datoen og t.o.m datoen på barnets aldersvilkår kan ikke være mer enn 8 måneder."
 
                         else -> null

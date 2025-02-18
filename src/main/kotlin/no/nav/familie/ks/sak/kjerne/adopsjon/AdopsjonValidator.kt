@@ -48,6 +48,7 @@ class AdopsjonValidator(
         vilkår: Vilkår,
         utdypendeVilkårsvurdering: List<UtdypendeVilkårsvurdering>,
         nyAdopsjonsdato: LocalDate?,
+        barnetsFødselsdato: LocalDate,
     ) {
         if (!unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)) {
             return
@@ -55,6 +56,11 @@ class AdopsjonValidator(
         if (vilkår != Vilkår.BARNETS_ALDER) {
             throw Feil("Prøver å oppdatere adopsjonsdato på $vilkår-vilkåret, men adopsjonsdato kan ikke oppdateres for andre vilkår enn barnets alder")
         }
+
+        if (nyAdopsjonsdato != null && nyAdopsjonsdato.isBefore(barnetsFødselsdato)) {
+            throw FunksjonellFeil("Adopsjonsdato kan ikke være tidligere enn barnets fødselsdato")
+        }
+
         val adopsjonIUtdypendeVilkårsvurdering = utdypendeVilkårsvurdering.contains(UtdypendeVilkårsvurdering.ADOPSJON)
 
         if (adopsjonIUtdypendeVilkårsvurdering && nyAdopsjonsdato == null) {
