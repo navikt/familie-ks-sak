@@ -93,10 +93,7 @@ object BehandlingMapper {
         personer = personer,
         personResultater =
             personResultater?.map { personResultat ->
-                VilkårsvurderingMapper.lagPersonResultatRespons(
-                    personResultat,
-                    personer.find { it.personIdent == personResultat.aktør.aktivFødselsnummer() }!!,
-                )
+                VilkårsvurderingMapper.lagPersonResultatRespons(personResultat)
             }
                 ?: emptyList(),
         behandlingPåVent =
