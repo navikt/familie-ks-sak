@@ -71,6 +71,14 @@ class EndringIVilkårsvurderingUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
+
+        val endringstidspunkt =
+            EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
+                nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
+                forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
+            )
+
+        Assertions.assertNull(endringstidspunkt)
     }
 
     @Test
@@ -125,6 +133,14 @@ class EndringIVilkårsvurderingUtilTest {
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(fødselsdato, perioderMedEndring.single().fom)
         Assertions.assertEquals(mai22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
+
+        val endringstidspunkt =
+            EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
+                nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+            )
+
+        Assertions.assertEquals(jan22, endringstidspunkt)
     }
 
     @Test
@@ -183,6 +199,14 @@ class EndringIVilkårsvurderingUtilTest {
 
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(mai22.atDay(8), perioderMedEndring.single().fom)
+
+        val endringstidspunkt =
+            EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
+                nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+            )
+
+        Assertions.assertEquals(mai22, endringstidspunkt)
     }
 
     @Test
@@ -235,6 +259,14 @@ class EndringIVilkårsvurderingUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
+
+        val endringstidspunkt =
+            EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
+                nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
+                forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
+            )
+
+        Assertions.assertNull(endringstidspunkt)
     }
 
     @Test

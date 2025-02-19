@@ -46,6 +46,14 @@ class EndringIKompetanseUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
+
+        val endringstidspunkt =
+            EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
+                nåværendeKompetanser = listOf(nåværendeKompetanse),
+                forrigeKompetanser = listOf(forrigeKompetanse),
+            )
+
+        Assertions.assertNull(endringstidspunkt)
     }
 
     @Test
@@ -83,6 +91,17 @@ class EndringIKompetanseUtilTest {
         Assertions.assertEquals(1, perioderMedEndring.size)
         Assertions.assertEquals(jan22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
         Assertions.assertEquals(mai22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
+
+        val endringstidspunkt =
+            EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
+                nåværendeKompetanser =
+                    listOf(
+                        nåværendeKompetanse,
+                    ),
+                forrigeKompetanser = listOf(forrigeKompetanse),
+            )
+
+        Assertions.assertEquals(jan22, endringstidspunkt)
     }
 
     @Test
@@ -120,6 +139,17 @@ class EndringIKompetanseUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
+
+        val endringstidspunkt =
+            EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
+                nåværendeKompetanser =
+                    listOf(
+                        nåværendeKompetanse,
+                    ),
+                forrigeKompetanser = listOf(forrigeKompetanse),
+            )
+
+        Assertions.assertNull(endringstidspunkt)
     }
 
     @Test
@@ -166,5 +196,16 @@ class EndringIKompetanseUtilTest {
                 .filter { it.verdi == true }
 
         Assertions.assertTrue(perioderMedEndring.isEmpty())
+
+        val endringstidspunkt =
+            EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
+                nåværendeKompetanser =
+                    listOf(
+                        nåværendeKompetanse,
+                    ),
+                forrigeKompetanser = listOf(forrigeKompetanse),
+            )
+
+        Assertions.assertNull(endringstidspunkt)
     }
 }

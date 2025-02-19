@@ -4,9 +4,29 @@ import no.nav.familie.ks.sak.common.tidslinje.utvidelser.tilTidslinje
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.utvidelser.filtrerIkkeNull
+import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import java.time.YearMonth
 
 object EndringIKompetanseUtil {
+    fun utledEndringstidspunktForKompetanse(
+        nåværendeKompetanser: List<Kompetanse>,
+        forrigeKompetanser: List<Kompetanse>,
+    ): YearMonth? {
+        val allePersonerMedKompetanser = (nåværendeKompetanser.flatMap { it.barnAktører } + forrigeKompetanser.flatMap { it.barnAktører }).distinct()
+
+        val endringstidslinjerPrPerson =
+            allePersonerMedKompetanser
+                .map { aktør ->
+                    lagEndringIKompetanseForPersonTidslinje(
+                        nåværendeKompetanserForPerson = nåværendeKompetanser.filter { it.barnAktører.contains(aktør) },
+                        forrigeKompetanserForPerson = forrigeKompetanser.filter { it.barnAktører.contains(aktør) },
+                    )
+                }.kombiner { finnesMinstEnEndringIPeriode(it) }
+
+        return endringstidslinjerPrPerson.tilFørsteEndringstidspunkt()
+    }
+
     fun lagEndringIKompetanseForPersonTidslinje(
         nåværendeKompetanserForPerson: List<Kompetanse>,
         forrigeKompetanserForPerson: List<Kompetanse>,
@@ -31,4 +51,8 @@ object EndringIKompetanseUtil {
             this.annenForeldersAktivitetsland != forrigeKompetanse.annenForeldersAktivitetsland ||
             this.barnetsBostedsland != forrigeKompetanse.barnetsBostedsland ||
             this.resultat != forrigeKompetanse.resultat
+
+    private fun finnesMinstEnEndringIPeriode(
+        endringer: Iterable<Boolean>,
+    ): Boolean = endringer.any { it }
 }

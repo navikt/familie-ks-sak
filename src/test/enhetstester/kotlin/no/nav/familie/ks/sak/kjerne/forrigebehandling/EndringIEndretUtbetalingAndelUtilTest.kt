@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -46,6 +47,14 @@ class EndringIEndretUtbetalingAndelUtilTest {
         assertEquals(1, perioderMedEndring.size)
         assertEquals(jan22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
         assertEquals(aug22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
+
+        val endringstidspunkt =
+            EndringIEndretUtbetalingAndelUtil.utledEndringstidspunktForEndretUtbetalingAndel(
+                forrigeEndretAndeler = listOf(forrigeEndretAndel),
+                nåværendeEndretAndeler = listOf(nåværendeEndretAndel),
+            )
+
+        assertEquals(jan22, endringstidspunkt)
     }
 
     @Test
@@ -72,6 +81,14 @@ class EndringIEndretUtbetalingAndelUtilTest {
                 .filter { it.verdi == true }
 
         assertTrue(perioderMedEndring.isEmpty())
+
+        val endringstidspunkt =
+            EndringIEndretUtbetalingAndelUtil.utledEndringstidspunktForEndretUtbetalingAndel(
+                forrigeEndretAndeler = listOf(forrigeEndretAndel),
+                nåværendeEndretAndeler = listOf(nåværendeEndretAndel),
+            )
+
+        Assertions.assertNull(endringstidspunkt)
     }
 
     @Test
@@ -112,6 +129,18 @@ class EndringIEndretUtbetalingAndelUtilTest {
         assertEquals(1, perioderMedEndring.size)
         assertEquals(jan22.førsteDagIInneværendeMåned(), perioderMedEndring.single().fom)
         assertEquals(aug22.sisteDagIInneværendeMåned(), perioderMedEndring.single().tom)
+
+        val endringstidspunkt =
+            EndringIEndretUtbetalingAndelUtil.utledEndringstidspunktForEndretUtbetalingAndel(
+                forrigeEndretAndeler = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2),
+                nåværendeEndretAndeler =
+                    listOf(
+                        forrigeEndretAndelBarn1,
+                        forrigeEndretAndelBarn2.copy(årsak = Årsak.ALLEREDE_UTBETALT),
+                    ),
+            )
+
+        assertEquals(jan22, endringstidspunkt)
     }
 
     @Test

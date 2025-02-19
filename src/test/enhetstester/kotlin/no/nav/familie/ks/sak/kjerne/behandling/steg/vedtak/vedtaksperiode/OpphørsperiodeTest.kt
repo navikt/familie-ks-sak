@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.forrigeMåned
 import no.nav.familie.ks.sak.common.util.inneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
@@ -98,6 +99,7 @@ class OpphørsperiodeTest {
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
+                    endringstidspunktForBehandling = TIDENES_MORGEN,
                 )
 
             assertThat(opphørsperioder).hasSize(1)
@@ -152,6 +154,7 @@ class OpphørsperiodeTest {
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
+                    endringstidspunktForBehandling = TIDENES_MORGEN,
                 )
 
             assertThat(opphørsperioder).hasSize(1)
@@ -235,6 +238,7 @@ class OpphørsperiodeTest {
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
+                    endringstidspunktForBehandling = TIDENES_MORGEN,
                 )
 
             assertThat(opphørsperioder).hasSize(2)
@@ -294,6 +298,7 @@ class OpphørsperiodeTest {
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
+                    endringstidspunktForBehandling = TIDENES_MORGEN,
                 )
 
             assertEquals(2, opphørsperioder.size)
@@ -325,6 +330,7 @@ class OpphørsperiodeTest {
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
+                    endringstidspunktForBehandling = TIDENES_MORGEN,
                 )
 
             assertEquals(1, opphørsperioder.size)
@@ -354,6 +360,7 @@ class OpphørsperiodeTest {
                     vilkårsvurdering = vilkårsvurdering,
                     skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
+                    endringstidspunktForBehandling = TIDENES_MORGEN,
                 )
 
             assertEquals(1, opphørsperioder.size)

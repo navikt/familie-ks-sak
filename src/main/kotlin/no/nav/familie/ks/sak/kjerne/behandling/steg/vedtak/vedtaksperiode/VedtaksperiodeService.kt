@@ -51,6 +51,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunn
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -76,6 +77,7 @@ class VedtaksperiodeService(
     private val kompetanseService: KompetanseService,
     private val unleashNextMedContextService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
+    private val endringstidspunktService: EndringstidspunktService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -230,10 +232,7 @@ class VedtaksperiodeService(
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val endringstidspunkt =
-            manueltOverstyrtEndringstidspunkt ?: finnEndringstidspunktForBehandling(
-                behandling = behandling,
-                sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
-            )
+            manueltOverstyrtEndringstidspunkt ?: endringstidspunktService.finnEndringstidspunktForBehandling(behandling)
 
         return vedtaksperioderMedBegrunnelser.filter {
             (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
@@ -451,6 +450,8 @@ class VedtaksperiodeService(
 
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
 
+        val endringstidspunktForBehandling = endringstidspunktService.finnEndringstidspunktForBehandling(behandling)
+
         return mapTilOpphørsperioder(
             forrigePersonopplysningGrunnlag = forrigePersonopplysningGrunnlag,
             forrigeAndelerTilkjentYtelse = forrigeAndelerMedEndringer,
@@ -459,32 +460,8 @@ class VedtaksperiodeService(
             vilkårsvurdering = vilkårsvurdering,
             skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             adopsjonerIBehandling = adopsjonerIBehandling,
+            endringstidspunktForBehandling = endringstidspunktForBehandling,
         )
-    }
-
-    fun finnEndringstidspunktForBehandling(
-        behandling: Behandling,
-        sisteVedtattBehandling: Behandling?,
-    ): LocalDate {
-        if (sisteVedtattBehandling == null) return TIDENES_MORGEN
-
-        val andelerTilkjentYtelseForBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-
-        if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
-
-        val andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
-
-        val førsteEndringstidspunktFraAndelTilkjentYtelse =
-            andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
-                forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling,
-            ) ?: TIDENES_ENDE
-
-        val kompetansePerioder = kompetanseService.hentKompetanser(behandling.behandlingId)
-        val kompetansePerioderForrigeBehandling = kompetanseService.hentKompetanser(sisteVedtattBehandling.behandlingId)
-
-        val førsteEndringstidspunktIKompetansePerioder = kompetansePerioder.hentFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling)
-
-        return minOf(førsteEndringstidspunktFraAndelTilkjentYtelse, førsteEndringstidspunktIKompetansePerioder)
     }
 
     private fun hentAvslagsperioderMedBegrunnelser(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> {
