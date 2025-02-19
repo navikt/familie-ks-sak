@@ -42,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -105,6 +106,9 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK
     private lateinit var adopsjonService: AdopsjonService
+
+    @MockK
+    private lateinit var endringstidspunktService: EndringstidspunktService
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
