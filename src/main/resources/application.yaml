@@ -133,9 +133,9 @@ FAMILIE_PROSESSERING_CLIENT_ID: "dummy"
 FAMILIE_BREV_API_URL: http://familie-brev
 FAMILIE_KLAGE_URL: http://familie-klage
 FAMILIE_KS_INFOTRYGD_API_URL: http://familie-ks-infotrygd
-FAMILIE_TILBAKE_API_URL: http://familie-tilbake/api
-TILBAKEKREVING_REQUEST_TOPIC: teamfamilie.privat-tbk-hentfagsystemsbehandling-request-topic
-TILBAKEKREVING_RESPONSE_TOPIC: teamfamilie.privat-tbk-hentfagsystemsbehandling-respons-topic
+FAMILIE_TILBAKE_API_URL: http://tilbakekreving-backend.tilbake/api
+TILBAKEKREVING_REQUEST_TOPIC: tilbake.privat-tbk-hentfagsystemsbehandling
+TILBAKEKREVING_RESPONSE_TOPIC: tilbake.privat-tbk-hentfagsystemsbehandling-svar
 PDL_URL: http://pdl-api.default
 FAMILIE_INTEGRASJONER_API_URL: http://familie-integrasjoner/api
 FAMILIE_OPPDRAG_API_URL: http://familie-oppdrag/api

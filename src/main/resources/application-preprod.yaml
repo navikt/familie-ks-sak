@@ -111,10 +111,7 @@ SANITY_DATASET: "ks-brev"
 PDL_URL: https://pdl-api.dev-fss-pub.nais.io
 PDL_SCOPE: api://dev-fss.pdl.pdl-api/.default
 
-FAMILIE_TILBAKE_API_URL: http://tilbakekreving-backend.tilbake/api
 FAMILIE_TILBAKE_API_URL_SCOPE: api://dev-gcp.tilbake.tilbakekreving-backend/.default
-TILBAKEKREVING_REQUEST_TOPIC: tilbake.privat-tbk-hentfagsystemsbehandling
-TILBAKEKREVING_RESPONSE_TOPIC: tilbake.privat-tbk-hentfagsystemsbehandling-svar
 
 FAMILIE_EF_SAK_API_URL_SCOPE: api://dev-gcp.teamfamilie.familie-ef-sak/.default
 
