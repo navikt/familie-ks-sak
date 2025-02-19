@@ -85,6 +85,7 @@ object BehandlingMapper {
         type = behandling.type,
         kategori = behandling.kategori,
         årsak = behandling.opprettetÅrsak,
+        søknadMottattDato = behandling.søknadMottattDato,
         opprettetTidspunkt = behandling.opprettetTidspunkt,
         aktivertTidspunkt = behandling.aktivertTidspunkt,
         endretAv = behandling.endretAv,
