@@ -236,8 +236,6 @@ class VedtaksperiodeService(
         }
     }
 
-    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId).filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }.maxByOrNull { it.aktivertTidspunkt }
-
     @Transactional
     fun genererVedtaksperiodeForOverstyrtEndringstidspunkt(
         behandlingId: Long,

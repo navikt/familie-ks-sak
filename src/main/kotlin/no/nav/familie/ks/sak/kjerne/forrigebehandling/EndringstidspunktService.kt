@@ -1,7 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -97,4 +99,27 @@ class EndringstidspunktService(
             forrigeEndretAndeler = forrigeEndretAndeler,
         )
     }
+
+    /**
+     * Utleder første endringstidspunkt fra fire mulige datoer basert på første endring av:
+     * - utbetaling
+     * - kompetanse
+     * - vilkårsvurdering
+     * - endret utbetaling andel
+     * Hvis det ikke er endring på feks. utbetaling blir den datoen null.
+     * Hvis det ikke finnes noen endring i det hele tatt (dvs. alle er null) setter vi endringstidspunkt til tidenes ende
+     * Dette er for at vi dermed kun skal få med vedtaksperioder som kun strekker seg uendelig frem i tid (feks. opphørsperiode)
+     * * */
+    private fun utledEndringstidspunkt(
+        endringstidspunktUtbetalingsbeløp: YearMonth?,
+        endringstidspunktKompetanse: YearMonth?,
+        endringstidspunktVilkårsvurdering: YearMonth?,
+        endringstidspunktEndretUtbetalingAndeler: YearMonth?,
+    ): LocalDate =
+        listOfNotNull(
+            endringstidspunktUtbetalingsbeløp,
+            endringstidspunktKompetanse,
+            endringstidspunktVilkårsvurdering,
+            endringstidspunktEndretUtbetalingAndeler,
+        ).minOfOrNull { it }?.førsteDagIInneværendeMåned() ?: TIDENES_ENDE
 }
