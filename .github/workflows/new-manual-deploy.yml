@@ -22,7 +22,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/build.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yml@main
     with:
       skip-tests: ${{ inputs.skip-tests }}
       build-image: true
