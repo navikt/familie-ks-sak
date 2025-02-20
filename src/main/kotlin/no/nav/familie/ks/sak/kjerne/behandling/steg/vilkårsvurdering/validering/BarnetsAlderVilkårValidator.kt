@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårLovverkInformasjonForBarn
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
@@ -17,14 +15,12 @@ class BarnetsAlderVilkårValidator(
     val barnetsAlderVilkårValidator2024: BarnetsAlderVilkårValidator2024,
     val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024,
     val barnetsAlderVilkårValidator2025: BarnetsAlderVilkårValidator2025,
-    val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun validerVilkårBarnetsAlder(
         perioder: List<IkkeNullbarPeriode<VilkårResultat>>,
         barn: Person,
         adopsjonsdato: LocalDate?,
     ): List<String> {
-        val skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
         val vilkårLovverkInformasjonForBarn =
             if (perioder.any { it.verdi.erAdopsjonOppfylt() }) {
                 VilkårLovverkInformasjonForBarn(
@@ -32,10 +28,9 @@ class BarnetsAlderVilkårValidator(
                     adopsjonsdato = adopsjonsdato,
                     periodeFomForAdoptertBarn = perioder.minOf { it.fom }.toYearMonth(),
                     periodeTomForAdoptertBarn = perioder.maxOf { it.tom }.toYearMonth(),
-                    skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                 )
             } else {
-                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+                VilkårLovverkInformasjonForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonsdato)
             }
 
         return when (vilkårLovverkInformasjonForBarn.vilkårLovverk) {

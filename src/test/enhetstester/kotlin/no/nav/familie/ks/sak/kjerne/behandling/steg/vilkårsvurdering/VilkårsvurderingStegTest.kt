@@ -79,7 +79,6 @@ class VilkårsvurderingStegTest {
                     barnetsAlderVilkårValidator2024,
                 ),
                 barnetsAlderVilkårValidator2025,
-                unleashService,
             ),
             adopsjonService,
         )
@@ -135,7 +134,6 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
-        every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
         every { unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
         every { adopsjonService.finnAdopsjonForAktørIBehandling(any(), any()) } returns null

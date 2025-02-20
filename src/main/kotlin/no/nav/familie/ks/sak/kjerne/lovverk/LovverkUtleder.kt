@@ -8,11 +8,7 @@ object LovverkUtleder {
     fun utledLovverkForBarn(
         fødselsdato: LocalDate,
         adopsjonsdato: LocalDate?,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ): Lovverk {
-        if (!skalBestemmeLovverkBasertPåFødselsdato) {
-            return Lovverk.FØR_LOVENDRING_2025
-        }
         val fødselsdatoEllerAdopsjonsdato = adopsjonsdato ?: fødselsdato
 
         return when {

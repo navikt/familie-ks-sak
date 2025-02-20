@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -374,7 +373,6 @@ class StepDefinition {
                                     overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                                     adopsjonerIBehandling = emptyList(), // TODO: Legg inn støtte for cucumber-tester
-                                    skalBestemmeLovverkBasertPåFødselsdato = true,
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }.find { it.fom == forventet.fom && it.tom == forventet.tom }
@@ -474,7 +472,6 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
-        skalBestemmeLovverkBasertPåFødselsdato = true,
         adopsjonerIBehandling = emptyList(), // TODO: Fiks før merge
     ).genererBrevPeriodeDto()
 
@@ -696,7 +693,6 @@ class StepDefinition {
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
-                unleashNextMedContextService = mockUnleashNextMedContextService(),
                 adopsjonService = mockAdopsjonService(),
             )
 
@@ -714,7 +710,6 @@ class StepDefinition {
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
-            unleashNextMedContextService = mockUnleashNextMedContextService(),
             adopsjonService = mockAdopsjonService(),
         )
     }

@@ -246,7 +246,6 @@ fun genererInitiellVilkårsvurdering(
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     adopsjonerIBehandling: List<Adopsjon>,
-    skalBrukeRegelverk2025: Boolean = false,
 ): Vilkårsvurdering =
     Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -275,7 +274,6 @@ fun genererInitiellVilkårsvurdering(
                                             personResultat = personResultat,
                                             behandlingId = behandling.id,
                                             fødselsdato = person.fødselsdato,
-                                            skalBrukeRegelverk2025 = skalBrukeRegelverk2025,
                                             adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }?.adopsjonsdato,
                                         )
                                     }
