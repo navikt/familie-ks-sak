@@ -785,7 +785,6 @@ class BegrunnelserForPeriodeContextTest {
                 .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     adopsjonerIBehandling = emptyList(),
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                 ).filterKeys { it.aktørId == aktørSomTriggerVedtaksperiode.aktørId }
                 .values
                 .first()
@@ -809,15 +808,14 @@ class BegrunnelserForPeriodeContextTest {
         return BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
+            kompetanser = emptyList(),
             personopplysningGrunnlag = personopplysningGrunnlag,
+            adopsjonerIBehandling = emptyList(),
+            overgangsordningAndeler = emptyList(),
             personResultater = personResultater,
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
-            kompetanser = emptyList(),
-            overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            adopsjonerIBehandling = emptyList(),
-            skalBestemmeLovverkBasertPåFødselsdato = true,
         )
     }
 
@@ -877,6 +875,8 @@ class BegrunnelserForPeriodeContextTest {
             sanityBegrunnelser = sanityBegrunnelser,
             kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
             personopplysningGrunnlag = personopplysningGrunnlag,
+            adopsjonerIBehandling = emptyList(),
+            overgangsordningAndeler = emptyList(),
             personResultater =
                 listOf(
                     lagPersonResultatFraVilkårResultater(
@@ -890,10 +890,7 @@ class BegrunnelserForPeriodeContextTest {
                 ),
             endretUtbetalingsandeler = emptyList(),
             erFørsteVedtaksperiode = false,
-            overgangsordningAndeler = emptyList(),
             andelerTilkjentYtelse = andelerTilkjentYtelse,
-            adopsjonerIBehandling = emptyList(),
-            skalBestemmeLovverkBasertPåFødselsdato = true,
         )
     }
 }

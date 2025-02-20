@@ -66,7 +66,6 @@ class LovverkTidslinjeGeneratorTest {
             LovverkTidslinjeGenerator.generer(
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
 
@@ -126,7 +125,6 @@ class LovverkTidslinjeGeneratorTest {
             LovverkTidslinjeGenerator.generer(
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
 
@@ -186,7 +184,6 @@ class LovverkTidslinjeGeneratorTest {
             LovverkTidslinjeGenerator.generer(
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
 
@@ -246,7 +243,6 @@ class LovverkTidslinjeGeneratorTest {
             LovverkTidslinjeGenerator.generer(
                 barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
 
@@ -319,7 +315,6 @@ class LovverkTidslinjeGeneratorTest {
                 LovverkTidslinjeGenerator.generer(
                     barnasForskjøvedeVilkårResultater = vilkårResultaterPerBarn,
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }

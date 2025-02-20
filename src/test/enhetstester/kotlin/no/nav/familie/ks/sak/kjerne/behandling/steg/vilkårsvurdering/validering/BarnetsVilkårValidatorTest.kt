@@ -1,13 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
-import io.mockk.every
-import io.mockk.mockk
 import mockAdopsjonService
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -22,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.LocalDate
@@ -46,7 +41,6 @@ class BarnetsVilkårValidatorTest {
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
     private val barnetsAlderVilkårValidator2025 = BarnetsAlderVilkårValidator2025()
-    private val unleashNextMedContextService: UnleashNextMedContextService = mockk()
 
     private val barnetsVilkårValidator: BarnetsVilkårValidator =
         BarnetsVilkårValidator(
@@ -58,15 +52,9 @@ class BarnetsVilkårValidatorTest {
                     barnetsAlderVilkårValidator2024,
                 ),
                 barnetsAlderVilkårValidator2025,
-                unleashNextMedContextService,
             ),
             mockAdopsjonService(),
         )
-
-    @BeforeEach
-    fun beforeEach() {
-        every { unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
-    }
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når vilkår resulat er oppfylt men mangler fom`() {

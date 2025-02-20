@@ -35,7 +35,6 @@ object BehandlingsresultatValideringUtils {
         tilkjentYtelse: TilkjentYtelse,
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
         personResultaterForBarn: List<PersonResultat>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
         adopsjonerIBehandling: List<Adopsjon>,
     ) {
         val alleBarnetsAlderVilkårResultater = personResultaterForBarn.flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
@@ -45,7 +44,6 @@ object BehandlingsresultatValideringUtils {
             tilkjentYtelse = tilkjentYtelse,
             personopplysningGrunnlag = personopplysningGrunnlag,
             alleBarnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             adopsjonerIBehandling = adopsjonerIBehandling,
         )
 

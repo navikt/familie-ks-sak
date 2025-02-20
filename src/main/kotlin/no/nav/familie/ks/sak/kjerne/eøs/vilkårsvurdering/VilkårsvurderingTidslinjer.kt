@@ -18,15 +18,13 @@ class VilkårsvurderingTidslinjer(
     vilkårsvurdering: Vilkårsvurdering,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     adopsjonerIBehandling: List<Adopsjon>,
-    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val barnasTidslinjer: Map<Person, BarnetsTidslinjer> =
         personopplysningGrunnlag.barna.associateWith { barn ->
             BarnetsTidslinjer(
                 barn = barn,
-                personResultater = vilkårsvurdering.personResultater,
                 adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                personResultater = vilkårsvurdering.personResultater,
             )
         }
 
@@ -36,9 +34,12 @@ class VilkårsvurderingTidslinjer(
         barn: Person,
         adopsjonsdato: LocalDate?,
         personResultater: Set<PersonResultat>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
-        private val lovverk = LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+        private val lovverk =
+            LovverkUtleder.utledLovverkForBarn(
+                fødselsdato = barn.fødselsdato,
+                adopsjonsdato = adopsjonsdato,
+            )
         private val søkersTidslinje = personResultater.single { it.erSøkersResultater() }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
         private val barnetsTidslinje = personResultater.single { it.aktør == barn.aktør }.tilVilkårRegelverkResultatTidslinje(lovverk = lovverk)
 

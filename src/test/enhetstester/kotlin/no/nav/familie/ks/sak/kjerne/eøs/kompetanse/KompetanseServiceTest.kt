@@ -10,8 +10,6 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -58,14 +56,12 @@ internal class KompetanseServiceTest {
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
-    private val unleashService: UnleashNextMedContextService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
             vilkårsvurderingService = vilkårsvurderingService,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-            unleashService = unleashService,
             adopsjonService = adopsjonService,
         )
     private val tilpassKompetanserService =
@@ -480,7 +476,6 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
                     barnAktør = listOf(barn1, barn2),
                 )
-            every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
         }
 
         @Test

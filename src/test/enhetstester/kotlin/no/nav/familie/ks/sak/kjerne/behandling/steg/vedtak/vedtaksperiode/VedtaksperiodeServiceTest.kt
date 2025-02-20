@@ -13,8 +13,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
@@ -111,9 +109,6 @@ internal class VedtaksperiodeServiceTest {
     private lateinit var kompetanseService: KompetanseService
 
     @MockK
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
-
-    @MockK
     private lateinit var adopsjonService: AdopsjonService
 
     @InjectMockKs
@@ -124,9 +119,6 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
-        every {
-            unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
-        } returns true
     }
 
     @Test

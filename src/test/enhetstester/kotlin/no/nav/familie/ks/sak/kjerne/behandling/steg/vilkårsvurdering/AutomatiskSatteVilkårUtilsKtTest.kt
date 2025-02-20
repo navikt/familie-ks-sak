@@ -20,28 +20,6 @@ class AutomatiskSatteVilkårUtilsKtTest {
         )
 
     @Test
-    fun `skal bruke gammelt regelverk for barn født fra og med første januar 2024 hvis toggle er skrudd av`() {
-        // Act
-        val barnetsAlderVilkår =
-            lagAutomatiskGenererteVilkårForBarnetsAlder(
-                personResultat = personResultat,
-                behandlingId = behandlingId,
-                fødselsdato = fødselsDato,
-                adopsjonsdato = null,
-                skalBrukeRegelverk2025 = false,
-            )
-
-        // Assert
-        assertThat(barnetsAlderVilkår).hasSize(1)
-        assertThat(barnetsAlderVilkår).anySatisfy {
-            validerFellesfelter(it)
-            assertThat(it.periodeFom).isEqualTo(fødselsDato.plusMonths(13))
-            assertThat(it.periodeTom).isEqualTo(fødselsDato.plusMonths(19))
-            assertThat(it.utdypendeVilkårsvurderinger).isEmpty()
-        }
-    }
-
-    @Test
     fun `skal bruke nytt regelverk for barn født fra og med første januar 2024 hvis toggle er skrudd på`() {
         // Act
         val barnetsAlderVilkår =
@@ -50,7 +28,6 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
                 adopsjonsdato = null,
-                skalBrukeRegelverk2025 = true,
             )
 
         // Assert
@@ -72,7 +49,6 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
                 adopsjonsdato = fødselsDato.plusMonths(10),
-                skalBrukeRegelverk2025 = true,
             )
 
         // Assert
@@ -96,7 +72,6 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDatoFørJan24,
                 adopsjonsdato = null,
-                skalBrukeRegelverk2025 = true,
             )
 
         // Assert
