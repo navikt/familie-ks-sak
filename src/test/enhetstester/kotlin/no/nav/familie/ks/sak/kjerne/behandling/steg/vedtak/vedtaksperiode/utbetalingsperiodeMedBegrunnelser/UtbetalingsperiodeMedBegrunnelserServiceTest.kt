@@ -86,7 +86,10 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             )
 
         val førskjøvetVilkårResultatTidslinjeMap =
-            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, adopsjonerIBehandling = emptyList(), skalBestemmeLovverkBasertPåFødselsdato = true)
+            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = emptyList(),
+            )
 
         Assertions.assertEquals(2, førskjøvetVilkårResultatTidslinjeMap.size)
 
@@ -162,7 +165,10 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
             )
 
         assertDoesNotThrow {
-            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, adopsjonerIBehandling = emptyList(), skalBestemmeLovverkBasertPåFødselsdato = true)
+            personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                adopsjonerIBehandling = emptyList(),
+            )
         }
     }
 }

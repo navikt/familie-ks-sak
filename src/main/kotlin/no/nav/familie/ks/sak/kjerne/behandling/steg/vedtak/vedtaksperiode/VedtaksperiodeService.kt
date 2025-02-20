@@ -15,8 +15,6 @@ import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -74,7 +72,6 @@ class VedtaksperiodeService(
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val kompetanseService: KompetanseService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
@@ -406,15 +403,14 @@ class VedtaksperiodeService(
                     BegrunnelserForPeriodeContext(
                         utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                         sanityBegrunnelser = sanityBegrunnelser,
+                        kompetanser = utfylteKompetanser,
                         personopplysningGrunnlag = persongrunnlag,
+                        adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id)),
+                        overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
                         personResultater = vilkårsvurdering.personResultater.toList(),
                         endretUtbetalingsandeler = endreteUtbetalinger,
                         erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
-                        kompetanser = utfylteKompetanser,
                         andelerTilkjentYtelse = andeler,
-                        overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
-                        adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id)),
-                        skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
                     ).hentGyldigeBegrunnelserForVedtaksperiode(),
             )
         }
@@ -457,7 +453,6 @@ class VedtaksperiodeService(
             personopplysningGrunnlag = personopplysningGrunnlag,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vilkårsvurdering = vilkårsvurdering,
-            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             adopsjonerIBehandling = adopsjonerIBehandling,
         )
     }

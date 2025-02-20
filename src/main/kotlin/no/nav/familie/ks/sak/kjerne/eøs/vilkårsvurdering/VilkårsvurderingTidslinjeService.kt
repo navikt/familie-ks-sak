@@ -3,8 +3,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service
 class VilkårsvurderingTidslinjeService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val unleashService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
 ) {
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
@@ -29,7 +26,7 @@ class VilkårsvurderingTidslinjeService(
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId))
 
-        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, adopsjonerIBehandling, unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025))
+        return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, adopsjonerIBehandling)
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {

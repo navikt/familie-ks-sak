@@ -63,7 +63,6 @@ class CucumberMock(
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
-            unleashService = mockUnleashNextMedContextService(),
             adopsjonService = adopsjonServiceMock,
         )
 
@@ -141,7 +140,6 @@ class CucumberMock(
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             sanityService = mockk(),
             personidentService = personidentService,
-            unleashService = mockUnleashNextMedContextService(),
             adopsjonService = adopsjonServiceMock,
             adopsjonValidator = adopsjonValidator,
         )

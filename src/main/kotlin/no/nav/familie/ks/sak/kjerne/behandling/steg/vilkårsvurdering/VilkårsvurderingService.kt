@@ -5,8 +5,6 @@ import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -35,7 +33,6 @@ class VilkårsvurderingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
-    private val unleashService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
     private val adopsjonValidator: AdopsjonValidator,
 ) {
@@ -60,7 +57,6 @@ class VilkårsvurderingService(
                 vilkårsvurderingFraForrigeBehandling,
                 personopplysningGrunnlag,
                 adopsjonerIBehandling,
-                unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
             )
 
         vilkårsvurderingFraForrigeBehandling?.let {

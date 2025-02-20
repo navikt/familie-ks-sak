@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.eøs.util
 import io.mockk.every
 import io.mockk.mockk
 import mockAdopsjonService
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.tilfeldigPerson
@@ -106,7 +105,6 @@ data class VilkårsvurderingBuilder(
                 beregnAndelTilkjentYtelseService =
                     BeregnAndelTilkjentYtelseService(
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
-                        unleashService = mockUnleashNextMedContextService(),
                         adopsjonService = mockAdopsjonService(),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),

@@ -75,7 +75,6 @@ internal class TilkjentYtelseValidatorTest {
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }
@@ -125,7 +124,6 @@ internal class TilkjentYtelseValidatorTest {
                             barnAktør = listOf(barnFødtIJanuar2023.aktør),
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }
@@ -167,7 +165,6 @@ internal class TilkjentYtelseValidatorTest {
                             barnAktør = listOf(barnFødtIAugust2022.aktør),
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }
@@ -219,7 +216,6 @@ internal class TilkjentYtelseValidatorTest {
                     barnAktør = listOf(barnFødtAugust2023.aktør, barnFødtAugust2022.aktør),
                 ),
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
         }
@@ -250,7 +246,6 @@ internal class TilkjentYtelseValidatorTest {
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }
@@ -291,7 +286,6 @@ internal class TilkjentYtelseValidatorTest {
                             barnAktør = listOf(barnFødtJuli2023.aktør),
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }
@@ -538,7 +532,6 @@ internal class TilkjentYtelseValidatorTest {
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
         }
@@ -567,7 +560,6 @@ internal class TilkjentYtelseValidatorTest {
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
         }
@@ -596,7 +588,6 @@ internal class TilkjentYtelseValidatorTest {
                 tilkjentYtelse = tilkjentYtelse,
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                skalBestemmeLovverkBasertPåFødselsdato = true,
                 adopsjonerIBehandling = emptyList(),
             )
         }
@@ -626,7 +617,6 @@ internal class TilkjentYtelseValidatorTest {
                     tilkjentYtelse = tilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
             }

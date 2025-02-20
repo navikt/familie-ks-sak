@@ -96,7 +96,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelTilBarn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
 
@@ -150,7 +149,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelTilBarn),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
 
@@ -233,7 +231,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelTilBarn1, andelTilBarn2),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
 
@@ -292,7 +289,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelBarn1, andel2Barn1, andel3Barn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
 
@@ -323,7 +319,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelBarn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
 
@@ -352,7 +347,6 @@ class OpphørsperiodeTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     andelerTilkjentYtelse = listOf(andelBarn1),
                     vilkårsvurdering = vilkårsvurdering,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
                     adopsjonerIBehandling = emptyList(),
                 )
 
