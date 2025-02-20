@@ -47,8 +47,34 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal kaste feil om arbeidsfordeling er midlertidig enhet 4863 og NAV-ident ikke har tilgang til noen andre enheter enn 4863 og 2103`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.MIDLERTIDIG_ENHET
-            val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
+
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
+                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
+                )
+
+            every {
+                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                    navIdent = navIdent,
+                )
+            } returns emptyList()
+
+            // Act & assert
+            val exception =
+                assertThrows<Feil> {
+                    tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                        arbeidsfordelingsenhet = arbeidsfordelingsenhet,
+                        navIdent = navIdent,
+                    )
+                }
+            assertThat(exception.message).isEqualTo("NAV-ident $navIdent har ikke tilgang til noen enheter")
+        }
+
+        @Test
+        fun `skal returnere Vikafossen om NAV-identen kun har tilgang til Vikafossen når arbeidsfordeling er midlertidig enhet 4863`() {
+            // Arrange
+            val navIdent = NavIdent("1")
 
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
@@ -63,20 +89,21 @@ class TilpassArbeidsfordelingServiceTest {
             } returns
                 listOf(
                     lagEnhet(
-                        enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
-                        enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
                     ),
                 )
 
-            // Act & assert
-            val exception =
-                assertThrows<Feil> {
-                    tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
-                        arbeidsfordelingsenhet = arbeidsfordelingsenhet,
-                        navIdent = navIdent,
-                    )
-                }
-            assertThat(exception.message).isEqualTo("Fant ingen passende enhetsnummer for nav-ident $navIdent")
+            // Act
+            val tilpassetArbeidsfordelingsenhet =
+                tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                    arbeidsfordelingsenhet = arbeidsfordelingsenhet,
+                    navIdent = navIdent,
+                )
+
+            // Assert
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
         }
 
         @Test
@@ -252,7 +279,6 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal kaste feil om arbeidsfordeling ikke er 2103 eller 4863 og NAV-ident ikke har tilgang til noen enheter`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
 
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
@@ -264,13 +290,7 @@ class TilpassArbeidsfordelingServiceTest {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
-            } returns
-                listOf(
-                    lagEnhet(
-                        enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
-                        enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
-                    ),
-                )
+            } returns emptyList()
 
             // Act & assert
             val exception =
@@ -280,7 +300,42 @@ class TilpassArbeidsfordelingServiceTest {
                         navIdent = navIdent,
                     )
                 }
-            assertThat(exception.message).isEqualTo("Fant ingen passende enhetsnummer for NAV-ident $navIdent")
+            assertThat(exception.message).isEqualTo("NAV-ident $navIdent har ikke tilgang til noen enheter")
+        }
+
+        @Test
+        fun `skal returnere Vikafossen hvis Nav-ident kun har tilgang til Vikafossen`() {
+            // Arrange
+            val navIdent = NavIdent("1")
+
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = "1234",
+                    enhetNavn = "Fiktiv enhet",
+                )
+
+            every {
+                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                    navIdent = navIdent,
+                )
+            } returns
+                listOf(
+                    Enhet(
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
+                    ),
+                )
+
+            // Act
+            val tilpassetArbeidsfordelingsenhet =
+                tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                    arbeidsfordelingsenhet = arbeidsfordelingsenhet,
+                    navIdent = navIdent,
+                )
+
+            // Assert
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
         }
 
         @Test
