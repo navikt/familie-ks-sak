@@ -39,7 +39,6 @@ object TilkjentYtelseValidator {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
         adopsjonerIBehandling: List<Adopsjon>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -66,12 +65,11 @@ object TilkjentYtelseValidator {
                     VilkårLovverkInformasjonForBarn(
                         fødselsdato = relevantBarn.fødselsdato,
                         adopsjonsdato = adopsjonsdatoForBarn,
-                        skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         periodeFomForAdoptertBarn = stønadFom,
                         periodeTomForAdoptertBarn = stønadTom,
                     )
                 } else {
-                    VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, adopsjonsdato = adopsjonsdatoForBarn, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato)
+                    VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, adopsjonsdato = adopsjonsdatoForBarn)
                 }
 
             val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }

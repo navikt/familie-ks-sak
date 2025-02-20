@@ -4,8 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.randomAktør
@@ -16,7 +14,6 @@ import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.tidslinje.IkkeNullbarPeriode
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -25,20 +22,13 @@ class BarnetsAlderVilkårValidatorTest {
     val barnetsAlderVilkårValidator2024: BarnetsAlderVilkårValidator2024 = mockk()
     val barnetsAlderVilkårValidator2021og2024: BarnetsAlderVilkårValidator2021og2024 = mockk()
     val barnetsAlderVilkårValidator2025: BarnetsAlderVilkårValidator2025 = mockk()
-    val unleashNextMedContextService: UnleashNextMedContextService = mockk()
     val barnetsAlderVilkårValidator =
         BarnetsAlderVilkårValidator(
             barnetsAlderVilkårValidator2021,
             barnetsAlderVilkårValidator2024,
             barnetsAlderVilkårValidator2021og2024,
             barnetsAlderVilkårValidator2025,
-            unleashNextMedContextService,
         )
-
-    @BeforeEach
-    fun beforeEach() {
-        every { unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
-    }
 
     @Test
     fun `skal returnere ingen feil når validering for 2021 og 2024 returnerer ingen feil`() {

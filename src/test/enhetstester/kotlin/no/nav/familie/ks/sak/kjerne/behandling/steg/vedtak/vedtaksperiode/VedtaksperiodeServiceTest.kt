@@ -10,8 +10,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.randomAktør
@@ -102,9 +100,6 @@ internal class VedtaksperiodeServiceTest {
     private lateinit var kompetanseService: KompetanseService
 
     @MockK
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
-
-    @MockK
     private lateinit var adopsjonService: AdopsjonService
 
     @MockK
@@ -118,9 +113,6 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
-        every {
-            unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025)
-        } returns true
     }
 
     @Test

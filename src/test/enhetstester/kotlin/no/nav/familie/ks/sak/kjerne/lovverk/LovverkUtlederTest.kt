@@ -5,21 +5,12 @@ import org.junit.jupiter.api.Test
 
 class LovverkUtlederTest {
     @Test
-    fun `skal returnere lovverk FØR_LOVENDRING_2025 dersom toggle er av, selv om fødselsdato er senere enn FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025`() {
-        // Arrange
-        val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.plusDays(1)
-
-        // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = false)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
-    }
-
-    @Test
     fun `skal returnere lovverk FØR_LOVENDRING_2025 dersom fødselsdato er før FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025`() {
         // Arrange
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusDays(1)
 
         // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
     }
 
     @Test
@@ -28,7 +19,7 @@ class LovverkUtlederTest {
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.plusDays(1)
 
         // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
     }
 
     @Test
@@ -37,7 +28,7 @@ class LovverkUtlederTest {
         val fødselsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025
 
         // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null, skalBestemmeLovverkBasertPåFødselsdato = true)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = null)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
     }
 
     @Test
@@ -47,7 +38,7 @@ class LovverkUtlederTest {
         val adopsjonsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025
 
         // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = true)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
     }
 
     @Test
@@ -57,7 +48,7 @@ class LovverkUtlederTest {
         val adopsjonsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.plusDays(1)
 
         // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = true)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato)).isEqualTo(Lovverk.LOVENDRING_FEBRUAR_2025)
     }
 
     @Test
@@ -67,6 +58,6 @@ class LovverkUtlederTest {
         val adopsjonsdato = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025.minusDays(1)
 
         // Act & Assert
-        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = true)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
+        assertThat(LovverkUtleder.utledLovverkForBarn(fødselsdato = fødselsdato, adopsjonsdato = adopsjonsdato)).isEqualTo(Lovverk.FØR_LOVENDRING_2025)
     }
 }

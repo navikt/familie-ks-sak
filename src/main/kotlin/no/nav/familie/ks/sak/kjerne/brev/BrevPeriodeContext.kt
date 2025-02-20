@@ -78,7 +78,6 @@ class BrevPeriodeContext(
     private val erFørsteVedtaksperiode: Boolean,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
     private val adopsjonerIBehandling: List<Adopsjon>,
-    private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -274,15 +273,14 @@ class BrevPeriodeContext(
         BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
+            kompetanser = kompetanser,
             personopplysningGrunnlag = personopplysningGrunnlag,
+            adopsjonerIBehandling = adopsjonerIBehandling,
             overgangsordningAndeler = overgangsordningAndeler,
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
-            kompetanser = kompetanser,
             andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
-            adopsjonerIBehandling = adopsjonerIBehandling,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
         )
 
     fun hentNasjonalOgFellesBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> =
@@ -334,12 +332,11 @@ class BrevPeriodeContext(
                             vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
                             sanityBegrunnelse = sanityBegrunnelse,
                             vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
-                            vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             vedtaksperiodeFom = fom,
+                            vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
                             barnSomSkalIBegrunnelse = hentBarnSomSkalIBegrunnelse(gjelderSøker, relevantePersoner, begrunnelse),
                             adopsjonerIBehandling = adopsjonerIBehandling,
-                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
                         )
                     }
 
@@ -573,13 +570,18 @@ class BrevPeriodeContext(
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
         barnSomSkalIBegrunnelse: List<Person>,
         adopsjonerIBehandling: List<Adopsjon>,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
-        val alleLovverkForBarna = barnSomSkalIBegrunnelse.map { barn -> LovverkUtleder.utledLovverkForBarn(fødselsdato = barn.fødselsdato, adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato, skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato) }
+        val alleLovverkForBarna =
+            barnSomSkalIBegrunnelse.map { barn ->
+                LovverkUtleder.utledLovverkForBarn(
+                    fødselsdato = barn.fødselsdato,
+                    adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
+                )
+            }
 
         return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
@@ -707,7 +709,6 @@ class BrevPeriodeContext(
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 adopsjonerIBehandling = adopsjonerIBehandling,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
             ).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {
