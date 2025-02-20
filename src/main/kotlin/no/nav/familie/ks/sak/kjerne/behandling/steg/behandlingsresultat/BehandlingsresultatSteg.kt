@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -33,7 +32,6 @@ class BehandlingsresultatSteg(
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT

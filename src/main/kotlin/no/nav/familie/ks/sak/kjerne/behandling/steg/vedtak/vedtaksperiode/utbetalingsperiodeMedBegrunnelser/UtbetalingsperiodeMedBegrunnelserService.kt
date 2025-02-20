@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser
 
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -18,7 +17,6 @@ class UtbetalingsperiodeMedBegrunnelserService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val kompetanseService: KompetanseService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
 ) {
     fun hentUtbetalingsperioder(

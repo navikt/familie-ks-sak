@@ -694,7 +694,6 @@ class StepDefinition {
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
-                unleashNextMedContextService = mockUnleashNextMedContextService(),
                 adopsjonService = mockAdopsjonService(),
             )
 
