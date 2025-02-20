@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
