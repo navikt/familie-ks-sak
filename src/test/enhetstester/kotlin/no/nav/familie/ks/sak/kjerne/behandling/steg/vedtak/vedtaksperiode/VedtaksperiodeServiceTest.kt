@@ -10,12 +10,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.util.MånedPeriode
-import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
-import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
-import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -40,15 +35,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
-import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseAktivitet
-import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -56,7 +48,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -110,6 +101,9 @@ internal class VedtaksperiodeServiceTest {
 
     @MockK
     private lateinit var adopsjonService: AdopsjonService
+
+    @MockK
+    private lateinit var endringstidspunktService: EndringstidspunktService
 
     @InjectMockKs
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
@@ -345,150 +339,6 @@ internal class VedtaksperiodeServiceTest {
         val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtak)
 
         assertThat(vedtaksperioder.size, Is(2))
-    }
-
-    @Test
-    fun `finnEndringstidspunktForBehandling finner endringstidspunkt for førstegangsbehandling`() {
-        assertEquals(TIDENES_MORGEN, vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null))
-    }
-
-    @Test
-    fun `finnEndringstidspunktForBehandling finner endringstidspunkt for revurdering`() {
-        val aktør = randomAktør()
-        val andelTilkjentYtelse =
-            lagAndelTilkjentYtelse(
-                tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
-                behandling = behandling,
-                aktør = aktør,
-                stønadFom = YearMonth.now().minusMonths(5),
-                stønadTom = YearMonth.now().plusMonths(4),
-                sats = 7500,
-            )
-        every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-        } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse, emptyList()))
-
-        val revurdering = lagBehandling(id = 2)
-        val andelTilkjentYtelseForRevurdering =
-            lagAndelTilkjentYtelse(
-                tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
-                behandling = revurdering,
-                aktør = aktør,
-                stønadFom = YearMonth.now().minusMonths(3),
-                stønadTom = YearMonth.now().plusMonths(4),
-                sats = 7500,
-            )
-        every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                revurdering.id,
-            )
-        } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering, emptyList()))
-
-        // Siden periode med fom=YearMonth.now().minusMonths(5), tom=YearMonth.now().minusMonths(4) er opphørt nå
-        assertEquals(
-            YearMonth.now().minusMonths(5).førsteDagIInneværendeMåned(),
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling = revurdering,
-                sisteVedtattBehandling = behandling,
-            ),
-        )
-    }
-
-    @Test
-    fun `finnEndringstidspunktForBehandling finner første endringstidspunkt for revurdering med flere perioder`() {
-        val aktør = randomAktør()
-        val periode1 = MånedPeriode(YearMonth.now().minusMonths(5), YearMonth.now().minusMonths(3))
-        val periode2 = MånedPeriode(YearMonth.now().minusMonths(1), YearMonth.now().plusMonths(4))
-        val andelTilkjentYtelse1 =
-            lagAndelTilkjentYtelse(
-                tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
-                behandling = behandling,
-                aktør = aktør,
-                stønadFom = periode1.fom,
-                stønadTom = periode1.tom,
-                sats = 7500,
-            )
-        val andelTilkjentYtelse2 =
-            lagAndelTilkjentYtelse(
-                tilkjentYtelse = lagInitieltTilkjentYtelse(behandling),
-                behandling = behandling,
-                aktør = aktør,
-                stønadFom = periode2.fom,
-                stønadTom = periode2.tom,
-                sats = 7500,
-            )
-        every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-        } returns
-            listOf(
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse1, emptyList()),
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelse2, emptyList()),
-            )
-
-        val revurdering = lagBehandling(id = 2)
-        val andelTilkjentYtelseForRevurdering1 =
-            lagAndelTilkjentYtelse(
-                tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
-                behandling = revurdering,
-                aktør = aktør,
-                stønadFom = periode1.fom,
-                stønadTom = periode1.tom,
-                sats = 7500,
-            )
-        val andelTilkjentYtelseForRevurdering2 =
-            lagAndelTilkjentYtelse(
-                tilkjentYtelse = lagInitieltTilkjentYtelse(revurdering),
-                behandling = revurdering,
-                aktør = aktør,
-                stønadFom = periode2.fom,
-                stønadTom = periode2.tom,
-                sats = 3500,
-            )
-        every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                revurdering.id,
-            )
-        } returns
-            listOf(
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering1, emptyList()),
-                AndelTilkjentYtelseMedEndreteUtbetalinger(andelTilkjentYtelseForRevurdering2, emptyList()),
-            )
-
-        // endring i beløp på revurdering for periode2
-        assertEquals(
-            periode2.fom.førsteDagIInneværendeMåned(),
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling = revurdering,
-                sisteVedtattBehandling = behandling,
-            ),
-        )
-    }
-
-    @Test
-    fun `finnEndringstidspunktForBehandling finner endringstidspunkt fra kompetanseperiode`() {
-        val kompetanseFom = YearMonth.now().minusMonths(3)
-        every { kompetanseService.hentKompetanser(behandling.behandlingId) } returns
-            listOf(
-                Kompetanse(
-                    fom = kompetanseFom,
-                    tom = null,
-                    barnAktører = setOf(randomAktør()),
-                    søkersAktivitet = KompetanseAktivitet.I_ARBEID,
-                    annenForeldersAktivitet = KompetanseAktivitet.MOTTAR_UFØRETRYGD,
-                    annenForeldersAktivitetsland = "NO",
-                    søkersAktivitetsland = "DK",
-                    barnetsBostedsland = "DK",
-                    resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
-                    erAnnenForelderOmfattetAvNorskLovgivning = true,
-                ),
-            )
-        every {
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-        } returns listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(), emptyList()))
-
-        val endringstidspunkt = vedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, behandling)
-
-        assertEquals(kompetanseFom.førsteDagIInneværendeMåned(), endringstidspunkt)
     }
 
     @Test

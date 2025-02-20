@@ -67,6 +67,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -696,6 +697,41 @@ class StepDefinition {
                 adopsjonService = mockAdopsjonService(),
             )
 
+        val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            andelerTilkjentYtelse[behandlingId] ?: emptyList()
+        }
+
+        val endretUtbetalingAndelService = mockk<EndretUtbetalingAndelService>()
+        every { endretUtbetalingAndelService.hentEndredeUtbetalingAndeler(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            endredeUtbetalinger[behandlingId] ?: emptyList()
+        }
+
+        val behandlingService = mockk<BehandlingService>()
+
+        every { behandlingService.hentBehandling(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            behandlinger[behandlingId] ?: throw Feil("Ingen behandling med id: $behandlingId")
+        }
+
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
+            val fagsakId = firstArg<Long>()
+            behandlinger.values
+                .filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
+                .maxByOrNull { it.id }
+        }
+
+        val endringstidspunktService =
+            EndringstidspunktService(
+                kompetanseService = kompetanseService,
+                behandlingRepository = behandlingRepository,
+                andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+                endretUtbetalingAndelService = endretUtbetalingAndelService,
+                vilkårsvurderingService = mockVilkårsvurderingService(),
+            )
+
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
@@ -711,6 +747,7 @@ class StepDefinition {
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
             adopsjonService = mockAdopsjonService(),
+            endringstidspunktService = endringstidspunktService,
         )
     }
 
