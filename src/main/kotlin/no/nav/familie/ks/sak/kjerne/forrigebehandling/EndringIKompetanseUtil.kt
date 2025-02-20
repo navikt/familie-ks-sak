@@ -13,10 +13,12 @@ object EndringIKompetanseUtil {
         nåværendeKompetanser: List<Kompetanse>,
         forrigeKompetanser: List<Kompetanse>,
     ): YearMonth? {
-        val allePersonerMedKompetanser = (nåværendeKompetanser.flatMap { it.barnAktører } + forrigeKompetanser.flatMap { it.barnAktører }).distinct()
+        val forrigeAktører = forrigeKompetanser.flatMap { it.barnAktører }
+        val nåværendeAktører = nåværendeKompetanser.flatMap { it.barnAktører }
+        val alleAktørerMedKompetanse = (nåværendeAktører + forrigeAktører).distinct()
 
-        val endringstidslinjerPrPerson =
-            allePersonerMedKompetanser
+        val endringIKompetanseTidslinjer =
+            alleAktørerMedKompetanse
                 .map { aktør ->
                     lagEndringIKompetanseForPersonTidslinje(
                         nåværendeKompetanserForPerson = nåværendeKompetanser.filter { it.barnAktører.contains(aktør) },
@@ -24,7 +26,7 @@ object EndringIKompetanseUtil {
                     )
                 }.kombiner { finnesMinstEnEndringIPeriode(it) }
 
-        return endringstidslinjerPrPerson.tilFørsteEndringstidspunkt()
+        return endringIKompetanseTidslinjer.tilFørsteEndringstidspunkt()
     }
 
     fun lagEndringIKompetanseForPersonTidslinje(

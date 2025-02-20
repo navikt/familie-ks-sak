@@ -14,10 +14,12 @@ object EndringIEndretUtbetalingAndelUtil {
         nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
     ): YearMonth? {
-        val allePersoner = (nåværendeEndretAndeler.mapNotNull { it.person?.aktør } + forrigeEndretAndeler.mapNotNull { it.person?.aktør }).distinct()
+        val nåværendeAktører = nåværendeEndretAndeler.mapNotNull { it.person?.aktør }
+        val forrigeAktører = forrigeEndretAndeler.mapNotNull { it.person?.aktør }
+        val alleAktører = (nåværendeAktører + forrigeAktører).distinct()
 
-        val endretUtbetalingTidslinje =
-            allePersoner
+        val endringIEndretUtbetalingTidslinjer =
+            alleAktører
                 .map { aktør ->
                     lagEndringIEndretUbetalingAndelPerPersonTidslinje(
                         nåværendeEndretAndelerForPerson = nåværendeEndretAndeler.filter { it.person?.aktør == aktør },
@@ -25,7 +27,7 @@ object EndringIEndretUtbetalingAndelUtil {
                     )
                 }.kombiner { finnesMinstEnEndringIPeriode(it) }
 
-        return endretUtbetalingTidslinje.tilFørsteEndringstidspunkt()
+        return endringIEndretUtbetalingTidslinjer.tilFørsteEndringstidspunkt()
     }
 
     fun lagEndringIEndretUbetalingAndelPerPersonTidslinje(

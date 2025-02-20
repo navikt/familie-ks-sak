@@ -125,22 +125,22 @@ private fun finnOpphørsperioderPåGrunnAvReduksjonIRevurdering(
     forrigeUtbetalingsperioder: List<Utbetalingsperiode>,
     utbetalingsperioder: List<Utbetalingsperiode>,
 ): List<Opphørsperiode> {
-    val utbetalingOpphørtTidslinje =
+    val opphørteUtbetalingTidslinje =
         forrigeUtbetalingsperioder
             .tilTidslinje()
             .kombinerMed(utbetalingsperioder.tilTidslinje()) { forrigeUtbetaling, utbetaling ->
                 forrigeUtbetaling != null && utbetaling == null
             }
 
-    return utbetalingOpphørtTidslinje
+    return opphørteUtbetalingTidslinje
         .tilPerioder()
-        .mapNotNull { erUtbetalingOpphørtPeriode ->
-            val fomDatoPåPeriode = erUtbetalingOpphørtPeriode.fom
+        .mapNotNull { opphørtUtbetalingPeriode ->
+            val fomDatoPåPeriode = opphørtUtbetalingPeriode.fom
 
-            if (erUtbetalingOpphørtPeriode.verdi == true && fomDatoPåPeriode != null) {
+            if (opphørtUtbetalingPeriode.verdi == true && fomDatoPåPeriode != null) {
                 Opphørsperiode(
                     periodeFom = fomDatoPåPeriode,
-                    periodeTom = erUtbetalingOpphørtPeriode.tom,
+                    periodeTom = opphørtUtbetalingPeriode.tom,
                     vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
                 )
             } else {

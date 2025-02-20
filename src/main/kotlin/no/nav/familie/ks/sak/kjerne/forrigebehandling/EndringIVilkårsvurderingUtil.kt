@@ -16,9 +16,12 @@ object EndringIVilkårsvurderingUtil {
         nåværendePersonResultat: Set<PersonResultat>,
         forrigePersonResultat: Set<PersonResultat>,
     ): YearMonth? {
-        val allePersonerMedVilkårsvurdering = (nåværendePersonResultat.map { it.aktør } + forrigePersonResultat.map { it.aktør }).distinct()
+        val nåværendeAktørerMedVilkårsvurdering = nåværendePersonResultat.map { it.aktør }
+        val forrigeAktørerMedVilkårsvurdering = forrigePersonResultat.map { it.aktør }
 
-        val endringstidslinjePerPersonOgType =
+        val allePersonerMedVilkårsvurdering = (nåværendeAktørerMedVilkårsvurdering + forrigeAktørerMedVilkårsvurdering).distinct()
+
+        val endringIVilkårsvurderingTidslinjer =
             allePersonerMedVilkårsvurdering
                 .map { aktør ->
                     lagEndringIVilkårsvurderingTidslinje(
@@ -27,7 +30,7 @@ object EndringIVilkårsvurderingUtil {
                     )
                 }.kombiner { finnesMinstEnEndringIPeriode(it) }
 
-        return endringstidslinjePerPersonOgType.tilFørsteEndringstidspunkt()
+        return endringIVilkårsvurderingTidslinjer.tilFørsteEndringstidspunkt()
     }
 
     fun lagEndringIVilkårsvurderingTidslinje(
