@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -33,34 +30,28 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.math.BigDecimal
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 class SimuleringServiceTest {
-    @MockK
-    private lateinit var oppdragKlient: OppdragKlient
+    private val oppdragKlient = mockk<OppdragKlient>()
+    private val utbetalingsoppdragService = mockk<UtbetalingsoppdragService>()
+    private val beregningService = mockk<BeregningService>()
+    private val øknomiSimuleringMottakerRepository = mockk<ØkonomiSimuleringMottakerRepository>()
+    private val vedtakRepository = mockk<VedtakRepository>()
+    private val behandlingRepository = mockk<BehandlingRepository>()
 
-    @MockK
-    private lateinit var utbetalingsoppdragService: UtbetalingsoppdragService
-
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var øknomiSimuleringMottakerRepository: ØkonomiSimuleringMottakerRepository
-
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @InjectMockKs
-    private lateinit var simuleringService: SimuleringService
+    private val simuleringService =
+        SimuleringService(
+            oppdragKlient = oppdragKlient,
+            utbetalingsoppdragService = utbetalingsoppdragService,
+            beregningService = beregningService,
+            øknomiSimuleringMottakerRepository = øknomiSimuleringMottakerRepository,
+            vedtakRepository = vedtakRepository,
+            behandlingRepository = behandlingRepository,
+        )
 
     @Nested
     inner class OppdaterSimuleringPåBehandlingVedBehovTest {

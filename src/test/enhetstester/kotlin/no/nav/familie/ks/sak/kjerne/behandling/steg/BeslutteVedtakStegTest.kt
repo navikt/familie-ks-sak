@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -30,43 +27,32 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class BeslutteVedtakStegTest {
-    @MockK
-    private lateinit var totrinnskontrollService: TotrinnskontrollService
+    private val totrinnskontrollService = mockk<TotrinnskontrollService>()
+    private val vedtakService = mockk<VedtakService>()
+    private val behandlingService = mockk<BehandlingService>()
+    private val taskService = mockk<TaskService>()
+    private val loggService = mockk<LoggService>()
+    private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+    private val unleashService = mockk<UnleashNextMedContextService>()
+    private val genererBrevService = mockk<GenererBrevService>()
+    private val tilkjentYtelseValideringService = mockk<TilkjentYtelseValideringService>()
+    private val brevmottakerService = mockk<BrevmottakerService>()
 
-    @MockK
-    private lateinit var vedtakService: VedtakService
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @MockK
-    private lateinit var unleashService: UnleashNextMedContextService
-
-    @MockK
-    private lateinit var genererBrevService: GenererBrevService
-
-    @MockK
-    private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
-
-    @MockK
-    private lateinit var brevmottakerService: BrevmottakerService
-
-    @InjectMockKs
-    private lateinit var beslutteVedtakSteg: BeslutteVedtakSteg
+    private val beslutteVedtakSteg =
+        BeslutteVedtakSteg(
+            totrinnskontrollService = totrinnskontrollService,
+            vedtakService = vedtakService,
+            behandlingService = behandlingService,
+            taskService = taskService,
+            loggService = loggService,
+            vilkårsvurderingService = vilkårsvurderingService,
+            unleashService = unleashService,
+            tilkjentYtelseValideringService = tilkjentYtelseValideringService,
+            brevmottakerService = brevmottakerService,
+        )
 
     private val underkjentVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
     private val godkjentVedtakDto = BesluttVedtakDto(Beslutning.GODKJENT, "GODKJENT")

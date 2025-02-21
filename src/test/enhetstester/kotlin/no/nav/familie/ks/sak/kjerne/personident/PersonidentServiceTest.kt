@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.randomAktør
@@ -16,24 +14,20 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 class PersonidentServiceTest {
-    @MockK
-    private lateinit var personidentRepository: PersonidentRepository
+    private val personidentRepository = mockk<PersonidentRepository>()
+    private val aktørRepository = mockk<AktørRepository>()
+    private val pdlClient = mockk<PdlClient>()
+    private val taskService = mockk<TaskService>()
 
-    @MockK
-    private lateinit var aktørRepository: AktørRepository
-
-    @MockK
-    private lateinit var pdlClient: PdlClient
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @InjectMockKs
-    private lateinit var personidentService: PersonidentService
+    private val personidentService =
+        PersonidentService(
+            personidentRepository = personidentRepository,
+            aktørRepository = aktørRepository,
+            pdlClient = pdlClient,
+            taskService = taskService,
+        )
 
     @Test
     fun `hentOgLagreAktør - skal hente personident fra personidentRepository dersom personident finnes i db`() {

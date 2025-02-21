@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -23,36 +20,29 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class VedtakStegTest {
-    @MockK
-    private lateinit var behandlingService: BehandlingService
+    private val behandlingService = mockk<BehandlingService>()
+    private val taskService = mockk<TaskService>()
+    private val totrinnskontrollService = mockk<TotrinnskontrollService>()
+    private val loggService = mockk<LoggService>()
+    private val oppgaveService = mockk<OppgaveService>()
+    private val vedtakService = mockk<VedtakService>()
+    private val vedtaksperiodeService = mockk<VedtaksperiodeService>()
 
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var totrinnskontrollService: TotrinnskontrollService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var oppgaveService: OppgaveService
-
-    @MockK
-    private lateinit var vedtakService: VedtakService
-
-    @MockK
-    private lateinit var vedtaksperiodeService: VedtaksperiodeService
-
-    @InjectMockKs
-    private lateinit var vedtakSteg: VedtakSteg
+    private val vedtakSteg =
+        VedtakSteg(
+            behandlingService = behandlingService,
+            taskService = taskService,
+            totrinnskontrollService = totrinnskontrollService,
+            loggService = loggService,
+            oppgaveService = oppgaveService,
+            vedtakService = vedtakService,
+            vedtaksperiodeService = vedtaksperiodeService,
+        )
 
     @Test
     fun `utførSteg skal kaste feil dersom behandlingen er henlagt`() {

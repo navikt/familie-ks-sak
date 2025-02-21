@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -37,34 +34,27 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class PersonopplysningGrunnlagServiceTest {
-    @MockK
-    private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+    private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val beregningService = mockk<BeregningService>()
+    private val personService = mockk<PersonService>()
+    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val personidentService = mockk<PersonidentService>()
+    private val loggService = mockk<LoggService>()
 
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var personService: PersonService
-
-    @MockK
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
-    @MockK
-    private lateinit var personidentService: PersonidentService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @InjectMockKs
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
+    private val personopplysningGrunnlagService =
+        PersonopplysningGrunnlagService(
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            beregningService = beregningService,
+            personService = personService,
+            arbeidsfordelingService = arbeidsfordelingService,
+            personidentService = personidentService,
+            loggService = loggService,
+        )
 
     @BeforeEach
     fun init() {

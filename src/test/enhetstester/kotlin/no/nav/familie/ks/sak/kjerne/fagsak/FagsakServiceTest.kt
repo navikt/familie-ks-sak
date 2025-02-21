@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
@@ -45,57 +42,43 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-@ExtendWith(MockKExtension::class)
 class FagsakServiceTest {
-    @MockK
-    private lateinit var personidentService: PersonidentService
+    private val personidentService = mockk<PersonidentService>()
+    private val integrasjonService = mockk<IntegrasjonService>()
+    private val personopplysningerService = mockk<PersonopplysningerService>()
+    private val fagsakRepository = mockk<FagsakRepository>()
+    private val personRepository = mockk<PersonRepository>()
+    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+    private val taskService = mockk<TaskService>()
+    private val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
+    private val vedtakRepository = mockk<VedtakRepository>()
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val localDateProvider = mockk<LocalDateProvider>()
+    private val adopsjonService = mockk<AdopsjonService>()
 
-    @MockK
-    private lateinit var integrasjonService: IntegrasjonService
-
-    @MockK
-    private lateinit var personopplysningerService: PersonopplysningerService
-
-    @MockK
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @MockK
-    private lateinit var personRepository: PersonRepository
-
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
-
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService
-
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
-    private lateinit var localDateProvider: LocalDateProvider
-
-    @MockK
-    private lateinit var adopsjonService: AdopsjonService
-
-    @InjectMockKs
-    private lateinit var fagsakService: FagsakService
+    private val fagsakService =
+        FagsakService(
+            personidentService = personidentService,
+            integrasjonService = integrasjonService,
+            personopplysningerService = personopplysningerService,
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            fagsakRepository = fagsakRepository,
+            personRepository = personRepository,
+            behandlingRepository = behandlingRepository,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            taskService = taskService,
+            tilbakekrevingsbehandlingHentService = tilbakekrevingsbehandlingHentService,
+            vedtakRepository = vedtakRepository,
+            andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            localDateProvider = localDateProvider,
+            adopsjonService = adopsjonService,
+        )
 
     @BeforeEach
     fun setup() {

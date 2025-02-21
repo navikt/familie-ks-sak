@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -51,62 +48,47 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class VedtaksperiodeServiceTest {
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
+    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val vedtaksperiodeHentOgPersisterService = mockk<VedtaksperiodeHentOgPersisterService>()
+    private val vedtakRepository = mockk<VedtakRepository>()
+    private val overgangsordningAndelService = mockk<OvergangsordningAndelService>()
+    private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
+    private val sanityService = mockk<SanityService>()
+    private val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
+    private val utbetalingsperiodeMedBegrunnelserService = mockk<UtbetalingsperiodeMedBegrunnelserService>()
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val refusjonEøsRepository = mockk<RefusjonEøsRepository>()
+    private val kompetanseService = mockk<KompetanseService>(relaxed = true)
+    private val adopsjonService = mockk<AdopsjonService>()
+    private val endringstidspunktService = mockk<EndringstidspunktService>()
 
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService
-
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @MockK
-    private lateinit var overgangsordningAndelService: OvergangsordningAndelService
-
-    @MockK
-    private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
-
-    @MockK
-    private lateinit var sanityService: SanityService
-
-    @MockK
-    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
-
-    @MockK
-    private lateinit var utbetalingsperiodeMedBegrunnelserService: UtbetalingsperiodeMedBegrunnelserService
-
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
-
-    @MockK
-    private lateinit var refusjonEøsRepository: RefusjonEøsRepository
-
-    @MockK(relaxed = true)
-    private lateinit var kompetanseService: KompetanseService
-
-    @MockK
-    private lateinit var adopsjonService: AdopsjonService
-
-    @MockK
-    private lateinit var endringstidspunktService: EndringstidspunktService
-
-    @InjectMockKs
-    private lateinit var vedtaksperiodeService: VedtaksperiodeService
+    private val vedtaksperiodeService =
+        VedtaksperiodeService(
+            behandlingRepository = behandlingRepository,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            vedtaksperiodeHentOgPersisterService = vedtaksperiodeHentOgPersisterService,
+            vedtakRepository = vedtakRepository,
+            vilkårsvurderingRepository = vilkårsvurderingRepository,
+            overgangsordningAndelService = overgangsordningAndelService,
+            sanityService = sanityService,
+            søknadGrunnlagService = søknadGrunnlagService,
+            utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            integrasjonClient = integrasjonClient,
+            refusjonEøsRepository = refusjonEøsRepository,
+            kompetanseService = kompetanseService,
+            adopsjonService = adopsjonService,
+            endringstidspunktService = endringstidspunktService,
+        )
 
     private lateinit var behandling: Behandling
 

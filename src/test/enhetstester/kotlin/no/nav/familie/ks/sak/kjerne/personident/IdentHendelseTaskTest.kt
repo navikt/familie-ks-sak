@@ -1,23 +1,17 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 internal class IdentHendelseTaskTest {
-    @MockK(relaxed = true)
-    private lateinit var håndterNyIdentService: HåndterNyIdentService
+    private val håndterNyIdentService = mockk<HåndterNyIdentService>(relaxed = true)
 
-    @InjectMockKs
-    private lateinit var identHendelseTask: IdentHendelseTask
+    private val identHendelseTask = IdentHendelseTask(håndterNyIdentService)
 
     @Test
     fun `Task skal kalle videre på håndtering av ny ident`() {

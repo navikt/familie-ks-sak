@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
@@ -29,26 +27,22 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val endretUtbetalingAndelRepository = mockk<EndretUtbetalingAndelRepository>()
+    private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
+    private val unleashService = mockk<UnleashNextMedContextService>()
 
-    @MockK
-    private lateinit var endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository
-
-    @MockK
-    private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
-
-    @MockK
-    private lateinit var unleashService: UnleashNextMedContextService
-
-    @InjectMockKs
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService =
+        AndelerTilkjentYtelseOgEndreteUtbetalingerService(
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
+            vilkårsvurderingRepository = vilkårsvurderingRepository,
+            unleashService = unleashService,
+        )
 
     @BeforeEach
     fun setup() {

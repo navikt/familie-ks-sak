@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.beregning
 
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.UtbetalingsikkerhetFeil
 import no.nav.familie.ks.sak.common.util.tilKortString
@@ -28,12 +27,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 class TilkjentYtelseValideringServiceTest {
     @MockK
     private lateinit var totrinnskontrollService: TotrinnskontrollService

@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import io.mockk.called
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -59,9 +58,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 class BehandlingServiceTest {
     private val mockBehandlingRepository = mockk<BehandlingRepository>()
     private val mockArbeidsfordelingService = mockk<ArbeidsfordelingService>()

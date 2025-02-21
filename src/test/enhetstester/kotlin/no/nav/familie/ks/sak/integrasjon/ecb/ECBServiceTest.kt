@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.ecb
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.unmockkAll
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCache
@@ -26,21 +24,15 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ECBServiceTest {
-    @MockK
-    private lateinit var ecbClient: ValutakursRestClient
+    private val ecbClient = mockk<ValutakursRestClient>()
+    private val evbValutakursCacheRepository = mockk<ECBValutakursCacheRepository>()
 
-    @MockK
-    private lateinit var evbValutakursCacheRepository: ECBValutakursCacheRepository
-
-    @InjectMockKs
-    private lateinit var ecbService: ECBService
+    private val ecbService = ECBService(ecbClient, evbValutakursCacheRepository)
 
     @AfterAll
     fun tearDown() {
