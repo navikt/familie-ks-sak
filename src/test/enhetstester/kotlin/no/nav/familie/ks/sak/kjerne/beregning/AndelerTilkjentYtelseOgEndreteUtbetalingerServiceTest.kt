@@ -4,8 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
@@ -25,7 +23,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -34,20 +31,13 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val endretUtbetalingAndelRepository = mockk<EndretUtbetalingAndelRepository>()
     private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
-    private val unleashService = mockk<UnleashNextMedContextService>()
 
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService =
         AndelerTilkjentYtelseOgEndreteUtbetalingerService(
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
             vilkårsvurderingRepository = vilkårsvurderingRepository,
-            unleashService = unleashService,
         )
-
-    @BeforeEach
-    fun setup() {
-        every { unleashService.isEnabled(FeatureToggle.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK) } returns true
-    }
 
     val søker = randomAktør()
     private val barn1 = randomAktør()
