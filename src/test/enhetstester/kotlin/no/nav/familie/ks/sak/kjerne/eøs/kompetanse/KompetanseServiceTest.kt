@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
@@ -44,11 +43,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class KompetanseServiceTest {
     private val kompetanseRepository: EøsSkjemaRepository<Kompetanse> = mockEøsSkjemaRepository()
     private val personidentService: PersonidentService = mockk()

@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.overgangsordning
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -29,26 +26,22 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 class OvergangsordningAndelServiceTest {
-    @MockK
-    private lateinit var overgangsordningAndelRepository: OvergangsordningAndelRepository
+    private val overgangsordningAndelRepository = mockk<OvergangsordningAndelRepository>()
+    private val beregningService = mockk<BeregningService>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
 
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @InjectMockKs
-    private lateinit var overgangsordningAndelService: OvergangsordningAndelService
+    private val overgangsordningAndelService =
+        OvergangsordningAndelService(
+            overgangsordningAndelRepository = overgangsordningAndelRepository,
+            beregningService = beregningService,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            vilkårsvurderingService = vilkårsvurderingService,
+        )
 
     private val personopplysningGrunnlag = lagPersonopplysningGrunnlag(barnasIdenter = listOf(randomFnr(fødselsdato = LocalDate.of(2023, 2, 15))))
     private val vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = personopplysningGrunnlag.personer)

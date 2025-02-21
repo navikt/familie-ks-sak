@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -14,18 +11,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.prosessering.domene.Task
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 class FerdigstillOppgaverTaskTest {
-    @MockK
-    private lateinit var oppgaveService: OppgaveService
+    private val oppgaveService = mockk<OppgaveService>()
+    private val behandlingService = mockk<BehandlingService>()
 
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @InjectMockKs
-    private lateinit var ferdigstillOppgaverTask: FerdigstillOppgaverTask
+    private val ferdigstillOppgaverTask = FerdigstillOppgaverTask(oppgaveService, behandlingService)
 
     @Test
     fun `doTask skal forsøke å ferdigstille oppgave som ble lagret ned`() {

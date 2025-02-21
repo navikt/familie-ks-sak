@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -37,36 +34,28 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 internal class HenleggBehandlingServiceTest {
-    @MockK
-    private lateinit var stegService: StegService
+    private val stegService = mockk<StegService>()
+    private val unleashService = mockk<UnleashNextMedContextService>()
+    private val brevService = mockk<BrevService>()
+    private val oppgaveService = mockk<OppgaveService>()
+    private val loggService = mockk<LoggService>()
+    private val fagsakService = mockk<FagsakService>()
+    private val sakStatistikkService = mockk<SakStatistikkService>()
+    private val behandlingRepository = mockk<BehandlingRepository>()
 
-    @MockK
-    private lateinit var unleashService: UnleashNextMedContextService
-
-    @MockK
-    private lateinit var brevService: BrevService
-
-    @MockK
-    private lateinit var oppgaveService: OppgaveService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var fagsakService: FagsakService
-
-    @MockK
-    private lateinit var sakStatistikkService: SakStatistikkService
-
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @InjectMockKs
-    private lateinit var henleggBehandlingService: HenleggBehandlingService
+    private val henleggBehandlingService =
+        HenleggBehandlingService(
+            stegService = stegService,
+            unleashService = unleashService,
+            brevService = brevService,
+            oppgaveService = oppgaveService,
+            loggService = loggService,
+            fagsakService = fagsakService,
+            sakStatistikkService = sakStatistikkService,
+            behandlingRepository = behandlingRepository,
+        )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val behandlingId = behandling.id

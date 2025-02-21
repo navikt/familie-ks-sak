@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.statistikk.stønadsstatistikk
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.eksterne.kontrakter.KompetanseAktivitet
 import no.nav.familie.eksterne.kontrakter.Vilkår
@@ -28,40 +25,34 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class StønadsstatistikkServiceTest {
-    @MockK(relaxed = true)
-    private lateinit var behandlingHentOgPersisterService: BehandlingService
+    private val behandlingHentOgPersisterService = mockk<BehandlingService>(relaxed = true)
+    private val kompetanseService = mockk<KompetanseService>()
+    private val persongrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val vedtakService = mockk<VedtakService>()
+    private val personopplysningerService = mockk<PersonopplysningerService>()
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+    private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
 
-    @MockK
-    private lateinit var kompetanseService: KompetanseService
-
-    @MockK
-    private lateinit var persongrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var vedtakService: VedtakService
-
-    @MockK
-    private lateinit var personopplysningerService: PersonopplysningerService
-
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @InjectMockKs
-    private lateinit var stønadsstatistikkService: StønadsstatistikkService
+    private val stønadsstatistikkService =
+        StønadsstatistikkService(
+            behandlingService = behandlingHentOgPersisterService,
+            kompetanseService = kompetanseService,
+            personopplysningGrunnlagService = persongrunnlagService,
+            personOpplysningerService = personopplysningerService,
+            vedtakService = vedtakService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            vilkårsvurderingService = vilkårsvurderingService,
+        )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val søkerFnr = behandling.fagsak.aktør.aktivFødselsnummer()
@@ -352,7 +343,7 @@ internal class StønadsstatistikkServiceTest {
                     annenForeldersAktivitetsland = "DK",
                     søkersAktivitetsland = "DK",
                     barnetsBostedsland = "DK",
-                    resultat = no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat.NORGE_ER_PRIMÆRLAND,
+                    resultat = KompetanseResultat.NORGE_ER_PRIMÆRLAND,
                 ),
             )
 

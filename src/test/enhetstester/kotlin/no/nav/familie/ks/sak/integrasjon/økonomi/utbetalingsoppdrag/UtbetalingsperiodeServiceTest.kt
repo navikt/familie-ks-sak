@@ -2,9 +2,6 @@ package no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag
 
 import io.mockk.CapturingSlot
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -19,7 +16,6 @@ import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -29,34 +25,25 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class UtbetalingsperiodeServiceTest {
-    @MockK
-    private lateinit var oppdragKlient: OppdragKlient
+    private val oppdragKlient = mockk<OppdragKlient>()
+    private val tilkjentYtelseValideringService = mockk<TilkjentYtelseValideringService>()
+    private val behandlingService = mockk<BehandlingService>()
+    private val tilkjentYtelseRepository = mockk<TilkjentYtelseRepository>()
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
 
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
-
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @InjectMockKs
-    private lateinit var utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator
-
-    @InjectMockKs
-    private lateinit var utbetalingsoppdragService: UtbetalingsoppdragService
+    private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
+    private val utbetalingsoppdragService =
+        UtbetalingsoppdragService(
+            oppdragKlient = oppdragKlient,
+            tilkjentYtelseValideringService = tilkjentYtelseValideringService,
+            utbetalingsoppdragGenerator = utbetalingsoppdragGenerator,
+            behandlingService = behandlingService,
+            tilkjentYtelseRepository = tilkjentYtelseRepository,
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+        )
 
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal ikke iverksette mot oppdrag hvis det ikke finnes utbetalingsperioder`() {
@@ -65,7 +52,6 @@ internal class UtbetalingsperiodeServiceTest {
 
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
-        val person = tilfeldigPerson()
         tilkjentYtelse.andelerTilkjentYtelse.addAll(
             emptySet(),
         )

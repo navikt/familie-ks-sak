@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.familieintegrasjon
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
@@ -15,19 +12,12 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class IntegrasjonServiceTest {
-    @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
-
-    @MockK
-    private lateinit var pdlClient: PdlClient
-
-    @InjectMockKs
-    private lateinit var integrasjonService: IntegrasjonService
+    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val pdlClient = mockk<PdlClient>()
+    private val integrasjonService = IntegrasjonService(integrasjonClient, pdlClient)
 
     @Test
     fun `hentMaskertPersonInfoVedManglendeTilgang skal returnere maskert personinfo hvis SB ikke har tilgang til aktør`() {

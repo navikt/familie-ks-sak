@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -23,31 +20,25 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class IverksettMotOppdragStegTest {
-    @MockK
-    private lateinit var behandlingService: BehandlingService
+    private val behandlingService = mockk<BehandlingService>()
+    private val totrinnskontrollService = mockk<TotrinnskontrollService>()
+    private val tilkjentYtelseValideringService = mockk<TilkjentYtelseValideringService>()
+    private val utbetalingsoppdragService = mockk<UtbetalingsoppdragService>()
+    private val vedtakService = mockk<VedtakService>()
+    private val taskService = mockk<TaskService>()
 
-    @MockK
-    private lateinit var totrinnskontrollService: TotrinnskontrollService
-
-    @MockK
-    private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
-
-    @MockK
-    private lateinit var utbetalingsoppdragService: UtbetalingsoppdragService
-
-    @MockK
-    private lateinit var vedtakService: VedtakService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @InjectMockKs
-    private lateinit var iverksettMotOppdragSteg: IverksettMotOppdragSteg
+    private val iverksettMotOppdragSteg =
+        IverksettMotOppdragSteg(
+            behandlingService = behandlingService,
+            totrinnskontrollService = totrinnskontrollService,
+            tilkjentYtelseValideringService = tilkjentYtelseValideringService,
+            utbetalingsoppdragService = utbetalingsoppdragService,
+            vedtakService = vedtakService,
+            taskService = taskService,
+        )
 
     val iverksettMotOppdragDto = IverksettMotOppdragDto(200, "test")
 

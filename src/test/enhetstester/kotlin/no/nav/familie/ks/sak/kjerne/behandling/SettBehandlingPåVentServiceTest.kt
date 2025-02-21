@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -20,25 +18,21 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 class SettBehandlingPåVentServiceTest {
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
+    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val stegService = mockk<StegService>()
+    private val loggService = mockk<LoggService>()
+    private val oppgaveService = mockk<OppgaveService>()
 
-    @MockK
-    private lateinit var stegService: StegService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var oppgaveService: OppgaveService
-
-    @InjectMockKs
-    private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
+    private val settBehandlingPåVentService =
+        SettBehandlingPåVentService(
+            behandlingRepository = behandlingRepository,
+            stegService = stegService,
+            loggService = loggService,
+            oppgaveService = oppgaveService,
+        )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 

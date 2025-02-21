@@ -1,34 +1,22 @@
-package no.nav.familie.ks.sak.kjerne.korrigertvedtak
+package no.nav.familie.ks.sak.korrigertvedtak
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
-import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
-import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakRepository
-import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class KorrigertVedtakServiceTest {
-    @MockK
-    private lateinit var korrigertVedtakRepository: KorrigertVedtakRepository
+    private val korrigertVedtakRepository = mockk<KorrigertVedtakRepository>()
+    private val loggService = mockk<LoggService>()
 
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @InjectMockKs
-    private lateinit var korrigertVedtakService: KorrigertVedtakService
+    private val korrigertVedtakService = KorrigertVedtakService(korrigertVedtakRepository, loggService)
 
     @Test
     fun `finnAktivtKorrigertVedtakPåBehandling skal hente aktivt korrigert vedtak fra repository hvis det finnes`() {

@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -15,19 +12,13 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class VedtaksperiodeHentOgPersisterServiceTest {
-    @MockK
-    private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
+    private val vedtaksperiodeRepository = mockk<VedtaksperiodeRepository>()
+    private val vedtakRepository = mockk<VedtakRepository>()
 
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @InjectMockKs
-    private lateinit var vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService
+    private val vedtaksperiodeHentOgPersisterService = VedtaksperiodeHentOgPersisterService(vedtaksperiodeRepository, vedtakRepository)
 
     @Test
     fun `hentVedtaksperiodeThrows - skal kaste feil dersom det ikke finnes noe vedtaksperiode med gitt id`() {

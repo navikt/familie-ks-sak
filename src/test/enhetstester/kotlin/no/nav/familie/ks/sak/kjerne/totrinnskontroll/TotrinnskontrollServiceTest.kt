@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.totrinnskontroll
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -15,16 +12,12 @@ import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class TotrinnskontrollServiceTest {
-    @MockK
-    private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
+    private val totrinnskontrollRepository = mockk<TotrinnskontrollRepository>()
 
-    @InjectMockKs
-    private lateinit var totrinnskontrollService: TotrinnskontrollService
+    private val totrinnskontrollService = TotrinnskontrollService(totrinnskontrollRepository)
 
     @Test
     fun `finnAktivForBehandling skal returnere null dersom det ikke finnes aktiv totrinnskontroll for behandling`() {

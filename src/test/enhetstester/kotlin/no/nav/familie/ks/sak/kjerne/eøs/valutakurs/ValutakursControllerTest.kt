@@ -2,10 +2,8 @@ package no.nav.familie.ks.sak.kjerne.eøs.valutakurs
 
 import io.mockk.MockKException
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.justRun
+import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.UtfyltStatus
 import no.nav.familie.ks.sak.api.dto.ValutakursDto
@@ -18,30 +16,25 @@ import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 class ValutakursControllerTest {
-    @MockK
-    private lateinit var valutakursService: ValutakursService
+    private val valutakursService = mockk<ValutakursService>()
+    private val personidentService = mockk<PersonidentService>()
+    private val behandlingService = mockk<BehandlingService>()
+    private val ecbService = mockk<ECBService>()
+    private val tilgangService = mockk<TilgangService>()
 
-    @MockK
-    private lateinit var personidentService: PersonidentService
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var ecbService: ECBService
-
-    @MockK
-    private lateinit var tilgangService: TilgangService
-
-    @InjectMockKs
-    private lateinit var valutakursController: ValutakursController
+    private val valutakursController =
+        ValutakursController(
+            tilgangService = tilgangService,
+            valutakursService = valutakursService,
+            personidentService = personidentService,
+            behandlingService = behandlingService,
+            ecbService = ecbService,
+        )
 
     private val barnId = tilfeldigPerson()
 

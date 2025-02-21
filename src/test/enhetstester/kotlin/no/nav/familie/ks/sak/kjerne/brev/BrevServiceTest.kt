@@ -1,14 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.SpyK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
+import io.mockk.spyk
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
@@ -47,58 +44,47 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
-@ExtendWith(MockKExtension::class)
 class BrevServiceTest {
-    @MockK
-    private lateinit var genererBrevService: GenererBrevService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
-    @MockK
-    private lateinit var utgåendeJournalføringService: UtgåendeJournalføringService
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var journalføringRepository: JournalføringRepository
-
-    @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK(relaxed = true)
-    private lateinit var settBehandlingPåVentService: SettBehandlingPåVentService
-
-    @MockK(relaxed = true)
-    private lateinit var validerBrevmottakerService: ValiderBrevmottakerService
-
-    @SpyK
-    private var brevmottakerService =
-        BrevmottakerService(
-            brevmottakerRepository = mockk(relaxed = true),
-            loggService = mockk(),
-            validerBrevmottakerService = mockk(),
+    private val genererBrevService = mockk<GenererBrevService>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val utgåendeJournalføringService = mockk<UtgåendeJournalføringService>()
+    private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val journalføringRepository = mockk<JournalføringRepository>()
+    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val loggService = mockk<LoggService>()
+    private val taskService = mockk<TaskService>()
+    private val settBehandlingPåVentService = mockk<SettBehandlingPåVentService>(relaxed = true)
+    private val validerBrevmottakerService = mockk<ValiderBrevmottakerService>(relaxed = true)
+    private val brevmottakerService =
+        spyk(
+            BrevmottakerService(
+                brevmottakerRepository = mockk(relaxed = true),
+                loggService = mockk(),
+                validerBrevmottakerService = mockk(),
+            ),
         )
 
-    @InjectMockKs
-    private lateinit var brevService: BrevService
+    private val brevService =
+        BrevService(
+            integrasjonClient = integrasjonClient,
+            loggService = loggService,
+            taskService = taskService,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            arbeidsfordelingService = arbeidsfordelingService,
+            utgåendeJournalføringService = utgåendeJournalføringService,
+            vilkårsvurderingService = vilkårsvurderingService,
+            behandlingRepository = behandlingRepository,
+            journalføringRepository = journalføringRepository,
+            settBehandlingPåVentService = settBehandlingPåVentService,
+            genererBrevService = genererBrevService,
+            brevmottakerService = brevmottakerService,
+            validerBrevmottakerService = validerBrevmottakerService,
+        )
 
     private val søker = randomAktør()
     private val fagsak = lagFagsak(søker)
