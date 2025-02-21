@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.logg
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -22,21 +19,15 @@ import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class LoggServiceTest {
-    @MockK
-    private lateinit var rolleConfig: RolleConfig
+    private val rolleConfig = mockk<RolleConfig>()
+    private val loggRepository = mockk<LoggRepository>()
 
-    @MockK
-    private lateinit var loggRepository: LoggRepository
-
-    @InjectMockKs
-    private lateinit var loggService: LoggService
+    private val loggService = LoggService(loggRepository, rolleConfig)
 
     @Test
     fun `opprettBehandlingLogg - skal lagre logg på at behandling er opprettet`() {

@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -12,23 +9,20 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class FeilutbetaltValutaServiceTest {
-    @MockK
-    private lateinit var feilutbetaltValutaRepository: FeilutbetaltValutaRepository
+    private val feilutbetaltValutaRepository = mockk<FeilutbetaltValutaRepository>()
+    private val loggService = mockk<LoggService>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
 
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @InjectMockKs
-    private lateinit var feilutbetaltValutaService: FeilutbetaltValutaService
+    private val feilutbetaltValutaService =
+        FeilutbetaltValutaService(
+            feilutbetaltValutaRepository = feilutbetaltValutaRepository,
+            loggService = loggService,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+        )
 
     @Test
     fun `hentFeilutbetaltValuta - skal returnere feilutbetaltValuta dersom det finnes en med oppgitt id`() {

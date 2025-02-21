@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.distributering
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -12,16 +9,11 @@ import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevP�
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.prosessering.domene.Task
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
 
-@ExtendWith(MockKExtension::class)
 class DistribuerDødsfallBrevPåFagsakTaskTest {
-    @MockK
-    private lateinit var brevService: BrevService
-
-    @InjectMockKs
-    private lateinit var distribuerDødsfallBrevPåFagsakTask: DistribuerDødsfallBrevPåFagsakTask
+    private val brevService = mockk<BrevService>()
+    private val distribuerDødsfallBrevPåFagsakTask = DistribuerDødsfallBrevPåFagsakTask(brevService)
 
     @Test
     fun `doTask skal stoppes dersom task er eldre enn 6 måneder og brev skal ikke bli forsøkt distribuert`() {

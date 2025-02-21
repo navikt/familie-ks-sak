@@ -2,8 +2,7 @@ package no.nav.familie.ks.sak.sikkerhet
 
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
@@ -35,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.slf4j.MDC
@@ -43,23 +41,13 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TilgangServiceTest {
-    @MockK
-    private lateinit var mockIntegrasjonService: IntegrasjonService
-
-    @MockK
-    private lateinit var mockBehandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var mockFagsakRepository: FagsakRepository
-
-    @MockK
-    private lateinit var personidentService: PersonidentService
-
-    @MockK
-    private lateinit var mockPersonopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository
+    private val mockIntegrasjonService = mockk<IntegrasjonService>()
+    private val mockBehandlingRepository = mockk<BehandlingRepository>()
+    private val mockFagsakRepository = mockk<FagsakRepository>()
+    private val personidentService = mockk<PersonidentService>()
+    private val mockPersonopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
 
     private val cacheManager = ConcurrentMapCacheManager()
 

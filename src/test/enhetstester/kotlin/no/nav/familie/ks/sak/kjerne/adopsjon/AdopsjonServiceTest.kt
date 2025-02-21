@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.adopsjon
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -11,16 +8,11 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.data.randomAktør
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 class AdopsjonServiceTest {
-    @MockK
-    private lateinit var adopsjonRepository: AdopsjonRepository
-
-    @InjectMockKs
-    private lateinit var adopsjonService: AdopsjonService
+    private val adopsjonRepository = mockk<AdopsjonRepository>()
+    private val adopsjonService = AdopsjonService(adopsjonRepository)
 
     @Test
     fun `Skal lagre adopsjonsdato hvis det ikke finnes fra før`() {

@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
@@ -28,11 +27,9 @@ import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
-@ExtendWith(MockKExtension::class)
 class GenererBrevServiceTest {
     val brevKlient: BrevKlient = mockk()
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()

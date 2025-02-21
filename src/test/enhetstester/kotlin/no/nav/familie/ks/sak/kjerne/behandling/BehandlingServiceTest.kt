@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import io.mockk.called
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -42,6 +41,7 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
@@ -58,9 +58,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
 class BehandlingServiceTest {
     private val mockBehandlingRepository = mockk<BehandlingRepository>()
     private val mockArbeidsfordelingService = mockk<ArbeidsfordelingService>()
@@ -88,6 +86,7 @@ class BehandlingServiceTest {
     private val mockSakStatistikkService = mockk<SakStatistikkService>()
     private val mockKorrigertVedtakRepository = mockk<KorrigertVedtakRepository>()
     private val mockAdopsjonService = mockk<AdopsjonService>()
+    private val mockEndringstidspunktService = mockk<EndringstidspunktService>()
 
     private val behandlingService =
         BehandlingService(
@@ -117,6 +116,7 @@ class BehandlingServiceTest {
             sakStatistikkService = mockSakStatistikkService,
             korrigertVedtakRepository = mockKorrigertVedtakRepository,
             adopsjonService = mockAdopsjonService,
+            endringstidspunktService = mockEndringstidspunktService,
         )
 
     private val søker = randomAktør()
@@ -161,7 +161,7 @@ class BehandlingServiceTest {
         every { mockVedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
 
         every { mockVedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
-        every { mockVedtaksperiodeService.finnEndringstidspunktForBehandling(any(), any()) } returns TIDENES_MORGEN
+        every { mockEndringstidspunktService.finnEndringstidspunktForBehandling(any()) } returns TIDENES_MORGEN
 
         every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(
@@ -202,7 +202,7 @@ class BehandlingServiceTest {
         verify(exactly = 1) { mockVilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id) }
         verify(exactly = 1) { mockSøknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
-        verify(exactly = 1) { mockVedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null) }
+        verify(exactly = 1) { mockEndringstidspunktService.finnEndringstidspunktForBehandling(behandling) }
         verify(exactly = 1) { mockTilbakekrevingRepository.findByBehandlingId(behandling.id) }
         verify(exactly = 1) { mockVedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id) }
         verify(exactly = 1) { mockKompetanseRepository.findByBehandlingId(behandling.id) }

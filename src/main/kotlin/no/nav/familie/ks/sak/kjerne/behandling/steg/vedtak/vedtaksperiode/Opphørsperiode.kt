@@ -29,6 +29,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Udefinert
 import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilTidslinjePerioderMedDato
 import java.time.LocalDate
 import java.time.YearMonth
@@ -47,6 +49,7 @@ fun mapTilOpphørsperioder(
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     vilkårsvurdering: Vilkårsvurdering,
     adopsjonerIBehandling: List<Adopsjon>,
+    endringstidspunktForBehandling: LocalDate,
 ): List<Opphørsperiode> {
     val forrigeUtbetalingsperioder =
         if (forrigePersonopplysningGrunnlag != null) {
@@ -73,13 +76,17 @@ fun mapTilOpphørsperioder(
                 emptyList()
             } else {
                 listOf(
+                    finnOpphørsperioderPåGrunnAvReduksjonIRevurdering(forrigeUtbetalingsperioder, utbetalingsperioder),
                     finnOpphørsperioderMellomUtbetalingsperioder(utbetalingsperioder),
                     finnOpphørsperiodeEtterSisteUtbetalingsperiode(utbetalingsperioder, vilkårsvurdering, personopplysningGrunnlag, adopsjonerIBehandling),
                 ).flatten()
             }.sortedBy { it.periodeFom }
         }
 
-    return slåSammenOpphørsperioder(alleOpphørsperioder)
+    val (perioderFørEndringstidspunkt, fraEndringstidspunktOgUtover) =
+        alleOpphørsperioder.partition { it.periodeFom.isBefore(endringstidspunktForBehandling) }
+
+    return perioderFørEndringstidspunkt + slåSammenOpphørsperioder(fraEndringstidspunktOgUtover)
 }
 
 fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): List<Opphørsperiode> {
@@ -113,6 +120,44 @@ fun slåSammenOpphørsperioder(alleOpphørsperioder: List<Opphørsperiode>): Lis
         acc
     }
 }
+
+private fun finnOpphørsperioderPåGrunnAvReduksjonIRevurdering(
+    forrigeUtbetalingsperioder: List<Utbetalingsperiode>,
+    utbetalingsperioder: List<Utbetalingsperiode>,
+): List<Opphørsperiode> {
+    val opphørteUtbetalingTidslinje =
+        forrigeUtbetalingsperioder
+            .tilTidslinje()
+            .kombinerMed(utbetalingsperioder.tilTidslinje()) { forrigeUtbetaling, utbetaling ->
+                forrigeUtbetaling != null && utbetaling == null
+            }
+
+    return opphørteUtbetalingTidslinje
+        .tilPerioder()
+        .mapNotNull { opphørtUtbetalingPeriode ->
+            val fomDatoPåPeriode = opphørtUtbetalingPeriode.fom
+
+            if (opphørtUtbetalingPeriode.verdi == true && fomDatoPåPeriode != null) {
+                Opphørsperiode(
+                    periodeFom = fomDatoPåPeriode,
+                    periodeTom = opphørtUtbetalingPeriode.tom,
+                    vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+                )
+            } else {
+                null
+            }
+        }
+}
+
+private fun List<Utbetalingsperiode>.tilTidslinje() =
+    this
+        .map {
+            Periode(
+                fom = it.periodeFom,
+                tom = it.periodeTom,
+                verdi = it,
+            )
+        }.tilTidslinje()
 
 private fun maxOfOpphørsperiodeTom(
     a: LocalDate?,

@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.api.dto.AnnenVurderingDto
@@ -20,16 +17,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
-@ExtendWith(MockKExtension::class)
 class AnnenVurderingServiceTest {
-    @MockK
-    private lateinit var annenVurderingRepository: AnnenVurderingRepository
+    private val annenVurderingRepository = mockk<AnnenVurderingRepository>()
 
-    @InjectMockKs
-    private lateinit var annenVurderingService: AnnenVurderingService
+    private val annenVurderingService = AnnenVurderingService(annenVurderingRepository)
 
     @Test
     fun `endreAnnenVurdering - skal kaste feil dersom AnnenVurdering med forespurt id ikke finnes i db`() {

@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
@@ -39,45 +37,35 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 class OpprettBehandlingServiceTest {
-    @MockK
-    private lateinit var personidentService: PersonidentService
+    private val personidentService = mockk<PersonidentService>()
+    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val vedtakService = mockk<VedtakService>()
+    private val loggService = mockk<LoggService>()
+    private val stegService = mockk<StegService>()
+    private val fagsakRepository = mockk<FagsakRepository>()
+    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val taskService = mockk<TaskService>()
+    private val behandlingMetrikker = mockk<BehandlingMetrikker>()
+    private val unleashNextMedContextService = mockk<UnleashNextMedContextService>()
 
-    @MockK
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
-    @MockK
-    private lateinit var vedtakService: VedtakService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var stegService: StegService
-
-    @MockK
-    private lateinit var fagsakRepository: FagsakRepository
-
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var behandlingMetrikker: BehandlingMetrikker
-
-    @MockK
-    private lateinit var unleashNextMedContextService: UnleashNextMedContextService
-
-    @InjectMockKs
-    private lateinit var opprettBehandlingService: OpprettBehandlingService
+    private val opprettBehandlingService =
+        OpprettBehandlingService(
+            personidentService = personidentService,
+            arbeidsfordelingService = arbeidsfordelingService,
+            vedtakService = vedtakService,
+            loggService = loggService,
+            fagsakRepository = fagsakRepository,
+            behandlingRepository = behandlingRepository,
+            taskService = taskService,
+            stegService = stegService,
+            behandlingMetrikker = behandlingMetrikker,
+            unleashService = unleashNextMedContextService,
+        )
 
     private val søker = randomAktør()
     private val søkersIdent = søker.personidenter.first { personIdent -> personIdent.aktiv }.fødselsnummer

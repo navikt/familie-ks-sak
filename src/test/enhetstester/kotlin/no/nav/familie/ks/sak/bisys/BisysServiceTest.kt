@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.bisys
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import no.nav.familie.ks.sak.api.dto.InfotrygdPeriode
 import no.nav.familie.ks.sak.api.dto.KsSakPeriode
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
@@ -25,29 +23,24 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class BisysServiceTest {
-    @MockK
-    private lateinit var fagsakService: FagsakService
+    private val fagsakService = mockk<FagsakService>()
+    private val behandlingService = mockk<BehandlingService>()
+    private val personidentService = mockk<PersonidentService>()
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
+    private val infotrygdReplikaClient = mockk<InfotrygdReplikaClient>()
 
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var personidentService: PersonidentService
-
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @MockK
-    private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
-
-    @InjectMockKs
-    private lateinit var bisysService: BisysService
+    private val bisysService =
+        BisysService(
+            fagsakService = fagsakService,
+            behandlingService = behandlingService,
+            personidentService = personidentService,
+            andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
+            infotrygdReplikaClient = infotrygdReplikaClient,
+        )
 
     private val barn1IKsSak = randomFnr()
     private val barn2IInfotrygd = randomFnr()

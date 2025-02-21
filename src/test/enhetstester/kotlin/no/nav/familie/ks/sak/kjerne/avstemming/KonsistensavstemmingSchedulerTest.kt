@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -16,22 +13,19 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 internal class KonsistensavstemmingSchedulerTest {
-    @MockK
-    private lateinit var envService: EnvService
+    private val envService = mockk<EnvService>()
+    private val konsistensavstemmingKjøreplanService = mockk<KonsistensavstemmingKjøreplanService>()
+    private val taskService = mockk<TaskService>()
 
-    @MockK
-    private lateinit var konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @InjectMockKs
-    private lateinit var konsistensavstemmingScheduler: KonsistensavstemmingScheduler
+    private val konsistensavstemmingScheduler =
+        KonsistensavstemmingScheduler(
+            envService = envService,
+            konsistensavstemmingKjøreplanService = konsistensavstemmingKjøreplanService,
+            taskService = taskService,
+        )
 
     private val taskSlot = slot<Task>()
 

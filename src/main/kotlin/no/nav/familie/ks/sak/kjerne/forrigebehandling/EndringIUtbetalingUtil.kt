@@ -6,8 +6,18 @@ import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import java.time.YearMonth
 
 object EndringIUtbetalingUtil {
+    fun utledEndringstidspunktForUtbetalingsbeløp(
+        nåværendeAndeler: List<AndelTilkjentYtelse>,
+        forrigeAndeler: List<AndelTilkjentYtelse>,
+    ): YearMonth? {
+        val endringIUtbetalingTidslinje = lagEndringIUtbetalingTidslinje(nåværendeAndeler, forrigeAndeler)
+
+        return endringIUtbetalingTidslinje.tilFørsteEndringstidspunkt()
+    }
+
     internal fun lagEndringIUtbetalingTidslinje(
         nåværendeAndeler: List<AndelTilkjentYtelse>,
         forrigeAndeler: List<AndelTilkjentYtelse>,
@@ -16,12 +26,12 @@ object EndringIUtbetalingUtil {
 
         val endringstidslinjePerPersonOgType =
             allePersonerMedAndeler.flatMap { aktør ->
-                val ytelseTyperForPerson = (nåværendeAndeler.map { it.type } + forrigeAndeler.map { it.type }).distinct()
+                val ytelseTyper = (forrigeAndeler + nåværendeAndeler).map { it.type.tilYtelseType() }.distinct()
 
-                ytelseTyperForPerson.map { ytelseType ->
+                ytelseTyper.map { ytelseType ->
                     lagEndringIUtbetalingForPersonOgTypeTidslinje(
-                        nåværendeAndeler = nåværendeAndeler.filter { it.aktør == aktør && it.type == ytelseType },
-                        forrigeAndeler = forrigeAndeler.filter { it.aktør == aktør && it.type == ytelseType },
+                        nåværendeAndeler = nåværendeAndeler.filter { it.aktør == aktør && it.type.tilYtelseType() == ytelseType },
+                        forrigeAndeler = forrigeAndeler.filter { it.aktør == aktør && it.type.tilYtelseType() == ytelseType },
                     )
                 }
             }
