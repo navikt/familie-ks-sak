@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.UtbetalingsikkerhetFeil
 import no.nav.familie.ks.sak.common.util.tilKortString
@@ -32,22 +32,20 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 class TilkjentYtelseValideringServiceTest {
-    @MockK
-    private lateinit var totrinnskontrollService: TotrinnskontrollService
+    private val totrinnskontrollService = mockk<TotrinnskontrollService>()
+    private val beregningService = mockk<BeregningService>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val personidentService = mockk<PersonidentService>()
+    private val behandlingService = mockk<BehandlingService>()
 
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var personidentService: PersonidentService
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    private lateinit var tilkjentYtelseValideringService: TilkjentYtelseValideringService
+    private val tilkjentYtelseValideringService =
+        TilkjentYtelseValideringService(
+            totrinnskontrollService = totrinnskontrollService,
+            beregningService = beregningService,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            personidentService = personidentService,
+            behandlingService = behandlingService,
+        )
 
     private val barn1 = randomAktør()
     private val barn2 = randomAktør()
@@ -68,15 +66,6 @@ class TilkjentYtelseValideringServiceTest {
 
     @BeforeEach
     fun setUp() {
-        tilkjentYtelseValideringService =
-            TilkjentYtelseValideringService(
-                beregningService = beregningService,
-                totrinnskontrollService = totrinnskontrollService,
-                personopplysningGrunnlagService = personopplysningGrunnlagService,
-                personidentService = personidentService,
-                behandlingService = behandlingService,
-            )
-
         every {
             beregningService.hentRelevanteTilkjentYtelserForBarn(
                 barnAktør = barn1,

@@ -27,7 +27,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 class VedtakStegTest {
     private val behandlingService = mockk<BehandlingService>()
     private val taskService = mockk<TaskService>()
-    private val totrinnskontrollService = mockk<TotrinnskontrollService>()
+    private val totrinnskontrollService = mockk<TotrinnskontrollService>(relaxed = true)
     private val loggService = mockk<LoggService>()
     private val oppgaveService = mockk<OppgaveService>()
     private val vedtakService = mockk<VedtakService>()
