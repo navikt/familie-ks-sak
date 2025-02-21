@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseDeserializer
-import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -19,7 +18,6 @@ data class PersonResultatResponsDto(
     val personIdent: String,
     val vilkårResultater: List<VilkårResultatDto>,
     val andreVurderinger: List<AnnenVurderingDto>,
-    val lovverk: Lovverk?,
 )
 
 data class EndreVilkårResultatDto(

@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -62,7 +63,7 @@ class CucumberMock(
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
-            unleashService = mockUnleashNextMedContextService(),
+            adopsjonService = adopsjonServiceMock,
         )
 
     val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service)
@@ -79,7 +80,6 @@ class CucumberMock(
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepositoryMock,
             vilkårsvurderingRepository = vilkårsvurderingRepositoryMock,
-            unleashService = mockUnleashNextMedContextService(isEnabledDefault = false),
         )
 
     val personidentService =
@@ -131,14 +131,16 @@ class CucumberMock(
             loggService = loggServiceMock,
         )
 
+    val adopsjonValidator = AdopsjonValidator(mockUnleashNextMedContextService(), adopsjonServiceMock)
+
     val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository = vilkårsvurderingRepositoryMock,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             sanityService = mockk(),
             personidentService = personidentService,
-            unleashService = mockUnleashNextMedContextService(),
             adopsjonService = adopsjonServiceMock,
+            adopsjonValidator = adopsjonValidator,
         )
 }
 

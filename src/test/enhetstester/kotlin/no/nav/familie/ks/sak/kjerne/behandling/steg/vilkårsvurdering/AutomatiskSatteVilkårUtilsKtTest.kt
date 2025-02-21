@@ -20,27 +20,6 @@ class AutomatiskSatteVilkårUtilsKtTest {
         )
 
     @Test
-    fun `skal bruke gammelt regelverk for barn født fra og med første januar 2024 hvis toggle er skrudd av`() {
-        // Act
-        val barnetsAlderVilkår =
-            lagAutomatiskGenererteVilkårForBarnetsAlder(
-                personResultat = personResultat,
-                behandlingId = behandlingId,
-                fødselsdato = fødselsDato,
-                skalBrukeRegelverk2025 = false,
-            )
-
-        // Assert
-        assertThat(barnetsAlderVilkår).hasSize(1)
-        assertThat(barnetsAlderVilkår).anySatisfy {
-            validerFellesfelter(it)
-            assertThat(it.periodeFom).isEqualTo(fødselsDato.plusMonths(13))
-            assertThat(it.periodeTom).isEqualTo(fødselsDato.plusMonths(19))
-            assertThat(it.utdypendeVilkårsvurderinger).isEmpty()
-        }
-    }
-
-    @Test
     fun `skal bruke nytt regelverk for barn født fra og med første januar 2024 hvis toggle er skrudd på`() {
         // Act
         val barnetsAlderVilkår =
@@ -48,8 +27,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
-                erAdopsjon = false,
-                skalBrukeRegelverk2025 = true,
+                adopsjonsdato = null,
             )
 
         // Assert
@@ -70,8 +48,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDato,
-                erAdopsjon = true,
-                skalBrukeRegelverk2025 = true,
+                adopsjonsdato = fødselsDato.plusMonths(10),
             )
 
         // Assert
@@ -94,7 +71,7 @@ class AutomatiskSatteVilkårUtilsKtTest {
                 personResultat = personResultat,
                 behandlingId = behandlingId,
                 fødselsdato = fødselsDatoFørJan24,
-                skalBrukeRegelverk2025 = true,
+                adopsjonsdato = null,
             )
 
         // Assert

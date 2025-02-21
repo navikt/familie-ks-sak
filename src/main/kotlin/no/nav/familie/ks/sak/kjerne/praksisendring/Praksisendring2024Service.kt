@@ -3,8 +3,6 @@ package no.nav.familie.ks.sak.kjerne.praksisendring
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.inkluderer
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.SKAL_GENERERE_ANDELER_FOR_PRAKSISENDRING_2024
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -24,7 +22,6 @@ import java.time.YearMonth
 
 @Service
 class Praksisendring2024Service(
-    private val unleashService: UnleashNextMedContextService,
     private val praksisendring2024Repository: Praksisendring2024Repository,
 ) {
     private val gyldigeMånederForPraksisendring = (8..12).map { YearMonth.of(2024, it) }
@@ -34,12 +31,8 @@ class Praksisendring2024Service(
         vilkårsvurdering: Vilkårsvurdering,
         tilkjentYtelse: TilkjentYtelse,
     ): List<AndelTilkjentYtelse> =
-        if (unleashService.isEnabled(SKAL_GENERERE_ANDELER_FOR_PRAKSISENDRING_2024)) {
-            personopplysningGrunnlag.barna.mapNotNull {
-                genererAndelerForPraksisendring2024(it, vilkårsvurdering, tilkjentYtelse)
-            }
-        } else {
-            emptyList()
+        personopplysningGrunnlag.barna.mapNotNull {
+            genererAndelerForPraksisendring2024(it, vilkårsvurdering, tilkjentYtelse)
         }
 
     private fun genererAndelerForPraksisendring2024(

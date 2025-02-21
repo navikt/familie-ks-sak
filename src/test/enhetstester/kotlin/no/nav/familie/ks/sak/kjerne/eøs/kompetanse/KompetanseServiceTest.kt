@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.kompetanse
 
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
@@ -10,8 +9,6 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -19,6 +16,7 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -45,11 +43,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class KompetanseServiceTest {
     private val kompetanseRepository: EøsSkjemaRepository<Kompetanse> = mockEøsSkjemaRepository()
     private val personidentService: PersonidentService = mockk()
@@ -57,13 +53,13 @@ internal class KompetanseServiceTest {
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
-    private val unleashService: UnleashNextMedContextService = mockk()
+    private val adopsjonService: AdopsjonService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
             vilkårsvurderingService = vilkårsvurderingService,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-            unleashService = unleashService,
+            adopsjonService = adopsjonService,
         )
     private val tilpassKompetanserService =
         TilpassKompetanserService(
@@ -97,6 +93,7 @@ internal class KompetanseServiceTest {
         every { personidentService.hentAktør(barn3.aktivFødselsnummer()) } returns barn3
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
         kompetanseRepository.deleteAll()
     }
 
@@ -476,7 +473,6 @@ internal class KompetanseServiceTest {
                     barnasIdenter = listOf(barn1, barn2).map { it.aktivFødselsnummer() },
                     barnAktør = listOf(barn1, barn2),
                 )
-            every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
         }
 
         @Test

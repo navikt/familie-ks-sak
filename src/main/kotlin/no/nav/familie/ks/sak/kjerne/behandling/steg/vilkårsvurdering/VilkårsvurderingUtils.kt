@@ -10,9 +10,9 @@ import no.nav.familie.ks.sak.common.util.erBack2BackIMånedsskifte
 import no.nav.familie.ks.sak.common.util.erSammeEllerEtter
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -85,8 +85,14 @@ fun endreVilkårResultat(
         endretVilkårResultat = endretVilkårResultatDto,
     )
 
-    val endretVilkårResultat =
-        endretVilkårResultatDto.tilVilkårResultat(eksisterendeVilkårResultater.single { it.id == endretVilkårResultatDto.id })
+    val eksisterendeVilkårsResultat =
+        eksisterendeVilkårResultater.singleOrNull { it.id == endretVilkårResultatDto.id }
+            ?: throw FunksjonellFeil(
+                melding = "Fant ikke eksisterende vilkårsresultat med id: ${endretVilkårResultatDto.id}. Mulig knyttet til problem med flere faner",
+                frontendFeilmelding = "Vilkårene har endret seg siden sist gang du lastet inn siden. Vennligst forsøk å laste inn siden på nytt",
+            )
+
+    val endretVilkårResultat = endretVilkårResultatDto.tilVilkårResultat(eksisterendeVilkårsResultat)
 
     val (vilkårResultaterSomSkalTilpasses, vilkårResultaterSomIkkeTrengerTilpassning) =
         eksisterendeVilkårResultater.partition {
@@ -239,7 +245,7 @@ fun genererInitiellVilkårsvurdering(
     behandling: Behandling,
     forrigeVilkårsvurdering: Vilkårsvurdering?,
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBrukeRegelverk2025: Boolean = false,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): Vilkårsvurdering =
     Vilkårsvurdering(behandling = behandling).apply {
         personResultater =
@@ -268,7 +274,7 @@ fun genererInitiellVilkårsvurdering(
                                             personResultat = personResultat,
                                             behandlingId = behandling.id,
                                             fødselsdato = person.fødselsdato,
-                                            skalBrukeRegelverk2025 = skalBrukeRegelverk2025,
+                                            adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }?.adopsjonsdato,
                                         )
                                     }
 
@@ -364,11 +370,9 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
             if (personResultatForrigeBehandling == null) {
                 initieltPersonResultat.vilkårResultater
             } else {
-                initieltPersonResultat.vilkårResultater
+                initieltPersonResultat
                     .overskrivMedVilkårResultaterFraForrigeBehandling(
-                        kunForGodkjenteVilkår = behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING,
                         vilkårResultaterFraForrigeBehandling = personResultatForrigeBehandling.vilkårResultater,
-                        nyttPersonResultat = initieltPersonResultat,
                     )
             }
 
@@ -376,21 +380,19 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
     }
 }
 
-private fun Collection<VilkårResultat>.overskrivMedVilkårResultaterFraForrigeBehandling(
+private fun PersonResultat.overskrivMedVilkårResultaterFraForrigeBehandling(
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
-    nyttPersonResultat: PersonResultat,
-    kunForGodkjenteVilkår: Boolean,
 ): List<VilkårResultat> {
-    val vilkårForPerson = nyttPersonResultat.vilkårResultater.map { it.vilkårType }.toSet()
+    val vilkårForPerson = this.vilkårResultater.map { it.vilkårType }.toSet()
 
     return vilkårForPerson.flatMap { vilkårType ->
         val vilkårResultaterAvSammeType: List<VilkårResultat> =
-            nyttPersonResultat.vilkårResultater.filter { it.vilkårType == vilkårType }
+            this.vilkårResultater.filter { it.vilkårType == vilkårType }
 
         val vilkårResultaterAvSammeTypeIForrigeBehandling =
             vilkårResultaterFraForrigeBehandling
                 .filter { it.vilkårType == vilkårType }
-                .map { it.kopier(personResultat = nyttPersonResultat) }
+                .map { it.kopier(personResultat = this) }
 
         val vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed: List<VilkårResultat> =
             when (vilkårType) {

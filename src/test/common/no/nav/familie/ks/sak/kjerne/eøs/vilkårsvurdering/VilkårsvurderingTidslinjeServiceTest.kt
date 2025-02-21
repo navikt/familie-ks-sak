@@ -2,12 +2,12 @@ package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
@@ -31,7 +31,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 internal class VilkårsvurderingTidslinjeServiceTest {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     val vilkårsvurderingService = mockk<VilkårsvurderingService>()
-    val unleashService = mockk<UnleashNextMedContextService>()
+    val adopsjonService = mockk<AdopsjonService>()
 
     private lateinit var vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService
 
@@ -41,7 +41,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
             VilkårsvurderingTidslinjeService(
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
                 vilkårsvurderingService = vilkårsvurderingService,
-                unleashService = unleashService,
+                adopsjonService = adopsjonService,
             )
     }
 

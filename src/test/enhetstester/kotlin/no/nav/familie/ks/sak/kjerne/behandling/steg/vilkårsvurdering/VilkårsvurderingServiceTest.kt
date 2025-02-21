@@ -1,12 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -18,6 +15,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -35,25 +33,23 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class VilkårsvurderingServiceTest {
     private val vilkårsvurderingRepository: VilkårsvurderingRepository = mockk()
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     private val sanityService: SanityService = mockk()
     private val personidentService: PersonidentService = mockk()
-    private val unleashService: UnleashNextMedContextService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
+    private val adopsjonValidator: AdopsjonValidator = mockk()
     private val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository,
             personopplysningGrunnlagService,
             sanityService,
             personidentService,
-            unleashService,
             adopsjonService,
+            adopsjonValidator,
         )
 
     private val søker = randomAktør()
@@ -64,7 +60,7 @@ class VilkårsvurderingServiceTest {
 
     @BeforeEach
     fun setUp() {
-        every { unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
     }
 
     @Test

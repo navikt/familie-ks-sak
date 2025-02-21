@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -30,31 +27,25 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class AvsluttBehandlingStegTest {
-    @MockK
-    private lateinit var behandlingService: BehandlingService
+    private val behandlingService = mockk<BehandlingService>()
+    private val loggService = mockk<LoggService>()
+    private val beregningService = mockk<BeregningService>()
+    private val fagsakService = mockk<FagsakService>()
+    private val behandlingMetrikker = mockk<BehandlingMetrikker>()
+    private val snikeIKøenService = mockk<SnikeIKøenService>()
 
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var fagsakService: FagsakService
-
-    @MockK
-    private lateinit var behandlingMetrikker: BehandlingMetrikker
-
-    @MockK
-    private lateinit var snikeIKøenService: SnikeIKøenService
-
-    @InjectMockKs
-    private lateinit var avsluttBehandlingSteg: AvsluttBehandlingSteg
+    private val avsluttBehandlingSteg =
+        AvsluttBehandlingSteg(
+            behandlingService = behandlingService,
+            loggService = loggService,
+            beregningService = beregningService,
+            fagsakService = fagsakService,
+            behandlingMetrikker = behandlingMetrikker,
+            snikeIKøenService = snikeIKøenService,
+        )
 
     private lateinit var behandling: Behandling
 

@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import io.mockk.called
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -17,10 +16,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.data.lagVilkårResultat
-import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -39,16 +35,15 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.Fe
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
-import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
@@ -63,10 +58,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.extension.ExtendWith
-import java.time.LocalDate
 
-@ExtendWith(MockKExtension::class)
 class BehandlingServiceTest {
     private val mockBehandlingRepository = mockk<BehandlingRepository>()
     private val mockArbeidsfordelingService = mockk<ArbeidsfordelingService>()
@@ -94,6 +86,7 @@ class BehandlingServiceTest {
     private val mockSakStatistikkService = mockk<SakStatistikkService>()
     private val mockKorrigertVedtakRepository = mockk<KorrigertVedtakRepository>()
     private val mockAdopsjonService = mockk<AdopsjonService>()
+    private val mockEndringstidspunktService = mockk<EndringstidspunktService>()
 
     private val behandlingService =
         BehandlingService(
@@ -123,6 +116,7 @@ class BehandlingServiceTest {
             sakStatistikkService = mockSakStatistikkService,
             korrigertVedtakRepository = mockKorrigertVedtakRepository,
             adopsjonService = mockAdopsjonService,
+            endringstidspunktService = mockEndringstidspunktService,
         )
 
     private val søker = randomAktør()
@@ -167,7 +161,7 @@ class BehandlingServiceTest {
         every { mockVedtakRepository.findByBehandlingAndAktivOptional(any()) } returns Vedtak(behandling = behandling)
 
         every { mockVedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns emptyList()
-        every { mockVedtaksperiodeService.finnEndringstidspunktForBehandling(any(), any()) } returns TIDENES_MORGEN
+        every { mockEndringstidspunktService.finnEndringstidspunktForBehandling(any()) } returns TIDENES_MORGEN
 
         every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(
@@ -208,7 +202,7 @@ class BehandlingServiceTest {
         verify(exactly = 1) { mockVilkårsvurderingService.finnAktivVilkårsvurdering(behandling.id) }
         verify(exactly = 1) { mockSøknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
-        verify(exactly = 1) { mockVedtaksperiodeService.finnEndringstidspunktForBehandling(behandling, null) }
+        verify(exactly = 1) { mockEndringstidspunktService.finnEndringstidspunktForBehandling(behandling) }
         verify(exactly = 1) { mockTilbakekrevingRepository.findByBehandlingId(behandling.id) }
         verify(exactly = 1) { mockVedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id) }
         verify(exactly = 1) { mockKompetanseRepository.findByBehandlingId(behandling.id) }
@@ -220,45 +214,6 @@ class BehandlingServiceTest {
         assertNotNull(behandlingResponsDto.søknadsgrunnlag)
         assertTrue { behandlingResponsDto.personerMedAndelerTilkjentYtelse.isNotEmpty() }
         assertNull(behandlingResponsDto.endringstidspunkt)
-    }
-
-    @Test
-    fun `lagBehandlingRespons - skal inkludere lovverk i personResultater for barn`() {
-        val barn = randomAktør()
-        val barnsIdent = barn.personidenter.first { personIdent -> personIdent.aktiv }.fødselsnummer
-
-        every { mockPersonopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(any()) } returns
-            lagPersonopplysningGrunnlag(
-                behandlingId = behandling.id,
-                søkerPersonIdent = søkersIdent,
-                barnasIdenter = listOf(barnsIdent),
-                barnasFødselsdatoer = listOf(LocalDate.of(2020, 1, 1)),
-            )
-        every { mockVilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-            lagVilkårsvurdering(
-                behandling = behandling,
-                lagPersonResultat = { vilkårsvurdering ->
-                    setOf(
-                        lagPersonResultat(
-                            vilkårsvurdering = vilkårsvurdering,
-                            aktør = barn,
-                            lagVilkårResultater = { personResultat ->
-                                setOf(
-                                    lagVilkårResultat(
-                                        personResultat = personResultat,
-                                        vilkårType = Vilkår.BARNETS_ALDER,
-                                    ),
-                                )
-                            },
-                        ),
-                    )
-                },
-            )
-        val behandlingResponsDto = behandlingService.lagBehandlingRespons(behandling.id)
-
-        assertTrue { behandlingResponsDto.personer.isNotEmpty() }
-        assertEquals(2, behandlingResponsDto.personer.size)
-        assertEquals(behandlingResponsDto.personResultater[0].lovverk, Lovverk.FØR_LOVENDRING_2025)
     }
 
     @Test

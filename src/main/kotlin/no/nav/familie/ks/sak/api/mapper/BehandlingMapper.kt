@@ -85,6 +85,7 @@ object BehandlingMapper {
         type = behandling.type,
         kategori = behandling.kategori,
         årsak = behandling.opprettetÅrsak,
+        søknadMottattDato = behandling.søknadMottattDato,
         opprettetTidspunkt = behandling.opprettetTidspunkt,
         aktivertTidspunkt = behandling.aktivertTidspunkt,
         endretAv = behandling.endretAv,
@@ -93,10 +94,7 @@ object BehandlingMapper {
         personer = personer,
         personResultater =
             personResultater?.map { personResultat ->
-                VilkårsvurderingMapper.lagPersonResultatRespons(
-                    personResultat,
-                    personer.find { it.personIdent == personResultat.aktør.aktivFødselsnummer() }!!,
-                )
+                VilkårsvurderingMapper.lagPersonResultatRespons(personResultat)
             }
                 ?: emptyList(),
         behandlingPåVent =

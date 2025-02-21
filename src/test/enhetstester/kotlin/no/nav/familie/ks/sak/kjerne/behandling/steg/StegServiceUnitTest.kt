@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -32,41 +29,32 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 class StegServiceUnitTest {
-    @MockK
-    private lateinit var steg: List<IBehandlingSteg>
+    private val steg = mockk<List<IBehandlingSteg>>()
+    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val vedtakRepository = mockk<VedtakRepository>()
+    private val tilbakekrevingRepository = mockk<TilbakekrevingRepository>()
+    private val sakStatistikkService = mockk<SakStatistikkService>()
+    private val taskService = mockk<TaskService>()
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val behandlingService = mockk<BehandlingService>()
+    private val loggService = mockk<LoggService>()
 
-    @MockK
-    private lateinit var behandlingRepository: BehandlingRepository
-
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @MockK
-    private lateinit var tilbakekrevingRepository: TilbakekrevingRepository
-
-    @MockK
-    private lateinit var sakStatistikkService: SakStatistikkService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @InjectMockKs
-    private lateinit var stegService: StegService
+    private val stegService =
+        StegService(
+            steg = steg,
+            behandlingRepository = behandlingRepository,
+            vedtakRepository = vedtakRepository,
+            tilbakekrevingRepository = tilbakekrevingRepository,
+            sakStatistikkService = sakStatistikkService,
+            taskService = taskService,
+            loggService = loggService,
+            behandlingService = behandlingService,
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+        )
 
     private val behandling = lagBehandling(id = 1, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 

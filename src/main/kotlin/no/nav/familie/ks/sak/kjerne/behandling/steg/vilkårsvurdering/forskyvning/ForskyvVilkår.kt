@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -24,12 +25,12 @@ import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 
 fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     this
         .forskyvVilkårResultater(
             personopplysningGrunnlag = personopplysningGrunnlag,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            adopsjonerIBehandling = adopsjonerIBehandling,
         ).mapValues { entry ->
             val person = personopplysningGrunnlag.personer.single { it.aktør == entry.key }
             entry.value.tilOppfylteVilkårTidslinje(person.type)
@@ -37,12 +38,12 @@ fun Collection<PersonResultat>.tilForskjøvetOppfylteVilkårResultatTidslinjeMap
 
 fun Collection<PersonResultat>.tilForskjøvetVilkårResultatTidslinjeMap(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): Map<Aktør, Tidslinje<List<VilkårResultat>>> =
     this
         .forskyvVilkårResultater(
             personopplysningGrunnlag = personopplysningGrunnlag,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            adopsjonerIBehandling = adopsjonerIBehandling,
         ).mapValues {
             it.value.tilVilkårResultaterTidslinje()
         }
@@ -72,17 +73,17 @@ private fun Map<Vilkår, List<Periode<VilkårResultat>>>.tilVilkårResultaterTid
 
 fun Collection<PersonResultat>.forskyvVilkårResultater(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> {
     // Forskyver barnas vilkår basert på barnets lovverk
-    val barnasForskjøvedeVilkårResultater = this.forskyvBarnasVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato)
+    val barnasForskjøvedeVilkårResultater = this.forskyvBarnasVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag, adopsjonerIBehandling = adopsjonerIBehandling)
 
     // Lager lovverk-tidslinje basert på barnas forskjøvede VilkårResultater
     val lovverkTidslinje =
         LovverkTidslinjeGenerator.generer(
             barnasForskjøvedeVilkårResultater = barnasForskjøvedeVilkårResultater,
             personopplysningGrunnlag = personopplysningGrunnlag,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+            adopsjonerIBehandling = adopsjonerIBehandling,
         )
 
     // Forskyver søker etter alle lovverk og kombinerer med lovverk-tidslinje
@@ -101,13 +102,13 @@ fun PersonResultat.forskyvVilkårResultater(
 
 private fun Collection<PersonResultat>.forskyvBarnasVilkårResultater(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
-    skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    adopsjonerIBehandling: List<Adopsjon>,
 ): Map<Aktør, Map<Vilkår, List<Periode<VilkårResultat>>>> =
     this.filter { !it.erSøkersResultater() }.associate { personResultat ->
         val lovverk =
             LovverkUtleder.utledLovverkForBarn(
-                personopplysningGrunnlag.barna.single { it.aktør == personResultat.aktør }.fødselsdato,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                fødselsdato = personopplysningGrunnlag.barna.single { it.aktør == personResultat.aktør }.fødselsdato,
+                adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }?.adopsjonsdato,
             )
         personResultat.aktør to personResultat.forskyvVilkårResultater(lovverk)
     }

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
@@ -14,10 +15,9 @@ import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -49,6 +49,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunn
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
@@ -72,7 +73,8 @@ class VedtaksperiodeService(
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val kompetanseService: KompetanseService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
+    private val adopsjonService: AdopsjonService,
+    private val endringstidspunktService: EndringstidspunktService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -227,17 +229,12 @@ class VedtaksperiodeService(
         manueltOverstyrtEndringstidspunkt: LocalDate? = null,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val endringstidspunkt =
-            manueltOverstyrtEndringstidspunkt ?: finnEndringstidspunktForBehandling(
-                behandling = behandling,
-                sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
-            )
+            manueltOverstyrtEndringstidspunkt ?: endringstidspunktService.finnEndringstidspunktForBehandling(behandling)
 
         return vedtaksperioderMedBegrunnelser.filter {
             (it.tom ?: TIDENES_ENDE).erSammeEllerEtter(endringstidspunkt)
         }
     }
-
-    private fun hentSisteBehandlingSomErVedtatt(fagsakId: Long): Behandling? = behandlingRepository.finnBehandlinger(fagsakId).filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }.maxByOrNull { it.aktivertTidspunkt }
 
     @Transactional
     fun genererVedtaksperiodeForOverstyrtEndringstidspunkt(
@@ -403,14 +400,14 @@ class VedtaksperiodeService(
                     BegrunnelserForPeriodeContext(
                         utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
                         sanityBegrunnelser = sanityBegrunnelser,
+                        kompetanser = utfylteKompetanser,
                         personopplysningGrunnlag = persongrunnlag,
+                        adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id)),
+                        overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
                         personResultater = vilkårsvurdering.personResultater.toList(),
                         endretUtbetalingsandeler = endreteUtbetalinger,
                         erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
-                        kompetanser = utfylteKompetanser,
                         andelerTilkjentYtelse = andeler,
-                        overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandling.id),
-                        skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
                     ).hentGyldigeBegrunnelserForVedtaksperiode(),
             )
         }
@@ -445,39 +442,19 @@ class VedtaksperiodeService(
 
         val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) ?: throw Feil("Fant ikke vilkårsvurdering på behandling $behandling")
 
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
+
+        val endringstidspunktForBehandling = endringstidspunktService.finnEndringstidspunktForBehandling(behandling)
+
         return mapTilOpphørsperioder(
             forrigePersonopplysningGrunnlag = forrigePersonopplysningGrunnlag,
             forrigeAndelerTilkjentYtelse = forrigeAndelerMedEndringer,
             personopplysningGrunnlag = personopplysningGrunnlag,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             vilkårsvurdering = vilkårsvurdering,
-            skalBestemmeLovverkBasertPåFødselsdato = unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
+            adopsjonerIBehandling = adopsjonerIBehandling,
+            endringstidspunktForBehandling = endringstidspunktForBehandling,
         )
-    }
-
-    fun finnEndringstidspunktForBehandling(
-        behandling: Behandling,
-        sisteVedtattBehandling: Behandling?,
-    ): LocalDate {
-        if (sisteVedtattBehandling == null) return TIDENES_MORGEN
-
-        val andelerTilkjentYtelseForBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-
-        if (andelerTilkjentYtelseForBehandling.isEmpty()) return TIDENES_MORGEN
-
-        val andelerTilkjentYtelseForForrigeBehandling = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(sisteVedtattBehandling.id)
-
-        val førsteEndringstidspunktFraAndelTilkjentYtelse =
-            andelerTilkjentYtelseForBehandling.hentFørsteEndringstidspunkt(
-                forrigeAndelerTilkjentYtelse = andelerTilkjentYtelseForForrigeBehandling,
-            ) ?: TIDENES_ENDE
-
-        val kompetansePerioder = kompetanseService.hentKompetanser(behandling.behandlingId)
-        val kompetansePerioderForrigeBehandling = kompetanseService.hentKompetanser(sisteVedtattBehandling.behandlingId)
-
-        val førsteEndringstidspunktIKompetansePerioder = kompetansePerioder.hentFørsteEndringstidspunkt(kompetansePerioderForrigeBehandling)
-
-        return minOf(førsteEndringstidspunktFraAndelTilkjentYtelse, førsteEndringstidspunktIKompetansePerioder)
     }
 
     private fun hentAvslagsperioderMedBegrunnelser(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> {

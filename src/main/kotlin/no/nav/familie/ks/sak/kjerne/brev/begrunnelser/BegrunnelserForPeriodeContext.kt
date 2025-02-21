@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.landkodeTilBarnetsBostedsland
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -45,12 +46,12 @@ class BegrunnelserForPeriodeContext(
     private val sanityBegrunnelser: List<SanityBegrunnelse>,
     private val kompetanser: List<UtfyltKompetanse>,
     private val personopplysningGrunnlag: PersonopplysningGrunnlag,
+    private val adopsjonerIBehandling: List<Adopsjon>,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
     private val personResultater: List<PersonResultat>,
     private val endretUtbetalingsandeler: List<EndretUtbetalingAndel>,
     private val erFørsteVedtaksperiode: Boolean,
     private val andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
-    private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
 ) {
     private val aktørIderMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person.aktør.aktørId }
@@ -309,7 +310,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                adopsjonerIBehandling = adopsjonerIBehandling,
             ).flatMap { entry ->
                 entry.value
                     .flatMap { it.value }
@@ -321,7 +322,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                adopsjonerIBehandling = adopsjonerIBehandling,
             ).flatMap { entry ->
                 entry.value
                     .flatMap { it.value }
@@ -379,7 +380,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .tilForskjøvetVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                adopsjonerIBehandling = adopsjonerIBehandling,
             ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val perioderMedVilkårForPerson = vilkårResultatTidslinjeForPerson.tilPerioder()
@@ -431,7 +432,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                adopsjonerIBehandling = adopsjonerIBehandling,
             ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, vilkårResultatTidslinjeForPerson) ->
                 val forskøvedeVilkårResultaterMedSammeFom =
@@ -453,7 +454,7 @@ class BegrunnelserForPeriodeContext(
         personResultater
             .tilForskjøvetVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                adopsjonerIBehandling = adopsjonerIBehandling,
             ).mapKeys { (aktør, _) -> aktør.hentPerson() }
             .mapNotNull { (person, tidslinje) ->
                 val vilkårResultatSomSlutterFørVedtaksperiode =
@@ -462,7 +463,7 @@ class BegrunnelserForPeriodeContext(
                         .singleOrNull {
                             it.tom?.plusDays(1) == vedtaksperiode.fom
                         }?.verdi
-                        ?.filter { it.erOppfylt() }
+                        ?.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
                 if (vilkårResultatSomSlutterFørVedtaksperiode != null) {
                     Pair(person, vilkårResultatSomSlutterFørVedtaksperiode)

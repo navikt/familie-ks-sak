@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.api
 
+import FerdigstillOppgaveKnyttJournalpostDto
+import jakarta.validation.Valid
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -9,6 +11,7 @@ import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
+import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -37,6 +40,7 @@ class OppgaveController(
     private val fagsakService: FagsakService,
     private val integrasjonService: IntegrasjonService,
     private val tilgangService: TilgangService,
+    private val innkommendeJournalføringService: InnkommendeJournalføringService,
 ) {
     @PostMapping(
         path = ["/hent-oppgaver"],
@@ -128,5 +132,23 @@ class OppgaveController(
             )
 
         return ResponseEntity.ok(Ressurs.success(dataForManuellJournalføringDto))
+    }
+
+    @PostMapping(path = ["/{oppgaveId}/ferdigstillOgKnyttjournalpost"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun ferdigstillOppgaveOgKnyttJournalpostTilBehandling(
+        @PathVariable oppgaveId: Long,
+        @RequestBody @Valid
+        request: FerdigstillOppgaveKnyttJournalpostDto,
+    ): ResponseEntity<Ressurs<String?>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "ferdigstill oppgave og knytt journalpost",
+        )
+        // Validerer at oppgave med gitt oppgaveId eksisterer
+        oppgaveService.hentOppgave(oppgaveId)
+
+        val fagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request, oppgaveId)
+
+        return ResponseEntity.ok(Ressurs.success(fagsakId, "Oppgaven $oppgaveId er lukket"))
     }
 }

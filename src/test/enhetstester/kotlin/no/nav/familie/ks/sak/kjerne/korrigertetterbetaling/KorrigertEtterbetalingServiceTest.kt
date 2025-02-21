@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.korrigertetterbetaling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -11,20 +8,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class KorrigertEtterbetalingServiceTest {
-    @MockK
-    private lateinit var korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository
+    private val korrigertEtterbetalingRepository = mockk<KorrigertEtterbetalingRepository>()
+    private val loggService = mockk<LoggService>()
 
-    @MockK
-    private lateinit var loggService: LoggService
-
-    @InjectMockKs
-    private lateinit var korrigertEtterbetalingService: KorrigertEtterbetalingService
+    private val korrigertEtterbetalingService = KorrigertEtterbetalingService(korrigertEtterbetalingRepository, loggService)
 
     @Test
     fun `finnAktivtKorrigeringPåBehandling skal hente aktivt korrigering fra repository hvis det finnes`() {

@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
@@ -19,19 +17,13 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.YearMonth
 
-@ExtendWith(MockKExtension::class)
 internal class SendVedtakHendelseTilInfotrygdTaskTest {
-    @MockK
-    private lateinit var kafkaProducer: KafkaProducer
+    private val kafkaProducer = mockk<KafkaProducer>()
+    private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
 
-    @MockK
-    private lateinit var andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService
-
-    @InjectMockKs
-    private lateinit var sendVedtakHendelseTilInfotrygdTask: SendVedtakHendelseTilInfotrygdTask
+    private val sendVedtakHendelseTilInfotrygdTask = SendVedtakHendelseTilInfotrygdTask(kafkaProducer, andelerTilkjentYtelseOgEndreteUtbetalingerService)
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 

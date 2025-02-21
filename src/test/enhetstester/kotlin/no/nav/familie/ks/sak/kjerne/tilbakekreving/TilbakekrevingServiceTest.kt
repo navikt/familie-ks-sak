@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.Fagsystem
@@ -53,7 +51,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -65,34 +62,27 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.stream.Stream
 
-@ExtendWith(MockKExtension::class)
 internal class TilbakekrevingServiceTest {
-    @MockK
-    private lateinit var tilbakekrevingKlient: TilbakekrevingKlient
+    private val tilbakekrevingKlient = mockk<TilbakekrevingKlient>()
+    private val tilbakekrevingRepository = mockk<TilbakekrevingRepository>()
+    private val vedtakRepository = mockk<VedtakRepository>()
+    private val totrinnskontrollRepository = mockk<TotrinnskontrollRepository>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val simuleringService = mockk<SimuleringService>()
+    private val brevmottakerRepository = mockk<BrevmottakerRepository>(relaxed = true)
 
-    @MockK
-    private lateinit var tilbakekrevingRepository: TilbakekrevingRepository
-
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @MockK
-    private lateinit var totrinnskontrollRepository: TotrinnskontrollRepository
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
-    @MockK
-    private lateinit var simuleringService: SimuleringService
-
-    @MockK(relaxed = true)
-    private lateinit var brevmottakerRepository: BrevmottakerRepository
-
-    @InjectMockKs
-    private lateinit var tilbakekrevingService: TilbakekrevingService
+    private val tilbakekrevingService =
+        TilbakekrevingService(
+            tilbakekrevingKlient = tilbakekrevingKlient,
+            tilbakekrevingRepository = tilbakekrevingRepository,
+            vedtakRepository = vedtakRepository,
+            totrinnskontrollRepository = totrinnskontrollRepository,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            arbeidsfordelingService = arbeidsfordelingService,
+            simuleringService = simuleringService,
+            brevmottakerRepository = brevmottakerRepository,
+        )
 
     private val søker = randomFnr()
     private val behandling = lagBehandling()

@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.statsborgerskap
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.kodeverk.BeskrivelseDto
 import no.nav.familie.kontrakter.felles.kodeverk.BetydningDto
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
@@ -22,17 +20,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.Month
 
-@ExtendWith(MockKExtension::class)
 class StatsborgerskapServiceTest {
-    @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
+    private val integrasjonClient = mockk<IntegrasjonClient>()
 
-    @InjectMockKs
-    private lateinit var statsborgerskapService: StatsborgerskapService
+    private val statsborgerskapService = StatsborgerskapService(integrasjonClient)
 
     @BeforeEach
     fun setup() {

@@ -43,6 +43,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpRepository
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
@@ -90,6 +91,7 @@ class BehandlingService(
     private val sakStatistikkService: SakStatistikkService,
     private val korrigertVedtakRepository: KorrigertVedtakRepository,
     private val adopsjonService: AdopsjonService,
+    private val endringstidspunktService: EndringstidspunktService,
 ) {
     fun hentBehandling(behandlingId: Long): Behandling = behandlingRepository.hentBehandling(behandlingId)
 
@@ -180,11 +182,7 @@ class BehandlingService(
         val totrinnskontroll =
             totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId = behandling.id)?.tilTotrinnskontrollDto()
 
-        val endringstidspunkt =
-            vedtaksperiodeService.finnEndringstidspunktForBehandling(
-                behandling = behandling,
-                sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(behandling.fagsak.id),
-            )
+        val endringstidspunkt = endringstidspunktService.finnEndringstidspunktForBehandling(behandling)
 
         val sisteVedtaksperiodeVisningDato =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id)

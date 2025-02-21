@@ -36,7 +36,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.praksisendring.PopulerPraksisendring2024Task
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -354,19 +353,6 @@ class ForvaltningController(
         )
 
         val task = PatchMergetIdentTask.opprettTask(patchMergetIdentDto)
-
-        taskService.save(task)
-
-        return ResponseEntity.ok("ok")
-    }
-
-    @PostMapping(path = ["/fagsaker/populer-praksisendring-24-medfagsaker-som-har-betaling-samme-maned-som-start-i-barnehage"])
-    fun opprettTaskSomPopulererPraksisendring2024Tabell(): ResponseEntity<String> {
-        tilgangService.validerTilgangTilHandling(
-            handling = "oppretter task som populer praksisendring",
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-        )
-        val task = PopulerPraksisendring2024Task.opprettTask()
 
         taskService.save(task)
 

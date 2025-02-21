@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
@@ -28,28 +25,18 @@ import org.hamcrest.core.IsNull
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class VedtakServiceTest {
-    @MockK
-    private lateinit var vedtakRepository: VedtakRepository
+    private val vedtakRepository = mockk<VedtakRepository>()
+    private val vedtaksperiodeService = mockk<VedtaksperiodeService>()
+    private val genererBrevService = mockk<GenererBrevService>()
+    private val behandlingService = mockk<BehandlingService>()
 
-    @MockK
-    private lateinit var vedtaksperiodeService: VedtaksperiodeService
-
-    @MockK
-    private lateinit var genererBrevService: GenererBrevService
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @InjectMockKs
-    private lateinit var vedtakService: VedtakService
+    private val vedtakService = VedtakService(vedtakRepository, vedtaksperiodeService, genererBrevService, behandlingService)
 
     @Test
     fun `hentVedtak - skal hente vedtak fra VedtakRepository`() {

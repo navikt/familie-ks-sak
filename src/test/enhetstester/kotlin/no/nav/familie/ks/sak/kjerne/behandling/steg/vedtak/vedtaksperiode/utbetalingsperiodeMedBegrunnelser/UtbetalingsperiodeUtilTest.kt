@@ -4,11 +4,11 @@ import apr
 import io.mockk.every
 import io.mockk.mockk
 import mars
+import mockAdopsjonService
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
@@ -131,7 +131,11 @@ internal class UtbetalingsperiodeUtilTest {
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
                 vedtak = vedtak,
-                forskjøvetVilkårResultatTidslinjeMap = personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato = true),
+                forskjøvetVilkårResultatTidslinjeMap =
+                    personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
+                        personopplysningGrunnlag = personopplysningGrunnlag,
+                        adopsjonerIBehandling = emptyList(),
+                    ),
                 kompetanser = emptyList(),
             )
 
@@ -218,7 +222,7 @@ internal class UtbetalingsperiodeUtilTest {
                 forskjøvetVilkårResultatTidslinjeMap =
                     personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                         personopplysningGrunnlag = personopplysningGrunnlag,
-                        skalBestemmeLovverkBasertPåFødselsdato = true,
+                        adopsjonerIBehandling = emptyList(),
                     ),
                 kompetanser = emptyList(),
             )
@@ -242,7 +246,7 @@ internal class UtbetalingsperiodeUtilTest {
             val forskjøvetVilkårResultatTidslinjeMap =
                 vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             val vedtaksperioderUtenKompetanse =
@@ -285,7 +289,7 @@ internal class UtbetalingsperiodeUtilTest {
             val forskjøvetVilkårResultatTidslinjeMap =
                 vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                     personopplysningGrunnlag = personopplysningGrunnlag,
-                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                    adopsjonerIBehandling = emptyList(),
                 )
 
             val vedtaksperioderUtenKompetanse =
@@ -578,7 +582,7 @@ internal class UtbetalingsperiodeUtilTest {
                 beregnAndelTilkjentYtelseService =
                     BeregnAndelTilkjentYtelseService(
                         andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
-                        unleashService = mockUnleashNextMedContextService(),
+                        adopsjonService = mockAdopsjonService(),
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
                 praksisendring2024Service = mockPraksisendring2024Service(),

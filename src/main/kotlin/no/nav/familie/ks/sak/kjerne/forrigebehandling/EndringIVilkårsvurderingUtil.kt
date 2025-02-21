@@ -9,8 +9,30 @@ import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tomTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import java.time.YearMonth
 
 object EndringIVilkårsvurderingUtil {
+    fun utledEndringstidspunktForVilkårsvurdering(
+        nåværendePersonResultat: Set<PersonResultat>,
+        forrigePersonResultat: Set<PersonResultat>,
+    ): YearMonth? {
+        val nåværendeAktørerMedVilkårsvurdering = nåværendePersonResultat.map { it.aktør }
+        val forrigeAktørerMedVilkårsvurdering = forrigePersonResultat.map { it.aktør }
+
+        val allePersonerMedVilkårsvurdering = (nåværendeAktørerMedVilkårsvurdering + forrigeAktørerMedVilkårsvurdering).distinct()
+
+        val endringIVilkårsvurderingTidslinjer =
+            allePersonerMedVilkårsvurdering
+                .map { aktør ->
+                    lagEndringIVilkårsvurderingTidslinje(
+                        nåværendePersonResultat = nåværendePersonResultat.filter { it.aktør == aktør }.singleOrNull(),
+                        forrigePersonResultat = forrigePersonResultat.filter { it.aktør == aktør }.singleOrNull(),
+                    )
+                }.kombiner { finnesMinstEnEndringIPeriode(it) }
+
+        return endringIVilkårsvurderingTidslinjer.tilFørsteEndringstidspunkt()
+    }
+
     fun lagEndringIVilkårsvurderingTidslinje(
         nåværendePersonResultat: PersonResultat?,
         forrigePersonResultat: PersonResultat?,

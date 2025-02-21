@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
@@ -10,7 +11,6 @@ import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVedtaksbegrunnelse
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
@@ -469,7 +469,7 @@ fun lagBrevPeriodeContext(
     val andelerTilkjentYtelse =
         BeregnAndelTilkjentYtelseService(
             andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFørFebruar2025AndelGenerator(), LovverkFebruar2025AndelGenerator())),
-            unleashService = mockUnleashNextMedContextService(),
+            adopsjonService = mockAdopsjonService(),
         ).beregnAndelerTilkjentYtelse(personopplysningGrunnlag = persongrunnlag, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)
 
     val vedtaksperiodeMedBegrunnelser =
@@ -515,11 +515,11 @@ fun lagBrevPeriodeContext(
         personResultater = personResultater,
         andelTilkjentYtelserMedEndreteUtbetalinger = andelTilkjentYtelserMedEndreteUtbetalinger,
         uregistrerteBarn = emptyList(),
-        overgangsordningAndeler = emptyList(),
-        erFørsteVedtaksperiode = false,
         kompetanser = emptyList(),
         landkoder = LANDKODER,
-        skalBestemmeLovverkBasertPåFødselsdato = true,
+        erFørsteVedtaksperiode = false,
+        overgangsordningAndeler = emptyList(),
+        adopsjonerIBehandling = emptyList(),
     )
 }
 

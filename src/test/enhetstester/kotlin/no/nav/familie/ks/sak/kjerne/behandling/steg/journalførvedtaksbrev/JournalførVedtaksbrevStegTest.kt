@@ -1,9 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
@@ -26,37 +24,29 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class JournalførVedtaksbrevStegTest {
-    @MockK
-    private lateinit var vedtakService: VedtakService
+    private val vedtakService = mockk<VedtakService>()
+    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val utgåendeJournalføringService = mockk<UtgåendeJournalføringService>()
+    private val taskService = mockk<TaskService>()
+    private val fagsakService = mockk<FagsakService>()
+    private val brevmottakerService = mockk<BrevmottakerService>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val brevmalService = mockk<BrevmalService>()
 
-    @MockK
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
-    @MockK
-    private lateinit var utgåendeJournalføringService: UtgåendeJournalføringService
-
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var fagsakService: FagsakService
-
-    @MockK
-    private lateinit var brevmottakerService: BrevmottakerService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var brevmalService: BrevmalService
-
-    @InjectMockKs
-    private lateinit var journalførVedtaksbrevSteg: JournalførVedtaksbrevSteg
+    private val journalførVedtaksbrevSteg =
+        JournalførVedtaksbrevSteg(
+            vedtakService = vedtakService,
+            arbeidsfordelingService = arbeidsfordelingService,
+            utgåendeJournalføringService = utgåendeJournalføringService,
+            taskService = taskService,
+            fagsakService = fagsakService,
+            brevmottakerService = brevmottakerService,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            brevmalService = brevmalService,
+        )
 
     @Test
     fun `journalførVedtaksbrev - skal sende ut vedtaksbrev med bokmål vedlegg dersom søkers målform er NB`() {

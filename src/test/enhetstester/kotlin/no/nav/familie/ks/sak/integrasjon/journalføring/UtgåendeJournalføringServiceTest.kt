@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.journalføring
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.http.client.RessursException
@@ -16,18 +13,14 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class UtgåendeJournalføringServiceTest {
-    @MockK
-    private lateinit var integrasjonClient: IntegrasjonClient
+    private val integrasjonClient = mockk<IntegrasjonClient>()
 
-    @InjectMockKs
-    private lateinit var utgåendeJournalføringService: UtgåendeJournalføringService
+    private val utgåendeJournalføringService = UtgåendeJournalføringService(integrasjonClient)
 
     @BeforeEach
     fun setUp() {

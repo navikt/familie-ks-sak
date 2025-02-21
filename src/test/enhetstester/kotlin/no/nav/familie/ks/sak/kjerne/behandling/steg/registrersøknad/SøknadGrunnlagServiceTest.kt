@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -16,16 +13,12 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class SøknadGrunnlagServiceTest {
-    @MockK
-    private lateinit var søknadGrunnlagRepository: SøknadGrunnlagRepository
+    private val søknadGrunnlagRepository = mockk<SøknadGrunnlagRepository>()
 
-    @InjectMockKs
-    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
+    private val søknadGrunnlagService = SøknadGrunnlagService(søknadGrunnlagRepository)
 
     @Test
     fun `lagreOgDeaktiverGammel - skal hente eksisterende aktiv søknad tilknyttet behandlingId og sette den til inaktiv og deretter lagre ny`() {

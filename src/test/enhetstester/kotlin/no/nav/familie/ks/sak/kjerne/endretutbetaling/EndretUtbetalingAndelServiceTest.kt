@@ -1,15 +1,11 @@
 package no.nav.familie.ks.sak.kjerne.endretutbetaling
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -29,34 +25,25 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 class EndretUtbetalingAndelServiceTest {
-    @MockK
-    private lateinit var endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository
+    private val endretUtbetalingAndelRepository = mockk<EndretUtbetalingAndelRepository>()
+    private val beregningService = mockk<BeregningService>()
+    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+    private val sanityService = mockk<SanityService>()
 
-    @MockK
-    private lateinit var beregningService: BeregningService
-
-    @MockK
-    private lateinit var personopplysningGrunnlagService: PersonopplysningGrunnlagService
-
-    @MockK
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @MockK
-    private lateinit var vilkårsvurderingService: VilkårsvurderingService
-
-    @InjectMockKs
-    private lateinit var endretUtbetalingAndelService: EndretUtbetalingAndelService
-
-    @MockK
-    private lateinit var sanityService: SanityService
-
-    @MockK
-    private lateinit var unleashService: UnleashNextMedContextService
+    private val endretUtbetalingAndelService =
+        EndretUtbetalingAndelService(
+            endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
+            beregningService = beregningService,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            vilkårsvurderingService = vilkårsvurderingService,
+            sanityService = sanityService,
+        )
 
     @Test
     fun `kopierEndretUtbetalingAndelFraForrigeBehandling - skal kopiere over endrete utbetaling i forrige behandling og lagre disse på ny`() {

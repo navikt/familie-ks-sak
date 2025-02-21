@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
@@ -18,20 +15,14 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.util.UUID
 
-@ExtendWith(MockKExtension::class)
 internal class GrensesnittavstemmingSchedulerTest {
-    @MockK
-    private lateinit var taskService: TaskService
+    private val taskService = mockk<TaskService>()
+    private val envService = mockk<EnvService>()
 
-    @MockK
-    private lateinit var envService: EnvService
-
-    @InjectMockKs
-    private lateinit var grensesnittavstemmingScheduler: GrensesnittavstemmingScheduler
+    private val grensesnittavstemmingScheduler = GrensesnittavstemmingScheduler(taskService, envService)
 
     @BeforeEach
     fun setup() {

@@ -1,13 +1,9 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 
-import io.mockk.every
-import io.mockk.mockk
-import junit.framework.TestCase.assertEquals
+import mockAdopsjonService
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -21,7 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
-import org.junit.jupiter.api.BeforeEach
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.LocalDate
@@ -45,7 +41,6 @@ class BarnetsVilkårValidatorTest {
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
     private val barnetsAlderVilkårValidator2025 = BarnetsAlderVilkårValidator2025()
-    private val unleashNextMedContextService: UnleashNextMedContextService = mockk()
 
     private val barnetsVilkårValidator: BarnetsVilkårValidator =
         BarnetsVilkårValidator(
@@ -57,14 +52,9 @@ class BarnetsVilkårValidatorTest {
                     barnetsAlderVilkårValidator2024,
                 ),
                 barnetsAlderVilkårValidator2025,
-                unleashNextMedContextService,
             ),
+            mockAdopsjonService(),
         )
-
-    @BeforeEach
-    fun beforeEach() {
-        every { unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025) } returns true
-    }
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når vilkår resulat er oppfylt men mangler fom`() {
@@ -95,9 +85,8 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnPerson),
                 )
             }
-        assertEquals(
+        assertThat(exception.message).isEqualTo(
             "Vilkår ${Vilkår.BOR_MED_SØKER} " + "for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()} mangler fom dato.",
-            exception.message,
         )
     }
 
@@ -130,9 +119,8 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnPerson),
                 )
             }
-        assertEquals(
+        assertThat(exception.message).isEqualTo(
             "Vilkår ${Vilkår.BOR_MED_SØKER} for barn med fødselsdato ${barnPerson.fødselsdato.tilDagMånedÅr()}" + " har fom dato før barnets fødselsdato.",
-            exception.message,
         )
     }
 
@@ -201,7 +189,7 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnFødtJuli23),
                 )
             }
-        assertEquals("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.", exception.message)
+        assertThat(exception.message).isEqualTo("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.")
     }
 
     @Test
@@ -241,7 +229,7 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnFødtAugust22),
                 )
             }
-        assertEquals("T.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
+        assertThat(exception.message).isEqualTo("T.o.m datoen på barnets alder vilkåret må være lik datoen barnet fyller 19 måneder. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.")
     }
 
     @Test
@@ -271,7 +259,7 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnFødtAugust22),
                 )
             }
-        assertEquals("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.", exception.message)
+        assertThat(exception.message).isEqualTo("F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag.")
     }
 
     @Test
@@ -301,7 +289,7 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnFødtAugust22),
                 )
             }
-        assertEquals("T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.", exception.message)
+        assertThat(exception.message).isEqualTo("T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall.")
     }
 
     @Test
@@ -335,7 +323,7 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnPerson),
                 )
             }
-        assertEquals("Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år.", exception.message)
+        assertThat(exception.message).isEqualTo("Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år.")
     }
 
     @Test
@@ -365,7 +353,7 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnPerson),
                 )
             }
-        assertEquals("Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år.", exception.message)
+        assertThat(exception.message).isEqualTo("Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år.")
     }
 
     @Test
@@ -498,9 +486,8 @@ class BarnetsVilkårValidatorTest {
                     barna = listOf(barnFødtAugust22),
                 )
             }
-        assertEquals(
+        assertThat(exception.message).isEqualTo(
             "Det må være registrert fom og tom periode på avslaget på barnets alder vilkåret dersom det finnes andre perioder som er oppfylt i barnets alder. Dette gjelder barn med fødselsdato: 2023-01-01",
-            exception.message,
         )
     }
 }

@@ -51,6 +51,7 @@ data class BehandlingResponsDto(
     val korrigertEtterbetaling: KorrigertEtterbetalingResponsDto?,
     val korrigertVedtak: KorrigertVedtakResponsDto?,
     val brevmottakere: List<BrevmottakerDto> = emptyList(),
+    val søknadMottattDato: LocalDateTime?,
 )
 
 data class BehandlingStegTilstandResponsDto(

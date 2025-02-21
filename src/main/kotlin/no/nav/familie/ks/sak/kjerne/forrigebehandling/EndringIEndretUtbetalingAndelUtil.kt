@@ -5,9 +5,31 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombiner
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import java.time.YearMonth
 
 object EndringIEndretUtbetalingAndelUtil {
+    fun utledEndringstidspunktForEndretUtbetalingAndel(
+        nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
+        forrigeEndretAndeler: List<EndretUtbetalingAndel>,
+    ): YearMonth? {
+        val nåværendeAktører = nåværendeEndretAndeler.mapNotNull { it.person?.aktør }
+        val forrigeAktører = forrigeEndretAndeler.mapNotNull { it.person?.aktør }
+        val alleAktører = (nåværendeAktører + forrigeAktører).distinct()
+
+        val endringIEndretUtbetalingTidslinjer =
+            alleAktører
+                .map { aktør ->
+                    lagEndringIEndretUbetalingAndelPerPersonTidslinje(
+                        nåværendeEndretAndelerForPerson = nåværendeEndretAndeler.filter { it.person?.aktør == aktør },
+                        forrigeEndretAndelerForPerson = forrigeEndretAndeler.filter { it.person?.aktør == aktør },
+                    )
+                }.kombiner { finnesMinstEnEndringIPeriode(it) }
+
+        return endringIEndretUtbetalingTidslinjer.tilFørsteEndringstidspunkt()
+    }
+
     fun lagEndringIEndretUbetalingAndelPerPersonTidslinje(
         nåværendeEndretAndelerForPerson: List<EndretUtbetalingAndel>,
         forrigeEndretAndelerForPerson: List<EndretUtbetalingAndel>,
@@ -26,4 +48,8 @@ object EndringIEndretUtbetalingAndelUtil {
 
         return endringerTidslinje
     }
+
+    private fun finnesMinstEnEndringIPeriode(
+        endringer: Iterable<Boolean>,
+    ): Boolean = endringer.any { it }
 }

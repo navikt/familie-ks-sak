@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.simulering
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
@@ -17,22 +14,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 
-@ExtendWith(MockKExtension::class)
 internal class SimuleringStegTest {
-    @MockK
-    private lateinit var behandlingService: BehandlingService
+    private val behandlingService = mockk<BehandlingService>()
+    private val simuleringService = mockk<SimuleringService>()
+    private val tilbakekrevingService = mockk<TilbakekrevingService>()
 
-    @MockK
-    private lateinit var simuleringService: SimuleringService
-
-    @MockK
-    private lateinit var tilbakekrevingService: TilbakekrevingService
-
-    @InjectMockKs
-    private lateinit var simuleringSteg: SimuleringSteg
+    private val simuleringSteg =
+        SimuleringSteg(
+            behandlingService = behandlingService,
+            simuleringService = simuleringService,
+            tilbakekrevingService = tilbakekrevingService,
+        )
 
     private val revurderingsbehandling = lagBehandling()
 

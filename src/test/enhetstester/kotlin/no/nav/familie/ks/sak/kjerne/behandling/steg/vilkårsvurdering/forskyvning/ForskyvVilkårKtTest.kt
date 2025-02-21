@@ -424,7 +424,11 @@ class ForskyvVilkårKtTest {
                 )
 
             // Act
-            val forskjøvedeVilkårResultater = personResultater.forskyvVilkårResultater(personopplysningGrunnlag = personopplysningGrunnlag, skalBestemmeLovverkBasertPåFødselsdato = true)
+            val forskjøvedeVilkårResultater =
+                personResultater.forskyvVilkårResultater(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    adopsjonerIBehandling = emptyList(),
+                )
 
             // Assert
             assertThat(forskjøvedeVilkårResultater).hasSize(4)

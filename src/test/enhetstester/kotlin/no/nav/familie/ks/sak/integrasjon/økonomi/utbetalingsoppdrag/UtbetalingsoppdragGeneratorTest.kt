@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag
 
-import io.mockk.junit5.MockKExtension
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag
@@ -25,12 +24,10 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.totalKalkulertUtbetalingsbe
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@ExtendWith(MockKExtension::class)
 internal class UtbetalingsoppdragGeneratorTest {
     private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
 

@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -15,24 +12,21 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.prosessering.domene.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import java.time.LocalDateTime
 
-@ExtendWith(MockKExtension::class)
 internal class KonsistensavstemmingTaskTest {
-    @MockK
-    private lateinit var konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService
+    private val konsistensavstemmingKjøreplanService = mockk<KonsistensavstemmingKjøreplanService>()
+    private val avstemmingService = mockk<AvstemmingService>()
+    private val behandlingService = mockk<BehandlingService>()
 
-    @MockK
-    private lateinit var avstemmingService: AvstemmingService
-
-    @MockK
-    private lateinit var behandlingService: BehandlingService
-
-    @InjectMockKs
-    private lateinit var konsistensavstemmingTask: KonsistensavstemmingTask
+    private val konsistensavstemmingTask =
+        KonsistensavstemmingTask(
+            konsistensavstemmingKjøreplanService = konsistensavstemmingKjøreplanService,
+            avstemmingService = avstemmingService,
+            behandlingService = behandlingService,
+        )
 
     @BeforeEach
     fun setup() {

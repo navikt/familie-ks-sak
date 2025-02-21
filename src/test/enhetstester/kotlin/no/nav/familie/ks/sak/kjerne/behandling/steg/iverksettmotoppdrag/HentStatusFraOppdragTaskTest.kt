@@ -1,9 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -30,26 +27,22 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
 import java.util.UUID
 
-@ExtendWith(MockKExtension::class)
 internal class HentStatusFraOppdragTaskTest {
-    @MockK
-    private lateinit var oppdragKlient: OppdragKlient
+    private val oppdragKlient = mockk<OppdragKlient>()
+    private val taskService = mockk<TaskService>()
+    private val stegService = mockk<StegService>()
+    private val tilkjentYtelseRepository = mockk<TilkjentYtelseRepository>()
 
-    @MockK
-    private lateinit var taskService: TaskService
-
-    @MockK
-    private lateinit var stegService: StegService
-
-    @MockK
-    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
-
-    @InjectMockKs
-    private lateinit var hentStatusFraOppdragTask: HentStatusFraOppdragTask
+    private val hentStatusFraOppdragTask =
+        HentStatusFraOppdragTask(
+            oppdragKlient = oppdragKlient,
+            taskService = taskService,
+            stegService = stegService,
+            tilkjentYtelseRepository = tilkjentYtelseRepository,
+        )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 

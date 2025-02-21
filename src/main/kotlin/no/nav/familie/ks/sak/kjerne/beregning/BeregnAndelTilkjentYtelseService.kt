@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service
 @Service
 class BeregnAndelTilkjentYtelseService(
     private val andelGeneratorLookup: AndelGenerator.Lookup,
-    private val unleashService: UnleashNextMedContextService,
+    private val adopsjonService: AdopsjonService,
 ) {
     fun beregnAndelerTilkjentYtelse(
         personopplysningGrunnlag: PersonopplysningGrunnlag,
@@ -38,7 +37,7 @@ class BeregnAndelTilkjentYtelseService(
         val regelverk =
             LovverkUtleder.utledLovverkForBarn(
                 fødselsdato = barn.fødselsdato,
-                skalBestemmeLovverkBasertPåFødselsdato = unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
+                adopsjonsdato = adopsjonService.finnAdopsjonForAktørIBehandling(aktør = barn.aktør, behandlingId = vilkårsvurdering.behandling.behandlingId)?.adopsjonsdato,
             )
         val andelGenerator = andelGeneratorLookup.hentGeneratorForLovverk(regelverk)
         val andeler = andelGenerator.beregnAndelerForBarn(søker = søker, barn = barn, vilkårsvurdering = vilkårsvurdering, tilkjentYtelse = tilkjentYtelse)

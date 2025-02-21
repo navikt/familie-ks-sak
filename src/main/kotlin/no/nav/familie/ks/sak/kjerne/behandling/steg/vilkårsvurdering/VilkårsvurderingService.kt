@@ -5,11 +5,10 @@ import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
+import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -34,8 +33,8 @@ class VilkårsvurderingService(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val sanityService: SanityService,
     private val personidentService: PersonidentService,
-    private val unleashService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
+    private val adopsjonValidator: AdopsjonValidator,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -50,12 +49,14 @@ class VilkårsvurderingService(
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id))
+
         val initiellVilkårsvurdering =
             genererInitiellVilkårsvurdering(
                 behandling,
                 vilkårsvurderingFraForrigeBehandling,
                 personopplysningGrunnlag,
-                unleashService.isEnabled(FeatureToggle.STØTTER_LOVENDRING_2025),
+                adopsjonerIBehandling,
             )
 
         vilkårsvurderingFraForrigeBehandling?.let {
@@ -113,6 +114,17 @@ class VilkårsvurderingService(
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
         if (endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BARNETS_ALDER) {
+            adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(
+                vilkår = endreVilkårResultatDto.endretVilkårResultat.vilkårType,
+                utdypendeVilkårsvurdering = endreVilkårResultatDto.endretVilkårResultat.utdypendeVilkårsvurderinger,
+                nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato,
+                barnetsFødselsdato =
+                    personopplysningGrunnlagService
+                        .hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+                        .barna
+                        .firstOrNull { it.aktør == personResultat.aktør }
+                        ?.fødselsdato ?: throw Feil("Finner ikke barn med aktørId ${personResultat.aktør} i personopplysningsgrunnlaget"),
+            )
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }
 

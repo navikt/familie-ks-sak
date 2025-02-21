@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.Trigger
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.begrunnelseGjelderOpphørFraForrigeBehandling
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.inneholderGjelderFørstePeriodeTrigger
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
@@ -76,7 +77,7 @@ class BrevPeriodeContext(
     private val landkoder: Map<String, String>,
     private val erFørsteVedtaksperiode: Boolean,
     private val overgangsordningAndeler: List<OvergangsordningAndel>,
-    private val skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+    private val adopsjonerIBehandling: List<Adopsjon>,
 ) {
     private val personerMedUtbetaling =
         utvidetVedtaksperiodeMedBegrunnelser.utbetalingsperiodeDetaljer.map { it.person }
@@ -202,25 +203,31 @@ class BrevPeriodeContext(
             begrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
                 uregistrerteBarn.mapNotNull { it.fødselsdato }
 
+            else -> hentBarnSomSkalIBegrunnelse(gjelderSøker, personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse, begrunnelse).map { it.fødselsdato }
+        }
+
+    fun hentBarnSomSkalIBegrunnelse(
+        gjelderSøker: Boolean,
+        personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse: Collection<Person>,
+        begrunnelse: IBegrunnelse,
+    ): List<Person> =
+        when {
             gjelderSøker &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ENDRET_UTBETALING &&
                 begrunnelse.begrunnelseType != BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
                 if (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag()) {
                     personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                         .filter { it.type == PersonType.BARN }
-                        .map { it.fødselsdato }
                 } else {
                     (personerMedUtbetaling + personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse)
                         .toSet()
                         .filter { it.type == PersonType.BARN }
-                        .map { it.fødselsdato }
                 }
             }
 
             else ->
                 personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
-                    .map { it.fødselsdato }
         }
 
     fun hentAntallBarnForBegrunnelse(
@@ -266,14 +273,14 @@ class BrevPeriodeContext(
         BegrunnelserForPeriodeContext(
             utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
             sanityBegrunnelser = sanityBegrunnelser,
+            kompetanser = kompetanser,
             personopplysningGrunnlag = personopplysningGrunnlag,
+            adopsjonerIBehandling = adopsjonerIBehandling,
             overgangsordningAndeler = overgangsordningAndeler,
             personResultater = personResultater,
             endretUtbetalingsandeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
             erFørsteVedtaksperiode = erFørsteVedtaksperiode,
-            kompetanser = kompetanser,
             andelerTilkjentYtelse = andelTilkjentYtelserMedEndreteUtbetalinger,
-            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
         )
 
     fun hentNasjonalOgFellesBegrunnelseDtoer(): List<NasjonalOgFellesBegrunnelseDataDto> =
@@ -325,11 +332,11 @@ class BrevPeriodeContext(
                             vedtaksperiodeType = this.utvidetVedtaksperiodeMedBegrunnelser.type,
                             sanityBegrunnelse = sanityBegrunnelse,
                             vilkårResultaterForRelevantePersoner = vilkårResultaterForRelevantePersoner,
-                            vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             vedtaksperiodeFom = fom,
+                            vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
-                            barnasFødselsdatoer = barnasFødselsdatoer,
-                            skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                            barnSomSkalIBegrunnelse = hentBarnSomSkalIBegrunnelse(gjelderSøker, relevantePersoner, begrunnelse),
+                            adopsjonerIBehandling = adopsjonerIBehandling,
                         )
                     }
 
@@ -563,12 +570,18 @@ class BrevPeriodeContext(
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
-        barnasFødselsdatoer: List<LocalDate>,
-        skalBestemmeLovverkBasertPåFødselsdato: Boolean,
+        barnSomSkalIBegrunnelse: List<Person>,
+        adopsjonerIBehandling: List<Adopsjon>,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
-        val alleLovverkForBarna = barnasFødselsdatoer.map { LovverkUtleder.utledLovverkForBarn(it, skalBestemmeLovverkBasertPåFødselsdato) }
+        val alleLovverkForBarna =
+            barnSomSkalIBegrunnelse.map { barn ->
+                LovverkUtleder.utledLovverkForBarn(
+                    fødselsdato = barn.fødselsdato,
+                    adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
+                )
+            }
 
         return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
@@ -695,7 +708,7 @@ class BrevPeriodeContext(
         personResultater
             .forskyvVilkårResultater(
                 personopplysningGrunnlag = personopplysningGrunnlag,
-                skalBestemmeLovverkBasertPåFødselsdato = skalBestemmeLovverkBasertPåFødselsdato,
+                adopsjonerIBehandling = adopsjonerIBehandling,
             ).mapValues { entry -> entry.value.mapValues { it.value.tilTidslinje() } }
 
     private fun hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode(): Map<Aktør, Map<Vilkår, Tidslinje<VilkårResultat>>> {

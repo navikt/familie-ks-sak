@@ -7,6 +7,7 @@ import io.cucumber.java.no.Og
 import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
+import mockAdopsjonService
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
@@ -24,7 +25,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -67,6 +67,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.tilIKompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -372,7 +373,7 @@ class StepDefinition {
                                     kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
                                     overgangsordningAndeler = overgangsordningAndeler[behandlingId] ?: emptyList(),
                                     andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
-                                    skalBestemmeLovverkBasertPåFødselsdato = true,
+                                    adopsjonerIBehandling = emptyList(), // TODO: Legg inn støtte for cucumber-tester
                                 ).hentGyldigeBegrunnelserForVedtaksperiode(),
                         )
                     }.find { it.fom == forventet.fom && it.tom == forventet.tom }
@@ -472,7 +473,7 @@ class StepDefinition {
         erFørsteVedtaksperiode = erFørsteVedtaksperiode,
         kompetanser = hentUtfylteKompetanserPåBehandling(behandlingId),
         landkoder = LANDKODER,
-        skalBestemmeLovverkBasertPåFødselsdato = true,
+        adopsjonerIBehandling = emptyList(), // TODO: Fiks før merge
     ).genererBrevPeriodeDto()
 
     /**
@@ -693,7 +694,42 @@ class StepDefinition {
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
                 kompetanseService = kompetanseService,
-                unleashNextMedContextService = mockUnleashNextMedContextService(),
+                adopsjonService = mockAdopsjonService(),
+            )
+
+        val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            andelerTilkjentYtelse[behandlingId] ?: emptyList()
+        }
+
+        val endretUtbetalingAndelService = mockk<EndretUtbetalingAndelService>()
+        every { endretUtbetalingAndelService.hentEndredeUtbetalingAndeler(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            endredeUtbetalinger[behandlingId] ?: emptyList()
+        }
+
+        val behandlingService = mockk<BehandlingService>()
+
+        every { behandlingService.hentBehandling(any()) } answers {
+            val behandlingId = firstArg<Long>()
+            behandlinger[behandlingId] ?: throw Feil("Ingen behandling med id: $behandlingId")
+        }
+
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } answers {
+            val fagsakId = firstArg<Long>()
+            behandlinger.values
+                .filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
+                .maxByOrNull { it.id }
+        }
+
+        val endringstidspunktService =
+            EndringstidspunktService(
+                kompetanseService = kompetanseService,
+                behandlingRepository = behandlingRepository,
+                andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+                endretUtbetalingAndelService = endretUtbetalingAndelService,
+                vilkårsvurderingService = mockVilkårsvurderingService(),
             )
 
         return VedtaksperiodeService(
@@ -710,7 +746,8 @@ class StepDefinition {
             integrasjonClient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
-            unleashNextMedContextService = mockUnleashNextMedContextService(),
+            adopsjonService = mockAdopsjonService(),
+            endringstidspunktService = endringstidspunktService,
         )
     }
 
