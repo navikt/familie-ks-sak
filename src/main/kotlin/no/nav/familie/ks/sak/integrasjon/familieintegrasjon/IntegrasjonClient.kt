@@ -28,6 +28,7 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
+import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
@@ -152,6 +153,29 @@ class IntegrasjonClient(
             tjeneste = "oppgave",
             uri = uri,
             formål = "Finn oppgave med id $oppgaveId",
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
+    )
+    @Cacheable("saksbehandler", cacheManager = "shortCache")
+    fun hentSaksbehandler(id: String): Saksbehandler {
+        val uri =
+            UriComponentsBuilder
+                .fromUri(integrasjonUri)
+                .pathSegment("saksbehandler", id)
+                .build()
+                .toUri()
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "saksbehandler",
+            uri = uri,
+            formål = "Hent saksbehandler",
         ) {
             getForEntity(uri)
         }
