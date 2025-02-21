@@ -16,6 +16,4 @@ enum class FeatureToggle(
 
     // NAV-24034
     BRUK_NY_SAKSBEHANDLER_NAVN_FORMAT_I_SIGNATUR("familie-ks-sak.bruk-ny-saksbehandler-navn-format-i-signatur"),
-
-    ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK("familie-ks-sak.allerede-utbetalt"),
 }

@@ -6,7 +6,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -35,7 +34,6 @@ class EndretUtbetalingAndelServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
     private val sanityService = mockk<SanityService>()
-    private val unleashService = mockk<UnleashNextMedContextService>()
 
     private val endretUtbetalingAndelService =
         EndretUtbetalingAndelService(
@@ -45,7 +43,6 @@ class EndretUtbetalingAndelServiceTest {
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             vilkårsvurderingService = vilkårsvurderingService,
             sanityService = sanityService,
-            unleashService = unleashService,
         )
 
     @Test

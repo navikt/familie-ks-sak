@@ -4,8 +4,6 @@ import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -26,7 +24,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
-    private val unleashService: UnleashNextMedContextService,
 ) {
     @Transactional
     fun finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long): List<AndelTilkjentYtelseMedEndreteUtbetalinger> = lagKombinator(behandlingId).lagAndelerMedEndringer()
@@ -45,7 +42,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
                         årsak = endretUtbetalingAndelMedAndelTilkjentYtelse.årsak,
                         endretUtbetalingAndel = endretUtbetalingAndelMedAndelTilkjentYtelse.endretUtbetaling,
                         vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandlingId),
-                        kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggle.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
                     )
                 }
         }

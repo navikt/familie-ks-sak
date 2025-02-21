@@ -4,8 +4,6 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -37,7 +35,6 @@ class EndretUtbetalingAndelService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
     private val sanityService: SanityService,
-    private val unleashService: UnleashNextMedContextService,
 ) {
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
@@ -68,7 +65,6 @@ class EndretUtbetalingAndelService(
             årsak = endretUtbetalingAndel.årsak,
             endretUtbetalingAndel = endretUtbetalingAndel,
             vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id),
-            kanBrukeÅrsakAlleredeUtbetalt = unleashService.isEnabled(FeatureToggle.ALLEREDE_UTBETALT_SOM_ENDRINGSÅRSAK),
         )
 
         validerIngenOverlappendeEndring(
