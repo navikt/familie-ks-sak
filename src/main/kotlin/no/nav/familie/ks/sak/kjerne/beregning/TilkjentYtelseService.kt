@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -12,6 +13,8 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -56,13 +59,55 @@ class TilkjentYtelseService(
                 tilkjentYtelse = tilkjentYtelse,
             )
 
-        val alleAndelerTilkjentYtelse =
-            andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel } +
-                overgangsordningAndelerSomAndelTilkjentYtelse +
-                andelerForPraksisendring2024
+        val alleOrdinæreAndeler = andelerTilkjentYtelseBarnaMedAlleEndringer.map { it.andel }
+
+        val alleOrdinæreAndelerJustert = alleOrdinæreAndeler.taHensynTilPraksisendringAndeler(andelerForPraksisendring2024)
+
+        val alleAndelerTilkjentYtelse = alleOrdinæreAndelerJustert + overgangsordningAndelerSomAndelTilkjentYtelse
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(alleAndelerTilkjentYtelse)
         return tilkjentYtelse
+    }
+
+    private fun List<AndelTilkjentYtelse>.taHensynTilPraksisendringAndeler(praksisendringAndeler: List<AndelTilkjentYtelse>): List<AndelTilkjentYtelse> {
+        val ordinæreAndeler = this
+
+        if (praksisendringAndeler.isEmpty()) return ordinæreAndeler
+        if (ordinæreAndeler.isEmpty()) return praksisendringAndeler
+
+        val aktørerMedPraksisendringAndeler = praksisendringAndeler.map { it.aktør }
+        val aktørerMedOrdinæreAndeler = ordinæreAndeler.map { it.aktør }
+
+        val alleAktører = (aktørerMedPraksisendringAndeler + aktørerMedOrdinæreAndeler).distinct()
+
+        val ordinæreAndelTidslinjer = ordinæreAndeler.tilSeparateTidslinjerForBarna()
+        val praksisendringTidslinjer = praksisendringAndeler.tilSeparateTidslinjerForBarna()
+
+        return alleAktører.flatMap { aktør ->
+            val ordinæreAndelTidslinjeForAktør = ordinæreAndelTidslinjer[aktør] ?: return@flatMap praksisendringAndeler.filter { it.aktør == aktør }
+            val praksisendringTidslinjeForAktør = praksisendringTidslinjer[aktør] ?: return@flatMap ordinæreAndeler.filter { it.aktør == aktør }
+
+            ordinæreAndelTidslinjeForAktør
+                .kombinerMed(praksisendringTidslinjeForAktør) { ordinæreAndel, praksisendringAndel ->
+                    praksisendringAndel ?: ordinæreAndel
+                }.tilPerioderIkkeNull()
+                .map { periode ->
+                    val andelIPeriode = periode.verdi
+
+                    AndelTilkjentYtelse(
+                        behandlingId = andelIPeriode.behandlingId,
+                        tilkjentYtelse = andelIPeriode.tilkjentYtelse,
+                        aktør = andelIPeriode.aktør,
+                        prosent = andelIPeriode.prosent,
+                        stønadFom = periode.fom!!.toYearMonth(),
+                        stønadTom = periode.tom!!.toYearMonth(),
+                        kalkulertUtbetalingsbeløp = andelIPeriode.kalkulertUtbetalingsbeløp,
+                        nasjonaltPeriodebeløp = andelIPeriode.nasjonaltPeriodebeløp,
+                        type = andelIPeriode.type,
+                        sats = andelIPeriode.sats,
+                    )
+                }
+        }
     }
 
     private fun genererAndelerTilkjentYtelseFraOvergangsordningAndeler(

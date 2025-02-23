@@ -86,8 +86,12 @@ class Praksisendring2024Service(
             return false
         }
 
-        val harOrdinærAndelISammeMånedSom13Måneder = andelerTilkjentYtelse.any { it.aktør == barn.aktør && it.stønadsPeriode().inkluderer(barn13Måneder) }
-        if (harOrdinærAndelISammeMånedSom13Måneder) {
+        val harOrdinærAndelISammeMånedSom13MånederSomIkkeErRedusert =
+            andelerTilkjentYtelse.any {
+                it.aktør == barn.aktør && it.stønadsPeriode().inkluderer(barn13Måneder) && it.prosent == BigDecimal.valueOf(100)
+            }
+
+        if (harOrdinærAndelISammeMånedSom13MånederSomIkkeErRedusert) {
             return false
         }
 
