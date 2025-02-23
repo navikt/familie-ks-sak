@@ -19,7 +19,7 @@ jobs:
     if: inputs.image != ''
     permissions:
       id-token: write
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main
     with:
       image: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-gcp

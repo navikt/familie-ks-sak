@@ -22,7 +22,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yaml@main
     with:
       skip-tests: ${{ inputs.skip-tests }}
       build-image: true
@@ -33,7 +33,7 @@ jobs:
     permissions:
       id-token: write
     needs: [ build ]
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main
     with:
       image: ${{ needs.build.outputs.image }}
       cluster: ${{ inputs.environment }}-gcp

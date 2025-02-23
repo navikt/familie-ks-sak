@@ -14,10 +14,10 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-dev.yml
+          RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-dev.yaml
       - name: Deploy familie-baks-kafka-manager til prod
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-prod.yml
+          RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-prod.yaml
