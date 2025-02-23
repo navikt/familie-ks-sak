@@ -64,10 +64,10 @@ internal class TilkjentYtelseServiceTest {
 
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService =
         spyk(
-        BeregnAndelTilkjentYtelseService(
-            andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
-            adopsjonService = mockAdopsjonService(),
-        )
+            BeregnAndelTilkjentYtelseService(
+                andelGeneratorLookup = AndelGenerator.Lookup(listOf(LovverkFebruar2025AndelGenerator(), LovverkFørFebruar2025AndelGenerator())),
+                adopsjonService = mockAdopsjonService(),
+            ),
         )
 
     private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()
@@ -156,9 +156,10 @@ internal class TilkjentYtelseServiceTest {
     @Test
     fun `beregnTilkjentYtelse skal legge til praksisendringsandeler som blir generert`() {
         // Arrage
-        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 9), tom = YearMonth.of(2024, 9), ytelseType = YtelseType.PRAKSISENDRING_2024),
-        )
+        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 9), tom = YearMonth.of(2024, 9), ytelseType = YtelseType.PRAKSISENDRING_2024),
+            )
 
         vilkårsvurdering.personResultater +=
             lagPersonResultat(
@@ -195,13 +196,15 @@ internal class TilkjentYtelseServiceTest {
     @Test
     fun `beregnTilkjentYtelse skal legge sammen praksisendringsandeler og ordinære andeler som ikke overlapper`() {
         // Arrange
-        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 9), tom = YearMonth.of(2024, 9), ytelseType = YtelseType.PRAKSISENDRING_2024),
-        )
+        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 9), tom = YearMonth.of(2024, 9), ytelseType = YtelseType.PRAKSISENDRING_2024),
+            )
 
-        every { beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 6), tom = YearMonth.of(2024, 8), ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE),
-        )
+        every { beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 6), tom = YearMonth.of(2024, 8), ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE),
+            )
 
         // Act
         val tilkjentYtelse =
@@ -235,26 +238,28 @@ internal class TilkjentYtelseServiceTest {
     @Test
     fun `beregnTilkjentYtelse skal erstatte ordinære andeler med praksisendring andeler hvis det finnes begge i samme periode`() {
         // Arrange
-        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(
-                aktør = barn1,
-                fom = YearMonth.of(2024, 9),
-                tom = YearMonth.of(2024, 9),
-                ytelseType = YtelseType.PRAKSISENDRING_2024,
-                prosent = BigDecimal(100)
-            ),
-        )
+        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(
+                    aktør = barn1,
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 9),
+                    ytelseType = YtelseType.PRAKSISENDRING_2024,
+                    prosent = BigDecimal(100),
+                ),
+            )
 
-        every { beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(
-                aktør = barn1,
-                fom = YearMonth.of(2024, 9),
-                tom = YearMonth.of(2024, 9),
-                ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
-                prosent = BigDecimal(50),
-                beløp = 3750
-            ),
-        )
+        every { beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(
+                    aktør = barn1,
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 9),
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                    prosent = BigDecimal(50),
+                    beløp = 3750,
+                ),
+            )
 
         // Act
         val tilkjentYtelse =
@@ -280,26 +285,28 @@ internal class TilkjentYtelseServiceTest {
     @Test
     fun `beregnTilkjentYtelse skal erstatte ordinære andeler maed praksisendring andeler og lage riktig splitt hvis ordinær andel spaserer flere måned og overlapper med praksisendring `() {
         // arrange
-        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(
-                aktør = barn1,
-                fom = YearMonth.of(2024, 9),
-                tom = YearMonth.of(2024, 9),
-                ytelseType = YtelseType.PRAKSISENDRING_2024,
-                prosent = BigDecimal(100)
-            ),
-        )
+        every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(
+                    aktør = barn1,
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 9),
+                    ytelseType = YtelseType.PRAKSISENDRING_2024,
+                    prosent = BigDecimal(100),
+                ),
+            )
 
-        every { beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(any(), any(), any()) } returns listOf(
-            lagAndelTilkjentYtelse(
-                aktør = barn1,
-                fom = YearMonth.of(2024, 9),
-                tom = YearMonth.of(2024, 12),
-                ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
-                prosent = BigDecimal(50),
-                beløp = 3750
-            ),
-        )
+        every { beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(any(), any(), any()) } returns
+            listOf(
+                lagAndelTilkjentYtelse(
+                    aktør = barn1,
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 12),
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                    prosent = BigDecimal(50),
+                    beløp = 3750,
+                ),
+            )
 
         // act
         val tilkjentYtelse =
@@ -329,7 +336,6 @@ internal class TilkjentYtelseServiceTest {
             type = YtelseType.ORDINÆR_KONTANTSTØTTE,
         )
     }
-
 
     @Test
     fun `beregnTilkjentYtelse tar ikke med tom overgangsordningandel`() {
@@ -658,7 +664,7 @@ internal class TilkjentYtelseServiceTest {
         vilkårsvurdering.personResultater += personResultatForBarn
 
         val tilkjentYtelse =
-            tilkjentYtelseService. beregnTilkjentYtelse(
+            tilkjentYtelseService.beregnTilkjentYtelse(
                 vilkårsvurdering = vilkårsvurdering,
                 personopplysningGrunnlag = personopplysningGrunnlag,
             )
