@@ -33,7 +33,7 @@ jobs:
     with:
       image: ${{ needs.build.outputs.image }}
       cluster: dev-gcp
-      resource: .deploy/nais/app-preprod.yaml
+      resource: .nais/app-dev.yaml
     secrets: inherit
   deploy-prod:
     name: Deploy prod
@@ -44,5 +44,5 @@ jobs:
     with:
       image: ${{ needs.build.outputs.image }}
       cluster: prod-gcp
-      resource: .deploy/nais/app-prod.yaml
+      resource: .nais/app-prod.yaml
     secrets: inherit

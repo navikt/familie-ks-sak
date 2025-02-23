@@ -67,7 +67,7 @@ dev-gcp-clusteret ved å gjøre følgende:
 
 Kopier og sett verdiene til de lokale miljøvariablene `AZURE_APP_CLIENT_ID` og `AZURE_APP_CLIENT_SECRET`.
 
-Se `.deploy/nais/azure-ad-app-lokal.yaml` dersom du ønsker å deploye `azuread-familie-ks-sak-lokal`
+Se `.nais/azure-ad-app-lokal.yaml` dersom du ønsker å deploye `azuread-familie-ks-sak-lokal`
 
 Til slutt skal miljøvariablene se slik ut:
 

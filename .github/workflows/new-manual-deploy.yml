@@ -37,5 +37,5 @@ jobs:
     with:
       image: ${{ needs.build.outputs.image }}
       cluster: ${{ inputs.environment }}-gcp
-      resource: .deploy/nais/app-${{ inputs.environment == 'dev' && 'preprod' || inputs.environment }}.yaml
+      resource: .nais/app-${{ inputs.environment }}.yaml
     secrets: inherit

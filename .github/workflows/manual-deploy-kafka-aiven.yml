@@ -10,65 +10,65 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy dvh_vedtak_topic til dev
+      - name: Deploy dvh-vedtak-topic til dev
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .deploy/nais/kafka/dev/dvh_vedtak_topic.yaml
-      - name: Deploy dvh_vedtak_topic til prod
+          RESOURCE: .nais/kafka/dvh-vedtak-topic-dev.yaml
+      - name: Deploy dvh-vedtak-topic til prod
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .deploy/nais/kafka/prod/dvh_vedtak_topic.yaml
+          RESOURCE: .nais/kafka/dvh-vedtak-topic-prod.yaml
 
-      - name: Deploy dvh_sakstatistikk_behandling_topic til dev
+      - name: Deploy dvh-sakstatistikk-behandling-topic til dev
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .deploy/nais/kafka/dev/dvh_sakstatistikk_behandling_topic.yaml
-      - name: Deploy dvh_sakstatistikk_behandling_topic til prod
+          RESOURCE: .nais/kafka/dvh-sakstatistikk-behandling-topic-dev.yaml
+      - name: Deploy dvh-sakstatistikk-behandling-topic til prod
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .deploy/nais/kafka/prod/dvh_sakstatistikk_behandling_topic.yaml
-      - name: Deploy dvh_sakstatistikk_siste_tilstand_behandling_topic til dev
+          RESOURCE: .nais/kafka/dvh-sakstatistikk-behandling-topic-prod.yaml
+      - name: Deploy dvh-sakstatistikk-siste-tilstand-behandling-topic til dev
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .deploy/nais/kafka/dev/dvh_sakstatistikk_siste_tilstand_behandling_topic.yaml
-      - name: Deploy dvh_sakstatistikk_siste_tilstand_behandling_topic til prod
+          RESOURCE: .nais/kafka/dvh-sakstatistikk-siste-tilstand-behandling-topic-dev.yaml
+      - name: Deploy dvh-sakstatistikk-siste-tilstand-behandling-topic til prod
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .deploy/nais/kafka/prod/dvh_sakstatistikk_siste_tilstand_behandling_topic.yaml
+          RESOURCE: .nais/kafka/dvh-sakstatistikk-siste-tilstand-behandling-topic-prod.yaml
 
-      - name: Deploy dvh_sakstatistikk_sak_topic til dev
+      - name: Deploy dvh-sakstatistikk-sak-topic til dev
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .deploy/nais/kafka/dev/dvh_sakstatistikk_sak_topic.yaml
-      - name: Deploy dvh_sakstatistikk_sak_topic til prod
+          RESOURCE: .nais/kafka/dvh-sakstatistikk-sak-topic-dev.yaml
+      - name: Deploy dvh-sakstatistikk-sak-topic til prod
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .deploy/nais/kafka/prod/dvh_sakstatistikk_sak_topic.yaml
+          RESOURCE: .nais/kafka/dvh-sakstatistikk-sak-topic-prod.yaml
       - name: Deploy barnehagelister topic til dev
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .deploy/nais/kafka/dev/barnehagelister_topic.yaml
+          RESOURCE: .nais/kafka/barnehagelister-topic-dev.yaml
       - name: Deploy barnehagelister topic til prod
         uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .deploy/nais/kafka/prod/barnehagelister_topic.yaml
+          RESOURCE: .nais/kafka/barnehagelister-topic-prod.yaml

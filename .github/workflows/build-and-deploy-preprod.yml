@@ -46,5 +46,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .deploy/nais/app-preprod.yaml
+          RESOURCE: .nais/app-dev.yaml
           IMAGE: ${{ needs.bygg-og-push-til-github.outputs.image }}
