@@ -2,8 +2,6 @@ package no.nav.familie.ks.sak.kjerne.adopsjon
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -12,16 +10,11 @@ import java.time.LocalDate
 
 @Component
 class AdopsjonValidator(
-    private val unleashService: UnleashNextMedContextService,
     private val adopsjonService: AdopsjonService,
 ) {
     fun validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
         vilkårsvurdering: Vilkårsvurdering,
     ) {
-        if (!unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)) {
-            return
-        }
-
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId)
 
         vilkårsvurdering.personResultater.forEach { personResultat ->
@@ -50,9 +43,6 @@ class AdopsjonValidator(
         nyAdopsjonsdato: LocalDate?,
         barnetsFødselsdato: LocalDate,
     ) {
-        if (!unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)) {
-            return
-        }
         if (vilkår != Vilkår.BARNETS_ALDER) {
             throw Feil("Prøver å oppdatere adopsjonsdato på $vilkår-vilkåret, men adopsjonsdato kan ikke oppdateres for andre vilkår enn barnets alder")
         }

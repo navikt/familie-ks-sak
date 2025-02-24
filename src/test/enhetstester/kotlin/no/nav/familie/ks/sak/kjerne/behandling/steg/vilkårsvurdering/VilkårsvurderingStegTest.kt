@@ -13,8 +13,6 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
@@ -63,7 +61,6 @@ class VilkårsvurderingStegTest {
     private val søknadGrunnlagService: SøknadGrunnlagService = mockk()
     private val beregningService: BeregningService = mockk()
     private val kompetanseService: KompetanseService = mockk()
-    private val unleashService: UnleashNextMedContextService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
@@ -82,7 +79,7 @@ class VilkårsvurderingStegTest {
             ),
             adopsjonService,
         )
-    private val adopsjonValidator = AdopsjonValidator(unleashService, adopsjonService)
+    private val adopsjonValidator = AdopsjonValidator(adopsjonService)
 
     private val vilkårsvurderingSteg: VilkårsvurderingSteg =
         VilkårsvurderingSteg(
@@ -93,7 +90,6 @@ class VilkårsvurderingStegTest {
             beregningService,
             kompetanseService,
             barnetsVilkårValidator,
-            unleashService,
             adopsjonValidator,
             adopsjonService,
         )
@@ -134,7 +130,6 @@ class VilkårsvurderingStegTest {
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
         every { beregningService.oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(any(), any(), any()) } just runs
-        every { unleashService.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
         every { adopsjonService.finnAdopsjonForAktørIBehandling(any(), any()) } returns null
     }
