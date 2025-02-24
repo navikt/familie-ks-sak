@@ -155,7 +155,7 @@ internal class TilkjentYtelseServiceTest {
 
     @Test
     fun `beregnTilkjentYtelse skal legge til praksisendringsandeler som blir generert`() {
-        // Arrage
+        // Arrange
         every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns
             listOf(
                 lagAndelTilkjentYtelse(aktør = barn1, fom = YearMonth.of(2024, 9), tom = YearMonth.of(2024, 9), ytelseType = YtelseType.PRAKSISENDRING_2024),
@@ -283,7 +283,7 @@ internal class TilkjentYtelseServiceTest {
     }
 
     @Test
-    fun `beregnTilkjentYtelse skal erstatte ordinære andeler maed praksisendring andeler og lage riktig splitt hvis ordinær andel spaserer flere måned og overlapper med praksisendring `() {
+    fun `beregnTilkjentYtelse skal erstatte ordinære andeler med praksisendring andeler og lage riktig splitt hvis ordinær andel strekker seg over flere måneder og overlapper med praksisendring `() {
         // arrange
         every { praksisendring2024Service.genererAndelerForPraksisendring2024(any(), any(), any()) } returns
             listOf(

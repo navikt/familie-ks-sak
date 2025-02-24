@@ -88,25 +88,9 @@ class TilkjentYtelseService(
             val praksisendringTidslinjeForAktør = praksisendringTidslinjer[aktør] ?: return@flatMap ordinæreAndeler.filter { it.aktør == aktør }
 
             ordinæreAndelTidslinjeForAktør
-                .kombinerMed(praksisendringTidslinjeForAktør) { ordinæreAndel, praksisendringAndel ->
-                    praksisendringAndel ?: ordinæreAndel
-                }.tilPerioderIkkeNull()
-                .map { periode ->
-                    val andelIPeriode = periode.verdi
-
-                    AndelTilkjentYtelse(
-                        behandlingId = andelIPeriode.behandlingId,
-                        tilkjentYtelse = andelIPeriode.tilkjentYtelse,
-                        aktør = andelIPeriode.aktør,
-                        prosent = andelIPeriode.prosent,
-                        stønadFom = periode.fom!!.toYearMonth(),
-                        stønadTom = periode.tom!!.toYearMonth(),
-                        kalkulertUtbetalingsbeløp = andelIPeriode.kalkulertUtbetalingsbeløp,
-                        nasjonaltPeriodebeløp = andelIPeriode.nasjonaltPeriodebeløp,
-                        type = andelIPeriode.type,
-                        sats = andelIPeriode.sats,
-                    )
-                }
+                .kombinerMed(praksisendringTidslinjeForAktør) { ordinærAndel, praksisendringAndel ->
+                    praksisendringAndel ?: ordinærAndel
+                }.tilAndelerTilkjentYtelse()
         }
     }
 
