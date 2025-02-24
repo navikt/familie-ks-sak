@@ -147,7 +147,7 @@ data class AndelTilkjentYtelse(
             this.differanseberegnetPeriodebeløp == andel.differanseberegnetPeriodebeløp
 }
 
-fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> = overgangsordningAndelerPerAktør().map { it.value.minBy { it.stønadFom } } + ordinæreOgPraksisendringAndeler().filter { it.kalkulertUtbetalingsbeløp != 0 }
+fun Iterable<AndelTilkjentYtelse>.filtrerAndelerSomSkalSendesTilOppdrag(): List<AndelTilkjentYtelse> = (overgangsordningAndelerPerAktør().map { it.value.minBy { it.stønadFom } } + ordinæreOgPraksisendringAndeler()).filter { it.kalkulertUtbetalingsbeløp != 0 }
 
 fun List<AndelTilkjentYtelse>.slåSammenBack2BackAndelsperioderMedSammeBeløp(): List<AndelTilkjentYtelse> =
     this.fold(emptyList()) { acc, andelTilkjentYtelse ->
