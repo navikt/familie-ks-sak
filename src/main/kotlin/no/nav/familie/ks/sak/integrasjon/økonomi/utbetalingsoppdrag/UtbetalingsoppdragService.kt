@@ -175,7 +175,8 @@ class UtbetalingsoppdragService(
         val andelerSomSkalSendesTilOppdrag = tilkjentYtelse.andelerTilkjentYtelse.filtrerAndelerSomSkalSendesTilOppdrag()
 
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {
-            secureLogger.warn("andelerMedPeriodeId: $andelerMedPeriodeId, andelerSomSkalSendesTilOppdrag: $andelerSomSkalSendesTilOppdrag")
+            logger.warn("Uventet antall andeler fra utbetalingsgenerator. Se secureLogger for informasjon.")
+            secureLogger.warn("Uventet antall andeler fra utbetalingsgenerator. Andeler fra utbetalingsgenerator: $andelerMedPeriodeId, forventede andeler: $andelerSomSkalSendesTilOppdrag")
             error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet ordinære andeler med kalkulertUtbetalingsbeløp != 0 + antall barn med overgangsordning. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
         }
         andelerSomSkalSendesTilOppdrag.forEach { andel ->
