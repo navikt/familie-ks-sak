@@ -131,7 +131,7 @@ class CucumberMock(
             loggService = loggServiceMock,
         )
 
-    val adopsjonValidator = AdopsjonValidator(mockUnleashNextMedContextService(), adopsjonServiceMock)
+    val adopsjonValidator = AdopsjonValidator(adopsjonServiceMock)
 
     val vilkårsvurderingService =
         VilkårsvurderingService(
