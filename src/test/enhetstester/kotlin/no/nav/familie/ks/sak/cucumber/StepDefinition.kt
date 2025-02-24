@@ -783,6 +783,10 @@ class StepDefinition {
             val behandlingId = firstArg<Long>()
             vilkårsvurdering[behandlingId]!!
         }
+        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any<Long>()) } answers {
+            val behandlingId = firstArg<Long>()
+            vilkårsvurdering[behandlingId]!!
+        }
         every { vilkårsvurderingService.oppdater(any()) } answers { firstArg<Vilkårsvurdering>() }
 
         return vilkårsvurderingService
