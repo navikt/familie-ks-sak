@@ -78,8 +78,8 @@ class EndringstidspunktService(
         inneværendeBehandlingId: Long,
         forrigeBehandlingId: Long,
     ): YearMonth? {
-        val nåværendeVilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = inneværendeBehandlingId) ?: return null
-        val forrigeVilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = forrigeBehandlingId) ?: return null
+        val nåværendeVilkårsvurdering = vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId = inneværendeBehandlingId) ?: return null
+        val forrigeVilkårsvurdering = vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId = forrigeBehandlingId) ?: return null
 
         return EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
             nåværendePersonResultat = nåværendeVilkårsvurdering.personResultater,
