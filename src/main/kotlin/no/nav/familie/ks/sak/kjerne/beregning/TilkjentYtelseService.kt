@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
-import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -14,7 +13,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
-import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
