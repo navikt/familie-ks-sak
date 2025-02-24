@@ -4,8 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -18,21 +16,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 
 class AdopsjonValidatorTest {
-    private val unleashServiceMock: UnleashNextMedContextService = mockk()
     private val adopsjonServiceMock: AdopsjonService = mockk()
-    private val adopsjonValidator = AdopsjonValidator(unleashService = unleashServiceMock, adopsjonService = adopsjonServiceMock)
-
-    @BeforeEach
-    fun setup() {
-        every { unleashServiceMock.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns true
-    }
+    private val adopsjonValidator = AdopsjonValidator(adopsjonService = adopsjonServiceMock)
 
     @Test
     fun `Skal kaste feil om det finnes adopsjon i utdypende vilkårsvurdering, men ikke adopsjonsdato for person`() {
@@ -98,38 +89,6 @@ class AdopsjonValidatorTest {
 
         // Act & Assert
         assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
-    }
-
-    @Test
-    fun `Skal ikke kaste feil hvis toggle er av, selv om det finnes adopsjon i utdypende vilkårsvurdering, men ikke adopsjonsdato for person`() {
-        // Arrange
-        val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
-        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
-        val barn2 = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
-        val vilkårsvurdering =
-            lagVilkårsvurdering {
-                setOf(
-                    lagPersonResultat(vilkårsvurdering = it, aktør = søker.aktør),
-                    lagPersonResultat(vilkårsvurdering = it, aktør = barn.aktør, lagVilkårResultater = { personResultat -> lagVilkårResultaterForBarn(personResultat = personResultat, erAdopsjon = true, fødselsdato = barn.fødselsdato) }),
-                    lagPersonResultat(vilkårsvurdering = it, aktør = barn2.aktør, lagVilkårResultater = { personResultat -> lagVilkårResultaterForBarn(personResultat = personResultat, erAdopsjon = false, fødselsdato = barn2.fødselsdato) }),
-                )
-            }
-
-        val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
-        every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
-        every { unleashServiceMock.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns false
-
-        // Act & Assert
-        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
-    }
-
-    @Test
-    fun `Skal ikke kaste feil hvis man validerer om man kan oppdatere adopsjonsdato med ugyldig tilstand, men toggle for at vi støtter adopsjon er ikke påskrudd`() {
-        // Arrange
-        every { unleashServiceMock.isEnabled(FeatureToggle.STØTTER_ADOPSJON) } returns false
-
-        // Act & Assert
-        assertDoesNotThrow { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(vilkår = Vilkår.BARNETS_ALDER, utdypendeVilkårsvurdering = listOf(UtdypendeVilkårsvurdering.ADOPSJON), nyAdopsjonsdato = null, barnetsFødselsdato = LocalDate.now().minusYears(2)) }
     }
 
     @Test

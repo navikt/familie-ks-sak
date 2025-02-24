@@ -80,7 +80,6 @@ class CucumberMock(
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepositoryMock,
             vilkårsvurderingRepository = vilkårsvurderingRepositoryMock,
-            unleashService = mockUnleashNextMedContextService(isEnabledDefault = false),
         )
 
     val personidentService =
@@ -132,7 +131,7 @@ class CucumberMock(
             loggService = loggServiceMock,
         )
 
-    val adopsjonValidator = AdopsjonValidator(mockUnleashNextMedContextService(), adopsjonServiceMock)
+    val adopsjonValidator = AdopsjonValidator(adopsjonServiceMock)
 
     val vilkårsvurderingService =
         VilkårsvurderingService(
