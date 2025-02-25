@@ -1459,7 +1459,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
         belop = belop.toString(),
         antallTimerBarnehageplass = antallTimerBarnehageplass.toString(),
         soknadstidspunkt = soknadstidspunkt.tilKortString(),
-        maanedOgAarFoorVedtaksperiode = månedOgÅrFørVedtaksperiode.tilMånedÅrKort(),
+        maanedOgAarFoerVedtaksperiode = månedOgÅrFørVedtaksperiode.tilMånedÅrKort(),
     )
 
 fun lagBrevmottakerDto(

@@ -359,7 +359,7 @@ class BrevPeriodeContext(
                             begrunnelse = begrunnelse,
                         ),
                     maanedOgAarBegrunnelsenGjelderFor = månedOgÅrBegrunnelsenGjelderFor,
-                    maanedOgAarFoorVedtaksperiode = månedOgÅrFørVedtaksperiode,
+                    maanedOgAarFoerVedtaksperiode = månedOgÅrFørVedtaksperiode,
                     maalform = personopplysningGrunnlag.søker.målform.tilSanityFormat(),
                     apiNavn = begrunnelse.sanityApiNavn,
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
