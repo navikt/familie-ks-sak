@@ -84,13 +84,11 @@ class PersonopplysningerService(
         )
     }
 
-    fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING =
-        pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
+    fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING = pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
 
     fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo = tilPersonInfo(hentPersoninfoMedQuery(aktør, PersonInfoQuery.ENKEL))
 
-    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap =
-        pdlClient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
+    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap = pdlClient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
 
     fun hentLandkodeUtenlandskBostedsadresse(aktør: Aktør): String {
         val landkode = pdlClient.hentUtenlandskBostedsadresse(aktør)?.landkode

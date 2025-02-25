@@ -41,9 +41,8 @@ fun AndelTilkjentYtelse.tilPeriode() =
 fun AndelTilkjentYtelse.medPeriode(
     fraOgMed: YearMonth?,
     tilOgMed: YearMonth?,
-) =
-    copy(
-        id = 0,
-        stønadFom = fraOgMed ?: MIN_MÅNED,
-        stønadTom = tilOgMed ?: MAX_MÅNED,
-    ).also { versjon = this.versjon }
+) = copy(
+    id = 0,
+    stønadFom = fraOgMed ?: MIN_MÅNED,
+    stønadTom = tilOgMed ?: MAX_MÅNED,
+).also { versjon = this.versjon }

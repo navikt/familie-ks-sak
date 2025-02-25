@@ -38,6 +38,5 @@ class VedtaksperiodeHentOgPersisterService(
             vedtaksperiodeRepository.slettVedtaksperioderForVedtak(it)
         }
 
-    fun hentVedtaksperioderFor(vedtakId: Long): List<VedtaksperiodeMedBegrunnelser> =
-        vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtakId)
+    fun hentVedtaksperioderFor(vedtakId: Long): List<VedtaksperiodeMedBegrunnelser> = vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtakId)
 }

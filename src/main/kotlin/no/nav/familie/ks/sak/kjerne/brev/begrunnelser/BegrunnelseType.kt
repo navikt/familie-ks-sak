@@ -16,5 +16,4 @@ enum class BegrunnelseType(
     ENDRET_UTBETALING(7),
 }
 
-fun BegrunnelseType.erAvslagEllerEøsAvslag(): Boolean =
-    this == BegrunnelseType.AVSLAG || this == BegrunnelseType.EØS_AVSLAG
+fun BegrunnelseType.erAvslagEllerEøsAvslag(): Boolean = this == BegrunnelseType.AVSLAG || this == BegrunnelseType.EØS_AVSLAG

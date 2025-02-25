@@ -93,8 +93,7 @@ class UtgåendeJournalføringService(
         fagsakId: Long,
         behandlingId: Long?,
         tilVergeEllerFullmektig: Boolean,
-    ) =
-        "${fagsakId}_${behandlingId}${if (tilVergeEllerFullmektig) "_tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
+    ) = "${fagsakId}_${behandlingId}${if (tilVergeEllerFullmektig) "_tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
 
     companion object {
         const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"

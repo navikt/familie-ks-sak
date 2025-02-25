@@ -10,6 +10,5 @@ class TilpassKompetanserTilOvergangsordningAndelerService(
     private val tilpassKompetanserService: TilpassKompetanserService,
 ) : OvergangsordningAndelerOppdatertAbonnent {
     @Transactional
-    override fun tilpassKompetanserTilOvergangsordningAndeler(behandlingId: BehandlingId) =
-        tilpassKompetanserService.tilpassKompetanser(behandlingId)
+    override fun tilpassKompetanserTilOvergangsordningAndeler(behandlingId: BehandlingId) = tilpassKompetanserService.tilpassKompetanser(behandlingId)
 }

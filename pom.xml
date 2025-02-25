@@ -69,7 +69,7 @@
 
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <ktlint-cli.version>1.3.1</ktlint-cli.version>
+        <ktlint-cli.version>1.5.0</ktlint-cli.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>

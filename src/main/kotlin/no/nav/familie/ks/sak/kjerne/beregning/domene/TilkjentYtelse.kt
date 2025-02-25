@@ -78,8 +78,6 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentY
     return tidslinjer.slåSammen()
 }
 
-fun TilkjentYtelse.utbetalingsoppdrag(): Utbetalingsoppdrag? =
-    objectMapper.readValue(this.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
+fun TilkjentYtelse.utbetalingsoppdrag(): Utbetalingsoppdrag? = objectMapper.readValue(this.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
 
-fun TilkjentYtelse.skalIverksettesMotOppdrag(): Boolean =
-    this.utbetalingsoppdrag()?.utbetalingsperiode?.isNotEmpty() ?: false
+fun TilkjentYtelse.skalIverksettesMotOppdrag(): Boolean = this.utbetalingsoppdrag()?.utbetalingsperiode?.isNotEmpty() ?: false

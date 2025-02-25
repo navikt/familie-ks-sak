@@ -20,6 +20,5 @@ internal class UtilsTest {
     }
 
     @Test
-    fun `Navn i uppercase med mellomrom og bindestrek blir formatert korrekt`() =
-        assertEquals("Hense-Ravnen Hopp", "HENSE-RAVNEN HOPP".storForbokstavIAlleNavn())
+    fun `Navn i uppercase med mellomrom og bindestrek blir formatert korrekt`() = assertEquals("Hense-Ravnen Hopp", "HENSE-RAVNEN HOPP".storForbokstavIAlleNavn())
 }

@@ -74,8 +74,7 @@ class ECBService(
     private fun beregnValutakurs(
         valutakursUtenlandskValuta: BigDecimal,
         valutakursNOK: BigDecimal,
-    ) =
-        valutakursNOK.del(valutakursUtenlandskValuta, 10)
+    ) = valutakursNOK.del(valutakursUtenlandskValuta, 10)
 
     private fun validateExchangeRates(
         currency: String,
@@ -96,10 +95,9 @@ class ECBService(
         currencies: List<String>,
         exchangeRateDate: LocalDate,
         expectedSize: Int,
-    ) =
-        exchangeRates.size == expectedSize &&
-            exchangeRates.all { it.date == exchangeRateDate } &&
-            exchangeRates.map { it.currency }.containsAll(currencies)
+    ) = exchangeRates.size == expectedSize &&
+        exchangeRates.all { it.date == exchangeRateDate } &&
+        exchangeRates.map { it.currency }.containsAll(currencies)
 
     private fun throwValidationException(
         currency: String,

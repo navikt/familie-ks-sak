@@ -102,8 +102,7 @@ class SnikeIKøenService(
     }
 
     companion object {
-        private fun finnBehandlingStegTilstand(behandling: Behandling) =
-            behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
+        private fun finnBehandlingStegTilstand(behandling: Behandling) = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }
 
         private fun finnBehandlingPåMaskinellVent(behandlingerPåFagsak: List<Behandling>): Behandling? {
             val behandlingerPåMaskinellVent = behandlingerPåFagsak.filter { it.status == BehandlingStatus.SATT_PÅ_MASKINELL_VENT }

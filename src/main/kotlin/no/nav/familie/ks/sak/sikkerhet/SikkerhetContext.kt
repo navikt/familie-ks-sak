@@ -85,8 +85,7 @@ object SikkerhetContext {
         }
     }
 
-    fun harInnloggetBrukerForvalterRolle(rolleConfig: RolleConfig): Boolean =
-        hentSaksbehandler() == SYSTEM_FORKORTELSE || hentGrupper().contains(rolleConfig.FORVALTER_ROLLE)
+    fun harInnloggetBrukerForvalterRolle(rolleConfig: RolleConfig): Boolean = hentSaksbehandler() == SYSTEM_FORKORTELSE || hentGrupper().contains(rolleConfig.FORVALTER_ROLLE)
 
     fun hentGrupper(): List<String> =
         Result

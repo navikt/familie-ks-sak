@@ -37,8 +37,7 @@ class FeilutbetaltValutaService(
         feilutbetaltValutaRepository.deleteById(id)
     }
 
-    fun hentAlleFeilutbetaltValutaForBehandling(behandlingId: Long) =
-        feilutbetaltValutaRepository.finnFeilutbetalteValutaForBehandling(behandlingId = behandlingId)
+    fun hentAlleFeilutbetaltValutaForBehandling(behandlingId: Long) = feilutbetaltValutaRepository.finnFeilutbetalteValutaForBehandling(behandlingId = behandlingId)
 
     @Transactional
     fun oppdaterFeilutbetaltValuta(
