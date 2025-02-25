@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak
 import no.nav.familie.ks.sak.kjerne.brev.BrevmalService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal.INFORMASJONSBREV_KAN_HA_RETT_TIL_PENGESTØTTE_FRA_NAV
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -46,6 +47,7 @@ class SammensattKontrollsakBrevDtoUtleder(
             Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
             Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
             Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER,
+            Brevmal.INFORMASJONSBREV_KAN_HA_RETT_TIL_PENGESTØTTE_FRA_NAV,
             Brevmal.INNHENTE_OPPLYSNINGER,
             Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             Brevmal.INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT,
