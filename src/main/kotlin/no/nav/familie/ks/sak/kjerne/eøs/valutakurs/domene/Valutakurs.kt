@@ -65,12 +65,11 @@ data class Valutakurs(
         fom: YearMonth?,
         tom: YearMonth?,
         barnAktører: Set<Aktør>,
-    ) =
-        copy(
-            fom = fom,
-            tom = tom,
-            barnAktører = barnAktører,
-        )
+    ) = copy(
+        fom = fom,
+        tom = tom,
+        barnAktører = barnAktører,
+    )
 
     companion object {
         val NULL = Valutakurs(null, null, emptySet())

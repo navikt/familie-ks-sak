@@ -21,6 +21,5 @@ class SøknadGrunnlagService(
 
     fun finnAktiv(behandlingId: Long): SøknadGrunnlag? = søknadGrunnlagRepository.finnAktiv(behandlingId)
 
-    fun hentAktiv(behandlingId: Long): SøknadGrunnlag =
-        finnAktiv(behandlingId) ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
+    fun hentAktiv(behandlingId: Long): SøknadGrunnlag = finnAktiv(behandlingId) ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
 }

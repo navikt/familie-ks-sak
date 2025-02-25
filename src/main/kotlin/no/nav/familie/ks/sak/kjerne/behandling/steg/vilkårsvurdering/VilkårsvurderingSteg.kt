@@ -7,8 +7,6 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -48,7 +46,6 @@ class VilkårsvurderingSteg(
     private val beregningService: BeregningService,
     private val kompetanseService: KompetanseService,
     private val barnetsVilkårValidator: BarnetsVilkårValidator,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
     private val adopsjonValidator: AdopsjonValidator,
     private val adopsjonService: AdopsjonService,
 ) : IBehandlingSteg {
@@ -63,12 +60,6 @@ class VilkårsvurderingSteg(
 
         val søknadDto = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)?.tilSøknadDto()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
-
-        if (vilkårsvurdering.personResultater.any { personResultat -> personResultat.vilkårResultater.any { it.erAdopsjonOppfylt() } } &&
-            !unleashNextMedContextService.isEnabled(FeatureToggle.STØTTER_ADOPSJON)
-        ) {
-            throw FunksjonellFeil("Adopsjonssaker kan ikke behandles før nytt regelverk er støttet i løsningen")
-        }
 
         adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering)
 

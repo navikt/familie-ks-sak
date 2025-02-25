@@ -16,8 +16,7 @@ class KorrigertVedtakResponsDto(
     val aktiv: Boolean,
 )
 
-fun KorrigertVedtakRequestDto.tilKorrigertVedtak(behandling: Behandling) =
-    KorrigertVedtak(vedtaksdato = vedtaksdato, begrunnelse = begrunnelse, behandling = behandling, aktiv = true)
+fun KorrigertVedtakRequestDto.tilKorrigertVedtak(behandling: Behandling) = KorrigertVedtak(vedtaksdato = vedtaksdato, begrunnelse = begrunnelse, behandling = behandling, aktiv = true)
 
 fun KorrigertVedtak.tilKorrigertVedtakResponsDto(): KorrigertVedtakResponsDto =
     KorrigertVedtakResponsDto(

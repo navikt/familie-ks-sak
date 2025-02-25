@@ -10,6 +10,5 @@ class TilpassKompetanserTilEndretUtbetalingAndelerService(
     private val tilpassKompetanserService: TilpassKompetanserService,
 ) : EndretUtbetalingAndelerOppdatertAbonnent {
     @Transactional
-    override fun tilpassKompetanserTilEndretUtbetalingAndeler(behandlingId: BehandlingId) =
-        tilpassKompetanserService.tilpassKompetanser(behandlingId)
+    override fun tilpassKompetanserTilEndretUtbetalingAndeler(behandlingId: BehandlingId) = tilpassKompetanserService.tilpassKompetanser(behandlingId)
 }

@@ -262,14 +262,11 @@ class BehandlingService(
         oppdaterBehandling(behandling)
     }
 
-    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<Long> =
-        behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
+    fun hentSisteIverksatteBehandlingerFraLøpendeFagsaker(page: Pageable): Page<Long> = behandlingRepository.finnSisteIverksatteBehandlingFraLøpendeFagsaker(page)
 
-    fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> =
-        behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
+    fun hentAktivtFødselsnummerForBehandlinger(behandlingIder: List<Long>): Map<Long, String> = behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingIder).associate { it.first to it.second }
 
-    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> =
-        behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
+    fun hentIverksatteBehandlinger(fagsakId: Long): List<Behandling> = behandlingRepository.finnIverksatteBehandlinger(fagsakId = fagsakId)
 
     /**
      * Henter siste iverksatte behandling på fagsak

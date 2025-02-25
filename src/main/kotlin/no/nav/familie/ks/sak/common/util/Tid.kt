@@ -114,8 +114,7 @@ fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
 
 fun LocalDateTime.erHverdag(): Boolean = this.dayOfWeek != DayOfWeek.SATURDAY && this.dayOfWeek != DayOfWeek.SUNDAY
 
-fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean =
-    localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))
+fun erKlokkenMellom21Og06(localTime: LocalTime = LocalTime.now()): Boolean = localTime.isAfter(LocalTime.of(21, 0)) || localTime.isBefore(LocalTime.of(6, 0))
 
 fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateTime =
     if (date.toLocalTime().isBefore(LocalTime.of(6, 0))) {
