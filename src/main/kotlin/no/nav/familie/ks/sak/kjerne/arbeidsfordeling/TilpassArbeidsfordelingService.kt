@@ -123,7 +123,7 @@ class TilpassArbeidsfordelingService(
         val harTilgangTilBehandledeEnhet = enheterNavIdentHarTilgangTilForutenVikafossen.any { it.enhetsnummer == arbeidsfordelingsenhet.enhetId }
         if (!harTilgangTilBehandledeEnhet) {
             // Velger bare det første enhetsnummeret i tilfeller hvor man har flere, avklart med fag
-            val nyBehandlendeEnhet = enheterNavIdentHarTilgangTil.first()
+            val nyBehandlendeEnhet = enheterNavIdentHarTilgangTilForutenVikafossen.first()
             return Arbeidsfordelingsenhet(
                 nyBehandlendeEnhet.enhetsnummer,
                 nyBehandlendeEnhet.enhetsnavn,
