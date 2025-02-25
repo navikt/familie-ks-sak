@@ -50,7 +50,7 @@ fun lagBrevTest(
 # language: no
 # encoding: UTF-8
 
-Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric(10)}
+Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.insecure().nextAlphanumeric(10)}
 
   Bakgrunn:""" +
             hentTekstForFagsak() +
@@ -58,7 +58,7 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.randomAlphanumeric
             hentTekstForPersongrunnlag(persongrunnlag, persongrunnlagForrigeBehandling) +
             """
       
-  Scenario: Plassholdertekst for scenario - ${RandomStringUtils.randomAlphanumeric(10)}
+  Scenario: Plassholdertekst for scenario - ${RandomStringUtils.insecure().nextAlphanumeric(10)}
     Og følgende dagens dato ${LocalDate.now().tilddMMyyyy()}""" +
             hentTekstForVilkårresultater(
                 personResultaterForrigeBehandling?.sorterPåFødselsdato(persongrunnlagForrigeBehandling!!),
