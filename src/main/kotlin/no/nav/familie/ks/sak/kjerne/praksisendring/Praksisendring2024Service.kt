@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.praksisendring
 
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.inkluderer
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -111,7 +112,7 @@ class Praksisendring2024Service(
             forskøvedeVilkår.all {
                 it.value.any {
                     val fom = (it.fom ?: TIDENES_MORGEN).toYearMonth()
-                    val tom = (it.tom ?: TIDENES_MORGEN).toYearMonth()
+                    val tom = (it.tom ?: TIDENES_ENDE).toYearMonth()
                     barn13Måneder in fom..tom && it.verdi.resultat == Resultat.OPPFYLT
                 }
             }

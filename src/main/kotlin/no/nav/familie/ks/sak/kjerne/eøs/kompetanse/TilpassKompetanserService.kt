@@ -23,12 +23,12 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
-import no.nav.familie.tidslinje.leftJoin
-import no.nav.familie.tidslinje.outerJoin
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.filtrer
 import no.nav.familie.tidslinje.utvidelser.filtrerIkkeNull
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.leftJoin
+import no.nav.familie.tidslinje.utvidelser.outerJoin
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

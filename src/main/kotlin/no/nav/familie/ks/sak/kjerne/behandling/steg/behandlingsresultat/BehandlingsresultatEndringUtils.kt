@@ -175,7 +175,7 @@ private fun erEndringIBeløpForPersonOgType(
     return endringIBeløpTidslinje.tilPerioder().any { it.verdi == true }
 }
 
-private fun Tidslinje<Boolean>.fjernPerioderEtterOpphørsdato(opphørstidspunkt: YearMonth) = this.klipp(startsTidspunkt = TIDENES_MORGEN, sluttTidspunkt = opphørstidspunkt.forrigeMåned().toLocalDate().sisteDagIMåned())
+private fun Tidslinje<Boolean>.fjernPerioderEtterOpphørsdato(opphørstidspunkt: YearMonth) = this.klipp(startTidspunkt = TIDENES_MORGEN, sluttTidspunkt = opphørstidspunkt.forrigeMåned().toLocalDate().sisteDagIMåned())
 
 internal fun erEndringIKompetanseForPerson(
     nåværendeKompetanserForPerson: List<Kompetanse>,

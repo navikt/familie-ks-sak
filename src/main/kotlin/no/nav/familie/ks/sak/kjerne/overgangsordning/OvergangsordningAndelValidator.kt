@@ -21,9 +21,9 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.tidslinje.filtrerIkkeNull
-import no.nav.familie.tidslinje.outerJoin
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.outerJoin
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import java.time.YearMonth
 

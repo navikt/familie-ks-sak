@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.RetryOAuth2HttpClient
 import no.nav.familie.http.config.RestTemplateAzure
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
 import no.nav.familie.prosessering.config.ProsesseringInfoProvider
 import no.nav.security.token.support.client.core.http.OAuth2HttpClient
@@ -49,7 +50,7 @@ class ApplicationConfig {
         log.info("Registering LogFilter filter")
 
         return FilterRegistrationBean<LogFilter>().apply {
-            filter = LogFilter()
+            filter = LogFilter(systemtype = NavSystemtype.NAV_SAKSBEHANDLINGSSYSTEM)
             order = 1
         }
     }
@@ -62,8 +63,8 @@ class ApplicationConfig {
     fun restTemplateBuilder(objectMapper: ObjectMapper): RestTemplateBuilder {
         val jackson2HttpMessageConverter = MappingJackson2HttpMessageConverter(objectMapper)
         return RestTemplateBuilder()
-            .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-            .setReadTimeout(Duration.of(30, ChronoUnit.SECONDS))
+            .connectTimeout(Duration.of(2, ChronoUnit.SECONDS))
+            .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
             .additionalMessageConverters(listOf(jackson2HttpMessageConverter) + RestTemplate().messageConverters)
     }
 
@@ -78,8 +79,8 @@ class ApplicationConfig {
         RetryOAuth2HttpClient(
             RestClient.create(
                 RestTemplateBuilder()
-                    .setConnectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-                    .setReadTimeout(Duration.of(4, ChronoUnit.SECONDS))
+                    .connectTimeout(Duration.of(2, ChronoUnit.SECONDS))
+                    .readTimeout(Duration.of(4, ChronoUnit.SECONDS))
                     .build(),
             ),
         )

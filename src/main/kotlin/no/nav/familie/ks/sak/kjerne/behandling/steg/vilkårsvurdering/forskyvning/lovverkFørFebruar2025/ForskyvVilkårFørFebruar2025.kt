@@ -38,13 +38,13 @@ object ForskyvVilkårFørFebruar2025 {
 
         val klippetTidslinje2021 =
             forskjøvetVilkårResultaterTidslinje2021.klipp(
-                startsTidspunkt = forskjøvetVilkårResultaterTidslinje2021.startsTidspunkt,
+                startTidspunkt = forskjøvetVilkårResultaterTidslinje2021.startsTidspunkt,
                 sluttTidspunkt = DATO_LOVENDRING_2024.minusDays(1),
             )
 
         val klippetTidslinje2024 =
             forskjøvetVilkårResultaterTidslinje2024.klipp(
-                startsTidspunkt = DATO_LOVENDRING_2024,
+                startTidspunkt = DATO_LOVENDRING_2024,
                 sluttTidspunkt = TIDENES_ENDE,
             )
 
