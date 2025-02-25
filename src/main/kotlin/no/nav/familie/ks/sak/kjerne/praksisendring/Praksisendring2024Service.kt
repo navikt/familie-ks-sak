@@ -95,12 +95,12 @@ class Praksisendring2024Service(
             return false
         }
 
-        val starterIBarnehageSammeMånedSom13Måneder =
+        val harBarnehageplassSammeMånedSom13Måneder =
             vilkårResultater.any {
-                it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.resultat == Resultat.IKKE_OPPFYLT
+                it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.antallTimer != null && it.antallTimer > BigDecimal.ZERO
             }
 
-        if (!starterIBarnehageSammeMånedSom13Måneder) {
+        if (!harBarnehageplassSammeMånedSom13Måneder) {
             return false
         }
 

@@ -173,8 +173,7 @@ data class UtfyltOvergangsordningAndel(
             tom = tom.atEndOfMonth(),
         )
 
-    fun overlapperMed(overgangsordningAndel: UtfyltOvergangsordningAndel) =
-        overgangsordningAndel.periode.overlapperHeltEllerDelvisMed(this.periode)
+    fun overlapperMed(overgangsordningAndel: UtfyltOvergangsordningAndel) = overgangsordningAndel.periode.overlapperHeltEllerDelvisMed(this.periode)
 }
 
 fun List<UtfyltOvergangsordningAndel>.tilPerioder(): List<Periode<OvergangsordningAndelPeriode>> = map { it.tilPeriode() }

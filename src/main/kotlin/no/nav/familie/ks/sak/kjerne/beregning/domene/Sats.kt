@@ -54,8 +54,7 @@ fun hentGyldigSatsFor(
     )
 }
 
-fun hentProsentForAntallTimer(antallTimer: BigDecimal?): BigDecimal =
-    hentGyldigSatsFor(antallTimer, false, sats.gyldigFom.toYearMonth(), sats.gyldigTom.toYearMonth()).prosent
+fun hentProsentForAntallTimer(antallTimer: BigDecimal?): BigDecimal = hentGyldigSatsFor(antallTimer, false, sats.gyldigFom.toYearMonth(), sats.gyldigTom.toYearMonth()).prosent
 
 fun Int.prosent(prosent: BigDecimal) =
     this

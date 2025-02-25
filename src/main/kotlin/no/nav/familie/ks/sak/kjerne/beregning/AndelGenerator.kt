@@ -26,26 +26,24 @@ interface AndelGenerator {
         fun kombinerForskjøvedeTidslinjerTilOppfyltTidslinje(
             søkersVilkårResultaterForskjøvetTidslinje: Tidslinje<List<VilkårResultat>>,
             barnetsVilkårResultaterForskjøvetTidslinje: Tidslinje<List<VilkårResultat>>,
-        ) =
-            barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(
-                søkersVilkårResultaterForskjøvetTidslinje,
-            ) { barnPeriode, søkerPeriode ->
-                søkerPeriode?.let { barnPeriode }
-            }
+        ) = barnetsVilkårResultaterForskjøvetTidslinje.kombinerMed(
+            søkersVilkårResultaterForskjøvetTidslinje,
+        ) { barnPeriode, søkerPeriode ->
+            søkerPeriode?.let { barnPeriode }
+        }
 
         fun lagAndelerTilkjentYtelse(
             oppfyltTidslinje: Tidslinje<List<VilkårResultat>>,
             tilkjentYtelse: TilkjentYtelse,
             barnAktør: Aktør,
-        ) =
-            oppfyltTidslinje
-                .tilPerioderIkkeNull()
-                .map { vilkårResultaterPeriode ->
-                    vilkårResultaterPeriode.tilAndelTilkjentYtelse(
-                        tilkjentYtelse = tilkjentYtelse,
-                        barnAktør = barnAktør,
-                    )
-                }
+        ) = oppfyltTidslinje
+            .tilPerioderIkkeNull()
+            .map { vilkårResultaterPeriode ->
+                vilkårResultaterPeriode.tilAndelTilkjentYtelse(
+                    tilkjentYtelse = tilkjentYtelse,
+                    barnAktør = barnAktør,
+                )
+            }
     }
 
     @Component

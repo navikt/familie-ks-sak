@@ -59,15 +59,14 @@ class RefusjonEøsService(
     fun oppdaterRefusjonEøsPeriode(
         refusjonEøs: RefusjonEøsDto,
         id: Long,
-    ) =
-        hentRefusjonEøs(id).apply {
-            fom = refusjonEøs.fom
-            fom = refusjonEøs.fom
-            tom = refusjonEøs.tom
-            refusjonsbeløp = refusjonEøs.refusjonsbeløp
-            land = refusjonEøs.land
-            refusjonAvklart = refusjonEøs.refusjonAvklart
-        }
+    ) = hentRefusjonEøs(id).apply {
+        fom = refusjonEøs.fom
+        fom = refusjonEøs.fom
+        tom = refusjonEøs.tom
+        refusjonsbeløp = refusjonEøs.refusjonsbeløp
+        land = refusjonEøs.land
+        refusjonAvklart = refusjonEøs.refusjonAvklart
+    }
 
     private fun tilRest(it: RefusjonEøs) =
         RefusjonEøsDto(

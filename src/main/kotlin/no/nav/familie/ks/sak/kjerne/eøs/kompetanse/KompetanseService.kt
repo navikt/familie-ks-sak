@@ -50,6 +50,5 @@ class KompetanseService(
     fun kopierOgErstattKompetanser(
         fraBehandlingId: BehandlingId,
         tilBehandlingId: BehandlingId,
-    ) =
-        kompetanseSkjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
+    ) = kompetanseSkjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
 }

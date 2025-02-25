@@ -19,24 +19,20 @@ class UtenlandskPeriodebeløpService(
             endringsabonnenter,
         )
 
-    fun hentUtenlandskePeriodebeløp(behandlingId: BehandlingId) =
-        skjemaService.hentMedBehandlingId(behandlingId)
+    fun hentUtenlandskePeriodebeløp(behandlingId: BehandlingId) = skjemaService.hentMedBehandlingId(behandlingId)
 
     fun oppdaterUtenlandskPeriodebeløp(
         behandlingId: BehandlingId,
         utenlandskPeriodebeløp: UtenlandskPeriodebeløp,
-    ) =
-        skjemaService.endreSkjemaer(behandlingId, utenlandskPeriodebeløp)
+    ) = skjemaService.endreSkjemaer(behandlingId, utenlandskPeriodebeløp)
 
     fun slettUtenlandskPeriodebeløp(
         utenlandskPeriodebeløpId: Long,
-    ) =
-        skjemaService.slettSkjema(utenlandskPeriodebeløpId)
+    ) = skjemaService.slettSkjema(utenlandskPeriodebeløpId)
 
     @Transactional
     fun kopierOgErstattUtenlandskPeriodebeløp(
         fraBehandlingId: BehandlingId,
         tilBehandlingId: BehandlingId,
-    ) =
-        skjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
+    ) = skjemaService.kopierOgErstattSkjemaer(fraBehandlingId, tilBehandlingId)
 }

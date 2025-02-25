@@ -30,6 +30,5 @@ data class SøknadGrunnlag(
     @Column(name = "aktiv", nullable = false)
     var aktiv: Boolean = true,
 ) {
-    fun hentUregistrerteBarn(): List<BarnMedOpplysningerDto> =
-        tilSøknadDto().barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
+    fun hentUregistrerteBarn(): List<BarnMedOpplysningerDto> = tilSøknadDto().barnaMedOpplysninger.filter { !it.erFolkeregistrert && it.inkludertISøknaden }
 }
