@@ -610,8 +610,8 @@ class BrevPeriodeContext(
 
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
                 when {
-                    alleLovverkForBarna.all { it == Lovverk.LOVENDRING_FEBRUAR_2025 } -> vedtaksperiodeFom.tilMånedÅr()
                     sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
+                    alleLovverkForBarna.all { it == Lovverk.LOVENDRING_FEBRUAR_2025 } -> vedtaksperiodeFom.tilMånedÅr()
                     opphørGrunnetFulltidsBarnehageplassAugust2024 -> vedtaksperiodeFom.tilMånedÅr()
                     fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
                     else -> månedenFørFom.tilMånedÅr()
@@ -622,7 +622,7 @@ class BrevPeriodeContext(
             Vedtaksperiodetype.FORTSATT_INNVILGET,
             -> {
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
-                if (sanityBegrunnelse.resultat == SanityResultat.REDUKSJON && !fomErFørLovendring2024) {
+                if (sanityBegrunnelse.resultat == SanityResultat.REDUKSJON && !fomErFørLovendring2024 && alleLovverkForBarna.none { it == Lovverk.LOVENDRING_FEBRUAR_2025 }) {
                     månedenFørFom.tilMånedÅr()
                 } else {
                     vedtaksperiodeFom.tilMånedÅr()
