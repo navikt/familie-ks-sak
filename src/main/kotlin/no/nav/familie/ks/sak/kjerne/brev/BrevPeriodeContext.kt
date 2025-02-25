@@ -326,6 +326,16 @@ class BrevPeriodeContext(
                         begrunnelse = begrunnelse,
                     )
 
+                val barnSomSkalIBegrunnelse = hentBarnSomSkalIBegrunnelse(gjelderSøker, relevantePersoner, begrunnelse)
+
+                val alleLovverkForBarna =
+                    barnSomSkalIBegrunnelse.map { barn ->
+                        LovverkUtleder.utledLovverkForBarn(
+                            fødselsdato = barn.fødselsdato,
+                            adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
+                        )
+                    }
+
                 val månedOgÅrBegrunnelsenGjelderFor =
                     this.utvidetVedtaksperiodeMedBegrunnelser.fom?.let { fom ->
                         hentMånedOgÅrForBegrunnelse(
@@ -335,8 +345,7 @@ class BrevPeriodeContext(
                             vedtaksperiodeFom = fom,
                             vedtaksperiodeTom = this.utvidetVedtaksperiodeMedBegrunnelser.tom ?: TIDENES_ENDE,
                             endretUtbetalingAndeler = andelTilkjentYtelserMedEndreteUtbetalinger.flatMap { it.endreteUtbetalinger },
-                            barnSomSkalIBegrunnelse = hentBarnSomSkalIBegrunnelse(gjelderSøker, relevantePersoner, begrunnelse),
-                            adopsjonerIBehandling = adopsjonerIBehandling,
+                            alleLovverkForBarna = alleLovverkForBarna,
                         )
                     }
 
@@ -570,18 +579,10 @@ class BrevPeriodeContext(
         vedtaksperiodeFom: LocalDate,
         vedtaksperiodeTom: LocalDate,
         endretUtbetalingAndeler: List<EndretUtbetalingAndel>,
-        barnSomSkalIBegrunnelse: List<Person>,
-        adopsjonerIBehandling: List<Adopsjon>,
+        alleLovverkForBarna: List<Lovverk>,
     ): String {
         val fomErFørLovendring2024 = vedtaksperiodeFom.isBefore(DATO_LOVENDRING_2024)
-        val månedenFørFom = vedtaksperiodeFom.minusMonths(1)
-        val alleLovverkForBarna =
-            barnSomSkalIBegrunnelse.map { barn ->
-                LovverkUtleder.utledLovverkForBarn(
-                    fødselsdato = barn.fødselsdato,
-                    adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
-                )
-            }
+        val månedenFørFom = vedtaksperiodeFom.minusMonths(1).tilMånedÅr()
 
         return when (vedtaksperiodeType) {
             Vedtaksperiodetype.AVSLAG ->
@@ -614,7 +615,7 @@ class BrevPeriodeContext(
                     alleLovverkForBarna.all { it == Lovverk.LOVENDRING_FEBRUAR_2025 } -> vedtaksperiodeFom.tilMånedÅr()
                     opphørGrunnetFulltidsBarnehageplassAugust2024 -> vedtaksperiodeFom.tilMånedÅr()
                     fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
-                    else -> månedenFørFom.tilMånedÅr()
+                    else -> månedenFørFom
                 }
             }
 
@@ -623,7 +624,7 @@ class BrevPeriodeContext(
             -> {
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
                 if (sanityBegrunnelse.resultat == SanityResultat.REDUKSJON && !fomErFørLovendring2024 && alleLovverkForBarna.none { it == Lovverk.LOVENDRING_FEBRUAR_2025 }) {
-                    månedenFørFom.tilMånedÅr()
+                    månedenFørFom
                 } else {
                     vedtaksperiodeFom.tilMånedÅr()
                 }
