@@ -478,7 +478,7 @@ fun hentBrevBegrunnelseTekster(
         """
 
     Så forvent følgende brevbegrunnelser for behandling $behandlingId i periode ${vedtaksperiode.fom?.tilddMMyyyy() ?: "-"} til ${vedtaksperiode.tom?.tilddMMyyyy() ?: "-"}
-        | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Gjelder andre forelder |""" +
+        | Begrunnelse | Type | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Måned og år før vedtaksperiode |""" +
             vedtaksperiode.begrunnelser.map { it.nasjonalEllerFellesBegrunnelse }.joinToString("") {
                 """
         | $it | STANDARD |               |                      |             |                                      |         |       |                  |                         |                               |         |"""
