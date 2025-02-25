@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.tilMånedlig
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.times
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
-import no.nav.familie.tidslinje.outerJoin
+import no.nav.familie.tidslinje.utvidelser.outerJoin
 
 /**
  * ADVARSEL: Muterer TilkjentYtelse
