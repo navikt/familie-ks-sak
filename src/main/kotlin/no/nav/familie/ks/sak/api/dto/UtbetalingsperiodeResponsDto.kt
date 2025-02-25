@@ -72,11 +72,10 @@ private fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilUtbetalings
 
 fun UtbetalingsperiodeDetalj.tilUtbetalingsperiodeDetaljDto(
     adopsjonerIBehandling: List<Adopsjon>,
-) =
-    UtbetalingsperiodeDetaljDto(
-        person = BehandlingMapper.lagPersonRespons(person = this.person, landKodeOgLandNavn = emptyMap(), adopsjon = adopsjonerIBehandling.firstOrNull { it.aktør == this.person.aktør }),
-        utbetaltPerMnd = this.utbetaltPerMnd,
-        erPåvirketAvEndring = this.erPåvirketAvEndring,
-        prosent = this.prosent,
-        ytelseType = this.ytelseType,
-    )
+) = UtbetalingsperiodeDetaljDto(
+    person = BehandlingMapper.lagPersonRespons(person = this.person, landKodeOgLandNavn = emptyMap(), adopsjon = adopsjonerIBehandling.firstOrNull { it.aktør == this.person.aktør }),
+    utbetaltPerMnd = this.utbetaltPerMnd,
+    erPåvirketAvEndring = this.erPåvirketAvEndring,
+    prosent = this.prosent,
+    ytelseType = this.ytelseType,
+)

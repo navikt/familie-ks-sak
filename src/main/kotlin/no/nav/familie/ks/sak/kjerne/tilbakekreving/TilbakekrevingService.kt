@@ -46,8 +46,7 @@ class TilbakekrevingService(
     private val simuleringService: SimuleringService,
     private val brevmottakerRepository: BrevmottakerRepository,
 ) {
-    fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean =
-        tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
+    fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean = tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
 
     @Transactional
     fun lagreTilbakekreving(
@@ -120,8 +119,7 @@ class TilbakekrevingService(
         )
     }
 
-    fun sendOpprettTilbakekrevingRequest(behandling: Behandling) =
-        tilbakekrevingKlient.opprettTilbakekrevingBehandling(lagOpprettTilbakekrevingRequest(behandling))
+    fun sendOpprettTilbakekrevingRequest(behandling: Behandling) = tilbakekrevingKlient.opprettTilbakekrevingBehandling(lagOpprettTilbakekrevingRequest(behandling))
 
     fun opprettTilbakekrevingsbehandlingManuelt(fagsakId: Long) {
         val kanOpprettesRespons = tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId)

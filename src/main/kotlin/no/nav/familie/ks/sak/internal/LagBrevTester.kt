@@ -119,28 +119,26 @@ fun hentTekstForFagsak() =
 fun hentTekstForBehandlinger(
     behandling: Behandling,
     forrigeBehandling: Behandling?,
-) =
-    """
+) = """
 
     Og følgende behandlinger
       | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak  | Behandlingskategori | Behandlingsstatus | ${
-        forrigeBehandling?.let {
-            """ 
+    forrigeBehandling?.let {
+        """ 
       | ${it.id} | 1 |           | ${it.opprettetÅrsak}  | ${it.kategori} | ${it.status} |"""
-        } ?: ""
-    }
+    } ?: ""
+}
       | ${behandling.id} | 1 | ${forrigeBehandling?.id ?: ""} | ${behandling.opprettetÅrsak}  | ${behandling.kategori} | ${behandling.status} |"""
 
 fun hentTekstForPersongrunnlag(
     persongrunnlag: PersonopplysningGrunnlag,
     persongrunnlagForrigeBehandling: PersonopplysningGrunnlag?,
-) =
-    """
+) = """
     
     Og følgende persongrunnlag
       | BehandlingId | AktørId | Persontype | Fødselsdato |""" +
-        hentPersongrunnlagRader(persongrunnlagForrigeBehandling) +
-        hentPersongrunnlagRader(persongrunnlag)
+    hentPersongrunnlagRader(persongrunnlagForrigeBehandling) +
+    hentPersongrunnlagRader(persongrunnlag)
 
 private fun hentPersongrunnlagRader(persongrunnlag: PersonopplysningGrunnlag?): String =
     persongrunnlag?.personer?.sortedBy { it.fødselsdato }?.joinToString("") {
@@ -163,8 +161,7 @@ fun hentTekstForVilkårresultater(
         tilVilkårResultatRader(personResultater)
 }
 
-private fun Set<PersonResultat>.sorterPåFødselsdato(persongrunnlag: PersonopplysningGrunnlag) =
-    this.sortedBy { personresultat -> persongrunnlag.personer.single { personresultat.aktør == it.aktør }.fødselsdato }
+private fun Set<PersonResultat>.sorterPåFødselsdato(persongrunnlag: PersonopplysningGrunnlag) = this.sortedBy { personresultat -> persongrunnlag.personer.single { personresultat.aktør == it.aktør }.fødselsdato }
 
 data class VilkårResultatRad(
     val aktørId: String,
@@ -218,20 +215,18 @@ fun hentTekstForTilkjentYtelse(
     persongrunnlag: PersonopplysningGrunnlag,
     forrigeBehandlingId: Long?,
     behandlingId: Long,
-) =
-    """
+) = """
     ${(forrigeBehandlingId?.let { "\nOg andeler er beregnet for behandling $it\n" } ?: "")} 
     Og andeler er beregnet for behandling $behandlingId
     
     Så forvent følgende andeler tilkjent ytelse for behandling $behandlingId
       | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp | """ +
-        hentAndelRader(andeler, persongrunnlag)
+    hentAndelRader(andeler, persongrunnlag)
 
 fun hentTekstForBehandlingsresultat(
     behandlingId: Long,
     behandlingsresultat: Behandlingsresultat,
-) =
-    """
+) = """
     Og når behandlingsresultatet er utledet for behandling $behandlingId
     Så forvent at behandlingsresultatet er $behandlingsresultat på behandling $behandlingId
     """
@@ -410,14 +405,13 @@ private fun hentValutakursRader(valutakurser: Collection<Valutakurs>?): String =
 private fun hentTekstForVedtaksperioder(
     behandlingId: Long,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
-) =
-    """
+) = """
         
     Og vedtaksperioder er laget for behandling $behandlingId        
         
     Så forvent følgende vedtaksperioder på behandling $behandlingId
       | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |""" +
-        hentVedtaksperiodeRader(vedtaksperioder)
+    hentVedtaksperiodeRader(vedtaksperioder)
 
 private fun hentVedtaksperiodeRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") {
@@ -428,12 +422,11 @@ private fun hentVedtaksperiodeRader(vedtaksperioder: List<VedtaksperiodeMedBegru
 fun hentTekstForGyligeBegrunnelserForVedtaksperiodene(
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
     behandlingId: Long?,
-) =
-    """
+) = """
 
     Så forvent at følgende begrunnelser er gyldige for behandling $behandlingId
       | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser | Ugyldige begrunnelser |""" +
-        hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder)
+    hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder)
 
 fun hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") { vedtaksperiode ->
@@ -450,12 +443,11 @@ fun hentVedtaksperiodeRaderForGyldigeBegrunnelser(vedtaksperioder: List<Vedtaksp
 fun hentTekstValgteBegrunnelser(
     behandlingId: Long?,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
-) =
-    """
+) = """
 
     Og når disse begrunnelsene er valgt for behandling $behandlingId
         | Fra dato   | Til dato | Standardbegrunnelser | Eøsbegrunnelser | Fritekster |""" +
-        hentValgteBegrunnelserRader(vedtaksperioder)
+    hentValgteBegrunnelserRader(vedtaksperioder)
 
 fun hentValgteBegrunnelserRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") { vedtaksperiode ->
@@ -466,12 +458,11 @@ fun hentValgteBegrunnelserRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnel
 fun hentTekstBrevPerioder(
     behandlingId: Long?,
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
-) =
-    """
+) = """
 
     Så forvent følgende brevperioder for behandling $behandlingId
         | Brevperiodetype  | Fra dato   | Til dato | Beløp | Antall barn med utbetaling | Barnas fødselsdager | Du eller institusjonen |""" +
-        hentBrevPeriodeRader(vedtaksperioder)
+    hentBrevPeriodeRader(vedtaksperioder)
 
 fun hentBrevPeriodeRader(vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>) =
     vedtaksperioder.joinToString("") { vedtaksperiode ->

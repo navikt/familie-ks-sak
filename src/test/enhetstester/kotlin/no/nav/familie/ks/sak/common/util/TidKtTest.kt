@@ -86,13 +86,11 @@ internal class TidKtTest {
 
     @ParameterizedTest
     @CsvSource("21:04", "23:02", "00:39", "04:04", "05:59")
-    fun `erKlokkenMellom21Og06 skal returnere true dersom klokken er mellom 21 og 06`(localTime: LocalTime) =
-        assertThat(erKlokkenMellom21Og06(localTime), Is(true))
+    fun `erKlokkenMellom21Og06 skal returnere true dersom klokken er mellom 21 og 06`(localTime: LocalTime) = assertThat(erKlokkenMellom21Og06(localTime), Is(true))
 
     @ParameterizedTest
     @CsvSource("07:04", "09:15", "12:55", "18:20", "20:59")
-    fun `erKlokkenMellom21Og06 skal returnere false dersom klokken ikke er mellom 21 og 06`(localTime: LocalTime) =
-        assertThat(erKlokkenMellom21Og06(localTime), Is(false))
+    fun `erKlokkenMellom21Og06 skal returnere false dersom klokken ikke er mellom 21 og 06`(localTime: LocalTime) = assertThat(erKlokkenMellom21Og06(localTime), Is(false))
 
     @Test
     fun `LocalDate erHelligDag skal returnere true for alle helligedager`() {

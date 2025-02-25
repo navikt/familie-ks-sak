@@ -33,8 +33,7 @@ data class PdlPersonInfo(
     val kontaktinformasjonForDoedsbo: PdlKontaktinformasjonForDødsbo? = null,
 )
 
-fun List<Bostedsadresse>.filtrerUtKunNorskeBostedsadresser() =
-    this.filter { it.vegadresse != null || it.matrikkeladresse != null || it.ukjentBosted != null }
+fun List<Bostedsadresse>.filtrerUtKunNorskeBostedsadresser() = this.filter { it.vegadresse != null || it.matrikkeladresse != null || it.ukjentBosted != null }
 
 data class ForelderBarnRelasjonInfo(
     val aktør: Aktør,

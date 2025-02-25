@@ -92,8 +92,7 @@ fun <T : EøsSkjema<T>> Iterable<T>.tilSeparateTidslinjerForBarna(): Map<Aktør,
     }
 }
 
-fun <T : EøsSkjemaEntitet<T>> Map<Aktør, Tidslinje<T>>.tilSkjemaer() =
-    this.flatMap { (aktør, tidslinjer) -> tidslinjer.tilSkjemaer(aktør) }.slåSammen()
+fun <T : EøsSkjemaEntitet<T>> Map<Aktør, Tidslinje<T>>.tilSkjemaer() = this.flatMap { (aktør, tidslinjer) -> tidslinjer.tilSkjemaer(aktør) }.slåSammen()
 
 private fun <T : EøsSkjema<T>> Tidslinje<T>.tilSkjemaer(aktør: Aktør) =
     this.tilPerioder().mapNotNull { periode ->

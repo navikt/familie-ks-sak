@@ -27,8 +27,6 @@ data class ÅrMånedEllerDato(
         }
 }
 
-fun ÅrMånedEllerDato?.førsteDagenIMånedenEllerDefault(dato: LocalDate = YearMonth.now().atDay(1)) =
-    this?.førsteDagenIMåneden() ?: dato
+fun ÅrMånedEllerDato?.førsteDagenIMånedenEllerDefault(dato: LocalDate = YearMonth.now().atDay(1)) = this?.førsteDagenIMåneden() ?: dato
 
-fun ÅrMånedEllerDato?.sisteDagenIMånedenEllerDefault(dato: LocalDate = YearMonth.now().atEndOfMonth()) =
-    this?.sisteDagenIMåneden() ?: dato
+fun ÅrMånedEllerDato?.sisteDagenIMånedenEllerDefault(dato: LocalDate = YearMonth.now().atEndOfMonth()) = this?.sisteDagenIMåneden() ?: dato
