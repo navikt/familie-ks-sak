@@ -15,21 +15,21 @@ updates:
     registries:
       - familie-felles
     groups:
-      patch-dependencies:
+      interne-avhengigheter:
         patterns:
-          - "*"
-        update-types:
-          - "patch"
-      minor-dependencies:
+          - "no.nav.familie*"
+      spring-med-avhengigheter:
         patterns:
-          - "*"
-        update-types:
-          - "minor"
-      major-dependencies:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
+          - "org.springframework*"
+          - "no.nav.security*"
+      prod-avhengigheter:
+        dependency-type: "production"
+        exclude-patterns:
+          - "no.nav.security*"
+      utvikler-avhengigheter:
+        dependency-type: "development"
+        exclude-patterns:
+          - "no.nav.security*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
