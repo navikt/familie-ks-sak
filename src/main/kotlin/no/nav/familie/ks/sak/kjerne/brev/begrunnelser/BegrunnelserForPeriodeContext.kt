@@ -334,8 +334,6 @@ class BegrunnelserForPeriodeContext(
         standardBegrunnelse: IBegrunnelse,
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (standardBegrunnelse.begrunnelseType) {
-        BegrunnelseType.REDUKSJON,
-        BegrunnelseType.EØS_REDUKSJON,
         BegrunnelseType.EØS_INNVILGET,
         BegrunnelseType.ENDRET_UTBETALING,
         BegrunnelseType.INNVILGET,
@@ -343,6 +341,17 @@ class BegrunnelserForPeriodeContext(
 
         BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG ->
             finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomEllerRettFørPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
+
+        BegrunnelseType.REDUKSJON,
+        BegrunnelseType.EØS_REDUKSJON,
+        -> {
+            val personerMedReduksjonPgaOpphør = finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode().keys - finnPersonerMedVilkårResultaterSomGjelderIPeriode().keys
+            if (personerMedReduksjonPgaOpphør.isEmpty()) {
+                finnPersonerMedVilkårResultaterSomGjelderIPeriode()
+            } else {
+                finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+            }
+        }
 
         BegrunnelseType.EØS_OPPHØR,
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
