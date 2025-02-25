@@ -5,6 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagEnhet
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
@@ -40,7 +41,7 @@ class TilpassArbeidsfordelingServiceTest {
                         navIdent = null,
                     )
                 }
-            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident")
+            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
         }
 
         @Test
@@ -62,13 +63,13 @@ class TilpassArbeidsfordelingServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<Feil> {
+                assertThrows<FunksjonellFeil> {
                     tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                         arbeidsfordelingsenhet = arbeidsfordelingsenhet,
                         navIdent = navIdent,
                     )
                 }
-            assertThat(exception.message).isEqualTo("NAV-ident $navIdent har ikke tilgang til noen enheter")
+            assertThat(exception.message).isEqualTo("Nav-Ident har ikke tilgang til noen enheter.")
         }
 
         @Test
@@ -169,7 +170,7 @@ class TilpassArbeidsfordelingServiceTest {
                         navIdent = null,
                     )
                 }
-            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident")
+            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident.")
         }
 
         @Test
@@ -294,13 +295,13 @@ class TilpassArbeidsfordelingServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<Feil> {
+                assertThrows<FunksjonellFeil> {
                     tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                         arbeidsfordelingsenhet = arbeidsfordelingsenhet,
                         navIdent = navIdent,
                     )
                 }
-            assertThat(exception.message).isEqualTo("NAV-ident $navIdent har ikke tilgang til noen enheter")
+            assertThat(exception.message).isEqualTo("Nav-Ident har ikke tilgang til noen enheter.")
         }
 
         @Test

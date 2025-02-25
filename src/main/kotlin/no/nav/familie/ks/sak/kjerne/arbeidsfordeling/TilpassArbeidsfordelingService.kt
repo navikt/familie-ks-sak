@@ -2,16 +2,21 @@ package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.containsExactly
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.SYSTEM_FORKORTELSE
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class TilpassArbeidsfordelingService(
     private val integrasjonClient: IntegrasjonClient,
 ) {
+    private val logger = LoggerFactory.getLogger(TilpassArbeidsfordelingService::class.java)
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
+
     fun tilpassArbeidsfordelingsenhetTilSaksbehandler(
         arbeidsfordelingsenhet: Arbeidsfordelingsenhet,
         navIdent: NavIdent?,
@@ -50,11 +55,14 @@ class TilpassArbeidsfordelingService(
         navIdent: NavIdent?,
     ): Arbeidsfordelingsenhet {
         if (navIdent == null) {
-            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident")
+            logger.error("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
+            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
         }
         val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
-            throw Feil("NAV-ident $navIdent har ikke tilgang til noen enheter")
+            logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
+            secureLogger.warn("Nav-Ident $navIdent har ikke tilgang til noen enheter.")
+            throw FunksjonellFeil("Nav-Ident har ikke tilgang til noen enheter.")
         }
         val navIdentHarKunTilgangTilVikafossen = enheterNavIdentHarTilgangTil.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
         if (navIdentHarKunTilgangTilVikafossen) {
@@ -77,7 +85,8 @@ class TilpassArbeidsfordelingService(
         navIdent: NavIdent?,
     ): Arbeidsfordelingsenhet {
         if (navIdent == null) {
-            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident")
+            logger.error("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident.")
+            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident.")
         }
         return Arbeidsfordelingsenhet(
             KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
@@ -98,7 +107,9 @@ class TilpassArbeidsfordelingService(
         }
         val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
-            throw Feil("NAV-ident $navIdent har ikke tilgang til noen enheter")
+            logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
+            secureLogger.warn("Nav-Ident $navIdent har ikke tilgang til noen enheter.")
+            throw FunksjonellFeil("Nav-Ident har ikke tilgang til noen enheter.")
         }
         val navIdentHarKunTilgangTilVikafossen = enheterNavIdentHarTilgangTil.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
         if (navIdentHarKunTilgangTilVikafossen) {
