@@ -23,8 +23,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.Utenland
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import org.apache.commons.lang3.RandomStringUtils
 import java.math.BigDecimal
+import java.security.SecureRandom
 import java.time.LocalDate
 
 fun lagBrevTest(
@@ -50,7 +50,7 @@ fun lagBrevTest(
 # language: no
 # encoding: UTF-8
 
-Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.insecure().nextAlphanumeric(10)}
+Egenskap: Plassholdertekst for egenskap - ${SecureRandom().nextLong()}
 
   Bakgrunn:""" +
             hentTekstForFagsak() +
@@ -58,7 +58,7 @@ Egenskap: Plassholdertekst for egenskap - ${RandomStringUtils.insecure().nextAlp
             hentTekstForPersongrunnlag(persongrunnlag, persongrunnlagForrigeBehandling) +
             """
       
-  Scenario: Plassholdertekst for scenario - ${RandomStringUtils.insecure().nextAlphanumeric(10)}
+  Scenario: Plassholdertekst for scenario - ${SecureRandom().nextLong()}
     Og følgende dagens dato ${LocalDate.now().tilddMMyyyy()}""" +
             hentTekstForVilkårresultater(
                 personResultaterForrigeBehandling?.sorterPåFødselsdato(persongrunnlagForrigeBehandling!!),
