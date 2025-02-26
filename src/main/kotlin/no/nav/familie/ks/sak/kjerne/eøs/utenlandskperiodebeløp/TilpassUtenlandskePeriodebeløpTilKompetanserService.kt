@@ -12,8 +12,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.tidslinje.Tidslinje
-import no.nav.familie.tidslinje.outerJoin
 import no.nav.familie.tidslinje.utvidelser.filtrer
+import no.nav.familie.tidslinje.utvidelser.outerJoin
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -85,5 +85,4 @@ internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
         }.tilSkjemaer()
 }
 
-fun Map<Aktør, Tidslinje<Kompetanse>>.filtrerSekundærland() =
-    this.mapValues { (_, tidslinje) -> tidslinje.filtrer { it?.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND } }
+fun Map<Aktør, Tidslinje<Kompetanse>>.filtrerSekundærland() = this.mapValues { (_, tidslinje) -> tidslinje.filtrer { it?.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND } }

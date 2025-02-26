@@ -95,8 +95,7 @@ enum class Trigger {
     }
 }
 
-fun SanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling() =
-    Trigger.GJELDER_FØRSTE_PERIODE in this.triggere
+fun SanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling() = Trigger.GJELDER_FØRSTE_PERIODE in this.triggere
 
 enum class SanityResultat {
     INNVILGET,

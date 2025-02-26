@@ -11,12 +11,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 object VilkårsvurderingMapper {
     fun lagPersonResultatRespons(
         personResultat: PersonResultat,
-    ) =
-        PersonResultatResponsDto(
-            personIdent = personResultat.aktør.aktivFødselsnummer(),
-            vilkårResultater = personResultat.vilkårResultater.map { lagVilkårResultatRespons(it) },
-            andreVurderinger = personResultat.andreVurderinger.map { lagAnnenVurderingRespons(it) },
-        )
+    ) = PersonResultatResponsDto(
+        personIdent = personResultat.aktør.aktivFødselsnummer(),
+        vilkårResultater = personResultat.vilkårResultater.map { lagVilkårResultatRespons(it) },
+        andreVurderinger = personResultat.andreVurderinger.map { lagAnnenVurderingRespons(it) },
+    )
 
     private fun lagVilkårResultatRespons(vilkårResultat: VilkårResultat) =
         VilkårResultatDto(

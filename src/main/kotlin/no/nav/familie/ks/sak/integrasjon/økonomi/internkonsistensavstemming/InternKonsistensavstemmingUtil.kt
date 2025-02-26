@@ -103,8 +103,7 @@ private fun List<AndelTilkjentYtelse>.tilBeløpstidslinje() =
             )
         }.tilTidslinje()
 
-private fun List<Utbetalingsperiode>.tilTidStrenger() =
-    slåSammen(this.map { "${it.vedtakdatoFom.toYearMonth()} til ${it.vedtakdatoTom.toYearMonth()}" })
+private fun List<Utbetalingsperiode>.tilTidStrenger() = slåSammen(this.map { "${it.vedtakdatoFom.toYearMonth()} til ${it.vedtakdatoTom.toYearMonth()}" })
 
 private sealed interface AndelOgOppdragForskjell
 

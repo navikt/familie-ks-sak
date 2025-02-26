@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.YearMonth
 
 internal class UtbetalingsperiodeServiceTest {
@@ -719,6 +720,86 @@ internal class UtbetalingsperiodeServiceTest {
                     Pair(0L, null),
                     Pair(1L, null),
                 ),
+        )
+    }
+
+    @Test
+    fun `genererUtbetalingsoppdrag - revurdering hvor en overgangsordningandel settes til 0 skal ikke inkludere den andelen`() {
+        val barn = tilfeldigPerson()
+
+        val forrigeBehandling = lagBehandling()
+        val forrigeTilkjentYtelse = lagInitiellTilkjentYtelse(forrigeBehandling)
+        forrigeTilkjentYtelse.andelerTilkjentYtelse.addAll(
+            mutableSetOf(
+                lagAndelTilkjentYtelse(
+                    id = 0,
+                    fom = YearMonth.of(2024, 2),
+                    tom = YearMonth.of(2024, 8),
+                    beløp = 7500,
+                    person = barn,
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                    periodeIdOffset = 0,
+                ),
+                lagAndelTilkjentYtelse(
+                    id = 1,
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 12),
+                    beløp = 7500,
+                    person = barn,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                    periodeIdOffset = 1,
+                ),
+            ),
+        )
+
+        val vedtak = lagVedtak()
+        val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(
+            mutableSetOf(
+                lagAndelTilkjentYtelse(
+                    id = 2,
+                    fom = YearMonth.of(2024, 2),
+                    tom = YearMonth.of(2024, 8),
+                    beløp = 7500,
+                    person = barn,
+                    ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                ),
+                lagAndelTilkjentYtelse(
+                    id = 3,
+                    fom = YearMonth.of(2024, 9),
+                    tom = YearMonth.of(2024, 12),
+                    beløp = 0,
+                    person = barn,
+                    ytelseType = YtelseType.OVERGANGSORDNING,
+                ),
+            ),
+        )
+
+        val tilkjentYtelseSlot = slot<TilkjentYtelse>()
+        setUpMocks(
+            behandling = vedtak.behandling,
+            tilkjentYtelse = tilkjentYtelse,
+            tilkjentYtelseSlot = tilkjentYtelseSlot,
+            forrigeTilkjentYtelse = forrigeTilkjentYtelse,
+        )
+
+        val beregnetUtbetalingsoppdrag =
+            assertDoesNotThrow {
+                utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
+                    vedtak = vedtak,
+                    saksbehandlerId = "abc123",
+                    erSimulering = false,
+                )
+            }
+
+        verify(exactly = 1) { tilkjentYtelseRepository.save(any()) }
+
+        validerBeregnetUtbetalingsoppdragOgAndeler(
+            beregnetUtbetalingsoppdrag = beregnetUtbetalingsoppdrag,
+            andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.filter { it.id == 2L }.toSet(),
+            forventetAntallAndeler = 1,
+            forventetAntallUtbetalingsperioder = 1,
+            forventedeOffsets = listOf(Pair(0L, null)),
         )
     }
 

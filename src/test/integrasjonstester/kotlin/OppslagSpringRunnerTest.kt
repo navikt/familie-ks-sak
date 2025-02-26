@@ -316,8 +316,7 @@ abstract class OppslagSpringRunnerTest {
             ).serialize()
     }
 
-    private fun resetWiremockServers() =
-        applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
+    private fun resetWiremockServers() = applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
 
     private fun clearCaches() =
         cacheManager.cacheNames
@@ -340,8 +339,7 @@ abstract class OppslagSpringRunnerTest {
 
     fun lagrePerson(person: Person): Person = personRepository.saveAndFlush(person)
 
-    fun lagrePersonopplysningGrunnlag(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag =
-        personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)
+    fun lagrePersonopplysningGrunnlag(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag = personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)
 
     fun lagreFagsak(fagsak: Fagsak): Fagsak = fagsakRepository.saveAndFlush(fagsak)
 

@@ -120,8 +120,7 @@ class PersonopplysningGrunnlagService(
         return personopplysningGrunnlagRepository.save(personopplysningGrunnlag)
     }
 
-    fun finnAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? =
-        personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
+    fun finnAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
 
     fun hentAktivPersonopplysningGrunnlagThrows(behandlingId: Long): PersonopplysningGrunnlag =
         personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)

@@ -72,81 +72,79 @@ class BrevmalService {
 
     private fun utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(
         behandlingsresultat: Behandlingsresultat,
-    ) =
-        when (behandlingsresultat) {
-            Behandlingsresultat.INNVILGET,
-            Behandlingsresultat.INNVILGET_OG_OPPHØRT,
-            Behandlingsresultat.INNVILGET_OG_ENDRET,
-            Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
-            Behandlingsresultat.DELVIS_INNVILGET,
-            Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
-            Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
-            Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
-            -> Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
+    ) = when (behandlingsresultat) {
+        Behandlingsresultat.INNVILGET,
+        Behandlingsresultat.INNVILGET_OG_OPPHØRT,
+        Behandlingsresultat.INNVILGET_OG_ENDRET,
+        Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.DELVIS_INNVILGET,
+        Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
+        Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
+        Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
+        -> Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
 
-            Behandlingsresultat.AVSLÅTT,
-            -> Brevmal.VEDTAK_AVSLAG
+        Behandlingsresultat.AVSLÅTT,
+        -> Brevmal.VEDTAK_AVSLAG
 
-            Behandlingsresultat.AVSLÅTT_OG_ENDRET,
-            Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
-            Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
-            -> Brevmal.VEDTAK_ENDRING
+        Behandlingsresultat.AVSLÅTT_OG_ENDRET,
+        Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
+        Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
+        -> Brevmal.VEDTAK_ENDRING
 
-            Behandlingsresultat.ENDRET_UTBETALING,
-            Behandlingsresultat.ENDRET_UTEN_UTBETALING,
-            Behandlingsresultat.ENDRET_OG_OPPHØRT,
-            Behandlingsresultat.OPPHØRT,
-            Behandlingsresultat.FORTSATT_OPPHØRT,
-            Behandlingsresultat.FORTSATT_INNVILGET,
-            Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET,
-            Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET,
-            Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD,
-            Behandlingsresultat.IKKE_VURDERT,
-            -> throw FunksjonellFeil(
-                melding = "Brev ikke støttet for førstegangsbehandling og behandlingsresultat=$behandlingsresultat",
-                frontendFeilmelding = frontendFeilmelding,
-            )
-        }
+        Behandlingsresultat.ENDRET_UTBETALING,
+        Behandlingsresultat.ENDRET_UTEN_UTBETALING,
+        Behandlingsresultat.ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.OPPHØRT,
+        Behandlingsresultat.FORTSATT_OPPHØRT,
+        Behandlingsresultat.FORTSATT_INNVILGET,
+        Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET,
+        Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET,
+        Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD,
+        Behandlingsresultat.IKKE_VURDERT,
+        -> throw FunksjonellFeil(
+            melding = "Brev ikke støttet for førstegangsbehandling og behandlingsresultat=$behandlingsresultat",
+            frontendFeilmelding = frontendFeilmelding,
+        )
+    }
 
     private fun utledBrevmalFraBehandlingsresultatForRevurdering(
         behandlingsresultat: Behandlingsresultat,
-    ) =
-        when (behandlingsresultat) {
-            Behandlingsresultat.INNVILGET,
-            Behandlingsresultat.INNVILGET_OG_ENDRET,
-            Behandlingsresultat.DELVIS_INNVILGET,
-            Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
-            Behandlingsresultat.AVSLÅTT_OG_ENDRET,
-            Behandlingsresultat.ENDRET_UTBETALING,
-            Behandlingsresultat.ENDRET_UTEN_UTBETALING,
-            -> Brevmal.VEDTAK_ENDRING
+    ) = when (behandlingsresultat) {
+        Behandlingsresultat.INNVILGET,
+        Behandlingsresultat.INNVILGET_OG_ENDRET,
+        Behandlingsresultat.DELVIS_INNVILGET,
+        Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET,
+        Behandlingsresultat.AVSLÅTT_OG_ENDRET,
+        Behandlingsresultat.ENDRET_UTBETALING,
+        Behandlingsresultat.ENDRET_UTEN_UTBETALING,
+        -> Brevmal.VEDTAK_ENDRING
 
-            Behandlingsresultat.OPPHØRT,
-            Behandlingsresultat.FORTSATT_OPPHØRT,
-            -> Brevmal.VEDTAK_OPPHØRT
+        Behandlingsresultat.OPPHØRT,
+        Behandlingsresultat.FORTSATT_OPPHØRT,
+        -> Brevmal.VEDTAK_OPPHØRT
 
-            Behandlingsresultat.INNVILGET_OG_OPPHØRT,
-            Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
-            Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
-            Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
-            Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
-            Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
-            Behandlingsresultat.ENDRET_OG_OPPHØRT,
-            -> Brevmal.VEDTAK_OPPHØR_MED_ENDRING
+        Behandlingsresultat.INNVILGET_OG_OPPHØRT,
+        Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT,
+        Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.AVSLÅTT_OG_OPPHØRT,
+        Behandlingsresultat.AVSLÅTT_ENDRET_OG_OPPHØRT,
+        Behandlingsresultat.ENDRET_OG_OPPHØRT,
+        -> Brevmal.VEDTAK_OPPHØR_MED_ENDRING
 
-            Behandlingsresultat.FORTSATT_INNVILGET,
-            -> Brevmal.VEDTAK_FORTSATT_INNVILGET
+        Behandlingsresultat.FORTSATT_INNVILGET,
+        -> Brevmal.VEDTAK_FORTSATT_INNVILGET
 
-            Behandlingsresultat.AVSLÅTT,
-            -> Brevmal.VEDTAK_AVSLAG
+        Behandlingsresultat.AVSLÅTT,
+        -> Brevmal.VEDTAK_AVSLAG
 
-            Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET,
-            Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET,
-            Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD,
-            Behandlingsresultat.IKKE_VURDERT,
-            -> throw FunksjonellFeil(
-                melding = "Brev ikke støttet for revurdering og behandlingsresultat=$behandlingsresultat",
-                frontendFeilmelding = frontendFeilmelding,
-            )
-        }
+        Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET,
+        Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET,
+        Behandlingsresultat.HENLAGT_TEKNISK_VEDLIKEHOLD,
+        Behandlingsresultat.IKKE_VURDERT,
+        -> throw FunksjonellFeil(
+            melding = "Brev ikke støttet for revurdering og behandlingsresultat=$behandlingsresultat",
+            frontendFeilmelding = frontendFeilmelding,
+        )
+    }
 }

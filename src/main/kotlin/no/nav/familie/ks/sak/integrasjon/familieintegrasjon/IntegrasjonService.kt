@@ -15,8 +15,7 @@ class IntegrasjonService(
 ) {
     fun sjekkTilgangTilPerson(personIdent: String): Tilgang = sjekkTilgangTilPersoner(listOf(personIdent)).values.single()
 
-    fun sjekkTilgangTilPersoner(personIdenter: List<String>): Map<String, Tilgang> =
-        integrasjonClient.sjekkTilgangTilPersoner(personIdenter).associateBy { it.personIdent }
+    fun sjekkTilgangTilPersoner(personIdenter: List<String>): Map<String, Tilgang> = integrasjonClient.sjekkTilgangTilPersoner(personIdenter).associateBy { it.personIdent }
 
     fun hentMaskertPersonInfoVedManglendeTilgang(aktør: Aktør): PersonInfoDto? {
         val harTilgang = sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang

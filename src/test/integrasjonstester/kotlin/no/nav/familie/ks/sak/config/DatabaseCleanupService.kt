@@ -40,8 +40,7 @@ class DatabaseCleanupService(
             return field
         }
 
-    private fun getJdbcTableNames(): List<String> =
-        relationalMappingContext.persistentEntities.map { it.tableName.toSql(IdentifierProcessing.NONE) }
+    private fun getJdbcTableNames(): List<String> = relationalMappingContext.persistentEntities.map { it.tableName.toSql(IdentifierProcessing.NONE) }
 
     /**
      * Utility method that truncates all identified tables

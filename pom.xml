@@ -33,13 +33,13 @@
         <springdoc.version>2.8.3</springdoc.version>
 
         <!-- Nav felles -->
-        <felles.version>3.20241121151626_836e7ca</felles.version>
+        <felles.version>3.20250225161902_197977b</felles.version>
         <nav-token-client.version>5.0.14</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
         <prosessering.version>2.20241118095311_c66bd61</prosessering.version>
-        <felles-kontrakter.version>3.0_20241127135607_0f52105</felles-kontrakter.version>
+        <felles-kontrakter.version>3.0_20250224083824_7fcdc47</felles-kontrakter.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20241202154750_04e0171</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
@@ -69,7 +69,7 @@
 
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <ktlint-cli.version>1.3.1</ktlint-cli.version>
+        <ktlint-cli.version>1.5.0</ktlint-cli.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>

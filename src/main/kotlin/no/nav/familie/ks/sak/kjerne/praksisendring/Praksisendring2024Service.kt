@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.praksisendring
 
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.inkluderer
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -86,17 +87,21 @@ class Praksisendring2024Service(
             return false
         }
 
-        val harOrdinærAndelISammeMånedSom13Måneder = andelerTilkjentYtelse.any { it.aktør == barn.aktør && it.stønadsPeriode().inkluderer(barn13Måneder) }
-        if (harOrdinærAndelISammeMånedSom13Måneder) {
+        val harOrdinærAndelISammeMånedSom13MånederSomIkkeErRedusert =
+            andelerTilkjentYtelse.any {
+                it.aktør == barn.aktør && it.stønadsPeriode().inkluderer(barn13Måneder) && it.prosent == BigDecimal.valueOf(100)
+            }
+
+        if (harOrdinærAndelISammeMånedSom13MånederSomIkkeErRedusert) {
             return false
         }
 
-        val starterIBarnehageSammeMånedSom13Måneder =
+        val harBarnehageplassSammeMånedSom13Måneder =
             vilkårResultater.any {
-                it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.resultat == Resultat.IKKE_OPPFYLT
+                it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.antallTimer != null && it.antallTimer > BigDecimal.ZERO
             }
 
-        if (!starterIBarnehageSammeMånedSom13Måneder) {
+        if (!harBarnehageplassSammeMånedSom13Måneder) {
             return false
         }
 
@@ -107,7 +112,7 @@ class Praksisendring2024Service(
             forskøvedeVilkår.all {
                 it.value.any {
                     val fom = (it.fom ?: TIDENES_MORGEN).toYearMonth()
-                    val tom = (it.tom ?: TIDENES_MORGEN).toYearMonth()
+                    val tom = (it.tom ?: TIDENES_ENDE).toYearMonth()
                     barn13Måneder in fom..tom && it.verdi.resultat == Resultat.OPPFYLT
                 }
             }

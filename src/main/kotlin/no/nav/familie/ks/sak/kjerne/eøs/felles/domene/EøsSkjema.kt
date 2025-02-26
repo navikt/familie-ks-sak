@@ -31,18 +31,15 @@ fun <T : EøsSkjema<T>> T.utenPeriode(): T = this.kopier(fom = null, tom = null,
 // Sjekker om oppdatering skjema tom dato er ikke null og
 // enten eksisterende skjema tom dato var null
 // eller oppdatering skjema tom dato var satt til tidligere dato enn eksisterende skjema tom dato
-fun <T : EøsSkjema<T>> T.tomBlirForkortetEllerLukketAv(skjema: T): Boolean =
-    skjema.tom != null && (this.tom == null || checkNotNull(this.tom) > skjema.tom)
+fun <T : EøsSkjema<T>> T.tomBlirForkortetEllerLukketAv(skjema: T): Boolean = skjema.tom != null && (this.tom == null || checkNotNull(this.tom) > skjema.tom)
 
 fun <T : EøsSkjema<T>> T.erLikBortsettFraTom(skjema: T): Boolean = this.kopier(tom = skjema.tom) == skjema
 
 fun <T : EøsSkjema<T>> T.erLikBortsettFraBarn(skjema: T): Boolean = this.kopier(barnAktører = skjema.barnAktører) == skjema
 
-fun <T : EøsSkjema<T>> T.erLikBortsettFraBarnOgTom(skjema: T): Boolean =
-    this.kopier(barnAktører = skjema.barnAktører, tom = skjema.tom) == skjema
+fun <T : EøsSkjema<T>> T.erLikBortsettFraBarnOgTom(skjema: T): Boolean = this.kopier(barnAktører = skjema.barnAktører, tom = skjema.tom) == skjema
 
-fun <T : EøsSkjema<T>> T.manglerBarn(skjema: T): Boolean =
-    this.barnAktører.size < skjema.barnAktører.size && skjema.barnAktører.containsAll(this.barnAktører)
+fun <T : EøsSkjema<T>> T.manglerBarn(skjema: T): Boolean = this.barnAktører.size < skjema.barnAktører.size && skjema.barnAktører.containsAll(this.barnAktører)
 
 fun <T : EøsSkjema<T>> T.medFjernetBarn(skjema: T): T = this.kopier(barnAktører = skjema.barnAktører.minus(this.barnAktører))
 

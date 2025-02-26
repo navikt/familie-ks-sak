@@ -128,11 +128,9 @@ class StatsborgerskapService(
     private fun erEØSMedlemPåGittDato(
         eøsMedlemskapsperioderForValgtLand: List<BetydningDto>,
         gjeldendeDato: LocalDate?,
-    ): Boolean =
-        eøsMedlemskapsperioderForValgtLand.any { gjeldendeDato == null || (it.gyldigFra <= gjeldendeDato && it.gyldigTil >= gjeldendeDato) }
+    ): Boolean = eøsMedlemskapsperioderForValgtLand.any { gjeldendeDato == null || (it.gyldigFra <= gjeldendeDato && it.gyldigTil >= gjeldendeDato) }
 
-    private fun erInnenforDatoerSomBetegnerUendelighetIKodeverk(dato: LocalDate) =
-        dato.isAfter(TIDLIGSTE_DATO_I_KODEVERK) && dato.isBefore(SENESTE_DATO_I_KODEVERK)
+    private fun erInnenforDatoerSomBetegnerUendelighetIKodeverk(dato: LocalDate) = dato.isAfter(TIDLIGSTE_DATO_I_KODEVERK) && dato.isBefore(SENESTE_DATO_I_KODEVERK)
 
     private fun erInnenforDatoerForStatsborgerskapet(
         dato: LocalDate,
