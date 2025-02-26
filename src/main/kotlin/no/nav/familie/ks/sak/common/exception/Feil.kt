@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.common.exception
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import no.nav.familie.log.mdc.MDCConstants
+import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 
@@ -11,7 +13,12 @@ open class Feil(
     open val httpStatus: HttpStatus = HttpStatus.OK,
     open val throwable: Throwable? = null,
     override val cause: Throwable? = throwable,
-) : RuntimeException(message)
+    var callId: String? = null,
+) : RuntimeException(message) {
+    init {
+        callId = MDC.get(MDCConstants.MDC_CALL_ID)
+    }
+}
 
 open class FunksjonellFeil(
     open val melding: String,
@@ -19,7 +26,12 @@ open class FunksjonellFeil(
     open val httpStatus: HttpStatus = HttpStatus.OK,
     open val throwable: Throwable? = null,
     override val cause: Throwable? = throwable,
-) : RuntimeException(melding)
+    var callId: String? = null,
+) : RuntimeException(melding) {
+    init {
+        callId = MDC.get(MDCConstants.MDC_CALL_ID)
+    }
+}
 
 class UtbetalingsikkerhetFeil(
     melding: String,
