@@ -75,7 +75,7 @@ fun parseNasjonalEllerFellesBegrunnelse(rad: Tabellrad): BegrunnelseDtoMedData {
                 BrevPeriodeParser.DomenebegrepBrevBegrunnelse.SØKNADSTIDSPUNKT,
                 rad,
             ) ?: "",
-        maanedOgAarFoorVedtaksperiode =
+        maanedOgAarFoerVedtaksperiode =
             parseValgfriString(
                 BrevPeriodeParser.DomenebegrepBrevBegrunnelse.MÅNED_OG_ÅR_FØR_VEDTAKSPERIODE,
                 rad,
