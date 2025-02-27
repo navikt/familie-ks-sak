@@ -2,24 +2,25 @@
 name: Main
 on:
   workflow_dispatch:
-#  push:
-#    branches:
-#      - 'main'
-#    paths-ignore:
-#      - '**.md'
-#      - '**.MD'
-#      - '.github/*.yml'
-#      - '.gitignore'
-#      - 'CODEOWNERS'
-#      - 'LICENSE'
+  push:
+    branches:
+      - 'main'
+    paths-ignore:
+      - '**.md'
+      - '**.MD'
+      - '.github/*.yaml'
+      - '.gitignore'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+
 jobs:
   build:
     name: Build
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
-      packages: write
       id-token: write
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yaml@main
     with:
       build-image: true
       push-image: true
@@ -29,20 +30,20 @@ jobs:
     permissions:
       id-token: write
     needs: [ build ]
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main
     with:
       image: ${{ needs.build.outputs.image }}
       cluster: dev-gcp
-      resource: .deploy/nais/app-preprod.yaml
+      resource: .nais/app-dev.yaml
     secrets: inherit
   deploy-prod:
     name: Deploy prod
     permissions:
       id-token: write
     needs: [ build, deploy-dev ]
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main
     with:
       image: ${{ needs.build.outputs.image }}
       cluster: prod-gcp
-      resource: .deploy/nais/app-prod.yaml
+      resource: .nais/app-prod.yaml
     secrets: inherit

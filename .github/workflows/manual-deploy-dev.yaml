@@ -1,14 +1,7 @@
-name: Manual deploy
+name: Manual deploy to dev
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Environment to deploy to"
-        required: true
-        type: choice
-        options:
-          - dev
-          - prod
       skip-tests:
         description: 'Skip tests?'
         required: false
@@ -20,9 +13,8 @@ jobs:
     name: Build
     permissions:
       contents: read
-      packages: write
       id-token: write
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yaml@main
     with:
       skip-tests: ${{ inputs.skip-tests }}
       build-image: true
@@ -33,9 +25,9 @@ jobs:
     permissions:
       id-token: write
     needs: [ build ]
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main
     with:
       image: ${{ needs.build.outputs.image }}
-      cluster: ${{ inputs.environment }}-gcp
-      resource: .deploy/nais/app-${{ inputs.environment == 'dev' && 'preprod' || inputs.environment }}.yaml
+      cluster: dev-gcp
+      resource: .nais/app-dev.yaml
     secrets: inherit
