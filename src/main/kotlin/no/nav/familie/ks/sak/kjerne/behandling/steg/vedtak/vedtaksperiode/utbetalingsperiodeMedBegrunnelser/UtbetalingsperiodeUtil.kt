@@ -93,9 +93,25 @@ fun hentPerioderMedUtbetaling(
                         }.toMutableSet(),
                 )
             }
-
+            if (erFramtidigOpphørIForrigePeriode(forskjøvetVilkårResultatTidslinjeMap, periode)) {
+                vedtaksperiodeMedBegrunnelser.begrunnelser.add(
+                    NasjonalEllerFellesBegrunnelse.REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
+                )
+            }
             vedtaksperiodeMedBegrunnelser
         }
+}
+
+fun erFramtidigOpphørIForrigePeriode(
+    forskjøvetVilkårResultatTidslinjeMap: Map<Aktør, Tidslinje<List<VilkårResultat>>>,
+    periode: Periode<SplittkriterierForVedtaksperiode>,
+): Boolean {
+    val vilkårsresultater =
+        forskjøvetVilkårResultatTidslinjeMap
+            .flatMap { (_, tidslinjePrPers) ->
+                tidslinjePrPers.tilPerioder().flatMap { it.verdi ?: emptyList() }
+            }
+    return vilkårsresultater.any { it.periodeTom == periode.fom?.minusDays(1) && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.søkerHarMeldtFraOmBarnehageplass == true }
 }
 
 fun hentBegrunnelserForOvergangsordningPerioder(periode: Periode<SplittkriterierForVedtaksperiode>): Set<NasjonalEllerFellesBegrunnelse> {
