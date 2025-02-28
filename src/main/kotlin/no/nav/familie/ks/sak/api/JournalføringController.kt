@@ -67,8 +67,7 @@ class JournalføringController(
     fun journalførOppgave(
         @PathVariable journalpostId: String,
         @PathVariable oppgaveId: String,
-        @RequestBody @Valid
-        request: JournalføringRequestDto,
+        @RequestBody @Valid request: JournalføringRequestDto,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
