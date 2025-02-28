@@ -36,11 +36,11 @@ private fun settClientIdOgSecret() {
     logger.info("Henter miljøvariabler fra Kubernetes...")
     val process = ProcessBuilder(cmd).start()
 
-    val status = process.waitFor()
-    if (status == 1) {
+    if (process.waitFor() == 1) {
+        val inputStream = BufferedReader(InputStreamReader(process.inputStream))
+        inputStream.lines().forEach { println(it) }
+        inputStream.close()
         error("Klarte ikke hente variabler fra Nais. Er du logget på Naisdevice og gcloud?")
-    } else if (status == 2) {
-        error("Feil context satt for kubectl, du må bruke dev-gcp?")
     }
 
     val inputStream = BufferedReader(InputStreamReader(process.inputStream))
