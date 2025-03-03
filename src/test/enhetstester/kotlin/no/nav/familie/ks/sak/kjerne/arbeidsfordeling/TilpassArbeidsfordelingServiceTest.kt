@@ -58,7 +58,7 @@ class TilpassArbeidsfordelingServiceTest {
                 assertThrows<Feil> {
                     tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
                         arbeidsfordelingsenhet = arbeidsfordelingPåBehandling,
-                        navIdent = null,
+                        navIdent = NavIdent(SYSTEM_FORKORTELSE),
                     )
                 }
             assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} i automatiske behandlinger.")
