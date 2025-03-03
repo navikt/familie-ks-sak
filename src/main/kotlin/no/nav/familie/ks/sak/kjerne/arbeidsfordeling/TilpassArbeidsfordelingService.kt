@@ -58,6 +58,11 @@ class TilpassArbeidsfordelingService(
             logger.error("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
             throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
         }
+        if (navIdent.erSystemIdent()) {
+            logger.error("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} i automatiske behandlinger.")
+            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} i automatiske behandlinger.")
+        }
+
         val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
             logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
