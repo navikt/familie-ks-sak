@@ -45,6 +45,26 @@ class TilpassArbeidsfordelingServiceTest {
         }
 
         @Test
+        fun `skal kaste feil om arbeidsfordeling er midlertidig enhet 4863 og NAV-ident er systembruker`() {
+            // Arrange
+            val arbeidsfordelingPåBehandling =
+                Arbeidsfordelingsenhet(
+                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
+                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<Feil> {
+                    tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                        arbeidsfordelingsenhet = arbeidsfordelingPåBehandling,
+                        navIdent = null,
+                    )
+                }
+            assertThat(exception.message).isEqualTo("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} i automatiske behandlinger.")
+        }
+
+        @Test
         fun `skal kaste feil om arbeidsfordeling er midlertidig enhet 4863 og NAV-ident ikke har tilgang til noen andre enheter enn 4863 og 2103`() {
             // Arrange
             val navIdent = NavIdent("1")
