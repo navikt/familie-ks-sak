@@ -31,8 +31,8 @@ Egenskap: Reduksjon antall timer i barnehage
 
       | 3       | BOSATT_I_RIKET,BOR_MED_SØKER,MEDLEMSKAP_ANNEN_FORELDER |                  | 09.01.2024 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
       | 3       | BARNEHAGEPLASS                                         |                  | 09.01.2024 | 28.02.2025 | OPPFYLT  | Nei                  |                      |                  | Nei                                   |              |
-      | 3       | BARNETS_ALDER                                          |                  | 09.01.2025 | 09.09.2025 | OPPFYLT  | Nei                  |                      |                  | Nei                                   |              |
       | 3       | BARNEHAGEPLASS                                         |                  | 01.03.2025 |            | OPPFYLT  | Nei                  |                      |                  | Nei                                   | 8            |
+      | 3       | BARNETS_ALDER                                          |                  | 09.01.2025 | 09.09.2025 | OPPFYLT  | Nei                  |                      |                  | Nei                                   |              |
 
     Og andeler er beregnet for behandling 1
 
@@ -64,4 +64,4 @@ Egenskap: Reduksjon antall timer i barnehage
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.03.2025 til 31.08.2025
       | Begrunnelse                      | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp  | Antall timer barnehageplass | Gjelder andre forelder | Måned og år før vedtaksperiode |
-      | REDUKSJON_TILDELT_BARNEHAGEPLASS | STANDARD | nei           | 09.01.24             | 1           | februar 2025                         | 13 500 | 8                           | true                   | februar 2025                   |
+      | REDUKSJON_TILDELT_BARNEHAGEPLASS | STANDARD | nei           | 09.01.24             | 1           | mars 2025                         | 13 500 | 8                           | true                   | februar 2025                   |
