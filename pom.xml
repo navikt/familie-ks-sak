@@ -38,7 +38,7 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250219093533_62416e5</prosessering.version>
+        <prosessering.version>2.20250303103923_6d6da46</prosessering.version>
         <felles-kontrakter.version>3.0_20250226115003_49b0dfa</felles-kontrakter.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20250205141909_256ecd1</familie.kontrakter.stønadsstatistikk>
@@ -46,7 +46,7 @@
         <utbetalingsgenerator.version>1.0_20250206122712_9ec24df</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
