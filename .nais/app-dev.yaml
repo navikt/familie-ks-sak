@@ -109,7 +109,7 @@ spec:
     limits:
       memory: 2048Mi
     requests:
-      memory: 1024Mi
+      memory: 512Mi
       cpu: 50m
   ingresses:
     - https://familie-ks-sak.intern.dev.nav.no
