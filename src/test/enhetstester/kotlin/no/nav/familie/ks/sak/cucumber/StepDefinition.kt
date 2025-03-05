@@ -356,6 +356,10 @@ class StepDefinition {
         dataTable: DataTable,
     ) {
         val forventedeStandardBegrunnelser = mapBegrunnelser(dataTable).toSet()
+        val forventedeSanityBegrunnelser =
+            forventedeStandardBegrunnelser
+                .flatMap { it.inkluderteStandardBegrunnelser }
+                .mapNotNull { begrunnelse -> sanityBegrunnelserMock.singleOrNull { it.apiNavn == begrunnelse.sanityApiNavn } }
 
         forventedeStandardBegrunnelser.forEach { forventet ->
             val faktisk =
@@ -365,7 +369,7 @@ class StepDefinition {
                             gyldigeBegrunnelser =
                                 BegrunnelserForPeriodeContext(
                                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                                    sanityBegrunnelser = sanityBegrunnelserMock,
+                                    sanityBegrunnelser = forventedeSanityBegrunnelser,
                                     personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                                     personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
                                     endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),

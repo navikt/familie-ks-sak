@@ -148,8 +148,8 @@ spec:
     limits:
       memory: 4096Mi
     requests:
-      memory: 512Mi
-      cpu: 100m
+      memory: 2048Mi
+      cpu: 250m
   ingresses:
     - https://familie-ks-sak.intern.nav.no
   secureLogs:
