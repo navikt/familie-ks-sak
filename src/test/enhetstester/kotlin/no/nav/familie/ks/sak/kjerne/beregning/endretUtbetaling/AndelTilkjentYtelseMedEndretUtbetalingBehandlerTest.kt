@@ -63,7 +63,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
             val andelerTilkjentYtelse =
-                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
                     utbetalingsandeler,
                     listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                 )
@@ -123,7 +123,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel2, utbetalingsandeler)
 
             val andelerTilkjentYtelse =
-                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
                     utbetalingsandeler,
                     listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
                 )
@@ -171,7 +171,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
             )
@@ -214,7 +214,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
             )

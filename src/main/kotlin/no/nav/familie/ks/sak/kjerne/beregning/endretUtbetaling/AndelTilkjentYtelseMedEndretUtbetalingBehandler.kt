@@ -15,7 +15,7 @@ import java.math.BigDecimal
 import java.time.YearMonth
 
 object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
-    fun oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+    fun oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
         andelTilkjentYtelserUtenEndringer: List<AndelTilkjentYtelse>,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
     ): List<AndelTilkjentYtelseMedEndreteUtbetalinger> {
