@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class BarnehagebarnService(
@@ -21,6 +22,7 @@ class BarnehagebarnService(
         val sort = barnehagebarnRequestParams.toSort()
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
         val hentForKunLøpendeFagsak = barnehagebarnRequestParams.kunLøpendeFagsak
+        val dagensDato = LocalDate.now()
 
         return when {
             !barnehagebarnRequestParams.ident.isNullOrEmpty() ->
@@ -55,6 +57,16 @@ class BarnehagebarnService(
         pageable: PageRequest,
     ) = if (hentForKunLøpendeFagsak) {
         barnehagebarnRepository.findBarnehagebarn(LØPENDE_FAGSAK_STATUS, pageable)
+    } else {
+        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
+    }
+
+    private fun hentAlleBarnehageBarnLøpendeAndel(
+        hentForKunLøpendeAndel: Boolean,
+        dagensDato: LocalDate,
+        pageable: PageRequest,
+    ) = if (hentForKunLøpendeAndel) {
+        barnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, pageable)
     } else {
         barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
     }
