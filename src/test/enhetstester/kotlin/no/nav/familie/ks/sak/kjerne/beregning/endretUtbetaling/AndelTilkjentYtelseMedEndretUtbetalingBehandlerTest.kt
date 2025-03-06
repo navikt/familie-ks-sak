@@ -63,9 +63,10 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
             val andelerTilkjentYtelse =
-                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     utbetalingsandeler,
                     listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                    tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
 
             assertEquals(1, andelerTilkjentYtelse.size)
@@ -123,9 +124,10 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel2, utbetalingsandeler)
 
             val andelerTilkjentYtelse =
-                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     utbetalingsandeler,
                     listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
+                    tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
 
             assertEquals(2, andelerTilkjentYtelse.size)
@@ -171,9 +173,10 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
             )
         val andelTilkjentYtelse = andelerTilkjentYtelse.single()
 
@@ -214,9 +217,10 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
         val andelerTilkjentYtelse =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                 utbetalingsandeler,
                 listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
             )
         val andelTilkjentYtelse = andelerTilkjentYtelse.single()
 
