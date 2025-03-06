@@ -24,7 +24,6 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -256,6 +255,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
 
         @Test
         fun `endret utbetalingsandel skal overstyre andel`() {
+            // Arrange
             val søker = lagPerson(personType = PersonType.SØKER)
             val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
             val fom = YearMonth.of(2018, 1)
@@ -287,6 +287,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndelMedAndelerTilkjentYtelse =
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
+            // Act
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
@@ -294,13 +295,15 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
 
-            assertEquals(1, andelerTilkjentYtelse.size)
-            assertEquals(endretProsent, andelerTilkjentYtelse.single().prosent)
-            assertEquals(1, andelerTilkjentYtelse.single().endreteUtbetalinger.size)
+            // Assert
+            assertThat(andelerTilkjentYtelse.size).isEqualTo(1)
+            assertThat(andelerTilkjentYtelse.single().prosent).isEqualTo(endretProsent)
+            assertThat(andelerTilkjentYtelse.single().endreteUtbetalinger.size).isEqualTo(1)
         }
 
         @Test
         fun `endret utbetalingsandel kobler endrede andeler til riktig endret utbetalingandel`() {
+            // Arrange
             val søker = lagPerson(personType = PersonType.SØKER)
             val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
             val fom1 = YearMonth.of(2018, 1)
@@ -350,6 +353,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndelMedAndelerTilkjentYtelse2 =
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel2, utbetalingsandeler)
 
+            // Act
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
@@ -357,19 +361,20 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
 
-            assertEquals(2, andelerTilkjentYtelse.size)
-            andelerTilkjentYtelse.forEach { assertEquals(endretProsent, it.prosent) }
-            andelerTilkjentYtelse.forEach { assertEquals(1, it.endreteUtbetalinger.size) }
+            // Assert
+            assertThat(andelerTilkjentYtelse.size).isEqualTo(2)
+            andelerTilkjentYtelse.forEach { assertThat(it.prosent).isEqualTo(endretProsent) }
+            andelerTilkjentYtelse.forEach { assertThat(it.endreteUtbetalinger.size).isEqualTo(1) }
             andelerTilkjentYtelse.forEach {
-                assertEquals(
-                    endretUtbetalingAndel.id,
+                assertThat(
                     it.endreteUtbetalinger.single().id,
-                )
+                ).isEqualTo(endretUtbetalingAndel.id)
             }
         }
 
         @Test
         fun `skal ikke overstyre andel ved allerede utbetalt med prosent høyere enn 0`() {
+            // Arrange
             val søker = lagPerson(personType = PersonType.SØKER)
             val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
             val fom = YearMonth.of(2018, 1)
@@ -400,22 +405,26 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndelMedAndelerTilkjentYtelse =
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
+            // Act
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
                     endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
+
+            // Assert
             val andelTilkjentYtelse = andelerTilkjentYtelse.single()
 
-            assertEquals(1, andelerTilkjentYtelse.size)
-            assertEquals(BigDecimal(75), andelTilkjentYtelse.prosent)
-            assertEquals(6000, andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
-            assertEquals(1, andelTilkjentYtelse.endreteUtbetalinger.size)
+            assertThat(andelerTilkjentYtelse.size).isEqualTo(1)
+            assertThat(andelTilkjentYtelse.prosent).isEqualTo(BigDecimal(75))
+            assertThat(andelTilkjentYtelse.kalkulertUtbetalingsbeløp).isEqualTo(6000)
+            assertThat(andelTilkjentYtelse.endreteUtbetalinger.size).isEqualTo(1)
         }
 
         @Test
         fun `skal overstyre andel ved allerede utbetalt med prosent høyere lik 0`() {
+            // Arrange
             val søker = lagPerson(personType = PersonType.SØKER)
             val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
             val fom = YearMonth.of(2018, 1)
@@ -446,18 +455,21 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndelMedAndelerTilkjentYtelse =
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
+            // Act
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
                     endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
+
+            // Assert
             val andelTilkjentYtelse = andelerTilkjentYtelse.single()
 
-            assertEquals(1, andelerTilkjentYtelse.size)
-            assertEquals(BigDecimal(0), andelTilkjentYtelse.prosent)
-            assertEquals(0, andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
-            assertEquals(1, andelTilkjentYtelse.endreteUtbetalinger.size)
+            assertThat(andelerTilkjentYtelse.size).isEqualTo(1)
+            assertThat(andelTilkjentYtelse.prosent).isEqualTo(BigDecimal(0))
+            assertThat(andelTilkjentYtelse.kalkulertUtbetalingsbeløp).isEqualTo(0)
+            assertThat(andelTilkjentYtelse.endreteUtbetalinger.size).isEqualTo(1)
         }
 
         @ParameterizedTest
@@ -467,6 +479,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             mode = EnumSource.Mode.EXCLUDE,
         )
         fun `skal kaste feil hvis man prøver å oppdatere andeler som ikke er ordinær kontantstøtte`(ytelseType: YtelseType) {
+            // Arrange
             val søker = lagPerson(personType = PersonType.SØKER)
             val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
             val fom = YearMonth.of(2018, 1)
@@ -498,6 +511,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndelMedAndelerTilkjentYtelse =
                 EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
 
+            // Act & Assert
             assertThrows<Feil> {
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
                     andelTilkjentYtelserUtenEndringer = utbetalingsandeler,

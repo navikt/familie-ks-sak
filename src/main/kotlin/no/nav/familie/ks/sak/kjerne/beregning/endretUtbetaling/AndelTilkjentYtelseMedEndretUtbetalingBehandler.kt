@@ -52,7 +52,7 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
                     ?: throw Feil("Endret utbetaling andel ${it.endretUtbetalingAndel.id} i behandling ${tilkjentYtelse.behandling.id} er ikke knyttet til en person")
             }
 
-        val oppdaterteAndeler =
+        val andelerMedEndringer =
             andelerPerAktør.flatMap { (aktør, andelerForAktør) ->
                 lagAndelerMedEndretUtbetalingAndelerForPerson(
                     andelerAvTypeForPerson = andelerForAktør,
@@ -61,7 +61,7 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
                 )
             }
 
-        return oppdaterteAndeler
+        return andelerMedEndringer
     }
 
     private fun lagAndelerMedEndretUtbetalingAndelerForPerson(
@@ -173,6 +173,7 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
                 if (forrigeOgNåværendeAndelEr0kr && forrigeOgNåværendeAndelErPåvirketAvSammeEndring) forrigeAndelMedEndring else nåværendeAndelMedEndring
             }.filtrerIkkeNull()
 
+    @Deprecated("Bruk lagAndelerMedEndretUtbetalingAndeler i stedet")
     fun oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
         andelTilkjentYtelserUtenEndringer: List<AndelTilkjentYtelse>,
         endretUtbetalingAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
