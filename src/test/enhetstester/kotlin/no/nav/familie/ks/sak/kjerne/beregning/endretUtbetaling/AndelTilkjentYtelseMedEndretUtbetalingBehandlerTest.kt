@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.nesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -22,10 +23,13 @@ import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -266,7 +270,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                         behandling = behandling,
                         beløp = 1500,
                         sats = 1500,
-                    )
+                    ),
                 )
 
             val endretProsent = BigDecimal.ZERO
@@ -285,8 +289,8 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
 
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
-                    utbetalingsandeler,
-                    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                    andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
+                    endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
 
@@ -348,8 +352,8 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
 
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
-                    utbetalingsandeler,
-                    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
+                    andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
+                    endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse1, endretUtbetalingAndelMedAndelerTilkjentYtelse2),
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
 
@@ -398,8 +402,8 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
 
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
-                    utbetalingsandeler,
-                    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                    andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
+                    endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
             val andelTilkjentYtelse = andelerTilkjentYtelse.single()
@@ -444,8 +448,8 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
 
             val andelerTilkjentYtelse =
                 AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
-                    utbetalingsandeler,
-                    listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                    andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
+                    endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
                     tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
                 )
             val andelTilkjentYtelse = andelerTilkjentYtelse.single()
@@ -454,6 +458,53 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             assertEquals(BigDecimal(0), andelTilkjentYtelse.prosent)
             assertEquals(0, andelTilkjentYtelse.kalkulertUtbetalingsbeløp)
             assertEquals(1, andelTilkjentYtelse.endreteUtbetalinger.size)
+        }
+
+        @ParameterizedTest
+        @EnumSource(
+            value = YtelseType::class,
+            names = ["ORDINÆR_KONTANTSTØTTE"],
+            mode = EnumSource.Mode.EXCLUDE
+        )
+        fun `skal kaste feil hvis man prøver å oppdatere andeler som ikke er ordinær kontantstøtte`(ytelseType: YtelseType) {
+            val søker = lagPerson(personType = PersonType.SØKER)
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+            val fom = YearMonth.of(2018, 1)
+            val tom = YearMonth.of(2019, 1)
+
+            val utbetalingsandeler =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        stønadFom = fom,
+                        stønadTom = tom,
+                        aktør = søker.aktør,
+                        behandling = behandling,
+                        prosent = BigDecimal(75),
+                        kalkulertUtbetalingsbeløp = 6000,
+                        ytelseType = ytelseType,
+                    ),
+                )
+
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    behandlingId = behandling.id,
+                    person = søker,
+                    periodeFom = fom,
+                    periodeTom = tom,
+                    prosent = BigDecimal(0),
+                    årsak = Årsak.ALLEREDE_UTBETALT,
+                )
+
+            val endretUtbetalingAndelMedAndelerTilkjentYtelse =
+                EndretUtbetalingAndelMedAndelerTilkjentYtelse(endretUtbetalingAndel, utbetalingsandeler)
+
+            assertThrows<Feil> {
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
+                    andelTilkjentYtelserUtenEndringer = utbetalingsandeler,
+                    endretUtbetalingAndeler = listOf(endretUtbetalingAndelMedAndelerTilkjentYtelse),
+                    tilkjentYtelse = utbetalingsandeler.first().tilkjentYtelse,
+                )
+            }
         }
     }
 

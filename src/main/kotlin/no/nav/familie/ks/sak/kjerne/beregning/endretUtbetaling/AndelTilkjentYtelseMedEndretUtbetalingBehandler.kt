@@ -41,6 +41,10 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
                 .map { AndelTilkjentYtelseMedEndreteUtbetalinger.utenEndringer(it.copy()) }
         }
 
+        if (andelTilkjentYtelserUtenEndringer.any { it.type != YtelseType.ORDINÆR_KONTANTSTØTTE }) {
+            throw Feil("Kan kun oppdatere ordinære kontantstøtte-andeler med endret utbetaling. Prøver å oppdatere ${andelTilkjentYtelserUtenEndringer.filter { it.type != YtelseType.ORDINÆR_KONTANTSTØTTE}.toSet()}")
+        }
+
         val andelerPerAktør = andelTilkjentYtelserUtenEndringer.groupBy { it.aktør }
         val endringerPerAktør =
             endretUtbetalingAndeler.groupBy {

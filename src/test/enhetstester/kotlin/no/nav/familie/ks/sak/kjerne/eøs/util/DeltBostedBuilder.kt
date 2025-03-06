@@ -63,7 +63,7 @@ fun DeltBostedBuilder.oppdaterTilkjentYtelse(): TilkjentYtelse {
         AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
             tilkjentYtelse.andelerTilkjentYtelse.toList(),
             bygg().tilEndreteUtebetalingAndeler(),
-            tilkjentYtelse
+            tilkjentYtelse,
         )
 
     tilkjentYtelse.andelerTilkjentYtelse.clear()
