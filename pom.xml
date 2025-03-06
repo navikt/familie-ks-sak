@@ -33,13 +33,13 @@
         <springdoc.version>2.8.5</springdoc.version>
 
         <!-- Nav felles -->
-        <felles.version>3.20250225161902_197977b</felles.version>
         <nav-token-client.version>5.0.17</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
         <prosessering.version>2.20250219093533_62416e5</prosessering.version>
         <felles-kontrakter.version>3.0_20250226115003_49b0dfa</felles-kontrakter.version>
+        <felles.version>3.20250305123143_5e4f8ca</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20250205141909_256ecd1</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
