@@ -28,6 +28,7 @@ data class Barnehagebarn(
     var kommuneNavn: String,
     @Column(name = "KOMMUNE_NR", nullable = false, updatable = false)
     var kommuneNr: String,
+    // Id som er felles for alle barn som blir sendt inn på likt. UUID fra familie-ks-barnehagelister
     @Column(name = "ARKIV_REFERANSE", nullable = false, updatable = false)
     var arkivReferanse: String,
     @Column(name = "KILDE_TOPIC", nullable = true, updatable = false)

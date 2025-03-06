@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDateTime
 import java.util.UUID
 
 interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , JpaSpecificationExecutor<Barnehagebarn>
@@ -208,4 +209,15 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnInfotrygdDtoInterface>
+
+    @Query(
+        """
+            SELECT bb.kommune_navn 
+                FROM barnehagebarn bb 
+                WHERE endret_tid > (:tidspunkt) 
+                GROUP BY bb.kommune_navn
+        """,
+        nativeQuery = true,
+    )
+    fun findKommuneNavnEndretSidenTidspunkt(tidspunkt: LocalDateTime): List<String>
 }
