@@ -464,7 +464,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
         @EnumSource(
             value = YtelseType::class,
             names = ["ORDINÆR_KONTANTSTØTTE"],
-            mode = EnumSource.Mode.EXCLUDE
+            mode = EnumSource.Mode.EXCLUDE,
         )
         fun `skal kaste feil hvis man prøver å oppdatere andeler som ikke er ordinær kontantstøtte`(ytelseType: YtelseType) {
             val søker = lagPerson(personType = PersonType.SØKER)
