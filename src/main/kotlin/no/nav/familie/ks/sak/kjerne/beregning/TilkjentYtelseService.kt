@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -21,6 +23,7 @@ class TilkjentYtelseService(
     private val beregnAndelTilkjentYtelseService: BeregnAndelTilkjentYtelseService,
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
     private val praksisendring2024Service: Praksisendring2024Service,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun beregnTilkjentYtelse(
         vilkårsvurdering: Vilkårsvurdering,
@@ -39,10 +42,14 @@ class TilkjentYtelseService(
             beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
-                andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
-                endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
-            )
+            if (unleashNextMedContextService.isEnabled(FeatureToggle.SKAL_BRUKE_NY_OPPDATER_ANDELER_MED_ENDRINGER)) {
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer, endretUtbetalingAndeler = endretUtbetalingAndelerBarna, tilkjentYtelse = tilkjentYtelse)
+            } else {
+                AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndelerGammel(
+                    andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
+                    endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
+                )
+            }
 
         val overgangsordningAndelerSomAndelTilkjentYtelse =
             genererAndelerTilkjentYtelseFraOvergangsordningAndeler(
