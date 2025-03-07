@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class BarnehagebarnService(
@@ -21,13 +22,24 @@ class BarnehagebarnService(
         val sort = barnehagebarnRequestParams.toSort()
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
         val hentForKunLøpendeFagsak = barnehagebarnRequestParams.kunLøpendeFagsak
+        val hentForKunLøpendeAndel: Boolean = barnehagebarnRequestParams.kunLøpendeAndel
+        val dagensDato = LocalDate.now()
 
         return when {
+            !barnehagebarnRequestParams.ident.isNullOrEmpty() && hentForKunLøpendeAndel ->
+                hentBarnehageBarnMedIdentOgLøpendeAndel(hentForKunLøpendeAndel, barnehagebarnRequestParams.ident, dagensDato, pageable)
+
             !barnehagebarnRequestParams.ident.isNullOrEmpty() ->
                 hentBarnehageBarnMedIdent(hentForKunLøpendeFagsak, barnehagebarnRequestParams.ident, pageable)
 
+            !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() && hentForKunLøpendeAndel ->
+                hentBarnehageBarnMedKommuneNavnOgLøpendeAndel(hentForKunLøpendeAndel, barnehagebarnRequestParams.kommuneNavn, dagensDato, pageable)
+
             !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() ->
                 hentBarnehageBarnMedKommuneNavn(hentForKunLøpendeFagsak, barnehagebarnRequestParams.kommuneNavn, pageable)
+
+            hentForKunLøpendeAndel ->
+                hentAlleBarnehageBarnLøpendeAndel(hentForKunLøpendeAndel, dagensDato, pageable)
 
             else -> hentAlleBarnehageBarn(hentForKunLøpendeFagsak, pageable)
         }
@@ -59,6 +71,16 @@ class BarnehagebarnService(
         barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
     }
 
+    private fun hentAlleBarnehageBarnLøpendeAndel(
+        hentForKunLøpendeAndel: Boolean,
+        dagensDato: LocalDate,
+        pageable: PageRequest,
+    ) = if (hentForKunLøpendeAndel) {
+        barnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, pageable)
+    } else {
+        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
+    }
+
     private fun hentBarnehageBarnMedKommuneNavn(
         hentForKunLøpendeFagsak: Boolean,
         kommuneNavn: String,
@@ -69,12 +91,34 @@ class BarnehagebarnService(
         barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(kommuneNavn, pageable)
     }
 
+    private fun hentBarnehageBarnMedKommuneNavnOgLøpendeAndel(
+        hentForKunLøpendeAndel: Boolean,
+        kommuneNavn: String,
+        dagensDato: LocalDate,
+        pageable: PageRequest,
+    ) = if (hentForKunLøpendeAndel) {
+        barnehagebarnRepository.findBarnehagebarnByKommuneNavnOgLøpendeAndel(kommuneNavn, dagensDato, pageable)
+    } else {
+        barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(kommuneNavn, pageable)
+    }
+
     private fun hentBarnehageBarnMedIdent(
         hentForKunLøpendeFagsak: Boolean,
         ident: String,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeFagsak) {
         barnehagebarnRepository.findBarnehagebarnByIdent(LØPENDE_FAGSAK_STATUS, ident, pageable)
+    } else {
+        barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(ident, pageable)
+    }
+
+    private fun hentBarnehageBarnMedIdentOgLøpendeAndel(
+        hentForKunLøpendeAndel: Boolean,
+        ident: String,
+        dagensDato: LocalDate,
+        pageable: PageRequest,
+    ) = if (hentForKunLøpendeAndel) {
+        barnehagebarnRepository.findBarnehagebarnByIdentOgLøpendeAndel(ident, dagensDato, pageable)
     } else {
         barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(ident, pageable)
     }
