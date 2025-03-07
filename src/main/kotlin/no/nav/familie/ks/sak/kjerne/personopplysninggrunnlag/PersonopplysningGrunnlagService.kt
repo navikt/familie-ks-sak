@@ -42,7 +42,10 @@ class PersonopplysningGrunnlagService(
         val barnasAktørFraSisteVedtattBehandling =
             when (behandling.type) {
                 BehandlingType.FØRSTEGANGSBEHANDLING -> emptyList()
-                BehandlingType.REVURDERING, BehandlingType.TEKNISK_ENDRING -> {
+                BehandlingType.REVURDERING,
+                BehandlingType.TEKNISK_ENDRING,
+                BehandlingType.KLAGE,
+                -> {
                     if (sisteVedtattBehandling == null) {
                         throw Feil("Kan ikke behandle ${behandling.type} uten minst en vedtatt behandling")
                     }
