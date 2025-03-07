@@ -60,9 +60,10 @@ data class DeltBosted(
 
 fun DeltBostedBuilder.oppdaterTilkjentYtelse(): TilkjentYtelse {
     val andelerTilkjentYtelserEtterEUA =
-        AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
+        AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(
             tilkjentYtelse.andelerTilkjentYtelse.toList(),
             bygg().tilEndreteUtebetalingAndeler(),
+            tilkjentYtelse,
         )
 
     tilkjentYtelse.andelerTilkjentYtelse.clear()

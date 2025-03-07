@@ -190,3 +190,13 @@ fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje() =
                 it.stønadTom.sisteDagIInneværendeMåned(),
             )
         }.tilTidslinje()
+
+fun Collection<EndretUtbetalingAndelMedAndelerTilkjentYtelse>.tilTidslinje(): Tidslinje<EndretUtbetalingAndelMedAndelerTilkjentYtelse> =
+    this
+        .map {
+            Periode(
+                verdi = it,
+                fom = it.fom?.førsteDagIInneværendeMåned(),
+                tom = it.tom?.sisteDagIInneværendeMåned(),
+            )
+        }.tilTidslinje()
