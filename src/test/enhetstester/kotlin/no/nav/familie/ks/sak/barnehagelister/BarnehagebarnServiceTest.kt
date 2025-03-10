@@ -417,27 +417,6 @@ class BarnehagebarnServiceTest {
         }
     }
 
-    @Nested
-    inner class HentAlleKommunerInfotrygd {
-        @Test
-        fun `skal hente alle kommuner vi har mottat barnehageliste for`() {
-            // Arrange
-
-            val kommuner = setOf("Oslo kommune", "Voss kommune", "Frogn kommune")
-            val identer = setOf("12345678910", "23456789101")
-
-            every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns identer
-            every { mockBarnehagebarnRepository.hentAlleKommunerInfotrygd(barna = identer) } returns kommuner
-
-            // Act
-            val alleKommuner = barnehagebarnService.hentAlleKommunerInfotrygd()
-
-            // Assert
-            assertThat(alleKommuner).hasSize(3)
-            assertThat(alleKommuner).usingRecursiveComparison().isEqualTo(kommuner)
-        }
-    }
-
     private fun opprettMocketBarnehagebarnInfotrygdDtoInterface(
         ident: String,
         endringsType: String,

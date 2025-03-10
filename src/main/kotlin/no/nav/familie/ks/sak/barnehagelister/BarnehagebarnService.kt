@@ -166,11 +166,6 @@ class BarnehagebarnService(
     fun hentAlleKommuner(): Set<String> =
         barnehagebarnRepository.hentAlleKommuner()
 
-    fun hentAlleKommunerInfotrygd(): Set<String> {
-        val barna = infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker()
-        return barnehagebarnRepository.hentAlleKommunerInfotrygd(barna = barna)
-    }
-
     companion object {
         val LØPENDE_FAGSAK_STATUS = listOf("LØPENDE")
     }

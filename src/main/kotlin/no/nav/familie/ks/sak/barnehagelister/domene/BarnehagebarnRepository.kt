@@ -203,7 +203,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bbbarnehagebarn
+            FROM barnehagebarn bb.barnehagebarn
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr """,
         nativeQuery = true,
     )
@@ -212,19 +212,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     @Query(
         """
             SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb
-            INNER JOIN Personident p ON bb.ident = p.fødselsnummer AND p.aktiv = true
-            INNER JOIN Person pp ON p.aktør.aktørId = pp.aktør.aktørId
-            INNER JOIN PersonopplysningGrunnlag pg ON pp.personopplysningGrunnlag.id = pg.id
-            INNER JOIN Behandling b ON pg.behandlingId = b.id AND b.aktiv = true
-            INNER JOIN Fagsak f ON b.fagsak.id = f.id AND f.arkivert = false
         """,
     )
     fun hentAlleKommuner(): Set<String>
-
-    @Query(
-        """
-            SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb WHERE bb.ident in (:barna)
-        """,
-    )
-    fun hentAlleKommunerInfotrygd(barna: Set<String>): Set<String>
 }

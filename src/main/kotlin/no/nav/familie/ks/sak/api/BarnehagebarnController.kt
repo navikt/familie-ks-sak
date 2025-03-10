@@ -63,10 +63,4 @@ class BarnehagebarnController(
         val alleBarnehagebarnPage = barnehagebarnService.hentBarnehagebarnInfotrygd(barnehagebarnRequestParams)
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
-
-    @GetMapping(
-        path = ["/barnehagekommunerInfotrygd"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun hentAlleBarnehageKommunerInfotrygd(): ResponseEntity<Ressurs<Set<String>>> = ResponseEntity.ok(Ressurs.success(barnehagebarnService.hentAlleKommunerInfotrygd()))
 }
