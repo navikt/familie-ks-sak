@@ -138,7 +138,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     )
     fun findBarnehagebarnByKommuneNavnInfotrygd(
         kommuneNavn: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: Pageable,
     ): Page<BarnehagebarnInfotrygdDtoInterface>
 
@@ -167,7 +167,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     )
     fun findBarnehagebarnByIdentInfotrygd(
         ident: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: Pageable,
     ): Page<BarnehagebarnInfotrygdDtoInterface>
 
@@ -195,7 +195,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygd(
-        barna: List<String>,
+        barna: Set<String>,
         pageable: Pageable,
     ): Page<BarnehagebarnInfotrygdDtoInterface>
 
@@ -203,9 +203,23 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """
             SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
             bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
+            FROM barnehagebarn bbbarnehagebarn
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr """,
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnInfotrygdDtoInterface>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb
+        """,
+    )
+    fun hentAlleKommuner(): Set<String>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb WHERE bb.ident in (:barna)
+        """,
+    )
+    fun hentAlleKommunerInfotrygd(barna: Set<String>): Set<String>
 }

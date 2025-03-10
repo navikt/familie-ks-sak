@@ -89,7 +89,7 @@ class BarnehagebarnService(
     private fun hentInfotrygdBarnehagebarnFraKommuneNavn(
         skalHaLøpendeFagsak: Boolean,
         kommuneNavn: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: PageRequest,
     ) = if (skalHaLøpendeFagsak) {
         barnehagebarnRepository
@@ -106,7 +106,7 @@ class BarnehagebarnService(
     private fun hentInfotrygdBarnehagebarnFraIdent(
         skalHaLøpendeFagsak: Boolean,
         ident: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: PageRequest,
     ) = if (skalHaLøpendeFagsak) {
         barnehagebarnRepository
@@ -125,7 +125,7 @@ class BarnehagebarnService(
 
     private fun hentAlleBarnehageBarnInfotrygd(
         skalHaLøpendeFagsak: Boolean,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: PageRequest,
     ) = if (skalHaLøpendeFagsak) {
         barnehagebarnRepository
@@ -161,6 +161,14 @@ class BarnehagebarnService(
     @Transactional
     fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
         barnehagebarnRepository.saveAndFlush(barnehagebarn)
+    }
+
+    fun hentAlleKommuner(): Set<String> =
+        barnehagebarnRepository.hentAlleKommuner()
+
+    fun hentAlleKommunerInfotrygd(): Set<String> {
+        val barna = infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker()
+        return barnehagebarnRepository.hentAlleKommunerInfotrygd(barna = barna)
     }
 
     companion object {
