@@ -71,6 +71,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -436,7 +437,7 @@ fun lagAndelTilkjentYtelse(
 
 fun lagPerson(
     personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
-    aktør: Aktør,
+    aktør: Aktør = randomAktør(),
     personType: PersonType = PersonType.SØKER,
     fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
     dødsfall: Dødsfall? = null,
@@ -722,6 +723,38 @@ fun lagEndretUtbetalingAndel(
         vedtaksbegrunnelser = begrunnelser,
         erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
+
+fun lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
+    id: Long = 0,
+    behandlingId: Long = 0,
+    person: Person,
+    prosent: BigDecimal = BigDecimal.valueOf(100),
+    fom: YearMonth = YearMonth.now().minusMonths(1),
+    tom: YearMonth? = YearMonth.now(),
+    årsak: Årsak = Årsak.ALLEREDE_UTBETALT,
+    søknadstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
+    andelTilkjentYtelser: MutableList<AndelTilkjentYtelse> = mutableListOf(),
+    begrunnelse: String? = "test",
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    erEksplisittAvslagPåSøknad: Boolean? = false,
+): EndretUtbetalingAndelMedAndelerTilkjentYtelse {
+    val eua =
+        EndretUtbetalingAndel(
+            id = id,
+            behandlingId = behandlingId,
+            person = person,
+            prosent = prosent,
+            fom = fom,
+            tom = tom,
+            årsak = årsak,
+            søknadstidspunkt = søknadstidspunkt,
+            begrunnelse = begrunnelse,
+            vedtaksbegrunnelser = begrunnelser,
+            erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+        )
+
+    return EndretUtbetalingAndelMedAndelerTilkjentYtelse(eua, andelTilkjentYtelser)
+}
 
 fun lagVedtaksbegrunnelse(
     nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
