@@ -163,8 +163,7 @@ class BarnehagebarnService(
         barnehagebarnRepository.saveAndFlush(barnehagebarn)
     }
 
-    fun hentAlleKommuner(): Set<String> =
-        barnehagebarnRepository.hentAlleKommuner()
+    fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
 
     companion object {
         val LØPENDE_FAGSAK_STATUS = listOf("LØPENDE")
