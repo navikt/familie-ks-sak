@@ -177,7 +177,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -219,7 +219,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = "eksisterendeKommune",
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -258,7 +258,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = "eksisterendeKommune",
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -297,7 +297,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -336,7 +336,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -375,7 +375,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -395,6 +395,46 @@ class BarnehagebarnServiceTest {
             assertThat(barnehagebarnInfotrygdDto.ident).isEqualTo("ident1")
             assertThat(barnehagebarnInfotrygdDto.antallTimerIBarnehage).isEqualTo(40.0)
             assertThat(barnehagebarnInfotrygdDto.harFagsak).isFalse()
+        }
+    }
+
+    @Nested
+    inner class HentAlleKommuner {
+        @Test
+        fun `skal hente alle kommuner vi har mottat barnehageliste for`() {
+            // Arrange
+
+            val kommuner = setOf("Oslo kommune", "Voss kommune", "Frogn kommune")
+
+            every { mockBarnehagebarnRepository.hentAlleKommuner() } returns kommuner
+
+            // Act
+            val alleKommuner = barnehagebarnService.hentAlleKommuner()
+
+            // Assert
+            assertThat(alleKommuner).hasSize(3)
+            assertThat(alleKommuner).usingRecursiveComparison().isEqualTo(kommuner)
+        }
+    }
+
+    @Nested
+    inner class HentAlleKommunerInfotrygd {
+        @Test
+        fun `skal hente alle kommuner vi har mottat barnehageliste for`() {
+            // Arrange
+
+            val kommuner = setOf("Oslo kommune", "Voss kommune", "Frogn kommune")
+            val identer = setOf("12345678910", "23456789101")
+
+            every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns identer
+            every { mockBarnehagebarnRepository.hentAlleKommunerInfotrygd(barna = identer) } returns kommuner
+
+            // Act
+            val alleKommuner = barnehagebarnService.hentAlleKommunerInfotrygd()
+
+            // Assert
+            assertThat(alleKommuner).hasSize(3)
+            assertThat(alleKommuner).usingRecursiveComparison().isEqualTo(kommuner)
         }
     }
 

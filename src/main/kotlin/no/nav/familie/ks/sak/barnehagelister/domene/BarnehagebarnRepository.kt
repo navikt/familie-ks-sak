@@ -212,6 +212,11 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     @Query(
         """
             SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb
+            INNER JOIN Personident p ON bb.ident = p.fødselsnummer AND p.aktiv = true
+            INNER JOIN Person pp ON p.aktør.aktørId = pp.aktør.aktørId
+            INNER JOIN PersonopplysningGrunnlag pg ON pp.personopplysningGrunnlag.id = pg.id
+            INNER JOIN Behandling b ON pg.behandlingId = b.id AND b.aktiv = true
+            INNER JOIN Fagsak f ON b.fagsak.id = f.id AND f.arkivert = false
         """,
     )
     fun hentAlleKommuner(): Set<String>
