@@ -201,6 +201,81 @@ class BarnehagebarnServiceTest {
     }
 
     @Nested
+    inner class HentBarnehagebarnLøpendeAndelTest {
+        @Test
+        fun `skal hente alle barn med løpende andel dersom det sendes inn som parameter`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
+            val barnehagebarnRequestParams =
+                BarnehagebarnRequestParams(
+                    ident = null,
+                    kunLøpendeFagsak = false,
+                    kommuneNavn = null,
+                    kunLøpendeAndel = true,
+                )
+            every {
+                mockBarnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, any())
+            } returns mocketPageBarnehagebarnDtoInterface
+
+            // Act
+            val hentetMocketPageBarnehagebarnDtoInterface = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+
+            // Assert
+            assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
+            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, any()) }
+        }
+
+        @Test
+        fun `skal hente barn med løpende andel fra kommunenavn dersom det sendes inn som parameter`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
+            val barnehagebarnRequestParams =
+                BarnehagebarnRequestParams(
+                    ident = null,
+                    kunLøpendeFagsak = false,
+                    kommuneNavn = "kommune",
+                    kunLøpendeAndel = true,
+                )
+            every {
+                mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavnOgLøpendeAndel("kommune", dagensDato, any())
+            } returns mocketPageBarnehagebarnDtoInterface
+
+            // Act
+            val hentetMocketPageBarnehagebarnDtoInterface = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+
+            // Assert
+            assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
+            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavnOgLøpendeAndel("kommune", dagensDato, any()) }
+        }
+
+        @Test
+        fun `skal hente barn med løpende andel fra ident dersom det sendes inn som parameter`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
+            val barnehagebarnRequestParams =
+                BarnehagebarnRequestParams(
+                    ident = "ident",
+                    kunLøpendeFagsak = false,
+                    kommuneNavn = null,
+                    kunLøpendeAndel = true,
+                )
+            every {
+                mockBarnehagebarnRepository.findBarnehagebarnByIdentOgLøpendeAndel("ident", dagensDato, any())
+            } returns mocketPageBarnehagebarnDtoInterface
+
+            // Act
+            val hentetMocketPageBarnehagebarnDtoInterface = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+
+            // Assert
+            assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
+            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByIdentOgLøpendeAndel("ident", dagensDato, any()) }
+        }
+    }
+
+    @Nested
     inner class HentBarnehagebarnInfotrygdTest {
         @Test
         fun `skal hente barn fra infotrygd uavhengig av fagsak fra kommunenavn dersom det sendes inn som parameter`() {
