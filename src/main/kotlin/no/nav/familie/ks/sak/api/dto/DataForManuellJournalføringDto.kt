@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
+import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 
 data class DataForManuellJournalføringDto(
@@ -8,4 +9,5 @@ data class DataForManuellJournalføringDto(
     val person: PersonInfoDto?,
     val journalpost: Journalpost?,
     val minimalFagsak: MinimalFagsakResponsDto?,
+    val klagebehandlinger: List<KlagebehandlingDto> = emptyList(),
 )

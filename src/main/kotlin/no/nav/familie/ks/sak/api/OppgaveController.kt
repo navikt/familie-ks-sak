@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalførin
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -41,6 +42,7 @@ class OppgaveController(
     private val integrasjonService: IntegrasjonService,
     private val tilgangService: TilgangService,
     private val innkommendeJournalføringService: InnkommendeJournalføringService,
+    private val klageService: KlageService,
 ) {
     @PostMapping(
         path = ["/hent-oppgaver"],
@@ -118,6 +120,10 @@ class OppgaveController(
         val aktør = oppgave.aktoerId?.let { personidentService.hentAktør(it) }
         val journalpost = oppgave.journalpostId?.let { integrasjonService.hentJournalpost(it) }
 
+        val minimalFagsak = if (aktør != null) fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) else null
+
+        val klagebehandlinger = if (minimalFagsak != null) klageService.hentKlagebehandlingerPåFagsak(minimalFagsak.id) else emptyList()
+
         val dataForManuellJournalføringDto =
             DataForManuellJournalføringDto(
                 oppgave = oppgave,
@@ -128,7 +134,8 @@ class OppgaveController(
                             .hentPersonInfoMedRelasjonerOgRegisterinformasjon(it)
                             .tilPersonInfoDto(it.aktivFødselsnummer())
                     },
-                minimalFagsak = aktør?.let { fagsakService.finnMinimalFagsakForPerson(aktør.aktørId) },
+                minimalFagsak = minimalFagsak,
+                klagebehandlinger = klagebehandlinger,
             )
 
         return ResponseEntity.ok(Ressurs.success(dataForManuellJournalføringDto))
