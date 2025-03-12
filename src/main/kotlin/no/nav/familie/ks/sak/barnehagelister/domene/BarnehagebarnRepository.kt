@@ -99,7 +99,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             LEFT OUTER JOIN  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
             LEFT OUTER JOIN fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false 
             WHERE bb.ident = :ident
-            GROUP BY ident, fom, tom, antallTimerIBarnehage, endringstype, kommuneNavn, kommuneNr, fagsakId, fagsakstatus""",
+            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
         nativeQuery = true,
     )
     fun findBarnehagebarnByIdentUavhengigAvFagsak(
@@ -138,7 +138,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     )
     fun findBarnehagebarnByKommuneNavnInfotrygd(
         kommuneNavn: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: Pageable,
     ): Page<BarnehagebarnInfotrygdDtoInterface>
 
@@ -167,7 +167,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     )
     fun findBarnehagebarnByIdentInfotrygd(
         ident: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: Pageable,
     ): Page<BarnehagebarnInfotrygdDtoInterface>
 
@@ -195,7 +195,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygd(
-        barna: List<String>,
+        barna: Set<String>,
         pageable: Pageable,
     ): Page<BarnehagebarnInfotrygdDtoInterface>
 
@@ -208,4 +208,11 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         nativeQuery = true,
     )
     fun findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnInfotrygdDtoInterface>
+
+    @Query(
+        """
+            SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb
+        """,
+    )
+    fun hentAlleKommuner(): Set<String>
 }

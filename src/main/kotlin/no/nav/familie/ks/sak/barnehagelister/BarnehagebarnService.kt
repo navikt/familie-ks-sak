@@ -89,7 +89,7 @@ class BarnehagebarnService(
     private fun hentInfotrygdBarnehagebarnFraKommuneNavn(
         skalHaLøpendeFagsak: Boolean,
         kommuneNavn: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: PageRequest,
     ) = if (skalHaLøpendeFagsak) {
         barnehagebarnRepository
@@ -106,7 +106,7 @@ class BarnehagebarnService(
     private fun hentInfotrygdBarnehagebarnFraIdent(
         skalHaLøpendeFagsak: Boolean,
         ident: String,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: PageRequest,
     ) = if (skalHaLøpendeFagsak) {
         barnehagebarnRepository
@@ -125,7 +125,7 @@ class BarnehagebarnService(
 
     private fun hentAlleBarnehageBarnInfotrygd(
         skalHaLøpendeFagsak: Boolean,
-        barna: List<String>,
+        barna: Set<String>,
         pageable: PageRequest,
     ) = if (skalHaLøpendeFagsak) {
         barnehagebarnRepository
@@ -162,6 +162,8 @@ class BarnehagebarnService(
     fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
         barnehagebarnRepository.saveAndFlush(barnehagebarn)
     }
+
+    fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
 
     companion object {
         val LØPENDE_FAGSAK_STATUS = listOf("LØPENDE")
