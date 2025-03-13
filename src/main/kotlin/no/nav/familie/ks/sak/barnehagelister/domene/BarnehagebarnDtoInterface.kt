@@ -25,5 +25,5 @@ interface BarnehagebarnDtoInterface {
 
     fun getEndretTid(): LocalDateTime
 
-    fun getAvvik(): Boolean
+    fun getAvvik(): Boolean? = null
 }
