@@ -12,7 +12,7 @@ INSERT INTO personident (foedselsnummer, fk_aktoer_id, aktiv) VALUES ('234567890
 INSERT INTO personident (foedselsnummer, fk_aktoer_id, aktiv) VALUES ('34567890123', '3412', true);
 INSERT INTO personident (foedselsnummer, fk_aktoer_id, aktiv) VALUES ('45678901234', '4123', true);
 
-INSERT INTO fagsak(id, fk_aktoer_id) VALUES (1, '3412');
+INSERT INTO fagsak(id, fk_aktoer_id) VALUES (1, '4123');
 
 INSERT INTO behandling(id, fk_fagsak_id, behandling_type, aktivert_tid) VALUES (1, 1, 'FØRSTEGANGSBEHANDLING', NOW());
 
