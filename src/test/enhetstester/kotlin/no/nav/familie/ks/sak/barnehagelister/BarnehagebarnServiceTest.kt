@@ -177,7 +177,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -201,6 +201,81 @@ class BarnehagebarnServiceTest {
     }
 
     @Nested
+    inner class HentBarnehagebarnLøpendeAndelTest {
+        @Test
+        fun `skal hente alle barn med løpende andel dersom det sendes inn som parameter`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
+            val barnehagebarnRequestParams =
+                BarnehagebarnRequestParams(
+                    ident = null,
+                    kunLøpendeFagsak = false,
+                    kommuneNavn = null,
+                    kunLøpendeAndel = true,
+                )
+            every {
+                mockBarnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, any())
+            } returns mocketPageBarnehagebarnDtoInterface
+
+            // Act
+            val hentetMocketPageBarnehagebarnDtoInterface = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+
+            // Assert
+            assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
+            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, any()) }
+        }
+
+        @Test
+        fun `skal hente barn med løpende andel fra kommunenavn dersom det sendes inn som parameter`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
+            val barnehagebarnRequestParams =
+                BarnehagebarnRequestParams(
+                    ident = null,
+                    kunLøpendeFagsak = false,
+                    kommuneNavn = "kommune",
+                    kunLøpendeAndel = true,
+                )
+            every {
+                mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavnOgLøpendeAndel("kommune", dagensDato, any())
+            } returns mocketPageBarnehagebarnDtoInterface
+
+            // Act
+            val hentetMocketPageBarnehagebarnDtoInterface = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+
+            // Assert
+            assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
+            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavnOgLøpendeAndel("kommune", dagensDato, any()) }
+        }
+
+        @Test
+        fun `skal hente barn med løpende andel fra ident dersom det sendes inn som parameter`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
+            val barnehagebarnRequestParams =
+                BarnehagebarnRequestParams(
+                    ident = "ident",
+                    kunLøpendeFagsak = false,
+                    kommuneNavn = null,
+                    kunLøpendeAndel = true,
+                )
+            every {
+                mockBarnehagebarnRepository.findBarnehagebarnByIdentOgLøpendeAndel("ident", dagensDato, any())
+            } returns mocketPageBarnehagebarnDtoInterface
+
+            // Act
+            val hentetMocketPageBarnehagebarnDtoInterface = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+
+            // Assert
+            assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
+            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByIdentOgLøpendeAndel("ident", dagensDato, any()) }
+        }
+    }
+
+    @Nested
     inner class HentBarnehagebarnInfotrygdTest {
         @Test
         fun `skal hente barn fra infotrygd uavhengig av fagsak fra kommunenavn dersom det sendes inn som parameter`() {
@@ -219,7 +294,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = "eksisterendeKommune",
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -258,7 +333,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = "eksisterendeKommune",
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -297,7 +372,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -336,7 +411,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -375,7 +450,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
 
-            val infotrygdIdentListe = listOf("infotrygdIdent1", "infotrygdIdent2")
+            val infotrygdIdentListe = setOf("infotrygdIdent1", "infotrygdIdent2")
             every { mockInfotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker() } returns infotrygdIdentListe
 
             every {
@@ -395,6 +470,25 @@ class BarnehagebarnServiceTest {
             assertThat(barnehagebarnInfotrygdDto.ident).isEqualTo("ident1")
             assertThat(barnehagebarnInfotrygdDto.antallTimerIBarnehage).isEqualTo(40.0)
             assertThat(barnehagebarnInfotrygdDto.harFagsak).isFalse()
+        }
+    }
+
+    @Nested
+    inner class HentAlleKommuner {
+        @Test
+        fun `skal hente alle kommuner vi har mottat barnehageliste for`() {
+            // Arrange
+
+            val kommuner = setOf("Oslo kommune", "Voss kommune", "Frogn kommune")
+
+            every { mockBarnehagebarnRepository.hentAlleKommuner() } returns kommuner
+
+            // Act
+            val alleKommuner = barnehagebarnService.hentAlleKommuner()
+
+            // Assert
+            assertThat(alleKommuner).hasSize(3)
+            assertThat(alleKommuner).usingRecursiveComparison().isEqualTo(kommuner)
         }
     }
 

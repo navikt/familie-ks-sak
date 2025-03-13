@@ -8,4 +8,5 @@ data class BarnehagebarnRequestParams(
     val offset: Int = 0,
     val sortBy: String = "kommuneNavn",
     val sortAsc: Boolean = false,
+    val kunLøpendeAndel: Boolean = false,
 )
