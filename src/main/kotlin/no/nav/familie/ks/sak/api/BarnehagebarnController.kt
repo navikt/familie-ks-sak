@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -40,6 +41,12 @@ class BarnehagebarnController(
         val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
+
+    @GetMapping(
+        path = ["/barnehagekommuner"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun hentAlleBarnehageKommuner(): ResponseEntity<Ressurs<Set<String>>> = ResponseEntity.ok(Ressurs.success(barnehagebarnService.hentAlleKommuner()))
 
     @PostMapping(
         path = ["/barnehagebarnInfotrygdliste"],
