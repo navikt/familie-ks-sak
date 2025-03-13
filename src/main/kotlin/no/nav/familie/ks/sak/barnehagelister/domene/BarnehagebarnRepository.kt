@@ -205,7 +205,7 @@ FROM barnehagebarn bb
          LEFT JOIN vilkar_resultat vr ON vr.fk_person_resultat_id = pr.id AND b.id = vr.fk_behandling_id and
                                           vr.periode_fom::date = bb.fom AND
                                           vr.periode_tom::date IS NOT DISTINCT FROM bb.tom
-GROUP BY ident, fom, tom, antallTimerIBarnehage, endringstype, kommuneNavn, kommuneNr, fagsakId, fagsakstatus,
+GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status,
          vr.antall_timer""",
         nativeQuery = true,
     )
