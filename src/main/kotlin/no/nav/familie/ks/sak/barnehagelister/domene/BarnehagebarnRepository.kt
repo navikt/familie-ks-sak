@@ -73,16 +73,33 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
 
     @Query(
         """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            LEFT OUTER JOIN personident p ON bb.ident = p.foedselsnummer
-            LEFT OUTER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            LEFT OUTER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            LEFT OUTER JOIN  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            LEFT OUTER JOIN fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
+            SELECT bb.ident                    as ident,
+       bb.fom                      as fom,
+       bb.tom                      as tom,
+       bb.antall_timer_i_barnehage as antallTimerIBarnehage,
+       bb.endringstype             as endringstype,
+       bb.kommune_navn             as kommuneNavn,
+       bb.kommune_nr               as kommuneNr,
+       MAX(bb.endret_tid)          as endretTid,
+       f.id                        as fagsakId,
+       f.status                    as fagsakstatus,
+       CASE
+           WHEN vr.antall_timer IS NULL THEN TRUE
+           WHEN bb.antall_timer_i_barnehage = vr.antall_timer THEN FALSE
+           ELSE TRUE
+           END                     AS avvik
+FROM barnehagebarn bb
+         LEFT OUTER JOIN personident p ON bb.ident = p.foedselsnummer
+         LEFT OUTER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
+         LEFT OUTER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
+         LEFT OUTER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
+         LEFT OUTER JOIN fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false
+         INNER JOIN person_resultat pr ON pr.fk_aktoer_id = pp.fk_aktoer_id
+         LEFT JOIN vilkar_resultat vr ON vr.fk_person_resultat_id = pr.id AND b.id = vr.fk_behandling_id and
+                                          vr.periode_fom::date = bb.fom AND
+                                          vr.periode_tom::date IS NOT DISTINCT FROM bb.tom
+GROUP BY ident, fom, tom, antallTimerIBarnehage, endringstype, kommuneNavn, kommuneNr, fagsakId, fagsakstatus,
+         vr.antall_timer""",
         nativeQuery = true,
     )
     fun findAlleBarnehagebarnUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnDtoInterface>

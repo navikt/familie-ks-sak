@@ -48,6 +48,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration,classpath:db/init
+  sql:
+    init:
+      mode: never #Hindre Spring Boot fra å automatisk laste test.sql - filer i alle tester
 
 logging:
   config: "classpath:logback-spring.xml"

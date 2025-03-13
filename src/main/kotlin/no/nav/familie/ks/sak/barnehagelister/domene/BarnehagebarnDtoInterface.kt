@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.barnehagelister.domene
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+// Interface med getters gjør at spring mapper datatyper i stedet for hibernate, hvilket gir riktige typer.
 interface BarnehagebarnDtoInterface {
     fun getIdent(): String
 
@@ -23,4 +24,6 @@ interface BarnehagebarnDtoInterface {
     fun getFagsakstatus(): String?
 
     fun getEndretTid(): LocalDateTime
+
+    fun getAvvik(): Boolean
 }
