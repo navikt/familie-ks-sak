@@ -21,27 +21,18 @@ class BarnehagebarnService(
     fun hentBarnehageBarn(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
         val sort = barnehagebarnRequestParams.toSort()
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
-        val hentForKunLøpendeFagsak = barnehagebarnRequestParams.kunLøpendeFagsak
         val hentForKunLøpendeAndel: Boolean = barnehagebarnRequestParams.kunLøpendeAndel
         val dagensDato = LocalDate.now()
 
         return when {
-            !barnehagebarnRequestParams.ident.isNullOrEmpty() && hentForKunLøpendeAndel ->
-                hentBarnehageBarnMedIdentOgLøpendeAndel(hentForKunLøpendeAndel, barnehagebarnRequestParams.ident, dagensDato, pageable)
-
             !barnehagebarnRequestParams.ident.isNullOrEmpty() ->
-                hentBarnehageBarnMedIdent(hentForKunLøpendeFagsak, barnehagebarnRequestParams.ident, pageable)
-
-            !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() && hentForKunLøpendeAndel ->
-                hentBarnehageBarnMedKommuneNavnOgLøpendeAndel(hentForKunLøpendeAndel, barnehagebarnRequestParams.kommuneNavn, dagensDato, pageable)
+                hentBarnehageBarnMedIdent(hentForKunLøpendeAndel, barnehagebarnRequestParams.ident, dagensDato, pageable)
 
             !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() ->
-                hentBarnehageBarnMedKommuneNavn(hentForKunLøpendeFagsak, barnehagebarnRequestParams.kommuneNavn, pageable)
+                hentBarnehageBarnMedKommuneNavn(hentForKunLøpendeAndel, barnehagebarnRequestParams.kommuneNavn, dagensDato, pageable)
 
-            hentForKunLøpendeAndel ->
-                hentAlleBarnehageBarnLøpendeAndel(hentForKunLøpendeAndel, dagensDato, pageable)
-
-            else -> hentAlleBarnehageBarn(hentForKunLøpendeFagsak, pageable)
+            else ->
+                hentAlleBarnehageBarn(hentForKunLøpendeAndel, dagensDato, pageable)
         }
     }
 
@@ -49,7 +40,7 @@ class BarnehagebarnService(
         val sort = barnehagebarnRequestParams.toSort()
         val barna = infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker()
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
-        val skalHaLøpendeFagsak = barnehagebarnRequestParams.kunLøpendeFagsak
+        val skalHaLøpendeFagsak = barnehagebarnRequestParams.kunLøpendeAndel
 
         return when {
             !barnehagebarnRequestParams.ident.isNullOrEmpty() ->
@@ -63,64 +54,35 @@ class BarnehagebarnService(
     }
 
     private fun hentAlleBarnehageBarn(
-        hentForKunLøpendeFagsak: Boolean,
-        pageable: PageRequest,
-    ) = if (hentForKunLøpendeFagsak) {
-        barnehagebarnRepository.findBarnehagebarn(LØPENDE_FAGSAK_STATUS, pageable)
-    } else {
-        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
-    }
-
-    private fun hentAlleBarnehageBarnLøpendeAndel(
         hentForKunLøpendeAndel: Boolean,
         dagensDato: LocalDate,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeAndel) {
-        barnehagebarnRepository.findBarnehagebarnLøpendeAndel(dagensDato, pageable)
+        barnehagebarnRepository.findBarnehagebarn(dagensDato, pageable)
     } else {
-        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvFagsak(pageable)
+        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvLøpendeAndel(pageable)
     }
 
     private fun hentBarnehageBarnMedKommuneNavn(
-        hentForKunLøpendeFagsak: Boolean,
-        kommuneNavn: String,
-        pageable: PageRequest,
-    ) = if (hentForKunLøpendeFagsak) {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavn(LØPENDE_FAGSAK_STATUS, kommuneNavn, pageable)
-    } else {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(kommuneNavn, pageable)
-    }
-
-    private fun hentBarnehageBarnMedKommuneNavnOgLøpendeAndel(
         hentForKunLøpendeAndel: Boolean,
         kommuneNavn: String,
         dagensDato: LocalDate,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeAndel) {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavnOgLøpendeAndel(kommuneNavn, dagensDato, pageable)
+        barnehagebarnRepository.findBarnehagebarnByKommuneNavn(kommuneNavn, dagensDato, pageable)
     } else {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvFagsak(kommuneNavn, pageable)
+        barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvLøpendeAndel(kommuneNavn, pageable)
     }
 
     private fun hentBarnehageBarnMedIdent(
-        hentForKunLøpendeFagsak: Boolean,
-        ident: String,
-        pageable: PageRequest,
-    ) = if (hentForKunLøpendeFagsak) {
-        barnehagebarnRepository.findBarnehagebarnByIdent(LØPENDE_FAGSAK_STATUS, ident, pageable)
-    } else {
-        barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(ident, pageable)
-    }
-
-    private fun hentBarnehageBarnMedIdentOgLøpendeAndel(
         hentForKunLøpendeAndel: Boolean,
         ident: String,
         dagensDato: LocalDate,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeAndel) {
-        barnehagebarnRepository.findBarnehagebarnByIdentOgLøpendeAndel(ident, dagensDato, pageable)
+        barnehagebarnRepository.findBarnehagebarnByIdent(ident, dagensDato, pageable)
     } else {
-        barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvFagsak(ident, pageable)
+        barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvLøpendeAndel(ident, pageable)
     }
 
     private fun BarnehagebarnRequestParams.toSort() =
@@ -208,8 +170,4 @@ class BarnehagebarnService(
     }
 
     fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
-
-    companion object {
-        val LØPENDE_FAGSAK_STATUS = listOf("LØPENDE")
-    }
 }
