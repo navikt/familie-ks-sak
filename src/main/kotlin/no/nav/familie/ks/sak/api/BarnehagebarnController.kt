@@ -4,7 +4,6 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnInfotrygdDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -47,20 +46,4 @@ class BarnehagebarnController(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun hentAlleBarnehageKommuner(): ResponseEntity<Ressurs<Set<String>>> = ResponseEntity.ok(Ressurs.success(barnehagebarnService.hentAlleKommuner()))
-
-    @PostMapping(
-        path = ["/barnehagebarnInfotrygdliste"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun hentAlleBarnehagebarnInfotrygdPage(
-        @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
-    ): ResponseEntity<Ressurs<Page<BarnehagebarnInfotrygdDto>>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "hente ut alle barnehagebarn",
-        )
-        val alleBarnehagebarnPage = barnehagebarnService.hentBarnehagebarnInfotrygd(barnehagebarnRequestParams)
-        return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
-    }
 }
