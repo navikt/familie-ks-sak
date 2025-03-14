@@ -4,9 +4,7 @@ import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnInfotrygdDto
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
-import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -15,7 +13,6 @@ import java.time.LocalDate
 
 @Service
 class BarnehagebarnService(
-    private val infotrygdReplikaClient: InfotrygdReplikaClient,
     private val barnehagebarnRepository: BarnehagebarnRepository,
 ) {
     fun hentBarnehageBarn(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnDtoInterface> {
@@ -33,23 +30,6 @@ class BarnehagebarnService(
 
             else ->
                 hentAlleBarnehageBarn(hentForKunLøpendeAndel, dagensDato, pageable)
-        }
-    }
-
-    fun hentBarnehagebarnInfotrygd(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnInfotrygdDto> {
-        val sort = barnehagebarnRequestParams.toSort()
-        val barna = infotrygdReplikaClient.hentAlleBarnasIdenterForLøpendeFagsaker()
-        val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, sort)
-        val skalHaLøpendeFagsak = barnehagebarnRequestParams.kunLøpendeAndel
-
-        return when {
-            !barnehagebarnRequestParams.ident.isNullOrEmpty() ->
-                hentInfotrygdBarnehagebarnFraIdent(skalHaLøpendeFagsak, barnehagebarnRequestParams.ident, barna, pageable)
-
-            !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() ->
-                hentInfotrygdBarnehagebarnFraKommuneNavn(skalHaLøpendeFagsak, barnehagebarnRequestParams.kommuneNavn, barna, pageable)
-
-            else -> hentAlleBarnehageBarnInfotrygd(skalHaLøpendeFagsak, barna, pageable)
         }
     }
 
@@ -91,60 +71,6 @@ class BarnehagebarnService(
         } else {
             Sort.by(getCorrectSortBy(sortBy)).descending()
         }
-
-    private fun hentInfotrygdBarnehagebarnFraKommuneNavn(
-        skalHaLøpendeFagsak: Boolean,
-        kommuneNavn: String,
-        barna: Set<String>,
-        pageable: PageRequest,
-    ) = if (skalHaLøpendeFagsak) {
-        barnehagebarnRepository
-            .findBarnehagebarnByKommuneNavnInfotrygd(kommuneNavn, barna, pageable)
-            .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
-    } else {
-        barnehagebarnRepository
-            .findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
-                kommuneNavn,
-                pageable,
-            ).map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, barna.contains(it.getIdent())) }
-    }
-
-    private fun hentInfotrygdBarnehagebarnFraIdent(
-        skalHaLøpendeFagsak: Boolean,
-        ident: String,
-        barna: Set<String>,
-        pageable: PageRequest,
-    ) = if (skalHaLøpendeFagsak) {
-        barnehagebarnRepository
-            .findBarnehagebarnByIdentInfotrygd(ident, barna, pageable)
-            .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
-    } else {
-        barnehagebarnRepository
-            .findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(ident, pageable)
-            .map {
-                BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
-                    it,
-                    barna.contains(it.getIdent()),
-                )
-            }
-    }
-
-    private fun hentAlleBarnehageBarnInfotrygd(
-        skalHaLøpendeFagsak: Boolean,
-        barna: Set<String>,
-        pageable: PageRequest,
-    ) = if (skalHaLøpendeFagsak) {
-        barnehagebarnRepository
-            .findBarnehagebarnInfotrygd(barna, pageable)
-            .map { BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(it, true) }
-    } else {
-        barnehagebarnRepository.findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable).map {
-            BarnehagebarnInfotrygdDto.fraBarnehageBarnInterfaceTilDto(
-                it,
-                barna.contains(it.getIdent()),
-            )
-        }
-    }
 
     private fun getCorrectSortBy(sortBy: String): String =
         when (sortBy.lowercase()) {
