@@ -285,7 +285,7 @@ enum class BehandlingÅrsak(
     ÅRLIG_KONTROLL("Årsak kontroll", listOf(REVURDERING)),
     DØDSFALL("Dødsfall", listOf(REVURDERING)),
     NYE_OPPLYSNINGER("Nye opplysninger", listOf(REVURDERING)),
-    KLAGE("Klage", listOf(REVURDERING)),
+    KLAGE("Klage", listOf(BehandlingType.KLAGE, REVURDERING)),
     TEKNISK_ENDRING(
         "Teknisk endring",
         listOf(BehandlingType.TEKNISK_ENDRING),
@@ -304,6 +304,7 @@ enum class BehandlingType(
     FØRSTEGANGSBEHANDLING("Førstegangsbehandling"),
     REVURDERING("Revurdering"),
     TEKNISK_ENDRING("Teknisk endring"),
+    KLAGE("Klage"),
 }
 
 enum class BehandlingKategori(
