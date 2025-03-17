@@ -377,8 +377,8 @@ class BehandlingService(
         }
     }
 
-    fun hentFerdigstilteBehandlinger(fagsak: Fagsak): List<Behandling> =
-        hentBehandlingerPåFagsak(fagsakId = fagsak.id)
+    fun hentFerdigstilteBehandlinger(fagsakId: Long): List<Behandling> =
+        hentBehandlingerPåFagsak(fagsakId = fagsakId)
             .filter { it.erAvsluttet() && !it.erHenlagt() }
 
     fun hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomiPerFagsak(fagsakIder: Set<Long>): List<Behandling> {
