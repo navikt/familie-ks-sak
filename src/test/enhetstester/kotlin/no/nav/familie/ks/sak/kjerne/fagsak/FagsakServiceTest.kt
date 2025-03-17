@@ -2,6 +2,10 @@ package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
+import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
+import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
+import no.nav.familie.kontrakter.felles.klage.Årsak
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
@@ -302,11 +306,26 @@ class FagsakServiceTest {
                 ),
             )
 
+        every { klageService.hentKlagebehandlingerPåFagsak(fagsak.id) } returns
+            listOf(
+                KlagebehandlingDto(
+                    fagsakId = UUID.randomUUID(),
+                    status = BehandlingStatus.UTREDES,
+                    vedtaksdato = null,
+                    opprettet = LocalDateTime.now(),
+                    resultat = BehandlingResultat.IKKE_SATT,
+                    mottattDato = LocalDate.now(),
+                    årsak = Årsak.IKKE_UTREDET_NOK,
+                    id = UUID.randomUUID(),
+                ),
+            )
+
         val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
 
         assertEquals(fagsak.id, fagsakResponse.id)
         assertEquals(2, fagsakResponse.behandlinger.size)
         assertEquals(1, fagsakResponse.tilbakekrevingsbehandlinger.size)
+        assertEquals(1, fagsakResponse.klagebehandlinger.size)
     }
 
     @Test
