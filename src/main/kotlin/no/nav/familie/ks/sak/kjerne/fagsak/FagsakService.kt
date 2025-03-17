@@ -29,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
@@ -59,6 +60,7 @@ class FagsakService(
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val localDateProvider: LocalDateProvider,
     private val adopsjonService: AdopsjonService,
+    private val klageService: KlageService,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -118,6 +120,7 @@ class FagsakService(
         val fagsak = hentFagsak(fagsakId)
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId)
         val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
+        val klagebehandlinger = klageService.hentKlagebehandlingerPåFagsak(fagsakId)
 
         val sistIverksatteBehandling =
             alleBehandlinger
@@ -146,6 +149,7 @@ class FagsakService(
                 },
             tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger.map { lagTilbakekrevingsbehandlingResponsDto(it) },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList(),
+            klagebehandlinger = klagebehandlinger,
         )
     }
 

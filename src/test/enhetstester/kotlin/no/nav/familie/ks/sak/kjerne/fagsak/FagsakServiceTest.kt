@@ -30,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
@@ -61,6 +62,7 @@ class FagsakServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val localDateProvider = mockk<LocalDateProvider>()
     private val adopsjonService = mockk<AdopsjonService>()
+    private val klageService = mockk<KlageService>()
 
     private val fagsakService =
         FagsakService(
@@ -78,6 +80,7 @@ class FagsakServiceTest {
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             localDateProvider = localDateProvider,
             adopsjonService = adopsjonService,
+            klageService = klageService,
         )
 
     @BeforeEach

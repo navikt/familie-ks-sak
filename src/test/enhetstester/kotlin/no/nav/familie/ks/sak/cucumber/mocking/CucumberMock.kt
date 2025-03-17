@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.lovverkFebruar2025.LovverkFebruar2
 import no.nav.familie.ks.sak.kjerne.beregning.lovverkFørFebruar2025.LovverkFørFebruar2025AndelGenerator
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.TilpassDifferanseberegningEtterTilkjentYtelseService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -60,6 +61,7 @@ class CucumberMock(
     val praksisendring2024Service = mockPraksisendring2024Service()
     val adopsjonServiceMock = mockAdopsjonService()
     val unleashNextMedContextServiceMock = mockUnleashNextMedContextService()
+    val klageServiceMock = mockk<KlageService>()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
@@ -107,6 +109,7 @@ class CucumberMock(
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             localDateProvider = mockedDateProvider,
             adopsjonService = adopsjonServiceMock,
+            klageService = klageServiceMock,
         )
 
     val beregningService =

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsresultatstype
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsstatus
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
@@ -28,6 +29,7 @@ data class MinimalFagsakResponsDto(
     val behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
     val tilbakekrevingsbehandlinger: List<TilbakekrevingsbehandlingResponsDto> = emptyList(),
     val gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
+    val klagebehandlinger: List<KlagebehandlingDto> = emptyList(),
 )
 
 data class MinimalBehandlingResponsDto(

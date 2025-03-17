@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.mapper
 
+import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
@@ -39,6 +40,7 @@ object FagsakMapper {
         behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
         tilbakekrevingsbehandlinger: List<TilbakekrevingsbehandlingResponsDto> = emptyList(),
         gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
+        klagebehandlinger: List<KlagebehandlingDto> = emptyList(),
     ): MinimalFagsakResponsDto =
         MinimalFagsakResponsDto(
             opprettetTidspunkt = fagsak.opprettetTidspunkt,
@@ -50,6 +52,7 @@ object FagsakMapper {
             behandlinger = behandlinger,
             tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger,
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
+            klagebehandlinger = klagebehandlinger,
         )
 
     fun lagBehandlingResponsDto(
