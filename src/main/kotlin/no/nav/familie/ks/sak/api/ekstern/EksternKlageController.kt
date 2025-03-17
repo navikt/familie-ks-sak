@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.klage.EksternKlageService
 import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController
 class EksternKlageController(
     private val tilgangService: TilgangService,
     private val opprettBehandlingService: OpprettBehandlingService,
-    private val klageService: KlageService,
+    private val eksternKlageService: EksternKlageService,
 ) {
     @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering-klage")
     fun kanOppretteRevurderingKlage(
@@ -81,6 +82,6 @@ class EksternKlageController(
             )
         }
 
-        return Ressurs.success(klageService.hentFagsystemVedtak(fagsakId))
+        return Ressurs.success(eksternKlageService.hentFagsystemVedtak(fagsakId))
     }
 }

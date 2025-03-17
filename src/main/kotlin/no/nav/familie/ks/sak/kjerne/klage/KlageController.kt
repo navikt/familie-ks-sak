@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.klage
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.klage.dto.OpprettKlageDto
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 class KlageController(
     private val tilgangService: TilgangService,
     private val klageService: KlageService,
+    private val fagsakService: FagsakService,
 ) {
     @PostMapping("/{fagsakId}/opprett-klagebehandling")
     fun opprettKlage(
@@ -34,7 +36,7 @@ class KlageController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Vis og lagre vedtaksbrev",
         )
-        return Ressurs.success(klageService.opprettKlage(fagsakId, opprettKlageDto))
+        return Ressurs.success(klageService.opprettKlage(fagsak = fagsakService.hentFagsak(fagsakId), kravMottattDato = opprettKlageDto.kravMottattDato))
     }
 
     @GetMapping("/{fagsakId}/hent-klagebehandlinger")
