@@ -28,7 +28,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """,
         nativeQuery = true,
     )
-    fun findBarnehagebarn(
+    fun finnAlleBarnehagebarnMedLøpendAndel(
         dagensDato: LocalDate,
         pageable: Pageable,
     ): Page<BarnehagebarnDtoInterface>
@@ -47,7 +47,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
         nativeQuery = true,
     )
-    fun findAlleBarnehagebarnUavhengigAvLøpendeAndel(pageable: Pageable): Page<BarnehagebarnDtoInterface>
+    fun finnAlleBarnehagebarn(pageable: Pageable): Page<BarnehagebarnDtoInterface>
 
     @Query(
         """
@@ -66,7 +66,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """,
         nativeQuery = true,
     )
-    fun findBarnehagebarnByIdent(
+    fun finnBarnehagebarnByIdentMedLøpendeAndel(
         ident: String,
         dagensDato: LocalDate,
         pageable: Pageable,
@@ -87,7 +87,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
         nativeQuery = true,
     )
-    fun findBarnehagebarnByIdentUavhengigAvLøpendeAndel(
+    fun finnBarnehagebarnByIdent(
         ident: String,
         pageable: Pageable,
     ): Page<BarnehagebarnDtoInterface>
@@ -110,7 +110,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         """,
         nativeQuery = true,
     )
-    fun findBarnehagebarnByKommuneNavn(
+    fun finnBarnehagebarnByKommuneNavnMedLøpendeAndel(
         kommuneNavn: String,
         dagensDato: LocalDate,
         pageable: Pageable,
@@ -131,7 +131,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
             GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
         nativeQuery = true,
     )
-    fun findBarnehagebarnByKommuneNavnUavhengigAvLøpendeAndel(
+    fun finnBarnehagebarnByKommuneNavn(
         kommuneNavn: String,
         pageable: Pageable,
     ): Page<BarnehagebarnDtoInterface>

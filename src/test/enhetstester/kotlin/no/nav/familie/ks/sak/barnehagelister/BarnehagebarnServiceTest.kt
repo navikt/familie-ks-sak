@@ -33,7 +33,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
             every {
-                mockBarnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvLøpendeAndel("eksisterendeIdent", any())
+                mockBarnehagebarnRepository.finnBarnehagebarnByIdent("eksisterendeIdent", any())
             } returns mocketPageBarnehagebarnDtoInterface
 
             // Act
@@ -41,7 +41,7 @@ class BarnehagebarnServiceTest {
 
             // Assert
             assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvLøpendeAndel("eksisterendeIdent", any()) }
+            verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByIdent("eksisterendeIdent", any()) }
         }
 
         @Test
@@ -55,7 +55,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = "eksisterendeKommune",
                 )
             every {
-                mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvLøpendeAndel("eksisterendeKommune", any())
+                mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavn("eksisterendeKommune", any())
             } returns mocketPageBarnehagebarnDtoInterface
 
             // Act
@@ -63,7 +63,7 @@ class BarnehagebarnServiceTest {
 
             // Assert
             assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-            verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvLøpendeAndel("eksisterendeKommune", any()) }
+            verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavn("eksisterendeKommune", any()) }
         }
 
         @Test
@@ -77,7 +77,7 @@ class BarnehagebarnServiceTest {
                     kommuneNavn = null,
                 )
             every {
-                mockBarnehagebarnRepository.findAlleBarnehagebarnUavhengigAvLøpendeAndel(any())
+                mockBarnehagebarnRepository.finnAlleBarnehagebarn(any())
             } returns mocketPageBarnehagebarnDtoInterface
 
             // Act
@@ -85,7 +85,7 @@ class BarnehagebarnServiceTest {
 
             // Assert
             assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-            verify(exactly = 1) { mockBarnehagebarnRepository.findAlleBarnehagebarnUavhengigAvLøpendeAndel(any()) }
+            verify(exactly = 1) { mockBarnehagebarnRepository.finnAlleBarnehagebarn(any()) }
         }
     }
 
@@ -101,7 +101,7 @@ class BarnehagebarnServiceTest {
                 kommuneNavn = null,
             )
         every {
-            mockBarnehagebarnRepository.findBarnehagebarn(dagensDato, any())
+            mockBarnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(dagensDato, any())
         } returns mocketPageBarnehagebarnDtoInterface
 
         // Act
@@ -109,7 +109,7 @@ class BarnehagebarnServiceTest {
 
         // Assert
         assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-        verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarn(dagensDato, any()) }
+        verify(exactly = 1) { mockBarnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(dagensDato, any()) }
     }
 
     @Test
@@ -124,7 +124,7 @@ class BarnehagebarnServiceTest {
                 kommuneNavn = "kommune",
             )
         every {
-            mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavn("kommune", dagensDato, any())
+            mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel("kommune", dagensDato, any())
         } returns mocketPageBarnehagebarnDtoInterface
 
         // Act
@@ -132,7 +132,7 @@ class BarnehagebarnServiceTest {
 
         // Assert
         assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-        verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByKommuneNavn("kommune", dagensDato, any()) }
+        verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel("kommune", dagensDato, any()) }
     }
 
     @Test
@@ -147,7 +147,7 @@ class BarnehagebarnServiceTest {
                 kommuneNavn = null,
             )
         every {
-            mockBarnehagebarnRepository.findBarnehagebarnByIdent("ident", dagensDato, any())
+            mockBarnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel("ident", dagensDato, any())
         } returns mocketPageBarnehagebarnDtoInterface
 
         // Act
@@ -155,7 +155,7 @@ class BarnehagebarnServiceTest {
 
         // Assert
         assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-        verify(exactly = 1) { mockBarnehagebarnRepository.findBarnehagebarnByIdent("ident", dagensDato, any()) }
+        verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel("ident", dagensDato, any()) }
     }
 
     @Nested

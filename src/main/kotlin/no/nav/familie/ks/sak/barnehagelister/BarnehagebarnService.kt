@@ -38,9 +38,9 @@ class BarnehagebarnService(
         dagensDato: LocalDate,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeAndel) {
-        barnehagebarnRepository.findBarnehagebarn(dagensDato, pageable)
+        barnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(dagensDato, pageable)
     } else {
-        barnehagebarnRepository.findAlleBarnehagebarnUavhengigAvLøpendeAndel(pageable)
+        barnehagebarnRepository.finnAlleBarnehagebarn(pageable)
     }
 
     private fun hentBarnehageBarnMedKommuneNavn(
@@ -49,9 +49,9 @@ class BarnehagebarnService(
         dagensDato: LocalDate,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeAndel) {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavn(kommuneNavn, dagensDato, pageable)
+        barnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel(kommuneNavn, dagensDato, pageable)
     } else {
-        barnehagebarnRepository.findBarnehagebarnByKommuneNavnUavhengigAvLøpendeAndel(kommuneNavn, pageable)
+        barnehagebarnRepository.finnBarnehagebarnByKommuneNavn(kommuneNavn, pageable)
     }
 
     private fun hentBarnehageBarnMedIdent(
@@ -60,9 +60,9 @@ class BarnehagebarnService(
         dagensDato: LocalDate,
         pageable: PageRequest,
     ) = if (hentForKunLøpendeAndel) {
-        barnehagebarnRepository.findBarnehagebarnByIdent(ident, dagensDato, pageable)
+        barnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel(ident, dagensDato, pageable)
     } else {
-        barnehagebarnRepository.findBarnehagebarnByIdentUavhengigAvLøpendeAndel(ident, pageable)
+        barnehagebarnRepository.finnBarnehagebarnByIdent(ident, pageable)
     }
 
     private fun BarnehagebarnRequestParams.toSort() =
