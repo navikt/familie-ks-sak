@@ -1,4 +1,4 @@
-TRUNCATE TABLE personident, po_person, gr_personopplysninger, behandling, fagsak, person_resultat, vilkar_resultat CASCADE;
+TRUNCATE TABLE aktoer, personident, po_person, gr_personopplysninger, behandling, fagsak, tilkjent_ytelse, andel_tilkjent_ytelse, person_resultat, vilkar_resultat, barnehagebarn CASCADE;
 
 --har løpende andeler og avvik på antall timer i barnehagebarn vs vilkårresultat og bor i OSLO
 INSERT INTO aktoer(aktoer_id) VALUES ('1234');

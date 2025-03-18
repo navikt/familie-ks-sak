@@ -10,7 +10,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Page
-import java.time.LocalDate
 
 class BarnehagebarnServiceTest {
     private val mockBarnehagebarnRepository = mockk<BarnehagebarnRepository>()
@@ -92,7 +91,6 @@ class BarnehagebarnServiceTest {
     @Test
     fun `skal hente alle barn med løpende andel dersom det sendes inn som parameter`() {
         // Arrange
-        val dagensDato = LocalDate.now()
         val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
         val barnehagebarnRequestParams =
             BarnehagebarnRequestParams(
@@ -101,7 +99,7 @@ class BarnehagebarnServiceTest {
                 kommuneNavn = null,
             )
         every {
-            mockBarnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(dagensDato, any())
+            mockBarnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(any())
         } returns mocketPageBarnehagebarnDtoInterface
 
         // Act
@@ -109,13 +107,12 @@ class BarnehagebarnServiceTest {
 
         // Assert
         assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-        verify(exactly = 1) { mockBarnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(dagensDato, any()) }
+        verify(exactly = 1) { mockBarnehagebarnRepository.finnAlleBarnehagebarnMedLøpendAndel(any()) }
     }
 
     @Test
     fun `skal hente barn med løpende andel fra kommunenavn dersom det sendes inn som parameter`() {
         // Arrange
-        val dagensDato = LocalDate.now()
         val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
         val barnehagebarnRequestParams =
             BarnehagebarnRequestParams(
@@ -124,7 +121,7 @@ class BarnehagebarnServiceTest {
                 kommuneNavn = "kommune",
             )
         every {
-            mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel("kommune", dagensDato, any())
+            mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel("kommune", any())
         } returns mocketPageBarnehagebarnDtoInterface
 
         // Act
@@ -132,13 +129,12 @@ class BarnehagebarnServiceTest {
 
         // Assert
         assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-        verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel("kommune", dagensDato, any()) }
+        verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByKommuneNavnMedLøpendeAndel("kommune", any()) }
     }
 
     @Test
     fun `skal hente barn med løpende andel fra ident dersom det sendes inn som parameter`() {
         // Arrange
-        val dagensDato = LocalDate.now()
         val mocketPageBarnehagebarnDtoInterface = mockk<Page<BarnehagebarnDtoInterface>>()
         val barnehagebarnRequestParams =
             BarnehagebarnRequestParams(
@@ -147,7 +143,7 @@ class BarnehagebarnServiceTest {
                 kommuneNavn = null,
             )
         every {
-            mockBarnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel("ident", dagensDato, any())
+            mockBarnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel("ident", any())
         } returns mocketPageBarnehagebarnDtoInterface
 
         // Act
@@ -155,7 +151,7 @@ class BarnehagebarnServiceTest {
 
         // Assert
         assertThat(hentetMocketPageBarnehagebarnDtoInterface).isEqualTo(mocketPageBarnehagebarnDtoInterface)
-        verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel("ident", dagensDato, any()) }
+        verify(exactly = 1) { mockBarnehagebarnRepository.finnBarnehagebarnByIdentMedLøpendeAndel("ident", any()) }
     }
 
     @Nested
