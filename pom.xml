@@ -37,16 +37,16 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250311132904_6ee7728</prosessering.version>
-        <felles-kontrakter.version>3.0_20250313112514_5a97829</felles-kontrakter.version>
-        <felles.version>3.20250305123143_5e4f8ca</felles.version>
+        <prosessering.version>2.20250317161652_fe22655</prosessering.version>
+        <felles-kontrakter.version>3.0_20250317084213_0b7e8b1</felles-kontrakter.version>
+        <felles.version>3.20250312114810_5371990</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20250205141909_256ecd1</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20230214104704_706e9c0</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20250306084157_636f980</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
@@ -55,7 +55,7 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>10.1.0</unleash.version>
+        <unleash.version>10.2.0</unleash.version>
 
         <!-- Test -->
         <cucumber.version>7.21.1</cucumber.version>
