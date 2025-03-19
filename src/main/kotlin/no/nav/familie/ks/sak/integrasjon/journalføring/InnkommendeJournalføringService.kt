@@ -105,16 +105,22 @@ class InnkommendeJournalføringService(
             .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
             .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
 
-        val tilknyttetFagsak =
-            lagreJournalpostOgKnyttBehandlingerTilJournalpost(
-                kontantstøtteBehandlinger = kontantstøtteBehandlinger,
-                journalpost = journalpost,
-            )
+        knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
+            kontantstøtteBehandlinger = kontantstøtteBehandlinger,
+            journalpost = journalpost,
+        )
 
         oppdaterLogiskeVedlegg(request.dokumenter)
 
         oppdaterOgFerdigstill(
-            oppdaterJournalPostRequest = request.tilOppdaterJournalpostRequestDto(tilknyttetFagsak, journalpost),
+            oppdaterJournalPostRequest = request.tilOppdaterJournalpostRequestDto(
+                sak = Sak(
+                    fagsakId = fagsakId.toString(),
+                    fagsaksystem = Fagsystem.KONT.name,
+                    sakstype = Sakstype.FAGSAK.type
+                ),
+                journalpost = journalpost
+            ),
             journalpostId = journalpostId,
             behandlendeEnhet = request.journalførendeEnhet,
             oppgaveId = oppgaveId,
@@ -221,10 +227,10 @@ class InnkommendeJournalføringService(
         return opprettBehandlingService.opprettBehandling(nyBehandlingDto)
     }
 
-    private fun lagreJournalpostOgKnyttBehandlingerTilJournalpost(
+    private fun knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
         kontantstøtteBehandlinger: List<Behandling>,
         journalpost: Journalpost,
-    ): Sak {
+    ) {
         val erSøknad = journalpost.dokumenter?.any { it.brevkode == SØKNADSKODE_KONTANTSTØTTE } ?: false
 
         // TODO: Finne ut hvordan man kan knytte journalpost til ekstern behandling, nå funker det kun med interne behandlinger
@@ -248,17 +254,6 @@ class InnkommendeJournalføringService(
                 )
             }
         }
-
-        val fagsak = kontantstøtteBehandlinger.map { it.fagsak }.toSet().singleOrNull()
-
-        val tilknyttetFagsak =
-            Sak(
-                fagsakId = fagsak?.id?.toString(),
-                fagsaksystem = fagsak?.let { Fagsystem.KONT.name },
-                sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type,
-            )
-
-        return tilknyttetFagsak
     }
 
     @Deprecated("Erstattet av ny funksjon")
