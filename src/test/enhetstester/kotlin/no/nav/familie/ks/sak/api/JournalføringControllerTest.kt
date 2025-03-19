@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.api
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.PersonIdent
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.lagTilgangsstyrtJournalpost
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -18,6 +19,7 @@ class JournalføringControllerTest {
         JournalføringController(
             innkommendeJournalføringService = innkommendeJournalføringService,
             tilgangService = tilgangService,
+            unleashNextMedContextService = mockUnleashNextMedContextService()
         )
 
     @Nested
