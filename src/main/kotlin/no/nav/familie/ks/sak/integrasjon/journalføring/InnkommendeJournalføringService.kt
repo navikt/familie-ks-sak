@@ -101,9 +101,13 @@ class InnkommendeJournalføringService(
             tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = request.nyBehandlingstype, behandlingId = nyBehandling.id.toString()))
         }
 
-        val (tilknyttetFagsak, behandlinger) =
+        val kontantstøtteBehandlinger = tilknyttedeBehandlinger
+            .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
+            .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
+
+        val tilknyttetFagsak =
             lagreJournalpostOgKnyttBehandlingerTilJournalpost(
-                tilknyttedeBehandlinger = tilknyttedeBehandlinger,
+                kontantstøtteBehandlinger = kontantstøtteBehandlinger,
                 journalpost = journalpost,
             )
 
@@ -114,7 +118,7 @@ class InnkommendeJournalføringService(
             journalpostId = journalpostId,
             behandlendeEnhet = request.journalførendeEnhet,
             oppgaveId = oppgaveId,
-            behandlinger = behandlinger,
+            kontantstøtteBehandlinger = kontantstøtteBehandlinger,
         )
 
         return fagsakId.toString()
@@ -159,7 +163,7 @@ class InnkommendeJournalføringService(
             journalpostId = journalpostId,
             behandlendeEnhet = request.journalførendeEnhet,
             oppgaveId = oppgaveId,
-            behandlinger = behandlinger,
+            kontantstøtteBehandlinger = behandlinger,
         )
 
         return tilknyttetFagsak.fagsakId ?: ""
@@ -218,13 +222,9 @@ class InnkommendeJournalføringService(
     }
 
     private fun lagreJournalpostOgKnyttBehandlingerTilJournalpost(
-        tilknyttedeBehandlinger: List<TilknyttetBehandling>,
+        kontantstøtteBehandlinger: List<Behandling>,
         journalpost: Journalpost,
-    ): Pair<Sak, List<Behandling>> {
-        val kontantstøtteBehandlinger = tilknyttedeBehandlinger
-            .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
-            .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
-
+    ): Sak {
         val erSøknad = journalpost.dokumenter?.any { it.brevkode == SØKNADSKODE_KONTANTSTØTTE } ?: false
 
         // TODO: Finne ut hvordan man kan knytte journalpost til ekstern behandling, nå funker det kun med interne behandlinger
@@ -258,7 +258,7 @@ class InnkommendeJournalføringService(
                 sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type,
             )
 
-        return Pair(tilknyttetFagsak, kontantstøtteBehandlinger)
+        return tilknyttetFagsak
     }
 
     @Deprecated("Erstattet av ny funksjon")
@@ -326,14 +326,14 @@ class InnkommendeJournalføringService(
         journalpostId: String,
         behandlendeEnhet: String,
         oppgaveId: String,
-        behandlinger: List<Behandling>,
+        kontantstøtteBehandlinger: List<Behandling>,
     ) {
         runCatching {
             secureLogger.info("Oppdaterer journalpost $journalpostId med $oppdaterJournalPostRequest")
 
             integrasjonClient.oppdaterJournalpost(oppdaterJournalPostRequest, journalpostId)
 
-            opprettLoggPåDokumenter(journalpostId, behandlinger)
+            opprettLoggPåDokumenter(journalpostId, kontantstøtteBehandlinger)
 
             secureLogger.info("Ferdigstiller journalpost $journalpostId")
 
