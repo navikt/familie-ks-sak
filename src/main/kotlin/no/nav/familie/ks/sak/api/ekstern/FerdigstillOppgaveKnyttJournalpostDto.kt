@@ -1,8 +1,8 @@
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.erAlfanummeriskPlussKolon
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.pdl.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.LocalDateTime
 
@@ -12,7 +12,7 @@ data class FerdigstillOppgaveKnyttJournalpostDto(
     val opprettOgKnyttTilNyBehandling: Boolean = false,
     val navIdent: String? = null,
     val bruker: NavnOgIdent? = null,
-    val nyBehandlingstype: BehandlingType? = null,
+    val nyBehandlingstype: JournalføringBehandlingstype? = null,
     val nyBehandlingsårsak: BehandlingÅrsak? = null,
     val kategori: BehandlingKategori? = null,
     val datoMottatt: LocalDateTime?,
