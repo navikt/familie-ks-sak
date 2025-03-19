@@ -122,7 +122,7 @@ class InnkommendeJournalføringServiceTest {
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
 
         // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request = request, oppgaveId = oppgaveId)
+        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo(fagsak.id.toString())
@@ -167,7 +167,7 @@ class InnkommendeJournalføringServiceTest {
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
 
         // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request = request, oppgaveId = oppgaveId)
+        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo(fagsak.id.toString())
@@ -217,7 +217,7 @@ class InnkommendeJournalføringServiceTest {
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
 
         // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request = request, oppgaveId = oppgaveId)
+        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo("")
