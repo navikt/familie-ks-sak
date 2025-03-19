@@ -79,6 +79,8 @@ class InnkommendeJournalføringService(
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
         if (request.opprettOgKnyttTilNyBehandling) {
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id))
+
             val nyBehandling =
                 opprettBehandlingOgEvtFagsakForJournalføring(
                     personIdent = request.bruker.id,
@@ -122,6 +124,8 @@ class InnkommendeJournalføringService(
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
         if (request.opprettOgKnyttTilNyBehandling) {
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id))
+
             val nyBehandling =
                 opprettBehandlingOgEvtFagsakForJournalføring(
                     personIdent = request.bruker.id,
@@ -164,9 +168,11 @@ class InnkommendeJournalføringService(
         journalpost.sak?.fagsakId
 
         if (request.opprettOgKnyttTilNyBehandling) {
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker!!.id))
+
             val nyBehandling =
                 opprettBehandlingOgEvtFagsakForJournalføring(
-                    personIdent = request.bruker!!.id,
+                    personIdent = request.bruker.id,
                     saksbehandlerIdent = request.navIdent!!,
                     type = request.nyBehandlingstype!!.tilBehandingType(),
                     årsak = request.nyBehandlingsårsak!!,
@@ -191,8 +197,6 @@ class InnkommendeJournalføringService(
         kategori: BehandlingKategori? = null,
         søknadMottattDato: LocalDate? = null,
     ): Behandling {
-        fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent))
-
         val nyBehandlingDto =
             OpprettBehandlingDto(
                 kategori = kategori,
