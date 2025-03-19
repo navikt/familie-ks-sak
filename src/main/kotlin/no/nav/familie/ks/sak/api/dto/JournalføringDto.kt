@@ -41,6 +41,7 @@ data class JournalføringRequestDto(
     val nyBehandlingstype: JournalføringBehandlingstype,
     val nyBehandlingsårsak: BehandlingÅrsak,
     val journalførendeEnhet: String,
+    val fagsakId: Long? = null,
 )
 
 fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(

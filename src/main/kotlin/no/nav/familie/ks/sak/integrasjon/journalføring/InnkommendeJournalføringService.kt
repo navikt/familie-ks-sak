@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.api.dto.Sakstype
 import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.api.dto.tilOppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
@@ -79,9 +80,14 @@ class InnkommendeJournalføringService(
         val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
-        if (request.opprettOgKnyttTilNyBehandling) {
-            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id))
+        val fagsakId = request.fagsakId
+            ?: if (request.opprettOgKnyttTilNyBehandling) {
+                fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
+            } else {
+                throw Feil("Forventet fagsak ved journalføring for journalpostId=$journalpostId og oppgaveId=$oppgaveId",)
+            }
 
+        if (request.opprettOgKnyttTilNyBehandling) {
             val nyBehandling =
                 opprettBehandlingOgEvtFagsakForJournalføring(
                     personIdent = request.bruker.id,
@@ -111,7 +117,7 @@ class InnkommendeJournalføringService(
             behandlinger = behandlinger,
         )
 
-        return tilknyttetFagsak.fagsakId ?: ""
+        return fagsakId.toString()
     }
 
     @Transactional
