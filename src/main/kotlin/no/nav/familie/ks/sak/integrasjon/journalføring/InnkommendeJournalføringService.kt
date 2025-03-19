@@ -18,10 +18,12 @@ import no.nav.familie.ks.sak.api.dto.JournalpostDokumentDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.api.dto.Sakstype
+import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.api.dto.tilOppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -75,7 +77,7 @@ class InnkommendeJournalføringService(
         journalpostId: String,
         oppgaveId: String,
     ): String {
-        val tilknyttedeBehandlingIder = request.tilknyttedeBehandlingIder.toMutableList()
+        val tilknyttedeBehandlingIder = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
         if (request.opprettOgKnyttTilNyBehandling) {
@@ -91,13 +93,13 @@ class InnkommendeJournalføringService(
                     søknadMottattDato = request.datoMottatt?.toLocalDate(),
                 )
 
-            tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
+            tilknyttedeBehandlingIder.add(TilknyttetBehandling(behandlingstype = request.nyBehandlingstype, behandlingId = nyBehandling.id.toString()))
         }
 
         val (tilknyttetFagsak, behandlinger) =
             lagreJournalpostOgKnyttFagsakTilJournalpost(
-                tilknyttedeBehandlingIder,
-                journalpostId,
+                tilknyttedeBehandlingIder = tilknyttedeBehandlingIder.filter { it.behandlingstype != JournalføringBehandlingstype.KLAGE }.map { it.behandlingId },
+                journalpostId = journalpostId,
             )
 
         oppdaterLogiskeVedlegg(request.dokumenter)
