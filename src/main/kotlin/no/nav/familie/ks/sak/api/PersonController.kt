@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -36,21 +35,6 @@ class PersonController(
     val tilgangService: TilgangService,
     val behandlingService: BehandlingService,
 ) {
-    @GetMapping
-    @Deprecated("Slettes når vi går over til POST endepunktene i frontend")
-    fun hentPerson(
-        @RequestHeader personIdent: String,
-        @RequestBody personIdentBody: PersonIdent?,
-    ): ResponseEntity<Ressurs<PersonInfoDto>> {
-        val aktør = personidentService.hentAktør(personIdent)
-        val personinfo =
-            integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
-                ?: personOpplysningerService
-                    .hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
-                    .tilPersonInfoDto(personIdent)
-        return ResponseEntity.ok(Ressurs.success(personinfo))
-    }
-
     @PostMapping
     fun hentPerson(
         @RequestBody personIdentDto: PersonIdent,
@@ -62,21 +46,6 @@ class PersonController(
             integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
                 ?: personOpplysningerService
                     .hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
-                    .tilPersonInfoDto(personIdent)
-        return ResponseEntity.ok(Ressurs.success(personinfo))
-    }
-
-    @GetMapping(path = ["/enkel"])
-    @Deprecated("Slettes når vi går over til POST endepunktene i frontend")
-    fun hentPersonEnkel(
-        @RequestHeader personIdent: String,
-        @RequestBody personIdentBody: PersonIdent?,
-    ): ResponseEntity<Ressurs<PersonInfoDto>> {
-        val aktør = personidentService.hentAktør(personIdent)
-        val personinfo =
-            integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
-                ?: personOpplysningerService
-                    .hentPersoninfoEnkel(aktør)
                     .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }
