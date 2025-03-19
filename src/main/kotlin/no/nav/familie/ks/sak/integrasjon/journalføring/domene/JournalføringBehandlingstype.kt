@@ -11,6 +11,8 @@ enum class JournalføringBehandlingstype {
     TILBAKEKREVING,
     ;
 
+    fun skalBehandlesIEksternApplikasjon() = this == KLAGE || this == TILBAKEKREVING
+
     fun tilBehandingType(): BehandlingType =
         when (this) {
             FØRSTEGANGSBEHANDLING -> BehandlingType.FØRSTEGANGSBEHANDLING
