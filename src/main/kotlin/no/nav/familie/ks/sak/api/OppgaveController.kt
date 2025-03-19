@@ -150,11 +150,12 @@ class OppgaveController(
         // Validerer at oppgave med gitt oppgaveId eksisterer
         oppgaveService.hentOppgave(oppgaveId)
 
-        val fagsakId = if (unleashNextMedContextService.isEnabled(FeatureToggle.KAN_BEHANDLE_KLAGE)){
-            innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request, oppgaveId)
-        } else {
-            innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request, oppgaveId)
-        }
+        val fagsakId =
+            if (unleashNextMedContextService.isEnabled(FeatureToggle.KAN_BEHANDLE_KLAGE)) {
+                innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request, oppgaveId)
+            } else {
+                innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request, oppgaveId)
+            }
 
         return ResponseEntity.ok(Ressurs.success(fagsakId, "Oppgaven $oppgaveId er lukket"))
     }

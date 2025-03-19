@@ -83,16 +83,17 @@ class InnkommendeJournalføringService(
         val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
-        val fagsakId = request.fagsakId
-            ?: if (request.opprettOgKnyttTilNyBehandling) {
-                fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
-            } else {
-                throw Feil("Forventet fagsak ved journalføring for journalpostId=$journalpostId og oppgaveId=$oppgaveId",)
-            }
+        val fagsakId =
+            request.fagsakId
+                ?: if (request.opprettOgKnyttTilNyBehandling) {
+                    fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
+                } else {
+                    throw Feil("Forventet fagsak ved journalføring for journalpostId=$journalpostId og oppgaveId=$oppgaveId")
+                }
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE){
-                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$journalpostId",)
+            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
+                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$journalpostId")
                 val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
                 tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
             } else {
@@ -109,15 +110,16 @@ class InnkommendeJournalføringService(
                 tilknyttedeBehandlinger.add(
                     TilknyttetBehandling(
                         behandlingstype = request.nyBehandlingstype,
-                        behandlingId = nyBehandling.id.toString()
-                    )
+                        behandlingId = nyBehandling.id.toString(),
+                    ),
                 )
             }
         }
 
-        val kontantstøtteBehandlinger = tilknyttedeBehandlinger
-            .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
-            .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
+        val kontantstøtteBehandlinger =
+            tilknyttedeBehandlinger
+                .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
+                .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
 
         knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
             kontantstøtteBehandlinger = kontantstøtteBehandlinger,
@@ -127,14 +129,16 @@ class InnkommendeJournalføringService(
         oppdaterLogiskeVedlegg(request.dokumenter)
 
         oppdaterOgFerdigstill(
-            oppdaterJournalPostRequest = request.tilOppdaterJournalpostRequestDto(
-                sak = Sak(
-                    fagsakId = fagsakId.toString(),
-                    fagsaksystem = Fagsystem.KONT.name,
-                    sakstype = Sakstype.FAGSAK.type
+            oppdaterJournalPostRequest =
+                request.tilOppdaterJournalpostRequestDto(
+                    sak =
+                        Sak(
+                            fagsakId = fagsakId.toString(),
+                            fagsaksystem = Fagsystem.KONT.name,
+                            sakstype = Sakstype.FAGSAK.type,
+                        ),
+                    journalpost = journalpost,
                 ),
-                journalpost = journalpost
-            ),
             journalpostId = journalpostId,
             behandlendeEnhet = request.journalførendeEnhet,
             oppgaveId = oppgaveId,
@@ -196,16 +200,17 @@ class InnkommendeJournalføringService(
         val tilknyttedeBehandlinger: MutableList<TilknyttetBehandling> = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = hentJournalpost(request.journalpostId)
 
-        val fagsakId = request.fagsakId
-            ?: if (request.opprettOgKnyttTilNyBehandling) {
-                fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker!!.id)).id
-            } else {
-                throw Feil("Forventet fagsak ved journalføring for journalpostId=${request.journalpostId} og oppgaveId=$oppgaveId",)
-            }
+        val fagsakId =
+            request.fagsakId
+                ?: if (request.opprettOgKnyttTilNyBehandling) {
+                    fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker!!.id)).id
+                } else {
+                    throw Feil("Forventet fagsak ved journalføring for journalpostId=${request.journalpostId} og oppgaveId=$oppgaveId")
+                }
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE){
-                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$request.journalpostId",)
+            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
+                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$request.journalpostId")
                 val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
                 tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
             } else {
@@ -221,19 +226,20 @@ class InnkommendeJournalføringService(
                 tilknyttedeBehandlinger.add(
                     TilknyttetBehandling(
                         behandlingstype = request.nyBehandlingstype,
-                        behandlingId = nyBehandling.id.toString()
-                    )
+                        behandlingId = nyBehandling.id.toString(),
+                    ),
                 )
             }
         }
 
-        val kontantstøtteBehandlinger = tilknyttedeBehandlinger
-            .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
-            .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
+        val kontantstøtteBehandlinger =
+            tilknyttedeBehandlinger
+                .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
+                .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
 
         knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
             kontantstøtteBehandlinger = kontantstøtteBehandlinger,
-            journalpost = journalpost
+            journalpost = journalpost,
         )
 
         integrasjonClient.ferdigstillOppgave(oppgaveId = oppgaveId)
