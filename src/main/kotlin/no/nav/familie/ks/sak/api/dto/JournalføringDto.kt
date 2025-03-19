@@ -21,6 +21,11 @@ data class JournalpostDokumentDto(
     val eksisterendeLogiskeVedlegg: List<LogiskVedlegg>?,
 )
 
+data class TilknyttetBehandling(
+    val behandlingstype: JournalføringBehandlingstype,
+    val behandlingId: String,
+)
+
 data class JournalføringRequestDto(
     val avsender: NavnOgIdentDto,
     val bruker: NavnOgIdentDto,
@@ -30,6 +35,7 @@ data class JournalføringRequestDto(
     val knyttTilFagsak: Boolean,
     val opprettOgKnyttTilNyBehandling: Boolean,
     val tilknyttedeBehandlingIder: List<String>,
+    val tilknyttedeBehandlinger: List<TilknyttetBehandling> = emptyList(),
     val dokumenter: List<JournalpostDokumentDto>,
     val navIdent: String,
     val nyBehandlingstype: JournalføringBehandlingstype,
