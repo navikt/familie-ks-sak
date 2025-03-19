@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -35,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Søknadsinfo
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -49,6 +51,7 @@ class InnkommendeJournalføringService(
     private val journalføringRepository: JournalføringRepository,
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
+    private val klageService: KlageService,
 ) {
     fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
         integrasjonClient
@@ -88,17 +91,28 @@ class InnkommendeJournalføringService(
             }
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            val nyBehandling =
-                opprettBehandlingOgEvtFagsakForJournalføring(
-                    personIdent = request.bruker.id,
-                    saksbehandlerIdent = request.navIdent,
-                    type = request.nyBehandlingstype.tilBehandingType(),
-                    årsak = request.nyBehandlingsårsak,
-                    kategori = request.kategori,
-                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
-                )
+            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE){
+                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$journalpostId",)
+                val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
+                tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
+            } else {
+                val nyBehandling =
+                    opprettBehandlingOgEvtFagsakForJournalføring(
+                        personIdent = request.bruker.id,
+                        saksbehandlerIdent = request.navIdent,
+                        type = request.nyBehandlingstype.tilBehandingType(),
+                        årsak = request.nyBehandlingsårsak,
+                        kategori = request.kategori,
+                        søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                    )
 
-            tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = request.nyBehandlingstype, behandlingId = nyBehandling.id.toString()))
+                tilknyttedeBehandlinger.add(
+                    TilknyttetBehandling(
+                        behandlingstype = request.nyBehandlingstype,
+                        behandlingId = nyBehandling.id.toString()
+                    )
+                )
+            }
         }
 
         val kontantstøtteBehandlinger = tilknyttedeBehandlinger
