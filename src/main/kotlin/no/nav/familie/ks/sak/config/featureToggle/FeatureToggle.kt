@@ -13,6 +13,7 @@ enum class FeatureToggle(
     // Ikke operasjonelle
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
     SKAL_BRUKE_NY_OPPDATER_ANDELER_MED_ENDRINGER("familie-ks-sak.ny-versjon-oppdater-andeler-med-endringer"),
+    KAN_BEHANDLE_KLAGE("familie-ks-sak.klage"),
 
     // NAV-24034
     BRUK_NY_SAKSBEHANDLER_NAVN_FORMAT_I_SIGNATUR("familie-ks-sak.bruk-ny-saksbehandler-navn-format-i-signatur"),

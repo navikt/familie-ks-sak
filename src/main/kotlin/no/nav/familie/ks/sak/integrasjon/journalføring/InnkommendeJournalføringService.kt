@@ -111,6 +111,49 @@ class InnkommendeJournalføringService(
         return tilknyttetFagsak.fagsakId ?: ""
     }
 
+    @Transactional
+    @Deprecated("Erstattes av ny journalføring-funksjon")
+    fun journalførGammel(
+        request: JournalføringRequestDto,
+        journalpostId: String,
+        oppgaveId: String,
+    ): String {
+        val tilknyttedeBehandlingIder = request.tilknyttedeBehandlingIder.toMutableList()
+        val journalpost = integrasjonClient.hentJournalpost(journalpostId)
+
+        if (request.opprettOgKnyttTilNyBehandling) {
+            val nyBehandling =
+                opprettBehandlingOgEvtFagsakForJournalføring(
+                    personIdent = request.bruker.id,
+                    saksbehandlerIdent = request.navIdent,
+                    type = request.nyBehandlingstype.tilBehandingType(),
+                    årsak = request.nyBehandlingsårsak,
+                    kategori = request.kategori,
+                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                )
+
+            tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
+        }
+
+        val (tilknyttetFagsak, behandlinger) =
+            lagreJournalpostOgKnyttFagsakTilJournalpost(
+                tilknyttedeBehandlingIder,
+                journalpostId,
+            )
+
+        oppdaterLogiskeVedlegg(request.dokumenter)
+
+        oppdaterOgFerdigstill(
+            oppdaterJournalPostRequest = request.tilOppdaterJournalpostRequestDto(tilknyttetFagsak, journalpost),
+            journalpostId = journalpostId,
+            behandlendeEnhet = request.journalførendeEnhet,
+            oppgaveId = oppgaveId,
+            behandlinger = behandlinger,
+        )
+
+        return tilknyttetFagsak.fagsakId ?: ""
+    }
+
     fun knyttJournalpostTilFagsakOgFerdigstillOppgave(
         request: FerdigstillOppgaveKnyttJournalpostDto,
         oppgaveId: Long,
