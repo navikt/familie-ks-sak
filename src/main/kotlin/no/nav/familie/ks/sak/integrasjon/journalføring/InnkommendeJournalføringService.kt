@@ -220,6 +220,38 @@ class InnkommendeJournalføringService(
         return sak.fagsakId ?: ""
     }
 
+    @Deprecated("Erstattet av ny funksjon")
+    fun knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(
+        request: FerdigstillOppgaveKnyttJournalpostDto,
+        oppgaveId: Long,
+    ): String {
+        val tilknyttedeBehandlingIder: MutableList<String> = request.tilknyttedeBehandlingIder.toMutableList()
+
+        val journalpost = hentJournalpost(request.journalpostId)
+        journalpost.sak?.fagsakId
+
+        if (request.opprettOgKnyttTilNyBehandling) {
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker!!.id))
+
+            val nyBehandling =
+                opprettBehandlingOgEvtFagsakForJournalføring(
+                    personIdent = request.bruker.id,
+                    saksbehandlerIdent = request.navIdent!!,
+                    type = request.nyBehandlingstype!!.tilBehandingType(),
+                    årsak = request.nyBehandlingsårsak!!,
+                    kategori = request.kategori!!,
+                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                )
+            tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
+        }
+
+        val (sak) = lagreJournalpostOgKnyttFagsakTilJournalpostGammel(tilknyttedeBehandlingIder, journalpost.journalpostId)
+
+        integrasjonClient.ferdigstillOppgave(oppgaveId = oppgaveId)
+
+        return sak.fagsakId ?: ""
+    }
+
     private fun opprettBehandlingOgEvtFagsakForJournalføring(
         personIdent: String,
         saksbehandlerIdent: String,

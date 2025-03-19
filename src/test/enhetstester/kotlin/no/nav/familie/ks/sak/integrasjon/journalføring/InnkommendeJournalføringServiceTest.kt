@@ -14,6 +14,7 @@ import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerReques
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
 import no.nav.familie.ks.sak.integrasjon.lagTilgangsstyrtJournalpost
@@ -21,9 +22,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingSøknadsinfoService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -37,6 +38,7 @@ class InnkommendeJournalføringServiceTest {
     private val journalføringRepository: JournalføringRepository = mockk()
     private val loggService: LoggService = mockk()
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService = mockk()
+    private val klageService: KlageService = mockk()
     private val innkommendeJournalføringService: InnkommendeJournalføringService =
         InnkommendeJournalføringService(
             integrasjonClient = integrasjonClient,
@@ -46,6 +48,7 @@ class InnkommendeJournalføringServiceTest {
             journalføringRepository = journalføringRepository,
             loggService = loggService,
             behandlingSøknadsinfoService = behandlingSøknadsinfoService,
+            klageService = klageService,
         )
 
     @Test
@@ -103,7 +106,7 @@ class InnkommendeJournalføringServiceTest {
                         id = personIdent,
                     ),
                 kategori = BehandlingKategori.NASJONAL,
-                nyBehandlingstype = BehandlingType.FØRSTEGANGSBEHANDLING,
+                nyBehandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
                 nyBehandlingsårsak = BehandlingÅrsak.SØKNAD,
                 datoMottatt = LocalDateTime.now(),
             )
@@ -119,7 +122,7 @@ class InnkommendeJournalføringServiceTest {
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
 
         // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
+        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo(fagsak.id.toString())
@@ -164,7 +167,7 @@ class InnkommendeJournalføringServiceTest {
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
 
         // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
+        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo(fagsak.id.toString())
@@ -214,7 +217,7 @@ class InnkommendeJournalføringServiceTest {
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
 
         // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
+        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo("")
