@@ -204,16 +204,27 @@ class InnkommendeJournalføringService(
             }
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            val nyBehandling =
-                opprettBehandlingOgEvtFagsakForJournalføring(
-                    personIdent = request.bruker!!.id,
-                    saksbehandlerIdent = request.navIdent!!,
-                    type = request.nyBehandlingstype!!.tilBehandingType(),
-                    årsak = request.nyBehandlingsårsak!!,
-                    kategori = request.kategori!!,
-                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
+            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE){
+                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$request.journalpostId",)
+                val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
+                tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
+            } else {
+                val nyBehandling =
+                    opprettBehandlingOgEvtFagsakForJournalføring(
+                        personIdent = request.bruker!!.id,
+                        saksbehandlerIdent = request.navIdent!!,
+                        type = request.nyBehandlingstype!!.tilBehandingType(),
+                        årsak = request.nyBehandlingsårsak!!,
+                        kategori = request.kategori!!,
+                        søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                    )
+                tilknyttedeBehandlinger.add(
+                    TilknyttetBehandling(
+                        behandlingstype = request.nyBehandlingstype,
+                        behandlingId = nyBehandling.id.toString()
+                    )
                 )
-            tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = request.nyBehandlingstype, behandlingId = nyBehandling.id.toString()))
+            }
         }
 
         val kontantstøtteBehandlinger = tilknyttedeBehandlinger
