@@ -83,7 +83,7 @@ class InnkommendeJournalføringService(
                 opprettBehandlingOgEvtFagsakForJournalføring(
                     personIdent = request.bruker.id,
                     saksbehandlerIdent = request.navIdent,
-                    type = request.nyBehandlingstype,
+                    type = request.nyBehandlingstype.tilBehandingType(),
                     årsak = request.nyBehandlingsårsak,
                     kategori = request.kategori,
                     søknadMottattDato = request.datoMottatt?.toLocalDate(),
