@@ -98,7 +98,7 @@ class InnkommendeJournalføringService(
                 tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
             } else {
                 val nyBehandling =
-                    opprettBehandlingOgEvtFagsakForJournalføring(
+                    opprettBehandlingForJournalføring(
                         personIdent = request.bruker.id,
                         saksbehandlerIdent = request.navIdent,
                         type = request.nyBehandlingstype.tilBehandingType(),
@@ -162,7 +162,7 @@ class InnkommendeJournalføringService(
             fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id))
 
             val nyBehandling =
-                opprettBehandlingOgEvtFagsakForJournalføring(
+                opprettBehandlingForJournalføring(
                     personIdent = request.bruker.id,
                     saksbehandlerIdent = request.navIdent,
                     type = request.nyBehandlingstype.tilBehandingType(),
@@ -219,7 +219,7 @@ class InnkommendeJournalføringService(
                     throw Feil("Obligatoriske felter er ikke sendt med for oppretting av ny behandling for journalpostId=${request.journalpostId}. Se secure logs for detaljer.")
                 }
                 val nyBehandling =
-                    opprettBehandlingOgEvtFagsakForJournalføring(
+                    opprettBehandlingForJournalføring(
                         personIdent = request.bruker.id,
                         saksbehandlerIdent = request.navIdent,
                         type = request.nyBehandlingstype.tilBehandingType(),
@@ -265,7 +265,7 @@ class InnkommendeJournalføringService(
             fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker!!.id))
 
             val nyBehandling =
-                opprettBehandlingOgEvtFagsakForJournalføring(
+                opprettBehandlingForJournalføring(
                     personIdent = request.bruker.id,
                     saksbehandlerIdent = request.navIdent!!,
                     type = request.nyBehandlingstype!!.tilBehandingType(),
@@ -283,7 +283,7 @@ class InnkommendeJournalføringService(
         return sak.fagsakId ?: ""
     }
 
-    private fun opprettBehandlingOgEvtFagsakForJournalføring(
+    private fun opprettBehandlingForJournalføring(
         personIdent: String,
         saksbehandlerIdent: String,
         type: BehandlingType,
