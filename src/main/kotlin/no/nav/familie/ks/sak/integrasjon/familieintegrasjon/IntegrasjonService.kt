@@ -16,12 +16,12 @@ class IntegrasjonService(
 ) {
     fun sjekkTilgangTilPerson(personIdent: String): Tilgang = sjekkTilgangTilPersoner(listOf(personIdent)).single()
 
-    fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
+    fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> =
         if (SikkerhetContext.erSystemKontekst()) {
-            return personIdenter.map { Tilgang(personIdent = it, harTilgang = true, begrunnelse = null) }
+            personIdenter.map { Tilgang(personIdent = it, harTilgang = true, begrunnelse = null) }
+        } else {
+            integrasjonClient.sjekkTilgangTilPersoner(personIdenter)
         }
-        return integrasjonClient.sjekkTilgangTilPersoner(personIdenter)
-    }
 
     fun hentMaskertPersonInfoVedManglendeTilgang(aktør: Aktør): PersonInfoDto? {
         val harTilgang = sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
