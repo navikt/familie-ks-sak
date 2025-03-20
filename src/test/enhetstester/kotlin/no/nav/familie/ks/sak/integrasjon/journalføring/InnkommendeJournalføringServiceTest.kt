@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
+import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -77,7 +78,7 @@ class InnkommendeJournalføringServiceTest {
     }
 
     @Test
-    fun `knyttJournalPostTilFagsakOgFerdigstill Oppgave oppretter ny behandling og knytter til fagsak hvis opprettOgKnyttTilNyBehandling er true`() {
+    fun `knyttJournalPostTilFagsakOgFerdigstillOppgave knytter til både eksisterende og ny behandling`() {
         // Assemble
         val fagsak = lagFagsak()
         val gammelBehandling = lagBehandling(fagsak = fagsak)
@@ -98,6 +99,12 @@ class InnkommendeJournalføringServiceTest {
                     listOf(
                         gammelBehandling.behandlingId.id.toString(),
                     ),
+                tilknyttedeBehandlinger = listOf(
+                    TilknyttetBehandling(
+                        behandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
+                        behandlingId = gammelBehandling.id.toString()
+                    )
+                ),
                 opprettOgKnyttTilNyBehandling = true,
                 navIdent = "1234",
                 bruker =
@@ -106,14 +113,14 @@ class InnkommendeJournalføringServiceTest {
                         id = personIdent,
                     ),
                 kategori = BehandlingKategori.NASJONAL,
-                nyBehandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
+                nyBehandlingstype = JournalføringBehandlingstype.REVURDERING,
                 nyBehandlingsårsak = BehandlingÅrsak.SØKNAD,
                 datoMottatt = LocalDateTime.now(),
+                fagsakId = fagsak.id,
             )
 
         val oppgaveId = 1L
 
-        every { fagsakService.hentEllerOpprettFagsak(any()) } returns mockk()
         every { opprettBehandlingService.opprettBehandling(any()) } returns nyBehandling
         every { behandlingService.hentBehandling(gammelBehandling.id) } returns gammelBehandling
         every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
@@ -132,7 +139,7 @@ class InnkommendeJournalføringServiceTest {
     }
 
     @Test
-    fun `knyttJournalPostTilFagsakOgFerdigstill knytter til fagsak uten å opprette ny behandling`() {
+    fun `knyttJournalPostTilFagsakOgFerdigstill knytter til eksisterende behandling uten å opprette ny behandling`() {
         // Assemble
         val fagsak = lagFagsak()
         val gammelBehandling = lagBehandling(fagsak = fagsak)
@@ -152,8 +159,15 @@ class InnkommendeJournalføringServiceTest {
                     listOf(
                         gammelBehandling.behandlingId.id.toString(),
                     ),
+                tilknyttedeBehandlinger = listOf(
+                    TilknyttetBehandling(
+                        behandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
+                        behandlingId = gammelBehandling.id.toString()
+                    )
+                ),
                 opprettOgKnyttTilNyBehandling = false,
                 datoMottatt = LocalDateTime.now(),
+                fagsakId = fagsak.id,
             )
 
         val oppgaveId = 1L
@@ -174,55 +188,5 @@ class InnkommendeJournalføringServiceTest {
         verify(exactly = 1) { integrasjonClient.ferdigstillOppgave(any()) }
         verify(exactly = 0) { opprettBehandlingService.opprettBehandling(any()) }
         verify(exactly = 1) { journalføringRepository.save(any()) }
-    }
-
-    @Test
-    fun `knyttJournalPostTilFagsakOgFerdigstill returnerer ingen fagsakId hvis det finnes behandlinger på forskjellige fagsaker knyttet til journalposten`() {
-        // Assemble
-        val fagsak1 = lagFagsak(id = 0)
-        val gammelBehandling1 = lagBehandling(fagsak = fagsak1, id = 0)
-
-        val fagsak2 = lagFagsak(id = 1)
-        val gammelBehandling2 = lagBehandling(fagsak = fagsak2, id = 1)
-
-        val personIdent = "1234"
-        val journalpost =
-            lagJournalpost(
-                journalpostId = "journalpostId",
-                personIdent = personIdent,
-                avsenderMottaker = null,
-            )
-
-        val request =
-            FerdigstillOppgaveKnyttJournalpostDto(
-                journalpostId = journalpost.journalpostId,
-                tilknyttedeBehandlingIder =
-                    listOf(
-                        gammelBehandling1.behandlingId.id.toString(),
-                        gammelBehandling2.behandlingId.id.toString(),
-                    ),
-                opprettOgKnyttTilNyBehandling = false,
-                datoMottatt = LocalDateTime.now(),
-            )
-
-        val oppgaveId = 1L
-
-        every { fagsakService.hentEllerOpprettFagsak(any()) } returns mockk()
-        every { opprettBehandlingService.opprettBehandling(any()) } returns mockk()
-        every { behandlingService.hentBehandling(gammelBehandling1.id) } returns gammelBehandling1
-        every { behandlingService.hentBehandling(gammelBehandling2.id) } returns gammelBehandling2
-        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
-        every { journalføringRepository.save(any()) } returns mockk()
-        every { behandlingSøknadsinfoService.lagreNedSøknadsinfo(any(), any()) } just runs
-        every { integrasjonClient.ferdigstillOppgave(any()) } just runs
-
-        // Act
-        val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
-
-        // Assert
-        assertThat(faktiskFagsakId).isEqualTo("")
-        verify(exactly = 1) { integrasjonClient.ferdigstillOppgave(any()) }
-        verify(exactly = 0) { opprettBehandlingService.opprettBehandling(any()) }
-        verify(exactly = 2) { journalføringRepository.save(any()) }
     }
 }
