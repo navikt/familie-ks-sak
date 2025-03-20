@@ -7,6 +7,8 @@ import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
+import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hamcrest.CoreMatchers.nullValue
@@ -29,6 +31,8 @@ internal class IntegrasjonServiceTest {
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", false))
         every { pdlClient.hentAdressebeskyttelse(aktør) } returns listOf(Adressebeskyttelse(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND))
 
+        mockBrukerContext()
+
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)!!
 
         verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
@@ -40,6 +44,7 @@ internal class IntegrasjonServiceTest {
             maskertPersonInfo.adressebeskyttelseGradering,
             Is(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND),
         )
+        clearBrukerContext()
     }
 
     @Test
@@ -51,11 +56,15 @@ internal class IntegrasjonServiceTest {
 
         every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", true))
 
+        mockBrukerContext()
+
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
 
         verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
 
         assertThat(maskertPersonInfo, Is(nullValue()))
+
+        clearBrukerContext()
     }
 
     @Test
@@ -85,11 +94,26 @@ internal class IntegrasjonServiceTest {
                 Tilgang("Ident2", true, "test"),
             )
 
+        mockBrukerContext()
+
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
         verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
         assertThat(tilgang.all { it.begrunnelse == "test" }, Is(true))
+
+        clearBrukerContext()
+    }
+
+    @Test
+    fun `sjekkTilgangTilPersoner skal gi tilgang om SB er systembruker`() {
+        val listeMedIdenter = listOf("Ident1", "Ident2")
+
+        val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
+
+        verify(exactly = 0) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
+
+        assertThat(tilgang.all { it.harTilgang }, Is(true))
     }
 }
