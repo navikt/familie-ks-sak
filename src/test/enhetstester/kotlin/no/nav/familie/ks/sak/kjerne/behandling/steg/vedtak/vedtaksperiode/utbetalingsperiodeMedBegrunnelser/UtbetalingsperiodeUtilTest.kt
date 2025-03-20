@@ -9,7 +9,6 @@ import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKompetanse
@@ -587,7 +586,6 @@ internal class UtbetalingsperiodeUtilTest {
                     ),
                 overgangsordningAndelRepository = mockOvergangsordningAndelRepository(),
                 praksisendring2024Service = mockPraksisendring2024Service(),
-                unleashNextMedContextService = mockUnleashNextMedContextService(),
             )
 
         val tilkjentYtelse =
