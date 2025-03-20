@@ -110,10 +110,14 @@ internal class IntegrasjonServiceTest {
     fun `sjekkTilgangTilPersoner skal gi tilgang om SB er systembruker`() {
         val listeMedIdenter = listOf("Ident1", "Ident2")
 
+        mockBrukerContext("VL")
+
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
         verify(exactly = 0) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
+
+        clearBrukerContext()
     }
 }
