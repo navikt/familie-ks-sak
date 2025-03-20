@@ -6,12 +6,14 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -29,6 +31,8 @@ import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class InnkommendeJournalføringServiceTest {
@@ -78,7 +82,7 @@ class InnkommendeJournalføringServiceTest {
     }
 
     @Test
-    fun `knyttJournalPostTilFagsakOgFerdigstillOppgave knytter til både eksisterende og ny behandling`() {
+    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave knytter til både eksisterende og ny behandling`() {
         // Assemble
         val fagsak = lagFagsak()
         val gammelBehandling = lagBehandling(fagsak = fagsak)
@@ -139,7 +143,7 @@ class InnkommendeJournalføringServiceTest {
     }
 
     @Test
-    fun `knyttJournalPostTilFagsakOgFerdigstill knytter til eksisterende behandling uten å opprette ny behandling`() {
+    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave knytter til eksisterende behandling uten å opprette ny behandling`() {
         // Assemble
         val fagsak = lagFagsak()
         val gammelBehandling = lagBehandling(fagsak = fagsak)
@@ -188,5 +192,75 @@ class InnkommendeJournalføringServiceTest {
         verify(exactly = 1) { integrasjonClient.ferdigstillOppgave(any()) }
         verify(exactly = 0) { opprettBehandlingService.opprettBehandling(any()) }
         verify(exactly = 1) { journalføringRepository.save(any()) }
+    }
+
+    @Test
+    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal opprette klagebehandling`(){
+        // Arrange
+        val fagsak = lagFagsak()
+        val personIdent = "1234"
+        val journalpost =
+            lagJournalpost(
+                journalpostId = "journalpostId",
+                personIdent = personIdent,
+                avsenderMottaker = null,
+            )
+
+        val datoMottatt = LocalDateTime.now()
+
+        val request =
+            FerdigstillOppgaveKnyttJournalpostDto(
+                journalpostId = journalpost.journalpostId,
+                tilknyttedeBehandlingIder = emptyList(),
+                tilknyttedeBehandlinger = emptyList(),
+                opprettOgKnyttTilNyBehandling = true,
+                nyBehandlingstype = JournalføringBehandlingstype.KLAGE,
+                nyBehandlingsårsak = null,
+                datoMottatt = datoMottatt,
+                fagsakId = fagsak.id,
+            )
+
+        val oppgaveId = 1L
+
+        val klageDatoMottattSlot = slot<LocalDate>()
+        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
+        every { klageService.opprettKlage(fagsak.id, capture(klageDatoMottattSlot)) } returns mockk()
+        every { integrasjonClient.ferdigstillOppgave(any()) } just runs
+
+        // Act
+        innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
+
+        // Assert
+        verify(exactly = 1) { klageService.opprettKlage(fagsakId = any(), kravMottattDato = any()) }
+        assertThat(klageDatoMottattSlot.captured).isEqualTo(datoMottatt.toLocalDate())
+    }
+
+    @Test
+    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal kaste feil hvis ingen fagsak sendt med og skal ikke knytte til ny behandling`(){
+        // Arrange
+        val personIdent = "1234"
+        val journalpost =
+            lagJournalpost(
+                journalpostId = "journalpostId",
+                personIdent = personIdent,
+                avsenderMottaker = null,
+            )
+
+        val request =
+            FerdigstillOppgaveKnyttJournalpostDto(
+                journalpostId = journalpost.journalpostId,
+                tilknyttedeBehandlingIder = emptyList(),
+                tilknyttedeBehandlinger = emptyList(),
+                opprettOgKnyttTilNyBehandling = false,
+                datoMottatt = LocalDateTime.now(),
+                fagsakId = null,
+            )
+
+        val oppgaveId = 1L
+
+        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
+
+        // Act & Assert
+        assertThrows<Feil> { innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId) }
     }
 }

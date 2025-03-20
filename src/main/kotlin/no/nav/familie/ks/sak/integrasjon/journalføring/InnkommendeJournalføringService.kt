@@ -214,13 +214,17 @@ class InnkommendeJournalføringService(
                 val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
                 tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
             } else {
+                if (request.bruker == null || request.navIdent == null || request.nyBehandlingstype == null || request.nyBehandlingsårsak == null || request.kategori == null) {
+                    secureLogger.info("Obligatoriske felter er ikke sendt med ved oppretting av ny behandling: $request")
+                    throw Feil("Obligatoriske felter er ikke sendt med for oppretting av ny behandling for journalpostId=${request.journalpostId}. Se secure logs for detaljer.")
+                }
                 val nyBehandling =
                     opprettBehandlingOgEvtFagsakForJournalføring(
-                        personIdent = request.bruker!!.id,
-                        saksbehandlerIdent = request.navIdent!!,
-                        type = request.nyBehandlingstype!!.tilBehandingType(),
-                        årsak = request.nyBehandlingsårsak!!,
-                        kategori = request.kategori!!,
+                        personIdent = request.bruker.id,
+                        saksbehandlerIdent = request.navIdent,
+                        type = request.nyBehandlingstype.tilBehandingType(),
+                        årsak = request.nyBehandlingsårsak,
+                        kategori = request.kategori,
                         søknadMottattDato = request.datoMottatt?.toLocalDate(),
                     )
                 tilknyttedeBehandlinger.add(

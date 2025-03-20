@@ -19,13 +19,7 @@ data class FerdigstillOppgaveKnyttJournalpostDto(
     val kategori: BehandlingKategori? = null,
     val datoMottatt: LocalDateTime?,
     val fagsakId: Long? = null,
-) {
-    init {
-        if (opprettOgKnyttTilNyBehandling && (nyBehandlingstype == null || nyBehandlingsårsak == null || navIdent == null || bruker == null || kategori == null)) {
-            throw IllegalArgumentException("Må ha alle felter hvis opprettOgKnyttTilNyBehandling = true")
-        }
-    }
-}
+)
 
 data class NavnOgIdent(
     val navn: String,
