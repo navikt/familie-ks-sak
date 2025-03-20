@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -85,6 +86,7 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
+    private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -280,6 +282,20 @@ class ForvaltningController(
         val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
 
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
+    }
+
+    @GetMapping(
+        path = ["/barnehageliste/sendEpost"],
+    )
+    fun sendEpost(): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "send e-postvarsel",
+        )
+
+        barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet()
+
+        return ResponseEntity.ok(Ressurs.success("OK"))
     }
 
     @GetMapping("/hentValutakurs/")
