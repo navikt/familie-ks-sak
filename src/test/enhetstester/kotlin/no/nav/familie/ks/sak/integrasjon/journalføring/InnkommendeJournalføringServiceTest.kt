@@ -233,7 +233,7 @@ class InnkommendeJournalføringServiceTest {
         innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
 
         // Assert
-        verify(exactly = 1) { klageService.opprettKlage(fagsakId = any(), kravMottattDato = any()) }
+        verify(exactly = 1) { klageService.opprettKlage(fagsakId = any(), klageMottattDato = any()) }
         assertThat(klageDatoMottattSlot.captured).isEqualTo(datoMottatt.toLocalDate())
     }
 
