@@ -16,9 +16,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.klage.dto.OpprettKlageDto
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 class KlageService(
@@ -31,17 +31,17 @@ class KlageService(
 ) {
     fun opprettKlage(
         fagsakId: Long,
-        opprettKlageDto: OpprettKlageDto,
-    ) {
+        kravMottattDato: LocalDate,
+    ): UUID {
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
-        opprettKlage(fagsak, opprettKlageDto.kravMottattDato)
+        return opprettKlage(fagsak, kravMottattDato)
     }
 
     fun opprettKlage(
         fagsak: Fagsak,
         kravMottattDato: LocalDate,
-    ) {
+    ): UUID {
         if (kravMottattDato.isAfter(LocalDate.now())) {
             throw FunksjonellFeil("Kan ikke opprette klage med krav mottatt frem i tid")
         }
@@ -49,7 +49,7 @@ class KlageService(
         val aktivtFødselsnummer = fagsak.aktør.aktivFødselsnummer()
         val enhetId = integrasjonClient.hentBehandlendeEnhetForPersonIdentMedRelasjoner(aktivtFødselsnummer).enhetId
 
-        klageClient.opprettKlage(
+        return klageClient.opprettKlage(
             OpprettKlagebehandlingRequest(
                 ident = aktivtFødselsnummer,
                 stønadstype = Stønadstype.KONTANTSTØTTE,

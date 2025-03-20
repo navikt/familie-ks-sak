@@ -1,28 +1,25 @@
+import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.erAlfanummeriskPlussKolon
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.pdl.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.LocalDateTime
 
 data class FerdigstillOppgaveKnyttJournalpostDto(
     val journalpostId: String,
     val tilknyttedeBehandlingIder: List<String> = emptyList(),
+    val tilknyttedeBehandlinger: List<TilknyttetBehandling> = emptyList(),
     val opprettOgKnyttTilNyBehandling: Boolean = false,
     val navIdent: String? = null,
     val bruker: NavnOgIdent? = null,
-    val nyBehandlingstype: BehandlingType? = null,
+    val nyBehandlingstype: JournalføringBehandlingstype? = null,
     val nyBehandlingsårsak: BehandlingÅrsak? = null,
     val kategori: BehandlingKategori? = null,
     val datoMottatt: LocalDateTime?,
-) {
-    init {
-        if (opprettOgKnyttTilNyBehandling && (nyBehandlingstype == null || nyBehandlingsårsak == null || navIdent == null || bruker == null || kategori == null)) {
-            throw IllegalArgumentException("Må ha alle felter hvis opprettOgKnyttTilNyBehandling = true")
-        }
-    }
-}
+    val fagsakId: Long? = null,
+)
 
 data class NavnOgIdent(
     val navn: String,
