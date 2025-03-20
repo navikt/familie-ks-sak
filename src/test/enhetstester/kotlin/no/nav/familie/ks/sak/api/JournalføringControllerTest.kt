@@ -19,7 +19,7 @@ class JournalføringControllerTest {
         JournalføringController(
             innkommendeJournalføringService = innkommendeJournalføringService,
             tilgangService = tilgangService,
-            unleashNextMedContextService = mockUnleashNextMedContextService()
+            unleashNextMedContextService = mockUnleashNextMedContextService(),
         )
 
     @Nested

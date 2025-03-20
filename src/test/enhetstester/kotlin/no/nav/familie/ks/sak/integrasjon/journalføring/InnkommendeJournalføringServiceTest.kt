@@ -103,12 +103,13 @@ class InnkommendeJournalføringServiceTest {
                     listOf(
                         gammelBehandling.behandlingId.id.toString(),
                     ),
-                tilknyttedeBehandlinger = listOf(
-                    TilknyttetBehandling(
-                        behandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
-                        behandlingId = gammelBehandling.id.toString()
-                    )
-                ),
+                tilknyttedeBehandlinger =
+                    listOf(
+                        TilknyttetBehandling(
+                            behandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
+                            behandlingId = gammelBehandling.id.toString(),
+                        ),
+                    ),
                 opprettOgKnyttTilNyBehandling = true,
                 navIdent = "1234",
                 bruker =
@@ -163,12 +164,13 @@ class InnkommendeJournalføringServiceTest {
                     listOf(
                         gammelBehandling.behandlingId.id.toString(),
                     ),
-                tilknyttedeBehandlinger = listOf(
-                    TilknyttetBehandling(
-                        behandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
-                        behandlingId = gammelBehandling.id.toString()
-                    )
-                ),
+                tilknyttedeBehandlinger =
+                    listOf(
+                        TilknyttetBehandling(
+                            behandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
+                            behandlingId = gammelBehandling.id.toString(),
+                        ),
+                    ),
                 opprettOgKnyttTilNyBehandling = false,
                 datoMottatt = LocalDateTime.now(),
                 fagsakId = fagsak.id,
@@ -195,7 +197,7 @@ class InnkommendeJournalføringServiceTest {
     }
 
     @Test
-    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal opprette klagebehandling`(){
+    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal opprette klagebehandling`() {
         // Arrange
         val fagsak = lagFagsak()
         val personIdent = "1234"
@@ -236,7 +238,7 @@ class InnkommendeJournalføringServiceTest {
     }
 
     @Test
-    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal kaste feil hvis ingen fagsak sendt med og skal ikke knytte til ny behandling`(){
+    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal kaste feil hvis ingen fagsak sendt med og skal ikke knytte til ny behandling`() {
         // Arrange
         val personIdent = "1234"
         val journalpost =
