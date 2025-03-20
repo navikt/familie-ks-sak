@@ -89,7 +89,7 @@ internal class IntegrasjonServiceTest {
 
         verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
-        assertThat(tilgang.all { it.value.harTilgang }, Is(true))
-        assertThat(tilgang.all { it.value.begrunnelse == "test" }, Is(true))
+        assertThat(tilgang.all { it.harTilgang }, Is(true))
+        assertThat(tilgang.all { it.begrunnelse == "test" }, Is(true))
     }
 }
