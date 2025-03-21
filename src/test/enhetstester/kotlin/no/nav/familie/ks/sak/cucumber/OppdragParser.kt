@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
+import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeId
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.Domenenøkkel
@@ -9,6 +10,7 @@ import no.nav.familie.ks.sak.common.domeneparser.parseBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseInt
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
+import no.nav.familie.ks.sak.common.domeneparser.parseString
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriInt
@@ -30,31 +32,33 @@ object OppdragParser {
         dataTable: DataTable,
         behandlinger: Map<Long, Behandling>,
         tilkjentYtelseId: Long = 0,
-    ): List<TilkjentYtelse> {
+    ): MutableMap<Long, TilkjentYtelse> {
         var index = 0
         var tilkjentYtelseIdIterator = tilkjentYtelseId
-        return dataTable.groupByBehandlingId().map { (behandlingId, rader) ->
+        return dataTable
+            .groupByBehandlingId()
+            .mapValues { (behandlingId, rader) ->
 
-            val behandling = behandlinger.getValue(behandlingId)
-            val andeler = parseAndelder(behandling, rader, index)
-            index += andeler.size
+                val behandling = behandlinger.getValue(behandlingId)
+                val andeler = parseAndelder(behandling, rader, index)
+                index += andeler.size
 
-            val tilkjentYtelse =
-                TilkjentYtelse(
-                    id = tilkjentYtelseIdIterator++,
-                    behandling = behandling,
-                    stønadFom = null,
-                    stønadTom = null,
-                    opphørFom = null,
-                    opprettetDato = LocalDate.now(),
-                    endretDato = LocalDate.now(),
-                    utbetalingsoppdrag = null,
-                    andelerTilkjentYtelse = andeler,
-                )
-            andeler.forEach { it.tilkjentYtelse = tilkjentYtelse }
+                val tilkjentYtelse =
+                    TilkjentYtelse(
+                        id = tilkjentYtelseIdIterator++,
+                        behandling = behandling,
+                        stønadFom = null,
+                        stønadTom = null,
+                        opphørFom = null,
+                        opprettetDato = LocalDate.now(),
+                        endretDato = LocalDate.now(),
+                        utbetalingsoppdrag = null,
+                        andelerTilkjentYtelse = andeler,
+                    )
+                andeler.forEach { it.tilkjentYtelse = tilkjentYtelse }
 
-            tilkjentYtelse
-        }
+                tilkjentYtelse
+            }.toMutableMap()
     }
 
     private fun parseAndelder(
@@ -70,6 +74,18 @@ object OppdragParser {
             rader.map { mapAndelTilkjentYtelse(it, behandling, andelId++) }.toMutableSet()
         }
     }
+
+    fun mapForventedeAndelerMedPeriodeId(dataTable: DataTable): Map<Long, List<AndelMedPeriodeId>> =
+        dataTable.groupByBehandlingId().mapValues { (_, rader) ->
+            rader.map { rad ->
+                AndelMedPeriodeId(
+                    id = parseString(Domenebegrep.ID, rad),
+                    periodeId = parseLong(DomenebegrepUtbetalingsoppdrag.PERIODE_ID, rad),
+                    forrigePeriodeId = parseValgfriLong(DomenebegrepUtbetalingsoppdrag.FORRIGE_PERIODE_ID, rad),
+                    kildeBehandlingId = parseString(DomenebegrepTilkjentYtelse.KILDEBEHANDLING_ID, rad),
+                )
+            }
+        }
 
     fun mapForventetUtbetalingsoppdrag(
         dataTable: DataTable,
