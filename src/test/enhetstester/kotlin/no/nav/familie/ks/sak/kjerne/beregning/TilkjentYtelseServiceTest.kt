@@ -9,8 +9,6 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
-import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
@@ -74,9 +72,8 @@ internal class TilkjentYtelseServiceTest {
 
     private val overgangsordningAndelRepositoryMock: OvergangsordningAndelRepository = mockk()
     private val praksisendring2024Service: Praksisendring2024Service = mockk()
-    private val unleashNextMedContextServiceMock: UnleashNextMedContextService = mockUnleashNextMedContextService()
 
-    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service, unleashNextMedContextServiceMock)
+    private val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service)
 
     @BeforeEach
     fun init() {

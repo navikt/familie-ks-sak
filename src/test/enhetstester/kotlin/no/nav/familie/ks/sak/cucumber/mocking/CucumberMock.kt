@@ -59,7 +59,6 @@ class CucumberMock(
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
     val praksisendring2024Service = mockPraksisendring2024Service()
     val adopsjonServiceMock = mockAdopsjonService()
-    val unleashNextMedContextServiceMock = mockUnleashNextMedContextService()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
@@ -67,7 +66,7 @@ class CucumberMock(
             adopsjonService = adopsjonServiceMock,
         )
 
-    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service, unleashNextMedContextServiceMock)
+    val tilkjentYtelseService = TilkjentYtelseService(beregnAndelTilkjentYtelseService, overgangsordningAndelRepositoryMock, praksisendring2024Service)
 
     val tilpassDifferanseberegningEtterTilkjentYtelseService =
         TilpassDifferanseberegningEtterTilkjentYtelseService(

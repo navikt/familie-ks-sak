@@ -41,7 +41,6 @@ class TilkjentYtelseService(
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
             AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer, endretUtbetalingAndeler = endretUtbetalingAndelerBarna, tilkjentYtelse = tilkjentYtelse)
 
-
         val overgangsordningAndelerSomAndelTilkjentYtelse =
             genererAndelerTilkjentYtelseFraOvergangsordningAndeler(
                 behandlingId = vilkårsvurdering.behandling.id,
