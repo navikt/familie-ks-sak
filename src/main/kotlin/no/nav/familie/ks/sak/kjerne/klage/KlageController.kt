@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.klage
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.klage.dto.OpprettKlageDto
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -35,8 +34,7 @@ class KlageController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Vis og lagre vedtaksbrev",
         )
-        val klageMottattDato = opprettKlageDto.klageMottattDato ?: (opprettKlageDto.kravMottattDato ?: throw Feil("Klage mottatt-dato ikke satt"))
-        klageService.opprettKlage(fagsakId = fagsakId, klageMottattDato = klageMottattDato)
+        klageService.opprettKlage(fagsakId = fagsakId, klageMottattDato = opprettKlageDto.klageMottattDato)
         return Ressurs.success(fagsakId)
     }
 
