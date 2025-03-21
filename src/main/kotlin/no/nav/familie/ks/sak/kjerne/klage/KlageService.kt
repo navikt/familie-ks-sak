@@ -7,7 +7,6 @@ import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.Klagebehandlingsårsak
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.kontrakter.felles.klage.Stønadstype
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
@@ -28,6 +27,7 @@ class KlageService(
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService,
     private val tilbakekrevingKlient: TilbakekrevingKlient,
+    private val klagebehandlingHenter: KlagebehandlingHenter,
 ) {
     fun opprettKlage(
         fagsakId: Long,
@@ -62,15 +62,9 @@ class KlageService(
         )
     }
 
-    fun hentKlagebehandlingerPåFagsak(fagsakId: Long): List<KlagebehandlingDto> {
-        val klagebehandligerPerFagsak = klageClient.hentKlagebehandlinger(setOf(fagsakId))
+    fun hentKlagebehandlingerPåFagsak(fagsakId: Long): List<KlagebehandlingDto> = klagebehandlingHenter.hentKlagebehandlingerPåFagsak(fagsakId)
 
-        val klagerPåFagsak =
-            klagebehandligerPerFagsak[fagsakId]
-                ?: throw Feil("Fikk ikke fagsakId=$fagsakId tilbake fra kallet til klage.")
-
-        return klagerPåFagsak.map { it.brukVedtaksdatoFraKlageinstansHvisOversendt() }
-    }
+    fun hentSisteVedtatteKlagebehandling(fagsakId: Long): KlagebehandlingDto? = klagebehandlingHenter.hentSisteVedtatteKlagebehandling(fagsakId)
 
     fun hentFagsystemVedtak(fagsakId: Long): List<FagsystemVedtak> {
         val fagsak = fagsakService.hentFagsak(fagsakId)
