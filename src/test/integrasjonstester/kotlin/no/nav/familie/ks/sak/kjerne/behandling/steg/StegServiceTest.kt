@@ -56,6 +56,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.klage.KlageClient
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -96,6 +97,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @MockkBean(relaxed = true)
     private lateinit var avsluttBehandlingSteg: AvsluttBehandlingSteg
 
+    @MockkBean(relaxed = true)
+    private lateinit var klageClient: KlageClient
+
     @MockkBean
     private lateinit var taskService: TaskService
 
@@ -116,6 +120,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun setup() {
+        val fagsakIderSlot = slot<Set<Long>>()
+        every { klageClient.hentKlagebehandlinger(capture(fagsakIderSlot)) } answers {
+            fagsakIderSlot.captured.associateWith { emptyList() }
+        }
+
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
