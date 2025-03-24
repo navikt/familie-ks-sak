@@ -15,7 +15,7 @@ data class RelatertBehandling(
         KLAGE,
     }
 
-    companion object Fabrikk {
+    companion object Factory {
         fun fraKontantstøttebehandling(kontantstøttebehandling: Behandling) =
             RelatertBehandling(
                 id = kontantstøttebehandling.id.toString(),
