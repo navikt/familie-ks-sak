@@ -20,18 +20,18 @@ class RelatertBehandlingUtleder(
             return null
         }
 
-        val forrigeKontantstøttebehandling =
+        val sisteVedtatteKontantstøttebehandling =
             behandlingService
                 .hentSisteBehandlingSomErVedtatt(fagsakId)
                 ?.takeIf { harKontantstøttebehandlingKorrektBehandlingType(it) }
                 ?.let { RelatertBehandling.fraKontantstøttebehandling(it) }
 
-        val forrigeKlagebehandling =
+        val sisteVedtatteKlagebehandling =
             klageService
                 .hentSisteVedtatteKlagebehandling(fagsakId)
                 ?.let { RelatertBehandling.fraKlagebehandling(it) }
 
-        return listOfNotNull(forrigeKontantstøttebehandling, forrigeKlagebehandling).maxByOrNull { it.vedtattTidspunkt }
+        return listOfNotNull(sisteVedtatteKontantstøttebehandling, sisteVedtatteKlagebehandling).maxByOrNull { it.vedtattTidspunkt }
     }
 
     private fun harKontantstøttebehandlingKorrektBehandlingType(kontantstøttebehandling: Behandling) =
