@@ -6,13 +6,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
-import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 
 @Component
 class RelatertBehandlingUtleder(
     private val behandlingRepository: BehandlingRepository,
-    private val klagebehandlingHenter: KlagebehandlingHenter,
+    @Lazy private val klageService: KlageService,
     private val unleashService: UnleashNextMedContextService,
 ) {
     fun utledRelatertBehandling(fagsakId: Long): RelatertBehandling? {
@@ -29,7 +30,7 @@ class RelatertBehandlingUtleder(
                 ?.let { RelatertBehandling.fraKontantstøttebehandling(it) }
 
         val forrigeKlagebehandling =
-            klagebehandlingHenter
+            klageService
                 .hentSisteVedtatteKlagebehandling(fagsakId)
                 ?.let { RelatertBehandling.fraKlagebehandling(it) }
 

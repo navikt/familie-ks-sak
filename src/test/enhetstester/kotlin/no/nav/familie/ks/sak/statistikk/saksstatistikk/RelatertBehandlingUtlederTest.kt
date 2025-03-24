@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -21,12 +21,12 @@ import java.time.LocalDateTime
 
 class RelatertBehandlingUtlederTest {
     private val behandlingRepository = mockk<BehandlingRepository>()
-    private val klagebehandlingHenter = mockk<KlagebehandlingHenter>()
+    private val klageService = mockk<KlageService>()
     private val unleashService = mockk<UnleashNextMedContextService>()
     private val relatertBehandlingUtleder =
         RelatertBehandlingUtleder(
             behandlingRepository = behandlingRepository,
-            klagebehandlingHenter = klagebehandlingHenter,
+            klageService = klageService,
             unleashService = unleashService,
         )
 
@@ -71,7 +71,7 @@ class RelatertBehandlingUtlederTest {
                 )
 
             every { behandlingRepository.finnBehandlinger(fagsakId) } returns listOf(kontantstøttebehandling)
-            every { klagebehandlingHenter.hentSisteVedtatteKlagebehandling(fagsakId) } returns klagebehandling
+            every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns klagebehandling
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(fagsakId)
@@ -109,7 +109,7 @@ class RelatertBehandlingUtlederTest {
                 )
 
             every { behandlingRepository.finnBehandlinger(fagsakId) } returns listOf(kontantstøttebehandling)
-            every { klagebehandlingHenter.hentSisteVedtatteKlagebehandling(fagsakId) } returns klagebehandling
+            every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns klagebehandling
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(fagsakId)
@@ -156,7 +156,7 @@ class RelatertBehandlingUtlederTest {
                     kontantstøttebehandling2,
                     kontantstøttebehandling3,
                 )
-            every { klagebehandlingHenter.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
+            every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(fagsakId)
@@ -173,7 +173,7 @@ class RelatertBehandlingUtlederTest {
             val fagsakId = 1L
 
             every { behandlingRepository.finnBehandlinger(fagsakId) } returns emptyList()
-            every { klagebehandlingHenter.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
+            every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(fagsakId)
@@ -196,7 +196,7 @@ class RelatertBehandlingUtlederTest {
                 )
 
             every { behandlingRepository.finnBehandlinger(fagsakId) } returns listOf(kontantstøttebehandling)
-            every { klagebehandlingHenter.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
+            every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(fagsakId)
