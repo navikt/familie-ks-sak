@@ -93,7 +93,7 @@ class SakStatistikkService(
 
         val mottattTid = behandling.søknadMottattDato ?: behandling.opprettetTidspunkt
 
-        val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling.fagsak.id)
+        val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)
 
         return BehandlingStatistikkV2Dto(
             saksnummer = behandling.fagsak.id,

@@ -15,21 +15,25 @@ class RelatertBehandlingUtleder(
     @Lazy private val klageService: KlageService,
     private val unleashService: UnleashNextMedContextService,
 ) {
-    fun utledRelatertBehandling(fagsakId: Long): RelatertBehandling? {
+    fun utledRelatertBehandling(behandling: Behandling): RelatertBehandling? {
         if (!unleashService.isEnabled(FeatureToggle.KAN_BEHANDLE_KLAGE, false)) {
             return null
         }
 
         val sisteVedtatteKontantstøttebehandling =
             behandlingService
-                .hentSisteBehandlingSomErVedtatt(fagsakId)
+                .hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
                 ?.takeIf { harKontantstøttebehandlingKorrektBehandlingType(it) }
                 ?.let { RelatertBehandling.fraKontantstøttebehandling(it) }
 
         val sisteVedtatteKlagebehandling =
-            klageService
-                .hentSisteVedtatteKlagebehandling(fagsakId)
-                ?.let { RelatertBehandling.fraKlagebehandling(it) }
+            if (behandling.erRevurderingKlage()) {
+                klageService
+                    .hentSisteVedtatteKlagebehandling(behandling.fagsak.id)
+                    ?.let { RelatertBehandling.fraKlagebehandling(it) }
+            } else {
+                null
+            }
 
         return listOfNotNull(sisteVedtatteKontantstøttebehandling, sisteVedtatteKlagebehandling).maxByOrNull { it.vedtattTidspunkt }
     }

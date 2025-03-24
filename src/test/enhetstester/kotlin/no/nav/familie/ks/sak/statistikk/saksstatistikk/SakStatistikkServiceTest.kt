@@ -57,7 +57,7 @@ class SakStatistikkServiceTest {
             every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
             every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
             every { totrinnskontrollService.finnAktivForBehandling(behandlingId) } returns totrinnskontroll
-            every { relatertBehandlingUtleder.utledRelatertBehandling(behandling.fagsak.id) } returns relatertBehandling
+            every { relatertBehandlingUtleder.utledRelatertBehandling(behandling) } returns relatertBehandling
 
             // Act
             val behandlingStatistikkV2Dto =
@@ -99,7 +99,7 @@ class SakStatistikkServiceTest {
             every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
             every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
             every { totrinnskontrollService.finnAktivForBehandling(behandlingId) } returns totrinnskontroll
-            every { relatertBehandlingUtleder.utledRelatertBehandling(behandling.fagsak.id) } returns null
+            every { relatertBehandlingUtleder.utledRelatertBehandling(behandling) } returns null
 
             // Act
             val behandlingStatistikkV2Dto =
