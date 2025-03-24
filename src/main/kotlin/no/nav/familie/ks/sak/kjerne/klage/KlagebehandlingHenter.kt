@@ -22,6 +22,7 @@ class KlagebehandlingHenter(
 
     fun hentSisteVedtatteKlagebehandling(fagsakId: Long): KlagebehandlingDto? =
         hentKlagebehandlingerPåFagsak(fagsakId)
+            .asSequence()
             .filter { SisteVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektStatus(it.status) }
             .filter { SisteVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektHenlagtÅrsak(it.henlagtÅrsak) }
             .filter { SisteVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektBehandlingResultat(it.resultat) }
