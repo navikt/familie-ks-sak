@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -19,23 +20,18 @@ class RelatertBehandlingUtleder(
         if (!unleashService.isEnabled(FeatureToggle.KAN_BEHANDLE_KLAGE, false)) {
             return null
         }
-
-        val sisteVedtatteKontantstøttebehandling =
+        return if (behandling.erRevurderingKlage()) {
+            val sisteVedtatteKlagebehandling = klageService.hentSisteVedtatteKlagebehandling(behandling.fagsak.id)
+            if (sisteVedtatteKlagebehandling == null) {
+                throw Feil("Forventer en vedtatt klagebehandling for behandling ${behandling.behandlingId}")
+            }
+            RelatertBehandling.fraKlagebehandling(sisteVedtatteKlagebehandling)
+        } else {
             behandlingService
                 .hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
                 ?.takeIf { harKontantstøttebehandlingKorrektBehandlingType(it) }
                 ?.let { RelatertBehandling.fraKontantstøttebehandling(it) }
-
-        val sisteVedtatteKlagebehandling =
-            if (behandling.erRevurderingKlage()) {
-                klageService
-                    .hentSisteVedtatteKlagebehandling(behandling.fagsak.id)
-                    ?.let { RelatertBehandling.fraKlagebehandling(it) }
-            } else {
-                null
-            }
-
-        return listOfNotNull(sisteVedtatteKontantstøttebehandling, sisteVedtatteKlagebehandling).maxByOrNull { it.vedtattTidspunkt }
+        }
     }
 
     private fun harKontantstøttebehandlingKorrektBehandlingType(kontantstøttebehandling: Behandling) =

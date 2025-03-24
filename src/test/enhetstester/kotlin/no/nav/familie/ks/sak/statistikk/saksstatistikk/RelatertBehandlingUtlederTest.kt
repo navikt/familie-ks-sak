@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
+import io.mockk.called
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -16,8 +19,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
 class RelatertBehandlingUtlederTest {
@@ -53,7 +55,7 @@ class RelatertBehandlingUtlederTest {
         }
 
         @Test
-        fun `skal utlede relatert behandling når klagebehandlingen er siste vedtatte behandling og den innsendte behandling er en revurdering med årsak klage`() {
+        fun `skal kaste feil om ingen vedtatt klagebehandling finnes når den innsendte behandling er en revurdering med årsak klage`() {
             // Arrange
             val nåtidspunkt = LocalDateTime.now()
 
@@ -66,148 +68,209 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
-            val kontantstøttebehandling =
+            every { klageService.hentSisteVedtatteKlagebehandling(revurderingKlage.fagsak.id) } returns null
+
+            // Act & assert
+            val exception =
+                assertThrows<Feil> {
+                    relatertBehandlingUtleder.utledRelatertBehandling(revurderingKlage)
+                }
+            assertThat(exception.message).isEqualTo("Forventer en vedtatt klagebehandling for behandling ${revurderingKlage.behandlingId}")
+            verify { behandlingService wasNot called }
+        }
+
+        @Test
+        fun `skal kaste feil om ingen vedtatt klagebehandling finnes når den innsendte behandling er en revurdering med årsak iverksette ka vedtak`() {
+            // Arrange
+            val nåtidspunkt = LocalDateTime.now()
+
+            val revurderingKlage =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.IVERKSETTE_KA_VEDTAK,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
+                    status = BehandlingStatus.UTREDES,
+                    resultat = Behandlingsresultat.IKKE_VURDERT,
+                )
+
+            every { klageService.hentSisteVedtatteKlagebehandling(revurderingKlage.fagsak.id) } returns null
+
+            // Act & assert
+            val exception =
+                assertThrows<Feil> {
+                    relatertBehandlingUtleder.utledRelatertBehandling(revurderingKlage)
+                }
+            assertThat(exception.message).isEqualTo("Forventer en vedtatt klagebehandling for behandling ${revurderingKlage.behandlingId}")
+            verify { behandlingService wasNot called }
+        }
+
+        @Test
+        fun `skal utlede relatert behandling med klagebehandlingen som siste vedtatte behandling når den innsendte behandling er en revurdering med årsak klage`() {
+            // Arrange
+            val nåtidspunkt = LocalDateTime.now()
+
+            val revurderingKlage =
                 lagBehandling(
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.KLAGE,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.INNVILGET,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
+                    status = BehandlingStatus.UTREDES,
+                    resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
-            val klagebehandling =
+            val sisteVedtatteKlagebehandling =
                 lagKlagebehandlingDto(
                     vedtaksdato = nåtidspunkt,
                 )
 
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurderingKlage.fagsak.id) } returns kontantstøttebehandling
-            every { klageService.hentSisteVedtatteKlagebehandling(revurderingKlage.fagsak.id) } returns klagebehandling
+            every { klageService.hentSisteVedtatteKlagebehandling(revurderingKlage.fagsak.id) } returns sisteVedtatteKlagebehandling
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurderingKlage)
 
             // Assert
-            assertThat(relatertBehandling?.id).isEqualTo(klagebehandling.id.toString())
+            verify { behandlingService wasNot called }
+            assertThat(relatertBehandling?.id).isEqualTo(sisteVedtatteKlagebehandling.id.toString())
             assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KLAGE)
-            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(klagebehandling.vedtaksdato)
+            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(sisteVedtatteKlagebehandling.vedtaksdato)
         }
 
         @Test
-        fun `skal utlede relatert behandling når klagebehandlingen er siste vedtatte behandling men den innsendte behandling ikke er en revurdering med årsak klage`() {
+        fun `skal utlede relatert behandling med klagebehandlingen som siste vedtatte behandling når den innsendte behandling er en revurdering med årsak iverksetter ka vedtak`() {
             // Arrange
             val nåtidspunkt = LocalDateTime.now()
 
-            val revurderingKlage =
+            val revurderingIverksetteKaVedtak =
                 lagBehandling(
                     type = BehandlingType.REVURDERING,
-                    opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
+                    opprettetÅrsak = BehandlingÅrsak.IVERKSETTE_KA_VEDTAK,
                     aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
                     status = BehandlingStatus.UTREDES,
                     resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
-            val kontantstøttebehandling =
-                lagBehandling(
-                    type = BehandlingType.REVURDERING,
-                    opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.INNVILGET,
-                )
-
-            val klagebehandling =
+            val sisteVedtatteKlagebehandling =
                 lagKlagebehandlingDto(
                     vedtaksdato = nåtidspunkt,
                 )
 
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurderingKlage.fagsak.id) } returns kontantstøttebehandling
-            every { klageService.hentSisteVedtatteKlagebehandling(revurderingKlage.fagsak.id) } returns klagebehandling
+            every { klageService.hentSisteVedtatteKlagebehandling(revurderingIverksetteKaVedtak.fagsak.id) } returns sisteVedtatteKlagebehandling
 
             // Act
-            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurderingKlage)
+            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurderingIverksetteKaVedtak)
 
             // Assert
-            assertThat(relatertBehandling?.id).isEqualTo(kontantstøttebehandling.id.toString())
-            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
-            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(kontantstøttebehandling.aktivertTidspunkt)
-        }
-
-        @ParameterizedTest
-        @EnumSource(
-            value = BehandlingType::class,
-            names = ["FØRSTEGANGSBEHANDLING"],
-            mode = EnumSource.Mode.EXCLUDE,
-        )
-        fun `skal utlede relatert behandling når kontantstøttebehandlingen er siste vedtatte behandling`(
-            behandlingType: BehandlingType,
-        ) {
-            // Arrange
-            val nåtidspunkt = LocalDateTime.now()
-
-            val revurderingKlage =
-                lagBehandling(
-                    type = BehandlingType.REVURDERING,
-                    opprettetÅrsak = BehandlingÅrsak.KLAGE,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
-                    status = BehandlingStatus.UTREDES,
-                    resultat = Behandlingsresultat.IKKE_VURDERT,
-                )
-
-            val kontantstøttebehandling =
-                lagBehandling(
-                    type = behandlingType,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.INNVILGET,
-                )
-
-            val klagebehandling =
-                lagKlagebehandlingDto(
-                    vedtaksdato = nåtidspunkt.minusSeconds(3),
-                )
-
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurderingKlage.fagsak.id) } returns kontantstøttebehandling
-            every { klageService.hentSisteVedtatteKlagebehandling(revurderingKlage.fagsak.id) } returns klagebehandling
-
-            // Act
-            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurderingKlage)
-
-            // Assert
-            assertThat(relatertBehandling?.id).isEqualTo(kontantstøttebehandling.id.toString())
-            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
-            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(kontantstøttebehandling.aktivertTidspunkt)
+            verify { behandlingService wasNot called }
+            assertThat(relatertBehandling?.id).isEqualTo(sisteVedtatteKlagebehandling.id.toString())
+            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KLAGE)
+            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(sisteVedtatteKlagebehandling.vedtaksdato)
         }
 
         @Test
-        fun `skal ikke utlede relatert behandling når ingen behandlinger er vedtatt`() {
-            // Arrange
-            val behandling = lagBehandling()
-
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
-            every { klageService.hentSisteVedtatteKlagebehandling(behandling.fagsak.id) } returns null
-
-            // Act
-            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)
-
-            // Assert
-            assertThat(relatertBehandling).isNull()
-        }
-
-        @Test
-        fun `skal ikke utlede relatert behandling når kun førstegangsbehandling for kontantstøtte er vedtatt`() {
+        fun `skal utlede relatert behandling med kontantstøttebehandlingen som siste vedtatte behandling når den innsendte behandling ikke er en revurdering med årsak klage eller iverksetter ka vedtak`() {
             // Arrange
             val nåtidspunkt = LocalDateTime.now()
 
             val revurdering =
                 lagBehandling(
                     type = BehandlingType.REVURDERING,
-                    opprettetÅrsak = BehandlingÅrsak.KLAGE,
+                    opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
+                    status = BehandlingStatus.UTREDES,
+                    resultat = Behandlingsresultat.IKKE_VURDERT,
+                )
+
+            val sisteVedtatteKontantstøttebehandling =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
+                    status = BehandlingStatus.AVSLUTTET,
+                    resultat = Behandlingsresultat.INNVILGET,
+                )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurdering.fagsak.id) } returns sisteVedtatteKontantstøttebehandling
+
+            // Act
+            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
+
+            // Assert
+            verify { klageService wasNot called }
+            assertThat(relatertBehandling?.id).isEqualTo(sisteVedtatteKontantstøttebehandling.id.toString())
+            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
+            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(sisteVedtatteKontantstøttebehandling.aktivertTidspunkt)
+        }
+
+        @Test
+        fun `skal utlede relatert behandling med kontantstøttebehandlingen som siste vedtatte behandling når den innsendte behandling ikke er en revurdering`() {
+            // Arrange
+            val nåtidspunkt = LocalDateTime.now()
+
+            val behandling =
+                lagBehandling(
+                    type = BehandlingType.TEKNISK_ENDRING,
+                    opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
+                    status = BehandlingStatus.UTREDES,
+                    resultat = Behandlingsresultat.IKKE_VURDERT,
+                )
+
+            val sisteVedtatteKontantstøttebehandling =
+                lagBehandling(
+                    type = BehandlingType.TEKNISK_ENDRING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
+                    status = BehandlingStatus.AVSLUTTET,
+                    resultat = Behandlingsresultat.INNVILGET,
+                )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns sisteVedtatteKontantstøttebehandling
+
+            // Act
+            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)
+
+            // Assert
+            verify { klageService wasNot called }
+            assertThat(relatertBehandling?.id).isEqualTo(sisteVedtatteKontantstøttebehandling.id.toString())
+            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
+            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(sisteVedtatteKontantstøttebehandling.aktivertTidspunkt)
+        }
+
+        @Test
+        fun `skal ikke utlede relatert behandling når ingen kontantstøttebehandling er vedtatt og den innsendte behandling ikke er en revurdering med årsak klage eller iverksette ka vedtak`() {
+            // Arrange
+            val revurdering =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
+                    aktivertTidspunkt = LocalDateTime.now(),
+                    status = BehandlingStatus.UTREDES,
+                    resultat = Behandlingsresultat.IKKE_VURDERT,
+                )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurdering.fagsak.id) } returns null
+
+            // Act
+            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
+
+            // Assert
+            verify { klageService wasNot called }
+            assertThat(relatertBehandling).isNull()
+        }
+
+        @Test
+        fun `skal ikke utlede relatert behandling når kun en førstegangsbehandling for kontantstøtte er vedtatt`() {
+            // Arrange
+            val nåtidspunkt = LocalDateTime.now()
+
+            val revurdering =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER,
                     aktivertTidspunkt = nåtidspunkt,
                     status = BehandlingStatus.UTREDES,
                     resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
-            val kontantstøttebehandling =
+            val sisteVedtatteKontantstøttebehandling =
                 lagBehandling(
                     type = BehandlingType.FØRSTEGANGSBEHANDLING,
                     aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
@@ -215,13 +278,13 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.INNVILGET,
                 )
 
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurdering.fagsak.id) } returns kontantstøttebehandling
-            every { klageService.hentSisteVedtatteKlagebehandling(revurdering.fagsak.id) } returns null
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurdering.fagsak.id) } returns sisteVedtatteKontantstøttebehandling
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
 
             // Assert
+            verify { klageService wasNot called }
             assertThat(relatertBehandling).isNull()
         }
     }
