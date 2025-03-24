@@ -6,7 +6,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -20,12 +20,12 @@ import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDateTime
 
 class RelatertBehandlingUtlederTest {
-    private val behandlingRepository = mockk<BehandlingRepository>()
+    private val behandlingService = mockk<BehandlingService>()
     private val klageService = mockk<KlageService>()
     private val unleashService = mockk<UnleashNextMedContextService>()
     private val relatertBehandlingUtleder =
         RelatertBehandlingUtleder(
-            behandlingRepository = behandlingRepository,
+            behandlingService = behandlingService,
             klageService = klageService,
             unleashService = unleashService,
         )
@@ -70,7 +70,7 @@ class RelatertBehandlingUtlederTest {
                     vedtaksdato = nåtidspunkt,
                 )
 
-            every { behandlingRepository.finnBehandlinger(fagsakId) } returns listOf(kontantstøttebehandling)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId) } returns kontantstøttebehandling
             every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns klagebehandling
 
             // Act
@@ -108,7 +108,7 @@ class RelatertBehandlingUtlederTest {
                     vedtaksdato = nåtidspunkt.minusSeconds(1),
                 )
 
-            every { behandlingRepository.finnBehandlinger(fagsakId) } returns listOf(kontantstøttebehandling)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId) } returns kontantstøttebehandling
             every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns klagebehandling
 
             // Act
@@ -121,58 +121,11 @@ class RelatertBehandlingUtlederTest {
         }
 
         @Test
-        fun `skal utlede relatert behandling når flere kontantstøttebehandlingen er vedtatt`() {
-            // Arrange
-            val fagsakId = 1L
-            val nåtidspunkt = LocalDateTime.now()
-
-            val kontantstøttebehandling1 =
-                lagBehandling(
-                    type = BehandlingType.FØRSTEGANGSBEHANDLING,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.INNVILGET,
-                )
-
-            val kontantstøttebehandling2 =
-                lagBehandling(
-                    type = BehandlingType.REVURDERING,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET,
-                )
-
-            val kontantstøttebehandling3 =
-                lagBehandling(
-                    type = BehandlingType.REVURDERING,
-                    aktivertTidspunkt = nåtidspunkt,
-                    status = BehandlingStatus.AVSLUTTET,
-                    resultat = Behandlingsresultat.INNVILGET,
-                )
-
-            every { behandlingRepository.finnBehandlinger(fagsakId) } returns
-                listOf(
-                    kontantstøttebehandling1,
-                    kontantstøttebehandling2,
-                    kontantstøttebehandling3,
-                )
-            every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
-
-            // Act
-            val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(fagsakId)
-
-            // Assert
-            assertThat(relatertBehandling?.id).isEqualTo(kontantstøttebehandling3.id.toString())
-            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
-            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(kontantstøttebehandling3.aktivertTidspunkt)
-        }
-
-        @Test
         fun `skal ikke utlede relatert behandling når ingen behandlinger er vedtatt`() {
             // Arrange
             val fagsakId = 1L
 
-            every { behandlingRepository.finnBehandlinger(fagsakId) } returns emptyList()
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId) } returns null
             every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
 
             // Act
@@ -195,7 +148,7 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.INNVILGET,
                 )
 
-            every { behandlingRepository.finnBehandlinger(fagsakId) } returns listOf(kontantstøttebehandling)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId) } returns kontantstøttebehandling
             every { klageService.hentSisteVedtatteKlagebehandling(fagsakId) } returns null
 
             // Act

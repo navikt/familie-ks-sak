@@ -2,9 +2,8 @@ package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import org.springframework.context.annotation.Lazy
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class RelatertBehandlingUtleder(
-    private val behandlingRepository: BehandlingRepository,
+    @Lazy private val behandlingService: BehandlingService,
     @Lazy private val klageService: KlageService,
     private val unleashService: UnleashNextMedContextService,
 ) {
@@ -22,10 +21,8 @@ class RelatertBehandlingUtleder(
         }
 
         val forrigeKontantstøttebehandling =
-            behandlingRepository
-                .finnBehandlinger(fagsakId)
-                .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
-                .maxByOrNull { it.aktivertTidspunkt }
+            behandlingService
+                .hentSisteBehandlingSomErVedtatt(fagsakId)
                 ?.takeIf { harKontantstøttebehandlingKorrektBehandlingType(it) }
                 ?.let { RelatertBehandling.fraKontantstøttebehandling(it) }
 
