@@ -27,7 +27,7 @@ class RelatertBehandlingTest {
 
             // Assert
             assertThat(relatertBehandling.id).isEqualTo(kontantstøttebehandling.id.toString())
-            assertThat(relatertBehandling.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KONT)
+            assertThat(relatertBehandling.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
             assertThat(relatertBehandling.vedtattTidspunkt).isEqualTo(kontantstøttebehandling.aktivertTidspunkt)
         }
     }

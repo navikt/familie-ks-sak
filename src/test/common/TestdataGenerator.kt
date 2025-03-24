@@ -1609,7 +1609,7 @@ fun lagKlageinstansResultatDto(
 fun lagRelatertBehandling(
     id: String = "1",
     vedtattTidspunkt: LocalDateTime = LocalDateTime.now(),
-    fagsystem: RelatertBehandling.Fagsystem = RelatertBehandling.Fagsystem.KONT,
+    fagsystem: RelatertBehandling.Fagsystem = RelatertBehandling.Fagsystem.KS,
 ): RelatertBehandling =
     RelatertBehandling(
         id = id,

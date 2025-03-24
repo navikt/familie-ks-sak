@@ -11,7 +11,7 @@ data class RelatertBehandling(
     val fagsystem: Fagsystem,
 ) {
     enum class Fagsystem {
-        KONT,
+        KS,
         KLAGE,
     }
 
@@ -20,7 +20,7 @@ data class RelatertBehandling(
             RelatertBehandling(
                 id = kontantstøttebehandling.id.toString(),
                 vedtattTidspunkt = kontantstøttebehandling.aktivertTidspunkt,
-                fagsystem = Fagsystem.KONT,
+                fagsystem = Fagsystem.KS,
             )
 
         fun fraKlagebehandling(klagebehandling: KlagebehandlingDto): RelatertBehandling {
