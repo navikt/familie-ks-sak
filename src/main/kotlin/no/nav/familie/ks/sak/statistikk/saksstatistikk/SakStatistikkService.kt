@@ -34,6 +34,7 @@ class SakStatistikkService(
     private val fagsakService: FagsakService,
     private val personopplysningService: PersonopplysningerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val relatertBehandlingUtleder: RelatertBehandlingUtleder,
 ) {
     fun opprettSendingAvBehandlingensTilstand(
         behandlingId: Long,
@@ -92,6 +93,8 @@ class SakStatistikkService(
 
         val mottattTid = behandling.søknadMottattDato ?: behandling.opprettetTidspunkt
 
+        val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)
+
         return BehandlingStatistikkV2Dto(
             saksnummer = behandling.fagsak.id,
             behandlingID = behandling.id,
@@ -121,6 +124,8 @@ class SakStatistikkService(
                     )
                 },
             behandlingOpprettetÅrsak = behandling.opprettetÅrsak,
+            relatertBehandlingId = relatertBehandling?.id,
+            relatertBehandlingFagsystem = relatertBehandling?.fagsystem?.name,
         )
     }
 

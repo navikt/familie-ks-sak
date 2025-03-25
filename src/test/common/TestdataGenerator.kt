@@ -5,6 +5,12 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
 import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.klage.BehandlingEventType
+import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
+import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
+import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
+import no.nav.familie.kontrakter.felles.klage.KlageinstansResultatDto
+import no.nav.familie.kontrakter.felles.klage.KlageinstansUtfall
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
@@ -109,6 +115,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.G
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.RelatertBehandling
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -281,6 +288,7 @@ fun lagBehandling(
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
     id: Long = 0L,
+    aktivertTidspunkt: LocalDateTime = LocalDateTime.now(),
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
         setOf(
@@ -301,6 +309,7 @@ fun lagBehandling(
             resultat = resultat,
             aktiv = aktiv,
             status = status,
+            aktivertTidspunkt = aktivertTidspunkt,
         )
     behandling.behandlingStegTilstand.addAll(lagBehandlingStegTilstander(behandling))
     behandling.endretTidspunkt = endretTidspunkt
@@ -1556,4 +1565,54 @@ fun lagRefusjonEøs(
         land = land,
         refusjonAvklart = refusjonAvklart,
         id = id,
+    )
+
+fun lagKlagebehandlingDto(
+    id: UUID = UUID.randomUUID(),
+    fagsakId: UUID = UUID.randomUUID(),
+    status: no.nav.familie.kontrakter.felles.klage.BehandlingStatus = no.nav.familie.kontrakter.felles.klage.BehandlingStatus.FERDIGSTILT,
+    opprettet: LocalDateTime = LocalDateTime.now(),
+    mottattDato: LocalDate = LocalDate.now(),
+    resultat: BehandlingResultat? = BehandlingResultat.MEDHOLD,
+    årsak: no.nav.familie.kontrakter.felles.klage.Årsak? = null,
+    vedtaksdato: LocalDateTime? = LocalDateTime.now(),
+    klageinstansResultat: List<KlageinstansResultatDto> = emptyList(),
+    henlagtÅrsak: HenlagtÅrsak? = null,
+) = KlagebehandlingDto(
+    id = id,
+    fagsakId = fagsakId,
+    status = status,
+    opprettet = opprettet,
+    mottattDato = mottattDato,
+    resultat = resultat,
+    årsak = årsak,
+    vedtaksdato = vedtaksdato,
+    klageinstansResultat = klageinstansResultat,
+    henlagtÅrsak = henlagtÅrsak,
+)
+
+fun lagKlageinstansResultatDto(
+    type: BehandlingEventType = BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET,
+    utfall: KlageinstansUtfall? = KlageinstansUtfall.MEDHOLD,
+    mottattEllerAvsluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    journalpostReferanser: List<String> = emptyList(),
+    årsakFeilregistrert: String? = null,
+): KlageinstansResultatDto =
+    KlageinstansResultatDto(
+        type = type,
+        utfall = utfall,
+        mottattEllerAvsluttetTidspunkt = mottattEllerAvsluttetTidspunkt,
+        journalpostReferanser = journalpostReferanser,
+        årsakFeilregistrert = årsakFeilregistrert,
+    )
+
+fun lagRelatertBehandling(
+    id: String = "1",
+    vedtattTidspunkt: LocalDateTime = LocalDateTime.now(),
+    fagsystem: RelatertBehandling.Fagsystem = RelatertBehandling.Fagsystem.KS,
+): RelatertBehandling =
+    RelatertBehandling(
+        id = id,
+        vedtattTidspunkt = vedtattTidspunkt,
+        fagsystem = fagsystem,
     )

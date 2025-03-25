@@ -183,6 +183,8 @@ data class Behandling(
 
     fun erTekniskEndring() = opprettetÅrsak == BehandlingÅrsak.TEKNISK_ENDRING
 
+    fun erRevurderingKlage() = type == REVURDERING && opprettetÅrsak in setOf(BehandlingÅrsak.KLAGE, BehandlingÅrsak.IVERKSETTE_KA_VEDTAK)
+
     fun erLovendring() = opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024
 
     fun erOvergangsordning() = opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024
