@@ -5,8 +5,9 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.klage.KlageService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 
@@ -16,31 +17,30 @@ class RelatertBehandlingUtleder(
     @Lazy private val klageService: KlageService,
     private val unleashService: UnleashNextMedContextService,
 ) {
+    private val logger: Logger = LoggerFactory.getLogger(RelatertBehandlingUtleder::class.java)
+
     fun utledRelatertBehandling(behandling: Behandling): RelatertBehandling? {
         if (!unleashService.isEnabled(FeatureToggle.KAN_BEHANDLE_KLAGE, false)) {
             return null
         }
-        return if (behandling.erRevurderingKlage()) {
+
+        if (behandling.erRevurderingKlage()) {
             val sisteVedtatteKlagebehandling = klageService.hentSisteVedtatteKlagebehandling(behandling.fagsak.id)
             if (sisteVedtatteKlagebehandling == null) {
-                throw Feil("Forventer en vedtatt klagebehandling for behandling ${behandling.behandlingId}")
+                throw Feil("Forventer en vedtatt klagebehandling for fagsak ${behandling.fagsak.id} og behandling ${behandling.id}")
             }
-            RelatertBehandling.fraKlagebehandling(sisteVedtatteKlagebehandling)
-        } else {
-            behandlingService
-                .hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
-                ?.takeIf { harKontantstøttebehandlingKorrektBehandlingType(it) }
-                ?.let { RelatertBehandling.fraKontantstøttebehandling(it) }
+            return RelatertBehandling.fraKlagebehandling(sisteVedtatteKlagebehandling)
         }
+
+        if (behandling.erRevurderingEllerTekniskEndring()) {
+            val sisteVedtatteKontantstøttebehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
+            if (sisteVedtatteKontantstøttebehandling == null) {
+                logger.warn("Forventer en vedtatt kontantstøttebehandling for fagsak ${behandling.fagsak.id} og behandling ${behandling.id}")
+                return null
+            }
+            return RelatertBehandling.fraKontantstøttebehandling(sisteVedtatteKontantstøttebehandling)
+        }
+
+        return null
     }
-
-    private fun harKontantstøttebehandlingKorrektBehandlingType(kontantstøttebehandling: Behandling) =
-        when (kontantstøttebehandling.type) {
-            BehandlingType.FØRSTEGANGSBEHANDLING,
-            -> false
-
-            BehandlingType.REVURDERING,
-            BehandlingType.TEKNISK_ENDRING,
-            -> true
-        }
 }
