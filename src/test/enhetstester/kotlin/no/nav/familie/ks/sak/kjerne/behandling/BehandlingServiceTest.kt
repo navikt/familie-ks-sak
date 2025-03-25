@@ -218,6 +218,7 @@ class BehandlingServiceTest {
 
     @Test
     fun `oppdaterBehandlendeEnhet - skal oppdatere behandlende enhet tilknyttet behandling ved hjelp av ArbeidsfordelingService`() {
+        every { mockSakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandling.id) } just runs
         // Arrange
         val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("nyEnhetId", "begrunnelse")
 
@@ -229,6 +230,11 @@ class BehandlingServiceTest {
             mockArbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
                 behandling,
                 endreBehandlendeEnhetDto,
+            )
+        }
+        verify(exactly = 1) {
+            mockSakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(
+                behandling.id,
             )
         }
     }
