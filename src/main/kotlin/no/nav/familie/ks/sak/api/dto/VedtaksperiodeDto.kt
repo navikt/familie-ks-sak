@@ -62,19 +62,17 @@ data class BegrunnelseDto(
 fun NasjonalEllerFellesBegrunnelseDB.tilVedtaksbegrunnelseDto(
     sanityBegrunnelser: List<SanityBegrunnelse>,
     alleBegrunnelserSkalStøtteFritekst: Boolean,
-) =
-    BegrunnelseDto(
-        begrunnelse = nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
-        begrunnelseType = nasjonalEllerFellesBegrunnelse.begrunnelseType,
-        støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
-    )
+) = BegrunnelseDto(
+    begrunnelse = nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
+    begrunnelseType = nasjonalEllerFellesBegrunnelse.begrunnelseType,
+    støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
+)
 
 fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(
     sanityBegrunnelser: List<SanityBegrunnelse>,
     alleBegrunnelserSkalStøtteFritekst: Boolean,
-) =
-    BegrunnelseDto(
-        begrunnelse = this.begrunnelse.enumnavnTilString(),
-        begrunnelseType = this.begrunnelse.begrunnelseType,
-        støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else this.begrunnelse.støtterFritekst(sanityBegrunnelser),
-    )
+) = BegrunnelseDto(
+    begrunnelse = this.begrunnelse.enumnavnTilString(),
+    begrunnelseType = this.begrunnelse.begrunnelseType,
+    støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else this.begrunnelse.støtterFritekst(sanityBegrunnelser),
+)
