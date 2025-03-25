@@ -234,7 +234,10 @@ class BehandlingService(
     fun oppdaterBehandlendeEnhet(
         behandlingId: Long,
         endreBehandlendeEnhet: EndreBehandlendeEnhetDto,
-    ) = arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
+    ) {
+        arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
+        sakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandlingId)
+    }
 
     fun oppdaterBehandlingsresultat(
         behandlingId: Long,

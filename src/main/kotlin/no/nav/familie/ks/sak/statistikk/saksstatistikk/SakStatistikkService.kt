@@ -79,6 +79,16 @@ class SakStatistikkService(
         taskService.save(task)
     }
 
+    fun sendMeldingOmManuellEndringAvBehandlendeEnhet(
+        behandlingId: Long,
+    ) {
+        val hendelsesbeskrivelse =
+            "Endrer behandlende enhet manuelt for behandling $behandlingId"
+
+        val tilstand = hentBehandlingensTilstandV2(behandlingId, false)
+        opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhV2Task.TASK_TYPE)
+    }
+
     fun hentBehandlingensTilstandV2(
         behandlingId: Long,
         brukEndretTidspunktSomFunksjonellTidspunkt: Boolean,
