@@ -38,17 +38,18 @@ data class UtvidetVedtaksperiodeMedBegrunnelserDto(
 fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
     sanityBegrunnelser: List<SanityBegrunnelse>,
     adopsjonerIBehandling: List<Adopsjon>,
+    alleBegrunnelserSkalStøtteFritekst: Boolean,
 ): UtvidetVedtaksperiodeMedBegrunnelserDto =
     UtvidetVedtaksperiodeMedBegrunnelserDto(
         id = this.id,
         fom = this.fom,
         tom = this.tom,
         type = this.type,
-        begrunnelser = this.begrunnelser.map { it.tilVedtaksbegrunnelseDto(sanityBegrunnelser) },
+        begrunnelser = this.begrunnelser.map { it.tilVedtaksbegrunnelseDto(sanityBegrunnelser, alleBegrunnelserSkalStøtteFritekst) },
         fritekster = this.fritekster,
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto(adopsjonerIBehandling) },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
-        eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser) },
+        eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser, alleBegrunnelserSkalStøtteFritekst) },
         støtterFritekst = this.støtterFritekst,
     )
 
@@ -58,16 +59,22 @@ data class BegrunnelseDto(
     val støtterFritekst: Boolean,
 )
 
-fun NasjonalEllerFellesBegrunnelseDB.tilVedtaksbegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
+fun NasjonalEllerFellesBegrunnelseDB.tilVedtaksbegrunnelseDto(
+    sanityBegrunnelser: List<SanityBegrunnelse>,
+    alleBegrunnelserSkalStøtteFritekst: Boolean,
+) =
     BegrunnelseDto(
         begrunnelse = nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
         begrunnelseType = nasjonalEllerFellesBegrunnelse.begrunnelseType,
-        støtterFritekst = nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
+        støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
     )
 
-fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(sanityBegrunnelser: List<SanityBegrunnelse>) =
+fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(
+    sanityBegrunnelser: List<SanityBegrunnelse>,
+    alleBegrunnelserSkalStøtteFritekst: Boolean,
+) =
     BegrunnelseDto(
         begrunnelse = this.begrunnelse.enumnavnTilString(),
         begrunnelseType = this.begrunnelse.begrunnelseType,
-        støtterFritekst = this.begrunnelse.støtterFritekst(sanityBegrunnelser),
+        støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else this.begrunnelse.støtterFritekst(sanityBegrunnelser),
     )
