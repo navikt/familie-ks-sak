@@ -106,6 +106,17 @@ class BehandlingService(
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 
+    /**
+     * Henter siste behandling som er vedtatt FØR en gitt behandling
+     */
+    fun hentForrigeBehandlingSomErVedtatt(behandling: Behandling): Behandling? =
+        behandlingRepository
+            .finnBehandlinger(behandling.fagsak.id)
+            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+            .filter { !it.erHenlagt() }
+            .filter { it.aktivertTidspunkt.isBefore(behandling.aktivertTidspunkt) }
+            .maxByOrNull { it.aktivertTidspunkt }
+
     fun oppdaterBehandling(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)
