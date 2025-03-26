@@ -78,7 +78,7 @@ class InnkommendeJournalføringServiceTest {
 
         // Assert
         assertThat(journalposterForBruker).hasSize(1)
-        assertThat(journalposterForBruker.first { it.journalpost.journalpostId === journalpostId }.harTilgang).isTrue
+        assertThat(journalposterForBruker.first { it.journalpost.journalpostId === journalpostId }.journalpostTilgang.harTilgang).isTrue
     }
 
     @Test

@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -155,6 +156,9 @@ class BehandlingService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
+        // For revurderinger med årsak klage skal fritekst støttes på alle begrunnelser
+        val alleBegrunnelserSkalStøtteFritekst = behandling.type == BehandlingType.REVURDERING && behandling.erKlage()
+
         val vedtak =
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
                 it.tilVedtakDto(
@@ -163,7 +167,11 @@ class BehandlingService(
                             vedtaksperiodeService
                                 .hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                                 .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser = sanityBegrunnelser, adopsjonerIBehandling = adopsjonerIBehandling)
+                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                                        sanityBegrunnelser = sanityBegrunnelser,
+                                        adopsjonerIBehandling = adopsjonerIBehandling,
+                                        alleBegrunnelserSkalStøtteFritekst = alleBegrunnelserSkalStøtteFritekst,
+                                    )
                                 }.sortedBy { dto -> dto.fom }
                         } else {
                             emptyList()
