@@ -21,6 +21,7 @@ UNLEASH_VARIABLER="$(kubectl -n teamfamilie get secret familie-ks-sak-unleash-ap
 
 AZURE_APP_CLIENT_ID="$(echo "$PODVARIABLER" | grep "AZURE_APP_CLIENT_ID" | sed 's/:/=/1' | tr -d '",'| tr -d ' "')"
 AZURE_APP_CLIENT_SECRET="$(echo "$PODVARIABLER" | grep "AZURE_APP_CLIENT_SECRET" | sed 's/:/=/1' | tr -d '",'| tr -d ' "')"
+AZURE_APP_TENANT_ID="$(echo "$PODVARIABLER" | grep "AZURE_APP_TENANT_ID" | sed 's/:/=/1' | tr -d '",'| tr -d ' "')"
 
 UNLEASH_SERVER_API_URL="$(echo "$UNLEASH_VARIABLER" | grep "UNLEASH_SERVER_API_URL" | sed 's/:/=/1' | tr -d ' "')"
 UNLEASH_SERVER_API_TOKEN="$(echo "$UNLEASH_VARIABLER" | grep "UNLEASH_SERVER_API_TOKEN" | sed 's/:/=/1' | tr -d ' ,"')"
@@ -29,5 +30,5 @@ if [ -z "$AZURE_APP_CLIENT_ID" ]
 then
       return 1
 else
-      printf "%s;%s;%s;%s" "$AZURE_APP_CLIENT_ID" "$AZURE_APP_CLIENT_SECRET" "$UNLEASH_SERVER_API_URL" "$UNLEASH_SERVER_API_TOKEN"
+      printf "%s;%s;%s;%s;%s" "$AZURE_APP_CLIENT_ID" "$AZURE_APP_CLIENT_SECRET" "$AZURE_APP_TENANT_ID" "$UNLEASH_SERVER_API_URL" "$UNLEASH_SERVER_API_TOKEN"
 fi
