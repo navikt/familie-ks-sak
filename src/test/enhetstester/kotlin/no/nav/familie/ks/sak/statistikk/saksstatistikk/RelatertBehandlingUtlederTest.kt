@@ -166,7 +166,7 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.INNVILGET,
                 )
 
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(revurdering.fagsak.id) } returns sisteVedtatteKontantstøttebehandling
+            every { behandlingService.hentForrigeBehandlingSomErVedtatt(revurdering) } returns sisteVedtatteKontantstøttebehandling
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
@@ -200,7 +200,7 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.INNVILGET,
                 )
 
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(tekniskEndring.fagsak.id) } returns sisteVedtatteKontantstøttebehandling
+            every { behandlingService.hentForrigeBehandlingSomErVedtatt(tekniskEndring) } returns sisteVedtatteKontantstøttebehandling
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(tekniskEndring)
@@ -233,7 +233,7 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+            every { behandlingService.hentForrigeBehandlingSomErVedtatt(behandling) } returns null
 
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)

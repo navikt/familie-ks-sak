@@ -33,12 +33,12 @@ class RelatertBehandlingUtleder(
         }
 
         if (behandling.erRevurderingEllerTekniskEndring()) {
-            val sisteVedtatteKontantstøttebehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
-            if (sisteVedtatteKontantstøttebehandling == null) {
+            val forrigeVedtatteKontantstøttebehandling = behandlingService.hentForrigeBehandlingSomErVedtatt(behandling)
+            if (forrigeVedtatteKontantstøttebehandling == null) {
                 logger.warn("Forventer en vedtatt kontantstøttebehandling for fagsak ${behandling.fagsak.id} og behandling ${behandling.id}")
                 return null
             }
-            return RelatertBehandling.fraKontantstøttebehandling(sisteVedtatteKontantstøttebehandling)
+            return RelatertBehandling.fraKontantstøttebehandling(forrigeVedtatteKontantstøttebehandling)
         }
 
         return null
