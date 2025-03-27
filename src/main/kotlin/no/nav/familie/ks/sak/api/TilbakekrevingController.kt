@@ -29,7 +29,7 @@ class TilbakekrevingController(
     private val tilbakekrevingService: TilbakekrevingService,
     private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
 ) {
-    @GetMapping(path = ["/{fagsakId}/hent-tilbakekrevingsbehandlinger"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(path = ["/fagsak/{fagsakId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentTilbakekrevingsbehandlinger(
         @PathVariable fagsakId: Long,
     ): Ressurs<List<Behandling>> {
