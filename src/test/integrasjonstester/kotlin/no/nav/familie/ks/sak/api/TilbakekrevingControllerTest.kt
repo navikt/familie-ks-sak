@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
@@ -30,14 +30,14 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
     private val controllerUrl = "/api/tilbakekreving"
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         RestAssured.port = port
 
         every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(any()) } returns emptyList()
     }
 
     @Test
-    fun `hentTilbakekrevingsbehandlinger - skal returnere unauthorized dersom brukeren ikke har token for å hente behandling`(){
+    fun `hentTilbakekrevingsbehandlinger - skal returnere unauthorized dersom brukeren ikke har token for å hente behandling`() {
         When {
             get("$controllerUrl/fagsak/123456")
         } Then {
@@ -63,16 +63,17 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
     fun `hentTilbakekrevingsbehandlinger - skal returnere liste med tilbakekrevingsbehandlinger og 200 OK dersom behandlinger er hentet fra familie-tilbake`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.VEILEDER)
 
-        val tilbakekrevingsbehandling = Behandling(
-            behandlingId = UUID.randomUUID(),
-            opprettetTidspunkt = LocalDateTime.now(),
-            aktiv = true,
-            årsak = Behandlingsårsakstype.REVURDERING_OPPLYSNINGER_OM_VILKÅR,
-            type = Behandlingstype.TILBAKEKREVING,
-            status = Behandlingsstatus.AVSLUTTET,
-            vedtaksdato = LocalDateTime.now(),
-            resultat = Behandlingsresultatstype.FULL_TILBAKEBETALING
-        )
+        val tilbakekrevingsbehandling =
+            Behandling(
+                behandlingId = UUID.randomUUID(),
+                opprettetTidspunkt = LocalDateTime.now(),
+                aktiv = true,
+                årsak = Behandlingsårsakstype.REVURDERING_OPPLYSNINGER_OM_VILKÅR,
+                type = Behandlingstype.TILBAKEKREVING,
+                status = Behandlingsstatus.AVSLUTTET,
+                vedtaksdato = LocalDateTime.now(),
+                resultat = Behandlingsresultatstype.FULL_TILBAKEBETALING,
+            )
         every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId = 123456) } returns listOf(tilbakekrevingsbehandling)
 
         Given {
@@ -106,5 +107,4 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
             body("melding", Is("Feilet"))
         }
     }
-
 }
