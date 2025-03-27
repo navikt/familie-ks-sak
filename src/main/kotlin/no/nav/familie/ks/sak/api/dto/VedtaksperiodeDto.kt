@@ -50,7 +50,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto(adopsjonerIBehandling) },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
         eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser, alleBegrunnelserSkalStøtteFritekst) },
-        støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else this.støtterFritekst,
+        støtterFritekst = alleBegrunnelserSkalStøtteFritekst || this.støtterFritekst,
     )
 
 data class BegrunnelseDto(
@@ -65,7 +65,7 @@ fun NasjonalEllerFellesBegrunnelseDB.tilVedtaksbegrunnelseDto(
 ) = BegrunnelseDto(
     begrunnelse = nasjonalEllerFellesBegrunnelse.enumnavnTilString(),
     begrunnelseType = nasjonalEllerFellesBegrunnelse.begrunnelseType,
-    støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
+    støtterFritekst = alleBegrunnelserSkalStøtteFritekst || nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser),
 )
 
 fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(
@@ -74,5 +74,5 @@ fun EØSBegrunnelseDB.tilEøsBegrunnelseDto(
 ) = BegrunnelseDto(
     begrunnelse = this.begrunnelse.enumnavnTilString(),
     begrunnelseType = this.begrunnelse.begrunnelseType,
-    støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else this.begrunnelse.støtterFritekst(sanityBegrunnelser),
+    støtterFritekst = alleBegrunnelserSkalStøtteFritekst || this.begrunnelse.støtterFritekst(sanityBegrunnelser),
 )
