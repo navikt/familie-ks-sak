@@ -5,7 +5,6 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
 import no.nav.familie.ks.sak.api.dto.FagsakIdDto
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -28,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController
 class TilbakekrevingController(
     private val tilgangService: TilgangService,
     private val tilbakekrevingService: TilbakekrevingService,
-    private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService
+    private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
 ) {
-    @GetMapping(path =["/{fagsakId}/hent-tilbakekrevingsbehandlinger"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(path = ["/{fagsakId}/hent-tilbakekrevingsbehandlinger"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentTilbakekrevingsbehandlinger(
         @PathVariable fagsakId: Long,
     ): Ressurs<List<Behandling>> {
