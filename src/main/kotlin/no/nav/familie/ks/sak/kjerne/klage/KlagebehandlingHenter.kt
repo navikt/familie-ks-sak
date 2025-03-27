@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
 import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,16 +21,17 @@ class KlagebehandlingHenter(
         return klagerPåFagsak.map { it.brukVedtaksdatoFraKlageinstansHvisOversendt() }
     }
 
-    fun hentSisteVedtatteKlagebehandling(fagsakId: Long): KlagebehandlingDto? =
-        hentKlagebehandlingerPåFagsak(fagsakId)
+    fun hentForrigeVedtatteKlagebehandling(behandling: Behandling): KlagebehandlingDto? =
+        hentKlagebehandlingerPåFagsak(behandling.fagsak.id)
             .asSequence()
-            .filter { SisteVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektStatus(it.status) }
-            .filter { SisteVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektHenlagtÅrsak(it.henlagtÅrsak) }
-            .filter { SisteVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektBehandlingResultat(it.resultat) }
+            .filter { ForrigeVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektStatus(it.status) }
+            .filter { ForrigeVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektHenlagtÅrsak(it.henlagtÅrsak) }
+            .filter { ForrigeVedtatteKlagebehandlingSjekker.harKlagebehandlingKorrektBehandlingResultat(it.resultat) }
             .filter { it.vedtaksdato != null }
+            .filter { it.vedtaksdato!!.isBefore(behandling.aktivertTidspunkt) }
             .maxByOrNull { it.vedtaksdato!! }
 
-    private object SisteVedtatteKlagebehandlingSjekker {
+    private object ForrigeVedtatteKlagebehandlingSjekker {
         fun harKlagebehandlingKorrektStatus(behandlingStatus: BehandlingStatus) =
             when (behandlingStatus) {
                 BehandlingStatus.FERDIGSTILT,
