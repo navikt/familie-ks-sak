@@ -102,6 +102,9 @@ spec:
         - host: familie-oppdrag.dev-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
+        - host: graph.microsoft.com
+          ports:
+            - port: 443
   replicas:
     min: 2
     max: 2
