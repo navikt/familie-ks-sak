@@ -80,6 +80,7 @@ class BarnehagebarnController(
 
     @PostMapping(
         path = ["/barnehageliste/send-epost"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun sendEpost(): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
