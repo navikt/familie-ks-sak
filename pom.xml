@@ -56,6 +56,8 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>10.1.0</unleash.version>
+        <microsoft-graph.version>6.33.0</microsoft-graph.version>
+        <azure-identity.version>1.15.4</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.21.1</cucumber.version>
@@ -343,12 +345,12 @@
         <dependency>
             <groupId>com.microsoft.graph</groupId>
             <artifactId>microsoft-graph</artifactId>
-            <version>6.30.0</version>
+            <version>${microsoft-graph.version}</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-identity</artifactId>
-            <version>1.15.3</version>
+            <version>${azure-identity.version}</version>
         </dependency>
 
         <!-- Test -->
