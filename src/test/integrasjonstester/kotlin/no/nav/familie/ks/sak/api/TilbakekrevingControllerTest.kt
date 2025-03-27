@@ -37,7 +37,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `hentTilbakekrevingsbehandlinger - skal returnere unauthorized dersom brukeren ikke har token for å hente behandling`() {
+    fun `hentTilbakekrevingsbehandlinger - skal returnere 401 unauthorized dersom brukeren ikke har token for å hente behandling`() {
         When {
             get("$controllerUrl/fagsak/123456")
         } Then {
@@ -92,7 +92,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `hentTilbakekrevingsbehandlinger - skal dersom behandlinger er hentet fra familie-tilbake`() {
+    fun `hentTilbakekrevingsbehandlinger - skal feile dersom kall mot familie-tilbake feiler`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
         every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId = 123456) } throws IntegrasjonException("Feilet")
