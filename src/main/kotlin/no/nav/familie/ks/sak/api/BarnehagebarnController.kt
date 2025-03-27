@@ -47,11 +47,11 @@ class BarnehagebarnController(
     }
 
     @PostMapping(
-        path = ["/barnehageliste/send-epost"],
+        path = ["/barnehageliste/send-epost-custom-credentials"],
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
-    fun sendEpost(
+    fun sendEpostMedInnlogging(
         @RequestBody loginParams: LoginParams,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
@@ -69,7 +69,22 @@ class BarnehagebarnController(
         val customEpostService = EpostService(customGraphServiceClient)
 
         customEpostService.sendEpostVarslingBarnehagelister("fredrik.markus.pfeil@nav.no", listOf("hei", "på", "deg"))
-        epostService.sendEpostVarslingBarnehagelister("fredrik.markus.pfeil@nav.no", listOf("hei", "på", "deg"))
+
+        return ResponseEntity.ok(Ressurs.success("OK"))
+    }
+
+    @PostMapping(
+        path = ["/barnehageliste/send-epost"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun sendEpost(): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "send e-postvarsel",
+        )
+
+        epostService.sendEpostVarslingBarnehagelister("fredrik.markus.pfeil@nav.no", listOf("halla"))
 
         return ResponseEntity.ok(Ressurs.success("OK"))
     }

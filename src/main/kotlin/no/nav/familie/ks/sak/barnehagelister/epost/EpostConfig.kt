@@ -17,7 +17,7 @@ class EpostConfig(
 
     @Bean
     fun graphServiceClient(): GraphServiceClient {
-        secureLogger.info("GraphService har tenantId med disse tegnene\n tenant: ${tenantId.last()} id: ${clientId.last()} secret: ${clientSecret.last()}")
+        secureLogger.info("GraphService har tenantId med disse tegnene\n tenant: ${tenantId.first()} id: ${clientId.first()} secret: ${clientSecret.first()}")
 
         val credential =
             ClientSecretCredentialBuilder()
