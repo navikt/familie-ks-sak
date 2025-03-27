@@ -34,12 +34,14 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.KafkaConfig.Companion.BARNEHAGELISTE_TOPIC
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -288,7 +290,6 @@ fun lagBehandling(
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
     id: Long = 0L,
-    aktivertTidspunkt: LocalDateTime = LocalDateTime.now(),
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
         setOf(
@@ -309,7 +310,6 @@ fun lagBehandling(
             resultat = resultat,
             aktiv = aktiv,
             status = status,
-            aktivertTidspunkt = aktivertTidspunkt,
         )
     behandling.behandlingStegTilstand.addAll(lagBehandlingStegTilstander(behandling))
     behandling.endretTidspunkt = endretTidspunkt
@@ -1616,3 +1616,33 @@ fun lagRelatertBehandling(
         vedtattTidspunkt = vedtattTidspunkt,
         fagsystem = fagsystem,
     )
+
+fun lagBarnehageBarn(
+    id: UUID = UUID.randomUUID(),
+    ident: String = randomFnr(),
+    fom: LocalDate = LocalDate.now().minusMonths(1),
+    tom: LocalDate = LocalDate.now().plusMonths(1),
+    antallTimerIBarnehage: Double = 45.0,
+    endringstype: String = "",
+    kommuneNavn: String = "Kommune Navn",
+    kommuneNr: String = "1234",
+    arkivReferanse: String = UUID.randomUUID().toString(),
+    kildeTopic: String = BARNEHAGELISTE_TOPIC,
+    endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+): Barnehagebarn {
+    val barnehagebarn =
+        Barnehagebarn(
+            id = id,
+            ident = ident,
+            fom = fom,
+            tom = tom,
+            antallTimerIBarnehage = antallTimerIBarnehage,
+            endringstype = endringstype,
+            kommuneNavn = kommuneNavn,
+            kommuneNr = kommuneNr,
+            arkivReferanse = arkivReferanse,
+            kildeTopic = kildeTopic,
+        )
+    barnehagebarn.endretTidspunkt = endretTidspunkt
+    return barnehagebarn
+}

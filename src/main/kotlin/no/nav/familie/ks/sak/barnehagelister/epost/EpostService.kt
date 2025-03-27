@@ -9,8 +9,10 @@ import com.microsoft.graph.serviceclient.GraphServiceClient
 import com.microsoft.graph.users.item.sendmail.SendMailPostRequestBody
 import no.nav.familie.ks.sak.common.exception.Feil
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
+@Profile("prod")
 @Service
 class EpostService(
     val graphServiceClient: GraphServiceClient,
