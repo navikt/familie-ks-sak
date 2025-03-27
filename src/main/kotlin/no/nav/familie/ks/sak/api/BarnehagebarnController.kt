@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
+import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 class BarnehagebarnController(
     private val barnehagebarnService: BarnehagebarnService,
     private val tilgangService: TilgangService,
+    private val epostService: EpostService,
 ) {
     @PostMapping(
         path = ["/barnehagebarnliste"],
@@ -39,6 +41,20 @@ class BarnehagebarnController(
         )
         val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
+    }
+
+    @GetMapping(
+        path = ["/barnehageliste/send-epost"],
+    )
+    fun sendEpost(): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "send e-postvarsel",
+        )
+
+        epostService.sendEpostVarslingBarnehagelister("fredrik.markus.pfeil@nav.no", listOf("hei", "på", "deg"))
+
+        return ResponseEntity.ok(Ressurs.success("OK"))
     }
 
     @GetMapping(
