@@ -24,7 +24,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak.LOVENDRING_2024
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -168,7 +167,7 @@ class BehandlingService(
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
         // For revurderinger med årsak klage skal fritekst støttes på alle begrunnelser
-        val alleBegrunnelserSkalStøtteFritekst = behandling.type == BehandlingType.REVURDERING && behandling.erKlage()
+        val alleBegrunnelserSkalStøtteFritekst = behandling.erRevurderingKlage()
 
         val vedtak =
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {

@@ -50,7 +50,7 @@ fun UtvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser
         utbetalingsperiodeDetaljer = this.utbetalingsperiodeDetaljer.map { it.tilUtbetalingsperiodeDetaljDto(adopsjonerIBehandling) },
         gyldigeBegrunnelser = this.gyldigeBegrunnelser.map { it.enumnavnTilString() },
         eøsBegrunnelser = this.eøsBegrunnelser.map { it.tilEøsBegrunnelseDto(sanityBegrunnelser, alleBegrunnelserSkalStøtteFritekst) },
-        støtterFritekst = this.støtterFritekst,
+        støtterFritekst = if (alleBegrunnelserSkalStøtteFritekst) true else this.støtterFritekst,
     )
 
 data class BegrunnelseDto(
