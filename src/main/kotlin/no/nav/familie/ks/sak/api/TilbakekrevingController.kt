@@ -1,9 +1,10 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
 import no.nav.familie.ks.sak.api.dto.FagsakIdDto
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingsbehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.tilTilbakekrevingsbehandlingResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
@@ -32,7 +33,7 @@ class TilbakekrevingController(
     @GetMapping(path = ["/fagsak/{fagsakId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentTilbakekrevingsbehandlinger(
         @PathVariable fagsakId: Long,
-    ): Ressurs<List<Behandling>> {
+    ): Ressurs<List<TilbakekrevingsbehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.ACCESS,
@@ -40,7 +41,11 @@ class TilbakekrevingController(
             handling = "hente tilbakekrevingsbehandlinger",
         )
 
-        val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
+        val tilbakekrevingsbehandlinger =
+            tilbakekrevingsbehandlingHentService
+                .hentTilbakekrevingsbehandlinger(fagsakId)
+                .map { it.tilTilbakekrevingsbehandlingResponsDto() }
+
         return Ressurs.success(tilbakekrevingsbehandlinger)
     }
 
