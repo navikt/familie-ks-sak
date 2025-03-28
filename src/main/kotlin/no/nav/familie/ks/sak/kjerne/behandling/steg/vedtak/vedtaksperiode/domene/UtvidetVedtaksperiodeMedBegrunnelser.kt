@@ -37,6 +37,7 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     sanityBegrunnelser: List<SanityBegrunnelse>,
+    alleBegrunnelserStøtterFritekst: Boolean,
     dagensDato: LocalDate = LocalDate.now(),
 ): UtvidetVedtaksperiodeMedBegrunnelser {
     val utbetalingsperiodeDetaljer =
@@ -55,7 +56,7 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
         eøsBegrunnelser = this.eøsBegrunnelser.toList(),
         fritekster = this.fritekster.sortedBy { it.id }.map { it.fritekst },
         utbetalingsperiodeDetaljer = utbetalingsperiodeDetaljer,
-        støtterFritekst = this.støtterFritekst(sanityBegrunnelser),
+        støtterFritekst = this.støtterFritekst(sanityBegrunnelser, alleBegrunnelserStøtterFritekst),
     )
 }
 

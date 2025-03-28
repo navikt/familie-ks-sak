@@ -412,12 +412,15 @@ class StepDefinition {
         behandlingId: Long,
     ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
         val vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser[behandlingId]!!
+        val behandling = behandlinger[behandlingId]!!
+
         return vedtaksperioderMedBegrunnelser.map {
             it.tilUtvidetVedtaksperiodeMedBegrunnelser(
                 personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                 dagensDato = dagensDato,
                 sanityBegrunnelser = emptyList(),
+                alleBegrunnelserStøtterFritekst = behandling.erRevurderingKlage(),
             )
         }
     }
