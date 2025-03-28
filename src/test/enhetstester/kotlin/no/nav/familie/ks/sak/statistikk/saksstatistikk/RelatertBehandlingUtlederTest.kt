@@ -4,34 +4,28 @@ import io.mockk.called
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
-import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDateTime
 
 class RelatertBehandlingUtlederTest {
     private val behandlingService = mockk<BehandlingService>()
-    private val klageService = mockk<KlageService>()
     private val unleashService = mockk<UnleashNextMedContextService>()
     private val relatertBehandlingUtleder =
         RelatertBehandlingUtleder(
             behandlingService = behandlingService,
-            klageService = klageService,
             unleashService = unleashService,
         )
 
@@ -62,7 +56,6 @@ class RelatertBehandlingUtlederTest {
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
 
             // Assert
-            verify { klageService wasNot called }
             verify { behandlingService wasNot called }
             assertThat(relatertBehandling).isNull()
         }
@@ -73,39 +66,7 @@ class RelatertBehandlingUtlederTest {
             names = ["KLAGE", "IVERKSETTE_KA_VEDTAK"],
             mode = EnumSource.Mode.INCLUDE,
         )
-        fun `skal kaste feil om ingen vedtatt klagebehandling finnes når den innsendte behandling er en revurdering med årsak klage eller årsak iverksette ka vedtak`(
-            behandlingÅrsak: BehandlingÅrsak,
-        ) {
-            // Arrange
-            val nåtidspunkt = LocalDateTime.now()
-
-            val revurdering =
-                lagBehandling(
-                    type = BehandlingType.REVURDERING,
-                    opprettetÅrsak = behandlingÅrsak,
-                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
-                    status = BehandlingStatus.UTREDES,
-                    resultat = Behandlingsresultat.IKKE_VURDERT,
-                )
-
-            every { klageService.hentForrigeVedtatteKlagebehandling(revurdering) } returns null
-
-            // Act & assert
-            val exception =
-                assertThrows<Feil> {
-                    relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
-                }
-            assertThat(exception.message).isEqualTo("Forventer en vedtatt klagebehandling for fagsak ${revurdering.fagsak.id} og behandling ${revurdering.id}")
-            verify { behandlingService wasNot called }
-        }
-
-        @ParameterizedTest
-        @EnumSource(
-            value = BehandlingÅrsak::class,
-            names = ["KLAGE", "IVERKSETTE_KA_VEDTAK"],
-            mode = EnumSource.Mode.INCLUDE,
-        )
-        fun `skal utlede relatert behandling med klagebehandlingen som forrige vedtatte behandling når den innsendte behandling er en revurdering med årsak klage eller årsak iverksette ka vedtak`(
+        fun `skal ikke utlede relatert behandling når den innsendte behandling er en revurdering med årsak klage eller årsak iverksette ka vedtak`(
             behandlingÅrsak: BehandlingÅrsak,
         ) {
             // Arrange
@@ -120,21 +81,12 @@ class RelatertBehandlingUtlederTest {
                     resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
-            val forrigeVedtatteKlagebehandling =
-                lagKlagebehandlingDto(
-                    vedtaksdato = nåtidspunkt,
-                )
-
-            every { klageService.hentForrigeVedtatteKlagebehandling(revurderingKlage) } returns forrigeVedtatteKlagebehandling
-
             // Act
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurderingKlage)
 
             // Assert
             verify { behandlingService wasNot called }
-            assertThat(relatertBehandling?.id).isEqualTo(forrigeVedtatteKlagebehandling.id.toString())
-            assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KLAGE)
-            assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(forrigeVedtatteKlagebehandling.vedtaksdato)
+            assertThat(relatertBehandling).isNull()
         }
 
         @ParameterizedTest
@@ -172,7 +124,6 @@ class RelatertBehandlingUtlederTest {
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
 
             // Assert
-            verify { klageService wasNot called }
             assertThat(relatertBehandling?.id).isEqualTo(forrigeVedtatteKontantstøttebehandling.id.toString())
             assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
             assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(forrigeVedtatteKontantstøttebehandling.aktivertTidspunkt)
@@ -206,7 +157,6 @@ class RelatertBehandlingUtlederTest {
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(tekniskEndring)
 
             // Assert
-            verify { klageService wasNot called }
             assertThat(relatertBehandling?.id).isEqualTo(forrigeVedtatteKontantstøttebehandling.id.toString())
             assertThat(relatertBehandling?.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
             assertThat(relatertBehandling?.vedtattTidspunkt).isEqualTo(forrigeVedtatteKontantstøttebehandling.aktivertTidspunkt)
@@ -239,7 +189,6 @@ class RelatertBehandlingUtlederTest {
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)
 
             // Assert
-            verify { klageService wasNot called }
             assertThat(relatertBehandling).isNull()
         }
 
@@ -266,7 +215,6 @@ class RelatertBehandlingUtlederTest {
             val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(revurdering)
 
             // Assert
-            verify { klageService wasNot called }
             verify { behandlingService wasNot called }
             assertThat(relatertBehandling).isNull()
         }
