@@ -25,11 +25,11 @@ class RelatertBehandlingUtleder(
         }
 
         if (behandling.erRevurderingKlage()) {
-            val sisteVedtatteKlagebehandling = klageService.hentSisteVedtatteKlagebehandling(behandling.fagsak.id)
-            if (sisteVedtatteKlagebehandling == null) {
+            val forrigeVedtatteKlagebehandling = klageService.hentForrigeVedtatteKlagebehandling(behandling)
+            if (forrigeVedtatteKlagebehandling == null) {
                 throw Feil("Forventer en vedtatt klagebehandling for fagsak ${behandling.fagsak.id} og behandling ${behandling.id}")
             }
-            return RelatertBehandling.fraKlagebehandling(sisteVedtatteKlagebehandling)
+            return RelatertBehandling.fraKlagebehandling(forrigeVedtatteKlagebehandling)
         }
 
         if (behandling.erRevurderingEllerTekniskEndring()) {

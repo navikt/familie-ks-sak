@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
-import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
@@ -86,7 +85,6 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
-    private val epostService: EpostService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -264,20 +262,6 @@ class ForvaltningController(
         )
         val uuidList = barnehageListeService.hentUarkiverteBarnehagelisteUuider()
         return ResponseEntity.ok(Ressurs.success(uuidList, "OK"))
-    }
-
-    @GetMapping(
-        path = ["/barnehageliste/sendEpost"],
-    )
-    fun sendEpost(): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "send e-postvarsel",
-        )
-
-        epostService.sendEpostVarslingBarnehagelister("fredrik.markus.pfeil@nav.no", listOf("hei", "på", "deg"))
-
-        return ResponseEntity.ok(Ressurs.success("OK"))
     }
 
     @PostMapping(
