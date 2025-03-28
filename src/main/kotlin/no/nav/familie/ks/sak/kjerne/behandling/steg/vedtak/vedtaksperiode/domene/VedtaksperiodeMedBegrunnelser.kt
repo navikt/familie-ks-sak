@@ -150,11 +150,10 @@ data class VedtaksperiodeMedBegrunnelser(
     fun støtterFritekst(
         sanityBegrunnelser: List<SanityBegrunnelse>,
         alleBegrunnelserStøtterFritekst: Boolean,
-    ) =
-        alleBegrunnelserStøtterFritekst ||
-            (type !== Vedtaksperiodetype.UTBETALING) ||
-            begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser) } ||
-            eøsBegrunnelser.any { it.begrunnelse.støtterFritekst(sanityBegrunnelser) }
+    ) = alleBegrunnelserStøtterFritekst ||
+        (type !== Vedtaksperiodetype.UTBETALING) ||
+        begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser) } ||
+        eøsBegrunnelser.any { it.begrunnelse.støtterFritekst(sanityBegrunnelser) }
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
