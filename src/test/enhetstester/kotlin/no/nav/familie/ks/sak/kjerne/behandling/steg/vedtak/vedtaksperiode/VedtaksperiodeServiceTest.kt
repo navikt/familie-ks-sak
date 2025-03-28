@@ -43,16 +43,15 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAnde
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
-import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert.assertThat
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 import java.time.YearMonth
-import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class VedtaksperiodeServiceTest {
     private val behandlingRepository = mockk<BehandlingRepository>()
@@ -141,8 +140,7 @@ internal class VedtaksperiodeServiceTest {
 
         assertThat(
             feil.message,
-            Is("Begrunnelsestype ${nasjonalEllerFellesBegrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden."),
-        )
+        ).isEqualTo("Begrunnelsestype ${nasjonalEllerFellesBegrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden.")
     }
 
     @ParameterizedTest
@@ -174,82 +172,102 @@ internal class VedtaksperiodeServiceTest {
         verify { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) }
     }
 
-    @Test
-    fun `støtterFritekst skal gi false dersom vedtaksperioden har type UTBETALING og ingen av begrunnelsene støtter fritekst`() {
-        val vedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = Vedtak(id = 0, behandling = behandling),
-                type = Vedtaksperiodetype.UTBETALING,
-            ).also {
-                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
-                it.begrunnelser.addAll(listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.tilVedtaksbegrunnelse(it), NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE.tilVedtaksbegrunnelse(it)))
-            }
+    @Nested
+    inner class StøtterFritekst {
+        @Test
+        fun `støtterFritekst skal gi false dersom vedtaksperioden har type UTBETALING og ingen av begrunnelsene støtter fritekst`() {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = Vedtaksperiodetype.UTBETALING,
+                ).also {
+                    it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                    it.begrunnelser.addAll(listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.tilVedtaksbegrunnelse(it), NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE.tilVedtaksbegrunnelse(it)))
+                }
 
-        val sanityBegrunnelser =
-            listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, SanityResultat.INNVILGET),
-                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
-            )
+            val sanityBegrunnelser =
+                listOf(
+                    lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, SanityResultat.INNVILGET),
+                    lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
+                )
 
-        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(false))
-    }
+            assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser, false)).isFalse
+        }
 
-    @Test
-    fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og en av begrunnelsene er av typen REDUKSJON men ikke REDUKSJON_SATSENDRING`() {
-        val vedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = Vedtak(id = 0, behandling = behandling),
-                type = Vedtaksperiodetype.UTBETALING,
-            ).also {
-                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
-                it.begrunnelser.addAll(listOf(NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.tilVedtaksbegrunnelse(it)))
-            }
+        @Test
+        fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og en av begrunnelsene er av typen REDUKSJON men ikke REDUKSJON_SATSENDRING`() {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = Vedtaksperiodetype.UTBETALING,
+                ).also {
+                    it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                    it.begrunnelser.addAll(listOf(NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.tilVedtaksbegrunnelse(it)))
+                }
 
-        val sanityBegrunnelser =
-            listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.REDUKSJON),
-            )
+            val sanityBegrunnelser =
+                listOf(
+                    lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.REDUKSJON_BARN_DOD.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.REDUKSJON),
+                )
 
-        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
-    }
+            assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser, false)).isTrue
+        }
 
-    @Test
-    fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og minst en av begrunnelsene støtter fritekst`() {
-        val vedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = Vedtak(id = 0, behandling = behandling),
-                type = Vedtaksperiodetype.UTBETALING,
-            ).also {
-                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
-                it.begrunnelser.add(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.tilVedtaksbegrunnelse(it))
-                it.eøsBegrunnelser.add(EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.tilVedtaksbegrunnelse(it))
-            }
+        @Test
+        fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og minst en av begrunnelsene støtter fritekst`() {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = Vedtaksperiodetype.UTBETALING,
+                ).also {
+                    it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                    it.begrunnelser.add(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.tilVedtaksbegrunnelse(it))
+                    it.eøsBegrunnelser.add(EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.tilVedtaksbegrunnelse(it))
+                }
 
-        val sanityBegrunnelser =
-            listOf(
-                lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
-                lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true, resultat = SanityResultat.INNVILGET),
-            )
+            val sanityBegrunnelser =
+                listOf(
+                    lagSanityBegrunnelse(apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn, støtterFritekst = false, resultat = SanityResultat.INNVILGET),
+                    lagSanityBegrunnelse(apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn, støtterFritekst = true, resultat = SanityResultat.INNVILGET),
+                )
 
-        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser), Is(true))
-    }
+            assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser, false)).isTrue
+        }
 
-    @ParameterizedTest
-    @EnumSource(value = Vedtaksperiodetype::class, names = ["OPPHØR", "AVSLAG", "FORTSATT_INNVILGET"])
-    fun `støtterFritekst skal gi true dersom vedtaksperioden er ulik UTBETALING selv om ingen av begrunnelsene støtter fritekst`(vedtaksperiodetype: Vedtaksperiodetype) {
-        val vedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = Vedtak(id = 0, behandling = behandling),
-                type = vedtaksperiodetype,
-            ).also {
-                it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
-            }
+        @ParameterizedTest
+        @EnumSource(value = Vedtaksperiodetype::class, names = ["OPPHØR", "AVSLAG", "FORTSATT_INNVILGET"])
+        fun `støtterFritekst skal gi true dersom vedtaksperioden er ulik UTBETALING selv om ingen av begrunnelsene støtter fritekst`(vedtaksperiodetype: Vedtaksperiodetype) {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = vedtaksperiodetype,
+                ).also {
+                    it.fritekster.add(VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"))
+                }
 
-        assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(emptyList()), Is(true))
+            assertThat(vedtaksperiodeMedBegrunnelse.støtterFritekst(emptyList(), false)).isTrue
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = Vedtaksperiodetype::class)
+        fun `skal returnere true dersom parameter alleBegrunnelserStøtterFritekster er satt til true uavhengig av vedtaksperiodetype`(vedtaksperiodetype: Vedtaksperiodetype) {
+            // Arrange
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = vedtaksperiodetype,
+                )
+            // Act
+            val støtterFritekst = vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser = emptyList(), alleBegrunnelserStøtterFritekst = true)
+
+            // Assert
+            assertThat(støtterFritekst)
+        }
     }
 
     @Test
@@ -267,10 +285,10 @@ internal class VedtaksperiodeServiceTest {
 
         val lagretVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelseSlot.captured.single()
 
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.fom, Is(nullValue()))
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.tom, Is(nullValue()))
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.vedtak, Is(mocketVedtak))
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.type, Is(Vedtaksperiodetype.FORTSATT_INNVILGET))
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.fom).isNull()
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.tom).isNull()
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.vedtak).isEqualTo(mocketVedtak)
+        assertThat(lagretVedtaksperiodeMedBegrunnelser.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
 
         verify { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) }
         verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
@@ -304,10 +322,10 @@ internal class VedtaksperiodeServiceTest {
 
         val nyVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
 
-        assertThat(nyVedtaksperiodeMedBegrunnelse.vedtak, Is(nyttVedtak))
-        assertThat(nyVedtaksperiodeMedBegrunnelse.type, Is(Vedtaksperiodetype.FORTSATT_INNVILGET))
-        assertThat(nyVedtaksperiodeMedBegrunnelse.fom, Is(LocalDate.of(2020, 12, 12)))
-        assertThat(nyVedtaksperiodeMedBegrunnelse.tom, Is(LocalDate.of(2022, 12, 12)))
+        assertThat(nyVedtaksperiodeMedBegrunnelse.vedtak).isEqualTo(nyttVedtak)
+        assertThat(nyVedtaksperiodeMedBegrunnelse.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
+        assertThat(nyVedtaksperiodeMedBegrunnelse.fom).isEqualTo(LocalDate.of(2020, 12, 12))
+        assertThat(nyVedtaksperiodeMedBegrunnelse.tom).isEqualTo(LocalDate.of(2022, 12, 12))
 
         verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) }
     }
@@ -320,7 +338,7 @@ internal class VedtaksperiodeServiceTest {
 
         val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtak)
 
-        assertThat(vedtaksperioder.size, Is(2))
+        assertThat(vedtaksperioder.size).isEqualTo(2)
     }
 
     @Test
@@ -393,7 +411,7 @@ internal class VedtaksperiodeServiceTest {
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2027, 12, 12)))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isEqualTo(LocalDate.of(2027, 12, 12))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
@@ -406,7 +424,7 @@ internal class VedtaksperiodeServiceTest {
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(nullValue()))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isNull()
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
@@ -452,7 +470,7 @@ internal class VedtaksperiodeServiceTest {
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(nullValue()))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isNull()
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
@@ -499,7 +517,7 @@ internal class VedtaksperiodeServiceTest {
         val finnSisteVedtaksperiodeVisningsdatoForBehandling =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling, Is(LocalDate.of(2025, 3, 31)))
+        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isEqualTo(LocalDate.of(2025, 3, 31))
 
         verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
     }
@@ -517,8 +535,7 @@ internal class VedtaksperiodeServiceTest {
                 behandling = behandling,
                 avklart = true,
             ),
-            Is(nullValue()),
-        )
+        ).isNull()
 
         every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
             listOf(
@@ -534,8 +551,8 @@ internal class VedtaksperiodeServiceTest {
 
         val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = true)
 
-        assertThat(perioder?.size, Is(1))
-        assertThat(perioder?.single(), Is("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge."))
+        assertThat(perioder?.size).isEqualTo(1)
+        assertThat(perioder?.single()).isEqualTo("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge.")
     }
 
     @Test
@@ -551,8 +568,7 @@ internal class VedtaksperiodeServiceTest {
                 behandling = behandling,
                 avklart = false,
             ),
-            Is(nullValue()),
-        )
+        ).isNull()
 
         every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
             listOf(
@@ -568,7 +584,7 @@ internal class VedtaksperiodeServiceTest {
 
         val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
 
-        assertThat(perioder?.size, Is(1))
-        assertThat(perioder?.single(), Is(("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i Norge.")))
+        assertThat(perioder?.size).isEqualTo(1)
+        assertThat(perioder?.single()).isEqualTo("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i Norge.")
     }
 }
