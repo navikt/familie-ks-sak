@@ -32,7 +32,7 @@ class KlageController(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Vis og lagre vedtaksbrev",
+            handling = "opprette klagebehandling",
         )
         klageService.opprettKlage(fagsakId = fagsakId, klageMottattDato = opprettKlageDto.klageMottattDato)
         return Ressurs.success(fagsakId)
@@ -46,7 +46,7 @@ class KlageController(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
-            handling = "Vis og lagre vedtaksbrev",
+            handling = "hente klagebehandlinger",
         )
         return Ressurs.success(klageService.hentKlagebehandlingerPåFagsak(fagsakId))
     }
