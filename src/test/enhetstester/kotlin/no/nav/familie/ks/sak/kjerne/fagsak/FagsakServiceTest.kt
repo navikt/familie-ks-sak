@@ -4,10 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
-import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
-import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsresultatstype
-import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsstatus
-import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
@@ -36,15 +32,12 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.UUID
 
 class FagsakServiceTest {
     private val personidentService = mockk<PersonidentService>()
@@ -56,7 +49,6 @@ class FagsakServiceTest {
     private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
     private val taskService = mockk<TaskService>()
-    private val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     private val vedtakRepository = mockk<VedtakRepository>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val localDateProvider = mockk<LocalDateProvider>()
@@ -73,7 +65,6 @@ class FagsakServiceTest {
             behandlingRepository = behandlingRepository,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             taskService = taskService,
-            tilbakekrevingsbehandlingHentService = tilbakekrevingsbehandlingHentService,
             vedtakRepository = vedtakRepository,
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             localDateProvider = localDateProvider,
@@ -285,25 +276,10 @@ class FagsakServiceTest {
             )
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
-        every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsak.id) } returns
-            listOf(
-                Behandling(
-                    behandlingId = UUID.randomUUID(),
-                    opprettetTidspunkt = LocalDateTime.now(),
-                    aktiv = true,
-                    årsak = null,
-                    type = Behandlingstype.TILBAKEKREVING,
-                    status = Behandlingsstatus.UTREDES,
-                    vedtaksdato = null,
-                    resultat = Behandlingsresultatstype.IKKE_FASTSATT,
-                ),
-            )
-
         val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
 
         assertEquals(fagsak.id, fagsakResponse.id)
         assertEquals(2, fagsakResponse.behandlinger.size)
-        assertEquals(1, fagsakResponse.tilbakekrevingsbehandlinger.size)
     }
 
     @Test
