@@ -9,7 +9,7 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
-import no.nav.familie.ks.sak.data.lagBarnehageBarn
+import no.nav.familie.ks.sak.data.lagBarnehagebarn
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,31 +31,31 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
     fun `sendVarslingOmNyBarnehagelisteTilEnhet sender epost når en kommune sender inn for første gang ila én måned`() {
         // Arrange
         val barnehageBarnSendtIGår =
-            lagBarnehageBarn(
+            lagBarnehagebarn(
                 endretTidspunkt = LocalDateTime.now().minusDays(1),
                 kommuneNr = "0301",
                 kommuneNavn = "Gamle Oslo",
             )
         val barnehageBarnSendtIGårMedSammeKommuneSomIDag =
-            lagBarnehageBarn(
+            lagBarnehagebarn(
                 endretTidspunkt = LocalDateTime.now().minusDays(1),
                 kommuneNr = "3103",
                 kommuneNavn = "Moss",
             )
         val barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere =
-            lagBarnehageBarn(
+            lagBarnehagebarn(
                 endretTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "3103",
                 kommuneNavn = "Moss",
             )
         val barnehageBarnSendtIlaSisteDøgnSagene =
-            lagBarnehageBarn(
+            lagBarnehagebarn(
                 endretTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "0303",
                 kommuneNavn = "Sagene",
             )
         val barnehageBarnSendtIlaSisteDøgnLøkka =
-            lagBarnehageBarn(
+            lagBarnehagebarn(
                 endretTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "0302",
                 kommuneNavn = "Grünerløkka",
@@ -92,7 +92,7 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
     fun `sendVarslingOmNyBarnehagelisteTilEnhet sender ikke epost hvis det ikke er blitt sendt inn noe ila det siste døgnet`() {
         // Arrange
         val barnehagebarnSendtForMerEnnEttDøgnSiden =
-            lagBarnehageBarn(
+            lagBarnehagebarn(
                 endretTidspunkt = LocalDateTime.now().minusDays(2),
                 kommuneNr = "0301",
                 kommuneNavn = "Gamle Oslo",

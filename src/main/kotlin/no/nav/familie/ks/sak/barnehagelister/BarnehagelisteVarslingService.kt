@@ -36,8 +36,7 @@ class BarnehagelisteVarslingService(
     }
 
     // Bruker kommuneNr i stedet for kommunenavn siden det er mindre mulighet for feilskriving
-    @Transactional
-    fun finnKommunerSendtInnSisteDøgn(): Set<String> {
+    private fun finnKommunerSendtInnSisteDøgn(): Set<String> {
         val barnSendtInnSisteDøgn =
             barnehageBarnRepository
                 .findAll()
@@ -45,19 +44,9 @@ class BarnehagelisteVarslingService(
         return barnSendtInnSisteDøgn.map { it.kommuneNr }.toSet()
     }
 
-    private fun finnKontaktEpostForEnhet(enhetsNr: String): String =
-        when (enhetsNr) {
-            "4820" -> `KONTAKT_E-POST_VADSØ`
-            "4812" -> `KONTAKT_E-POST_BERGEN`
-            else -> {
-                throw Feil("Det er ikke lagret noen epost for å kontakte enhet $enhetsNr.")
-            }
-        }
-
     companion object {
         val `KONTAKT_E-POST_VADSØ` = "nav.familie-.og.pensjonsytelser.vadso.kontantstotte@nav.no"
         val `KONTAKT_E-POST_BERGEN` = "kontantstotte@nav.no"
-
         val PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT =
             "src/main/resources/barnehagelister/barnehagelister-enhet-til-kommune.json"
 
@@ -65,7 +54,16 @@ class BarnehagelisteVarslingService(
     }
 }
 
-data class Kommune(
+private fun finnKontaktEpostForEnhet(enhetsNr: String): String =
+    when (enhetsNr) {
+        "4820" -> BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`
+        "4812" -> BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`
+        else -> {
+            throw Feil("Det er ikke lagret noen epost for å kontakte enhet $enhetsNr.")
+        }
+    }
+
+private data class Kommune(
     val knr: String,
     val kommuneNavn: String,
 )

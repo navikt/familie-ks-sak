@@ -1619,7 +1619,7 @@ fun lagRelatertBehandling(
         fagsystem = fagsystem,
     )
 
-fun lagBarnehageBarn(
+fun lagBarnehagebarn(
     id: UUID = UUID.randomUUID(),
     ident: String = randomFnr(),
     fom: LocalDate = LocalDate.now().minusMonths(1),
