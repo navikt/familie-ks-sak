@@ -79,3 +79,11 @@ data class RefusjonEøsUavklart(
         flettefelt(perioderMedRefusjonEøsUavklart.toList()),
     )
 }
+
+data class FritekstAvsnitt(
+    val fritekstAvsnittTekst: Flettefelt,
+) {
+    constructor(fritekstAvsnittTekst: String) : this(
+        flettefelt(fritekstAvsnittTekst),
+    )
+}

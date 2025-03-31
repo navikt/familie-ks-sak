@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -250,6 +251,18 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 enhet = this.enhetNavn(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        Brevmal.INFORMASJONSBREV_INNHENTE_OPPLYSNINGER_KLAGE -> {
+            if (this.fritekstAvsnitt.isNullOrEmpty()) {
+                throw FunksjonellFeil("Du må legge til fritekst for å forklare hvilke opplysninger du ønsker å innhente.")
+            }
+            InformasjonsbrevInnhenteOpplysningerKlageDto(
+                navn = this.mottakerNavn,
+                fodselsnummer = this.mottakerIdent,
+                fritekstAvsnitt = this.fritekstAvsnitt,
+                enhet = this.enhetNavn(),
+                saksbehandlerNavn = saksbehandlerNavn,
+            )
+        }
 
         Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
         Brevmal.VEDTAK_ENDRING,
