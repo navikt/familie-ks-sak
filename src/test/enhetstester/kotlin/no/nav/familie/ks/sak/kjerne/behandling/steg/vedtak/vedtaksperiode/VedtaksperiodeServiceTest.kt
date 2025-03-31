@@ -266,7 +266,7 @@ internal class VedtaksperiodeServiceTest {
             val støtterFritekst = vedtaksperiodeMedBegrunnelse.støtterFritekst(sanityBegrunnelser = emptyList(), alleBegrunnelserStøtterFritekst = true)
 
             // Assert
-            assertThat(støtterFritekst)
+            assertThat(støtterFritekst).isTrue
         }
     }
 
