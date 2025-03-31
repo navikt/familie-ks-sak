@@ -30,28 +30,45 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
     }
 
     @Test
-    fun `sendVarslingOmNyBarnehagelisteTilEnhet sender epost for hver nye kommune som blir funnet`() {
+    fun `sendVarslingOmNyBarnehagelisteTilEnhet sender epost når en kommune sender inn for første gang ila én måned`() {
         // Arrange
-        val barnehageBarnSendtForLengeSiden =
+        val barnehageBarnSendtIGår =
             lagBarnehageBarn(
-                endretTidspunkt = LocalDateTime.now().minusMonths(2),
+                endretTidspunkt = LocalDateTime.now().minusDays(1),
                 kommuneNr = "0301",
+                kommuneNavn = "Gamle Oslo",
+            )
+        val barnehageBarnSendtIGårMedSammeKommuneSomIDag =
+            lagBarnehageBarn(
+                endretTidspunkt = LocalDateTime.now().minusDays(1),
+                kommuneNr = "3103",
+                kommuneNavn = "Moss",
             )
         val barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere =
             lagBarnehageBarn(
                 endretTidspunkt = LocalDateTime.now().minusHours(2),
-                kommuneNr = "0301",
+                kommuneNr = "3103",
+                kommuneNavn = "Moss",
             )
-        val barnehageBarnSendtIlaSisteDøgn =
+        val barnehageBarnSendtIlaSisteDøgnSagene =
+            lagBarnehageBarn(
+                endretTidspunkt = LocalDateTime.now().minusHours(2),
+                kommuneNr = "0303",
+                kommuneNavn = "Sagene",
+            )
+        val barnehageBarnSendtIlaSisteDøgnLøkka =
             lagBarnehageBarn(
                 endretTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "0302",
+                kommuneNavn = "Grünerløkka",
             )
         barnehageBarnRepository.saveAll(
             listOf(
-                barnehageBarnSendtForLengeSiden,
+                barnehageBarnSendtIGår,
+                barnehageBarnSendtIGårMedSammeKommuneSomIDag,
                 barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere,
-                barnehageBarnSendtIlaSisteDøgn,
+                barnehageBarnSendtIlaSisteDøgnSagene,
+                barnehageBarnSendtIlaSisteDøgnLøkka,
             ),
         )
 
@@ -60,28 +77,24 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
 
         // Assert
         val kommuneSlot = slot<Set<String>>()
-        verify(exactly = 1) { epostService.sendEpostVarslingBarnehagelister(any(), capture(kommuneSlot)) }
-        assertThat(kommuneSlot.captured).isEqualTo(setOf("0302"))
+        verify(exactly = 1) { epostService.sendEpostVarslingBarnehagelister(BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`, capture(kommuneSlot)) }
+        verify(exactly = 1) { epostService.sendEpostVarslingBarnehagelister(BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`, setOf("Moss")) }
+        assertThat(kommuneSlot.captured).isEqualTo(setOf("Grünerløkka", "Sagene"))
     }
 
     @Test
-    fun `sendVarslingOmNyBarnehagelisteTilEnhet sender ikke epost hvis det ikke er noen nye kommuner`() {
+    fun `sendVarslingOmNyBarnehagelisteTilEnhet sender ikke epost hvis det ikke er blitt sendt inn noe ila det siste døgnet`() {
         // Arrange
-        val barnehageBarnSendtForLengeSiden =
+        val barnehagebarnSendtForMerEnnEttDøgnSiden =
             lagBarnehageBarn(
-                endretTidspunkt = LocalDateTime.now().minusMonths(2),
+                endretTidspunkt = LocalDateTime.now().minusDays(2),
                 kommuneNr = "0301",
-            )
-        val barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere =
-            lagBarnehageBarn(
-                endretTidspunkt = LocalDateTime.now().minusHours(2),
-                kommuneNr = "0301",
+                kommuneNavn = "Gamle Oslo",
             )
 
         barnehageBarnRepository.saveAll(
             listOf(
-                barnehageBarnSendtForLengeSiden,
-                barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere,
+                barnehagebarnSendtForMerEnnEttDøgnSiden,
             ),
         )
 
@@ -89,7 +102,6 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet()
 
         // Assert
-        val kommuneSlot = slot<Set<String>>()
-        verify(exactly = 0) { epostService.sendEpostVarslingBarnehagelister(any(), capture(kommuneSlot)) }
+        verify(exactly = 0) { epostService.sendEpostVarslingBarnehagelister(any(), any()) }
     }
 }

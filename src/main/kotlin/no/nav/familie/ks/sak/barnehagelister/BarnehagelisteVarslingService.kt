@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.barnehagelister
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService.Companion.PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -20,49 +21,28 @@ class BarnehagelisteVarslingService(
     @Scheduled(cron = "0 0 6 * * ?")
     @Transactional
     fun sendVarslingOmNyBarnehagelisteTilEnhet() {
-        val kommunerSendtForFørsteGangSisteDøgn = finnNyeKommunerSendtInnSisteDøgn()
+        val kommunerSendtForFørsteGangSisteDøgn = finnKommunerSendtInnSisteDøgn()
         val enheterSomSkalVarslesTilKommuner = kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommune(it) }
 
         if (enheterSomSkalVarslesTilKommuner.isNotEmpty()) {
             logger.info("Sender epost for nye kommuner i barnehagelister: $kommunerSendtForFørsteGangSisteDøgn")
+
+            enheterSomSkalVarslesTilKommuner
+                .map { (enhetsNr, kommuneNrTilhørendeEnhet) -> finnKontaktEpostForEnhet(enhetsNr) to kommuneNrTilhørendeEnhet.map { finnKommuneNavnForKnr(it) }.toSet() }
+                .forEach { (epostAdresse, kommunerTilhørendeEnhet) ->
+                    epostService.sendEpostVarslingBarnehagelister(epostAdresse, kommunerTilhørendeEnhet)
+                }
         }
-        enheterSomSkalVarslesTilKommuner
-            .mapKeys { (enhetsNr, _) -> finnKontaktEpostForEnhet(enhetsNr) }
-            .forEach { (epostAdresse, kommunerTilhørendeEnhet) ->
-                epostService.sendEpostVarslingBarnehagelister(epostAdresse, kommunerTilhørendeEnhet.toSet())
-            }
     }
 
     // Bruker kommuneNr i stedet for kommunenavn siden det er mindre mulighet for feilskriving
     @Transactional
-    fun finnNyeKommunerSendtInnSisteDøgn(): Set<String> {
-        val barnSendtInnTidligereEnnSisteDøgn =
-            barnehageBarnRepository
-                .findAll()
-                .filter { it.endretTidspunkt <= LocalDateTime.now().minusDays(1) }
+    fun finnKommunerSendtInnSisteDøgn(): Set<String> {
         val barnSendtInnSisteDøgn =
             barnehageBarnRepository
                 .findAll()
                 .filter { it.endretTidspunkt >= LocalDateTime.now().minusDays(1) }
-        return barnSendtInnSisteDøgn.map { it.kommuneNr }.toSet() - barnSendtInnTidligereEnnSisteDøgn.map { it.kommuneNr }.toSet()
-    }
-
-    private fun finnEnhetForKommune(kommuneNr: String): String {
-        val enhetTilKommune: Map<String, Set<String>> = hentAnsvarligEnhetForKommune()
-
-        val enhet = enhetTilKommune.filter { (_, kNummer) -> kNummer.contains(kommuneNr) }.keys
-
-        if (enhet.size > 1) throw Feil("Flere enheter er ansvarlige for knr $kommuneNr")
-        if (enhet.isEmpty()) throw Feil("Ingen enheter har ansvar for knr $kommuneNr")
-
-        return enhet.single()
-    }
-
-    private fun hentAnsvarligEnhetForKommune(): Map<String, Set<String>> {
-        val objectMapper = jacksonObjectMapper()
-        val enhetTilKommuneFil = File(PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT)
-
-        return objectMapper.readValue(enhetTilKommuneFil, object : TypeReference<Map<String, Set<String>>>() {})
+        return barnSendtInnSisteDøgn.map { it.kommuneNr }.toSet()
     }
 
     private fun finnKontaktEpostForEnhet(enhetsNr: String): String =
@@ -75,11 +55,40 @@ class BarnehagelisteVarslingService(
         }
 
     companion object {
-        private val `KONTAKT_E-POST_VADSØ` = "nav.familie-.og.pensjonsytelser.vadso.kontantstotte@nav.no"
-        private val `KONTAKT_E-POST_BERGEN` = "kontantstotte@nav.no"
+        val `KONTAKT_E-POST_VADSØ` = "nav.familie-.og.pensjonsytelser.vadso.kontantstotte@nav.no"
+        val `KONTAKT_E-POST_BERGEN` = "kontantstotte@nav.no"
 
-        val PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT = "src/main/resources/barnehagelister/barnehagelister-enhet-til-kommune.json"
+        val PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT =
+            "src/main/resources/barnehagelister/barnehagelister-enhet-til-kommune.json"
 
         private val logger = LoggerFactory.getLogger(BarnehagelisteVarslingService::class.java)
     }
+}
+
+data class Kommune(
+    val knr: String,
+    val kommuneNavn: String,
+)
+
+private fun hentAnsvarligEnhetForKommuneMap(): Map<String, Set<Kommune>> {
+    val objectMapper = jacksonObjectMapper()
+    val enhetTilKommuneFil = File(PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT)
+
+    return objectMapper.readValue(enhetTilKommuneFil, object : TypeReference<Map<String, Set<Kommune>>>() {})
+}
+
+private fun finnEnhetForKommune(kommuneNr: String): String {
+    val enhetTilKommune: Map<String, Set<Kommune>> = hentAnsvarligEnhetForKommuneMap()
+
+    val enhet = enhetTilKommune.filter { (_, kommuner) -> kommuner.map { it.knr }.contains(kommuneNr) }.keys
+
+    if (enhet.size > 1) throw Feil("Flere enheter er ansvarlige for knr $kommuneNr")
+    if (enhet.isEmpty()) throw Feil("Ingen enheter har ansvar for knr $kommuneNr")
+
+    return enhet.single()
+}
+
+private fun finnKommuneNavnForKnr(knr: String): String {
+    val kommuner = hentAnsvarligEnhetForKommuneMap().values.flatten()
+    return kommuner.find { it.knr == knr }?.kommuneNavn ?: throw Feil("Ikke lagret noe kommunenavn for knr $knr")
 }
