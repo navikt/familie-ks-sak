@@ -57,11 +57,7 @@ class EpostService(
         }
     }
 
-    private fun lagBarnehagelistemelding(kommuner: Set<String>): String =
-        """
-        Følgende kommuner har mottatt barnehagelister i løpet av det siste døgnet:
-        ${kommuner.joinToString(" ")}
-        """.trimIndent()
+    private fun lagBarnehagelistemelding(kommuner: Set<String>): String = "Følgende kommuner har sendt inn barnehagelister i løpet av det siste døgnet: \n${kommuner.joinToString("\n")}"
 
     companion object {
         private val logger = LoggerFactory.getLogger(EpostService::class.java)

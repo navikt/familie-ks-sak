@@ -77,8 +77,18 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
 
         // Assert
         val kommuneSlot = slot<Set<String>>()
-        verify(exactly = 1) { epostService.sendEpostVarslingBarnehagelister(BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`, capture(kommuneSlot)) }
-        verify(exactly = 1) { epostService.sendEpostVarslingBarnehagelister(BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`, setOf("Moss")) }
+        verify(exactly = 1) {
+            epostService.sendEpostVarslingBarnehagelister(
+                BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`,
+                capture(kommuneSlot),
+            )
+        }
+        verify(exactly = 1) {
+            epostService.sendEpostVarslingBarnehagelister(
+                BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`,
+                setOf("Moss"),
+            )
+        }
         assertThat(kommuneSlot.captured).isEqualTo(setOf("Grünerløkka", "Sagene"))
     }
 
