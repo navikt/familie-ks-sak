@@ -509,6 +509,7 @@ fun lagBrevPeriodeContext(
                 persongrunnlag,
                 andelTilkjentYtelserMedEndreteUtbetalinger,
                 emptyList(),
+                false,
             ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
         personopplysningGrunnlag = persongrunnlag,
