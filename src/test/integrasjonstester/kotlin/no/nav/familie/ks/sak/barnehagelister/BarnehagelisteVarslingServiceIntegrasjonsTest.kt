@@ -5,13 +5,11 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.data.lagBarnehageBarn
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -76,11 +74,10 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet()
 
         // Assert
-        val kommuneSlot = slot<Set<String>>()
         verify(exactly = 1) {
             epostService.sendEpostVarslingBarnehagelister(
                 BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`,
-                capture(kommuneSlot),
+                setOf("Grünerløkka", "Sagene"),
             )
         }
         verify(exactly = 1) {
@@ -89,7 +86,6 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
                 setOf("Moss"),
             )
         }
-        assertThat(kommuneSlot.captured).isEqualTo(setOf("Grünerløkka", "Sagene"))
     }
 
     @Test
