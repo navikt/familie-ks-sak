@@ -15,12 +15,9 @@ import org.springframework.stereotype.Service
 class EpostService(
     val graphServiceClient: GraphServiceClient,
 ) {
-    private val logger = LoggerFactory.getLogger(EpostService::class.java)
-    private val baksEpost = "ikke.svar.kontantstotte@nav.no"
-
     fun sendEpostVarslingBarnehagelister(
         epostadresse: String,
-        kommuner: List<String>,
+        kommuner: Set<String>,
     ) {
         val message =
             Message().also {
@@ -50,7 +47,7 @@ class EpostService(
         try {
             graphServiceClient
                 .users()
-                .byUserId(baksEpost)
+                .byUserId(`BAKS_E-POST`)
                 .sendMail()
                 .post(sendMailPostRequestBody)
             logger.info("Epost sendt via Azure")
@@ -60,9 +57,10 @@ class EpostService(
         }
     }
 
-    private fun lagBarnehagelistemelding(kommuner: List<String>): String =
-        """
-        Følgende kommuner har mottatt barnehagelister i løpet av det siste døgnet:
-        ${kommuner.joinToString(" ")}
-        """.trimIndent()
+    private fun lagBarnehagelistemelding(kommuner: Set<String>): String = "Følgende kommuner har sendt inn barnehagelister i løpet av det siste døgnet: \n${kommuner.joinToString("\n")}"
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(EpostService::class.java)
+        private val `BAKS_E-POST` = "ikke.svar.kontantstotte@nav.no"
+    }
 }
