@@ -4,7 +4,6 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.KSBarnehagebarnDTO
 import no.nav.familie.ks.sak.config.KafkaConfig
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -44,9 +43,8 @@ class KSBarnehagelisterConsumer(
             ack.acknowledge()
             return
         }
-        if (unleashService.isEnabled(FeatureToggle.LAGRE_BARNEHAGEBARN_I_KS)) {
-            barnehageBarnService.lagreBarnehageBarn(barnehagebarn)
-        }
+
+        barnehageBarnService.lagreBarnehageBarn(barnehagebarn)
 
         ack.acknowledge()
     }
