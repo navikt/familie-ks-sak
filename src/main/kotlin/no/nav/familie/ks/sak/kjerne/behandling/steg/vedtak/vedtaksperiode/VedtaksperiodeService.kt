@@ -150,7 +150,7 @@ class VedtaksperiodeService(
                 .contains(REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS) &&
             begrunnelserFraFrontend.none { it == REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS }
         ) {
-            throw FunksjonellFeil("Reduksjonsbegrunnelsen framtidig opphør barnehageplass ble lagt til automatisk, og skal ikke fjernes. Hvis du er uenig, ta kontakt med brukerstøtte.")
+            throw FunksjonellFeil("Reduksjonsbegrunnelsen Framtidig opphør barnehageplass ble lagt til automatisk, og skal ikke fjernes. Hvis du er uenig, ta kontakt med brukerstøtte.")
         }
     }
 
