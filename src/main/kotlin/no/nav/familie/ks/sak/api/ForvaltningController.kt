@@ -17,7 +17,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
@@ -271,7 +271,7 @@ class ForvaltningController(
     )
     fun hentAlleBarnehagebarnPage(
         @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
-    ): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
+    ): ResponseEntity<Ressurs<Page<BarnehagebarnVisningDto>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hente ut alle barnehagebarn",

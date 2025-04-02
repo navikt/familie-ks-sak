@@ -70,4 +70,20 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
         nativeQuery = true,
     )
     fun finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperMellomAugOgDes2024(): List<Long>
+    // TODO: Fjern denne
+
+    @Query(
+        value = """
+            SELECT f.*
+                FROM fagsak f
+                    JOIN behandling b ON f.id = b.fk_fagsak_id
+                    JOIN public.gr_personopplysninger gp ON b.id = gp.fk_behandling_id
+                    JOIN po_person pp ON gp.id = pp.fk_gr_personopplysninger_id
+                    JOIN personident p ON p.fk_aktoer_id = pp.fk_aktoer_id
+                WHERE b.aktiv = TRUE
+                    AND p.foedselsnummer = :ident 
+        """,
+        nativeQuery = true,
+    )
+    fun finnFagsakMedAktivBehandlingForIdent(ident: String): Fagsak?
 }
