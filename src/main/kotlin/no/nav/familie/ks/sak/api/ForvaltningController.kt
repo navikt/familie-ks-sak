@@ -387,7 +387,7 @@ class ForvaltningController(
         }
     }
 
-    @PostMapping("/barnehagelister/dry-run")
+    @PostMapping("/barnehagelister/dry-run-e-post-varsel")
     fun kjørDryRunBarnehagelister(
         @RequestBody dryRunEpost: String,
     ): ResponseEntity<Ressurs<String>> {
