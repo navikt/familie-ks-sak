@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -85,6 +86,7 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
+    private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -383,5 +385,18 @@ class ForvaltningController(
                 .location(URI.create("$hostname/fagsak/${behandling.fagsak.id}/$behandlingId/"))
                 .build()
         }
+    }
+
+    @PostMapping("/barnehagelister/dry-run-e-post-varsel")
+    fun kjørDryRunBarnehagelister(
+        @RequestBody dryRunEpost: String,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Kjør dry-run e-postvarsel nye barnehagelister",
+        )
+        barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet(dryRun = true, dryRunEpost = dryRunEpost)
+
+        return ResponseEntity.ok(Ressurs.success("OK"))
     }
 }

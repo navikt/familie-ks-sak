@@ -20,7 +20,15 @@ class BarnehagelisteVarslingService(
 ) {
     @Scheduled(cron = "0 0 6 * * ?")
     @Transactional
-    fun sendVarslingOmNyBarnehagelisteTilEnhet() {
+    fun sendVarlingOmBarnehagelisteHverMorgenKl6() {
+        sendVarslingOmNyBarnehagelisteTilEnhet()
+    }
+
+    fun sendVarslingOmNyBarnehagelisteTilEnhet(
+        dryRun: Boolean = false,
+        dryRunEpost: String = "",
+    ) {
+        logger.info("Sjekker om det er kommet inn barnehagelister ila siste døgn.")
         val kommunerSendtForFørsteGangSisteDøgn = finnKommunerSendtInnSisteDøgn()
         val enheterSomSkalVarslesTilKommuner = kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommune(it) }
 
@@ -28,9 +36,20 @@ class BarnehagelisteVarslingService(
             logger.info("Sender epost for nye kommuner i barnehagelister: $kommunerSendtForFørsteGangSisteDøgn")
 
             enheterSomSkalVarslesTilKommuner
-                .map { (enhetsNr, kommuneNrTilhørendeEnhet) -> finnKontaktEpostForEnhet(enhetsNr) to kommuneNrTilhørendeEnhet.map { finnKommuneNavnForKnr(it) }.toSet() }
-                .forEach { (epostAdresse, kommunerTilhørendeEnhet) ->
-                    epostService.sendEpostVarslingBarnehagelister(epostAdresse, kommunerTilhørendeEnhet)
+                .map { (enhetsNr, kommuneNrTilhørendeEnhet) ->
+                    finnKontaktEpostForEnhet(enhetsNr) to
+                        kommuneNrTilhørendeEnhet
+                            .map {
+                                finnKommuneNavnForKnr(
+                                    it,
+                                )
+                            }.toSet()
+                }.forEach { (epostAdresse, kommunerTilhørendeEnhet) ->
+                    if (dryRun) {
+                        epostService.sendEpostVarslingBarnehagelister(dryRunEpost, kommunerTilhørendeEnhet)
+                    } else {
+                        epostService.sendEpostVarslingBarnehagelister(epostAdresse, kommunerTilhørendeEnhet)
+                    }
                 }
         }
     }
