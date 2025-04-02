@@ -46,7 +46,7 @@
         <utbetalingsgenerator.version>1.0_20250306084157_636f980</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
@@ -56,7 +56,7 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>10.2.2</unleash.version>
-        <microsoft-graph.version>6.33.0</microsoft-graph.version>
+        <microsoft-graph.version>6.34.0</microsoft-graph.version>
         <azure-identity.version>1.15.4</azure-identity.version>
 
         <!-- Test -->
@@ -72,11 +72,11 @@
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <ktlint-cli.version>1.5.0</ktlint-cli.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
 
         <!-- Sonar -->
         <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
