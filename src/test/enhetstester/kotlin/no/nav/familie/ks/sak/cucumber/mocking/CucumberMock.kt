@@ -26,7 +26,6 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import java.time.LocalDate
 
 class CucumberMock(
@@ -55,7 +54,6 @@ class CucumberMock(
     val behandlingRepositoryMock = mockk<BehandlingRepository>()
     val integrasjonServiceMock = mockk<IntegrasjonService>()
     val personRepository = mockk<PersonRepository>()
-    val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
     val praksisendring2024Service = mockPraksisendring2024Service()
     val adopsjonServiceMock = mockAdopsjonService()
@@ -101,7 +99,6 @@ class CucumberMock(
             behandlingRepository = behandlingRepositoryMock,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             taskService = taskServiceMock,
-            tilbakekrevingsbehandlingHentService = tilbakekrevingsbehandlingHentService,
             vedtakRepository = vedtakRepositoryMock,
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             localDateProvider = mockedDateProvider,

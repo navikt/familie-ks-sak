@@ -225,7 +225,7 @@ class OppgaveService(
             "----- Opprettet av familie-ks-sak ${
                 LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
             } --- \n" +
-                "https://ks.intern.nav.no/fagsak/$fagsakId"
+                "https://kontantstotte.intern.nav.no/fagsak/$fagsakId"
         )
 
     companion object {

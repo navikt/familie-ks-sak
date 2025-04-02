@@ -50,7 +50,7 @@ class BarnehagelisteControllerTest(
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
-            body(objectMapper.writeValueAsString(BarnehagebarnRequestParams(ident = "", kommuneNavn = "", kunLøpendeFagsak = false)))
+            body(objectMapper.writeValueAsString(BarnehagebarnRequestParams(ident = "", kommuneNavn = "", kunLøpendeAndel = false)))
         } When {
             post("/api/barnehagebarn/barnehagebarnliste")
         } Then {

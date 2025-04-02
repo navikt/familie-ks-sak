@@ -7,7 +7,6 @@ import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.Klagebehandlingsårsak
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.kontrakter.felles.klage.Stønadstype
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
@@ -16,9 +15,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.ks.sak.kjerne.klage.dto.OpprettKlageDto
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 class KlageService(
@@ -28,49 +27,44 @@ class KlageService(
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService,
     private val tilbakekrevingKlient: TilbakekrevingKlient,
+    private val klagebehandlingHenter: KlagebehandlingHenter,
 ) {
     fun opprettKlage(
         fagsakId: Long,
-        opprettKlageDto: OpprettKlageDto,
-    ) {
+        klageMottattDato: LocalDate,
+    ): UUID {
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
-        opprettKlage(fagsak, opprettKlageDto.kravMottattDato)
+        return opprettKlage(fagsak, klageMottattDato)
     }
 
     fun opprettKlage(
         fagsak: Fagsak,
-        kravMottattDato: LocalDate,
-    ) {
-        if (kravMottattDato.isAfter(LocalDate.now())) {
+        klageMottattDato: LocalDate,
+    ): UUID {
+        if (klageMottattDato.isAfter(LocalDate.now())) {
             throw FunksjonellFeil("Kan ikke opprette klage med krav mottatt frem i tid")
         }
 
         val aktivtFødselsnummer = fagsak.aktør.aktivFødselsnummer()
         val enhetId = integrasjonClient.hentBehandlendeEnhetForPersonIdentMedRelasjoner(aktivtFødselsnummer).enhetId
 
-        klageClient.opprettKlage(
+        return klageClient.opprettKlage(
             OpprettKlagebehandlingRequest(
                 ident = aktivtFødselsnummer,
                 stønadstype = Stønadstype.KONTANTSTØTTE,
                 eksternFagsakId = fagsak.id.toString(),
                 fagsystem = Fagsystem.KS,
-                klageMottatt = kravMottattDato,
+                klageMottatt = klageMottattDato,
                 behandlendeEnhet = enhetId,
                 behandlingsårsak = Klagebehandlingsårsak.ORDINÆR,
             ),
         )
     }
 
-    fun hentKlagebehandlingerPåFagsak(fagsakId: Long): List<KlagebehandlingDto> {
-        val klagebehandligerPerFagsak = klageClient.hentKlagebehandlinger(setOf(fagsakId))
+    fun hentKlagebehandlingerPåFagsak(fagsakId: Long): List<KlagebehandlingDto> = klagebehandlingHenter.hentKlagebehandlingerPåFagsak(fagsakId)
 
-        val klagerPåFagsak =
-            klagebehandligerPerFagsak[fagsakId]
-                ?: throw Feil("Fikk ikke fagsakId=$fagsakId tilbake fra kallet til klage.")
-
-        return klagerPåFagsak.map { it.brukVedtaksdatoFraKlageinstansHvisOversendt() }
-    }
+    fun hentForrigeVedtatteKlagebehandling(behandling: Behandling): KlagebehandlingDto? = klagebehandlingHenter.hentForrigeVedtatteKlagebehandling(behandling)
 
     fun hentFagsystemVedtak(fagsakId: Long): List<FagsystemVedtak> {
         val fagsak = fagsakService.hentFagsak(fagsakId)

@@ -109,6 +109,7 @@ class BegrunnelserForPeriodeContext(
                 hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
 
         return when {
+            sanityApiNavn == NasjonalEllerFellesBegrunnelse.REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS.sanityApiNavn -> false
             sanityBegrunnelse.skalAlltidVises -> true
             sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty() -> erEtterEndretPeriodeAvSammeÅrsak(sanityBegrunnelse)
 

@@ -7,6 +7,7 @@ import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.DokumentInfo
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
+import no.nav.familie.kontrakter.felles.journalpost.JournalpostTilgang
 import no.nav.familie.kontrakter.felles.journalpost.Journalposttype
 import no.nav.familie.kontrakter.felles.journalpost.Journalstatus
 import no.nav.familie.kontrakter.felles.journalpost.LogiskVedlegg
@@ -19,9 +20,9 @@ import no.nav.familie.ks.sak.api.dto.NavnOgIdentDto
 import no.nav.familie.ks.sak.api.dto.Sakstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.LocalDateTime
 
@@ -46,7 +47,7 @@ fun lagTilgangsstyrtJournalpost(
                         land = "NO",
                     ),
             ),
-        harTilgang = harTilgang,
+        journalpostTilgang = JournalpostTilgang(harTilgang = harTilgang),
     )
 
 fun lagJournalpost(
@@ -138,7 +139,7 @@ fun lagJournalføringRequestDto(bruker: NavnOgIdentDto): JournalføringRequestDt
                 ),
             ),
         navIdent = "09123",
-        nyBehandlingstype = BehandlingType.FØRSTEGANGSBEHANDLING,
+        nyBehandlingstype = JournalføringBehandlingstype.FØRSTEGANGSBEHANDLING,
         nyBehandlingsårsak = BehandlingÅrsak.SØKNAD,
         journalførendeEnhet = "4820",
     )

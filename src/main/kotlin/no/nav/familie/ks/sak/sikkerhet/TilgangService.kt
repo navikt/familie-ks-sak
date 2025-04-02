@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.sikkerhet
 
+import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
@@ -70,11 +71,12 @@ class TilgangService(
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
         loggPersonoppslag(personIdenter, event)
-        if (!harTilgangTilPersoner(personIdenter)) {
+        val tilgangerTilPersoner = sjekkTilgangTilPersoner(personIdenter)
+        if (!harTilgangTilAllePersoner(tilgangerTilPersoner)) {
             throw RolleTilgangskontrollFeil(
                 melding =
                     "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                        "har ikke tilgang til å behandle $personIdenter",
+                        "har ikke tilgang til å behandle $personIdenter. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
             )
         }
     }
@@ -110,30 +112,31 @@ class TilgangService(
         handling: String,
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
-        val harTilgang =
-            harSaksbehandlerTilgang("validerTilgangTilFagsak", fagsakId) {
-                val fagsak = fagsakRepository.finnFagsak(fagsakId)
-                if (fagsak == null) {
-                    return@harSaksbehandlerTilgang true
-                } else {
-                    val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-                    val personIdenterIFagsak =
-                        behandlinger
-                            .flatMap { behandling ->
-                                val personopplysningGrunnlag =
-                                    personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
-                                personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
-                            }.distinct()
-                            .ifEmpty { listOf(fagsak.aktør.aktivFødselsnummer()) }
-                    loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
-                    harTilgangTilPersoner(personIdenterIFagsak)
-                }
+        val fagsak = fagsakRepository.finnFagsak(fagsakId)
+        val tilgangerTilPersoner =
+            if (fagsak == null) {
+                emptyList()
+            } else {
+                val behandlinger = behandlingRepository.finnBehandlinger(fagsakId)
+                val personIdenterIFagsak =
+                    behandlinger
+                        .flatMap { behandling ->
+                            val personopplysningGrunnlag =
+                                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                            personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
+                        }.distinct()
+                        .ifEmpty { listOf(fagsak.aktør.aktivFødselsnummer()) }
+                loggPersonoppslag(personIdenterIFagsak, event, CustomKeyValue("fagsak", fagsakId.toString()))
+                sjekkTilgangTilPersoner(personIdenterIFagsak)
             }
-        if (!harTilgang) {
+
+        if (!harTilgangTilAllePersoner(tilgangerTilPersoner)) {
             throw RolleTilgangskontrollFeil(
                 melding =
                     "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                        "har ikke tilgang til fagsak=$fagsakId.",
+                        "har ikke tilgang til fagsak=$fagsakId. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
+                frontendFeilmelding =
+                    "Fagsaken inneholder personer som krever ytterligere tilganger. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
             )
         }
     }
@@ -160,9 +163,9 @@ class TilgangService(
         }
     }
 
-    private fun harTilgangTilPersoner(personIdenter: List<String>): Boolean =
-        harSaksbehandlerTilgang("validerTilgangTilPersoner", personIdenter) {
-            integrasjonService.sjekkTilgangTilPersoner(personIdenter).all { it.value.harTilgang }
+    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> =
+        hentCacheForSaksbehandler("validerTilgangTilPersoner", personIdenter) {
+            integrasjonService.sjekkTilgangTilPersoner(personIdenter)
         }
 
     /**
@@ -185,16 +188,25 @@ class TilgangService(
      * @param cacheName navnet på cachen
      * @param verdi verdiet som man ønsket å hente cache for, eks behandlingId, eller personIdent
      */
-    private fun <T> harSaksbehandlerTilgang(
+    private fun <T, RESULT> hentCacheForSaksbehandler(
         cacheName: String,
         verdi: T,
-        hentVerdi: () -> Boolean,
-    ): Boolean {
-        if (SikkerhetContext.erSystemKontekst()) return true
-
+        hentVerdi: () -> RESULT,
+    ): RESULT {
         val cache = cacheManager.getCache(cacheName) ?: error("Finner ikke cache=$cacheName")
         return cache.get(Pair(verdi, SikkerhetContext.hentSaksbehandler())) {
             hentVerdi()
         } ?: error("Finner ikke verdi fra cache=$cacheName")
     }
+
+    private fun harTilgangTilAllePersoner(tilganger: List<Tilgang>): Boolean = tilganger.all { it.harTilgang }
+
+    private fun List<Tilgang>.tilBegrunnelserForManglendeTilgang(): String =
+        this
+            .asSequence()
+            .filter { !it.harTilgang }
+            .mapNotNull { it.begrunnelse }
+            .toSet()
+            .toList()
+            .joinToString(separator = ", ", postfix = ".")
 }

@@ -47,6 +47,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
+import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.tilVedtaksbegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
@@ -109,6 +110,8 @@ class VedtaksperiodeService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
+        validerReduksjonFramtidigOpphørBarnehageplassIkkeFjernet(vedtaksperiodeMedBegrunnelser, begrunnelserFraFrontend)
+
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
             begrunnelserFraFrontend.map {
                 it.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser)
@@ -127,13 +130,28 @@ class VedtaksperiodeService(
             validerEndretUtbetalingsbegrunnelse(vedtaksperiodeMedBegrunnelser, andelerTilkjentYtelse, persongrunnlag)
         }
 
-        if (!vedtaksperiodeMedBegrunnelser.støtterFritekst(sanityBegrunnelser)) {
+        val alleBegrunnelserStøtterFritekst = behandling.erRevurderingKlage()
+
+        if (!vedtaksperiodeMedBegrunnelser.støtterFritekst(sanityBegrunnelser, alleBegrunnelserStøtterFritekst)) {
             vedtaksperiodeMedBegrunnelser.fritekster.clear()
         }
 
         vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelser)
 
         return vedtaksperiodeMedBegrunnelser.vedtak
+    }
+
+    private fun validerReduksjonFramtidigOpphørBarnehageplassIkkeFjernet(
+        vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser,
+        begrunnelserFraFrontend: List<NasjonalEllerFellesBegrunnelse>,
+    ) {
+        if (vedtaksperiodeMedBegrunnelser.begrunnelser
+                .map { it.nasjonalEllerFellesBegrunnelse }
+                .contains(REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS) &&
+            begrunnelserFraFrontend.none { it == REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS }
+        ) {
+            throw FunksjonellFeil("Reduksjonsbegrunnelsen Framtidig opphør barnehageplass ble lagt til automatisk, og skal ikke fjernes. Hvis du er uenig, ta kontakt med brukerstøtte.")
+        }
     }
 
     fun skalHaÅrligKontroll(vedtak: Vedtak): Boolean = vedtak.behandling.kategori == BehandlingKategori.EØS && hentPersisterteVedtaksperioder(vedtak).any { it.tom?.erSenereEnnInneværendeMåned() != false }
@@ -311,21 +329,24 @@ class VedtaksperiodeService(
     fun hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId: Long): UtvidetVedtaksperiodeMedBegrunnelser {
         val vedtaksperiodeMedBegrunnelser = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId = vedtaksperiodeId)
 
-        val behandlingId = vedtaksperiodeMedBegrunnelser.vedtak.behandling.id
+        val behandling = vedtaksperiodeMedBegrunnelser.vedtak.behandling
 
-        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandlingId)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
         val andelerTilkjentYtelse =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(
-                behandlingId = behandlingId,
+                behandlingId = behandling.id,
             )
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+
+        val alleBegrunnelserStøtterFritekst = behandling.erRevurderingKlage()
 
         return vedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
             personopplysningGrunnlag = personopplysningGrunnlag,
             andelerTilkjentYtelse = andelerTilkjentYtelse,
             sanityBegrunnelser = sanityBegrunnelser,
+            alleBegrunnelserStøtterFritekst = alleBegrunnelserStøtterFritekst,
         )
     }
 
@@ -340,12 +361,15 @@ class VedtaksperiodeService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
+        val alleBegrunnelserStøtterFritekst = behandling.erRevurderingKlage()
+
         val utvidetVedtaksperioderMedBegrunnelser =
             vedtaksperioderMedBegrunnelser.map {
                 it.tilUtvidetVedtaksperiodeMedBegrunnelser(
                     andelerTilkjentYtelse = andelerTilkjentYtelse,
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     sanityBegrunnelser = sanityBegrunnelser,
+                    alleBegrunnelserStøtterFritekst = alleBegrunnelserStøtterFritekst,
                 )
             }
 

@@ -5,6 +5,12 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
 import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.klage.BehandlingEventType
+import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
+import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
+import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
+import no.nav.familie.kontrakter.felles.klage.KlageinstansResultatDto
+import no.nav.familie.kontrakter.felles.klage.KlageinstansUtfall
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
@@ -28,12 +34,14 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.KafkaConfig.Companion.BARNEHAGELISTE_TOPIC
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -71,6 +79,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -108,6 +117,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.G
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.RelatertBehandling
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -280,6 +290,7 @@ fun lagBehandling(
     aktiv: Boolean = true,
     status: BehandlingStatus = BehandlingStatus.UTREDES,
     id: Long = 0L,
+    aktivertTidspunkt: LocalDateTime = LocalDateTime.now(),
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     lagBehandlingStegTilstander: (behandling: Behandling) -> Set<BehandlingStegTilstand> = {
         setOf(
@@ -300,6 +311,7 @@ fun lagBehandling(
             resultat = resultat,
             aktiv = aktiv,
             status = status,
+            aktivertTidspunkt = aktivertTidspunkt,
         )
     behandling.behandlingStegTilstand.addAll(lagBehandlingStegTilstander(behandling))
     behandling.endretTidspunkt = endretTidspunkt
@@ -436,7 +448,7 @@ fun lagAndelTilkjentYtelse(
 
 fun lagPerson(
     personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
-    aktør: Aktør,
+    aktør: Aktør = randomAktør(),
     personType: PersonType = PersonType.SØKER,
     fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
     dødsfall: Dødsfall? = null,
@@ -722,6 +734,38 @@ fun lagEndretUtbetalingAndel(
         vedtaksbegrunnelser = begrunnelser,
         erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
     )
+
+fun lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
+    id: Long = 0,
+    behandlingId: Long = 0,
+    person: Person,
+    prosent: BigDecimal = BigDecimal.valueOf(100),
+    fom: YearMonth = YearMonth.now().minusMonths(1),
+    tom: YearMonth? = YearMonth.now(),
+    årsak: Årsak = Årsak.ALLEREDE_UTBETALT,
+    søknadstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
+    andelTilkjentYtelser: MutableList<AndelTilkjentYtelse> = mutableListOf(),
+    begrunnelse: String? = "test",
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+    erEksplisittAvslagPåSøknad: Boolean? = false,
+): EndretUtbetalingAndelMedAndelerTilkjentYtelse {
+    val eua =
+        EndretUtbetalingAndel(
+            id = id,
+            behandlingId = behandlingId,
+            person = person,
+            prosent = prosent,
+            fom = fom,
+            tom = tom,
+            årsak = årsak,
+            søknadstidspunkt = søknadstidspunkt,
+            begrunnelse = begrunnelse,
+            vedtaksbegrunnelser = begrunnelser,
+            erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+        )
+
+    return EndretUtbetalingAndelMedAndelerTilkjentYtelse(eua, andelTilkjentYtelser)
+}
 
 fun lagVedtaksbegrunnelse(
     nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse =
@@ -1524,3 +1568,83 @@ fun lagRefusjonEøs(
         refusjonAvklart = refusjonAvklart,
         id = id,
     )
+
+fun lagKlagebehandlingDto(
+    id: UUID = UUID.randomUUID(),
+    fagsakId: UUID = UUID.randomUUID(),
+    status: no.nav.familie.kontrakter.felles.klage.BehandlingStatus = no.nav.familie.kontrakter.felles.klage.BehandlingStatus.FERDIGSTILT,
+    opprettet: LocalDateTime = LocalDateTime.now(),
+    mottattDato: LocalDate = LocalDate.now(),
+    resultat: BehandlingResultat? = BehandlingResultat.MEDHOLD,
+    årsak: no.nav.familie.kontrakter.felles.klage.Årsak? = null,
+    vedtaksdato: LocalDateTime? = LocalDateTime.now(),
+    klageinstansResultat: List<KlageinstansResultatDto> = emptyList(),
+    henlagtÅrsak: HenlagtÅrsak? = null,
+) = KlagebehandlingDto(
+    id = id,
+    fagsakId = fagsakId,
+    status = status,
+    opprettet = opprettet,
+    mottattDato = mottattDato,
+    resultat = resultat,
+    årsak = årsak,
+    vedtaksdato = vedtaksdato,
+    klageinstansResultat = klageinstansResultat,
+    henlagtÅrsak = henlagtÅrsak,
+)
+
+fun lagKlageinstansResultatDto(
+    type: BehandlingEventType = BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET,
+    utfall: KlageinstansUtfall? = KlageinstansUtfall.MEDHOLD,
+    mottattEllerAvsluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    journalpostReferanser: List<String> = emptyList(),
+    årsakFeilregistrert: String? = null,
+): KlageinstansResultatDto =
+    KlageinstansResultatDto(
+        type = type,
+        utfall = utfall,
+        mottattEllerAvsluttetTidspunkt = mottattEllerAvsluttetTidspunkt,
+        journalpostReferanser = journalpostReferanser,
+        årsakFeilregistrert = årsakFeilregistrert,
+    )
+
+fun lagRelatertBehandling(
+    id: String = "1",
+    vedtattTidspunkt: LocalDateTime = LocalDateTime.now(),
+    fagsystem: RelatertBehandling.Fagsystem = RelatertBehandling.Fagsystem.KS,
+): RelatertBehandling =
+    RelatertBehandling(
+        id = id,
+        vedtattTidspunkt = vedtattTidspunkt,
+        fagsystem = fagsystem,
+    )
+
+fun lagBarnehagebarn(
+    id: UUID = UUID.randomUUID(),
+    ident: String = randomFnr(),
+    fom: LocalDate = LocalDate.now().minusMonths(1),
+    tom: LocalDate = LocalDate.now().plusMonths(1),
+    antallTimerIBarnehage: Double = 45.0,
+    endringstype: String = "",
+    kommuneNavn: String = "Kommune Navn",
+    kommuneNr: String = "1234",
+    arkivReferanse: String = UUID.randomUUID().toString(),
+    kildeTopic: String = BARNEHAGELISTE_TOPIC,
+    endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+): Barnehagebarn {
+    val barnehagebarn =
+        Barnehagebarn(
+            id = id,
+            ident = ident,
+            fom = fom,
+            tom = tom,
+            antallTimerIBarnehage = antallTimerIBarnehage,
+            endringstype = endringstype,
+            kommuneNavn = kommuneNavn,
+            kommuneNr = kommuneNr,
+            arkivReferanse = arkivReferanse,
+            kildeTopic = kildeTopic,
+        )
+    barnehagebarn.endretTidspunkt = endretTidspunkt
+    return barnehagebarn
+}

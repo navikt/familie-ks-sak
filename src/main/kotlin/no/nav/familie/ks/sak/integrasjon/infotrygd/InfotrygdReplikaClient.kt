@@ -37,7 +37,7 @@ class InfotrygdReplikaClient(
         return infotrygdPerioder
     }
 
-    fun hentAlleBarnasIdenterForLøpendeFagsaker(): List<String> {
+    fun hentAlleBarnasIdenterForLøpendeFagsaker(): Set<String> {
         val requestURI =
             UriComponentsBuilder
                 .fromUri(familieKsInfotrygdUri)
@@ -53,7 +53,7 @@ class InfotrygdReplikaClient(
             ) {
                 getForEntity(uri = requestURI)
             }
-        return barnMedLøpendeFagsak
+        return barnMedLøpendeFagsak.toSet()
     }
 
     fun List<BarnMedOpplysningerDto>.tilInnsynsRequest(): InnsynRequest = InnsynRequest(barn = this.mapNotNull { it.personnummer })

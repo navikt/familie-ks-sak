@@ -105,6 +105,17 @@ class BehandlingService(
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 
+    /**
+     * Henter siste behandling som er vedtatt FØR en gitt behandling
+     */
+    fun hentForrigeBehandlingSomErVedtatt(behandling: Behandling): Behandling? =
+        behandlingRepository
+            .finnBehandlinger(behandling.fagsak.id)
+            .filter { it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+            .filter { !it.erHenlagt() }
+            .filter { it.aktivertTidspunkt.isBefore(behandling.aktivertTidspunkt) }
+            .maxByOrNull { it.aktivertTidspunkt }
+
     fun oppdaterBehandling(behandling: Behandling): Behandling {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)
@@ -155,6 +166,9 @@ class BehandlingService(
 
         val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
 
+        // For revurderinger med årsak klage skal fritekst støttes på alle begrunnelser
+        val alleBegrunnelserSkalStøtteFritekst = behandling.erRevurderingKlage()
+
         val vedtak =
             vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
                 it.tilVedtakDto(
@@ -163,7 +177,11 @@ class BehandlingService(
                             vedtaksperiodeService
                                 .hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
                                 .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(sanityBegrunnelser = sanityBegrunnelser, adopsjonerIBehandling = adopsjonerIBehandling)
+                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                                        sanityBegrunnelser = sanityBegrunnelser,
+                                        adopsjonerIBehandling = adopsjonerIBehandling,
+                                        alleBegrunnelserSkalStøtteFritekst = alleBegrunnelserSkalStøtteFritekst,
+                                    )
                                 }.sortedBy { dto -> dto.fom }
                         } else {
                             emptyList()
@@ -234,7 +252,10 @@ class BehandlingService(
     fun oppdaterBehandlendeEnhet(
         behandlingId: Long,
         endreBehandlendeEnhet: EndreBehandlendeEnhetDto,
-    ) = arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
+    ) {
+        arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(hentBehandling(behandlingId), endreBehandlendeEnhet)
+        sakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandlingId)
+    }
 
     fun oppdaterBehandlingsresultat(
         behandlingId: Long,

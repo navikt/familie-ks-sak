@@ -5,28 +5,28 @@ import no.nav.familie.kontrakter.felles.klage.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
-import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
+import java.util.UUID
 
 @Component
 class KlageClient(
     @Qualifier("azure") restOperations: RestOperations,
     @Value("\${FAMILIE_KLAGE_URL}") private val familieKlageUri: URI,
 ) : AbstractRestClient(restOperations, "integrasjon") {
-    fun opprettKlage(opprettKlagebehandlingRequest: OpprettKlagebehandlingRequest) {
+    fun opprettKlage(opprettKlagebehandlingRequest: OpprettKlagebehandlingRequest): UUID {
         val uri =
             UriComponentsBuilder
                 .fromUri(familieKlageUri)
-                .pathSegment("api/ekstern/behandling/opprett")
+                .pathSegment("api/ekstern/behandling/v2/opprett")
                 .build()
                 .toUri()
 
-        return kallEksternTjenesteUtenRespons<Unit>(
+        return kallEksternTjenesteRessurs(
             tjeneste = "klage",
             uri = uri,
             formål = "Opprett klagebehandling",

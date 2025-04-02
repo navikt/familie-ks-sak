@@ -39,10 +39,7 @@ class TilkjentYtelseService(
             beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
-                andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
-                endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
-            )
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer, endretUtbetalingAndeler = endretUtbetalingAndelerBarna, tilkjentYtelse = tilkjentYtelse)
 
         val overgangsordningAndelerSomAndelTilkjentYtelse =
             genererAndelerTilkjentYtelseFraOvergangsordningAndeler(

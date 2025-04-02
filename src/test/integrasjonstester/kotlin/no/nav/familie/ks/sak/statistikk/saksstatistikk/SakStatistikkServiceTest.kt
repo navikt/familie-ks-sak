@@ -14,12 +14,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.RegistrerPersonGrunnlagSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.RelatertBehandlingUtleder
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
@@ -41,6 +43,14 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var sakStatistikkService: SakStatistikkService
+
+    @MockkBean
+    private lateinit var relatertBehandlingUtleder: RelatertBehandlingUtleder
+
+    @BeforeEach
+    fun setup() {
+        every { relatertBehandlingUtleder.utledRelatertBehandling(any()) } returns null
+    }
 
     @Test
     fun `opprettSendingAvBehandlingensTilstand skal generere melding om ny tilstand til DVH`() {

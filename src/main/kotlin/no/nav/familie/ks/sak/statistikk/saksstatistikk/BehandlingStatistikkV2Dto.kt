@@ -28,6 +28,8 @@ data class BehandlingStatistikkV2Dto(
     val ansvarligBeslutter: String?,
     val behandlingOpprettetÅrsak: BehandlingÅrsak?,
     val automatiskBehandlet: Boolean,
+    val relatertBehandlingId: String? = null,
+    val relatertBehandlingFagsystem: String? = null,
 )
 
 data class SattPåVent(

@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
@@ -25,8 +26,10 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -51,13 +54,16 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingReposito
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.time.LocalDateTime
 
 class BehandlingServiceTest {
     private val mockBehandlingRepository = mockk<BehandlingRepository>()
@@ -218,6 +224,7 @@ class BehandlingServiceTest {
 
     @Test
     fun `oppdaterBehandlendeEnhet - skal oppdatere behandlende enhet tilknyttet behandling ved hjelp av ArbeidsfordelingService`() {
+        every { mockSakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandling.id) } just runs
         // Arrange
         val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("nyEnhetId", "begrunnelse")
 
@@ -229,6 +236,11 @@ class BehandlingServiceTest {
             mockArbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
                 behandling,
                 endreBehandlendeEnhetDto,
+            )
+        }
+        verify(exactly = 1) {
+            mockSakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(
+                behandling.id,
             )
         }
     }
@@ -308,5 +320,149 @@ class BehandlingServiceTest {
         verify(exactly = 1) { mockBehandlingRepository.hentBehandling(behandling.id) }
         verify { mockLoggService wasNot called }
         verify(exactly = 0) { mockBehandlingRepository.save(behandling) }
+    }
+
+    @Nested
+    inner class HentForrigeBehandlingSomErVedtatt {
+        @Test
+        fun `skal hente forrige vedtatte behandling basert på den innsendte behandlingen`() {
+            // Arrange
+            val nåtidspunkt = LocalDateTime.now()
+
+            val fagsak = lagFagsak()
+
+            val behandling1 =
+                lagBehandling(
+                    id = 1L,
+                    fagsak = fagsak,
+                    type = BehandlingType.REVURDERING,
+                    aktivertTidspunkt = nåtidspunkt,
+                    resultat = Behandlingsresultat.INNVILGET,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                            ),
+                        )
+                    },
+                )
+
+            val behandling2 =
+                lagBehandling(
+                    id = 2L,
+                    fagsak = fagsak,
+                    type = BehandlingType.REVURDERING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(1),
+                    resultat = Behandlingsresultat.INNVILGET,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                            ),
+                        )
+                    },
+                )
+
+            val behandling3 =
+                lagBehandling(
+                    id = 3L,
+                    fagsak = fagsak,
+                    type = BehandlingType.REVURDERING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(2),
+                    resultat = Behandlingsresultat.HENLAGT_SØKNAD_TRUKKET,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                            ),
+                        )
+                    },
+                )
+
+            val behandling4 =
+                lagBehandling(
+                    id = 4L,
+                    fagsak = fagsak,
+                    type = BehandlingType.REVURDERING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(3),
+                    resultat = Behandlingsresultat.INNVILGET,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                            ),
+                        )
+                    },
+                )
+
+            val behandling5 =
+                lagBehandling(
+                    id = 5L,
+                    fagsak = fagsak,
+                    type = BehandlingType.FØRSTEGANGSBEHANDLING,
+                    aktivertTidspunkt = nåtidspunkt.minusSeconds(4),
+                    resultat = Behandlingsresultat.INNVILGET,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.AVSLUTT_BEHANDLING,
+                            ),
+                        )
+                    },
+                )
+
+            every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    behandling1,
+                    behandling2,
+                    behandling3,
+                    behandling4,
+                    behandling5,
+                )
+
+            // Act
+            val forrigeBehandlingSomErVedtatt = behandlingService.hentForrigeBehandlingSomErVedtatt(behandling2)
+
+            // Assert
+            assertThat(forrigeBehandlingSomErVedtatt?.id).isEqualTo(behandling4.id)
+        }
+
+        @Test
+        fun `skal returnere null hvis ingen tidligere vedtatte behandlinger blir funnet`() {
+            // Arrange
+            val nåtidspunkt = LocalDateTime.now()
+
+            val fagsak = lagFagsak()
+
+            val behandling =
+                lagBehandling(
+                    id = 1L,
+                    fagsak = fagsak,
+                    type = BehandlingType.FØRSTEGANGSBEHANDLING,
+                    aktivertTidspunkt = nåtidspunkt,
+                    resultat = Behandlingsresultat.IKKE_VURDERT,
+                    lagBehandlingStegTilstander = {
+                        setOf(
+                            lagBehandlingStegTilstand(
+                                behandling = it,
+                                behandlingSteg = BehandlingSteg.REGISTRERE_SØKNAD,
+                            ),
+                        )
+                    },
+                )
+
+            every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
+
+            // Act
+            val forrigeBehandlingSomErVedtatt = behandlingService.hentForrigeBehandlingSomErVedtatt(behandling)
+
+            // Assert
+            assertThat(forrigeBehandlingSomErVedtatt).isNull()
+        }
     }
 }
