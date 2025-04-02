@@ -52,28 +52,6 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
 
     @Query(
         value = """
-                    WITH sisteiverksatte AS (SELECT DISTINCT ON (b.fk_fagsak_id) b.id, b.fk_fagsak_id, b.opprettet_tid
-                                 FROM behandling b
-                                          INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
-                                 WHERE b.status = 'AVSLUTTET'
-                                   AND ty.utbetalingsoppdrag IS NOT NULL
-                                 ORDER BY b.fk_fagsak_id, b.aktivert_tid DESC)
-        
-        SELECT f.id
-        FROM fagsak f
-                 JOIN behandling b ON f.id = b.fk_fagsak_id
-                 JOIN sisteiverksatte sistiverksattBehandling ON sistiverksattBehandling.id = b.id
-                 JOIN andel_tilkjent_ytelse aty ON aty.fk_behandling_id = b.id
-        WHERE aty.stonad_tom > '2024-07-31 00:00:00'
-          AND aty.stonad_tom < '2025-01-01 00:00:00'
-        """,
-        nativeQuery = true,
-    )
-    fun finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperMellomAugOgDes2024(): List<Long>
-    // TODO: Fjern denne
-
-    @Query(
-        value = """
             SELECT f.*
                 FROM fagsak f
                     JOIN behandling b ON f.id = b.fk_fagsak_id
