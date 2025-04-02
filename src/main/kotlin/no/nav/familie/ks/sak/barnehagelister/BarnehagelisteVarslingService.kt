@@ -20,6 +20,10 @@ class BarnehagelisteVarslingService(
 ) {
     @Scheduled(cron = "0 0 6 * * ?")
     @Transactional
+    fun sendVarlingOmBarnehagelisteHverMorgenKl6() {
+        sendVarslingOmNyBarnehagelisteTilEnhet()
+    }
+
     fun sendVarslingOmNyBarnehagelisteTilEnhet(
         dryRun: Boolean = false,
         dryRunEpost: String = "",
