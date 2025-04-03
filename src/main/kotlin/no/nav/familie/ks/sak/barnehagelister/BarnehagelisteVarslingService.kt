@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.io.File
 import java.time.LocalDateTime
 
 @Service
@@ -67,7 +66,7 @@ class BarnehagelisteVarslingService(
         val `KONTAKT_E-POST_VADSØ` = "nav.familie-.og.pensjonsytelser.vadso.kontantstotte@nav.no"
         val `KONTAKT_E-POST_BERGEN` = "kontantstotte@nav.no"
         val PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT =
-            "src/main/resources/barnehagelister/barnehagelister-enhet-til-kommune.json"
+            "barnehagelister/barnehagelister-enhet-til-kommune.json"
 
         private val logger = LoggerFactory.getLogger(BarnehagelisteVarslingService::class.java)
     }
@@ -89,7 +88,8 @@ private data class Kommune(
 
 private fun hentAnsvarligEnhetForKommuneMap(): Map<String, Set<Kommune>> {
     val objectMapper = jacksonObjectMapper()
-    val enhetTilKommuneFil = File(PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT)
+
+    val enhetTilKommuneFil = Thread.currentThread().contextClassLoader.getResource(PATH_ENHETSNR_TIL_KOMMUNENR_OVERSIKT)
 
     return objectMapper.readValue(enhetTilKommuneFil, object : TypeReference<Map<String, Set<Kommune>>>() {})
 }
