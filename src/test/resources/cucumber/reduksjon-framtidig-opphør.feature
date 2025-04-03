@@ -18,7 +18,7 @@ Egenskap: Reduksjon framtidig opphør barnehageplass - søker melder om framtidi
       | 1            | 2       | BARN       | 05.01.2024  |
       | 1            | 3       | BARN       | 09.01.2024  |
 
-  Scenario: Framtidig barnehageplass for 1 av 2 barn skal generere begrunnelse reduksjon framtidig opphør barnehageplass, da utbetaling fortsatt løper for barn 2
+  Scenario: Framtidig barnehageplass for 1 av 2 barn skal legge til begrunnelsen reduksjon framtidig opphør barnehageplass automatisk, og den skal ikke være mulig å velge selv eller velges bort. Fortsatt løpende kontantstøtte for det andre barnet
     Og følgende dagens dato 13.02.2025
 
     Og følgende vilkårresultater for behandling 1
@@ -51,10 +51,10 @@ Egenskap: Reduksjon framtidig opphør barnehageplass - søker melder om framtidi
       | 01.06.2025 | 31.08.2025 | UTBETALING         |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 1
-      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                      | Ugyldige begrunnelser |
-      | 01.02.2025 | 31.05.2025 | UTBETALING         |                                | INNVILGET_IKKE_BARNEHAGE                  |                       |
-      | 01.06.2025 | 31.08.2025 | UTBETALING         |                                | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
+      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser     | Ugyldige begrunnelser                     |
+      | 01.02.2025 | 31.05.2025 | UTBETALING         |                                | INNVILGET_IKKE_BARNEHAGE | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS                                          |
+      | 01.06.2025 | 31.08.2025 | UTBETALING         |                                |                          | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.06.2025 til 31.08.2025
       | Begrunnelse                               | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
-      | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 1           | 09.01.24             | nei           | 7 500  | juni 2025                            | true                  | 0                           | mai 2025                       |
+      | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 1           | 09.01.24             | nei           | 7 500 | juni 2025                            | true                   | 0                           | mai 2025                       |
