@@ -15,4 +15,7 @@ enum class FeatureToggle(
 
     // NAV-24034
     BRUK_NY_SAKSBEHANDLER_NAVN_FORMAT_I_SIGNATUR("familie-ks-sak.bruk-ny-saksbehandler-navn-format-i-signatur"),
+
+    // NAV-24658
+    SETT_RELATERT_BEHANDLING_FOR_REVURDERING_KLAGE_I_SAKSSTATISTIKK("familie-ks-sak.sett-relatert-behandling-for-revurdering-klage-i-saksstatistikk"),
 }

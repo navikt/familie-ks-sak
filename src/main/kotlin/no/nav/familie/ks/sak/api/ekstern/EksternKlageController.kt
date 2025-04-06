@@ -7,7 +7,6 @@ import no.nav.familie.kontrakter.felles.klage.OpprettRevurderingResponse
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 // Kalles av familie-klage
 @RestController
@@ -51,7 +51,7 @@ class EksternKlageController(
     }
 
     @PostMapping("fagsaker/{fagsakId}/opprett-revurdering-klage")
-    fun opprettRevurderingKlage(
+    fun opprettRevurderingKlageGammel(
         @PathVariable fagsakId: Long,
     ): Ressurs<OpprettRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
@@ -64,7 +64,32 @@ class EksternKlageController(
         if (!SikkerhetContext.kallKommerFraKlage()) {
             throw Feil("Kallet utføres ikke av en autorisert klient")
         }
-        return Ressurs.success(opprettBehandlingService.validerOgOpprettRevurderingKlage(fagsakId, BehandlingÅrsak.KLAGE))
+        return Ressurs.success(opprettBehandlingService.validerOgOpprettRevurderingKlage(fagsakId = fagsakId, klagebehandlingId = null))
+    }
+
+    @PostMapping("fagsak/{fagsakId}/klagebehandling/{klagebehandlingId}/opprett-revurdering-klage")
+    fun opprettRevurderingKlage(
+        @PathVariable fagsakId: Long,
+        @PathVariable klagebehandlingId: UUID,
+    ): Ressurs<OpprettRevurderingResponse> {
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            handling = "Opprett revurdering med årask klage på fagsak=$fagsakId",
+            event = AuditLoggerEvent.CREATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+        )
+
+        if (!SikkerhetContext.kallKommerFraKlage()) {
+            throw Feil("Kallet utføres ikke av en autorisert klient")
+        }
+
+        val opprettRevurderingResponse =
+            opprettBehandlingService.validerOgOpprettRevurderingKlage(
+                fagsakId = fagsakId,
+                klagebehandlingId = klagebehandlingId,
+            )
+
+        return Ressurs.success(opprettRevurderingResponse)
     }
 
     @GetMapping("fagsaker/{fagsakId}/vedtak")
