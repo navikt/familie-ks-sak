@@ -55,6 +55,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
+import no.nav.familie.ks.sak.kjerne.behandling.domene.NyEksternBehandlingRelasjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
@@ -1610,12 +1612,10 @@ fun lagKlageinstansResultatDto(
 
 fun lagRelatertBehandling(
     id: String = "1",
-    vedtattTidspunkt: LocalDateTime = LocalDateTime.now(),
     fagsystem: RelatertBehandling.Fagsystem = RelatertBehandling.Fagsystem.KS,
 ): RelatertBehandling =
     RelatertBehandling(
         id = id,
-        vedtattTidspunkt = vedtattTidspunkt,
         fagsystem = fagsystem,
     )
 
@@ -1648,3 +1648,27 @@ fun lagBarnehagebarn(
     barnehagebarn.endretTidspunkt = endretTidspunkt
     return barnehagebarn
 }
+
+fun lagEksternBehandlingRelasjon(
+    id: Long = 0L,
+    internBehandlingId: Long = 1000L,
+    eksternBehandlingId: String = UUID.randomUUID().toString(),
+    eksternBehandlingFagsystem: EksternBehandlingRelasjon.Fagsystem = EksternBehandlingRelasjon.Fagsystem.KLAGE,
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+): EksternBehandlingRelasjon =
+    EksternBehandlingRelasjon(
+        id = id,
+        internBehandlingId = internBehandlingId,
+        eksternBehandlingId = eksternBehandlingId,
+        eksternBehandlingFagsystem = eksternBehandlingFagsystem,
+        opprettetTidspunkt = opprettetTidspunkt,
+    )
+
+fun lagNyEksternBehandlingRelasjon(
+    eksternBehandlingId: String = UUID.randomUUID().toString(),
+    eksternBehandlingFagsystem: EksternBehandlingRelasjon.Fagsystem = EksternBehandlingRelasjon.Fagsystem.KLAGE,
+): NyEksternBehandlingRelasjon =
+    NyEksternBehandlingRelasjon(
+        eksternBehandlingId = eksternBehandlingId,
+        eksternBehandlingFagsystem = eksternBehandlingFagsystem,
+    )

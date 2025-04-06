@@ -20,6 +20,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
+import no.nav.familie.ks.sak.kjerne.behandling.domene.NyEksternBehandlingRelasjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 class OpprettBehandlingService(
@@ -47,6 +50,7 @@ class OpprettBehandlingService(
     private val stegService: StegService,
     private val behandlingMetrikker: BehandlingMetrikker,
     private val unleashService: UnleashNextMedContextService,
+    private val eksternBehandlingRelasjonService: EksternBehandlingRelasjonService,
 ) {
     @Transactional
     fun opprettBehandling(opprettBehandlingRequest: OpprettBehandlingDto): Behandling {
@@ -98,6 +102,16 @@ class OpprettBehandlingService(
                 aktivBehandling = aktivBehandling,
                 sisteVedtattBehandling = sisteVedtattBehandling,
             )
+
+        if (opprettBehandlingRequest.nyEksternBehandlingRelasjon != null) {
+            eksternBehandlingRelasjonService.lagreEksternBehandlingRelasjon(
+                EksternBehandlingRelasjon.opprettFraNyEksternBehandlingRelasjon(
+                    internBehandlingId = lagretBehandling.id,
+                    nyEksternBehandlingRelasjon = opprettBehandlingRequest.nyEksternBehandlingRelasjon,
+                ),
+            )
+        }
+
         vedtakService.opprettOgInitierNyttVedtakForBehandling(lagretBehandling) // initierer vedtak
         loggService.opprettBehandlingLogg(lagretBehandling) // lag historikkinnslag
         // Oppretter BehandleSak oppgave via task. Ruller tasken tilbake, hvis behandling opprettelse feiler
@@ -152,20 +166,20 @@ class OpprettBehandlingService(
     @Transactional
     fun validerOgOpprettRevurderingKlage(
         fagsakId: Long,
-        behandlingÅrsak: BehandlingÅrsak,
+        klagebehandlingId: UUID?,
     ): OpprettRevurderingResponse {
         val fagsak = hentFagsak(fagsakId)
 
         val resultat = utledKanOppretteRevurdering(fagsak)
         return when (resultat) {
-            is KanOppretteRevurdering -> opprettRevurderingKlage(fagsak, behandlingÅrsak)
+            is KanOppretteRevurdering -> opprettRevurderingKlage(fagsak, klagebehandlingId)
             is KanIkkeOppretteRevurdering -> OpprettRevurderingResponse(IkkeOpprettet(resultat.årsak.ikkeOpprettetÅrsak))
         }
     }
 
     private fun opprettRevurderingKlage(
         fagsak: Fagsak,
-        behandlingÅrsak: BehandlingÅrsak,
+        klagebehandlingId: UUID?,
     ): OpprettRevurderingResponse =
         try {
             val forrigeBehandling = hentSisteBehandlingSomErVedtatt(fagsakId = fagsak.id)
@@ -175,7 +189,8 @@ class OpprettBehandlingService(
                     kategori = forrigeBehandling?.kategori ?: BehandlingKategori.NASJONAL,
                     søkersIdent = fagsak.aktør.aktivFødselsnummer(),
                     behandlingType = BehandlingType.REVURDERING,
-                    behandlingÅrsak = behandlingÅrsak,
+                    behandlingÅrsak = BehandlingÅrsak.KLAGE,
+                    nyEksternBehandlingRelasjon = klagebehandlingId?.let { NyEksternBehandlingRelasjon.opprettForKlagebehandling(it) },
                 )
 
             val revurdering = opprettBehandling(behandlingDto)
