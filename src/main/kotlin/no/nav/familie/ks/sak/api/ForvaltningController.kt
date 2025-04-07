@@ -17,6 +17,8 @@ import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
@@ -84,6 +86,7 @@ class ForvaltningController(
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
+    private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -270,7 +273,7 @@ class ForvaltningController(
     )
     fun hentAlleBarnehagebarnPage(
         @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
-    ): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
+    ): ResponseEntity<Ressurs<Page<BarnehagebarnVisningDto>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hente ut alle barnehagebarn",

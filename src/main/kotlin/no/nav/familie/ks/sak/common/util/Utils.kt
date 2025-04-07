@@ -57,21 +57,9 @@ fun hentDokument(dokumentNavn: String): ByteArray {
 fun <T> toPage(
     list: List<T>,
     pageable: Pageable,
-    fieldExtractor: (T) -> Comparable<*>?,
+    comparator: Comparator<T>,
 ): Page<T> {
-    val sortedList =
-        if (pageable.sort.isSorted) {
-            val order = pageable.sort.first() // Only take the first sorting field
-            val comparator =
-                if (order.isAscending) {
-                    compareBy(fieldExtractor)
-                } else {
-                    compareByDescending(fieldExtractor)
-                }
-            list.sortedWith(comparator)
-        } else {
-            list
-        }
+    val sortedList = list.sortedWith(comparator)
 
     val start = (pageable.pageNumber * pageable.pageSize).coerceAtMost(sortedList.size)
     val end = (start + pageable.pageSize).coerceAtMost(sortedList.size)

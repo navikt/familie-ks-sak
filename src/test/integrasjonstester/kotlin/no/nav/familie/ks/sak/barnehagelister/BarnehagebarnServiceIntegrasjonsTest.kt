@@ -125,7 +125,7 @@ class BarnehagebarnServiceIntegrasjonsTest(
             assertThat(barnehagebarn.size).isEqualTo(2)
             assertThat(barnehagebarn.map { it.ident }.toSet().single()).isEqualTo("12345678901")
             assertThat(barnehagebarn.map { it.fom }.toSet()).isEqualTo(setOf(LocalDate.now().minusMonths(3), LocalDate.now()))
-            assertThat(barnehagebarn.find { it.ident == "12345678901" }?.endretTid).isAfter(LocalDateTime.now().minusHours(2))
+            assertThat(barnehagebarn.find { it.ident == "12345678901" && it.fom == LocalDate.now() }?.endretTid).isAfter(LocalDateTime.now().minusHours(2))
         }
 
         @Test

@@ -45,40 +45,31 @@ class BarnehagebarnService(
                 .distinctBy { listOf(it.ident, it.fom, it.tom, it.antallTimerIBarnehage, it.endringstype, it.kommuneNavn, it.kommuneNr, it.fagsakId, it.fagsakstatus) }
 
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, barnehagebarnRequestParams.toSort())
-        return toPage(barnehagebarnDtoFiltrertPåLøpendeAndel, pageable, hentFeltSomSkalSorteresEtter(barnehagebarnRequestParams))
+        return toPage(barnehagebarnDtoFiltrertPåLøpendeAndel, pageable, hentFeltSomSkalSorteresEtter(barnehagebarnRequestParams.sortBy))
     }
 
-    private fun hentFeltSomSkalSorteresEtter(barnehagebarnRequestParams: BarnehagebarnRequestParams): (BarnehagebarnVisningDto) -> Comparable<*>? {
-        val feltStomSkalSorteresEtter: (BarnehagebarnVisningDto) -> Comparable<*>? =
-            when (barnehagebarnRequestParams.sortBy) {
-                "ident" -> { it -> it.ident }
-                "endrettidspunkt" -> { it -> it.endretTid }
-                "fom" -> { it -> it.fom }
-                "tom" -> { it -> it.tom }
-                "antalltimeribarnehage" -> { it -> it.antallTimerIBarnehage }
-                "endringstype" -> { it -> it.endringstype }
-                "kommunenavn" -> { it -> it.kommuneNavn }
-                "kommunenr" -> { it -> it.kommuneNr }
+    private fun hentFeltSomSkalSorteresEtter(sortBy: String): Comparator<BarnehagebarnVisningDto> {
+        val feltStomSkalSorteresEtter: Comparator<BarnehagebarnVisningDto> =
+            when (sortBy) {
+                "ident" -> compareBy { it.ident }
+                "endrettidspunkt" -> compareBy { it.endretTid }
+                "fom" -> compareBy { it -> it.fom }
+                "tom" -> compareBy { it -> it.tom }
+                "antalltimeribarnehage" -> compareBy { it -> it.antallTimerIBarnehage }
+                "endringstype" -> compareBy { it -> it.endringstype }
+                "kommunenavn" -> compareBy { it -> it.kommuneNavn }
+                "kommunenr" -> compareBy { it -> it.kommuneNr }
 
-                else -> { it -> it.endretTid }
+                else -> compareBy { it -> it.endretTid }
             }
         return feltStomSkalSorteresEtter
     }
 
     private fun BarnehagebarnRequestParams.toSort() =
         if (sortAsc) {
-            Sort.by(getCorrectSortBy(sortBy)).ascending()
+            Sort.by(sortBy).ascending()
         } else {
-            Sort.by(getCorrectSortBy(sortBy)).descending()
-        }
-
-    private fun getCorrectSortBy(sortBy: String): String =
-        when (sortBy.lowercase()) {
-            "endrettidspunkt" -> "endret_tid"
-            "kommunenavn" -> "kommune_navn"
-            "kommunenr" -> "kommune_nr"
-            "antalltimeribarnehage" -> "antall_timer_i_barnehage"
-            else -> sortBy
+            Sort.by(sortBy).descending()
         }
 
     private fun Barnehagebarn.tilBarnehageBarnDto(): BarnehagebarnVisningDto {
