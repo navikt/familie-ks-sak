@@ -104,6 +104,7 @@ class BarnehagebarnServiceIntegrasjonsTest(
 
     @Nested
     inner class HentBarnehageBarn {
+        // TODO: test barn uten fagsak
         @Test
         @Sql(scripts = ["/barnehagelister/avvik-antall-timer-og-perioder.sql"], executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
         fun `hentBarnehageBarn henter kun barn med riktig ident`() {
@@ -170,11 +171,13 @@ class BarnehagebarnServiceIntegrasjonsTest(
 
             // Assert
             assertThat(barnehagebarn.size).isEqualTo(4)
+            val barnUtenLøpendeAndeler = barnehagebarn.find { it.ident == "45678901234" }
+            assertThat(barnUtenLøpendeAndeler?.avvik).`as`("\nForventet avvik: null\n men var: ${barnUtenLøpendeAndeler?.avvik}\n")
         }
 
         @Test
         @Sql(scripts = ["/barnehagelister/avvik-antall-timer-og-perioder.sql"], executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-        fun `hentBarnehageBarn henter kun barn med løpende andeler`() {
+        fun `hentBarnehageBarn henter kun barn med løpende andeler og med riktig avvik`() {
             // Arrange
             val barnehagebarnRequestParams1 =
                 BarnehagebarnRequestParams(
@@ -189,6 +192,11 @@ class BarnehagebarnServiceIntegrasjonsTest(
             // Assert
             assertThat(barnehagebarn.size).isEqualTo(3)
             assertThat(barnehagebarn.map { it.ident }.toSet()).isEqualTo(setOf("12345678901", "23456789012"))
+
+            val barnMedAvvik = barnehagebarn.find { it.ident == "12345678901" }
+            val barnUtenAvvik = barnehagebarn.find { it.ident == "23456789012" }
+            assertThat(barnMedAvvik?.avvik).`as`("\nForventet avvik: true\n men var: ${barnMedAvvik?.avvik}\n").isTrue()
+            assertThat(barnUtenAvvik?.avvik).`as`("\nForventet avvik: false\n men var: ${barnUtenAvvik?.avvik}\n").isFalse()
         }
 
         @Test

@@ -27,9 +27,11 @@ INSERT INTO po_person(id, fk_gr_personopplysninger_id, type, fk_aktoer_id ) VALU
 INSERT INTO po_person(id, fk_gr_personopplysninger_id, type, fk_aktoer_id ) VALUES (4, 1, 'BARN', '4567');
 INSERT INTO po_person(id, fk_gr_personopplysninger_id, type, fk_aktoer_id ) VALUES (9, 1, 'SØKER', '9876');
 
-INSERT INTO person_resultat(id, fk_aktoer_id) VALUES (1,'1234');
-INSERT INTO person_resultat(id, fk_aktoer_id) VALUES (2, '2345');
-INSERT INTO person_resultat(id, fk_aktoer_id) VALUES (4, '4567');
+INSERT INTO vilkaarsvurdering(id, fk_behandling_id) VALUES (1, 1);
+
+INSERT INTO person_resultat(id, fk_aktoer_id, fk_vilkaarsvurdering_id) VALUES (1,'1234', 1);
+INSERT INTO person_resultat(id, fk_aktoer_id, fk_vilkaarsvurdering_id) VALUES (2, '2345', 1);
+INSERT INTO person_resultat(id, fk_aktoer_id, fk_vilkaarsvurdering_id) VALUES (4, '4567', 1);
 
 INSERT INTO vilkar_resultat(id, vilkar, periode_fom, periode_tom, resultat, fk_person_resultat_id, fk_behandling_id, antall_timer) VALUES (1, 'BARNEHAGEPLASS', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 months', 'OPPFYLT', 1, 1, 20);
 INSERT INTO vilkar_resultat(id, vilkar, periode_fom, periode_tom, resultat, fk_person_resultat_id, fk_behandling_id, antall_timer) VALUES (2, 'BARNEHAGEPLASS', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 months','OPPFYLT', 2, 1, 30);

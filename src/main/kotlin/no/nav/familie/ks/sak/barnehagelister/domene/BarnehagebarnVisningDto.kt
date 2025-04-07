@@ -14,4 +14,5 @@ data class BarnehagebarnVisningDto(
     val fagsakId: Long? = null,
     val fagsakstatus: String? = null,
     val endretTid: LocalDateTime,
+    val avvik: Boolean? = null,
 )

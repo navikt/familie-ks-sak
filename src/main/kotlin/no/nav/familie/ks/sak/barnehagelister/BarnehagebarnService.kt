@@ -6,7 +6,10 @@ import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.common.util.toPage
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
@@ -23,6 +26,7 @@ class BarnehagebarnService(
     val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     val fagsakRepository: FagsakRepository,
     val behandlingRepository: BehandlingRepository,
+    val vilkårsvurderingService: VilkårsvurderingService,
 ) {
     fun hentBarnehageBarn(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnVisningDto> {
         val barnehagebarn =
@@ -35,10 +39,12 @@ class BarnehagebarnService(
         val barnehagebarnDto =
             barnehagebarn
                 .map { barn -> barn.tilBarnehageBarnDto() }
+                .map { it.copy(avvik = it.erAvvikPåAntallTimerIBehandlingOgBarnehageliste()) }
 
         val barnehagebarnDtoFiltrertPåLøpendeAndel =
             if (barnehagebarnRequestParams.kunLøpendeAndel) {
-                barnehagebarnDto.filter { barn -> barn.fagsakId != null && erLøpendeAndelerPåBarnIAktivBehandling(barn.ident, barn.fagsakId) }
+                barnehagebarnDto
+                    .filter { barn -> barn.fagsakId != null && erLøpendeAndelerPåBarnIAktivBehandling(barn.ident, barn.fagsakId) }
             } else {
                 barnehagebarnDto
             }.sortedByDescending { it.endretTid } // Garanter at nyeste endretTid er det som blir beholdt
@@ -98,6 +104,20 @@ class BarnehagebarnService(
         val andelTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(aktivBehandling.id, aktør)
 
         return andelTilkjentYtelse.any { it.erLøpende(YearMonth.now()) }
+    }
+
+    private fun BarnehagebarnVisningDto.erAvvikPåAntallTimerIBehandlingOgBarnehageliste(): Boolean? {
+        val aktør = personidentRepository.findByFødselsnummerOrNull(this.ident)?.aktør ?: return null
+        if (this.fagsakId == null) return null
+        val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(this.fagsakId) ?: return null
+
+        if (!erLøpendeAndelerPåBarnIAktivBehandling(this.ident, this.fagsakId)) return null
+
+        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(aktivBehandling.id)
+        val personResultat = vilkårsvurdering.personResultater.find { it.aktør == aktør }
+        val vilkårResultat = personResultat?.vilkårResultater?.find { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.periodeFom?.toYearMonth() == fom.toYearMonth() }
+
+        return vilkårResultat?.antallTimer?.toDouble() != this.antallTimerIBarnehage
     }
 
     // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding, kunne muligens brukt barnehagebarn.id i stedet
