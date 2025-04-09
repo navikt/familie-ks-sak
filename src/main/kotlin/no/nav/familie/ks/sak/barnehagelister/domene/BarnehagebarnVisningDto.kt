@@ -7,7 +7,7 @@ data class BarnehagebarnVisningDto(
     val ident: String,
     val fom: LocalDate,
     val tom: LocalDate?,
-    val antallTimerIBarnehage: Double,
+    val antallTimerBarnehage: Double,
     val endringstype: String? = null,
     val kommuneNavn: String,
     val kommuneNr: String,

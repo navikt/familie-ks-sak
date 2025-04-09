@@ -49,7 +49,7 @@ class BarnehagebarnService(
             } else {
                 barnehagebarnDto
             }.sortedByDescending { it.endretTid } // Garanter at nyeste endretTid er det som blir beholdt
-                .distinctBy { listOf(it.ident, it.fom, it.tom, it.antallTimerIBarnehage, it.endringstype, it.kommuneNavn, it.kommuneNr, it.fagsakId, it.fagsakstatus) }
+                .distinctBy { listOf(it.ident, it.fom, it.tom, it.antallTimerBarnehage, it.endringstype, it.kommuneNavn, it.kommuneNr, it.fagsakId, it.fagsakstatus) }
 
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, barnehagebarnRequestParams.toSort())
         return toPage(barnehagebarnDtoFiltrertPåLøpendeAndel, pageable, hentFeltSomSkalSorteresEtter(barnehagebarnRequestParams.sortBy))
@@ -62,7 +62,7 @@ class BarnehagebarnService(
                 "endrettidspunkt" -> compareBy { it.endretTid }
                 "fom" -> compareBy { it.fom }
                 "tom" -> compareBy { it.tom }
-                "antalltimeribarnehage" -> compareBy { it.antallTimerIBarnehage }
+                "antalltimeribarnehage" -> compareBy { it.antallTimerBarnehage }
                 "avvik" -> compareBy { it.avvik }
                 "endringstype" -> compareBy { it.endringstype }
                 "kommunenavn" -> compareBy { it.kommuneNavn }
@@ -87,7 +87,7 @@ class BarnehagebarnService(
             ident = ident,
             fom = fom,
             tom = tom,
-            antallTimerIBarnehage = antallTimerIBarnehage,
+            antallTimerBarnehage = antallTimerIBarnehage,
             endringstype = endringstype,
             kommuneNavn = kommuneNavn,
             kommuneNr = kommuneNr,
@@ -119,7 +119,7 @@ class BarnehagebarnService(
         val personResultat = vilkårsvurdering.personResultater.find { it.aktør == aktør }
         val vilkårResultat = personResultat?.vilkårResultater?.find { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.periodeFom?.toYearMonth() == fom.toYearMonth() }
 
-        return vilkårResultat?.antallTimer?.toDouble() != this.antallTimerIBarnehage
+        return vilkårResultat?.antallTimer?.toDouble() != this.antallTimerBarnehage
     }
 
     // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding, kunne muligens brukt barnehagebarn.id i stedet
