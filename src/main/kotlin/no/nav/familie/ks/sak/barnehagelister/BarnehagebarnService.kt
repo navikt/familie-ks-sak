@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
+import no.nav.familie.ks.sak.common.util.saner
 import no.nav.familie.ks.sak.common.util.toPage
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -31,7 +32,7 @@ class BarnehagebarnService(
     fun hentBarnehageBarn(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnVisningDto> {
         val barnehagebarn =
             when {
-                !barnehagebarnRequestParams.ident.isNullOrEmpty() -> barnehagebarnRepository.findAllByIdent(barnehagebarnRequestParams.ident)
+                !barnehagebarnRequestParams.ident.isNullOrEmpty() -> barnehagebarnRepository.findAllByIdent(barnehagebarnRequestParams.ident.saner())
                 !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() -> barnehagebarnRepository.findAllByKommuneNavn(barnehagebarnRequestParams.kommuneNavn)
                 else -> barnehagebarnRepository.findAll()
             }
@@ -56,15 +57,16 @@ class BarnehagebarnService(
 
     private fun hentFeltSomSkalSorteresEtter(sortBy: String): Comparator<BarnehagebarnVisningDto> {
         val feltStomSkalSorteresEtter: Comparator<BarnehagebarnVisningDto> =
-            when (sortBy) {
+            when (sortBy.lowercase()) {
                 "ident" -> compareBy { it.ident }
                 "endrettidspunkt" -> compareBy { it.endretTid }
-                "fom" -> compareBy { it -> it.fom }
-                "tom" -> compareBy { it -> it.tom }
-                "antalltimeribarnehage" -> compareBy { it -> it.antallTimerIBarnehage }
-                "endringstype" -> compareBy { it -> it.endringstype }
-                "kommunenavn" -> compareBy { it -> it.kommuneNavn }
-                "kommunenr" -> compareBy { it -> it.kommuneNr }
+                "fom" -> compareBy { it.fom }
+                "tom" -> compareBy { it.tom }
+                "antalltimeribarnehage" -> compareBy { it.antallTimerIBarnehage }
+                "avvik" -> compareBy { it.avvik }
+                "endringstype" -> compareBy { it.endringstype }
+                "kommunenavn" -> compareBy { it.kommuneNavn }
+                "kommunenr" -> compareBy { it.kommuneNr }
 
                 else -> compareBy { it -> it.endretTid }
             }
