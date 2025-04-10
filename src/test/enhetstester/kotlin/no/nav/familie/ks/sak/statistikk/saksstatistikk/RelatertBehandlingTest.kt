@@ -1,72 +1,50 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
+import no.nav.familie.ks.sak.data.lagEksternBehandlingRelasjon
+import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import java.time.LocalDateTime
-import java.util.UUID
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 class RelatertBehandlingTest {
     @Nested
     inner class FraKontantstøttebehandling {
         @Test
-        fun `skal lage relatert behandling fra kontatstøttebehandling`() {
+        fun `skal opprette fra kontantstøttebehandling`() {
             // Arrange
-            val kontantstøttebehandling =
-                lagBehandling(
-                    id = 1L,
-                    aktivertTidspunkt = LocalDateTime.now(),
-                )
+            val behandling = lagBehandling()
 
             // Act
-            val relatertBehandling = RelatertBehandling.fraKontantstøttebehandling(kontantstøttebehandling)
+            val relatertBehandling = RelatertBehandling.fraKontantstøttebehandling(behandling)
 
             // Assert
-            assertThat(relatertBehandling.id).isEqualTo(kontantstøttebehandling.id.toString())
+            assertThat(relatertBehandling.id).isEqualTo(behandling.id.toString())
             assertThat(relatertBehandling.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KS)
-            assertThat(relatertBehandling.vedtattTidspunkt).isEqualTo(kontantstøttebehandling.aktivertTidspunkt)
         }
     }
 
     @Nested
-    inner class FraKlagebehandling {
-        @Test
-        fun `skal lage relatert behandling fra klagebehandling`() {
+    inner class FraEksternBehandlingRelasjon {
+        @ParameterizedTest
+        @EnumSource(value = EksternBehandlingRelasjon.Fagsystem::class)
+        fun `skal opprette fra ekstern behandling relasjon`(
+            fagsystem: EksternBehandlingRelasjon.Fagsystem,
+        ) {
             // Arrange
-            val klagebehandling =
-                lagKlagebehandlingDto(
-                    id = UUID.randomUUID(),
-                    vedtaksdato = LocalDateTime.now(),
+            val eksternBehandlingRelasjon =
+                lagEksternBehandlingRelasjon(
+                    eksternBehandlingFagsystem = fagsystem,
                 )
 
             // Act
-            val relatertBehandling = RelatertBehandling.fraKlagebehandling(klagebehandling)
+            val relatertBehandling = RelatertBehandling.fraEksternBehandlingRelasjon(eksternBehandlingRelasjon)
 
             // Assert
-            assertThat(relatertBehandling.id).isEqualTo(klagebehandling.id.toString())
-            assertThat(relatertBehandling.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.KLAGE)
-            assertThat(relatertBehandling.vedtattTidspunkt).isEqualTo(klagebehandling.vedtaksdato)
-        }
-
-        @Test
-        fun `skal kaste exception om klagebehandling mangler vedtaksdato`() {
-            // Arrange
-            val klagebehandling =
-                lagKlagebehandlingDto(
-                    id = UUID.randomUUID(),
-                    vedtaksdato = null,
-                )
-
-            // Act & assert
-            val exception =
-                assertThrows<Feil> {
-                    RelatertBehandling.fraKlagebehandling(klagebehandling)
-                }
-            assertThat(exception.message).isEqualTo("Forventer vedtaksdato for klagebehandling ${klagebehandling.id}")
+            assertThat(relatertBehandling.id).isEqualTo(eksternBehandlingRelasjon.eksternBehandlingId)
+            assertThat(relatertBehandling.fagsystem).isEqualTo(RelatertBehandling.Fagsystem.valueOf(fagsystem.name))
         }
     }
 }
