@@ -40,22 +40,27 @@ class HåndterNyIdentService(
 
         val aktørId = identerFraPdl.hentAktivAktørId()
         val aktør = aktørIdRepository.findByAktørId(aktørId)
-        val aktuellFagsakVedMerging = hentAktuellFagsak(identerFraPdl)
+        val aktuelleFagsakerForIdenter = hentAktuelleFagsaker(identerFraPdl)
 
         return when {
             // Personen er ikke i noen fagsaker
-            aktuellFagsakVedMerging == null -> aktør
+            aktuelleFagsakerForIdenter.isNullOrEmpty() -> aktør
 
             // Ny aktørId, nytt fødselsnummer -> begge håndteres i PatchMergetIdentTask
             aktør == null -> {
-                validerUendretFødselsdatoFraForrigeBehandling(identerFraPdl, aktuellFagsakVedMerging)
-                opprettMergeIdentTask(aktuellFagsakVedMerging.id, identerFraPdl)
+                aktuelleFagsakerForIdenter.forEach { fagsak ->
+                    validerUendretFødselsdatoFraForrigeBehandling(identerFraPdl, fagsak)
+                }
+                // patcheendepunktet trenger en fagsak, men samme hvilken fagsak
+                opprettMergeIdentTask(aktuelleFagsakerForIdenter.first().id, identerFraPdl)
                 null
             }
 
             // Samme aktørId, nytt fødselsnummer -> legg til fødselsnummer på aktør
             !aktør.harIdent(fødselsnummer = nyIdent.ident) -> {
-                validerUendretFødselsdatoFraForrigeBehandling(identerFraPdl, aktuellFagsakVedMerging)
+                aktuelleFagsakerForIdenter.forEach { fagsak ->
+                    validerUendretFødselsdatoFraForrigeBehandling(identerFraPdl, fagsak)
+                }
                 logger.info("Legger til ny ident")
                 secureLogger.info("Legger til ny ident ${nyIdent.ident} på aktør ${aktør.aktørId}")
                 personIdentService.opprettPersonIdent(aktør, nyIdent.ident)
@@ -91,22 +96,15 @@ class HåndterNyIdentService(
         return task
     }
 
-    private fun hentAktuellFagsak(alleIdenterFraPdl: List<PdlIdent>): Fagsak? {
+    private fun hentAktuelleFagsaker(alleIdenterFraPdl: List<PdlIdent>): List<Fagsak> {
         val aktørerMedAktivPersonident =
             alleIdenterFraPdl
                 .hentAktørIder()
                 .mapNotNull { aktørIdRepository.findByAktørId(it) }
                 .filter { aktør -> aktør.personidenter.any { personident -> personident.aktiv } }
 
-        val fagsaker =
-            aktørerMedAktivPersonident
-                .flatMap { aktør -> fagsakService.hentFagsakerPåPerson(aktør) }
-
-        if (fagsaker.toSet().size > 1) {
-            throw Feil("Det eksisterer flere fagsaker på identer som skal merges: ${aktørerMedAktivPersonident.first()}. $LENKE_INFO_OM_MERGING")
-        }
-
-        return fagsaker.firstOrNull()
+        return aktørerMedAktivPersonident
+            .flatMap { aktør -> fagsakService.hentFagsakerPåPerson(aktør) }
     }
 
     private fun validerUendretFødselsdatoFraForrigeBehandling(

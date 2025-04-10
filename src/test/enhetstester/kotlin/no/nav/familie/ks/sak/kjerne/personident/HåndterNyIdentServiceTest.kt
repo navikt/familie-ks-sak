@@ -109,21 +109,20 @@ internal class HåndterNyIdentServiceTest {
         }
 
         @Test
-        fun `håndterNyIdent kaster Feil når det eksisterer flere fagsaker for identer`() {
+        fun `håndterNyIdent skal ikke kaste feil når det eksisterer flere fagsaker for identer`() {
             // arrange
             every { fagsakService.hentFagsakerPåPerson(any()) } returns
                 listOf(
                     Fagsak(id = 1, aktør = gammelAktør),
                     Fagsak(id = 2, aktør = gammelAktør),
                 )
+            every { behandlingRepository.finnBehandlinger(any<Long>()) } returns listOf(gammelBehandling)
+            every { behandlingRepository.finnAktivtFødselsnummerForBehandlinger(any()) } returns listOf(1L to gammeltFnr)
 
-            // act & assert
-            val feil =
-                assertThrows<Feil> {
-                    håndterNyIdentService.håndterNyIdent(PersonIdent(nyttFnr))
-                }
+            val aktør = håndterNyIdentService.håndterNyIdent(PersonIdent(nyttFnr))
 
-            assertThat(feil.message).startsWith("Det eksisterer flere fagsaker på identer som skal merges")
+            assertThat(aktør).isNull()
+            verify(exactly = 1) { PatchMergetIdentTask.opprettTask(any()) }
         }
 
         @Test
