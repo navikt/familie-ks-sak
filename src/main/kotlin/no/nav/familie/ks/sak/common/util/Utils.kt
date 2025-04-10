@@ -1,5 +1,8 @@
 package no.nav.familie.ks.sak.common.util
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.NumberFormat
@@ -49,4 +52,17 @@ fun hentDokument(dokumentNavn: String): ByteArray {
     )
 
     return dokumentByteArray
+}
+
+fun <T> toPage(
+    list: List<T>,
+    pageable: Pageable,
+    comparator: Comparator<T>,
+): Page<T> {
+    val sortedList = list.sortedWith(comparator)
+
+    val start = (pageable.pageNumber * pageable.pageSize).coerceAtMost(sortedList.size)
+    val end = (start + pageable.pageSize).coerceAtMost(sortedList.size)
+
+    return PageImpl(sortedList.subList(start, end), pageable, sortedList.size.toLong())
 }
