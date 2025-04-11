@@ -26,7 +26,7 @@
         <kotlin.version>2.1.20</kotlin.version>
         <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
-        <kotlinx.version>1.10.1</kotlinx.version>
+        <kotlinx.version>1.10.2</kotlinx.version>
 
         <!-- Spring -->
         <spring-boot-dependencies.version>3.4.4</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
@@ -37,7 +37,7 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250331103528_ed988de</prosessering.version>
+        <prosessering.version>2.20250409144459_df36248</prosessering.version>
         <felles-kontrakter.version>3.0_20250401151544_aae9e33</felles-kontrakter.version>
         <felles.version>3.20250330150138_0502cea</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
@@ -46,7 +46,7 @@
         <utbetalingsgenerator.version>1.0_20250306084157_636f980</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
@@ -60,7 +60,7 @@
         <azure-identity.version>1.15.4</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.21.1</cucumber.version>
+        <cucumber.version>7.22.0</cucumber.version>
         <rest-assured.version>5.5.1</rest-assured.version>
         <mock-oauth2-server.version>2.1.10</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.20.6</testcontainers.postgresql.version>
