@@ -18,6 +18,19 @@ interface AndelTilkjentYtelseRepository : JpaRepository<AndelTilkjentYtelse, Lon
         barnAktør: Aktør,
     ): List<AndelTilkjentYtelse>
 
+    @Query(
+        value = """
+        SELECT aty
+            FROM AndelTilkjentYtelse aty
+                JOIN Behandling b ON aty.behandlingId = b.id
+                JOIN Personident p ON aty.aktør.aktørId = p.aktør.aktørId
+            WHERE p.fødselsnummer = :ident
+                AND p.aktiv
+                AND b.aktiv 
+    """,
+    )
+    fun finnAktiveAndelerForIdent(ident: String): List<AndelTilkjentYtelse>
+
     @Query(value = "SELECT aty from AndelTilkjentYtelse aty WHERE aty.aktør = :aktør")
     fun finnAndelerTilkjentYtelseForAktør(aktør: Aktør): List<AndelTilkjentYtelse>
 

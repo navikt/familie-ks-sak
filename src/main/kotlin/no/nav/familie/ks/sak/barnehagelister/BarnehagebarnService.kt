@@ -42,16 +42,17 @@ class BarnehagebarnService(
                 .mapNotNull { barn ->
                     val fagsak = fagsakRepository.finnFagsakMedAktivBehandlingForIdent(barn.ident)
 
-                    val aktør = personidentRepository.findByFødselsnummerOrNull(barn.ident)?.aktør
-                    val aktivBehandling = fagsak?.let { behandlingRepository.findByFagsakAndAktiv(fagsak.id) }
-                    val andelTilkjentYtelse = if (aktør != null && aktivBehandling != null) andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(aktivBehandling.id, aktør) else emptyList()
+                    val andelTilkjentYtelse = andelTilkjentYtelseRepository.finnAktiveAndelerForIdent(barn.ident)
 
                     val harLøpendeAndel = andelTilkjentYtelse.any { it.erLøpende(YearMonth.now()) }
 
                     if (barnehagebarnRequestParams.kunLøpendeAndel && !harLøpendeAndel) {
                         null
                     } else {
-                        val vilkårsvurdering = aktivBehandling?.let { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(aktivBehandling.id) }
+                        val aktivBehandlingId = andelTilkjentYtelse.map { it.behandlingId }.toSet().singleOrNull()
+                        val vilkårsvurdering = aktivBehandlingId?.let { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(aktivBehandlingId) }
+
+                        val aktør = andelTilkjentYtelse.map { it.aktør }.toSet().singleOrNull()
                         val personResultat = vilkårsvurdering?.personResultater?.find { it.aktør == aktør }
                         val vilkårResultat = personResultat?.vilkårResultater?.find { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.periodeFom?.toYearMonth() == barn.fom.toYearMonth() }
 
