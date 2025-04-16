@@ -303,11 +303,6 @@
             <artifactId>flyway-database-postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>${jsqlparser.version}</version>
-        </dependency>
 
         <!-- Kafka -->
         <dependency>
