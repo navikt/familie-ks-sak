@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnDtoInterface
+import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -32,7 +32,7 @@ class BarnehagebarnController(
     )
     fun hentAlleBarnehagebarnPage(
         @RequestBody(required = true) barnehagebarnRequestParams: BarnehagebarnRequestParams,
-    ): ResponseEntity<Ressurs<Page<BarnehagebarnDtoInterface>>> {
+    ): ResponseEntity<Ressurs<Page<BarnehagebarnVisningDto>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente ut alle barnehagebarn",
