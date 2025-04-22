@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,14 +14,5 @@ class EksternBehandlingRelasjonService(
     fun finnEksternBehandlingRelasjon(
         behandlingId: Long,
         fagsystem: EksternBehandlingRelasjon.Fagsystem,
-    ): EksternBehandlingRelasjon? {
-        val eksternBehandlingRelasjoner =
-            eksternBehandlingRelasjonRepository
-                .findAllByInternBehandlingId(behandlingId)
-                .filter { it.eksternBehandlingFagsystem == fagsystem }
-        if (eksternBehandlingRelasjoner.size > 1) {
-            throw Feil("Forventet maks 1 ekstern behandling relasjon av type $fagsystem for behandling $behandlingId")
-        }
-        return eksternBehandlingRelasjoner.singleOrNull()
-    }
+    ): EksternBehandlingRelasjon? = eksternBehandlingRelasjonRepository.findByInternBehandlingIdOgFagsystem(behandlingId, fagsystem)
 }
