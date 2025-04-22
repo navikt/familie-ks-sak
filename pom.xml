@@ -26,7 +26,7 @@
         <kotlin.version>2.1.20</kotlin.version>
         <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
-        <kotlinx.version>1.10.1</kotlinx.version>
+        <kotlinx.version>1.10.2</kotlinx.version>
 
         <!-- Spring -->
         <spring-boot-dependencies.version>3.4.4</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
@@ -37,16 +37,16 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250331103528_ed988de</prosessering.version>
+        <prosessering.version>2.20250409144459_df36248</prosessering.version>
         <felles-kontrakter.version>3.0_20250401151544_aae9e33</felles-kontrakter.version>
         <felles.version>3.20250330150138_0502cea</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20230214104704_706e9c0</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20250205141909_256ecd1</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20250324193741_10e7868</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20250306084157_636f980</utbetalingsgenerator.version>
+        <utbetalingsgenerator.version>1.0_20250415144931_0dc88d8</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
@@ -56,7 +56,7 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>10.2.2</unleash.version>
-        <microsoft-graph.version>6.34.0</microsoft-graph.version>
+        <microsoft-graph.version>6.36.0</microsoft-graph.version>
         <azure-identity.version>1.15.4</azure-identity.version>
 
         <!-- Test -->
