@@ -54,6 +54,7 @@ object BehandlingsresultatOpphørUtils {
 
         return when {
             // Rekkefølgen av sjekkene er viktig for å komme fram til riktig opphørsresultat.
+            nåværendeBehandlingOpphørsdato == null && forrigeBehandlingOpphørsdato == null -> Opphørsresultat.FORTSATT_OPPHØRT
             nåværendeBehandlingOpphørsdato == null -> Opphørsresultat.IKKE_OPPHØRT // Både forrige og nåværende behandling har ingen andeler
             nåværendeBehandlingOpphørsdato <= cutOffDato && harTidligereOpphørsDatoEnnForrigeBehandling -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
             nåværendeBehandlingOpphørsdato <= cutOffDato && nåværendeBehandlingOpphørsdato == forrigeBehandlingOpphørsdato -> Opphørsresultat.FORTSATT_OPPHØRT
