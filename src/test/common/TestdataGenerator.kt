@@ -31,9 +31,12 @@ import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -1671,4 +1674,25 @@ fun lagNyEksternBehandlingRelasjon(
     NyEksternBehandlingRelasjon(
         eksternBehandlingId = eksternBehandlingId,
         eksternBehandlingFagsystem = eksternBehandlingFagsystem,
+    )
+
+fun lagMinimalFagsakResponsDto(
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    id: Long = 0L,
+    søkerFødselsnummer: String = "12345678903",
+    status: FagsakStatus = FagsakStatus.OPPRETTET,
+    underBehandling: Boolean = false,
+    løpendeKategori: BehandlingKategori? = null,
+    behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
+    gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
+): MinimalFagsakResponsDto =
+    MinimalFagsakResponsDto(
+        opprettetTidspunkt = opprettetTidspunkt,
+        id = id,
+        søkerFødselsnummer = søkerFødselsnummer,
+        status = status,
+        underBehandling = underBehandling,
+        løpendeKategori = løpendeKategori,
+        behandlinger = behandlinger,
+        gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
     )
