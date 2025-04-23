@@ -1,4 +1,3 @@
-
 package no.nav.familie.ks.sak.kjerne.personident
 
 import no.nav.familie.kontrakter.felles.PersonIdent
@@ -10,7 +9,6 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivFødselsnummer
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktørIder
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentFødselsnumre
 import no.nav.familie.ks.sak.integrasjon.pdl.tilPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -75,14 +73,14 @@ class HåndterNyIdentService(
         fagsakId: Long,
         identerFraPdl: List<PdlIdent>,
     ): Task {
-        val fødeslsnumre = identerFraPdl.hentFødselsnumre()
-
-        val behandlingerPåFagsak = behandlingRepository.finnBehandlinger(fagsakId)
-        val aktiveFødselsnummerForFagsak = behandlingRepository.finnAktivtFødselsnummerForBehandlinger(behandlingerPåFagsak.map { it.id }).map { it.second }.toSet()
+        val aktørIder = identerFraPdl.hentAktørIder()
         val gammelIdent =
-            aktiveFødselsnummerForFagsak.singleOrNull {
-                it in fødeslsnumre
-            } ?: throw Feil("Fant ikke gammel ident for aktør ${identerFraPdl.hentAktivAktørId()} på fagsak $fagsakId")
+            personopplysningGrunnlagRepository
+                .finnSøkerOgBarnAktørerTilFagsak(fagsakId = fagsakId)
+                .singleOrNull { it.aktør.aktørId in aktørIder }
+                ?.aktør
+                ?.aktivFødselsnummer()
+                ?: throw Feil("Fant ikke gammel ident for aktør ${identerFraPdl.hentAktivAktørId()} på fagsak $fagsakId")
 
         val task =
             PatchMergetIdentTask.opprettTask(
