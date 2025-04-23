@@ -10,12 +10,51 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DataIntegrityViolationException
 import java.util.UUID
 
 class EksternBehandlingRelasjonRepositoryTest(
     @Autowired private val eksternBehandlingRelasjonRepository: EksternBehandlingRelasjonRepository,
 ) : OppslagSpringRunnerTest() {
+    @Nested
+    inner class SaveAll {
+        @Test
+        fun `skal ikke være mulig å lagre to ekstern behandling relasjoner som deler både intern behandling id og ekstern behandling fagsystem`() {
+            val søker = opprettOgLagreSøker()
+            val fagsak = opprettOgLagreFagsak(lagFagsak(aktør = søker))
+            val behandling = opprettOgLagreBehandling(lagBehandling(fagsak = fagsak))
+
+            val eksternBehandlingRelasjon1 =
+                lagEksternBehandlingRelasjon(
+                    internBehandlingId = behandling.id,
+                    eksternBehandlingId = UUID.randomUUID().toString(),
+                    eksternBehandlingFagsystem = EksternBehandlingRelasjon.Fagsystem.KLAGE,
+                )
+
+            val eksternBehandlingRelasjon2 =
+                lagEksternBehandlingRelasjon(
+                    internBehandlingId = behandling.id,
+                    eksternBehandlingId = UUID.randomUUID().toString(),
+                    eksternBehandlingFagsystem = EksternBehandlingRelasjon.Fagsystem.KLAGE,
+                )
+
+            val eksternBehandlingRelasjoner =
+                listOf(
+                    eksternBehandlingRelasjon1,
+                    eksternBehandlingRelasjon2,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<DataIntegrityViolationException> {
+                    eksternBehandlingRelasjonRepository.saveAll(eksternBehandlingRelasjoner)
+                }
+            assertThat(exception.message).contains("duplicate key value violates unique constraint \"unik_ekstern_behandling_relasjon\"")
+        }
+    }
+
     @Nested
     inner class FindAllByInternBehandlingId {
         @Test
