@@ -1,15 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad
 
-import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.dto.writeValueAsString
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
-import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -24,7 +19,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.YearMonth
 
 @Service
 class RegistrereSøknadSteg(
@@ -47,9 +41,6 @@ class RegistrereSøknadSteg(
     ) {
         logger.info("Utfører steg ${getBehandlingssteg().name} for behandling $behandlingId")
         val registrerSøknadDto = behandlingStegDto as RegistrerSøknadDto
-
-        logger.info("valider steg ${getBehandlingssteg().name}")
-        validerRegistrerSøknadSteg(registrerSøknadDto)
 
         // Sjekk om det allerede finnes en registrert søknad tilknyttet behandlingen
         val aktivSøknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)
@@ -87,25 +78,6 @@ class RegistrereSøknadSteg(
         tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
 
         secureLogger.info("Data mottatt ${søknadGrunnlag.søknad}")
-    }
-
-    fun validerRegistrerSøknadSteg(registrerSøknadDto: RegistrerSøknadDto) {
-        validerAtIngenBarnFremstiltKravForFyller1ÅrSenereEnnInneværendeMåned(registrerSøknadDto.søknad.barnaMedOpplysninger)
-    }
-
-    private fun validerAtIngenBarnFremstiltKravForFyller1ÅrSenereEnnInneværendeMåned(barnaMedOpplysninger: List<BarnMedOpplysningerDto>) {
-        val sisteDagIInneværendeMåned = YearMonth.now().sisteDagIInneværendeMåned()
-        barnaMedOpplysninger.filter { it.inkludertISøknaden }.forEach { barn ->
-            val barnFødselsdato = barn.fødselsdato ?: throw Feil("Fant ikke fødselsdato på barn ${barn.personnummer ?: "uten ident"}.")
-            val datoBarnFyller1År = barnFødselsdato.plusYears(1)
-
-            if (datoBarnFyller1År > sisteDagIInneværendeMåned) {
-                throw FunksjonellFeil(
-                    melding = "Det er ikke mulig å behandle barn som fyller 1 år senere enn inneværende måned.",
-                    frontendFeilmelding = "Det er søkt for tidlig for barn ${barn.personnummer ?: "uten ident"}. Søknaden kan tidligst behandles ${datoBarnFyller1År.tilMånedÅr()}.",
-                )
-            }
-        }
     }
 
     companion object {

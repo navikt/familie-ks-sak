@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -191,25 +189,5 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
         verify { personOpplysningerService wasNot called }
         verify { arbeidsfordelingService wasNot called }
-    }
-
-    @Test
-    fun `utførSteg - skal kaste feil dersom barn fyller 1 år senere enn inneværende måned`() {
-        val søknadDto =
-            SøknadDto(
-                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-                barnaMedOpplysninger =
-                    listOf(
-                        BarnMedOpplysningerDto(
-                            ident = barn1.aktivFødselsnummer(),
-                            fødselsdato = LocalDate.now().minusMonths(11),
-                        ),
-                    ),
-                endringAvOpplysningerBegrunnelse = "",
-            )
-
-        assertThrows<FunksjonellFeil> {
-            registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))
-        }
     }
 }
