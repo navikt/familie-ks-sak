@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivFødselsnummer
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktørIder
 import no.nav.familie.ks.sak.integrasjon.pdl.tilPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
@@ -25,7 +24,6 @@ class HåndterNyIdentService(
     private val aktørIdRepository: AktørRepository,
     private val fagsakService: FagsakService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val behandlingRepository: BehandlingRepository,
     private val pdlClient: PdlClient,
     private val personIdentService: PersonidentService,
     private val behandlingService: BehandlingService,
