@@ -17,7 +17,6 @@ class BarnehagebarnServiceTest {
             mockk(),
             mockk(),
             mockk(),
-            mockk(),
         )
 
     @Nested

@@ -11,9 +11,9 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import no.nav.familie.ks.sak.kjerne.personident.PersonidentRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -23,7 +23,6 @@ import java.time.YearMonth
 @Service
 class BarnehagebarnService(
     val barnehagebarnRepository: BarnehagebarnRepository,
-    val personidentRepository: PersonidentRepository,
     val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     val fagsakRepository: FagsakRepository,
     val behandlingRepository: BehandlingRepository,
@@ -41,22 +40,20 @@ class BarnehagebarnService(
             barnehagebarn
                 .mapNotNull { barn ->
                     val fagsak = fagsakRepository.finnFagsakMedAktivBehandlingForIdent(barn.ident)
-
                     val andelTilkjentYtelse = andelTilkjentYtelseRepository.finnAktiveAndelerForIdent(barn.ident)
 
                     val harLøpendeAndel = andelTilkjentYtelse.any { it.erLøpende(YearMonth.now()) }
+                    val skalFiltreresVekkPgaIkkeLøpendeAndel = barnehagebarnRequestParams.kunLøpendeAndel && !harLøpendeAndel
 
-                    if (barnehagebarnRequestParams.kunLøpendeAndel && !harLøpendeAndel) {
+                    if (skalFiltreresVekkPgaIkkeLøpendeAndel) {
                         null
                     } else {
-                        val aktivBehandlingId = andelTilkjentYtelse.map { it.behandlingId }.toSet().singleOrNull()
-                        val vilkårsvurdering = aktivBehandlingId?.let { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(aktivBehandlingId) }
-
-                        val aktør = andelTilkjentYtelse.map { it.aktør }.toSet().singleOrNull()
-                        val personResultat = vilkårsvurdering?.personResultater?.find { it.aktør == aktør }
-                        val vilkårResultat = personResultat?.vilkårResultater?.find { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.periodeFom?.toYearMonth() == barn.fom.toYearMonth() }
-
-                        val avvik = vilkårResultat?.antallTimer?.toDouble() != barn.antallTimerIBarnehage
+                        val avvik =
+                            if (!harLøpendeAndel) {
+                                null
+                            } else {
+                                erAvvikPåBarn(andelTilkjentYtelse, barn)
+                            }
 
                         BarnehagebarnVisningDto(
                             ident = barn.ident,
@@ -77,6 +74,21 @@ class BarnehagebarnService(
 
         val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, barnehagebarnRequestParams.toSort())
         return toPage(barnehagebarnDto, pageable, hentFeltSomSkalSorteresEtter(barnehagebarnRequestParams.sortBy))
+    }
+
+    private fun erAvvikPåBarn(
+        andelTilkjentYtelse: List<AndelTilkjentYtelse>,
+        barn: Barnehagebarn,
+    ): Boolean {
+        val aktivBehandlingId = andelTilkjentYtelse.map { it.behandlingId }.toSet().singleOrNull()
+        val vilkårsvurdering = aktivBehandlingId?.let { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(aktivBehandlingId) }
+
+        val aktør = andelTilkjentYtelse.map { it.aktør }.toSet().singleOrNull()
+        val personResultat = vilkårsvurdering?.personResultater?.find { it.aktør == aktør }
+        val vilkårResultat = personResultat?.vilkårResultater?.find { it.vilkårType == Vilkår.BARNEHAGEPLASS && it.periodeFom?.toYearMonth() == barn.fom.toYearMonth() }
+
+        val avvik = vilkårResultat?.antallTimer?.toDouble() != barn.antallTimerIBarnehage
+        return avvik
     }
 
     private fun hentFeltSomSkalSorteresEtter(sortBy: String): Comparator<BarnehagebarnVisningDto> {
