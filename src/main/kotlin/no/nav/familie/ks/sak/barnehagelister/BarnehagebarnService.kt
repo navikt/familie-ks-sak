@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.time.YearMonth
 
@@ -23,10 +22,16 @@ class BarnehagebarnService(
     val behandlingRepository: BehandlingRepository,
     val vilkårsvurderingService: VilkårsvurderingService,
 ) {
+   /*
+    @CachePut("barnehagebarn", cacheManager = "barnehagelisterCache")
+    @Scheduled(cron = "0 1 * * * *")
+    fun oppdaterBarnehagebarnCache(barnehagebarn: Barnehagebarn): List<BarnehagebarnVisningDto> = hentBarnehagebarnDtoer()
+
     @Cacheable("barnehagebarn", cacheManager = "barnehagelisterCache")
-    fun hentBarnehagebarnDtoer(
-        kunLøpendeAndel: Boolean,
-    ): List<BarnehagebarnVisningDto> {
+    fun hentBarnehagebarnDtoMedCache(): List<BarnehagebarnVisningDto> = hentBarnehagebarnDtoer()
+    */
+
+    fun hentBarnehagebarnDtoer(): List<BarnehagebarnVisningDto> {
         val barnehagebarn = barnehagebarnRepository.findAll()
 
         val barnehagebarnDto =

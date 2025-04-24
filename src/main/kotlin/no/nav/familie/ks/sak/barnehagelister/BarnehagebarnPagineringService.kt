@@ -15,7 +15,7 @@ class BarnehagebarnPagineringService(
 ) {
     fun hentPaginerteBarnehageBarn(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnVisningDto> {
         val alleBarnehagebarn =
-            barnehagebarnService.hentBarnehagebarnDtoer(barnehagebarnRequestParams.kunLøpendeAndel)
+            barnehagebarnService.hentBarnehagebarnDtoer()
 
         val filtrertBarnehagebarn =
             when {
