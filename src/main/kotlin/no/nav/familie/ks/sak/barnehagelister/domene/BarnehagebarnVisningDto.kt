@@ -15,4 +15,5 @@ data class BarnehagebarnVisningDto(
     val fagsakstatus: String? = null,
     val endretTid: LocalDateTime,
     val avvik: Boolean? = null,
+    val løpendeAndel: Boolean,
 )

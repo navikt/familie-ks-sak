@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
-import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnPagineringService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.common.EnvService
@@ -85,7 +85,7 @@ class ForvaltningController(
     private val testVerktøyService: TestVerktøyService,
     private val envService: EnvService,
     private val autovedtakService: AutovedtakService,
-    private val barnehagebarnService: BarnehagebarnService,
+    private val barnehagebarnPagineringService: BarnehagebarnPagineringService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -279,7 +279,7 @@ class ForvaltningController(
             handling = "hente ut alle barnehagebarn",
         )
 
-        val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+        val alleBarnehagebarnPage = barnehagebarnPagineringService.hentPaginerteBarnehageBarn(barnehagebarnRequestParams)
 
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }

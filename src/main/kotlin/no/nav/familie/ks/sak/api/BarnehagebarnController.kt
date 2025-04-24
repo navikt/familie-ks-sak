@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
+import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnPagineringService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = "azuread")
 @Validated
 class BarnehagebarnController(
+    private val barnehagebarnPagineringService: BarnehagebarnPagineringService,
     private val barnehagebarnService: BarnehagebarnService,
     private val tilgangService: TilgangService,
 ) {
@@ -37,7 +39,7 @@ class BarnehagebarnController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente ut alle barnehagebarn",
         )
-        val alleBarnehagebarnPage = barnehagebarnService.hentBarnehageBarn(barnehagebarnRequestParams)
+        val alleBarnehagebarnPage = barnehagebarnPagineringService.hentPaginerteBarnehageBarn(barnehagebarnRequestParams)
         return ResponseEntity.ok(Ressurs.success(alleBarnehagebarnPage, "OK"))
     }
 

@@ -1,12 +1,9 @@
 package no.nav.familie.ks.sak.barnehagelister
 
 import jakarta.transaction.Transactional
-import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
-import no.nav.familie.ks.sak.common.util.saner
-import no.nav.familie.ks.sak.common.util.toPage
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -14,9 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.time.YearMonth
 
@@ -28,52 +23,42 @@ class BarnehagebarnService(
     val behandlingRepository: BehandlingRepository,
     val vilkårsvurderingService: VilkårsvurderingService,
 ) {
-    fun hentBarnehageBarn(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnVisningDto> {
-        val barnehagebarn =
-            when {
-                !barnehagebarnRequestParams.ident.isNullOrEmpty() -> barnehagebarnRepository.findAllByIdent(barnehagebarnRequestParams.ident.saner())
-                !barnehagebarnRequestParams.kommuneNavn.isNullOrEmpty() -> barnehagebarnRepository.findAllByKommuneNavn(barnehagebarnRequestParams.kommuneNavn)
-                else -> barnehagebarnRepository.findAll()
-            }
+    @Cacheable("barnehagebarn", cacheManager = "barnehagelisterCache")
+    fun hentBarnehagebarnDtoer(
+        kunLøpendeAndel: Boolean,
+    ): List<BarnehagebarnVisningDto> {
+        val barnehagebarn = barnehagebarnRepository.findAll()
 
         val barnehagebarnDto =
             barnehagebarn
-                .mapNotNull { barn ->
-                    val fagsak = fagsakRepository.finnFagsakMedAktivBehandlingForIdent(barn.ident)
-                    val andelTilkjentYtelse = andelTilkjentYtelseRepository.finnAktiveAndelerForIdent(barn.ident)
-
-                    val harLøpendeAndel = andelTilkjentYtelse.any { it.erLøpende(YearMonth.now()) }
-                    val skalFiltreresVekkPgaIkkeLøpendeAndel = barnehagebarnRequestParams.kunLøpendeAndel && !harLøpendeAndel
-
-                    if (skalFiltreresVekkPgaIkkeLøpendeAndel) {
-                        null
-                    } else {
-                        val avvik =
-                            if (!harLøpendeAndel) {
-                                null
-                            } else {
-                                erAvvikPåBarn(andelTilkjentYtelse, barn)
-                            }
-
-                        BarnehagebarnVisningDto(
-                            ident = barn.ident,
-                            fom = barn.fom,
-                            tom = barn.tom,
-                            antallTimerBarnehage = barn.antallTimerIBarnehage,
-                            endringstype = barn.endringstype,
-                            kommuneNavn = barn.kommuneNavn,
-                            kommuneNr = barn.kommuneNr,
-                            fagsakId = fagsak?.id,
-                            fagsakstatus = fagsak?.status?.name,
-                            endretTid = barn.endretTidspunkt,
-                            avvik = avvik,
-                        )
-                    }
+                .map { barn ->
+                    mapBarnehagebarnTilBarnehagebarnDto(barn)
                 }.sortedByDescending { it.endretTid } // Garanter at nyeste endretTid er det som blir beholdt
                 .distinctBy { listOf(it.ident, it.fom, it.tom, it.antallTimerBarnehage, it.endringstype, it.kommuneNavn, it.kommuneNr, it.fagsakId, it.fagsakstatus) }
+        return barnehagebarnDto
+    }
 
-        val pageable = PageRequest.of(barnehagebarnRequestParams.offset, barnehagebarnRequestParams.limit, barnehagebarnRequestParams.toSort())
-        return toPage(barnehagebarnDto, pageable, hentFeltSomSkalSorteresEtter(barnehagebarnRequestParams.sortBy))
+    private fun mapBarnehagebarnTilBarnehagebarnDto(
+        barnehagebarn: Barnehagebarn,
+    ): BarnehagebarnVisningDto {
+        val fagsak = fagsakRepository.finnFagsakMedAktivBehandlingForIdent(barnehagebarn.ident)
+        val andelTilkjentYtelse = andelTilkjentYtelseRepository.finnAktiveAndelerForIdent(barnehagebarn.ident)
+
+        val harLøpendeAndel = andelTilkjentYtelse.any { it.erLøpende(YearMonth.now()) }
+        return BarnehagebarnVisningDto(
+            ident = barnehagebarn.ident,
+            fom = barnehagebarn.fom,
+            tom = barnehagebarn.tom,
+            antallTimerBarnehage = barnehagebarn.antallTimerIBarnehage,
+            endringstype = barnehagebarn.endringstype,
+            kommuneNavn = barnehagebarn.kommuneNavn,
+            kommuneNr = barnehagebarn.kommuneNr,
+            fagsakId = fagsak?.id,
+            fagsakstatus = fagsak?.status?.name,
+            endretTid = barnehagebarn.endretTidspunkt,
+            avvik = erAvvikPåBarn(andelTilkjentYtelse, barnehagebarn),
+            løpendeAndel = harLøpendeAndel,
+        )
     }
 
     private fun erAvvikPåBarn(
@@ -91,32 +76,7 @@ class BarnehagebarnService(
         return avvik
     }
 
-    private fun hentFeltSomSkalSorteresEtter(sortBy: String): Comparator<BarnehagebarnVisningDto> {
-        val feltStomSkalSorteresEtter: Comparator<BarnehagebarnVisningDto> =
-            when (sortBy.lowercase()) {
-                "ident" -> compareBy { it.ident }
-                "endrettidspunkt" -> compareBy { it.endretTid }
-                "fom" -> compareBy { it.fom }
-                "tom" -> compareBy { it.tom }
-                "antalltimeribarnehage" -> compareBy { it.antallTimerBarnehage }
-                "avvik" -> compareBy { it.avvik }
-                "endringstype" -> compareBy { it.endringstype }
-                "kommunenavn" -> compareBy { it.kommuneNavn }
-                "kommunenr" -> compareBy { it.kommuneNr }
-
-                else -> compareBy { it -> it.endretTid }
-            }
-        return feltStomSkalSorteresEtter
-    }
-
-    private fun BarnehagebarnRequestParams.toSort() =
-        if (sortAsc) {
-            Sort.by(sortBy).ascending()
-        } else {
-            Sort.by(sortBy).descending()
-        }
-
-    // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding, kunne muligens brukt barnehagebarn.id i stedet
+    // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding
     @Transactional
     fun erBarnehageBarnMottattTidligere(barnehagebarn: Barnehagebarn): Boolean =
         barnehagebarnRepository.findAllByIdent(barnehagebarn.ident).any { barnehageBarnMedSammeIdent ->
