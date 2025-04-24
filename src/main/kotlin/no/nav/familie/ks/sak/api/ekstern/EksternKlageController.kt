@@ -50,13 +50,14 @@ class EksternKlageController(
         return Ressurs.success(opprettBehandlingService.kanOppretteRevurdering(fagsakId))
     }
 
+    @Deprecated(message = "Erstattet av metoden 'opprettRevurderingKlage'")
     @PostMapping("fagsaker/{fagsakId}/opprett-revurdering-klage")
     fun opprettRevurderingKlageGammel(
         @PathVariable fagsakId: Long,
     ): Ressurs<OpprettRevurderingResponse> {
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsakId = fagsakId,
-            handling = "Opprett revurdering med årask klage på fagsak=$fagsakId",
+            handling = "Opprett revurdering med årask klage på fagsak=$fagsakId.",
             event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
         )
