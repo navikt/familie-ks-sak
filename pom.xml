@@ -46,7 +46,7 @@
         <utbetalingsgenerator.version>1.0_20250415144931_0dc88d8</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
@@ -60,7 +60,7 @@
         <azure-identity.version>1.15.4</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.22.0</cucumber.version>
+        <cucumber.version>7.22.1</cucumber.version>
         <rest-assured.version>5.5.1</rest-assured.version>
         <mock-oauth2-server.version>2.1.10</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.20.6</testcontainers.postgresql.version>
