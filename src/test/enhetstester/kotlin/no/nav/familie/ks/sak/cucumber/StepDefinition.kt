@@ -742,7 +742,7 @@ class StepDefinition {
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
-            vedtaksperiodeHentOgPersisterService = mockk(),
+            vedtaksperiodeHentOgPersisterService = mockk(relaxed = true),
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
