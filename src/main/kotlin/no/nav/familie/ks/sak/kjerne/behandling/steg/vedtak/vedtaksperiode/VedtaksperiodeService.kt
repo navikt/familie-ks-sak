@@ -205,9 +205,8 @@ class VedtaksperiodeService(
         vedtak: Vedtak,
     ) {
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak)
-        vedtaksperiodeHentOgPersisterService.lagre(
-            genererVedtaksperioderMedBegrunnelser(vedtak),
-        )
+        val genererteVedtaksperioderMedBegrunnelser = genererVedtaksperioderMedBegrunnelser(vedtak)
+        vedtaksperiodeHentOgPersisterService.lagre(genererteVedtaksperioderMedBegrunnelser)
     }
 
     fun genererVedtaksperioderMedBegrunnelser(
@@ -638,6 +637,7 @@ class VedtaksperiodeService(
                     EØSBegrunnelseDB(vedtaksperiodeMedBegrunnelser = this, begrunnelse = eøsBegrunnelse)
                 },
             )
+            vedtaksperiodeHentOgPersisterService.lagre(this)
         }
 
     private fun leggTilAvslagsbegrunnelseForUregistrertBarn(

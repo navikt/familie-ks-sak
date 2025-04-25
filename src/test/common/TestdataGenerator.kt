@@ -31,9 +31,12 @@ import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -55,6 +58,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
+import no.nav.familie.ks.sak.kjerne.behandling.domene.NyEksternBehandlingRelasjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
@@ -1610,12 +1615,10 @@ fun lagKlageinstansResultatDto(
 
 fun lagRelatertBehandling(
     id: String = "1",
-    vedtattTidspunkt: LocalDateTime = LocalDateTime.now(),
     fagsystem: RelatertBehandling.Fagsystem = RelatertBehandling.Fagsystem.KS,
 ): RelatertBehandling =
     RelatertBehandling(
         id = id,
-        vedtattTidspunkt = vedtattTidspunkt,
         fagsystem = fagsystem,
     )
 
@@ -1648,3 +1651,48 @@ fun lagBarnehagebarn(
     barnehagebarn.endretTidspunkt = endretTidspunkt
     return barnehagebarn
 }
+
+fun lagEksternBehandlingRelasjon(
+    id: Long = 0L,
+    internBehandlingId: Long = 1000L,
+    eksternBehandlingId: String = UUID.randomUUID().toString(),
+    eksternBehandlingFagsystem: EksternBehandlingRelasjon.Fagsystem = EksternBehandlingRelasjon.Fagsystem.KLAGE,
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+): EksternBehandlingRelasjon =
+    EksternBehandlingRelasjon(
+        id = id,
+        internBehandlingId = internBehandlingId,
+        eksternBehandlingId = eksternBehandlingId,
+        eksternBehandlingFagsystem = eksternBehandlingFagsystem,
+        opprettetTid = opprettetTidspunkt,
+    )
+
+fun lagNyEksternBehandlingRelasjon(
+    eksternBehandlingId: String = UUID.randomUUID().toString(),
+    eksternBehandlingFagsystem: EksternBehandlingRelasjon.Fagsystem = EksternBehandlingRelasjon.Fagsystem.KLAGE,
+): NyEksternBehandlingRelasjon =
+    NyEksternBehandlingRelasjon(
+        eksternBehandlingId = eksternBehandlingId,
+        eksternBehandlingFagsystem = eksternBehandlingFagsystem,
+    )
+
+fun lagMinimalFagsakResponsDto(
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    id: Long = 0L,
+    søkerFødselsnummer: String = "12345678903",
+    status: FagsakStatus = FagsakStatus.OPPRETTET,
+    underBehandling: Boolean = false,
+    løpendeKategori: BehandlingKategori? = null,
+    behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
+    gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
+): MinimalFagsakResponsDto =
+    MinimalFagsakResponsDto(
+        opprettetTidspunkt = opprettetTidspunkt,
+        id = id,
+        søkerFødselsnummer = søkerFødselsnummer,
+        status = status,
+        underBehandling = underBehandling,
+        løpendeKategori = løpendeKategori,
+        behandlinger = behandlinger,
+        gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
+    )

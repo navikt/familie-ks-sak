@@ -13,7 +13,7 @@ data class FerdigstillOppgaveKnyttJournalpostDto(
     val tilknyttedeBehandlinger: List<TilknyttetBehandling> = emptyList(),
     val opprettOgKnyttTilNyBehandling: Boolean = false,
     val navIdent: String? = null,
-    val bruker: NavnOgIdent? = null,
+    val bruker: NavnOgIdent,
     val nyBehandlingstype: JournalføringBehandlingstype? = null,
     val nyBehandlingsårsak: BehandlingÅrsak? = null,
     val kategori: BehandlingKategori? = null,
