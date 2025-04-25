@@ -13,9 +13,9 @@ import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
@@ -31,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -126,6 +125,15 @@ class InnkommendeJournalføringServiceTest {
 
         val oppgaveId = 1L
 
+        val minimalFagsakResponsDto =
+            lagMinimalFagsakResponsDto(
+                opprettetTidspunkt = fagsak.opprettetTidspunkt,
+                id = fagsak.id,
+                søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),
+                status = fagsak.status,
+            )
+
+        every { fagsakService.hentEllerOpprettFagsak(any()) } returns minimalFagsakResponsDto
         every { opprettBehandlingService.opprettBehandling(any()) } returns nyBehandling
         every { behandlingService.hentBehandling(gammelBehandling.id) } returns gammelBehandling
         every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
@@ -174,11 +182,20 @@ class InnkommendeJournalføringServiceTest {
                 opprettOgKnyttTilNyBehandling = false,
                 datoMottatt = LocalDateTime.now(),
                 fagsakId = fagsak.id,
+                bruker = NavnOgIdent("Navn navnesen", personIdent),
             )
 
         val oppgaveId = 1L
 
-        every { fagsakService.hentEllerOpprettFagsak(any()) } returns mockk()
+        val minimalFagsakResponsDto =
+            lagMinimalFagsakResponsDto(
+                opprettetTidspunkt = fagsak.opprettetTidspunkt,
+                id = fagsak.id,
+                søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),
+                status = fagsak.status,
+            )
+
+        every { fagsakService.hentEllerOpprettFagsak(any()) } returns minimalFagsakResponsDto
         every { opprettBehandlingService.opprettBehandling(any()) } returns mockk()
         every { behandlingService.hentBehandling(gammelBehandling.id) } returns gammelBehandling
         every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
@@ -220,11 +237,22 @@ class InnkommendeJournalføringServiceTest {
                 nyBehandlingsårsak = null,
                 datoMottatt = datoMottatt,
                 fagsakId = fagsak.id,
+                bruker = NavnOgIdent("NavnOgIdent", personIdent),
             )
 
         val oppgaveId = 1L
 
         val klageDatoMottattSlot = slot<LocalDate>()
+
+        val minimalFagsakResponsDto =
+            lagMinimalFagsakResponsDto(
+                opprettetTidspunkt = fagsak.opprettetTidspunkt,
+                id = fagsak.id,
+                søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),
+                status = fagsak.status,
+            )
+
+        every { fagsakService.hentEllerOpprettFagsak(any()) } returns minimalFagsakResponsDto
         every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
         every { klageService.opprettKlage(fagsak.id, capture(klageDatoMottattSlot)) } returns mockk()
         every { integrasjonClient.ferdigstillOppgave(any()) } just runs
@@ -235,34 +263,5 @@ class InnkommendeJournalføringServiceTest {
         // Assert
         verify(exactly = 1) { klageService.opprettKlage(fagsakId = any(), klageMottattDato = any()) }
         assertThat(klageDatoMottattSlot.captured).isEqualTo(datoMottatt.toLocalDate())
-    }
-
-    @Test
-    fun `knyttJournalpostTilFagsakOgFerdigstillOppgave skal kaste feil hvis ingen fagsak sendt med og skal ikke knytte til ny behandling`() {
-        // Arrange
-        val personIdent = "1234"
-        val journalpost =
-            lagJournalpost(
-                journalpostId = "journalpostId",
-                personIdent = personIdent,
-                avsenderMottaker = null,
-            )
-
-        val request =
-            FerdigstillOppgaveKnyttJournalpostDto(
-                journalpostId = journalpost.journalpostId,
-                tilknyttedeBehandlingIder = emptyList(),
-                tilknyttedeBehandlinger = emptyList(),
-                opprettOgKnyttTilNyBehandling = false,
-                datoMottatt = LocalDateTime.now(),
-                fagsakId = null,
-            )
-
-        val oppgaveId = 1L
-
-        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
-
-        // Act & Assert
-        assertThrows<Feil> { innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId) }
     }
 }

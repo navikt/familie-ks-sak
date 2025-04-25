@@ -80,16 +80,9 @@ class InnkommendeJournalføringService(
         journalpostId: String,
         oppgaveId: String,
     ): String {
+        val fagsakId = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
         val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
-
-        val fagsakId =
-            request.fagsakId
-                ?: if (request.opprettOgKnyttTilNyBehandling) {
-                    fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
-                } else {
-                    throw Feil("Forventet fagsak ved journalføring for journalpostId=$journalpostId og oppgaveId=$oppgaveId")
-                }
 
         if (request.opprettOgKnyttTilNyBehandling) {
             if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
@@ -197,16 +190,9 @@ class InnkommendeJournalføringService(
         request: FerdigstillOppgaveKnyttJournalpostDto,
         oppgaveId: Long,
     ): String {
+        val fagsakId = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
         val tilknyttedeBehandlinger: MutableList<TilknyttetBehandling> = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = hentJournalpost(request.journalpostId)
-
-        val fagsakId =
-            request.fagsakId
-                ?: if (request.opprettOgKnyttTilNyBehandling) {
-                    fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker!!.id)).id
-                } else {
-                    throw Feil("Forventet fagsak ved journalføring for journalpostId=${request.journalpostId} og oppgaveId=$oppgaveId")
-                }
 
         if (request.opprettOgKnyttTilNyBehandling) {
             if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
@@ -214,7 +200,7 @@ class InnkommendeJournalføringService(
                 val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
                 tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
             } else {
-                if (request.bruker == null || request.navIdent == null || request.nyBehandlingstype == null || request.nyBehandlingsårsak == null || request.kategori == null) {
+                if (request.navIdent == null || request.nyBehandlingstype == null || request.nyBehandlingsårsak == null || request.kategori == null) {
                     secureLogger.info("Obligatoriske felter er ikke sendt med ved oppretting av ny behandling: $request")
                     throw Feil("Obligatoriske felter er ikke sendt med for oppretting av ny behandling for journalpostId=${request.journalpostId}. Se secure logs for detaljer.")
                 }

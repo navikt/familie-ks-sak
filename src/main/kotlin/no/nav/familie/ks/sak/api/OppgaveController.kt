@@ -140,8 +140,7 @@ class OppgaveController(
     @PostMapping(path = ["/{oppgaveId}/ferdigstillOgKnyttjournalpost"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun ferdigstillOppgaveOgKnyttJournalpostTilBehandling(
         @PathVariable oppgaveId: Long,
-        @RequestBody @Valid
-        request: FerdigstillOppgaveKnyttJournalpostDto,
+        @RequestBody @Valid request: FerdigstillOppgaveKnyttJournalpostDto,
     ): ResponseEntity<Ressurs<String?>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
