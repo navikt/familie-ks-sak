@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -19,6 +20,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 class BehandlingsresultatSteg(
@@ -33,6 +35,7 @@ class BehandlingsresultatSteg(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val adopsjonService: AdopsjonService,
+    private val clockProvider: ClockProvider,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT
 
@@ -55,6 +58,7 @@ class BehandlingsresultatSteg(
             endretUtbetalingMedAndeler = endretUtbetalingMedAndeler,
             personResultaterForBarn = personResultaterForBarn,
             adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId)),
+            dagensDato = LocalDate.now(clockProvider.get()),
         )
 
         if (behandling.erOvergangsordning()) {
