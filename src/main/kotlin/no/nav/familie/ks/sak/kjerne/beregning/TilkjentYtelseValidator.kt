@@ -90,7 +90,7 @@ object TilkjentYtelseValidator {
 
             if (stønadFom > dagensDato.toYearMonth().plusMonths(1)) {
                 throw FunksjonellFeil(
-                    melding = "Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 2 måneder fram i tid. Dette gjelder barn født ${relevantBarn.fødselsdato}.",
+                    melding = "Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 1 måned fram i tid. Dette gjelder barn født ${relevantBarn.fødselsdato}.",
                 )
             }
         }

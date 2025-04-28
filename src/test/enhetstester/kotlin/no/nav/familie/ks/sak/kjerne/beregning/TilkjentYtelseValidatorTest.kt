@@ -632,7 +632,7 @@ internal class TilkjentYtelseValidatorTest {
                 )
             }.frontendFeilmelding
 
-        assertThat(feilmelding).isEqualTo("Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 2 måneder fram i tid. Dette gjelder barn født 2021-01-01.")
+        assertThat(feilmelding).isEqualTo("Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 1 måned fram i tid. Dette gjelder barn født 2021-01-01.")
     }
 
     @Test
