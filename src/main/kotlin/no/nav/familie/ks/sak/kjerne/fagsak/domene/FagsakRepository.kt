@@ -52,22 +52,15 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
 
     @Query(
         value = """
-                    WITH sisteiverksatte AS (SELECT DISTINCT ON (b.fk_fagsak_id) b.id, b.fk_fagsak_id, b.opprettet_tid
-                                 FROM behandling b
-                                          INNER JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
-                                 WHERE b.status = 'AVSLUTTET'
-                                   AND ty.utbetalingsoppdrag IS NOT NULL
-                                 ORDER BY b.fk_fagsak_id, b.aktivert_tid DESC)
-        
-        SELECT f.id
-        FROM fagsak f
-                 JOIN behandling b ON f.id = b.fk_fagsak_id
-                 JOIN sisteiverksatte sistiverksattBehandling ON sistiverksattBehandling.id = b.id
-                 JOIN andel_tilkjent_ytelse aty ON aty.fk_behandling_id = b.id
-        WHERE aty.stonad_tom > '2024-07-31 00:00:00'
-          AND aty.stonad_tom < '2025-01-01 00:00:00'
+            SELECT new kotlin.Pair(f.id, f.status)
+                FROM Fagsak f
+                    JOIN Behandling b ON f.id = b.fagsak.id
+                    JOIN PersonopplysningGrunnlag gp ON b.id = gp.behandlingId
+                    JOIN Person pp ON gp.id = pp.personopplysningGrunnlag.id
+                    JOIN Personident p ON p.aktør.aktørId = pp.aktør.aktørId
+                WHERE b.aktiv = TRUE
+                    AND p.fødselsnummer = :ident 
         """,
-        nativeQuery = true,
     )
-    fun finnFagsakerSomHarSistIverksattBehandlingMedUtbetalingSomStopperMellomAugOgDes2024(): List<Long>
+    fun finnFagsakIdOgStatusMedAktivBehandlingForIdent(ident: String): List<Pair<Long, FagsakStatus>>
 }
