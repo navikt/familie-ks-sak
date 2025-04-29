@@ -37,8 +37,8 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250409144459_df36248</prosessering.version>
-        <felles-kontrakter.version>3.0_20250401151544_aae9e33</felles-kontrakter.version>
+        <prosessering.version>2.20250428110730_a741d1c</prosessering.version>
+        <felles-kontrakter.version>3.0_20250424145650_af8cea0</felles-kontrakter.version>
         <felles.version>3.20250422130733_4d831f9</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20250422132745_dfaa902</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20250422132745_dfaa902</familie.kontrakter.stønadsstatistikk>
@@ -46,7 +46,7 @@
         <utbetalingsgenerator.version>1.0_20250415144931_0dc88d8</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.0</jsqlparser.version>
+        <jsqlparser.version>5.1</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
