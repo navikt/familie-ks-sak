@@ -39,7 +39,7 @@ FROM Barnehagebarn bb
          LEFT JOIN avvik_antall_timer_vilkar_resultat_og_barnehagebarn atv on bb.id = atv.barnehagebarn_id
 WHERE (NOT :kunLøpendeAndeler OR ila.lopende_andel = true)
     AND COALESCE(bb.ident = :ident, true)
-    AND COALESCE(bb.kommune_navn = :kommuneNavn, true)
+    AND COALESCE(bb.kommune_navn ILIKE :kommuneNavn, true)
 GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr,
          atv.avvik;
 """,
