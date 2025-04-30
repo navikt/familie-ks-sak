@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtB
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -387,6 +388,99 @@ internal class TilkjentYtelseValidatorTest {
             ),
             personopplysningGrunnlag,
         )
+    }
+
+    @Test
+    fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal tillate 1 måned overlapp mellom 2024 august og 2025 februar`() {
+        val andelTilkjentYtelseForBarn =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn.aktør,
+                stønadFom = YearMonth.of(2025, 2),
+                stønadTom = YearMonth.of(2025, 2),
+                sats = 8000,
+            )
+        tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
+
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            lagInitieltTilkjentYtelse(annenBehandling).also {
+                it.stønadFom = YearMonth.now().minusMonths(11)
+                it.stønadTom = YearMonth.now()
+                it.andelerTilkjentYtelse.add(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        behandling = behandling,
+                        aktør = barn.aktør,
+                        stønadFom = YearMonth.of(2025, 2),
+                        stønadTom = YearMonth.of(2025, 2),
+                        sats = 8000,
+                    ),
+                )
+            }
+
+        val andreTilkjenteYtelser = listOf(annenTilkjentYtelse)
+        val person = lagPerson(personopplysningGrunnlag, barn.aktør, PersonType.BARN)
+
+        assertDoesNotThrow {
+            validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
+                tilkjentYtelse,
+                listOf(
+                    Pair(person, andreTilkjenteYtelser),
+                ),
+                personopplysningGrunnlag,
+            )
+        }
+    }
+
+    @Test
+    fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal ikke tillate 1 måned overlapp dersom andelen ikke utbetales mellom 2024 august og 2025 februar`() {
+        val andelTilkjentYtelseForBarn =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn.aktør,
+                stønadFom = YearMonth.of(2025, 3),
+                stønadTom = YearMonth.of(2025, 3),
+                sats = 8000,
+            )
+        tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
+
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            lagInitieltTilkjentYtelse(annenBehandling).also {
+                it.stønadFom = YearMonth.now().minusMonths(11)
+                it.stønadTom = YearMonth.now()
+                it.andelerTilkjentYtelse.add(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        behandling = behandling,
+                        aktør = barn.aktør,
+                        stønadFom = YearMonth.of(2025, 3),
+                        stønadTom = YearMonth.of(2025, 3),
+                        sats = 8000,
+                    ),
+                )
+            }
+
+        val andreTilkjenteYtelser = listOf(annenTilkjentYtelse)
+        val person = lagPerson(personopplysningGrunnlag, barn.aktør, PersonType.BARN)
+
+        val feilmelding =
+            assertThrows<UtbetalingsikkerhetFeil> {
+                validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
+                    tilkjentYtelse,
+                    listOf(
+                        Pair(person, andreTilkjenteYtelser),
+                    ),
+                    personopplysningGrunnlag,
+                )
+            }.message
+
+        assertThat(feilmelding).isEqualTo("Vi finner utbetalinger som overstiger 100% på hvert av barna: 01.01.21")
     }
 
     @Test

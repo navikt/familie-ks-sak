@@ -189,7 +189,7 @@ object TilkjentYtelseValidator {
                     }
                 }.map { it.first }
 
-        val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
+        val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 2))
         return when {
             overlappendeMåneder.isEmpty() -> false
             overlappendeMåneder.size > 1 -> true
