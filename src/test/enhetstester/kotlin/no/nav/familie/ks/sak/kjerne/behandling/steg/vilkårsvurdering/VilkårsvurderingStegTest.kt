@@ -608,7 +608,7 @@ class VilkårsvurderingStegTest {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }.melding
 
-        assertThat(feilmelding, Is("Vilkår BOSATT_I_RIKET for person født 1954-01-01 har perioder der f.o.m dato er satt senere enn inneværende måned."))
+        assertThat(feilmelding, Is("Vilkår BOSATT_I_RIKET for person født ${søker.fødselsdato} har perioder der f.o.m dato er satt senere enn inneværende måned."))
     }
 
     @Test
