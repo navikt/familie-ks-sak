@@ -562,6 +562,56 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
+    fun `utførSteg - skal kaste feil dersom det finnes vilkår som har fom dato satt senere enn inneværende måned`() {
+        val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
+        val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
+        val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
+
+        søkerPersonResultat.setSortedVilkårResultater(
+            setOf(
+                VilkårResultat(
+                    personResultat = søkerPersonResultat,
+                    vilkårType = Vilkår.BOSATT_I_RIKET,
+                    resultat = Resultat.OPPFYLT,
+                    periodeFom = LocalDate.now().plusMonths(1),
+                    periodeTom = LocalDate.now().plusMonths(2),
+                    begrunnelse = "",
+                    behandlingId = behandling.id,
+                ),
+            ),
+        )
+        val vilkårResultaterForBarn =
+            lagVilkårResultaterForBarn(
+                personResultat = barnPersonResultat,
+                barnFødselsdato = barn.fødselsdato,
+                barnehageplassPerioder =
+                    listOf(
+                        NullablePeriode(barn.fødselsdato.plusYears(1), barn.fødselsdato.plusYears(2)) to null,
+                    ),
+                behandlingId = behandling.id,
+            )
+        barnPersonResultat.setSortedVilkårResultater(vilkårResultaterForBarn)
+        vilkårsvurderingForSøker.personResultater = setOf(søkerPersonResultat, barnPersonResultat)
+
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every {
+            behandlingService.endreBehandlingstemaPåBehandling(
+                any(),
+                BehandlingKategori.NASJONAL,
+            )
+        } returns behandling
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
+
+        val feilmelding =
+            assertThrows<FunksjonellFeil> {
+                vilkårsvurderingSteg.utførSteg(behandling.id)
+            }.melding
+
+        assertThat(feilmelding, Is("Vilkår BOSATT_I_RIKET for person født 1954-01-01 har perioder der f.o.m dato er satt senere enn inneværende måned."))
+    }
+
+    @Test
     fun `utførSteg - skal oppdatere behandlingstema med EØS hvis nåværende behandling inneholder vilkår vurdert etter EØS ordningen`() {
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)

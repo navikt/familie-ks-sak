@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -133,6 +134,7 @@ class VilkårsvurderingSteg(
                 vilkårsvurdering = vilkårsvurdering,
             )
         }
+        validerAtIngenVilkårHarFomSattSenereEnnInneværendeMåned(vilkårsvurdering, personopplysningGrunnlag)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
@@ -156,6 +158,23 @@ class VilkårsvurderingSteg(
                 melding = "Ingen barn i personopplysningsgrunnlag ved validering av vilkårsvurdering på behandling ${behandling.id}",
                 frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering.",
             )
+        }
+    }
+
+    private fun validerAtIngenVilkårHarFomSattSenereEnnInneværendeMåned(
+        vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+    ) {
+        val alleVilkårResultaterIBehandling = vilkårsvurdering.personResultater.flatMap { it.vilkårResultater }
+
+        alleVilkårResultaterIBehandling.forEach { vilkårResultat ->
+            if (vilkårResultat.periodeFom?.erSenereEnnInneværendeMåned() == true) {
+                val person = personopplysningGrunnlag.personer.single { person -> person.aktør == vilkårResultat.personResultat?.aktør }
+
+                throw FunksjonellFeil(
+                    melding = "Vilkår ${vilkårResultat.vilkårType} for person født ${person.fødselsdato} har perioder der f.o.m dato er satt senere enn inneværende måned.",
+                )
+            }
         }
     }
 
