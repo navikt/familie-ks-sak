@@ -2,9 +2,13 @@ package no.nav.familie.ks.sak.kjerne.klage
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
+import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
+import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
@@ -14,7 +18,9 @@ import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 class KlageServiceTest {
     private val fagsakService = mockk<FagsakService>()
@@ -82,6 +88,28 @@ class KlageServiceTest {
 
             // Assert
             assertThat(forrigeVedtatteKlagebehandling).isEqualTo(klagebehandlingDto)
+        }
+    }
+
+    @Nested
+    inner class SettRiktigEnhetVedOpprettelseAvKlage {
+        @Test
+        fun `skal sette enheten til saksbehandlers enhet ved opprettelse av klagebehandling`() {
+            // Arrange
+            val fagsak = lagFagsak()
+            val forventetEnhet = Enhet("1234", "testRiktig")
+            val enhetSomIkkeSkalVelges = Enhet("5432", "testFeil")
+
+            every { integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(forventetEnhet, enhetSomIkkeSkalVelges)
+
+            val opprettKlageRequest = slot<OpprettKlagebehandlingRequest>()
+            every { klageClient.opprettKlage(capture(opprettKlageRequest)) } returns UUID.randomUUID()
+
+            // Act
+            klageService.opprettKlage(fagsak, LocalDate.now())
+
+            // Assert
+            assertThat(opprettKlageRequest.captured.behandlendeEnhet).isEqualTo(forventetEnhet.enhetsnummer)
         }
     }
 }
