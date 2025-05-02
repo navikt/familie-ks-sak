@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.klage
 
+import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.klage.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.FagsystemType
 import no.nav.familie.kontrakter.felles.klage.FagsystemVedtak
@@ -15,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.util.UUID
@@ -47,7 +49,8 @@ class KlageService(
         }
 
         val aktivtFødselsnummer = fagsak.aktør.aktivFødselsnummer()
-        val enhetId = integrasjonClient.hentBehandlendeEnhetForPersonIdentMedRelasjoner(aktivtFødselsnummer).enhetId
+        val saksbehandlerIdent = SikkerhetContext.hentSaksbehandler()
+        val enhetsnummer = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(NavIdent(saksbehandlerIdent)).first().enhetsnummer
 
         return klageClient.opprettKlage(
             OpprettKlagebehandlingRequest(
@@ -56,7 +59,7 @@ class KlageService(
                 eksternFagsakId = fagsak.id.toString(),
                 fagsystem = Fagsystem.KS,
                 klageMottatt = klageMottattDato,
-                behandlendeEnhet = enhetId,
+                behandlendeEnhet = enhetsnummer,
                 behandlingsårsak = Klagebehandlingsårsak.ORDINÆR,
             ),
         )
