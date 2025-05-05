@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import java.time.LocalDate
 
 object BehandlingsresultatValideringUtils {
     internal fun validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag(
@@ -36,6 +37,7 @@ object BehandlingsresultatValideringUtils {
         endretUtbetalingMedAndeler: List<EndretUtbetalingAndelMedAndelerTilkjentYtelse>,
         personResultaterForBarn: List<PersonResultat>,
         adopsjonerIBehandling: List<Adopsjon>,
+        dagensDato: LocalDate,
     ) {
         val alleBarnetsAlderVilkårResultater = personResultaterForBarn.flatMap { it.vilkårResultater.filter { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER } }
 
@@ -45,6 +47,7 @@ object BehandlingsresultatValideringUtils {
             personopplysningGrunnlag = personopplysningGrunnlag,
             alleBarnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater,
             adopsjonerIBehandling = adopsjonerIBehandling,
+            dagensDato = dagensDato,
         )
 
         // valider EndretUtbetalingAndel
