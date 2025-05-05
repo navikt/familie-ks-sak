@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.barnehagelister.domene
 
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -15,24 +16,24 @@ data class BarnehagebarnVisningDto(
     val fagsakstatus: String? = null,
     val endretTid: LocalDateTime,
     val avvik: Boolean? = null,
-)
-
-interface BarnehagebarnForListe {
-    fun getIdent(): String
-
-    fun getFom(): LocalDate
-
-    fun getTom(): LocalDate?
-
-    fun getAntallTimerBarnehage(): Double
-
-    fun getEndringstype(): String?
-
-    fun getKommuneNavn(): String
-
-    fun getKommuneNr(): String
-
-    fun getEndretTid(): LocalDateTime
-
-    fun getAvvik(): Boolean?
+) {
+    companion object {
+        fun opprett(
+            barnehagebarn: BarnehagebarnPaginerbar,
+            fagsakId: Long? = null,
+            fagsakStatus: FagsakStatus? = null,
+        ) = BarnehagebarnVisningDto(
+            ident = barnehagebarn.getIdent(),
+            fom = barnehagebarn.getFom(),
+            tom = barnehagebarn.getTom(),
+            antallTimerBarnehage = barnehagebarn.getAntallTimerBarnehage(),
+            endringstype = barnehagebarn.getEndringstype(),
+            kommuneNavn = barnehagebarn.getKommuneNavn(),
+            kommuneNr = barnehagebarn.getKommuneNr(),
+            fagsakId = fagsakId,
+            fagsakstatus = fagsakStatus.toString(),
+            endretTid = barnehagebarn.getEndretTid(),
+            avvik = barnehagebarn.getAvvik(),
+        )
+    }
 }

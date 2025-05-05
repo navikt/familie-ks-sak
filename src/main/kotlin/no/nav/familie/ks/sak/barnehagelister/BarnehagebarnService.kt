@@ -2,8 +2,8 @@ package no.nav.familie.ks.sak.barnehagelister
 
 import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
+import no.nav.familie.ks.sak.api.dto.toSort
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnForListe
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
 @Service
@@ -38,46 +37,11 @@ class BarnehagebarnService(
         val barnehagebarnDto =
             barnehagebarn
                 .map { barn ->
-                    mapBarnehagebarnTilBarnehagebarnDto(barn)
+                    val fagsakIdTilFagsakStatus = fagsakRepository.finnFagsakIdOgStatusMedAktivBehandlingForIdent(barn.getIdent()).firstOrNull()
+                    BarnehagebarnVisningDto.opprett(barn, fagsakIdTilFagsakStatus?.first, fagsakIdTilFagsakStatus?.second)
                 }
 
         return barnehagebarnDto
-    }
-
-    private fun BarnehagebarnRequestParams.toSort() =
-        if (sortAsc) {
-            Sort.by(getCorrectSortBy(sortBy)).ascending()
-        } else {
-            Sort.by(getCorrectSortBy(sortBy)).descending()
-        }
-
-    private fun getCorrectSortBy(sortBy: String): String =
-        when (sortBy.lowercase()) {
-            "endrettidspunkt" -> "endretTid"
-            "kommunenavn" -> "kommune_navn"
-            "kommunenr" -> "kommune_nr"
-            "antalltimeribarnehage" -> "antall_timer_i_barnehage"
-            else -> sortBy
-        }
-
-    private fun mapBarnehagebarnTilBarnehagebarnDto(
-        barnehagebarn: BarnehagebarnForListe,
-    ): BarnehagebarnVisningDto {
-        val fagsakIdTilFagsakStatus = fagsakRepository.finnFagsakIdOgStatusMedAktivBehandlingForIdent(barnehagebarn.getIdent()).firstOrNull()
-
-        return BarnehagebarnVisningDto(
-            ident = barnehagebarn.getIdent(),
-            fom = barnehagebarn.getFom(),
-            tom = barnehagebarn.getTom(),
-            antallTimerBarnehage = barnehagebarn.getAntallTimerBarnehage(),
-            endringstype = barnehagebarn.getEndringstype(),
-            kommuneNavn = barnehagebarn.getKommuneNavn(),
-            kommuneNr = barnehagebarn.getKommuneNr(),
-            fagsakId = fagsakIdTilFagsakStatus?.first,
-            fagsakstatus = fagsakIdTilFagsakStatus?.second.toString(),
-            endretTid = barnehagebarn.getEndretTid(),
-            avvik = barnehagebarn.getAvvik(),
-        )
     }
 
     // Hvis barnehagebarnet tilhører en annen periode eller kommer fra en annen liste ansees det som en ny melding

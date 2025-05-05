@@ -57,9 +57,9 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                     JOIN Behandling b ON f.id = b.fagsak.id
                     JOIN PersonopplysningGrunnlag gp ON b.id = gp.behandlingId
                     JOIN Person pp ON gp.id = pp.personopplysningGrunnlag.id
-                    JOIN Personident p ON p.aktør.aktørId = pp.aktør.aktørId
+                    JOIN Personident pi ON pi.aktør.aktørId = pp.aktør.aktørId
                 WHERE b.aktiv = TRUE
-                    AND p.fødselsnummer = :ident 
+                    AND pi.fødselsnummer = :ident 
         """,
     )
     fun finnFagsakIdOgStatusMedAktivBehandlingForIdent(ident: String): List<Pair<Long, FagsakStatus>>

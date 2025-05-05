@@ -41,7 +41,6 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
     )
     fun `hentBarnehageBarn henter kun barn med riktig ident`() {
         // Arrange
-
         val barnehagebarnRequestParams1 =
             BarnehagebarnRequestParams(
                 ident = "12345678901",
@@ -65,9 +64,6 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
     )
     fun `hentBarnehageBarn henter kun barn med riktig kommune`() {
         // Arrange
-        // SQL setter inn tre barn med kommune = Oslo. Ett av dem er fra en tidligere periode og det andre fra en tidligere innsending, men ellers duplikat
-        // Forventer at duplikat ikke dukker opp
-
         val barnehagebarnRequestParams1 =
             BarnehagebarnRequestParams(
                 ident = null,
@@ -91,9 +87,6 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
     )
     fun `hentBarnehageBarn henter alle barn hvis det ikke er oppgitt noen ident eller kommune`() {
         // Arrange
-        // SQL setter inn 5 barn, tre med samme ident. Ett av dem er fra en tidligere periode og det andre fra en tidligere innsending, men ellers duplikat
-        // Forventer at duplikat ikke dukker opp
-
         val barnehagebarnRequestParams1 =
             BarnehagebarnRequestParams(
                 ident = null,
