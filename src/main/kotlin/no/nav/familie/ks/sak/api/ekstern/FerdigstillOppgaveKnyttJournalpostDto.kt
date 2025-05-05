@@ -9,7 +9,6 @@ import java.time.LocalDateTime
 
 data class FerdigstillOppgaveKnyttJournalpostDto(
     val journalpostId: String,
-    val tilknyttedeBehandlingIder: List<String> = emptyList(),
     val tilknyttedeBehandlinger: List<TilknyttetBehandling> = emptyList(),
     val opprettOgKnyttTilNyBehandling: Boolean = false,
     val navIdent: String? = null,
@@ -18,7 +17,6 @@ data class FerdigstillOppgaveKnyttJournalpostDto(
     val nyBehandlingsårsak: BehandlingÅrsak? = null,
     val kategori: BehandlingKategori? = null,
     val datoMottatt: LocalDateTime?,
-    val fagsakId: Long? = null,
 )
 
 data class NavnOgIdent(
