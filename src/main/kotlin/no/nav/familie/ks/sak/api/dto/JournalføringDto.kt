@@ -32,16 +32,13 @@ data class JournalføringRequestDto(
     val datoMottatt: LocalDateTime?,
     val journalpostTittel: String?,
     val kategori: BehandlingKategori?,
-    val knyttTilFagsak: Boolean,
     val opprettOgKnyttTilNyBehandling: Boolean,
-    val tilknyttedeBehandlingIder: List<String>,
     val tilknyttedeBehandlinger: List<TilknyttetBehandling> = emptyList(),
     val dokumenter: List<JournalpostDokumentDto>,
     val navIdent: String,
     val nyBehandlingstype: JournalføringBehandlingstype,
     val nyBehandlingsårsak: BehandlingÅrsak,
     val journalførendeEnhet: String,
-    val fagsakId: Long? = null,
 )
 
 fun JournalføringRequestDto.tilOppdaterJournalpostRequestDto(

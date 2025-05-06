@@ -98,10 +98,6 @@ class InnkommendeJournalføringServiceTest {
         val request =
             FerdigstillOppgaveKnyttJournalpostDto(
                 journalpostId = journalpost.journalpostId,
-                tilknyttedeBehandlingIder =
-                    listOf(
-                        gammelBehandling.behandlingId.id.toString(),
-                    ),
                 tilknyttedeBehandlinger =
                     listOf(
                         TilknyttetBehandling(
@@ -120,7 +116,6 @@ class InnkommendeJournalføringServiceTest {
                 nyBehandlingstype = JournalføringBehandlingstype.REVURDERING,
                 nyBehandlingsårsak = BehandlingÅrsak.SØKNAD,
                 datoMottatt = LocalDateTime.now(),
-                fagsakId = fagsak.id,
             )
 
         val oppgaveId = 1L
@@ -168,10 +163,6 @@ class InnkommendeJournalføringServiceTest {
         val request =
             FerdigstillOppgaveKnyttJournalpostDto(
                 journalpostId = journalpost.journalpostId,
-                tilknyttedeBehandlingIder =
-                    listOf(
-                        gammelBehandling.behandlingId.id.toString(),
-                    ),
                 tilknyttedeBehandlinger =
                     listOf(
                         TilknyttetBehandling(
@@ -181,7 +172,6 @@ class InnkommendeJournalføringServiceTest {
                     ),
                 opprettOgKnyttTilNyBehandling = false,
                 datoMottatt = LocalDateTime.now(),
-                fagsakId = fagsak.id,
                 bruker = NavnOgIdent("Navn navnesen", personIdent),
             )
 
@@ -230,13 +220,11 @@ class InnkommendeJournalføringServiceTest {
         val request =
             FerdigstillOppgaveKnyttJournalpostDto(
                 journalpostId = journalpost.journalpostId,
-                tilknyttedeBehandlingIder = emptyList(),
                 tilknyttedeBehandlinger = emptyList(),
                 opprettOgKnyttTilNyBehandling = true,
                 nyBehandlingstype = JournalføringBehandlingstype.KLAGE,
                 nyBehandlingsårsak = null,
                 datoMottatt = datoMottatt,
-                fagsakId = fagsak.id,
                 bruker = NavnOgIdent("NavnOgIdent", personIdent),
             )
 

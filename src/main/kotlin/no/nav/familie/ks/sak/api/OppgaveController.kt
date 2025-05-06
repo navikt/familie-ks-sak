@@ -10,8 +10,6 @@ import no.nav.familie.ks.sak.api.dto.FinnOppgaveDto
 import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.common.util.RessursUtils.illegalState
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.journalføring.InnkommendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -43,7 +41,6 @@ class OppgaveController(
     private val integrasjonService: IntegrasjonService,
     private val tilgangService: TilgangService,
     private val innkommendeJournalføringService: InnkommendeJournalføringService,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     @PostMapping(
         path = ["/hent-oppgaver"],
@@ -148,14 +145,7 @@ class OppgaveController(
         )
         // Validerer at oppgave med gitt oppgaveId eksisterer
         oppgaveService.hentOppgave(oppgaveId)
-
-        val fagsakId =
-            if (unleashNextMedContextService.isEnabled(FeatureToggle.KAN_BEHANDLE_KLAGE)) {
-                innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request, oppgaveId)
-            } else {
-                innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgaveGammel(request, oppgaveId)
-            }
-
+        val fagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request, oppgaveId)
         return ResponseEntity.ok(Ressurs.success(fagsakId, "Oppgaven $oppgaveId er lukket"))
     }
 }

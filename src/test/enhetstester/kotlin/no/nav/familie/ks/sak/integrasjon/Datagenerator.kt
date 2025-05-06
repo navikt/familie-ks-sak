@@ -118,9 +118,7 @@ fun lagJournalføringRequestDto(bruker: NavnOgIdentDto): JournalføringRequestDt
         datoMottatt = LocalDateTime.now().minusDays(10),
         journalpostTittel = "Søknad om ordinær kontantstøtte",
         kategori = BehandlingKategori.NASJONAL,
-        knyttTilFagsak = true,
         opprettOgKnyttTilNyBehandling = true,
-        tilknyttedeBehandlingIder = emptyList(),
         dokumenter =
             listOf(
                 JournalpostDokumentDto(
