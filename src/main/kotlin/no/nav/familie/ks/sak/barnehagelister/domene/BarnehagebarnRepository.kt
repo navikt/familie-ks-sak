@@ -27,7 +27,8 @@ WITH lopende_andel_i_aktiv_behandling_for_ident
                       JOIN vilkar_resultat vr
                            ON pr.id = vr.fk_person_resultat_id
                                AND vr.vilkar = 'BARNEHAGEPLASS'
-                               AND bb.fom = vr.periode_fom::date)
+                               AND bb.fom = vr.periode_fom::date),
+     vars as (select :ident as ident_param, :kommuneNavn as kommunenavn_param) --Vi referer til disse variablene to ganger så da må de legges inn slik
 SELECT bb.ident,
        bb.fom,
        bb.tom,
@@ -40,9 +41,10 @@ SELECT bb.ident,
 FROM Barnehagebarn bb
          LEFT JOIN lopende_andel_i_aktiv_behandling_for_ident ila ON bb.ident = ila.foedselsnummer
          LEFT JOIN avvik_antall_timer_vilkar_resultat_og_barnehagebarn atv on bb.id = atv.barnehagebarn_id
+        CROSS JOIN vars
 WHERE (NOT :kunLøpendeAndeler OR ila.lopende_andel = true)
-  AND COALESCE(bb.ident = :ident, true)
-  AND COALESCE(bb.kommune_navn ILIKE :kommuneNavn, true)
+  AND (vars.ident_param IS NULL OR bb.ident = vars.ident_param)
+  AND (vars.kommunenavn_param IS NULL OR bb.kommune_navn ILIKE vars.kommunenavn_param)
 GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr,
          atv.avvik;
 """,
