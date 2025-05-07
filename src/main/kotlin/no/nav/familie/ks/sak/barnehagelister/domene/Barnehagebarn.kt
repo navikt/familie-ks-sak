@@ -35,6 +35,7 @@ data class Barnehagebarn(
     var kildeTopic: String? = null,
 ) : BaseEntitet()
 
+// Denne må være et interface for at paginering skal fungere
 interface BarnehagebarnPaginerbar {
     fun getIdent(): String
 
