@@ -58,7 +58,8 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
                     JOIN PersonopplysningGrunnlag gp ON b.id = gp.behandlingId
                     JOIN Person pp ON gp.id = pp.personopplysningGrunnlag.id
                     JOIN Personident pi ON pi.aktør.aktørId = pp.aktør.aktørId
-                WHERE b.aktiv = TRUE
+                WHERE b.aktiv = true
+                    AND f.arkivert = false
                     AND pi.fødselsnummer = :ident 
         """,
     )
