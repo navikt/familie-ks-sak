@@ -29,8 +29,8 @@ class BarnehagebarnService(
         val barnehagebarn =
             barnehagebarnRepository.finnBarnehagebarn(
                 kunLøpendeAndeler = barnehagebarnRequestParams.kunLøpendeAndel,
-                ident = barnehagebarnRequestParams.ident.takeUnless { it?.isBlank() ?: true },
-                kommuneNavn = barnehagebarnRequestParams.kommuneNavn.takeUnless { it?.isBlank() ?: true },
+                ident = barnehagebarnRequestParams.ident.takeUnless { it.isNullOrBlank() },
+                kommuneNavn = barnehagebarnRequestParams.kommuneNavn.takeUnless { it.isNullOrBlank() },
                 pageable = pageable,
             )
 
