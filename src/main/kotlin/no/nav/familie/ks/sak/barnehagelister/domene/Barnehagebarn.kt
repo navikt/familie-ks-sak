@@ -6,6 +6,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity(name = "Barnehagebarn")
@@ -33,3 +34,24 @@ data class Barnehagebarn(
     @Column(name = "KILDE_TOPIC", nullable = true, updatable = false)
     var kildeTopic: String? = null,
 ) : BaseEntitet()
+
+// Denne må være et interface for at paginering skal fungere
+interface BarnehagebarnPaginerbar {
+    fun getIdent(): String
+
+    fun getFom(): LocalDate
+
+    fun getTom(): LocalDate?
+
+    fun getAntallTimerBarnehage(): Double
+
+    fun getEndringstype(): String?
+
+    fun getKommuneNavn(): String
+
+    fun getKommuneNr(): String
+
+    fun getEndretTid(): LocalDateTime
+
+    fun getAvvik(): Boolean?
+}
