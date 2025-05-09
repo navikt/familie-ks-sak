@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.sikkerhet
 
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.slf4j.LoggerFactory
