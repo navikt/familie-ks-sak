@@ -134,3 +134,69 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
     Så forvent følgende vedtaksperioder på behandling 2
       | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
       | 01.06.2024 |          | OPPHØR             |           |
+
+  Scenario: Dersom bruker søker igjen og det ikke er noen relevante endringer så skal man få fortsatt opphørt  dersom man fikk opphørt sist gang
+
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | AVSLUTTET         |
+      | 2            | 1        | 1                   | SØKNAD           | NASJONAL            | UTREDES           |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 13.12.1982  |
+      | 1            | 2       | BARN       | 02.04.2024  |
+      | 2            | 1       | SØKER      | 13.12.1982  |
+      | 2            | 2       | BARN       | 02.04.2024  |
+
+    Og følgende dagens dato 12.05.2025
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 20.08.2022 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 02.04.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_AKTUELT | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 02.04.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 02.04.2024 | 31.07.2025 | OPPFYLT      | Nei                  |                      |                  | Ja                                    |              |
+      | 2       | BARNETS_ALDER                |                  | 02.04.2025 | 02.12.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 20.08.2022 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 02.04.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_AKTUELT | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET |                  | 02.04.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 02.04.2024 | 31.07.2025 | OPPFYLT      | Nei                  |                      |                  | Ja                                    |              |
+      | 2       | BARNETS_ALDER                |                  | 02.04.2025 | 02.12.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 2
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+      | 2       | 01.05.2025 | 31.07.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
+
+    Og når behandlingsresultatet er utledet for behandling 2
+
+    Så forvent at behandlingsresultatet er FORTSATT_OPPHØRT på behandling 2
+
+    Og vedtaksperioder er laget for behandling 2
+
+    Så forvent følgende vedtaksperioder på behandling 2
+      | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
+      | 01.08.2025 |          | OPPHØR             |           |
+
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                   | Ugyldige begrunnelser |
+      | 01.08.2025 |          | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
+
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.08.2025 til -
+      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
+      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 02.04.24             | 1           |         | 0     | august 2025                          | false                  | 0                           | juli 2025                      |
