@@ -135,7 +135,7 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
       | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
       | 01.06.2024 |          | OPPHØR             |           |
 
-  Scenario: Dersom bruker søker igjen og det ikke er noen relevante endringer så skal man få fortsatt opphørt  dersom man fikk opphørt sist gang
+  Scenario: Dersom bruker søker igjen og det ikke er noen relevante endringer så skal man få fortsatt innvilget dersom man fikk opphørt sist gang
 
     Gitt følgende fagsaker
       | FagsakId |
@@ -185,18 +185,22 @@ Egenskap: Fremtidig opphør - søker har meldt ifra om fremtidig barnehageplass
 
     Og når behandlingsresultatet er utledet for behandling 2
 
-    Så forvent at behandlingsresultatet er FORTSATT_OPPHØRT på behandling 2
+    Så forvent at behandlingsresultatet er FORTSATT_INNVILGET på behandling 2
 
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent følgende vedtaksperioder på behandling 2
-      | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
-      | 01.08.2025 |          | OPPHØR             |           |
+      | Fra dato | Til dato | Vedtaksperiodetype | Kommentar |
+      |          |          | FORTSATT_INNVILGET |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                   | Ugyldige begrunnelser |
-      | 01.08.2025 |          | OPPHØR             |                                | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |                       |
+      | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                 | Ugyldige begrunnelser |
+      |          |          | FORTSATT_INNVILGET |                                | FORTSATT_INNVILGET_HAR_KONTANTSTOTTEN_DET_ER_SOKT_OM |                       |
 
-    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.08.2025 til -
-      | Begrunnelse                            | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
-      | OPPHØR_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS | STANDARD | 02.04.24             | 1           |         | 0     | august 2025                          | false                  | 0                           | juli 2025                      |
+    Og når disse begrunnelsene er valgt for behandling 2
+      | Fra dato | Til dato | Standardbegrunnelser                                 | Eøsbegrunnelser | Fritekster |
+      |          |          | FORTSATT_INNVILGET_HAR_KONTANTSTOTTEN_DET_ER_SOKT_OM |                 |            |
+
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode - til -
+      | Begrunnelse                                          | Type     | Barnas fødselsdatoer | Antall barn | Målform | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
+      | FORTSATT_INNVILGET_HAR_KONTANTSTOTTEN_DET_ER_SOKT_OM | STANDARD | 02.04.24             | 1           |         | 7 500 |                                      | false                  | 0                           |                                |
