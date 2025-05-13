@@ -187,16 +187,16 @@ private fun validerAvslagUtenPeriodeMedLøpende(
         // For bor med søker-vilkåret kan avslag og innvilgelse være overlappende, da man kan f.eks. avslå full kontantstøtte, men innvilge delt
         endretVilkårResultat.vilkårType == Vilkår.BOR_MED_SØKER -> return
 
-        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT && it.harFremtidigTom() } ->
+        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT } ->
             throw FunksjonellFeil(
-                "Finnes løpende oppfylt ved forsøk på å legge til avslag uten periode ",
-                "Du kan ikke legge til avslag uten datoer fordi det finnes oppfylt løpende periode på vilkåret.",
+                "Finnes oppfylte perioder ved forsøk på å legge til avslag uten periode.",
+                "Du kan ikke legge til avslagperiode uten datoer fordi det finnes oppfylte perioder på vilkåret. Disse må fjernes først.",
             )
 
-        endretVilkårResultat.harFremtidigTom() && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
+        endretVilkårResultat.resultat == Resultat.OPPFYLT && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
             throw FunksjonellFeil(
-                "Finnes avslag uten periode ved forsøk på å legge til løpende oppfylt",
-                "Du kan ikke legge til løpende periode fordi det er vurdert avslag uten datoer på vilkåret.",
+                "Finnes avslag uten periode ved forsøk på å legge til oppfylt periode.",
+                "Du kan ikke legge til perioden fordi det er vurdert avslag uten datoer på vilkåret. Denne må fjernes først.",
             )
     }
 }
