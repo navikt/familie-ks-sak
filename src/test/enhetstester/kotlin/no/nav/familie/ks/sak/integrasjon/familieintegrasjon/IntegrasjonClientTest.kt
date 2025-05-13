@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.Ressurs.Companion.success
@@ -29,6 +30,7 @@ import no.nav.familie.ks.sak.integrasjon.lagJournalpost
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -45,6 +47,14 @@ internal class IntegrasjonClientTest {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
         integrasjonClient = IntegrasjonClient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
+        wiremockServerItem.start()
+        integrasjonClient = IntegrasjonClient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        unmockkObject(SikkerhetContext)
     }
 
     @Test
