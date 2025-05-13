@@ -63,6 +63,7 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -163,6 +164,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
                 every { taskService.save(any()) } returns mockk()
             }
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkObject(SikkerhetContext)
     }
 
     @Test
