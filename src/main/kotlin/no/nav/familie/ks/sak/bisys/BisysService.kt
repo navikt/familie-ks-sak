@@ -7,13 +7,16 @@ import no.nav.familie.ks.sak.api.dto.KsSakPeriode
 import no.nav.familie.ks.sak.common.util.erSammeEllerFør
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InnsynResponse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.person.pdl.aktor.v2.Type
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import kotlin.collections.filter
 
 @Service
 class BisysService(
@@ -23,12 +26,24 @@ class BisysService(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val infotrygdReplikaClient: InfotrygdReplikaClient,
 ) {
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
+
     fun hentUtbetalingsinfo(
         fom: LocalDate,
         identer: List<String>,
     ): BisysResponsDto {
+        val identerMedFnr =
+            identer.filter {
+                val identerFraPdl = personidentService.hentIdenter(it, false)
+                val harGyldigFnr = identerFraPdl.any { ident -> ident.gruppe == Type.FOLKEREGISTERIDENT.name }
+                if (!harGyldigFnr) {
+                    secureLogger.info("Fant ikke gyldig fnr i PDL for $it - $identerFraPdl. Filtreres bort fra liste ved henting av utbetalingsinfor for Bidrag")
+                }
+                harGyldigFnr
+            }
+
         // hent fagsaker
-        val aktører = identer.map { personidentService.hentAktør(it) }
+        val aktører = identerMedFnr.map { personidentService.hentAktør(it) }
         val fagsaker = aktører.map { fagsakService.hentFagsakerPåPerson(it) }.flatten()
 
         // hent siste vedtatt behandlinger fra fagsak
@@ -53,7 +68,10 @@ class BisysService(
                 }.flatten()
 
         // hent utbetalingsinfo from infotrygd
-        val respons = infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(identer)
+        val respons =
+            identerMedFnr
+                .takeIf { it.isNotEmpty() }
+                ?.let { infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(identerMedFnr) } ?: InnsynResponse(emptyList())
         logger.info("Hentet ${respons.data.size} data fra infotrygd")
         val utbetalingsinfoFraInfotrygd =
             respons.data
