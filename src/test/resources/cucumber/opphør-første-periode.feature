@@ -145,19 +145,19 @@ Egenskap: Opphør første periode
     Og vedtaksperioder er laget for behandling 2
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                                                                                                          | Ugyldige begrunnelser |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                                                                                                                                | Ugyldige begrunnelser |
       | 01.09.2023 |          | OPPHØR             |                                | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
-      | Fra dato   | Til dato | Standardbegrunnelser                                                                                                                                                                                          | Eøsbegrunnelser | Fritekster |
+      | Fra dato   | Til dato | Standardbegrunnelser                                                                                                                                                | Eøsbegrunnelser | Fritekster |
       | 01.09.2023 |          | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR, OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR, OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR |                 |            |
 
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.09.2023 til -
       | Begrunnelse                                                   | Type     | Antall barn | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Måned og år før vedtaksperiode |
-      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
-      | OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR              | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
-      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023 |
+      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR            | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023                    |
+      | OPPHØR_IKKE_MEDLEM_FOLKETRYGDEN_ELLER_EOS_I_5_ÅR              | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023                    |
+      | OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_ELLER_EØS_I_5_AAR | STANDARD | 0           | ja            | 0     | september 2023                       | false                  | august 2023                    |
 
   Scenario: Når et vilkår ikke er oppfylt måneden før vedtaksperioden ønsker vi å få begrunnelser knyttet til vilkåret
     Og følgende persongrunnlag
@@ -262,3 +262,75 @@ Egenskap: Opphør første periode
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                     | Ugyldige begrunnelser |
       | 01.07.2023 |          | OPPHØR             |                                | OPPHØR_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR |                       |
+
+  Scenario: Ved opphør i første periode ønsker vi å bruke det seneste vilkåret ikke oppfylte vilkåret når vi referer til måneden begrunnelsene gjelder
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | AVSLUTTET         |
+      | 2            | 1        | 1                   | NYE_OPPLYSNINGER | NASJONAL            | UTREDES           |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 26.12.1986  |
+      | 1            | 2       | BARN       | 04.01.2024  |
+      | 2            | 1       | SØKER      | 26.12.1986  |
+      | 2            | 2       | BARN       | 04.01.2024  |
+
+    Og følgende dagens dato 18.05.2025
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 26.12.1986 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 26.12.1991 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 24.03.1999 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 04.01.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 04.01.2024 | 31.08.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.09.2024 | 31.03.2025 | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 45           |
+      | 2       | BARNETS_ALDER                |                  | 04.01.2025 | 04.09.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.04.2025 |            | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 26.12.1986 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 26.12.1991 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 24.03.1999 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 04.01.2024 | 31.08.2024 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET |                  | 04.01.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.09.2024 | 31.03.2025 | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 45           |
+      | 2       | BARNETS_ALDER                |                  | 04.01.2025 | 04.09.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.04.2025 | 04.05.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 05.05.2025 |            | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 45           |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 2
+      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+    Og når behandlingsresultatet er utledet for behandling 2
+    Så forvent at behandlingsresultatet er OPPHØRT på behandling 2
+
+
+    Og vedtaksperioder er laget for behandling 2
+
+    Så forvent følgende vedtaksperioder på behandling 2
+      | Fra dato   | Til dato | Vedtaksperiodetype | Kommentar |
+      | 01.05.2025 |          | OPPHØR             |           |
+
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                                           | Ugyldige begrunnelser |
+      | 01.05.2025 |          | OPPHØR             |                                | OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE |                       |
+
+    Og når disse begrunnelsene er valgt for behandling 2
+      | Fra dato   | Til dato | Standardbegrunnelser                                           | Eøsbegrunnelser | Fritekster |
+      | 01.05.2025 |          | OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE |                 |            |
+
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.05.2025 til -
+      | Begrunnelse                                                    | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Måned og år før vedtaksperiode |
+      | OPPHØR_BRUKER_MELDER_FULLTIDSPLASS_I_BARNEHAGEN_FØRSTE_PERIODE | STANDARD |               | 04.01.24             | 1           | mai 2025                             | 0     |                  | 45                          | Ja                     |         | april 2025                     |
