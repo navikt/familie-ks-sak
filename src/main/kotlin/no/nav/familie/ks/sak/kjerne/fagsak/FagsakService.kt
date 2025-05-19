@@ -108,15 +108,7 @@ class FagsakService(
         val aktør = personidentService.hentOgLagreAktør(personident, true)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
         antallFagsakerOpprettetFraManuell.increment()
-        val behandlinger = behandlingRepository.finnBehandlinger(fagsak.id)
-        val minimaleBehandlinger =
-            behandlinger.map {
-                lagBehandlingResponsDto(
-                    behandling = it,
-                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
-                )
-            }
-        return lagMinimalFagsakResponsDto(fagsak = fagsak, aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id), behandlinger = minimaleBehandlinger)
+        return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
     }
 
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
