@@ -197,6 +197,7 @@ class FagsakServiceTest {
             )
         every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns emptyList()
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns lagPersonopplysningGrunnlag()
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
 
         var minimalFagsak =
             fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = aktør.aktørId))
@@ -212,6 +213,43 @@ class FagsakServiceTest {
     }
 
     @Test
+    fun `hentEllerOpprettFagsak - skal returnere eksisterende fagsak med behandlinger når forespurt personIdent eller aktørId har fagsak i db`() {
+        val fødselsnummer = randomFnr()
+        val aktør = randomAktør(fødselsnummer)
+        val fagsak = lagFagsak(aktør)
+
+        val behandling =
+            lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD).apply { aktiv = true }
+
+        every { personidentService.hentOgLagreAktør(aktør.aktørId, true) } returns aktør
+        every { personidentService.hentOgLagreAktør(fødselsnummer, true) } returns aktør
+        every { fagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
+        every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns
+            lagBehandling(
+                fagsak,
+                opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+            )
+        every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns emptyList()
+        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns lagPersonopplysningGrunnlag()
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
+        every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
+
+        var minimalFagsak =
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = aktør.aktørId))
+
+        assertEquals(fagsak.id, minimalFagsak.id)
+        assertEquals(fagsak.aktør.aktivFødselsnummer(), minimalFagsak.søkerFødselsnummer)
+
+        minimalFagsak =
+            fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = fødselsnummer))
+
+        assertEquals(fagsak.id, minimalFagsak.id)
+        assertEquals(fagsak.aktør.aktivFødselsnummer(), minimalFagsak.søkerFødselsnummer)
+        assertEquals(minimalFagsak.behandlinger.size, 1)
+        assertEquals(behandling.id, minimalFagsak.behandlinger[0].behandlingId)
+    }
+
+    @Test
     fun `hentEllerOpprettFagsak - skal returnere ny fagsak når forespurt personIdent eller aktørId ikke har fagsak i db`() {
         val fødselsnummer = randomFnr()
         val aktør = randomAktør(fødselsnummer)
@@ -223,6 +261,7 @@ class FagsakServiceTest {
         every { fagsakRepository.save(fagsak) } returns fagsak
         every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns null
         every { taskService.save(any()) } returns mockk()
+        every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
 
         var minimalFagsak =
             fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = aktør.aktørId))
