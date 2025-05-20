@@ -612,7 +612,7 @@ class BrevPeriodeContext(
 
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
                 when {
-                    sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
+                    sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentSenesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
                     alleLovverkForBarna.all { it == Lovverk.LOVENDRING_FEBRUAR_2025 } -> vedtaksperiodeFom.tilMånedÅr()
                     opphørGrunnetFulltidsBarnehageplassAugust2024 -> vedtaksperiodeFom.tilMånedÅr()
                     fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
@@ -633,7 +633,7 @@ class BrevPeriodeContext(
         }
     }
 
-    private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
+    private fun hentSenesteFomSomIkkeErOppfyltOgOverstiger33Timer(
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         fom: LocalDate,
     ): String =
@@ -643,7 +643,7 @@ class BrevPeriodeContext(
                 val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
 
                 vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
-            }.minOfOrNull { it.periodeFom ?: fom }
+            }.maxOfOrNull { it.periodeFom ?: fom }
             ?.tilMånedÅr() ?: fom.tilMånedÅr()
 
     private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
