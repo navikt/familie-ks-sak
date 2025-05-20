@@ -3,15 +3,16 @@ package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 enum class KontantstøtteEnhet(
     val enhetsnummer: String,
     val enhetsnavn: String,
+    val gruppenavn: String,
 ) {
-    VIKAFOSSEN("2103", "NAV Vikafossen"),
-    DRAMMEN("4806", "NAV Familie- og pensjonsytelser Drammen"),
-    VADSØ("4820", "NAV Familie- og pensjonsytelser Vadsø"),
-    OSLO("4833", "NAV Familie- og pensjonsytelser Oslo 1"),
-    STORD("4842", "NAV Familie- og pensjonsytelser Stord"),
-    STEINKJER("4817", "NAV Familie- og pensjonsytelser Steinkjer"),
-    BERGEN("4812", "NAV Familie- og pensjonsytelser Bergen"),
-    MIDLERTIDIG_ENHET("4863", "Midlertidig enhet"),
+    VIKAFOSSEN("2103", "NAV Vikafossen", "0000-GA-ENHET_2103"),
+    DRAMMEN("4806", "NAV Familie- og pensjonsytelser Drammen", "0000-GA-ENHET_4806"),
+    VADSØ("4820", "NAV Familie- og pensjonsytelser Vadsø", "0000-GA-ENHET_4820"),
+    OSLO("4833", "NAV Familie- og pensjonsytelser Oslo 1", "0000-GA-ENHET_4833"),
+    STORD("4842", "NAV Familie- og pensjonsytelser Stord", "0000-GA-ENHET_4842"),
+    STEINKJER("4817", "NAV Familie- og pensjonsytelser Steinkjer", "0000-GA-ENHET_4817"),
+    BERGEN("4812", "NAV Familie- og pensjonsytelser Bergen", "0000-GA-ENHET_4812"),
+    MIDLERTIDIG_ENHET("4863", "Midlertidig enhet", "0000-GA-ENHET_4863"),
     ;
 
     override fun toString(): String = "$enhetsnavn ($enhetsnummer)"
