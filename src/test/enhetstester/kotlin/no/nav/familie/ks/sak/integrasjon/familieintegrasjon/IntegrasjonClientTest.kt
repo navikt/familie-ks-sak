@@ -62,8 +62,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/oppgave/v4"))
-                .willReturn(okJson(readFile("hentOppgaverEnkelKONResponse.json"))),
+                .post(WireMock.urlEqualTo("/oppgave/v4"))
+                .willReturn(WireMock.okJson(readFile("hentOppgaverEnkelKONResponse.json"))),
         )
 
         // Act
@@ -80,8 +80,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/arbeidsfordeling/enhet/KON"))
-                .willReturn(okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
+                .post(WireMock.urlEqualTo("/arbeidsfordeling/enhet/KON"))
+                .willReturn(WireMock.okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
         )
 
         // Act
@@ -98,8 +98,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .get(urlEqualTo("/arbeidsfordeling/nav-kontor/200"))
-                .willReturn(okJson(readFile("hentEnhetEnkelResponse.json"))),
+                .get(WireMock.urlEqualTo("/arbeidsfordeling/nav-kontor/200"))
+                .willReturn(WireMock.okJson(readFile("hentEnhetEnkelResponse.json"))),
         )
 
         // Act
@@ -117,8 +117,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .get(urlEqualTo("/oppgave/200"))
-                .willReturn(okJson(readFile("finnOppgaveMedIdEnkelResponse.json"))),
+                .get(WireMock.urlEqualTo("/oppgave/200"))
+                .willReturn(WireMock.okJson(readFile("finnOppgaveMedIdEnkelResponse.json"))),
         )
 
         // Act
@@ -137,8 +137,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/tilgang/v2/personer"))
-                .willReturn(okJson(readFile("sjekkTilgangTilPersonerResponseMedTilgangTilAlle.json"))),
+                .post(WireMock.urlEqualTo("/tilgang/v2/personer"))
+                .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedTilgangTilAlle.json"))),
         )
 
         mockkObject(SikkerhetContext)
@@ -157,8 +157,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/tilgang/v2/personer"))
-                .willReturn(okJson(readFile("sjekkTilgangTilPersonerResponseMedIkkeTilgangTilAlle.json"))),
+                .post(WireMock.urlEqualTo("/tilgang/v2/personer"))
+                .willReturn(WireMock.okJson(readFile("sjekkTilgangTilPersonerResponseMedIkkeTilgangTilAlle.json"))),
         )
 
         mockkObject(SikkerhetContext)
@@ -179,8 +179,8 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/oppgave/200/fordel?saksbehandler=$saksbehandler"))
-                .willReturn(okJson(readFile("fordelOppgaveEnkelResponse.json"))),
+                .post(WireMock.urlEqualTo("/oppgave/200/fordel?saksbehandler=$saksbehandler"))
+                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
         // Act
@@ -197,8 +197,8 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .patch(urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true&nullstillTilordnetRessurs=true"))
-                .willReturn(okJson(readFile("fordelOppgaveEnkelResponse.json"))),
+                .patch(WireMock.urlEqualTo("/oppgave/200/enhet/testenhet?fjernMappeFraOppgave=true&nullstillTilordnetRessurs=true"))
+                .willReturn(WireMock.okJson(readFile("fordelOppgaveEnkelResponse.json"))),
         )
 
         // Act
@@ -215,8 +215,8 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
-                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+                .post(WireMock.urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
         // Act
@@ -231,8 +231,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .delete(urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
-                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+                .delete(WireMock.urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
         // Act
@@ -249,8 +249,8 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .put(urlEqualTo("/arkiv/v2/testJournalpostId"))
-                .willReturn(okJson(readFile("oppdaterJournalpostEnkelResponse.json"))),
+                .put(WireMock.urlEqualTo("/arkiv/v2/testJournalpostId"))
+                .willReturn(WireMock.okJson(readFile("oppdaterJournalpostEnkelResponse.json"))),
         )
 
         // Act
@@ -265,8 +265,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .put(urlEqualTo("/arkiv/v2/testJournalPost/ferdigstill?journalfoerendeEnhet=testEnhet"))
-                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+                .put(WireMock.urlEqualTo("/arkiv/v2/testJournalPost/ferdigstill?journalfoerendeEnhet=testEnhet"))
+                .willReturn(WireMock.okJson(readFile("logiskVedleggEnkelResponse.json"))),
         )
 
         // Act
@@ -280,8 +280,8 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/arkiv/v4"))
-                .willReturn(okJson(readFile("journalførDokumentEnkelResponse.json"))),
+                .post(WireMock.urlEqualTo("/arkiv/v4"))
+                .willReturn(WireMock.okJson(readFile("journalførDokumentEnkelResponse.json"))),
         )
 
         // Act
@@ -298,8 +298,8 @@ internal class IntegrasjonClientTest {
 
         wiremockServerItem.stubFor(
             WireMock
-                .get(urlEqualTo("/kodeverk/landkoder/$landKode"))
-                .willReturn(okJson(readFile("hentLandEnkelResponse.json"))),
+                .get(WireMock.urlEqualTo("/kodeverk/landkoder/$landKode"))
+                .willReturn(WireMock.okJson(readFile("hentLandEnkelResponse.json"))),
         )
 
         // Act
@@ -314,8 +314,8 @@ internal class IntegrasjonClientTest {
         // Arrange
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/dist/v1"))
-                .willReturn(okJson(readFile("distribuerBrevEnkelResponse.json"))),
+                .post(WireMock.urlEqualTo("/dist/v1"))
+                .willReturn(WireMock.okJson(readFile("distribuerBrevEnkelResponse.json"))),
         )
 
         // Act
@@ -331,8 +331,9 @@ internal class IntegrasjonClientTest {
         val navIdent = NavIdent("1")
 
         wiremockServerItem.stubFor(
-            get(urlEqualTo("/saksbehandler/1/grupper"))
-                .willReturn(okJson(readFile("enheterNavIdentHarTilgangTilResponse.json"))),
+            WireMock
+                .post(WireMock.urlEqualTo("/enhetstilganger"))
+                .willReturn(WireMock.okJson(readFile("enheterNavIdentHarTilgangTilResponse.json"))),
         )
 
         // Act
@@ -345,8 +346,8 @@ internal class IntegrasjonClientTest {
             assertThat(it.enhetsnavn).isEqualTo(KontantstøtteEnhet.VADSØ.enhetsnavn)
         }
         assertThat(enheter).anySatisfy {
-            assertThat(it.enhetsnummer).isEqualTo(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
-            assertThat(it.enhetsnavn).isEqualTo(KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            assertThat(it.enhetsnummer).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnummer)
+            assertThat(it.enhetsnavn).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnavn)
         }
     }
 

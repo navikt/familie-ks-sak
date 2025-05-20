@@ -16,6 +16,8 @@ import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
+import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.enhet.HentEnheterNavIdentHarTilgangTilRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
@@ -27,7 +29,6 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
-import no.nav.familie.kontrakter.felles.saksbehandler.SaksbehandlerGrupper
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
@@ -35,7 +36,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordel
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.Companion.erGyldigBehandlendeKontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -280,26 +281,15 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<KontantstøtteEnhet> {
-        val uri =
-            UriComponentsBuilder
-                .fromUri(integrasjonUri)
-                .pathSegment("saksbehandler", navIdent.ident, "grupper")
-                .build()
-                .toUri()
-
-        val saksbehandlerSineGrupper =
-            kallEksternTjenesteRessurs<SaksbehandlerGrupper>(
-                tjeneste = "saksbehandler",
-                uri = uri,
-                formål = "Henter gruppene til saksbehandler",
-            ) {
-                getForEntity(uri)
-            }
-
-        return saksbehandlerSineGrupper.value.mapNotNull { navn ->
-            KontantstøtteEnhet.entries.find { it.gruppenavn == navn.displayName }
-        }
+    fun hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
+        val uri = URI.create("$integrasjonUri/enhetstilganger")
+        return kallEksternTjenesteRessurs<List<Enhet>>(
+            tjeneste = "enhetstilganger",
+            uri = uri,
+            formål = "Hent enheter en NAV-ident har tilgang til",
+        ) {
+            postForEntity(uri, HentEnheterNavIdentHarTilgangTilRequest(navIdent, Tema.KON))
+        }.filter { erGyldigBehandlendeKontantstøtteEnhet(it.enhetsnummer) }
     }
 
     @Cacheable("enhet", cacheManager = "kodeverkCache")

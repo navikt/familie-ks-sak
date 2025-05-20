@@ -3,8 +3,10 @@ package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.data.lagEnhet
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.SYSTEM_FORKORTELSE
@@ -107,7 +109,10 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.VIKAFOSSEN,
+                    lagEnhet(
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -126,7 +131,9 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal returnere første enhetsnummer som NAV-identen har tilgang til når arbeidsfordeling er midlertidig enhet 4863`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil = KontantstøtteEnhet.OSLO
+            val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
+            val enhetNavIdentHarTilgangTil3 = KontantstøtteEnhet.OSLO
+            val enhetNavIdentHarTilgangTil4 = KontantstøtteEnhet.DRAMMEN
 
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
@@ -140,9 +147,18 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.VIKAFOSSEN,
-                    KontantstøtteEnhet.OSLO,
-                    KontantstøtteEnhet.DRAMMEN,
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil3.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil3.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil4.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil4.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -153,8 +169,8 @@ class TilpassArbeidsfordelingServiceTest {
                 )
 
             // Assert
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(enhetNavIdentHarTilgangTil.enhetsnummer)
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(enhetNavIdentHarTilgangTil.enhetsnavn)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(enhetNavIdentHarTilgangTil3.enhetsnummer)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(enhetNavIdentHarTilgangTil3.enhetsnavn)
         }
 
         @Test
@@ -196,8 +212,14 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.STEINKJER,
-                    KontantstøtteEnhet.VADSØ,
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil1.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil1.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -216,7 +238,8 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal returnere Vikafossen 2103 dersom arbeidsfordeling er Vikafossen 2103 og NAV-ident har tilgang til Vikafossen 2103`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil = KontantstøtteEnhet.VIKAFOSSEN
+            val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.BERGEN
+            val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VIKAFOSSEN
 
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
@@ -230,8 +253,14 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.BERGEN,
-                    KontantstøtteEnhet.VIKAFOSSEN,
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil1.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil1.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -242,8 +271,8 @@ class TilpassArbeidsfordelingServiceTest {
                 )
 
             // Assert
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(enhetNavIdentHarTilgangTil.enhetsnummer)
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(enhetNavIdentHarTilgangTil.enhetsnavn)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(enhetNavIdentHarTilgangTil2.enhetsnummer)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(enhetNavIdentHarTilgangTil2.enhetsnavn)
         }
 
         @Test
@@ -312,7 +341,10 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.VIKAFOSSEN,
+                    Enhet(
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -332,7 +364,8 @@ class TilpassArbeidsfordelingServiceTest {
             // Arrange
             val navIdent = NavIdent("1")
 
-            val enhetNavIdentHarTilgangTil = KontantstøtteEnhet.OSLO
+            val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.OSLO
+            val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.DRAMMEN
 
             val arbeidsfordelingsenhet =
                 Arbeidsfordelingsenhet(
@@ -346,8 +379,14 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.OSLO,
-                    KontantstøtteEnhet.DRAMMEN,
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil1.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil1.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = enhetNavIdentHarTilgangTil2.enhetsnummer,
+                        enhetsnavn = enhetNavIdentHarTilgangTil2.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -358,8 +397,8 @@ class TilpassArbeidsfordelingServiceTest {
                 )
 
             // Assert
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(enhetNavIdentHarTilgangTil.enhetsnummer)
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(enhetNavIdentHarTilgangTil.enhetsnavn)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(enhetNavIdentHarTilgangTil1.enhetsnummer)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(enhetNavIdentHarTilgangTil1.enhetsnavn)
         }
 
         @Test
@@ -381,9 +420,18 @@ class TilpassArbeidsfordelingServiceTest {
                 )
             } returns
                 listOf(
-                    KontantstøtteEnhet.MIDLERTIDIG_ENHET,
-                    KontantstøtteEnhet.VIKAFOSSEN,
-                    KontantstøtteEnhet.OSLO,
+                    lagEnhet(
+                        enhetsnummer = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
+                    ),
+                    lagEnhet(
+                        enhetsnummer = arbeidsfordelingEnhet.enhetsnummer,
+                        enhetsnavn = arbeidsfordelingEnhet.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -430,7 +478,10 @@ class TilpassArbeidsfordelingServiceTest {
 
             every { mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
                 listOf(
-                    KontantstøtteEnhet.VIKAFOSSEN,
+                    Enhet(
+                        enhetsnummer = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
+                    ),
                 )
 
             // Act
@@ -448,7 +499,10 @@ class TilpassArbeidsfordelingServiceTest {
 
             every { mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
                 listOf(
-                    KontantstøtteEnhet.OSLO,
+                    Enhet(
+                        enhetsnummer = KontantstøtteEnhet.OSLO.enhetsnummer,
+                        enhetsnavn = KontantstøtteEnhet.OSLO.enhetsnavn,
+                    ),
                 )
 
             // Act

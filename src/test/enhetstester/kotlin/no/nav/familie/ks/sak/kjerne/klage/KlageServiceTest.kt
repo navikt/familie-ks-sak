@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.klage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
@@ -11,7 +12,6 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -97,8 +97,8 @@ class KlageServiceTest {
         fun `skal sette enheten til saksbehandlers enhet ved opprettelse av klagebehandling`() {
             // Arrange
             val fagsak = lagFagsak()
-            val forventetEnhet = KontantstøtteEnhet.VADSØ
-            val enhetSomIkkeSkalVelges = KontantstøtteEnhet.OSLO
+            val forventetEnhet = Enhet("1234", "testRiktig")
+            val enhetSomIkkeSkalVelges = Enhet("5432", "testFeil")
 
             every { integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(forventetEnhet, enhetSomIkkeSkalVelges)
 

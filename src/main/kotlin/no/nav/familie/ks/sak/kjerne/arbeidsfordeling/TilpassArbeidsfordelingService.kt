@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.enhet.Enhet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.containsExactly
@@ -129,7 +130,7 @@ class TilpassArbeidsfordelingService(
         )
     }
 
-    private fun hentEnheterNavIdentHarTilgangTil(navIdent: NavIdent): List<KontantstøtteEnhet> {
+    private fun hentEnheterNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
         val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
             logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
@@ -144,7 +145,7 @@ class TilpassArbeidsfordelingService(
         throw Feil("Kan ikke håndtere $kontantstøtteEnhet om man mangler NAV-ident.")
     }
 
-    private fun List<KontantstøtteEnhet>.inneholderKunVikafossen(): Boolean = this.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
+    private fun List<Enhet>.inneholderKunVikafossen(): Boolean = this.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
 
     private fun NavIdent.erSystemIdent(): Boolean = this.ident == SYSTEM_FORKORTELSE
 }
