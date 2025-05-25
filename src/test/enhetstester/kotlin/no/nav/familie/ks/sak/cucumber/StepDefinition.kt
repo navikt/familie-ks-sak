@@ -364,6 +364,7 @@ class StepDefinition {
         forventedeStandardBegrunnelser.forEach { forventet ->
             val faktisk =
                 hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId)
+                    .sortedBy { it.fom }
                     .mapIndexed { index, utvidetVedtaksperiodeMedBegrunnelser ->
                         utvidetVedtaksperiodeMedBegrunnelser.copy(
                             gyldigeBegrunnelser =
