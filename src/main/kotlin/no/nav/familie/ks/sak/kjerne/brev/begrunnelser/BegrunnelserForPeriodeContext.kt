@@ -413,9 +413,9 @@ class BegrunnelserForPeriodeContext(
 
                 val senesteVilkårSomIkkeErOppfyltPåPersonPerVilkårType =
                     vilkårResultaterPåPerson
+                        .filter { !it.erOppfylt() }
                         .groupBy { it.vilkårType }
                         .map { (_, vilkår) -> vilkår.maxBy { it.periodeFom ?: TIDENES_MORGEN } }
-                        .filter { !it.erOppfylt() }
 
                 val senesteVilkårSomIkkeErOppfyltForrigeEllerDennePerioden =
                     senesteVilkårSomIkkeErOppfyltPåPersonPerVilkårType.filter {
