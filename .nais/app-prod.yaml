@@ -95,6 +95,8 @@ spec:
           cluster: prod-gcp
         - application: familie-baks-mottak
           cluster: prod-gcp
+        - application: logging
+          namespace: nais-system
       external:
         - host: nav-prod-kafka-nav-prod.aivencloud.com
         - host: xsrv1mh6.api.sanity.io
