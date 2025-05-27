@@ -24,14 +24,21 @@ class PersonopplysningerService(
 ) {
     fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
         val pdlPersonData = hentPersoninfoMedQuery(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON)
+
         val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> =
             pdlPersonData.forelderBarnRelasjon
                 .mapNotNull { relasjon ->
-                    relasjon.relatertPersonsIdent?.let { ident ->
+                    val ident = relasjon.relatertPersonsIdent ?: return@mapNotNull null
+
+                    try {
                         ForelderBarnRelasjonInfo(
                             aktør = personidentService.hentAktør(ident),
                             relasjonsrolle = relasjon.relatertPersonsRolle,
                         )
+                    } catch (e: PdlPersonKanIkkeBehandlesIFagsystem) {
+                        logger.warn("Person kunne ikke bli lagret ned grunnet manglende folkeregisteridentifikator, se securelogger")
+                        secureLogger.warn("Person med ident $ident ble ikke lagret ned grunnet manglende folkeregisteridentifikator", e)
+                        null
                     }
                 }.toSet()
 

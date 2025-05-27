@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.personident
 
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
@@ -120,7 +121,7 @@ class PersonidentService(
 
     private fun filtrerAktivtFødselsnummer(pdlIdenter: List<PdlIdent>) =
         pdlIdenter.singleOrNull { it.gruppe == "FOLKEREGISTERIDENT" }?.ident
-            ?: throw Error("Finner ikke aktiv ident i Pdl")
+            ?: throw PdlPersonKanIkkeBehandlesIFagsystem("Finner ikke aktiv ident i Pdl for personen")
 
     private fun filtrerAktørId(pdlIdenter: List<PdlIdent>): String =
         pdlIdenter.singleOrNull { it.gruppe == "AKTORID" }?.ident
