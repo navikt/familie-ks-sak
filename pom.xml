@@ -63,7 +63,7 @@
         <cucumber.version>7.22.2</cucumber.version>
         <rest-assured.version>5.5.5</rest-assured.version>
         <mock-oauth2-server.version>2.1.11</mock-oauth2-server.version>
-        <testcontainers.postgresql.version>1.21.0</testcontainers.postgresql.version>
+        <testcontainers.postgresql.version>1.21.1</testcontainers.postgresql.version>
         <mockk.version>1.14.2</mockk.version>
         <wiremock.version>3.13.0</wiremock.version>
         <okhttp3.version>4.9.0</okhttp3.version> <!-- Må settes for å kjøre opp mock-oauth2-server i unit-tester -->
