@@ -17,5 +17,5 @@ fun Totrinnskontroll.tilTotrinnskontrollDto() =
         beslutter = this.beslutter,
         godkjent = this.godkjent,
         opprettetTidspunkt = this.opprettetTidspunkt,
-        saksbehandlerId = this.saksbehandlerId
+        saksbehandlerId = this.saksbehandlerId,
     )
