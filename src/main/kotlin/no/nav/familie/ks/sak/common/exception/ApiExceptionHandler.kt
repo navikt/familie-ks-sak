@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -131,5 +132,15 @@ class ApiExceptionHandler {
                 frontendFeilmelding = errorMessage,
             ),
         )
+    }
+
+    /**
+     * AsyncRequestNotUsableException er en exception som blir kastet når en async request blir avbrutt. Velger
+     * å skjule denne exceptionen fra loggen da den ikke er interessant for oss.
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException::class)
+    fun handlAsyncRequestNotUsableException(e: AsyncRequestNotUsableException): ResponseEntity<Any> {
+        logger.info("En AsyncRequestNotUsableException har oppstått, som skjer når en async request blir avbrutt", e)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
     }
 }
