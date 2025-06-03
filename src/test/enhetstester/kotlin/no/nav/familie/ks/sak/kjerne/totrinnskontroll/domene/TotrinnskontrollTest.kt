@@ -13,17 +13,17 @@ class TotrinnskontrollTest {
     @Nested
     inner class ErUgyldigTest {
         @Test
-        fun `Skal returnere true dersom det er samme person som beslutter`() {
+        fun `Skal returnere false dersom det er samme navn på saksbehandler og beslutter men annen ID`() {
             val kontroll =
                 Totrinnskontroll(
                     behandling = behandling,
                     godkjent = true,
                     saksbehandler = "NAV-Bruker",
-                    saksbehandlerId = "X123",
+                    saksbehandlerId = "X123Saksbehandler",
                     beslutter = "NAV-Bruker",
-                    beslutterId = "X123",
+                    beslutterId = "X123Beslutter",
                 )
-            assertTrue(kontroll.erUgyldig())
+            assertFalse(kontroll.erUgyldig())
         }
 
         @Test
