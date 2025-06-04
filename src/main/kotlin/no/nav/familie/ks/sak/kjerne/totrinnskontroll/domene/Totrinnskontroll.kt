@@ -46,7 +46,7 @@ data class Totrinnskontroll(
     var kontrollerteSider: List<String> = emptyList(),
 ) : BaseEntitet() {
     fun erUgyldig(): Boolean {
-        val sammePerson = saksbehandler == beslutter || saksbehandlerId == beslutterId
+        val sammePerson = saksbehandlerId == beslutterId
         val ikkeSystem = saksbehandler != SikkerhetContext.SYSTEM_NAVN
 
         return godkjent && sammePerson && ikkeSystem
