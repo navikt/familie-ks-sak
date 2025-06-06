@@ -25,10 +25,10 @@ class AInntektController(
     fun hentAInntektUrl(
         @RequestBody personIdent: PersonIdent,
     ): Ressurs<HentAInntektUrlDto> {
-        tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
+        tilgangService.validerTilgangTilHandlingOgPersoner(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "hente a-inntekt url",
-            personIdent = personIdent.ident,
+            personIdenter = listOf(personIdent.ident),
             event = AuditLoggerEvent.ACCESS,
         )
 
