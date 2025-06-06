@@ -510,7 +510,7 @@ class IntegrasjonClient(
     }
 
     fun hentAInntektUrl(personIdent: PersonIdent): String {
-        val url = URI.create("$integrasjonUri/api/arbeid-og-inntekt/hent-url")
+        val url = URI.create("$integrasjonUri/arbeid-og-inntekt/hent-url")
 
         return kallEksternTjeneste(
             tjeneste = "a-inntekt-url",
