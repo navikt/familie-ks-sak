@@ -22,8 +22,8 @@ fun BarnehagebarnRequestParams.toSort() =
 private fun getCorrectSortBy(sortBy: String): String =
     when (sortBy.lowercase()) {
         "endrettidspunkt" -> "endretTid"
-        "kommunenavn" -> "kommune_navn"
-        "kommunenr" -> "kommune_nr"
-        "antalltimeribarnehage" -> "antall_timer_i_barnehage"
+        "kommunenavn" -> "kommuneNavn"
+        "kommunenr" -> "kommuneNr"
+        "antalltimeribarnehage" -> "antallTimerBarnehage"
         else -> sortBy
     }
