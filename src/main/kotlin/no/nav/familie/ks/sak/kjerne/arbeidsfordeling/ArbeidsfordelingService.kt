@@ -188,8 +188,7 @@ class ArbeidsfordelingService(
                 oppdatertArbeidsfordelingPåBehandling.toSecureString(),
         )
 
-        if (aktivArbeidsfordelingEnhet != null && aktivArbeidsfordelingEnhet.enhetId != oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId
-        ) {
+        if (aktivArbeidsfordelingEnhet != null && aktivArbeidsfordelingEnhet.enhetId != oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId) {
             loggService.opprettBehandlendeEnhetEndret(
                 behandling = behandling,
                 fraEnhet = aktivArbeidsfordelingEnhet,
