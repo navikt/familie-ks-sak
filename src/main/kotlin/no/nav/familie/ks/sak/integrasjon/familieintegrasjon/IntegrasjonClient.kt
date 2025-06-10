@@ -509,6 +509,21 @@ class IntegrasjonClient(
         }
     }
 
+    fun hentAInntektUrl(personIdent: PersonIdent): String {
+        val url = URI.create("$integrasjonUri/arbeid-og-inntekt/hent-url")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "a-inntekt-url",
+            uri = url,
+            formål = "Hent URL for person til A-inntekt",
+        ) {
+            postForEntity(
+                url,
+                personIdent,
+            )
+        }
+    }
+
     private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo?) =
         manuellAdresseInfo?.let {
             ManuellAdresse(
