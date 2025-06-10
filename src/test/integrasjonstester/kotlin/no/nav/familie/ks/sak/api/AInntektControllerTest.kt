@@ -13,17 +13,12 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 
 class AInntektControllerTest : OppslagSpringRunnerTest() {
-    @Autowired
-    private lateinit var ainntektController: AInntektController
-
-    @Autowired
-    private lateinit var mockIntegrasjonService: AInntektController
-
     @MockkBean
     private lateinit var integrasjonClient: IntegrasjonClient
 
@@ -52,7 +47,7 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
             statusCode(200)
             body("status", `is`("SUKSESS"))
             body("melding", `is`("Innhenting av data var vellykket"))
-            body("data.url", `is`(ainntektUrl))
+            body("data", `is`(ainntektUrl))
         }
     }
 
@@ -69,7 +64,8 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
         } Then {
             statusCode(403)
             body("status", `is`("IKKE_TILGANG"))
-            body("melding", `is`("Saksbehandler test har ikke tilgang til å behandle [01012012345]."))
+            body("melding", StringContains("Saksbehandler test har ikke tilgang til å behandle [01012012345]."))
+            body("data", `is`(nullValue()))
         }
     }
 }
