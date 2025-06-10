@@ -24,7 +24,7 @@ class AInntektController(
     @PostMapping("hent-url")
     fun hentAInntektUrl(
         @RequestBody personIdent: PersonIdent,
-    ): Ressurs<HentAInntektUrlDto> {
+    ): Ressurs<String> {
         tilgangService.validerTilgangTilHandlingOgPersoner(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "hente a-inntekt url",
@@ -32,12 +32,6 @@ class AInntektController(
             event = AuditLoggerEvent.ACCESS,
         )
 
-        val url = HentAInntektUrlDto(url = integrasjonService.hentAInntektUrl(personIdent))
-
-        return Ressurs.success(url)
+        return Ressurs.success(integrasjonService.hentAInntektUrl(personIdent))
     }
 }
-
-data class HentAInntektUrlDto(
-    val url: String,
-)
