@@ -74,8 +74,7 @@ data class EndretUtbetalingAndel(
         }
 
     fun validerUtfyltEndring() {
-        if (this.manglerObligatoriskFelt() || (begrunnelse?.isEmpty() == true)
-        ) {
+        if (this.manglerObligatoriskFelt() || (begrunnelse?.isEmpty() == true)) {
             val feilmelding =
                 "Person, prosent, fom, tom, årsak, begrunnese og søknadstidspunkt skal være utfylt: $this"
             throw FunksjonellFeil(melding = feilmelding, frontendFeilmelding = feilmelding)
