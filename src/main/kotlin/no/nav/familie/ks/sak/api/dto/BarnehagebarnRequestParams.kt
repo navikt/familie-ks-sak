@@ -14,9 +14,9 @@ data class BarnehagebarnRequestParams(
 
 fun BarnehagebarnRequestParams.toSort() =
     if (sortAsc) {
-        Sort.by(getCorrectSortBy(sortBy)).ascending()
+        Sort.by(Sort.Order(Sort.Direction.ASC, getCorrectSortBy(sortBy), Sort.NullHandling.NULLS_LAST))
     } else {
-        Sort.by(getCorrectSortBy(sortBy)).descending()
+        Sort.by(Sort.Order(Sort.Direction.DESC, getCorrectSortBy(sortBy), Sort.NullHandling.NULLS_LAST))
     }
 
 private fun getCorrectSortBy(sortBy: String): String =
