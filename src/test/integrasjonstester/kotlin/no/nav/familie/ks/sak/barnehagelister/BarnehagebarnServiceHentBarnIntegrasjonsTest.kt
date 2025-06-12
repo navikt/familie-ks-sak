@@ -168,7 +168,7 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
     )
     fun `hentBarnehageBarn oppgir ikke avvik så lenge barnet har fulltidsplass selv hvis det er forskjellig antall timer`() {
         // Arrange
-        val barnehagebarnRequestParams1 =
+        val barnehagebarnRequestParams =
             BarnehagebarnRequestParams(
                 ident = null,
                 kommuneNavn = null,
