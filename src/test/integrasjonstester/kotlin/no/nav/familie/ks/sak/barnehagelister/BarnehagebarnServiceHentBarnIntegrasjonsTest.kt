@@ -163,6 +163,30 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
 
     @Test
     @Sql(
+        scripts = ["/barnehagelister/barnehagebarn-med-fulltid-barnehageplass.sql"],
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+    )
+    fun `hentBarnehageBarn oppgir ikke avvik så lenge barnet har fulltidsplass selv hvis det er forskjellig antall timer`() {
+        // Arrange
+        val barnehagebarnRequestParams =
+            BarnehagebarnRequestParams(
+                ident = null,
+                kommuneNavn = null,
+                kunLøpendeAndel = false,
+            )
+
+        // Act
+        val barnehagebarn =
+            barnehagebarnService.hentBarnehagebarnForVisning(barnehagebarnRequestParams = barnehagebarnRequestParams).content
+
+        // Assert
+        assertThat(barnehagebarn.size).`as`("Forventet 1 barn, fikk ${barnehagebarn.size}").isEqualTo(1)
+
+        assertThat(barnehagebarn.single().avvik).`as`("Forventet ikke avvik").isEqualTo(false)
+    }
+
+    @Test
+    @Sql(
         scripts = ["/barnehagelister/barnehagebarn-forskjellig-endret-tid.sql"],
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
     )

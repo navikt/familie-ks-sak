@@ -20,7 +20,10 @@ WITH lopende_andel_i_aktiv_behandling_for_ident
                AND b.aktiv),
      avvik_antall_timer_vilkar_resultat_og_barnehagebarn
          AS (SELECT bb.id                                          as barnehagebarn_id,
-                    vr.antall_timer != bb.antall_timer_i_barnehage as avvik
+                    CASE
+                        WHEN bb.antall_timer_i_barnehage < 33 THEN vr.antall_timer != bb.antall_timer_i_barnehage
+                        ELSE vr.antall_timer <= 33
+                    END as avvik
              FROM barnehagebarn bb
                       JOIN personident p ON bb.ident = p.foedselsnummer and p.aktiv
                       JOIN person_resultat pr ON pr.fk_aktoer_id = p.fk_aktoer_id
