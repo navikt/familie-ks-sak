@@ -177,7 +177,7 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
 
         // Act
         val barnehagebarn =
-            barnehagebarnService.hentBarnehagebarnForVisning(barnehagebarnRequestParams = barnehagebarnRequestParams1).content
+            barnehagebarnService.hentBarnehagebarnForVisning(barnehagebarnRequestParams = barnehagebarnRequestParams).content
 
         // Assert
         assertThat(barnehagebarn.size).`as`("Forventet 1 barn, fikk ${barnehagebarn.size}").isEqualTo(1)
