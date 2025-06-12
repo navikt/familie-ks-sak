@@ -166,7 +166,7 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
         scripts = ["/barnehagelister/barnehagebarn-med-fulltid-barnehageplass.sql"],
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
     )
-    fun `hentBarnehageBarn oppgir ikke avvik sålenge barnet har fulltidsplass selv hvis det er forskjellig antall timer`() {
+    fun `hentBarnehageBarn oppgir ikke avvik så lenge barnet har fulltidsplass selv hvis det er forskjellig antall timer`() {
         // Arrange
         val barnehagebarnRequestParams1 =
             BarnehagebarnRequestParams(
