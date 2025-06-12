@@ -50,13 +50,13 @@
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
-        <confluent.version>7.9.1</confluent.version>
+        <confluent.version>8.0.0</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>10.2.2</unleash.version>
-        <microsoft-graph.version>6.40.0</microsoft-graph.version>
+        <unleash.version>11.0.0</unleash.version>
+        <microsoft-graph.version>6.41.0</microsoft-graph.version>
         <azure-identity.version>1.16.2</azure-identity.version>
 
         <!-- Test -->
