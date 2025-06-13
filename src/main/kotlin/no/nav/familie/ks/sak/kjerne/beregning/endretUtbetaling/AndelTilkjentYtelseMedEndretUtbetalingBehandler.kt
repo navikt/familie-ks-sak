@@ -41,10 +41,15 @@ object AndelTilkjentYtelseMedEndretUtbetalingBehandler {
 
         val andelerPerAktør = andelTilkjentYtelserUtenEndringer.groupBy { it.aktør }
         val endringerPerAktør =
-            endretUtbetalingAndeler.groupBy {
-                it.person?.aktør
-                    ?: throw Feil("Endret utbetaling andel ${it.endretUtbetalingAndel.id} i behandling ${tilkjentYtelse.behandling.id} er ikke knyttet til en person")
-            }
+            endretUtbetalingAndeler
+                .flatMap { andel ->
+                    andel.personer
+                        .ifEmpty {
+                            throw Feil("Endret utbetaling andel ${andel.id} i behandling ${tilkjentYtelse.behandling.id} er ikke knyttet til noen personer")
+                        }.map { person ->
+                            person.aktør to andel
+                        }
+                }.groupBy({ it.first }, { it.second })
 
         val andelerMedEndringer =
             andelerPerAktør.flatMap { (aktør, andelerForAktør) ->

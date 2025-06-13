@@ -6,14 +6,20 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
+import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
@@ -22,9 +28,16 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class EndretUtbetalingAndelServiceTest {
@@ -108,7 +121,7 @@ class EndretUtbetalingAndelServiceTest {
 
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.behandlingId, Is(behandling.id))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.årsak, Is(nullValue()))
-        assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.person, Is(nullValue()))
+        assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.personer, Is(emptySet()))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.tom, Is(nullValue()))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.fom, Is(nullValue()))
 
@@ -177,5 +190,106 @@ class EndretUtbetalingAndelServiceTest {
         // Assert
         assertThat(endringsårsakbegrunnelser.size, Is(9))
         assertThat(endringsårsakbegrunnelser[BegrunnelseType.AVSLAG]?.size, Is(2))
+    }
+
+    @Test
+    fun `Skal håndtere EndretUtbetalingAndelRequestDto med blanding av nytt og gammelt felt for personIdent(er)`() {
+        // Arrange
+        val behandling = lagBehandling()
+        val barn1 = lagPerson(personType = PersonType.BARN)
+        val barn2 = lagPerson(personType = PersonType.BARN)
+
+        val endretUtbetalingAndel = EndretUtbetalingAndel(behandlingId = behandling.id)
+
+        val andelerTilkjentYtelse =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    person = barn1,
+                    fom = YearMonth.of(2025, 1),
+                    tom = YearMonth.of(2025, 1),
+                ),
+                lagAndelTilkjentYtelse(
+                    person = barn2,
+                    fom = YearMonth.of(2025, 1),
+                    tom = YearMonth.of(2025, 1),
+                ),
+            )
+
+        val lagretEndretUtbetalingAndel = slot<EndretUtbetalingAndel>()
+
+        every { endretUtbetalingAndelRepository.getReferenceById(any()) } returns endretUtbetalingAndel
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns lagTestPersonopplysningGrunnlag(behandling.id, barn1, barn2)
+        every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns andelerTilkjentYtelse
+        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId = behandling.id) } returns listOf(endretUtbetalingAndel)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns Vilkårsvurdering(behandling = behandling)
+        every { endretUtbetalingAndelRepository.saveAndFlush(capture(lagretEndretUtbetalingAndel)) } returns mockk()
+        every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } returns mockk()
+
+        var endretUtbetalingAndelRequestDto =
+            EndretUtbetalingAndelRequestDto(
+                id = 0,
+                personIdent = null,
+                personIdenter = null,
+                prosent = BigDecimal.ZERO,
+                fom = YearMonth.of(2025, 1),
+                tom = YearMonth.of(2025, 1),
+                årsak = Årsak.ALLEREDE_UTBETALT,
+                søknadstidspunkt = LocalDate.now(),
+                begrunnelse = "Test begrunnelse",
+                erEksplisittAvslagPåSøknad = false,
+                vedtaksbegrunnelser = emptyList(),
+            )
+
+        // Act & Assert
+        assertThrows<FunksjonellFeil> {
+            endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
+                behandling = behandling,
+                endretUtbetalingAndelRequestDto = endretUtbetalingAndelRequestDto,
+            )
+        }
+
+        // Arrange
+        endretUtbetalingAndelRequestDto =
+            endretUtbetalingAndelRequestDto.copy(
+                personIdenter = null,
+                personIdent = barn1.aktør.aktivFødselsnummer(),
+            )
+
+        // Act & Assert
+        assertDoesNotThrow {
+            endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
+                behandling = behandling,
+                endretUtbetalingAndelRequestDto = endretUtbetalingAndelRequestDto,
+            )
+        }
+
+        // Assert
+        assertThat(lagretEndretUtbetalingAndel.captured).isEqualTo(
+            endretUtbetalingAndel.copy(
+                personer = mutableSetOf(barn1),
+            ),
+        )
+
+        // Arrange
+        endretUtbetalingAndelRequestDto =
+            endretUtbetalingAndelRequestDto.copy(
+                personIdenter = listOf(barn1.aktør.aktivFødselsnummer(), barn2.aktør.aktivFødselsnummer()),
+                personIdent = barn1.aktør.aktivFødselsnummer(),
+            )
+
+        // Act & Assert
+        assertDoesNotThrow {
+            endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(
+                behandling = behandling,
+                endretUtbetalingAndelRequestDto = endretUtbetalingAndelRequestDto,
+            )
+        }
+
+        // Assert
+        assertThat(lagretEndretUtbetalingAndel.captured).isEqualTo(
+            endretUtbetalingAndel.copy(
+                personer = mutableSetOf(barn1, barn2),
+            ),
+        )
     }
 }

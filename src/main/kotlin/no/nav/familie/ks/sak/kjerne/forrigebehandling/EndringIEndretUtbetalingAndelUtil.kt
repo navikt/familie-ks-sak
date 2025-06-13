@@ -14,16 +14,16 @@ object EndringIEndretUtbetalingAndelUtil {
         nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
         forrigeEndretAndeler: List<EndretUtbetalingAndel>,
     ): YearMonth? {
-        val nåværendeAktører = nåværendeEndretAndeler.mapNotNull { it.person?.aktør }
-        val forrigeAktører = forrigeEndretAndeler.mapNotNull { it.person?.aktør }
+        val nåværendeAktører = nåværendeEndretAndeler.flatMap { it.personer.map { person -> person.aktør } }.distinct()
+        val forrigeAktører = forrigeEndretAndeler.flatMap { it.personer.map { person -> person.aktør } }.distinct()
         val alleAktører = (nåværendeAktører + forrigeAktører).distinct()
 
         val endringIEndretUtbetalingTidslinjer =
             alleAktører
                 .map { aktør ->
                     lagEndringIEndretUbetalingAndelPerPersonTidslinje(
-                        nåværendeEndretAndelerForPerson = nåværendeEndretAndeler.filter { it.person?.aktør == aktør },
-                        forrigeEndretAndelerForPerson = forrigeEndretAndeler.filter { it.person?.aktør == aktør },
+                        nåværendeEndretAndelerForPerson = nåværendeEndretAndeler.filter { it.personer.any { person -> person.aktør == aktør } },
+                        forrigeEndretAndelerForPerson = forrigeEndretAndeler.filter { it.personer.any { person -> person.aktør == aktør } },
                     )
                 }.kombiner { finnesMinstEnEndringIPeriode(it) }
 

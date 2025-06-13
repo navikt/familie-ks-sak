@@ -152,7 +152,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndelForBarn1 =
                 lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
                     behandlingId = behandling.id,
-                    person = barn1,
+                    personer = setOf(barn1),
                     prosent = BigDecimal.ZERO,
                     årsak = Årsak.ETTERBETALING_3MND,
                     fom = fom,
@@ -215,7 +215,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
                     behandlingId = behandling.id,
-                    person = barn,
+                    personer = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     årsak = Årsak.ALLEREDE_UTBETALT,
                     fom = YearMonth.now().minusMonths(7),
@@ -278,7 +278,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søker,
+                    personer = setOf(søker),
                     periodeFom = fom,
                     periodeTom = tom,
                     prosent = BigDecimal.ZERO,
@@ -333,7 +333,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søker,
+                    personer = setOf(søker),
                     periodeFom = fom1,
                     periodeTom = tom2,
                     prosent = BigDecimal.ZERO,
@@ -345,7 +345,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel2 =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søker,
+                    personer = setOf(søker),
                     periodeFom = tom2.nesteMåned(),
                     prosent = endretProsent,
                 )
@@ -395,7 +395,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søker,
+                    personer = setOf(søker),
                     periodeFom = fom,
                     periodeTom = tom,
                     prosent = BigDecimal(100),
@@ -445,7 +445,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søker,
+                    personer = setOf(søker),
                     periodeFom = fom,
                     periodeTom = tom,
                     prosent = BigDecimal(0),
@@ -501,7 +501,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søker,
+                    personer = setOf(søker),
                     periodeFom = fom,
                     periodeTom = tom,
                     prosent = BigDecimal(0),
@@ -545,7 +545,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                                     andeler = emptyList(),
                                     endretUtbetalingAndel =
                                         lagEndretUtbetalingAndel(
-                                            person = barn,
+                                            personer = setOf(barn),
                                             prosent = BigDecimal.ZERO,
                                             årsak = Årsak.ETTERBETALING_3MND,
                                         ),
@@ -569,7 +569,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                                     andeler = emptyList(),
                                     endretUtbetalingAndel =
                                         lagEndretUtbetalingAndel(
-                                            person = barn,
+                                            personer = setOf(barn),
                                             prosent = BigDecimal.ZERO,
                                             årsak = Årsak.ALLEREDE_UTBETALT,
                                         ),
@@ -594,7 +594,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             // Arrange
             val barn = lagPerson(personType = PersonType.BARN)
             val endretUtbetalingAndel =
-                lagEndretUtbetalingAndel(person = barn, prosent = BigDecimal.ZERO, årsak = Årsak.ALLEREDE_UTBETALT)
+                lagEndretUtbetalingAndel(personer = setOf(barn), prosent = BigDecimal.ZERO, årsak = Årsak.ALLEREDE_UTBETALT)
 
             val periode1 =
                 Periode(
@@ -697,7 +697,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             val barn = lagPerson(personType = PersonType.BARN)
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    person = barn,
+                    personer = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     årsak = Årsak.ALLEREDE_UTBETALT,
                     periodeFom = YearMonth.now().minusMonths(9),
@@ -825,7 +825,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                                     andeler = emptyList(),
                                     endretUtbetalingAndel =
                                         lagEndretUtbetalingAndel(
-                                            person = barn,
+                                            personer = setOf(barn),
                                             prosent = BigDecimal.ZERO,
                                             årsak = Årsak.ETTERBETALING_3MND,
                                         ),
@@ -846,7 +846,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
             assertThat(andel.endreteUtbetalinger.size).isEqualTo(1)
             assertThat(andel.endreteUtbetalinger.single().prosent).isEqualTo(BigDecimal.ZERO)
             assertThat(andel.endreteUtbetalinger.single().årsak).isEqualTo(Årsak.ETTERBETALING_3MND)
-            assertThat(andel.endreteUtbetalinger.single().person).isEqualTo(barn)
+            assertThat(andel.endreteUtbetalinger.single().personer).containsOnly(barn)
 
             assertThat(andel.andel.tilkjentYtelse).isEqualTo(tilkjentYtelse)
             assertThat(andel.andel.aktør).isEqualTo(barn.aktør)
@@ -881,7 +881,7 @@ class AndelTilkjentYtelseMedEndretUtbetalingBehandlerTest {
                                         andeler = emptyList(),
                                         endretUtbetalingAndel =
                                             lagEndretUtbetalingAndel(
-                                                person = barn,
+                                                personer = setOf(barn),
                                                 prosent = BigDecimal.ZERO,
                                                 årsak = Årsak.ETTERBETALING_3MND,
                                             ),

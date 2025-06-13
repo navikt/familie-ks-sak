@@ -33,7 +33,7 @@ class TilkjentYtelseService(
                 opprettetDato = LocalDate.now(),
                 endretDato = LocalDate.now(),
             )
-        val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.person?.type == PersonType.BARN }
+        val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.personer.any { person -> person.type == PersonType.BARN } }
 
         val andelerTilkjentYtelseBarnaUtenEndringer =
             beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)

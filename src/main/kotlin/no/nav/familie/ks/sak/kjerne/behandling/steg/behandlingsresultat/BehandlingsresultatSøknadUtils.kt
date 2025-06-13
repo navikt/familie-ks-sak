@@ -83,7 +83,7 @@ object BehandlingsresultatSøknadUtils {
                     utledSøknadResultatFraAndelerTilkjentYtelsePerPersonOgType(
                         forrigeAndelerForPerson = forrigeAndeler.filter { it.aktør == aktør && it.type.tilYtelseType() == ytelseType },
                         nåværendeAndelerForPerson = nåværendeAndeler.filter { it.aktør == aktør && it.type.tilYtelseType() == ytelseType },
-                        endretUtbetalingAndelerForPerson = endretUtbetalingAndeler.filter { it.person?.aktør == aktør },
+                        endretUtbetalingAndelerForPerson = endretUtbetalingAndeler.filter { it.personer.any { person -> person.aktør == aktør } },
                     )
                 }
             }
@@ -151,7 +151,7 @@ object BehandlingsresultatSøknadUtils {
         personerFremstiltKravFor: List<Aktør>,
     ): Boolean =
         nåværendeEndretUtbetalingAndeler
-            .filter { personerFremstiltKravFor.contains(it.person?.aktør) }
+            .filter { it.personer.any { person -> personerFremstiltKravFor.contains(person.aktør) } }
             .any { it.erEksplisittAvslagPåSøknad == true }
 
     internal fun List<Søknadsresultat>.kombinerSøknadsresultater(behandlingÅrsak: BehandlingÅrsak): Søknadsresultat {
