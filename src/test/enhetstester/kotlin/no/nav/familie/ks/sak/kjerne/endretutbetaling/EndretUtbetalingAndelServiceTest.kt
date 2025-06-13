@@ -108,7 +108,7 @@ class EndretUtbetalingAndelServiceTest {
 
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.behandlingId, Is(behandling.id))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.årsak, Is(nullValue()))
-        assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.person, Is(nullValue()))
+        assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.personer, Is(emptySet()))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.tom, Is(nullValue()))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.fom, Is(nullValue()))
 

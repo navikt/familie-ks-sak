@@ -33,7 +33,7 @@ class EndretUtbetalingAndelTest {
         assertDoesNotThrow {
             lagEndretUtbetalingAndel(
                 behandlingId = behandling.id,
-                person = person,
+                personer = setOf(person),
                 prosent = BigDecimal(50),
             ).validerUtfyltEndring()
         }
@@ -44,7 +44,7 @@ class EndretUtbetalingAndelTest {
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = behandling.id,
-                person = person,
+                personer = setOf(person),
             )
         val exception =
             assertThrows<RuntimeException> {
@@ -61,7 +61,7 @@ class EndretUtbetalingAndelTest {
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = behandling.id,
-                person = person,
+                personer = setOf(person),
                 prosent = BigDecimal(50),
                 periodeFom = YearMonth.now(),
                 periodeTom = YearMonth.now().minusYears(1),
