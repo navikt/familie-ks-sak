@@ -29,11 +29,11 @@ class EndretUtbetalingAndelKtTest {
                     erEksplisittAvslagPåSøknad = false,
                 )
 
-            val person = lagPerson(aktør = randomAktør())
+            val personer = setOf(lagPerson(aktør = randomAktør()))
 
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    person = person,
+                    personer = personer,
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(2),
                     periodeTom = YearMonth.now().plusMonths(2),
@@ -46,13 +46,13 @@ class EndretUtbetalingAndelKtTest {
             val oppdatertEndretUtbetalingAndel =
                 endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
                     endretUtbetalingAndelRequestDto,
-                    person,
+                    personer,
                 )
 
             // Assert
             assertThat(oppdatertEndretUtbetalingAndel.id).isEqualTo(endretUtbetalingAndel.id)
             assertThat(oppdatertEndretUtbetalingAndel.behandlingId).isEqualTo(endretUtbetalingAndel.id)
-            assertThat(oppdatertEndretUtbetalingAndel.person).isEqualTo(person)
+            assertThat(oppdatertEndretUtbetalingAndel.personer).isEqualTo(personer)
             assertThat(oppdatertEndretUtbetalingAndel.prosent).isEqualTo(endretUtbetalingAndelRequestDto.prosent)
             assertThat(oppdatertEndretUtbetalingAndel.fom).isEqualTo(endretUtbetalingAndelRequestDto.fom)
             assertThat(oppdatertEndretUtbetalingAndel.tom).isEqualTo(endretUtbetalingAndelRequestDto.tom)

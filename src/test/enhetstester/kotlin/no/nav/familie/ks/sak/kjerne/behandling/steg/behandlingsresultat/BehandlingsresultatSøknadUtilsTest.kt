@@ -153,7 +153,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
-                person = barn1Person,
+                personer = setOf(barn1Person),
                 periodeFom = jan22,
                 periodeTom = aug22,
                 prosent = BigDecimal(100),
@@ -194,7 +194,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
-                person = barn1Person,
+                personer = setOf(barn1Person),
                 periodeFom = jan22,
                 periodeTom = aug22,
                 prosent = BigDecimal(100),
@@ -282,7 +282,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
-                person = barn1Person,
+                personer = setOf(barn1Person),
                 periodeFom = jan22,
                 periodeTom = aug22,
                 prosent = BigDecimal(100),

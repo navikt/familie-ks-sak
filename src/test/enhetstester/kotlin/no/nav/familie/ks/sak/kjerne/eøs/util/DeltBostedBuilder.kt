@@ -79,7 +79,7 @@ fun Iterable<DeltBosted>.tilEndreteUtebetalingAndeler(): List<EndretUtbetalingAn
                 val endretUtbetalingAndel: EndretUtbetalingAndel =
                     lagEndretUtbetalingAndel(
                         behandlingId = deltBosted.behandlingId,
-                        person = barn,
+                        personer = setOf(barn),
                         periodeFom = deltBosted.fom!!,
                         periodeTom = deltBosted.tom!!,
                         prosent = deltBosted.prosent!!.toBigDecimal(),

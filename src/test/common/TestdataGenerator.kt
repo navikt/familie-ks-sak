@@ -716,7 +716,7 @@ fun lagVilkårResultaterForDeltBosted(
 fun lagEndretUtbetalingAndel(
     id: Long = 0L,
     behandlingId: Long = 0L,
-    person: Person? = lagPerson(aktør = randomAktør()),
+    personer: Set<Person> = setOf(lagPerson(aktør = randomAktør())),
     prosent: BigDecimal? = null,
     periodeFom: YearMonth? = YearMonth.now().minusMonths(1),
     periodeTom: YearMonth? = YearMonth.now(),
@@ -729,7 +729,7 @@ fun lagEndretUtbetalingAndel(
     EndretUtbetalingAndel(
         id = id,
         behandlingId = behandlingId,
-        person = person,
+        personer = personer.toMutableSet(),
         prosent = prosent,
         fom = periodeFom,
         tom = periodeTom,
@@ -743,7 +743,7 @@ fun lagEndretUtbetalingAndel(
 fun lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
     id: Long = 0,
     behandlingId: Long = 0,
-    person: Person,
+    personer: Set<Person>,
     prosent: BigDecimal = BigDecimal.valueOf(100),
     fom: YearMonth = YearMonth.now().minusMonths(1),
     tom: YearMonth? = YearMonth.now(),
@@ -758,7 +758,7 @@ fun lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
         EndretUtbetalingAndel(
             id = id,
             behandlingId = behandlingId,
-            person = person,
+            personer = personer.toMutableSet(),
             prosent = prosent,
             fom = fom,
             tom = tom,
@@ -1543,16 +1543,17 @@ fun lagEndretUtbetalingAndelRequestDto(
     erEksplisittAvslagPåSøknad: Boolean? = false,
     begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
 ) = EndretUtbetalingAndelRequestDto(
-    id,
-    personIdent,
-    prosent,
-    fom,
-    tom,
-    årsak,
-    søknadstidspunkt,
-    begrunnelse,
-    erEksplisittAvslagPåSøknad,
-    begrunnelser,
+    id = id,
+    personIdent = personIdent,
+    personIdenter = listOf(personIdent),
+    prosent = prosent,
+    fom = fom,
+    tom = tom,
+    årsak = årsak,
+    søknadstidspunkt = søknadstidspunkt,
+    begrunnelse = begrunnelse,
+    erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
+    vedtaksbegrunnelser = begrunnelser,
 )
 
 fun lagRefusjonEøs(
