@@ -132,7 +132,13 @@ class EndretUtbetalingAndelService(
         forrigeBehandling: Behandling,
     ) = hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
         val kopiertOverEndretUtbetalingAndel =
-            it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false, vedtaksbegrunnelser = emptyList(), personer = it.personer.toMutableSet())
+            it.copy(
+                id = 0,
+                behandlingId = behandling.id,
+                erEksplisittAvslagPåSøknad = false,
+                vedtaksbegrunnelser = emptyList(),
+                personer = it.personer.toMutableSet(),
+            )
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
     }
 
