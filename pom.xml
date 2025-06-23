@@ -23,7 +23,7 @@
 
         <!-- Java/Kotlin -->
         <java.version>21</java.version>
-        <kotlin.version>2.1.21</kotlin.version>
+        <kotlin.version>2.2.0</kotlin.version>
         <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
         <kotlinx.version>1.10.2</kotlinx.version>
@@ -37,12 +37,12 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250526085951_e212049</prosessering.version>
-        <felles-kontrakter.version>3.0_20250602111633_e3dbc75</felles-kontrakter.version>
-        <felles.version>3.20250602160953_48db326</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250604093431_85c9dc1</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250604093431_85c9dc1</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250604093431_85c9dc1</familie.kontrakter.saksstatistikk>
+        <prosessering.version>2.20250618091906_bbfad7c</prosessering.version>
+        <felles-kontrakter.version>3.0_20250623085003_455bcf2</felles-kontrakter.version>
+        <felles.version>3.20250616113100_41d23f2</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20250617105347_e9c3c8a</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250617105347_e9c3c8a</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250617105347_e9c3c8a</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20250415144931_0dc88d8</utbetalingsgenerator.version>
 
         <!-- Database -->
@@ -50,13 +50,13 @@
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
-        <confluent.version>7.9.1</confluent.version>
+        <confluent.version>8.0.0</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>10.2.2</unleash.version>
-        <microsoft-graph.version>6.40.0</microsoft-graph.version>
+        <unleash.version>11.0.0</unleash.version>
+        <microsoft-graph.version>6.42.1</microsoft-graph.version>
         <azure-identity.version>1.16.2</azure-identity.version>
 
         <!-- Test -->
