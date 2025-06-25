@@ -3,6 +3,10 @@ name: Deploy familie-baks-kafka-manager
 on:
   workflow_dispatch:
 
+permissions:
+  contents: "read"
+  id-token: "write"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
