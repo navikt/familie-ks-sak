@@ -37,7 +37,7 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250618091906_bbfad7c</prosessering.version>
+        <prosessering.version>2.20250630085333_3794bb5</prosessering.version>
         <felles-kontrakter.version>3.0_20250623085003_455bcf2</felles-kontrakter.version>
         <felles.version>3.20250616113100_41d23f2</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20250617105347_e9c3c8a</eksterne-kontrakter-bisys.version>
@@ -50,13 +50,13 @@
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
-        <confluent.version>8.0.0</confluent.version>
+        <confluent.version>7.9.1</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>11.0.0</unleash.version>
-        <microsoft-graph.version>6.42.1</microsoft-graph.version>
+        <unleash.version>10.2.2</unleash.version>
+        <microsoft-graph.version>6.40.0</microsoft-graph.version>
         <azure-identity.version>1.16.2</azure-identity.version>
 
         <!-- Test -->
