@@ -750,6 +750,11 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
     },
 
+    INNVILGET_BOSATT_ETTER_UTENLANDSOPPHOLD {
+        override val sanityApiNavn = "innvilgetBosattEtterUtenlandsopphold"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
     INNVILGET_BOSATT_ETTER_UTENLANDSOPPHOLD_0824 {
         override val sanityApiNavn = "innvilgetBosattEtterUtenlandsopphold0824"
         override val begrunnelseType = BegrunnelseType.INNVILGET
