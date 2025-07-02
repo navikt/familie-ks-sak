@@ -72,7 +72,7 @@ class InternKonsistensavstemmingService(
         }
     }
 
-    private fun hentFagsakTilSisteUtbetalingsoppdragOgSisteAndelerMap(
+    fun hentFagsakTilSisteUtbetalingsoppdragOgSisteAndelerMap(
         fagsakIder: Set<Long>,
     ): Map<Long, Pair<List<AndelTilkjentYtelse>, Utbetalingsoppdrag?>> {
         val scope = CoroutineScope(SupervisorJob())
