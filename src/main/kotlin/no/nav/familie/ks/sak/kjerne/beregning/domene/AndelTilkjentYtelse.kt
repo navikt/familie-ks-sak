@@ -21,6 +21,8 @@ import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.antallMåneder
+import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.OVERGANGSORDNING_UTBETALINGSMÅNED
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.YtelsetypeKS
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -169,6 +171,32 @@ fun AndelTilkjentYtelse.totalKalkulertUtbetalingsbeløpForPeriode(): Int = kalku
 fun Iterable<AndelTilkjentYtelse>.ordinæreOgPraksisendringAndeler() = this.filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE || it.type == YtelseType.PRAKSISENDRING_2024 }
 
 fun Iterable<AndelTilkjentYtelse>.overgangsordningAndelerPerAktør() = this.filter { it.type == YtelseType.OVERGANGSORDNING }.groupBy { it.aktør }
+
+fun Iterable<AndelTilkjentYtelse>.andelerIOvergangsordningUtbetalingsmåned(): List<AndelTilkjentYtelse> {
+    val ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned =
+        ordinæreOgPraksisendringAndeler()
+            .groupBy { it.aktør }
+            .mapValues { (_, andeler) ->
+                andeler.find { andel ->
+                    andel.periode.overlapperHeltEllerDelvisMed(MånedPeriode(OVERGANGSORDNING_UTBETALINGSMÅNED, OVERGANGSORDNING_UTBETALINGSMÅNED))
+                }
+            }
+
+    return overgangsordningAndelerPerAktør()
+        .map { (aktør, overgangsordningAndeler) ->
+            val tidligsteOvergangsordningAndel = overgangsordningAndeler.minBy { it.stønadFom }
+            val kalkulertUtbetalingsbeløp =
+                overgangsordningAndeler.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() } +
+                    (ordinærAndelerPerBarnIOvergangsordningUtbetalingsmåned[aktør]?.kalkulertUtbetalingsbeløp ?: 0)
+
+            tidligsteOvergangsordningAndel.copy(
+                stønadFom = OVERGANGSORDNING_UTBETALINGSMÅNED,
+                stønadTom = OVERGANGSORDNING_UTBETALINGSMÅNED,
+                kalkulertUtbetalingsbeløp = kalkulertUtbetalingsbeløp,
+                aktør = aktør,
+            )
+        }
+}
 
 enum class YtelseType(
     val klassifisering: String,

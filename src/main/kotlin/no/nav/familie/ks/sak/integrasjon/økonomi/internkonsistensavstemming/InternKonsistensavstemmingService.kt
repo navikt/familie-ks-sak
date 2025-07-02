@@ -9,6 +9,8 @@ import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.andelerIOvergangsordningUtbetalingsmåned
+import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreOgPraksisendringAndeler
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.task.overstyrTaskMedNyCallId
 import no.nav.familie.log.IdUtils
@@ -70,7 +72,7 @@ class InternKonsistensavstemmingService(
         }
     }
 
-    private fun hentFagsakTilSisteUtbetalingsoppdragOgSisteAndelerMap(
+    fun hentFagsakTilSisteUtbetalingsoppdragOgSisteAndelerMap(
         fagsakIder: Set<Long>,
     ): Map<Long, Pair<List<AndelTilkjentYtelse>, Utbetalingsoppdrag?>> {
         val scope = CoroutineScope(SupervisorJob())
@@ -99,6 +101,7 @@ class InternKonsistensavstemmingService(
         return andelTilkjentYtelseRepository
             .finnAndelerTilkjentYtelseForBehandlinger(behandlinger.map { it.id })
             .groupBy { it.behandlingId }
+            .mapValues { (_, andeler) -> (andeler.ordinæreOgPraksisendringAndeler() + andeler.andelerIOvergangsordningUtbetalingsmåned()) }
             .mapKeys { (behandlingId, _) -> behandlinger.find { it.id == behandlingId }?.fagsak?.id!! }
     }
 
