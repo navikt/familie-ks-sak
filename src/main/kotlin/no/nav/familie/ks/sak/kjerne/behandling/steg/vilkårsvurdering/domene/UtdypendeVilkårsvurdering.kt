@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.util.konverterStringTilEnums
 
 enum class UtdypendeVilkårsvurdering {
     VURDERING_ANNET_GRUNNLAG,
+    BOSATT_PÅ_SVALBARD,
     DELT_BOSTED,
     DELT_BOSTED_SKAL_IKKE_DELES,
     ADOPSJON,
