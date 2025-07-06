@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
-import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -16,7 +16,7 @@ class SnikeIKøenService(
     private val behandlingRepository: BehandlingRepository,
     private val loggService: LoggService,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-    private val localDateTimeProvider: LocalDateTimeProvider,
+    private val clockProvider: ClockProvider,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -63,7 +63,7 @@ class SnikeIKøenService(
             logger.info("Behandling=$behandlingId er satt på vent av saksbehandler, $loggSuffix")
             return true
         }
-        val tid4TimerSiden = localDateTimeProvider.now().minusHours(4)
+        val tid4TimerSiden = LocalDateTime.now(clockProvider.get()).minusHours(4)
         if (aktivOgÅpenBehandling.endretTidspunkt.isAfter(tid4TimerSiden)) {
             logger.info(
                 "Behandling=$behandlingId har endretTid=${aktivOgÅpenBehandling.endretTidspunkt}. " +

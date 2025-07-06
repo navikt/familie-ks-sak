@@ -10,10 +10,9 @@ import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
-import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -40,6 +39,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.Period
+import java.time.YearMonth
 
 @Service
 class FagsakService(
@@ -54,7 +54,7 @@ class FagsakService(
     private val taskService: TaskService,
     private val vedtakRepository: VedtakRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
-    private val localDateProvider: LocalDateProvider,
+    private val clockProvider: ClockProvider,
     private val adopsjonService: AdopsjonService,
 ) {
     private val antallFagsakerOpprettetFraManuell =
@@ -304,7 +304,7 @@ class FagsakService(
                 .finnAndelerTilkjentYtelseForAktør(aktør = aktør)
                 .filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
 
-        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende(localDateProvider.now().toYearMonth()) }
+        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende(YearMonth.now(clockProvider.get())) }
 
         val behandlingerMedLøpendeAndeler =
             løpendeAndeler
