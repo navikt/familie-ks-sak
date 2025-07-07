@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.cucumber.mocking
 
 import io.mockk.mockk
 import mockAdopsjonService
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
+import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
@@ -26,12 +26,11 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
-import java.time.LocalDate
 
 class CucumberMock(
     stepDefinition: StepDefinition,
 ) {
-    val mockedDateProvider = MockedDateProvider(stepDefinition.dagensDato)
+    val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(stepDefinition.dagensDato)
 
     val vilkårsvurderingRepositoryMock = mockVilkårsvurderingRepository(stepDefinition)
     val andelTilkjentYtelseRepositoryMock = mockAndelTilkjentYtelseRepository(stepDefinition)
@@ -101,7 +100,7 @@ class CucumberMock(
             taskService = taskServiceMock,
             vedtakRepository = vedtakRepositoryMock,
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
-            localDateProvider = mockedDateProvider,
+            clockProvider = clockProvider,
             adopsjonService = adopsjonServiceMock,
         )
 
@@ -139,10 +138,4 @@ class CucumberMock(
             adopsjonService = adopsjonServiceMock,
             adopsjonValidator = adopsjonValidator,
         )
-}
-
-class MockedDateProvider(
-    val mockedDate: LocalDate,
-) : LocalDateProvider {
-    override fun now(): LocalDate = this.mockedDate
 }

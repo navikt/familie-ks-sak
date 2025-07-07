@@ -7,9 +7,9 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -51,7 +51,7 @@ class FagsakServiceTest {
     private val taskService = mockk<TaskService>()
     private val vedtakRepository = mockk<VedtakRepository>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
-    private val localDateProvider = mockk<LocalDateProvider>()
+    private val clockProvider = mockk<ClockProvider>()
     private val adopsjonService = mockk<AdopsjonService>()
 
     private val fagsakService =
@@ -67,7 +67,7 @@ class FagsakServiceTest {
             taskService = taskService,
             vedtakRepository = vedtakRepository,
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
-            localDateProvider = localDateProvider,
+            clockProvider = clockProvider,
             adopsjonService = adopsjonService,
         )
 
