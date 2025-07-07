@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -464,7 +465,7 @@ class EndretUtbetalingAndelValidatorTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     EndretUtbetalingAndelValidator.validerÅrsak(
                         Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                         endretUtbetalingAndel,

@@ -374,7 +374,7 @@ class ForvaltningController(
             } else if (envService.erProd()) {
                 "https://kontantstotte.intern.nav.no"
             } else {
-                error("Klarer ikke å utlede miljø for redirect til fagsak")
+                throw Feil("Klarer ikke å utlede miljø for redirect til fagsak")
             }
         val behandling = behandlingRepository.hentBehandlingNullable(behandlingId)
         return if (behandling == null) {

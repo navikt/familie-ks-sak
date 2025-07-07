@@ -53,7 +53,7 @@ data class ManueltBrevDto(
     val manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
     val fritekstAvsnitt: String? = null,
 ) {
-    fun enhetNavn(): String = this.enhet?.enhetNavn ?: error("Finner ikke enhetsnavn på manuell brevrequest")
+    fun enhetNavn(): String = this.enhet?.enhetNavn ?: throw Feil("Finner ikke enhetsnavn på manuell brevrequest")
 }
 
 fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =

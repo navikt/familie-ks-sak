@@ -390,7 +390,7 @@ class VedtaksperiodeService(
         utvidedeVedtaksperioderMedBegrunnelser: List<UtvidetVedtaksperiodeMedBegrunnelser>,
         persongrunnlag: PersonopplysningGrunnlag,
     ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
-        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
+        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) ?: throw Feil("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
         val endreteUtbetalinger =
             andelerTilkjentYtelseOgEndreteUtbetalingerService

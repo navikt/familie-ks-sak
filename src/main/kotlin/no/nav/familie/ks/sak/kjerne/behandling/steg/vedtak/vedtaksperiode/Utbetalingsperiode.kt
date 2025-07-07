@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
@@ -59,7 +60,7 @@ internal fun Collection<AndelTilkjentYtelseMedEndreteUtbetalinger>.lagUtbetaling
 ): List<UtbetalingsperiodeDetalj> =
     this.map { andel ->
         val personForAndel =
-            personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør } ?: throw IllegalStateException(
+            personopplysningGrunnlag.personer.find { person -> andel.aktør == person.aktør } ?: throw Feil(
                 "Fant ikke personopplysningsgrunnlag for andel",
             )
 

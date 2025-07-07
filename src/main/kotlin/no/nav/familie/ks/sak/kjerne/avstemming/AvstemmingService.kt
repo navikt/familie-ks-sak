@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import no.nav.familie.kontrakter.felles.oppdrag.PerioderForBehandling
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -71,11 +72,11 @@ class AvstemmingService(
                     behandlingId = kildeBehandlingId.toString(),
                     aktivFødselsnummer =
                         aktiveFødselsnummere[kildeBehandlingId]
-                            ?: error("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
+                            ?: throw Feil("Finnes ikke et aktivt fødselsnummer for behandling $kildeBehandlingId"),
                     perioder =
                         andeler
                             .map {
-                                it.periodeOffset ?: error("Andel $it mangler periodeOffset")
+                                it.periodeOffset ?: throw Feil("Andel $it mangler periodeOffset")
                             }.toSet(),
                 )
             }

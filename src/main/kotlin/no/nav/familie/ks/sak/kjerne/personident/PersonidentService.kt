@@ -125,7 +125,7 @@ class PersonidentService(
 
     private fun filtrerAktørId(pdlIdenter: List<PdlIdent>): String =
         pdlIdenter.singleOrNull { it.gruppe == "AKTORID" }?.ident
-            ?: throw Error("Finner ikke aktørId i Pdl")
+            ?: throw Feil("Finner ikke aktørId i Pdl")
 
     private fun validerOmAktørIdErMerget(alleHistoriskeIdenterFraPdl: List<PdlIdent>) {
         val alleHistoriskeAktørIder = alleHistoriskeIdenterFraPdl.filter { it.gruppe == "AKTORID" && it.historisk }.map { it.ident }

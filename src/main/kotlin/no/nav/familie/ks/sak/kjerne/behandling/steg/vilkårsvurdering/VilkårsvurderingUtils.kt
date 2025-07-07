@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -453,8 +454,8 @@ private fun VilkårResultat.krysserRegelendring() =
 
 fun Collection<VilkårResultat>.forkortTomTilGyldigLengde(): List<VilkårResultat> =
     this.flatMap {
-        it.periodeFom ?: throw IllegalStateException("Barnets alder vilkår kan ikke begynne tidenes morgen")
-        it.periodeTom ?: throw IllegalStateException("Barnets alder vilkår kan ikke ende ved tidenes ende")
+        it.periodeFom ?: throw Feil("Barnets alder vilkår kan ikke begynne tidenes morgen")
+        it.periodeTom ?: throw Feil("Barnets alder vilkår kan ikke ende ved tidenes ende")
 
         val lengdePåPeriode = it.periodeFom!!.until(it.periodeTom).toTotalMonths()
         val fomTilLovendringsDato = it.periodeFom!!.until(DATO_LOVENDRING_2024).toTotalMonths()

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.ApplicationConfig
 import no.nav.familie.ks.sak.config.DbContainerInitializer
 import org.slf4j.Logger
@@ -40,7 +41,7 @@ private fun settClientIdOgSecret() {
         val inputStream = BufferedReader(InputStreamReader(process.inputStream))
         inputStream.lines().forEach { println(it) }
         inputStream.close()
-        error("Klarte ikke hente variabler fra Nais. Er du logget på Naisdevice og gcloud?")
+        throw Feil("Klarte ikke hente variabler fra Nais. Er du logget på Naisdevice og gcloud?")
     }
 
     val inputStream = BufferedReader(InputStreamReader(process.inputStream))

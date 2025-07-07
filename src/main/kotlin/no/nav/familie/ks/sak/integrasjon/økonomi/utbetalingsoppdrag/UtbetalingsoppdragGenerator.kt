@@ -9,6 +9,7 @@ import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -77,7 +78,7 @@ class UtbetalingsoppdragGenerator {
                         .filter { it.personIdent == identOgType.ident }
                         // Vi henter ut andeler som har fom/tom i desember siden uavhengig av hva fom/tom er på andelen så blir den justert til desember opp mot oppdrag for overgangsordning
                         .singleOrNull { it.fom == OVERGANGSORDNING_UTBETALINGSMÅNED && it.tom == OVERGANGSORDNING_UTBETALINGSMÅNED }
-                        ?: error("Greide ikke å utlede overgangsordning andel fra siste tilkjente ytelse for behandling ${andelTilkjentYtelse.behandlingId}")
+                        ?: throw Feil("Greide ikke å utlede overgangsordning andel fra siste tilkjente ytelse for behandling ${andelTilkjentYtelse.behandlingId}")
 
                 overgangsordningsAndelerForAktørSisteTilkjentYtelse
             } else {

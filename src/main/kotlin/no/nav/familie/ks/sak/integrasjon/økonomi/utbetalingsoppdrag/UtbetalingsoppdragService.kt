@@ -7,6 +7,7 @@ import no.nav.familie.felles.utbetalingsgenerator.domain.IdentOgType
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -177,12 +178,12 @@ class UtbetalingsoppdragService(
         if (andelerMedPeriodeId.size != andelerSomSkalSendesTilOppdrag.size) {
             logger.warn("Uventet antall andeler fra utbetalingsgenerator. Se secureLogger for informasjon.")
             secureLogger.warn("Uventet antall andeler fra utbetalingsgenerator. Andeler fra utbetalingsgenerator: $andelerMedPeriodeId, forventede andeler: $andelerSomSkalSendesTilOppdrag")
-            error("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet ordinære andeler med kalkulertUtbetalingsbeløp != 0 + antall barn med overgangsordning. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
+            throw Feil("Antallet andeler med oppdatert periodeOffset, forrigePeriodeOffset og kildeBehandlingId fra ny generator skal være likt antallet ordinære andeler med kalkulertUtbetalingsbeløp != 0 + antall barn med overgangsordning. Generator gir ${andelerMedPeriodeId.size} andeler men det er ${andelerSomSkalSendesTilOppdrag.size} andeler med kalkulertUtbetalingsbeløp != 0")
         }
         andelerSomSkalSendesTilOppdrag.forEach { andel ->
             val andelMedOffset =
                 andelerMedPeriodeId.find { it.id == andel.id }
-                    ?: error("Feil ved oppdaterig av offset på andeler. Finner ikke andel med id ${andel.id} blandt andelene med oppdatert offset fra ny generator. Ny generator returnerer andeler med ider [${andelerMedPeriodeId.map { it.id }}]")
+                    ?: throw Feil("Feil ved oppdaterig av offset på andeler. Finner ikke andel med id ${andel.id} blandt andelene med oppdatert offset fra ny generator. Ny generator returnerer andeler med ider [${andelerMedPeriodeId.map { it.id }}]")
             andel.periodeOffset = andelMedOffset.periodeId
             andel.forrigePeriodeOffset = andelMedOffset.forrigePeriodeId
             andel.kildeBehandlingId = andelMedOffset.kildeBehandlingId

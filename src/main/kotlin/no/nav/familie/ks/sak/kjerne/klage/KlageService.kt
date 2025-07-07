@@ -8,6 +8,7 @@ import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.Klagebehandlingsårsak
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.kontrakter.felles.klage.Stønadstype
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
@@ -86,7 +87,7 @@ class KlageService(
             eksternBehandlingId = behandling.id.toString(),
             behandlingstype = behandling.type.visningsnavn,
             resultat = behandling.resultat.displayName,
-            vedtakstidspunkt = vedtak.vedtaksdato ?: error("Mangler vedtakstidspunkt for behandling=${behandling.id}"),
+            vedtakstidspunkt = vedtak.vedtaksdato ?: throw Feil("Mangler vedtakstidspunkt for behandling=${behandling.id}"),
             fagsystemType = FagsystemType.ORDNIÆR,
             regelverk = behandling.kategori.tilRegelverk(),
         )

@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.praksisendring
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.inkluderer
@@ -43,7 +44,7 @@ class Praksisendring2024Service(
     ): AndelTilkjentYtelse? {
         val barnetsVilkårResultater =
             vilkårsvurdering.personResultater.find { it.aktør == barn.aktør }?.vilkårResultater
-                ?: error("Finner ikke vilkårresultater for barn")
+                ?: throw Feil("Finner ikke vilkårresultater for barn")
 
         val fagsakId = vilkårsvurdering.behandling.fagsak.id
 
@@ -139,7 +140,7 @@ class Praksisendring2024Service(
 
             val barn13Måneder = barn.fødselsdato.plusMonths(13).toYearMonth()
 
-            val fom = vilkårResultat.periodeFom?.toYearMonth() ?: error("Finner ikke fom for vilkårresultat")
+            val fom = vilkårResultat.periodeFom?.toYearMonth() ?: throw Feil("Finner ikke fom for vilkårresultat")
             val tom = vilkårResultat.periodeTom?.toYearMonth() ?: barn13Måneder
             val barnEr13MånederIPeriode = barn13Måneder in fom..tom
 

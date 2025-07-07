@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -115,19 +116,19 @@ class SnikeIKøenService(
         companion object {
             fun validerBehandlingSomSkalSettesPåMaskinellVent(behandling: Behandling) {
                 if (!behandling.aktiv) {
-                    throw IllegalStateException("Behandling=${behandling.id} er ikke aktiv")
+                    throw Feil("Behandling=${behandling.id} er ikke aktiv")
                 }
                 val behandlingStatus = behandling.status
                 val behandlingStegTilstand = finnBehandlingStegTilstand(behandling)
                 val erBehandlingIkkePåVent = behandlingStegTilstand.behandlingStegStatus !== BehandlingStegStatus.VENTER
                 if (erBehandlingIkkePåVent && behandlingStatus !== BehandlingStatus.UTREDES) {
-                    throw IllegalStateException("Behandling=${behandling.id} kan ikke settes på maskinell vent da status=$behandlingStatus")
+                    throw Feil("Behandling=${behandling.id} kan ikke settes på maskinell vent da status=$behandlingStatus")
                 }
             }
 
             fun validerAktivBehandlingFørReaktivering(aktivBehandling: Behandling?) {
                 if (aktivBehandling != null && aktivBehandling.status != BehandlingStatus.AVSLUTTET) {
-                    throw IllegalStateException(
+                    throw Feil(
                         "Behandling=${aktivBehandling.id} har status=${aktivBehandling.status} og er ikke avsluttet",
                     )
                 }
@@ -135,13 +136,13 @@ class SnikeIKøenService(
 
             fun validerBehandlingPåMaskinellVentFørReaktivering(behandlingPåMaskinellVent: Behandling) {
                 if (behandlingPåMaskinellVent.aktiv) {
-                    throw IllegalStateException("Behandling på maskinell vent er aktiv")
+                    throw Feil("Behandling på maskinell vent er aktiv")
                 }
             }
 
             fun validerAntallBehandlingerPåMaskinellVent(behandlingerPåMaskinellVent: List<Behandling>) {
                 if (behandlingerPåMaskinellVent.size > 1) {
-                    throw IllegalStateException(
+                    throw Feil(
                         "Forventet kun en eller ingen behandling på maskinell vent for fagsak=${behandlingerPåMaskinellVent.first().fagsak.id}",
                     )
                 }

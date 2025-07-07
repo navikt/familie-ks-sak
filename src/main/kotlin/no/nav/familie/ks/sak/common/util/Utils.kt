@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.util
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.NumberFormat
@@ -45,7 +46,7 @@ fun hentDokument(dokumentNavn: String): ByteArray {
         {}::class.java.classLoader
             .getResourceAsStream("dokumenter/$dokumentNavn")
             ?.readAllBytes()
-            ?: error("Klarte ikke hente dokument $dokumentNavn")
+            ?: throw Feil("Klarte ikke hente dokument $dokumentNavn")
     )
 
     return dokumentByteArray

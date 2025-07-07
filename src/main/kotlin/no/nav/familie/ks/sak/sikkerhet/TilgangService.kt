@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.sikkerhet
 
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.RolleConfig
@@ -193,10 +194,10 @@ class TilgangService(
         verdi: T,
         hentVerdi: () -> RESULT,
     ): RESULT {
-        val cache = cacheManager.getCache(cacheName) ?: error("Finner ikke cache=$cacheName")
+        val cache = cacheManager.getCache(cacheName) ?: throw Feil("Finner ikke cache=$cacheName")
         return cache.get(Pair(verdi, SikkerhetContext.hentSaksbehandler())) {
             hentVerdi()
-        } ?: error("Finner ikke verdi fra cache=$cacheName")
+        } ?: throw Feil("Finner ikke verdi fra cache=$cacheName")
     }
 
     private fun harTilgangTilAllePersoner(tilganger: List<Tilgang>): Boolean = tilganger.all { it.harTilgang }

@@ -4,6 +4,7 @@ import io.cucumber.datatable.DataTable
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
+import no.nav.familie.ks.sak.common.exception.Feil
 
 object ValideringUtil {
     fun assertSjekkBehandlingIder(
@@ -23,7 +24,7 @@ object ValideringUtil {
                 utbetalingsoppdrag,
             )
         ) {
-            error("Har ikke kontrollert behandlingene:$ukontrollerteBehandlingId")
+            throw Feil("Har ikke kontrollert behandlingene:$ukontrollerteBehandlingId")
         }
     }
 
