@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.common.domeneparser.parseValgfriBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriInt
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriString
-import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
@@ -139,7 +139,7 @@ fun parseEøsBegrunnelse(rad: Tabellrad): EØSBegrunnelseDto {
             søkersAktivitet == null ||
             søkersAktivitetsland == null
         ) {
-            throw Feil("For EØS-begrunnelser må enten 'Gjelder søker' eller kompetansefeltene settes")
+            throw FunksjonellFeil("For EØS-begrunnelser må enten 'Gjelder søker' eller kompetansefeltene settes")
         }
 
         EØSBegrunnelseMedKompetanseDto(

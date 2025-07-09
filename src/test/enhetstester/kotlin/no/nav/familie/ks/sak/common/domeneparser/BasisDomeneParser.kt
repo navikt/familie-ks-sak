@@ -191,7 +191,7 @@ fun parseValgfriÅrMånedEllerDato(
         when (verdi.toList().count { it == '.' || it == '-' }) {
             2 -> parseDato(verdi)
             1 -> parseÅrMåned(verdi)
-            else -> throw Feil("Er datoet=$verdi riktigt formatert? Trenger å være på norskt eller iso-format")
+            else -> throw Feil("Er datoen=$verdi riktig formatert? Trenger å være på norsk eller iso-format")
         }
     return ÅrMånedEllerDato(dato)
 }
