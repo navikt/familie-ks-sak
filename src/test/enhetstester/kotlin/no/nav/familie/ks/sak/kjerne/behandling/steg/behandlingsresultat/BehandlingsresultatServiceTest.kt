@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class BehandlingsresultatServiceTest {
-    private val localDateProvider = mockk<LocalDateProvider>()
+    private val clockProvider = mockk<ClockProvider>()
     private val behandlingService = mockk<BehandlingService>()
     private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
     private val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
@@ -46,7 +46,7 @@ class BehandlingsresultatServiceTest {
             andelerTilkjentYtelseRepository = andelerTilkjentYtelseRepository,
             endretUtbetalingAndelService = endretUtbetalingAndelService,
             kompetanseService = kompetanseService,
-            localDateProvider = localDateProvider,
+            clockProvider = clockProvider,
         )
 
     @Test

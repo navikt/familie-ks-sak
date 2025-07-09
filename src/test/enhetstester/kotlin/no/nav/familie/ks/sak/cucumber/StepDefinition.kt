@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
@@ -20,7 +21,6 @@ import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
@@ -613,8 +613,7 @@ class StepDefinition {
             kompetanser[behandlingId.id] ?: emptyList()
         }
 
-        val localDateProvider = mockk<LocalDateProvider>()
-        every { localDateProvider.now() } returns dagensDato
+        val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(dagensDato)
 
         return BehandlingsresultatService(
             behandlingService = behandlingService,
@@ -625,7 +624,7 @@ class StepDefinition {
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             endretUtbetalingAndelService = endretUtbetalingAndelService,
             kompetanseService = kompetanseService,
-            localDateProvider = localDateProvider,
+            clockProvider = clockProvider,
         )
     }
 
