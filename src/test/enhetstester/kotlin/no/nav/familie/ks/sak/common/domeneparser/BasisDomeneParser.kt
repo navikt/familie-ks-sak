@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.domeneparser
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -190,7 +191,7 @@ fun parseValgfriÅrMånedEllerDato(
         when (verdi.toList().count { it == '.' || it == '-' }) {
             2 -> parseDato(verdi)
             1 -> parseÅrMåned(verdi)
-            else -> error("Er datoet=$verdi riktigt formatert? Trenger å være på norskt eller iso-format")
+            else -> throw Feil("Er datoen=$verdi riktig formatert? Trenger å være på norsk eller iso-format")
         }
     return ÅrMånedEllerDato(dato)
 }

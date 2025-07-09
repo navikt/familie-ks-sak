@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -189,7 +190,7 @@ private fun finnOpphørsperiodeEtterSisteUtbetalingsperiode(
 
                     val barnet =
                         personopplysningGrunnlag.barna.find { it.aktør == personResultat.aktør }
-                            ?: error("Barn i personopplysningsgrunnlaget samsvarer ikke med barnet i vilkårsresultat")
+                            ?: throw Feil("Barn i personopplysningsgrunnlaget samsvarer ikke med barnet i vilkårsresultat")
 
                     val adopsjonForBarnet = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }
 

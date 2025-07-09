@@ -74,7 +74,7 @@ object EndretUtbetalingAndelValidator {
     ) {
         val august2024 = YearMonth.of(2024, 8)
         if (endretUtbetalingAndel.fom != august2024 || endretUtbetalingAndel.tom != august2024) {
-            val årsak = endretUtbetalingAndel.årsak ?: throw IllegalStateException("Årsak må være satt")
+            val årsak = endretUtbetalingAndel.årsak ?: throw FunksjonellFeil("Årsak må være satt")
             throw FunksjonellFeil("Årsak \"${årsak.visningsnavn}\" er bare mulig å sette til august 2024")
         }
     }

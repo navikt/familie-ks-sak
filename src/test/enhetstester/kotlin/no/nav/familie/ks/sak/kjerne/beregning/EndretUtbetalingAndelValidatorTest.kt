@@ -453,7 +453,7 @@ class EndretUtbetalingAndelValidatorTest {
         }
 
         @Test
-        fun `skal kaste feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og EndretUtbetalingAndel mangler årsak`() {
+        fun `skal kaste funksjonell feil når årsak er FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 og EndretUtbetalingAndel mangler årsak`() {
             // Arrange
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
@@ -464,7 +464,7 @@ class EndretUtbetalingAndelValidatorTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<FunksjonellFeil> {
                     EndretUtbetalingAndelValidator.validerÅrsak(
                         Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
                         endretUtbetalingAndel,

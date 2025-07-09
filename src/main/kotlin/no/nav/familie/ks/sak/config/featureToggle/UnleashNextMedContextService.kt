@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.config.featureToggle
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -28,7 +29,7 @@ class UnleashNextMedContextService(
                     UnleashContextFields.ENHET_ID to
                         (
                             arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
-                                ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
+                                ?: throw Feil("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
                         ).behandlendeEnhetId,
                     UnleashContextFields.NAV_IDENT to SikkerhetContext.hentSaksbehandler(),
                     UnleashContextFields.EPOST to SikkerhetContext.hentSaksbehandlerEpost(),

@@ -10,6 +10,7 @@ import no.nav.familie.eksterne.kontrakter.UtbetalingsDetaljDVH
 import no.nav.familie.eksterne.kontrakter.UtbetalingsperiodeDVH
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -41,7 +42,7 @@ class StønadsstatistikkService(
     fun hentVedtakDVH(behandlingId: Long): VedtakDVH {
         val behandling = behandlingService.hentBehandling(behandlingId)
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandlingId)
-        val vedtaksdato = vedtak.vedtaksdato ?: error("Fant ikke vedtaksdato for behandling $behandlingId")
+        val vedtaksdato = vedtak.vedtaksdato ?: throw Feil("Fant ikke vedtaksdato for behandling $behandlingId")
         val aktørId = behandling.fagsak.aktør.aktørId
         val barna = personopplysningGrunnlagService.hentBarna(behandling.id)
 

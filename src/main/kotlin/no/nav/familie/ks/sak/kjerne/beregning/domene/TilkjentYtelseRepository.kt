@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.beregning.domene
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.AndelTilkjentYtelsePraktiskLikhet.erIPraksisLik
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.AndelTilkjentYtelsePraktiskLikhet.inneholderIPraksis
@@ -41,7 +42,7 @@ fun TilkjentYtelseRepository.oppdaterTilkjentYtelse(
 
     // Forsikring: Sjekk at det ikke oppstår eller forsvinner andeler når de sjekkes for likhet
     if (oppdaterteAndeler.size != (skalBeholdes.size + skalLeggesTil.size)) {
-        throw IllegalStateException("Avvik mellom antall innsendte andeler og kalkulerte endringer")
+        throw Feil("Avvik mellom antall innsendte andeler og kalkulerte endringer")
     }
 
     tilkjentYtelse.andelerTilkjentYtelse.clear()

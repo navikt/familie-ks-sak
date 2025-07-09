@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.TestClockProvider
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -52,7 +53,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.settAktivBehandlingPåMaskinellVent(
                         1L,
                         SettPåMaskinellVentÅrsak.SATSENDRING,
@@ -83,7 +84,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.settAktivBehandlingPåMaskinellVent(
                         1L,
                         SettPåMaskinellVentÅrsak.SATSENDRING,
@@ -241,7 +242,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomHarSneketIKøen)
                 }
             assertThat(exception.message).isEqualTo("Forventet kun en eller ingen behandling på maskinell vent for fagsak=${fagsak.id}")
@@ -277,7 +278,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
                 }
             assertThat(exception.message).isEqualTo("Behandling på maskinell vent er aktiv")
@@ -315,7 +316,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
                 }
             assertThat(exception.message).isEqualTo(

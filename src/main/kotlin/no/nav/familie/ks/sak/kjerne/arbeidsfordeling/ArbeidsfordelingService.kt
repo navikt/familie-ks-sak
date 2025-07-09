@@ -35,7 +35,7 @@ class ArbeidsfordelingService(
 
     fun hentArbeidsfordelingPåBehandling(behandlingId: Long) =
         arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
-            ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
+            ?: throw Feil("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
 
     fun fastsettBehandlendeEnhet(
         behandling: Behandling,

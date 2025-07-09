@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -28,7 +29,7 @@ class GrensesnittavstemmingTask(
         try {
             avstemmingService.sendGrensesnittavstemming(fom = taskData.fom, tom = taskData.tom, avstemmingId = taskData.avstemmingId)
         } catch (e: Exception) {
-            throw IllegalStateException("Sjekk callid i kibana for å sjekke om avstemming ble kjørt ok i familie-oppdrag. Hvis avstemming kjørte ok, så kan tasken rekjøres uten at ny trigges.", e)
+            throw Feil("Sjekk callid i kibana for å sjekke om avstemming ble kjørt ok i familie-oppdrag. Hvis avstemming kjørte ok, så kan tasken rekjøres uten at ny trigges.", throwable = e)
         }
     }
 
