@@ -50,14 +50,14 @@
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
-        <confluent.version>7.9.1</confluent.version>
+        <confluent.version>8.0.0</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>10.2.2</unleash.version>
-        <microsoft-graph.version>6.40.0</microsoft-graph.version>
-        <azure-identity.version>1.16.2</azure-identity.version>
+        <unleash.version>11.0.2</unleash.version>
+        <microsoft-graph.version>6.46.0</microsoft-graph.version>
+        <azure-identity.version>1.16.3</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.23.0</cucumber.version>
@@ -71,10 +71,10 @@
 
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <ktlint-cli.version>1.6.0</ktlint-cli.version>
+        <ktlint-cli.version>1.7.1</ktlint-cli.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
-        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
 
