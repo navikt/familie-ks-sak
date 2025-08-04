@@ -4,7 +4,9 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.klage.FagsystemVedtak
 import no.nav.familie.kontrakter.felles.klage.KanOppretteRevurderingResponse
 import no.nav.familie.kontrakter.felles.klage.OpprettRevurderingResponse
+import no.nav.familie.kontrakter.felles.tilgangskontroll.FagsakTilgang
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.klage.KlageService
@@ -90,5 +92,20 @@ class EksternKlageController(
         }
 
         return Ressurs.success(klageService.hentFagsystemVedtak(fagsakId))
+    }
+
+    @GetMapping("fagsak/{fagsakId}/tilgang")
+    fun hentTilgangTilFagsak(
+        @PathVariable fagsakId: Long,
+    ): Ressurs<FagsakTilgang> {
+        val fagsakTilgang: FagsakTilgang =
+            try {
+                tilgangService.validerTilgangTilFagsak(fagsakId, AuditLoggerEvent.ACCESS)
+                FagsakTilgang(harTilgang = true)
+            } catch (e: RolleTilgangskontrollFeil) {
+                FagsakTilgang(harTilgang = false, begrunnelse = e.frontendFeilmelding)
+            }
+
+        return Ressurs.success(fagsakTilgang)
     }
 }
