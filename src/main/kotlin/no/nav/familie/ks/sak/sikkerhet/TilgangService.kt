@@ -116,7 +116,10 @@ class TilgangService(
         validerTilgangTilFagsak(fagsakId, event)
     }
 
-    fun validerTilgangTilFagsak(fagsakId: Long, event: AuditLoggerEvent) {
+    fun validerTilgangTilFagsak(
+        fagsakId: Long,
+        event: AuditLoggerEvent,
+    ) {
         val fagsak = fagsakRepository.finnFagsak(fagsakId)
         val tilgangerTilPersoner =
             if (fagsak == null) {
@@ -139,7 +142,7 @@ class TilgangService(
             throw RolleTilgangskontrollFeil(
                 melding =
                     "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                            "har ikke tilgang til fagsak=$fagsakId. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
+                        "har ikke tilgang til fagsak=$fagsakId. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
                 frontendFeilmelding =
                     "Fagsaken inneholder personer som krever ytterligere tilganger. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
             )
