@@ -1,20 +1,28 @@
 package no.nav.familie.ks.sak.kjerne.klage
 
+import io.getunleash.Unleash
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
 import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import org.springframework.stereotype.Component
+import kotlin.collections.get
 
 @Component
 class KlagebehandlingHenter(
     private val klageClient: KlageClient,
+    private val unleashNextMedContextService: UnleashNextMedContextService,
 ) {
     fun hentKlagebehandlingerPåFagsak(fagsakId: Long): List<KlagebehandlingDto> {
-        val klagebehandligerPerFagsak = klageClient.hentKlagebehandlinger(setOf(fagsakId))
-        val klagerPåFagsak = klagebehandligerPerFagsak[fagsakId]
+        val klagerPåFagsak = if (unleashNextMedContextService.isEnabled(FeatureToggle.BRUK_NYTT_ENDEPUNKT_FOR_HENTING_AV_KLAGEBEHANDLINGER)) {
+            klageClient.hentKlagebehandlinger(fagsakId)
+        } else {
+            klageClient.hentKlagebehandlinger(setOf(fagsakId))[fagsakId]
+        }
         if (klagerPåFagsak == null) {
             throw Feil("Fikk ikke fagsakId=$fagsakId tilbake fra kallet til klage.")
         }

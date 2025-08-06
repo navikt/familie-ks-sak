@@ -52,4 +52,22 @@ class KlageClient(
             getForEntity(uri)
         }
     }
+
+    fun hentKlagebehandlinger(fagsakId: Long): List<KlagebehandlingDto> {
+        val uri =
+            UriComponentsBuilder
+                .fromUri(familieKlageUri)
+                .pathSegment("api/ekstern/behandling/baks/${Fagsystem.KS}")
+                .queryParam("eksternFagsakId", fagsakId)
+                .build()
+                .toUri()
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "klage",
+            uri = uri,
+            formål = "Hent klagebehandlinger",
+        ) {
+            getForEntity(uri)
+        }
+    }
 }
