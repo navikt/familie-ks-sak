@@ -13,5 +13,5 @@ enum class FeatureToggle(
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
 
     // NAV-25831
-    BRUK_NYTT_ENDEPUNKT_FOR_HENTING_AV_KLAGEBEHANDLINGER("familie-ba-sak.bruk-nytt-endepunkt-for-henting-av-klagebehandlinger")
+    BRUK_NYTT_ENDEPUNKT_FOR_HENTING_AV_KLAGEBEHANDLINGER("familie-ba-sak.bruk-nytt-endepunkt-for-henting-av-klagebehandlinger"),
 }
