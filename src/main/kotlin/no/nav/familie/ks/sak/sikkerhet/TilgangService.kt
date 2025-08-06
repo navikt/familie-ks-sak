@@ -113,6 +113,13 @@ class TilgangService(
         handling: String,
     ) {
         validerTilgangTilHandling(minimumBehandlerRolle, handling)
+        validerTilgangTilFagsak(fagsakId, event)
+    }
+
+    fun validerTilgangTilFagsak(
+        fagsakId: Long,
+        event: AuditLoggerEvent,
+    ) {
         val fagsak = fagsakRepository.finnFagsak(fagsakId)
         val tilgangerTilPersoner =
             if (fagsak == null) {
