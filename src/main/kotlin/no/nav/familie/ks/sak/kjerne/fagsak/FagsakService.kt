@@ -85,6 +85,7 @@ class FagsakService(
                     // Vi setter rollen til Ukjent når det ikke er barn
                     rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
                     fagsak = fagsakForBarn,
+                    adressebeskyttelseGradering = personInfoMedRelasjoner.adressebeskyttelseGradering,
                 ),
             )
         }
@@ -203,17 +204,22 @@ class FagsakService(
                             ident = fagsak.aktør.aktivFødselsnummer(),
                             rolle = FagsakDeltagerRolle.FORELDER,
                             fagsak = behandling.fagsak,
+                            adressebeskyttelseGradering = personInfoMedRelasjoner.adressebeskyttelseGradering,
                         )
 
                     else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
                         val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
                         maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
-                            ?: lagFagsakDeltagerResponsDto(
-                                personopplysningerService.hentPersoninfoEnkel(fagsak.aktør),
-                                fagsak.aktør.aktivFødselsnummer(),
-                                FagsakDeltagerRolle.FORELDER,
-                                fagsak,
-                            )
+                            ?: run {
+                                val personInfo = personopplysningerService.hentPersoninfoEnkel(fagsak.aktør)
+                                lagFagsakDeltagerResponsDto(
+                                    personInfo = personInfo,
+                                    ident = fagsak.aktør.aktivFødselsnummer(),
+                                    rolle = FagsakDeltagerRolle.FORELDER,
+                                    adressebeskyttelseGradering = personInfo.adressebeskyttelseGradering,
+                                    fagsak = fagsak,
+                                )
+                            }
                     }
                 }
             assosierteFagsakDeltagerMap[fagsak.id] = fagsakDeltagerRespons
@@ -239,6 +245,7 @@ class FagsakService(
                                 ident = relasjon.aktør.aktivFødselsnummer(),
                                 rolle = FagsakDeltagerRolle.FORELDER,
                                 fagsak = fagsak,
+                                adressebeskyttelseGradering = forelderInfo.adressebeskyttelseGradering,
                             ),
                         )
                     }
