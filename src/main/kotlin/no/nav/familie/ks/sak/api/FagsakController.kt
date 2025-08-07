@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
-import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.SøkParamDto
@@ -47,42 +46,6 @@ class FagsakController(
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} søker fagsak")
         val fagsakDeltagere = fagsakService.hentFagsakDeltagere(søkParam.personIdent)
         return ResponseEntity.ok().body(Ressurs.success(fagsakDeltagere))
-    }
-
-    @PostMapping(path = ["/sok/fagsakdeltagere"])
-    fun oppgiFagsakdeltagere(
-        @RequestBody søkParam: SøkParamDto,
-    ): ResponseEntity<Ressurs<List<FagsakDeltagerResponsDto>>> {
-        val aktør = personidentService.hentAktør(søkParam.personIdent)
-        val barnasAktør = søkParam.barnasIdenter.map { personidentService.hentAktør(it) }
-
-        val fagsakPåPerson = fagsakService.finnFagsakForPerson(aktør)
-
-        val personFagsakDeltaker =
-            listOfNotNull(
-                fagsakPåPerson?.let {
-                    FagsakDeltagerResponsDto(
-                        ident = aktør.aktivFødselsnummer(),
-                        fagsakId = it.id,
-                        fagsakStatus = it.status,
-                        rolle = FagsakDeltagerRolle.FORELDER,
-                    )
-                },
-            )
-
-        val barnFagsakDeltaker =
-            barnasAktør.mapNotNull { barnAktørId ->
-                fagsakService.finnFagsakForPerson(barnAktørId)?.let {
-                    FagsakDeltagerResponsDto(
-                        ident = barnAktørId.aktivFødselsnummer(),
-                        fagsakId = it.id,
-                        fagsakStatus = it.status,
-                        rolle = FagsakDeltagerRolle.BARN,
-                    )
-                }
-            }
-
-        return ResponseEntity.ok().body(Ressurs.success((personFagsakDeltaker + barnFagsakDeltaker)))
     }
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
