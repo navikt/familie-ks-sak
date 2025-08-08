@@ -121,10 +121,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun setup() {
-        val fagsakIderSlot = slot<Set<Long>>()
-        every { klageClient.hentKlagebehandlinger(capture(fagsakIderSlot)) } answers {
-            fagsakIderSlot.captured.associateWith { emptyList() }
-        }
+        every { klageClient.hentKlagebehandlinger(any()) } returns emptyList()
 
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
