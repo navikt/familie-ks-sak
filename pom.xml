@@ -37,13 +37,13 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250718105310_e1cba2a</prosessering.version>
-        <felles-kontrakter.version>3.0_20250804135212_2b83ee2</felles-kontrakter.version>
-        <felles.version>3.20250616113100_41d23f2</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250721082943_403d667</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250721082943_403d667</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250721082943_403d667</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20250415144931_0dc88d8</utbetalingsgenerator.version>
+        <prosessering.version>2.20250804113739_6d49ef6</prosessering.version>
+        <felles-kontrakter.version>3.0_20250805142725_8942276</felles-kontrakter.version>
+        <felles.version>3.20250804101327_a0f5fad</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20250804093222_2bf44ca</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250804093222_2bf44ca</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250804093222_2bf44ca</familie.kontrakter.saksstatistikk>
+        <utbetalingsgenerator.version>1.0_20250804104526_5648100</utbetalingsgenerator.version>
 
         <!-- Database -->
         <jsqlparser.version>5.3</jsqlparser.version>
