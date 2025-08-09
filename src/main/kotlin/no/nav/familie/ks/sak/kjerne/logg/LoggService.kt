@@ -33,7 +33,7 @@ class LoggService(
     private val rolleConfig: RolleConfig,
 ) {
     private val metrikkPerLoggType: Map<LoggType, Counter> =
-        LoggType.values().associateWith {
+        LoggType.entries.associateWith {
             Metrics.counter(
                 "behandling.logg",
                 "type",
