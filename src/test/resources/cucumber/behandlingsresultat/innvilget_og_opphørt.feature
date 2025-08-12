@@ -1,7 +1,7 @@
 # language: no
 # encoding: UTF-8
 
-Egenskap: Innvilgelse og opphør av kontantstøtt
+Egenskap: Innvilgelse og opphør av kontantstøtte
 
   Bakgrunn:
     Gitt følgende fagsaker
