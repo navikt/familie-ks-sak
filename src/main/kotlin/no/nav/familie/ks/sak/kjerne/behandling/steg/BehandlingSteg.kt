@@ -15,8 +15,8 @@ enum class BehandlingSteg(
     val sekvens: Int,
     val gyldigBehandlerRolle: List<BehandlerRolle> = listOf(BehandlerRolle.SAKSBEHANDLER),
     // default verdi er at steg er gyldig for alle behandling årsaker
-    val gyldigForÅrsaker: List<BehandlingÅrsak> = BehandlingÅrsak.values().toList(),
-    val gyldigForResultater: List<Behandlingsresultat> = Behandlingsresultat.values().toList(),
+    val gyldigForÅrsaker: List<BehandlingÅrsak> = BehandlingÅrsak.entries.toList(),
+    val gyldigForResultater: List<Behandlingsresultat> = Behandlingsresultat.entries.toList(),
     val tilknyttetBehandlingStatus: BehandlingStatus = BehandlingStatus.UTREDES,
 ) {
     REGISTRERE_PERSONGRUNNLAG(
@@ -30,7 +30,7 @@ enum class BehandlingSteg(
         sekvens = 5,
         gyldigBehandlerRolle = listOf(BehandlerRolle.SYSTEM, BehandlerRolle.SAKSBEHANDLER),
         gyldigForÅrsaker = BehandlingÅrsak.entries.minus(listOf(SATSENDRING)),
-        gyldigForResultater = Behandlingsresultat.values().filterNot { it == Behandlingsresultat.AVSLÅTT },
+        gyldigForResultater = Behandlingsresultat.entries.filterNot { it == Behandlingsresultat.AVSLÅTT },
     ),
     VEDTAK(
         sekvens = 6,
