@@ -396,6 +396,7 @@ Egenskap: Opphør første periode
       | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
       | 01.02.2025 | 31.03.2025 | OPPHØR             |           |
       | 01.04.2025 | 31.08.2025 | UTBETALING         |           |
+      | 01.09.2025 |            | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                             | Ugyldige begrunnelser |
