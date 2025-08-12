@@ -55,9 +55,9 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>11.0.2</unleash.version>
+        <unleash.version>11.1.0</unleash.version>
         <microsoft-graph.version>6.49.0</microsoft-graph.version>
-        <azure-identity.version>1.16.3</azure-identity.version>
+        <azure-identity.version>1.17.0</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.23.0</cucumber.version>
