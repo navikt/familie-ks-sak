@@ -55,12 +55,12 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>11.0.2</unleash.version>
-        <microsoft-graph.version>6.49.0</microsoft-graph.version>
-        <azure-identity.version>1.16.3</azure-identity.version>
+        <unleash.version>11.1.0</unleash.version>
+        <microsoft-graph.version>6.50.0</microsoft-graph.version>
+        <azure-identity.version>1.17.0</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.23.0</cucumber.version>
+        <cucumber.version>7.27.0</cucumber.version>
         <rest-assured.version>5.5.5</rest-assured.version>
         <mock-oauth2-server.version>2.2.1</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
