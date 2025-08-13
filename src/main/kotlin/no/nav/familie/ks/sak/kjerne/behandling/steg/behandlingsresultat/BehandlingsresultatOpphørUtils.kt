@@ -51,13 +51,13 @@ object BehandlingsresultatOpphørUtils {
             )
 
         val harTidligereOpphørsDatoEnnForrigeBehandling = forrigeBehandlingOpphørsdato?.let { it > nåværendeBehandlingOpphørsdato } ?: true
-        val tidligereOpphørsDatoHarPassert = forrigeBehandlingOpphørsdato?.let { it < nåMåned } ?: true
+        val tidligereOpphørsDatoHarPassertEllerFinnesIkke = forrigeBehandlingOpphørsdato?.let { it < nåMåned } ?: true
 
         return when {
             // Rekkefølgen av sjekkene er viktig for å komme fram til riktig opphørsresultat.
             nåværendeBehandlingOpphørsdato == null && forrigeBehandlingOpphørsdato == null -> Opphørsresultat.FORTSATT_OPPHØRT
             nåværendeBehandlingOpphørsdato == null -> Opphørsresultat.IKKE_OPPHØRT // Både forrige og nåværende behandling har ingen andeler
-            nåværendeBehandlingOpphørsdato <= cutOffDato && tidligereOpphørsDatoHarPassert && nåværendeBehandlingOpphørsdato != forrigeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige opphørsdato har passert
+            nåværendeBehandlingOpphørsdato <= cutOffDato && tidligereOpphørsDatoHarPassertEllerFinnesIkke && nåværendeBehandlingOpphørsdato != forrigeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige opphørsdato har passert
             nåværendeBehandlingOpphørsdato <= cutOffDato && harTidligereOpphørsDatoEnnForrigeBehandling -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
             nåværendeBehandlingOpphørsdato <= cutOffDato && nåværendeBehandlingOpphørsdato == forrigeBehandlingOpphørsdato -> Opphørsresultat.FORTSATT_OPPHØRT
             else -> Opphørsresultat.IKKE_OPPHØRT
