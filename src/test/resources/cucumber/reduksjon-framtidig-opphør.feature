@@ -49,10 +49,11 @@ Egenskap: Reduksjon framtidig opphør barnehageplass - søker melder om framtidi
       | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
       | 01.02.2025 | 31.05.2025 | UTBETALING         |           |
       | 01.06.2025 | 31.08.2025 | UTBETALING         |           |
+      | 01.09.2025 |            | OPPHØR             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 1
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser     | Ugyldige begrunnelser                     |
-      | 01.02.2025 | 31.05.2025 | UTBETALING         |                                | INNVILGET_IKKE_BARNEHAGE | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS                                          |
+      | 01.02.2025 | 31.05.2025 | UTBETALING         |                                | INNVILGET_IKKE_BARNEHAGE | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |
       | 01.06.2025 | 31.08.2025 | UTBETALING         |                                |                          | REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS |
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.06.2025 til 31.08.2025
