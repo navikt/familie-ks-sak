@@ -68,7 +68,6 @@ internal class VedtaksperiodeServiceTest {
     private val overgangsordningAndelService = mockk<OvergangsordningAndelService>()
     private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
     private val sanityService = mockk<SanityService>()
-    private val utbetalingsperiodeGenerator = mockk<UtbetalingsperiodeGenerator>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
     private val integrasjonClient = mockk<IntegrasjonClient>()
     private val refusjonEøsRepository = mockk<RefusjonEøsRepository>()
@@ -76,6 +75,7 @@ internal class VedtaksperiodeServiceTest {
     private val adopsjonService = mockk<AdopsjonService>()
     private val endringstidspunktService = mockk<EndringstidspunktService>()
     private val opphørsperiodeGenerator = mockk<OpphørsperiodeGenerator>()
+    private val utbetalingsperiodeGenerator = mockk<UtbetalingsperiodeGenerator>()
     private val avslagsperiodeGenerator = mockk<AvslagsperiodeGenerator>()
     private val unleash = mockk<UnleashNextMedContextService>()
 
@@ -88,7 +88,6 @@ internal class VedtaksperiodeServiceTest {
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             overgangsordningAndelService = overgangsordningAndelService,
             sanityService = sanityService,
-            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             integrasjonClient = integrasjonClient,
             refusjonEøsRepository = refusjonEøsRepository,
@@ -96,6 +95,7 @@ internal class VedtaksperiodeServiceTest {
             adopsjonService = adopsjonService,
             endringstidspunktService = endringstidspunktService,
             opphørsperiodeGenerator = opphørsperiodeGenerator,
+            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
             avslagsperiodeGenerator = avslagsperiodeGenerator,
             unleash = unleash,
         )

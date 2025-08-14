@@ -64,7 +64,6 @@ class VedtaksperiodeService(
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val sanityService: SanityService,
-    private val utbetalingsperiodeGenerator: UtbetalingsperiodeGenerator,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val integrasjonClient: IntegrasjonClient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
@@ -72,6 +71,7 @@ class VedtaksperiodeService(
     private val adopsjonService: AdopsjonService,
     private val endringstidspunktService: EndringstidspunktService,
     private val opphørsperiodeGenerator: OpphørsperiodeGenerator,
+    private val utbetalingsperiodeGenerator: UtbetalingsperiodeGenerator,
     private val avslagsperiodeGenerator: AvslagsperiodeGenerator,
     private val unleash: UnleashNextMedContextService,
 ) {

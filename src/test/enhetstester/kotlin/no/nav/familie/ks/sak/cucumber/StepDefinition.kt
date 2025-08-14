@@ -767,7 +767,6 @@ class StepDefinition {
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
-            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
             overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             integrasjonClient = mockk(),
@@ -776,6 +775,7 @@ class StepDefinition {
             adopsjonService = mockAdopsjonService(),
             endringstidspunktService = endringstidspunktService,
             opphørsperiodeGenerator = opphørsperiodeGenerator,
+            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
             avslagsperiodeGenerator = avslagsperiodeGenerator,
             unleash = mockUnleashNextMedContextService(),
         )
