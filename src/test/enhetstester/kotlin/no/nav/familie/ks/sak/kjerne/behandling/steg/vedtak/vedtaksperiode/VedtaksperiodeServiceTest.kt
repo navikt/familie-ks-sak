@@ -8,6 +8,8 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagOpphørsperiode
 import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
@@ -75,6 +77,7 @@ internal class VedtaksperiodeServiceTest {
     private val endringstidspunktService = mockk<EndringstidspunktService>()
     private val opphørsperiodeGenerator = mockk<OpphørsperiodeGenerator>()
     private val avslagsperiodeGenerator = mockk<AvslagsperiodeGenerator>()
+    private val unleash = mockk<UnleashNextMedContextService>()
 
     private val vedtaksperiodeService =
         VedtaksperiodeService(
@@ -94,6 +97,7 @@ internal class VedtaksperiodeServiceTest {
             endringstidspunktService = endringstidspunktService,
             opphørsperiodeGenerator = opphørsperiodeGenerator,
             avslagsperiodeGenerator = avslagsperiodeGenerator,
+            unleash = unleash,
         )
 
     private lateinit var behandling: Behandling
@@ -101,6 +105,7 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
+        every { unleash.isEnabled(FeatureToggle.IKKE_LAG_OPPHOERSPERIODE_AV_AVSLAAT_BEHANDLINGSRESULTAT) } returns true
     }
 
     @Nested
