@@ -7,8 +7,12 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagOpphørsperiode
 import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
+import no.nav.familie.ks.sak.data.lagVedtak
+import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -51,7 +55,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.mockito.Mockito.mock
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -70,8 +73,8 @@ internal class VedtaksperiodeServiceTest {
     private val kompetanseService = mockk<KompetanseService>(relaxed = true)
     private val adopsjonService = mockk<AdopsjonService>()
     private val endringstidspunktService = mockk<EndringstidspunktService>()
-    private val opphørsperiodeGenerator = mock<OpphørsperiodeGenerator>()
-    private val avslagsperiodeGenerator = mock<AvslagsperiodeGenerator>()
+    private val opphørsperiodeGenerator = mockk<OpphørsperiodeGenerator>()
+    private val avslagsperiodeGenerator = mockk<AvslagsperiodeGenerator>()
 
     private val vedtaksperiodeService =
         VedtaksperiodeService(
@@ -98,6 +101,119 @@ internal class VedtaksperiodeServiceTest {
     @BeforeEach
     fun setup() {
         behandling = lagBehandling()
+    }
+
+    @Nested
+    inner class GenererVedtaksperioderMedBegrunnelser {
+        @Test
+        fun `skal returnere fortsatt innvilget om behandlingsresultatet er fortsatt innvilget`() {
+            // Arrange
+            val behandling = lagBehandling(resultat = Behandlingsresultat.FORTSATT_INNVILGET)
+            val vedtak = lagVedtak(behandling = behandling)
+
+            // Act
+            val vedtaksperioder = vedtaksperiodeService.genererVedtaksperioderMedBegrunnelser(vedtak)
+
+            // Assert
+            verify(exactly = 0) { opphørsperiodeGenerator.genererOpphørsperioder(any()) }
+            verify(exactly = 0) { avslagsperiodeGenerator.genererAvslagsperioder(any()) }
+            verify(exactly = 0) { utbetalingsperiodeGenerator.genererUtbetalingsperioder(any()) }
+            assertThat(vedtaksperioder).hasSize(1)
+            assertThat(vedtaksperioder).anySatisfy {
+                assertThat(it.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
+                assertThat(it.vedtak).isEqualTo(vedtak)
+                assertThat(it.fom).isNull()
+                assertThat(it.tom).isNull()
+            }
+        }
+
+        @Test
+        fun `skal generere opphørsperioder hvis behandlingsresultatet ikke er avlsått`() {
+            // Arrange
+            val utbetalingsperiodeFom = LocalDate.of(2024, 1, 1)
+            val utbetalingsperiodeTom = LocalDate.of(2024, 7, 31)
+            val opphørsperiodeFom = LocalDate.of(2024, 8, 1)
+
+            val behandling = lagBehandling(resultat = Behandlingsresultat.INNVILGET)
+            val vedtak = lagVedtak(behandling = behandling)
+
+            val vedtaksperiodeMedBegrunnelser =
+                lagVedtaksperiodeMedBegrunnelser(
+                    vedtak = vedtak,
+                    fom = utbetalingsperiodeFom,
+                    tom = utbetalingsperiodeTom,
+                    type = Vedtaksperiodetype.UTBETALING,
+                )
+
+            val opphørsperiode =
+                lagOpphørsperiode(
+                    periodeFom = opphørsperiodeFom,
+                    periodeTom = null,
+                )
+
+            every { opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling) } returns listOf(opphørsperiode)
+            every { avslagsperiodeGenerator.genererAvslagsperioder(vedtak) } returns emptyList()
+            every { utbetalingsperiodeGenerator.genererUtbetalingsperioder(vedtak) } returns listOf(vedtaksperiodeMedBegrunnelser)
+            every { endringstidspunktService.finnEndringstidspunktForBehandling(vedtak.behandling) } returns TIDENES_MORGEN
+
+            // Act
+            val vedtaksperioder = vedtaksperiodeService.genererVedtaksperioderMedBegrunnelser(vedtak)
+
+            // Assert
+            verify(exactly = 1) { opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling) }
+            verify(exactly = 1) { avslagsperiodeGenerator.genererAvslagsperioder(vedtak) }
+            verify(exactly = 1) { utbetalingsperiodeGenerator.genererUtbetalingsperioder(vedtak) }
+            assertThat(vedtaksperioder).hasSize(2)
+            assertThat(vedtaksperioder).anySatisfy {
+                assertThat(it.type).isEqualTo(Vedtaksperiodetype.UTBETALING)
+                assertThat(it.vedtak).isEqualTo(vedtak)
+                assertThat(it.fom).isEqualTo(utbetalingsperiodeFom)
+                assertThat(it.tom).isEqualTo(utbetalingsperiodeTom)
+            }
+            assertThat(vedtaksperioder).anySatisfy {
+                assertThat(it.type).isEqualTo(Vedtaksperiodetype.OPPHØR)
+                assertThat(it.vedtak).isEqualTo(vedtak)
+                assertThat(it.fom).isEqualTo(opphørsperiodeFom)
+                assertThat(it.tom).isNull()
+            }
+        }
+
+        @Test
+        fun `skal ikke generere opphørsperioder hvis behandlingsresultatet er avlsått`() {
+            // Arrange
+            val utbetalingsperiodeFom = LocalDate.of(2024, 1, 1)
+
+            val behandling = lagBehandling(resultat = Behandlingsresultat.AVSLÅTT)
+            val vedtak = lagVedtak(behandling = behandling)
+
+            val vedtaksperiodeMedBegrunnelser =
+                lagVedtaksperiodeMedBegrunnelser(
+                    vedtak = vedtak,
+                    fom = utbetalingsperiodeFom,
+                    tom = null,
+                    type = Vedtaksperiodetype.AVSLAG,
+                )
+
+            every { opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling) } returns emptyList()
+            every { avslagsperiodeGenerator.genererAvslagsperioder(vedtak) } returns emptyList()
+            every { utbetalingsperiodeGenerator.genererUtbetalingsperioder(vedtak) } returns listOf(vedtaksperiodeMedBegrunnelser)
+            every { endringstidspunktService.finnEndringstidspunktForBehandling(vedtak.behandling) } returns TIDENES_MORGEN
+
+            // Act
+            val vedtaksperioder = vedtaksperiodeService.genererVedtaksperioderMedBegrunnelser(vedtak)
+
+            // Assert
+            verify(exactly = 0) { opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling) }
+            verify(exactly = 1) { avslagsperiodeGenerator.genererAvslagsperioder(vedtak) }
+            verify(exactly = 1) { utbetalingsperiodeGenerator.genererUtbetalingsperioder(vedtak) }
+            assertThat(vedtaksperioder).hasSize(1)
+            assertThat(vedtaksperioder).anySatisfy {
+                assertThat(it.type).isEqualTo(Vedtaksperiodetype.AVSLAG)
+                assertThat(it.vedtak).isEqualTo(vedtak)
+                assertThat(it.fom).isEqualTo(utbetalingsperiodeFom)
+                assertThat(it.tom).isNull()
+            }
+        }
     }
 
     @Test

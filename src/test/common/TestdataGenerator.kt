@@ -74,6 +74,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.opphørsperiode.Opphørsperiode
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
@@ -1696,4 +1697,17 @@ fun lagMinimalFagsakResponsDto(
         løpendeKategori = løpendeKategori,
         behandlinger = behandlinger,
         gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
+    )
+
+fun lagOpphørsperiode(
+    periodeFom: LocalDate = LocalDate.now(),
+    periodeTom: LocalDate? = null,
+    vedtaksperiodetype: Vedtaksperiodetype = Vedtaksperiodetype.OPPHØR,
+    begrunnelser: List<NasjonalEllerFellesBegrunnelse> = emptyList(),
+): Opphørsperiode =
+    Opphørsperiode(
+        periodeFom = periodeFom,
+        periodeTom = periodeTom,
+        vedtaksperiodetype = vedtaksperiodetype,
+        begrunnelser = begrunnelser,
     )
