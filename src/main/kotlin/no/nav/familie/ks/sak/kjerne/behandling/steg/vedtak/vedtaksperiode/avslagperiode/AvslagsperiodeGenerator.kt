@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
+package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.avslagperiode
 
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -9,6 +9,8 @@ import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser

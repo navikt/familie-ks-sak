@@ -37,9 +37,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.Behandli
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.AvslagsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.OpphørsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.avslagperiode.AvslagsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
