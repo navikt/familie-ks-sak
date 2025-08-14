@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøs
@@ -62,7 +61,6 @@ internal class VedtaksperiodeServiceTest {
     private val overgangsordningAndelService = mockk<OvergangsordningAndelService>()
     private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
     private val sanityService = mockk<SanityService>()
-    private val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
     private val utbetalingsperiodeMedBegrunnelserService = mockk<UtbetalingsperiodeMedBegrunnelserService>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
     private val integrasjonClient = mockk<IntegrasjonClient>()
@@ -71,6 +69,7 @@ internal class VedtaksperiodeServiceTest {
     private val adopsjonService = mockk<AdopsjonService>()
     private val endringstidspunktService = mockk<EndringstidspunktService>()
     private val opphørsperiodeGenerator = mock<OpphørsperiodeGenerator>()
+    private val avslagsperiodeGenerator = mock<AvslagsperiodeGenerator>()
 
     private val vedtaksperiodeService =
         VedtaksperiodeService(
@@ -81,7 +80,6 @@ internal class VedtaksperiodeServiceTest {
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             overgangsordningAndelService = overgangsordningAndelService,
             sanityService = sanityService,
-            søknadGrunnlagService = søknadGrunnlagService,
             utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             integrasjonClient = integrasjonClient,
@@ -90,6 +88,7 @@ internal class VedtaksperiodeServiceTest {
             adopsjonService = adopsjonService,
             endringstidspunktService = endringstidspunktService,
             opphørsperiodeGenerator = opphørsperiodeGenerator,
+            avslagsperiodeGenerator = avslagsperiodeGenerator,
         )
 
     private lateinit var behandling: Behandling

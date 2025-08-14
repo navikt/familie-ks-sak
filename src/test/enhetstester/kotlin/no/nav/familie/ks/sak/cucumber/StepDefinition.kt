@@ -37,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.Behandli
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.AvslagsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.OpphørsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -742,12 +743,20 @@ class StepDefinition {
 
         val opphørsperiodeGenerator =
             OpphørsperiodeGenerator(
-                behandlingRepository,
+                behandlingRepository = behandlingRepository,
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
-                vilkårsvurderingRepository,
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 adopsjonService = mockAdopsjonService(),
-                endringstidspunktService,
+                endringstidspunktService = endringstidspunktService,
+            )
+
+        val avslagsperiodeGenerator =
+            AvslagsperiodeGenerator(
+                vedtaksperiodeHentOgPersisterService = mockk(relaxed = true),
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
+                søknadGrunnlagService = søknadGrunnlagService,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             )
 
         return VedtaksperiodeService(
@@ -757,7 +766,6 @@ class StepDefinition {
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
-            søknadGrunnlagService = søknadGrunnlagService,
             utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
             overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
@@ -767,6 +775,7 @@ class StepDefinition {
             adopsjonService = mockAdopsjonService(),
             endringstidspunktService = endringstidspunktService,
             opphørsperiodeGenerator = opphørsperiodeGenerator,
+            avslagsperiodeGenerator = avslagsperiodeGenerator,
         )
     }
 
