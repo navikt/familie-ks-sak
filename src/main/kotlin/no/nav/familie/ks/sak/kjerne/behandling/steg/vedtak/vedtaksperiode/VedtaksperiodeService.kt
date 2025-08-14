@@ -224,7 +224,13 @@ class VedtaksperiodeService(
             )
         }
 
-        val opphørsperioder = hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+        val opphørsperioder =
+            if (vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT) {
+                emptyList()
+            } else {
+                hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+            }
+
         val utbetalingsperioder = utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(vedtak)
         val avslagsperioder = hentAvslagsperioderMedBegrunnelser(vedtak)
 
