@@ -37,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.Behandli
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.OpphørsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -739,6 +740,16 @@ class StepDefinition {
                 vilkårsvurderingService = mockVilkårsvurderingService(),
             )
 
+        val opphørsperiodeGenerator =
+            OpphørsperiodeGenerator(
+                behandlingRepository,
+                personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
+                vilkårsvurderingRepository,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+                adopsjonService = mockAdopsjonService(),
+                endringstidspunktService,
+            )
+
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
@@ -755,6 +766,7 @@ class StepDefinition {
             kompetanseService = kompetanseService,
             adopsjonService = mockAdopsjonService(),
             endringstidspunktService = endringstidspunktService,
+            opphørsperiodeGenerator = opphørsperiodeGenerator,
         )
     }
 

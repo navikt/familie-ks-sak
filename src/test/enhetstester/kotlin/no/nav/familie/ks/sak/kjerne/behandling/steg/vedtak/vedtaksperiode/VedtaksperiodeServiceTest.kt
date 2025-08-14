@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.mockito.Mockito.mock
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -69,6 +70,7 @@ internal class VedtaksperiodeServiceTest {
     private val kompetanseService = mockk<KompetanseService>(relaxed = true)
     private val adopsjonService = mockk<AdopsjonService>()
     private val endringstidspunktService = mockk<EndringstidspunktService>()
+    private val opphørsperiodeGenerator = mock<OpphørsperiodeGenerator>()
 
     private val vedtaksperiodeService =
         VedtaksperiodeService(
@@ -87,6 +89,7 @@ internal class VedtaksperiodeServiceTest {
             kompetanseService = kompetanseService,
             adopsjonService = adopsjonService,
             endringstidspunktService = endringstidspunktService,
+            opphørsperiodeGenerator = opphørsperiodeGenerator,
         )
 
     private lateinit var behandling: Behandling

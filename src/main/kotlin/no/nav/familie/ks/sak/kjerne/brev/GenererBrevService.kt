@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Opphørsperiode
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.OpphørsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
@@ -68,6 +69,7 @@ class GenererBrevService(
     private val brevmalService: BrevmalService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val hjemmeltekstUtleder: HjemmeltekstUtleder,
+    private val opphørsperiodeGenerator: OpphørsperiodeGenerator,
 ) {
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
@@ -361,7 +363,7 @@ class GenererBrevService(
                                     .storForbokstavIAlleNavn(),
                             virkningstidspunkt =
                                 hentVirkningstidspunkt(
-                                    opphørsperioder = vedtaksperiodeService.hentOpphørsperioder(vedtak.behandling),
+                                    opphørsperioder = opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling),
                                     behandlingId = vedtak.behandling.id,
                                 ),
                         ),

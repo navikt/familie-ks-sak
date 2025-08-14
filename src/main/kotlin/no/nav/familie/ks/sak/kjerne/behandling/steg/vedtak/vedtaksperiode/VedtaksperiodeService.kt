@@ -23,7 +23,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
-import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -76,6 +75,7 @@ class VedtaksperiodeService(
     private val kompetanseService: KompetanseService,
     private val adopsjonService: AdopsjonService,
     private val endringstidspunktService: EndringstidspunktService,
+    private val opphørsperiodeGenerator: OpphørsperiodeGenerator,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -228,7 +228,7 @@ class VedtaksperiodeService(
             if (vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT) {
                 emptyList()
             } else {
-                hentOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
+                opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
             }
 
         val utbetalingsperioder = utbetalingsperiodeMedBegrunnelserService.hentUtbetalingsperioder(vedtak)
@@ -440,50 +440,6 @@ class VedtaksperiodeService(
                     ).hentGyldigeBegrunnelserForVedtaksperiode(),
             )
         }
-    }
-
-    fun hentOpphørsperioder(
-        behandling: Behandling,
-    ): List<Opphørsperiode> {
-        if (behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET) return emptyList()
-
-        val iverksatteBehandlinger = behandlingRepository.finnIverksatteBehandlinger(fagsakId = behandling.fagsak.id)
-
-        val forrigeIverksatteBehandling = iverksatteBehandlinger.filter { it.aktivertTidspunkt.isBefore(behandling.aktivertTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }.maxByOrNull { it.aktivertTidspunkt }
-
-        val forrigePersonopplysningGrunnlag =
-            if (forrigeIverksatteBehandling != null) {
-                personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId = forrigeIverksatteBehandling.id)
-            } else {
-                null
-            }
-
-        val forrigeAndelerMedEndringer =
-            if (forrigeIverksatteBehandling != null) {
-                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(forrigeIverksatteBehandling.id)
-            } else {
-                emptyList()
-            }
-
-        val personopplysningGrunnlag = personopplysningGrunnlagService.finnAktivPersonopplysningGrunnlag(behandlingId = behandling.id) ?: return emptyList()
-
-        val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
-
-        val vilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) ?: throw Feil("Fant ikke vilkårsvurdering på behandling $behandling")
-
-        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandling.id))
-
-        val endringstidspunktForBehandling = endringstidspunktService.finnEndringstidspunktForBehandling(behandling)
-
-        return mapTilOpphørsperioder(
-            forrigePersonopplysningGrunnlag = forrigePersonopplysningGrunnlag,
-            forrigeAndelerTilkjentYtelse = forrigeAndelerMedEndringer,
-            personopplysningGrunnlag = personopplysningGrunnlag,
-            andelerTilkjentYtelse = andelerTilkjentYtelse,
-            vilkårsvurdering = vilkårsvurdering,
-            adopsjonerIBehandling = adopsjonerIBehandling,
-            endringstidspunktForBehandling = endringstidspunktForBehandling,
-        )
     }
 
     private fun hentAvslagsperioderMedBegrunnelser(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> {

@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.OpphørsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -54,6 +55,7 @@ class GenererBrevServiceTest {
             brevmalService = mockk<BrevmalService>(),
             andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>(),
             hjemmeltekstUtleder = mockk<HjemmeltekstUtleder>(),
+            opphørsperiodeGenerator = mockk<OpphørsperiodeGenerator>(),
         )
 
     private val søker = randomAktør()
