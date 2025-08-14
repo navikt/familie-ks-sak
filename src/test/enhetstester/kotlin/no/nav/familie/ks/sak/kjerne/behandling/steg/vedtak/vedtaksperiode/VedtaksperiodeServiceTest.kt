@@ -24,7 +24,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.Refusjon
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksbegrunnelseFritekst
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
@@ -61,7 +61,7 @@ internal class VedtaksperiodeServiceTest {
     private val overgangsordningAndelService = mockk<OvergangsordningAndelService>()
     private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
     private val sanityService = mockk<SanityService>()
-    private val utbetalingsperiodeMedBegrunnelserService = mockk<UtbetalingsperiodeMedBegrunnelserService>()
+    private val utbetalingsperiodeGenerator = mockk<UtbetalingsperiodeGenerator>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
     private val integrasjonClient = mockk<IntegrasjonClient>()
     private val refusjonEøsRepository = mockk<RefusjonEøsRepository>()
@@ -80,7 +80,7 @@ internal class VedtaksperiodeServiceTest {
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             overgangsordningAndelService = overgangsordningAndelService,
             sanityService = sanityService,
-            utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
+            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             integrasjonClient = integrasjonClient,
             refusjonEøsRepository = refusjonEøsRepository,

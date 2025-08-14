@@ -9,17 +9,17 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvnin
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
-class UtbetalingsperiodeMedBegrunnelserService(
+@Component
+class UtbetalingsperiodeGenerator(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val kompetanseService: KompetanseService,
     private val adopsjonService: AdopsjonService,
 ) {
-    fun hentUtbetalingsperioder(
+    fun genererUtbetalingsperioder(
         vedtak: Vedtak,
     ): List<VedtaksperiodeMedBegrunnelser> {
         val andelerTilkjentYtelse =
