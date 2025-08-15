@@ -133,7 +133,7 @@ internal class VedtaksperiodeServiceTest {
         }
 
         @Test
-        fun `skal generere opphørsperioder hvis behandlingsresultatet ikke er avlsått`() {
+        fun `skal generere opphørsperioder hvis behandlingsresultatet ikke er avslått`() {
             // Arrange
             val utbetalingsperiodeFom = LocalDate.of(2024, 1, 1)
             val utbetalingsperiodeTom = LocalDate.of(2024, 7, 31)
