@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.api.mapper
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
+import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
@@ -25,7 +26,7 @@ object FagsakMapper {
             navn = personInfo?.navn,
             ident = ident,
             rolle = rolle,
-            kjønn = personInfo?.kjønn,
+            kjønn = personInfo?.kjønn ?: KJOENN.UKJENT,
             fagsakId = fagsak?.id,
             fagsakStatus = fagsak?.status,
             adressebeskyttelseGradering = adressebeskyttelseGradering,

@@ -19,7 +19,7 @@ data class FagsakDeltagerResponsDto(
     val navn: String? = null,
     val ident: String = "",
     val rolle: FagsakDeltagerRolle,
-    val kjønn: KJOENN? = KJOENN.UKJENT,
+    val kjønn: KJOENN = KJOENN.UKJENT,
     val fagsakId: Long? = null,
     val fagsakStatus: FagsakStatus? = null,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
