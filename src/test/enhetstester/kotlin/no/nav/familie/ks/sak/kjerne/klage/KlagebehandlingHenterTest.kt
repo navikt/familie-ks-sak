@@ -6,15 +6,12 @@ import no.nav.familie.kontrakter.felles.klage.BehandlingEventType
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
 import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
 import no.nav.familie.ks.sak.data.lagKlageinstansResultatDto
 import no.nav.familie.ks.sak.kjerne.klage.KlageClient
 import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -24,17 +21,10 @@ import java.util.UUID
 
 class KlagebehandlingHenterTest {
     private val klageClient = mockk<KlageClient>()
-    private val unleashNextMedContextService = mockk<UnleashNextMedContextService>()
     private val klagebehandlingHenter =
         KlagebehandlingHenter(
             klageClient = klageClient,
-            unleashNextMedContextService = unleashNextMedContextService,
         )
-
-    @BeforeEach
-    fun setUp() {
-        every { unleashNextMedContextService.isEnabled(any<FeatureToggle>()) } returns true
-    }
 
     @Nested
     inner class HentKlagebehandlingerPåFagsak {

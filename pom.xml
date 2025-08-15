@@ -33,31 +33,31 @@
         <springdoc.version>2.8.9</springdoc.version>
 
         <!-- Nav felles -->
-        <nav-token-client.version>5.0.33</nav-token-client.version>
+        <nav-token-client.version>5.0.34</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250718105310_e1cba2a</prosessering.version>
-        <felles-kontrakter.version>3.0_20250804135212_2b83ee2</felles-kontrakter.version>
-        <felles.version>3.20250616113100_41d23f2</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250721082943_403d667</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250721082943_403d667</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250721082943_403d667</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20250415144931_0dc88d8</utbetalingsgenerator.version>
+        <prosessering.version>2.20250804113739_6d49ef6</prosessering.version>
+        <felles-kontrakter.version>3.0_20250805142725_8942276</felles-kontrakter.version>
+        <felles.version>3.20250804101327_a0f5fad</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20250804093222_2bf44ca</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250804093222_2bf44ca</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250804093222_2bf44ca</familie.kontrakter.saksstatistikk>
+        <utbetalingsgenerator.version>1.0_20250804104526_5648100</utbetalingsgenerator.version>
 
         <!-- Database -->
         <jsqlparser.version>5.3</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.0</avro.version>
-        <confluent.version>7.9.1</confluent.version>
+        <confluent.version>8.0.0</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>10.2.2</unleash.version>
-        <microsoft-graph.version>6.40.0</microsoft-graph.version>
-        <azure-identity.version>1.16.2</azure-identity.version>
+        <unleash.version>11.0.2</unleash.version>
+        <microsoft-graph.version>6.49.0</microsoft-graph.version>
+        <azure-identity.version>1.16.3</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.23.0</cucumber.version>
@@ -71,10 +71,10 @@
 
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <ktlint-cli.version>1.6.0</ktlint-cli.version>
+        <ktlint-cli.version>1.7.1</ktlint-cli.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
-        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
 
