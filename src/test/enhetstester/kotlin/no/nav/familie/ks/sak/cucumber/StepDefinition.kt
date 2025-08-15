@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
+import no.nav.familie.ks.sak.cucumber.mocking.mockUnleashNextMedContextService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -38,10 +39,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.avslagsperiode.AvslagsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.opphørsperiode.OpphørsperiodeGenerator
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiode.UtbetalingsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -695,8 +698,8 @@ class StepDefinition {
             kompetanser[behandlingId.id] ?: emptyList()
         }
 
-        val utbetalingsperiodeMedBegrunnelserService =
-            UtbetalingsperiodeMedBegrunnelserService(
+        val utbetalingsperiodeGenerator =
+            UtbetalingsperiodeGenerator(
                 vilkårsvurderingService = mockVilkårsvurderingService(),
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
@@ -739,6 +742,24 @@ class StepDefinition {
                 vilkårsvurderingService = mockVilkårsvurderingService(),
             )
 
+        val opphørsperiodeGenerator =
+            OpphørsperiodeGenerator(
+                behandlingRepository = behandlingRepository,
+                personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+                adopsjonService = mockAdopsjonService(),
+                endringstidspunktService = endringstidspunktService,
+            )
+
+        val avslagsperiodeGenerator =
+            AvslagsperiodeGenerator(
+                vedtaksperiodeHentOgPersisterService = mockk(relaxed = true),
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
+                søknadGrunnlagService = søknadGrunnlagService,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+            )
+
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
@@ -746,8 +767,6 @@ class StepDefinition {
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
-            søknadGrunnlagService = søknadGrunnlagService,
-            utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
             overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             integrasjonClient = mockk(),
@@ -755,6 +774,10 @@ class StepDefinition {
             kompetanseService = kompetanseService,
             adopsjonService = mockAdopsjonService(),
             endringstidspunktService = endringstidspunktService,
+            opphørsperiodeGenerator = opphørsperiodeGenerator,
+            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
+            avslagsperiodeGenerator = avslagsperiodeGenerator,
+            unleash = mockUnleashNextMedContextService(),
         )
     }
 
