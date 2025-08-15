@@ -524,6 +524,21 @@ class IntegrasjonClient(
         }
     }
 
+    fun sjekkErEgenAnsattBulk(personIdenter: List<String>): Map<String, Boolean> {
+        val url = URI.create("$integrasjonUri/egenansatt/bulk")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "skjermede-personer-pip",
+            uri = url,
+            formål = "Sjekk om personer er egen ansatt",
+        ) {
+            postForEntity<Ressurs<Map<String, Boolean>>>(
+                url,
+                personIdenter,
+            )
+        }
+    }
+
     private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo?) =
         manuellAdresseInfo?.let {
             ManuellAdresse(

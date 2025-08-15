@@ -5,6 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.common.ClockProvider
@@ -15,6 +16,7 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
+import org.assertj.core.api.Assertions.assertThat
 
 class FagsakServiceTest {
     private val personidentService = mockk<PersonidentService>()
@@ -53,6 +56,7 @@ class FagsakServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val clockProvider = mockk<ClockProvider>()
     private val adopsjonService = mockk<AdopsjonService>()
+    private val integrasjonClient = mockk<IntegrasjonClient>(relaxed = true)
 
     private val fagsakService =
         FagsakService(
@@ -69,6 +73,7 @@ class FagsakServiceTest {
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             clockProvider = clockProvider,
             adopsjonService = adopsjonService,
+            integrasjonClient = integrasjonClient,
         )
 
     @BeforeEach
@@ -179,6 +184,52 @@ class FagsakServiceTest {
 
         assertEquals(barnPersonident, barnDeltaker?.ident)
         assertEquals(søkerPersonident, forelderDeltaker?.ident)
+    }
+
+    @Test
+    fun `hentFagsakDeltagere - setter korrekt egen ansatt status basert på respons fra integrasjoner`() {
+        // Arrange
+        val erEgenAnsattIdent = randomFnr()
+        val erIkkeEgenAnsattIdent = randomFnr()
+        val manglerDataIdent = randomFnr()
+
+        val fagsakDeltagere =
+            mutableListOf(
+                FagsakDeltagerResponsDto(
+                    ident = erEgenAnsattIdent,
+                    rolle = FagsakDeltagerRolle.FORELDER,
+                ),
+                FagsakDeltagerResponsDto(
+                    ident = erIkkeEgenAnsattIdent,
+                    rolle = FagsakDeltagerRolle.BARN,
+                ),
+                FagsakDeltagerResponsDto(
+                    ident = manglerDataIdent,
+                    rolle = FagsakDeltagerRolle.FORELDER,
+                ),
+            )
+
+        every {
+            integrasjonClient.sjekkErEgenAnsattBulk(
+                match { it.containsAll(listOf(erEgenAnsattIdent, erIkkeEgenAnsattIdent, manglerDataIdent)) },
+            )
+        } answers {
+            mapOf(
+                erEgenAnsattIdent to true,
+                erIkkeEgenAnsattIdent to false,
+            )
+        }
+
+        // Act
+        val populertFagsakDeltagere = fagsakService.settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere)
+
+        // Assert
+        assertThat(populertFagsakDeltagere.map { it.ident to it.erEgenAnsatt })
+            .containsExactlyInAnyOrder(
+                erEgenAnsattIdent to true,
+                erIkkeEgenAnsattIdent to false,
+                manglerDataIdent to null,
+            )
     }
 
     @Test

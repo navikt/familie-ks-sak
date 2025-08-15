@@ -24,6 +24,7 @@ data class FagsakDeltagerResponsDto(
     val fagsakStatus: FagsakStatus? = null,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
     val harTilgang: Boolean = true,
+    val erEgenAnsatt: Boolean? = null,
 ) {
     override fun toString(): String = "FagsakDeltagerResponsDto(rolle=$rolle, fagsakId=$fagsakId)"
 }
