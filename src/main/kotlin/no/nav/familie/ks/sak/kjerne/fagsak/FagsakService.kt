@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -56,6 +57,7 @@ class FagsakService(
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val clockProvider: ClockProvider,
     private val adopsjonService: AdopsjonService,
+    private val integrasjonClient: IntegrasjonClient,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -94,7 +96,9 @@ class FagsakService(
         if (erBarn) {
             leggTilForeldreDeltagerSomIkkeHarBehandling(personInfoMedRelasjoner, assosierteFagsakDeltagere)
         }
-        return assosierteFagsakDeltagere
+        val fagsakDeltagereMedEgenAnsattStatus = settEgenAnsattStatusPåFagsakDeltagere(assosierteFagsakDeltagere)
+
+        return fagsakDeltagereMedEgenAnsattStatus
     }
 
     @Transactional
@@ -251,6 +255,15 @@ class FagsakService(
                     }
                 }
             }
+        }
+    }
+
+    internal fun settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere: MutableList<FagsakDeltagerResponsDto>): List<FagsakDeltagerResponsDto> {
+        val egenAnsattPerIdent = integrasjonClient.sjekkErEgenAnsattBulk(fagsakDeltagere.map { it.ident })
+        return fagsakDeltagere.map { fagsakDeltager ->
+            fagsakDeltager.copy(
+                erEgenAnsatt = egenAnsattPerIdent.getOrDefault(fagsakDeltager.ident, null),
+            )
         }
     }
 
