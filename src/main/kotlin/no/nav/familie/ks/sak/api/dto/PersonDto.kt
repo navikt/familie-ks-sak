@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import java.time.LocalDate
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 
 data class PersonInfoDto(
     val personIdent: String,
@@ -20,6 +21,7 @@ data class PersonInfoDto(
     val kommunenummer: String = "ukjent",
     val dødsfallDato: String? = null,
     val bostedsadresse: BostedsadresseDto? = null,
+    val erEgenAnsatt: Boolean? = null,
 )
 
 data class ForelderBarnRelasjonInfoDto(
@@ -28,6 +30,7 @@ data class ForelderBarnRelasjonInfoDto(
     val navn: String,
     val fødselsdato: LocalDate?,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
+    val erEgenAnsatt: Boolean? = null,
 )
 
 data class ForelderBarnRelasjonInfoMaskertDto(
@@ -82,3 +85,15 @@ private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() =
         fødselsdato = this.fødselsdato,
         adressebeskyttelseGradering = this.adressebeskyttelseGradering,
     )
+
+fun PersonInfoDto.leggTilEgenAnsattStatus(integrasjonService: IntegrasjonService): PersonInfoDto {
+    val personIdenter = this.forelderBarnRelasjon.map { it.personIdent } + this.personIdent
+    val erEgenAnsattMap = integrasjonService.sjekkErEgenAnsattBulk(personIdenter)
+    return this.copy(
+        erEgenAnsatt = erEgenAnsattMap.getOrDefault(this.personIdent, null),
+        forelderBarnRelasjon =
+            this.forelderBarnRelasjon.map {
+                it.copy(erEgenAnsatt = erEgenAnsattMap.getOrDefault(it.personIdent, null))
+            },
+    )
+}

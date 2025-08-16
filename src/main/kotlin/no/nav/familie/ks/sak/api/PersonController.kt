@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
+import no.nav.familie.ks.sak.api.dto.leggTilEgenAnsattStatus
 import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
@@ -47,6 +48,7 @@ class PersonController(
                 ?: personOpplysningerService
                     .hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
                     .tilPersonInfoDto(personIdent)
+                    .leggTilEgenAnsattStatus(integrasjonService)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }
 
