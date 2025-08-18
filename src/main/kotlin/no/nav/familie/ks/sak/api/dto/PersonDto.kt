@@ -3,11 +3,11 @@ package no.nav.familie.ks.sak.api.dto
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import java.time.LocalDate
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 
 data class PersonInfoDto(
     val personIdent: String,
