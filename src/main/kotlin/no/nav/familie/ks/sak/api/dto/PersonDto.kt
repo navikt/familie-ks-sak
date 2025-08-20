@@ -87,4 +87,3 @@ private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() =
         adressebeskyttelseGradering = this.adressebeskyttelseGradering,
         erEgenAnsatt = this.erEgenAnsatt,
     )
-

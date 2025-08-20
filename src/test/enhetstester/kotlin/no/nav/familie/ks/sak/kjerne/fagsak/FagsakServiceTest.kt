@@ -45,8 +45,6 @@ import java.time.LocalDate
 
 class FagsakServiceTest {
     private val personidentService = mockk<PersonidentService>()
-    private val integrasjonService = mockk<IntegrasjonService>()
-    private val personopplysningerService = mockk<PersonopplysningerService>()
     private val fagsakRepository = mockk<FagsakRepository>()
     private val personRepository = mockk<PersonRepository>()
     private val behandlingRepository = mockk<BehandlingRepository>()
@@ -57,13 +55,10 @@ class FagsakServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val clockProvider = mockk<ClockProvider>()
     private val adopsjonService = mockk<AdopsjonService>()
-    private val integrasjonClient = mockk<IntegrasjonClient>(relaxed = true)
 
     private val fagsakService =
         FagsakService(
             personidentService = personidentService,
-            integrasjonService = integrasjonService,
-            personopplysningerService = personopplysningerService,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
             fagsakRepository = fagsakRepository,
             personRepository = personRepository,
@@ -74,166 +69,11 @@ class FagsakServiceTest {
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             clockProvider = clockProvider,
             adopsjonService = adopsjonService,
-            integrasjonClient = integrasjonClient,
         )
 
     @BeforeEach
     fun setup() {
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
-    }
-
-    @Nested
-    inner class HentFagsakDeltagere {
-        @Test
-        fun `Skal returnere maskert deltaker dersom saksbehandler ikke har tilgang til aktør med bestemt personident`() {
-            every { personidentService.hentAktør(any()) } returns randomAktør()
-            every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", false)
-            every { personopplysningerService.hentAdressebeskyttelseSomSystembruker(any()) } returns ADRESSEBESKYTTELSEGRADERING.FORTROLIG
-
-            val fagsakdeltakere = fagsakService.hentFagsakDeltagere(randomFnr())
-            assertEquals(1, fagsakdeltakere.size)
-            assertEquals(ADRESSEBESKYTTELSEGRADERING.FORTROLIG, fagsakdeltakere.first().adressebeskyttelseGradering)
-        }
-
-        @Test
-        fun `Skal returnere søker dersom metode kalles med søkers ident og saksbehandler har tilgang til identen`() {
-            val søkersFødselsdato = LocalDate.of(1985, 5, 1)
-            val søkerPersonident = "01058512345"
-            val søkerAktør = randomAktør(søkerPersonident)
-
-            val barnPersonident = "01052212345"
-            val barnAktør = randomAktør(barnPersonident)
-
-            val barnIdenter = listOf(barnPersonident)
-
-            every { personidentService.hentAktør(any()) } returns søkerAktør
-            every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
-            every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
-                PdlPersonInfo(
-                    søkersFødselsdato,
-                    forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
-                )
-            every { personRepository.findByAktør(any()) } returns
-                listOf(
-                    Person(
-                        aktør = søkerAktør,
-                        type = PersonType.SØKER,
-                        fødselsdato = søkersFødselsdato,
-                        kjønn = Kjønn.MANN,
-                        personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, søkerPersonident, barnIdenter),
-                    ),
-                )
-            val fagsak = lagFagsak(søkerAktør)
-            every { behandlingRepository.hentBehandling(any()) } returns
-                lagBehandling(
-                    fagsak = fagsak,
-                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-                )
-            every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
-
-            val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
-            assertEquals(1, fagsakdeltakere.size)
-            assertEquals(søkerPersonident, fagsakdeltakere.single().ident)
-        }
-
-        @Test
-        fun `Skal returnere barn og forelder dersom metode kalles med barne-ident og saksbehandler har tilgang til barnet og forelderen`() {
-            val søkersFødselsdato = LocalDate.of(1985, 5, 1)
-            val søkerPersonident = "01058512345"
-            val søkerAktør = randomAktør(søkerPersonident)
-
-            val barnFødselsdato = LocalDate.of(2022, 5, 1)
-            val barnPersonident = "01052212345"
-            val barnAktør = randomAktør(barnPersonident)
-
-            every { personidentService.hentAktør(any()) } returns barnAktør
-            every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
-            every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
-                PdlPersonInfo(
-                    barnFødselsdato,
-                    forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
-                )
-            every { personRepository.findByAktør(any()) } returns
-                listOf(
-                    Person(
-                        aktør = barnAktør,
-                        type = PersonType.BARN,
-                        fødselsdato = barnFødselsdato,
-                        kjønn = Kjønn.MANN,
-                        personopplysningGrunnlag = lagPersonopplysningGrunnlag(1, barnPersonident, emptyList()),
-                    ),
-                )
-            val fagsak = lagFagsak(søkerAktør)
-            every { behandlingRepository.hentBehandling(any()) } returns
-                lagBehandling(
-                    fagsak = fagsak,
-                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
-                )
-            every { personopplysningerService.hentPersoninfoEnkel(any()) } returns
-                PdlPersonInfo(
-                    søkersFødselsdato,
-                    forelderBarnRelasjoner =
-                        setOf(
-                            ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN),
-                        ),
-                )
-            every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
-
-            val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
-            assertEquals(2, fagsakdeltakere.size)
-
-            val barnDeltaker = fagsakdeltakere.find { it.rolle == FagsakDeltagerRolle.BARN }
-            val forelderDeltaker = fagsakdeltakere.find { it.rolle == FagsakDeltagerRolle.FORELDER }
-
-            assertEquals(barnPersonident, barnDeltaker?.ident)
-            assertEquals(søkerPersonident, forelderDeltaker?.ident)
-        }
-
-        @Test
-        fun `Setter korrekt egen ansatt status basert på respons fra integrasjoner`() {
-            // Arrange
-            val erEgenAnsattIdent = randomFnr()
-            val erIkkeEgenAnsattIdent = randomFnr()
-            val manglerDataIdent = randomFnr()
-
-            val fagsakDeltagere =
-                mutableListOf(
-                    FagsakDeltagerResponsDto(
-                        ident = erEgenAnsattIdent,
-                        rolle = FagsakDeltagerRolle.FORELDER,
-                    ),
-                    FagsakDeltagerResponsDto(
-                        ident = erIkkeEgenAnsattIdent,
-                        rolle = FagsakDeltagerRolle.BARN,
-                    ),
-                    FagsakDeltagerResponsDto(
-                        ident = manglerDataIdent,
-                        rolle = FagsakDeltagerRolle.FORELDER,
-                    ),
-                )
-
-            every {
-                integrasjonClient.sjekkErEgenAnsattBulk(
-                    match { it.containsAll(listOf(erEgenAnsattIdent, erIkkeEgenAnsattIdent, manglerDataIdent)) },
-                )
-            } answers {
-                mapOf(
-                    erEgenAnsattIdent to true,
-                    erIkkeEgenAnsattIdent to false,
-                )
-            }
-
-            // Act
-            val fagsakDeltagereMedEgenAnsattStatus = fagsakService.settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere)
-
-            // Assert
-            assertThat(fagsakDeltagereMedEgenAnsattStatus.map { it.ident to it.erEgenAnsatt })
-                .containsExactlyInAnyOrder(
-                    erEgenAnsattIdent to true,
-                    erIkkeEgenAnsattIdent to false,
-                    manglerDataIdent to null,
-                )
-        }
     }
 
     @Nested

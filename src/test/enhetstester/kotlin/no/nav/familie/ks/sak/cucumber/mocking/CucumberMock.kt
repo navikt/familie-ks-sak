@@ -92,8 +92,6 @@ class CucumberMock(
     val fagsakService =
         FagsakService(
             personidentService = personidentService,
-            integrasjonService = integrasjonServiceMock,
-            personopplysningerService = personopplysningerServiceMock,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepositoryMock,
             fagsakRepository = fagsakRepositoryMock,
             personRepository = personRepository,
@@ -104,7 +102,6 @@ class CucumberMock(
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             clockProvider = clockProvider,
             adopsjonService = adopsjonServiceMock,
-            integrasjonClient = integrasjonClientMock,
         )
 
     val beregningService =

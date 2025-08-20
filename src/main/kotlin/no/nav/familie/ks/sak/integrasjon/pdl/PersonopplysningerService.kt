@@ -6,7 +6,6 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.config.PersonInfoQuery
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
@@ -23,12 +22,11 @@ class PersonopplysningerService(
     private val pdlClient: PdlClient,
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,
-    private val integrasjonClient: IntegrasjonClient,
 ) {
     fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
         val pdlPersonData = hentPersoninfoMedQuery(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON)
         val relasjonsidenter = pdlPersonData.forelderBarnRelasjon.mapNotNull { it.relatertPersonsIdent }
-        val egenAnsattPerIdent = integrasjonClient.sjekkErEgenAnsattBulk(listOf(aktør.aktivFødselsnummer()) + relasjonsidenter)
+        val egenAnsattPerIdent = integrasjonService.sjekkErEgenAnsattBulk(listOf(aktør.aktivFødselsnummer()) + relasjonsidenter)
 
         val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> =
             pdlPersonData.forelderBarnRelasjon
