@@ -258,7 +258,7 @@ class FagsakService(
         }
     }
 
-    internal fun settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere: MutableList<FagsakDeltagerResponsDto>): List<FagsakDeltagerResponsDto> {
+    fun settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere: List<FagsakDeltagerResponsDto>): List<FagsakDeltagerResponsDto> {
         val egenAnsattPerIdent = integrasjonClient.sjekkErEgenAnsattBulk(fagsakDeltagere.map { it.ident })
         return fagsakDeltagere.map { fagsakDeltager ->
             fagsakDeltager.copy(
