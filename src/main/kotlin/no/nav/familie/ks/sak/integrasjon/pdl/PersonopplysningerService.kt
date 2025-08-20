@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.config.PersonInfoQuery
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
@@ -15,15 +16,19 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.stereotype.Service
+import kotlin.collections.getOrDefault
 
 @Service
 class PersonopplysningerService(
     private val pdlClient: PdlClient,
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,
+    private val integrasjonClient: IntegrasjonClient,
 ) {
     fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
         val pdlPersonData = hentPersoninfoMedQuery(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON)
+        val relasjonsidenter = pdlPersonData.forelderBarnRelasjon.mapNotNull { it.relatertPersonsIdent }
+        val egenAnsattPerIdent = integrasjonClient.sjekkErEgenAnsattBulk(listOf(aktør.aktivFødselsnummer()) + relasjonsidenter)
 
         val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> =
             pdlPersonData.forelderBarnRelasjon
@@ -34,6 +39,7 @@ class PersonopplysningerService(
                         ForelderBarnRelasjonInfo(
                             aktør = personidentService.hentAktør(ident),
                             relasjonsrolle = relasjon.relatertPersonsRolle,
+                            erEgenAnsatt = egenAnsattPerIdent.getOrDefault(relasjon.relatertPersonsIdent, null),
                         )
                     } catch (e: PdlPersonKanIkkeBehandlesIFagsystem) {
                         logger.warn("Person kunne ikke bli lagret ned grunnet manglende folkeregisteridentifikator, se securelogger")
@@ -60,6 +66,7 @@ class PersonopplysningerService(
                                 fødselsdato = relasjonData.fødselsdato,
                                 navn = relasjonData.navn,
                                 adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering,
+                                erEgenAnsatt = egenAnsattPerIdent.getOrDefault(forelderBarnRelasjon.aktør.aktivFødselsnummer(), null),
                             )
                         } catch (pdlPersonKanIkkeBehandlesIFagsystem: PdlPersonKanIkkeBehandlesIFagsystem) {
                             logger.warn("Ignorerer relasjon: ${pdlPersonKanIkkeBehandlesIFagsystem.årsak}")
@@ -84,11 +91,14 @@ class PersonopplysningerService(
                     )
                 }.toSet()
 
-        return tilPersonInfo(
-            pdlPersonData,
-            forelderBarnRelasjonerMedAdressebeskyttelseGradering,
-            forelderBarnRelasjonMaskert,
-        )
+        val personInfo =
+            tilPersonInfo(
+                pdlPersonData,
+                forelderBarnRelasjonerMedAdressebeskyttelseGradering,
+                forelderBarnRelasjonMaskert,
+            )
+
+        return personInfo.copy(erEgenAnsatt = egenAnsattPerIdent.getOrDefault(aktør.aktivFødselsnummer(), null))
     }
 
     fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING = pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()

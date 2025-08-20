@@ -68,6 +68,7 @@ fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
         forelderBarnRelasjonMaskert = this.forelderBarnRelasjonerMaskert.map { it.tilForelderBarnRelasjonInfoMaskertDto() },
         kommunenummer = kommunenummer,
         dødsfallDato = dødsfallDato,
+        erEgenAnsatt = this.erEgenAnsatt,
     )
 }
 
@@ -84,16 +85,6 @@ private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() =
         navn = this.navn ?: "",
         fødselsdato = this.fødselsdato,
         adressebeskyttelseGradering = this.adressebeskyttelseGradering,
+        erEgenAnsatt = this.erEgenAnsatt,
     )
 
-fun PersonInfoDto.leggTilEgenAnsattStatus(integrasjonService: IntegrasjonService): PersonInfoDto {
-    val personIdenter = this.forelderBarnRelasjon.map { it.personIdent } + this.personIdent
-    val erEgenAnsattMap = integrasjonService.sjekkErEgenAnsattBulk(personIdenter)
-    return this.copy(
-        erEgenAnsatt = erEgenAnsattMap.getOrDefault(this.personIdent, null),
-        forelderBarnRelasjon =
-            this.forelderBarnRelasjon.map {
-                it.copy(erEgenAnsatt = erEgenAnsattMap.getOrDefault(it.personIdent, null))
-            },
-    )
-}

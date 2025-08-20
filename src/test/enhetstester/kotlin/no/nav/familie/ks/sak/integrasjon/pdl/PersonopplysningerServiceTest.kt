@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsyste
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomPersonident
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlFødselsDato
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlNavn
@@ -23,7 +24,8 @@ class PersonopplysningerServiceTest {
     private val pdlClient = mockk<PdlClient>()
     private val integrasjonService = mockk<IntegrasjonService>()
     private val personidentService = mockk<PersonidentService>()
-    private val personopplysningerService = PersonopplysningerService(pdlClient, integrasjonService, personidentService)
+    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val personopplysningerService = PersonopplysningerService(pdlClient, integrasjonService, personidentService, integrasjonClient)
 
     @Nested
     inner class HentPersonInfoMedRelasjonerOgRegisterinformasjon {
