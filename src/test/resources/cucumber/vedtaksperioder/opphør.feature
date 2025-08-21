@@ -62,7 +62,7 @@ Egenskap: Opphørsperiode
 
     Så forvent følgende brevbegrunnelser for behandling 1 i periode 01.08.2024 til -
       | Begrunnelse                                   | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
-      | OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 | STANDARD | 1           | 20.03.23             | Nei           | 0     | august 2024                          | true                   | 0                           | juli 2024                      |
+      | OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 | STANDARD | 1           | 20.03.23             | Nei           | 0     | august 2024                          | true                   | 40                          | juli 2024                      |
 
 
   Scenario: Opphørsperioder som oppstår i mellom perioder skal ha tom dato, opphørsperioder som oppstår
