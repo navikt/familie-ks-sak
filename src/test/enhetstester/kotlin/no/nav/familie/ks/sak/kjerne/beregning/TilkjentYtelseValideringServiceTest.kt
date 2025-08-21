@@ -195,38 +195,7 @@ class TilkjentYtelseValideringServiceTest {
     @Test
     fun `finnAktørerMedUgyldigEtterbetalingsperiode - skal returnere tom liste dersom tilkjent ytelse for nåværende behandling ikke finnes`() {
         // Arrange
-        val forrigeBehandling = lagBehandling(id = 0, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-
-        val forrigeTilkjentYtelse =
-            TilkjentYtelse(
-                behandling = forrigeBehandling,
-                opprettetDato = LocalDate.now(),
-                endretDato = LocalDate.now(),
-                andelerTilkjentYtelse =
-                    mutableSetOf(
-                        lagAndelTilkjentYtelse(
-                            behandling = behandling,
-                            aktør = barn1,
-                            stønadFom = YearMonth.now().minusMonths(4),
-                            stønadTom = YearMonth.now(),
-                            sats = 8000,
-                        ),
-                        lagAndelTilkjentYtelse(
-                            behandling = behandling,
-                            aktør = barn2,
-                            stønadFom = YearMonth.now().minusMonths(4),
-                            stønadTom = YearMonth.now(),
-                            sats = 7000,
-                        ),
-                    ),
-            )
-
         every { beregningService.finnTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { null }
-        every { behandlingService.hentBehandling(behandlingId = behandling.id) } answers { behandling }
-        every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id) } answers { forrigeBehandling }
-        every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = forrigeBehandling.id) } answers { forrigeTilkjentYtelse }
-        every { personidentService.hentAktør(barn1.aktørId) } answers { barn1 }
-        every { personidentService.hentAktør(barn2.aktørId) } answers { barn2 }
 
         // Act
         val aktørerMedUgyldigEtterbetalingsperiode =
