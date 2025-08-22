@@ -49,17 +49,22 @@ class FagsakDeltagerServiceTest {
 
     @Test
     fun `Skal returnere maskert deltaker dersom saksbehandler ikke har tilgang til aktør med bestemt personident`() {
+        // Arrange
         every { personidentService.hentAktør(any()) } returns randomAktør()
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", false)
         every { personopplysningerService.hentAdressebeskyttelseSomSystembruker(any()) } returns ADRESSEBESKYTTELSEGRADERING.FORTROLIG
 
+        // Act
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(randomFnr())
-        assertEquals(1, fagsakdeltakere.size)
-        assertEquals(ADRESSEBESKYTTELSEGRADERING.FORTROLIG, fagsakdeltakere.first().adressebeskyttelseGradering)
+
+        // Assert
+        assertThat(1).isEqualTo(fagsakdeltakere.size)
+        assertThat(ADRESSEBESKYTTELSEGRADERING.FORTROLIG).isEqualTo(fagsakdeltakere.first().adressebeskyttelseGradering)
     }
 
     @Test
     fun `Skal returnere søker dersom metode kalles med søkers ident og saksbehandler har tilgang til identen`() {
+        // Arrange
         val søkersFødselsdato = LocalDate.of(1985, 5, 1)
         val søkerPersonident = "01058512345"
         val søkerAktør = randomAktør(søkerPersonident)
@@ -94,13 +99,17 @@ class FagsakDeltagerServiceTest {
             )
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
+        // Act
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
-        assertEquals(1, fagsakdeltakere.size)
-        assertEquals(søkerPersonident, fagsakdeltakere.single().ident)
+
+        // Assert
+        assertThat(1).isEqualTo(fagsakdeltakere.size)
+        assertThat(søkerPersonident).isEqualTo(fagsakdeltakere.single().ident)
     }
 
     @Test
     fun `Skal returnere barn og forelder dersom metode kalles med barne-ident og saksbehandler har tilgang til barnet og forelderen`() {
+        // Arrange
         val søkersFødselsdato = LocalDate.of(1985, 5, 1)
         val søkerPersonident = "01058512345"
         val søkerAktør = randomAktør(søkerPersonident)
@@ -142,18 +151,20 @@ class FagsakDeltagerServiceTest {
             )
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
+        // Act
         val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
-        assertEquals(2, fagsakdeltakere.size)
 
+        // Assert
+        assertThat(2).isEqualTo(fagsakdeltakere.size)
         val barnDeltaker = fagsakdeltakere.find { it.rolle == FagsakDeltagerRolle.BARN }
         val forelderDeltaker = fagsakdeltakere.find { it.rolle == FagsakDeltagerRolle.FORELDER }
-
-        assertEquals(barnPersonident, barnDeltaker?.ident)
-        assertEquals(søkerPersonident, forelderDeltaker?.ident)
+        assertThat(barnPersonident).isEqualTo(barnDeltaker?.ident)
+        assertThat(søkerPersonident).isEqualTo(forelderDeltaker?.ident)
     }
 
     @Test
     fun `Setter korrekt egen ansatt status basert på respons fra integrasjoner`() {
+        // Arrange
         // Arrange
         val erEgenAnsattIdent = randomFnr()
         val erIkkeEgenAnsattIdent = randomFnr()
