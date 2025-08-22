@@ -89,14 +89,12 @@ class PersonopplysningerService(
                     )
                 }.toSet()
 
-        val personInfo =
-            tilPersonInfo(
-                pdlPersonData,
-                forelderBarnRelasjonerMedAdressebeskyttelseGradering,
-                forelderBarnRelasjonMaskert,
-            )
-
-        return personInfo.copy(erEgenAnsatt = egenAnsattPerIdent.getOrDefault(aktør.aktivFødselsnummer(), null))
+        return tilPersonInfo(
+            pdlPersonData,
+            forelderBarnRelasjonerMedAdressebeskyttelseGradering,
+            forelderBarnRelasjonMaskert,
+            egenAnsattPerIdent.getOrDefault(aktør.aktivFødselsnummer(), null),
+        )
     }
 
     fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING = pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
