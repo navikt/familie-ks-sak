@@ -4,8 +4,8 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 
 fun mockIntegrasjonClient(): IntegrasjonClient =
     mockk<IntegrasjonClient>().apply {
-        every { sjekkErEgenAnsattBulk(any()) } answers {
-            val personIdenter = firstArg<List<String>>()
+        every { sjekkErEgenAnsatt(any()) } answers {
+            val personIdenter = firstArg<Set<String>>()
             personIdenter.associateWith { false }
         }
     }

@@ -132,7 +132,7 @@ class FagsakDeltagerService(
     }
 
     fun settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere: List<FagsakDeltagerResponsDto>): List<FagsakDeltagerResponsDto> {
-        val egenAnsattPerIdent = integrasjonService.sjekkErEgenAnsattBulk(fagsakDeltagere.map { it.ident })
+        val egenAnsattPerIdent = integrasjonService.sjekkErEgenAnsattBulk(fagsakDeltagere.map { it.ident }.toSet())
         return fagsakDeltagere.map { fagsakDeltager ->
             fagsakDeltager.copy(
                 erEgenAnsatt = egenAnsattPerIdent.getOrDefault(fagsakDeltager.ident, null),

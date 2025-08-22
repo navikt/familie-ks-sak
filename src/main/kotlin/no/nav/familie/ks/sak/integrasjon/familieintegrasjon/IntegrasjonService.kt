@@ -42,5 +42,5 @@ class IntegrasjonService(
 
     fun hentAInntektUrl(personIdent: PersonIdent) = integrasjonClient.hentAInntektUrl(personIdent)
 
-    fun sjekkErEgenAnsattBulk(personIdenter: List<String>) = integrasjonClient.sjekkErEgenAnsattBulk(personIdenter)
+    fun sjekkErEgenAnsattBulk(personIdenter: Set<String>) = integrasjonClient.sjekkErEgenAnsatt(personIdenter)
 }

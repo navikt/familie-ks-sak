@@ -26,7 +26,7 @@ class PersonopplysningerService(
     fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
         val pdlPersonData = hentPersoninfoMedQuery(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON)
         val relasjonsidenter = pdlPersonData.forelderBarnRelasjon.mapNotNull { it.relatertPersonsIdent }
-        val egenAnsattPerIdent = integrasjonService.sjekkErEgenAnsattBulk(listOf(aktør.aktivFødselsnummer()) + relasjonsidenter)
+        val egenAnsattPerIdent = integrasjonService.sjekkErEgenAnsattBulk(setOf(aktør.aktivFødselsnummer()) + relasjonsidenter)
 
         val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> =
             pdlPersonData.forelderBarnRelasjon

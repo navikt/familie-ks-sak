@@ -524,7 +524,7 @@ class IntegrasjonClient(
         }
     }
 
-    fun sjekkErEgenAnsattBulk(personIdenter: List<String>): Map<String, Boolean> {
+    fun sjekkErEgenAnsatt(personIdenter: Set<String>): Map<String, Boolean> {
         val url = URI.create("$integrasjonUri/egenansatt/bulk")
 
         return kallEksternTjenesteRessurs(
