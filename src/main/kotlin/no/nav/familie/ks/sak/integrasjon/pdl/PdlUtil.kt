@@ -71,6 +71,7 @@ fun tilPersonInfo(
     pdlPersonData: PdlPersonData,
     forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet(),
     maskertForelderBarnRelasjoner: Set<ForelderBarnRelasjonInfoMaskert> = emptySet(),
+    erEgenAnsatt: Boolean? = null,
 ): PdlPersonInfo =
     PdlPersonInfo(
         fødselsdato = LocalDate.parse(pdlPersonData.foedselsdato.first().foedselsdato),
@@ -85,6 +86,7 @@ fun tilPersonInfo(
         sivilstander = pdlPersonData.sivilstand,
         dødsfall = hentDødsfallDataFraListeMedDødsfall(pdlPersonData.doedsfall),
         kontaktinformasjonForDoedsbo = pdlPersonData.kontaktinformasjonForDoedsbo.firstOrNull(),
+        erEgenAnsatt = erEgenAnsatt,
     )
 
 fun List<Adressebeskyttelse>.tilAdressebeskyttelse() =

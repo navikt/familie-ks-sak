@@ -2,10 +2,8 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
-import no.nav.familie.ks.sak.api.dto.SøkParamDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -38,15 +36,6 @@ class FagsakController(
     private val personidentService: PersonidentService,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(FagsakController::class.java)
-
-    @PostMapping(path = ["/sok"])
-    fun søkFagsak(
-        @RequestBody søkParam: SøkParamDto,
-    ): ResponseEntity<Ressurs<List<FagsakDeltagerResponsDto>>> {
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} søker fagsak")
-        val fagsakDeltagere = fagsakService.hentFagsakDeltagere(søkParam.personIdent)
-        return ResponseEntity.ok().body(Ressurs.success(fagsakDeltagere))
-    }
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentEllerOpprettFagsak(

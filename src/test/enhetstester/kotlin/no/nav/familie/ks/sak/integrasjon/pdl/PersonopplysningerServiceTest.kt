@@ -21,7 +21,7 @@ import java.time.LocalDate
 
 class PersonopplysningerServiceTest {
     private val pdlClient = mockk<PdlClient>()
-    private val integrasjonService = mockk<IntegrasjonService>()
+    private val integrasjonService = mockk<IntegrasjonService>(relaxed = true)
     private val personidentService = mockk<PersonidentService>()
     private val personopplysningerService = PersonopplysningerService(pdlClient, integrasjonService, personidentService)
 
@@ -116,6 +116,53 @@ class PersonopplysningerServiceTest {
 
             // Assert
             assertThat(pdlPersonInfo.forelderBarnRelasjoner).isEmpty()
+        }
+
+        @Test
+        fun `Skal mappe egen ansatt status basert på respons fra integrasjoner`() {
+            // Arrange
+            val aktør = randomAktør()
+            val barnAktør = randomAktør()
+            val fødselsdato = LocalDate.of(2000, 2, 2)
+
+            val forelderBarnRelasjon =
+                ForelderBarnRelasjon(
+                    relatertPersonsIdent = barnAktør.aktivFødselsnummer(),
+                    relatertPersonsRolle = FORELDERBARNRELASJONROLLE.BARN,
+                )
+
+            val pdlPersonData =
+                PdlPersonData(
+                    forelderBarnRelasjon = listOf(forelderBarnRelasjon),
+                    folkeregisteridentifikator = emptyList(),
+                    foedselsdato = listOf(PdlFødselsDato(fødselsdato.toString())),
+                    bostedsadresse = emptyList(),
+                )
+
+            val pdlRelasjonData =
+                PdlPersonData(
+                    navn = listOf(PdlNavn("Fornavn", null, "Etternavn")),
+                    folkeregisteridentifikator = emptyList(),
+                    foedselsdato = listOf(PdlFødselsDato(fødselsdato.toString())),
+                    bostedsadresse = emptyList(),
+                )
+
+            every { pdlClient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
+            every { personidentService.hentAktør(barnAktør.aktivFødselsnummer()) } returns barnAktør
+            every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnAktør.aktivFødselsnummer(), true)
+            every { pdlClient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
+            every { pdlClient.hentAdressebeskyttelse(any()) } returns emptyList()
+
+            every {
+                integrasjonService.sjekkErEgenAnsattBulk(match { it.containsAll(listOf(barnAktør.aktivFødselsnummer(), aktør.aktivFødselsnummer())) })
+            } returns mapOf(barnAktør.aktivFødselsnummer() to false, aktør.aktivFødselsnummer() to true)
+
+            // Act
+            val pdlPersonInfo = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
+
+            // Assert
+            assertThat(pdlPersonInfo.erEgenAnsatt).isTrue()
+            assertThat(pdlPersonInfo.forelderBarnRelasjoner.single().erEgenAnsatt).isFalse()
         }
     }
 }

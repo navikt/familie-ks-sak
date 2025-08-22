@@ -20,6 +20,7 @@ data class PersonInfoDto(
     val kommunenummer: String = "ukjent",
     val dødsfallDato: String? = null,
     val bostedsadresse: BostedsadresseDto? = null,
+    val erEgenAnsatt: Boolean? = null,
 )
 
 data class ForelderBarnRelasjonInfoDto(
@@ -28,6 +29,7 @@ data class ForelderBarnRelasjonInfoDto(
     val navn: String,
     val fødselsdato: LocalDate?,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
+    val erEgenAnsatt: Boolean? = null,
 )
 
 data class ForelderBarnRelasjonInfoMaskertDto(
@@ -65,6 +67,7 @@ fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
         forelderBarnRelasjonMaskert = this.forelderBarnRelasjonerMaskert.map { it.tilForelderBarnRelasjonInfoMaskertDto() },
         kommunenummer = kommunenummer,
         dødsfallDato = dødsfallDato,
+        erEgenAnsatt = this.erEgenAnsatt,
     )
 }
 
@@ -81,4 +84,5 @@ private fun ForelderBarnRelasjonInfo.tilForelderBarnRelasjonInfoDto() =
         navn = this.navn ?: "",
         fødselsdato = this.fødselsdato,
         adressebeskyttelseGradering = this.adressebeskyttelseGradering,
+        erEgenAnsatt = this.erEgenAnsatt,
     )

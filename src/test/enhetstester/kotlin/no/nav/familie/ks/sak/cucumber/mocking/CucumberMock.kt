@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.cucumber.mocking
 
 import io.mockk.mockk
 import mockAdopsjonService
+import mockIntegrasjonClient
 import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
@@ -56,6 +57,7 @@ class CucumberMock(
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
     val praksisendring2024Service = mockPraksisendring2024Service()
     val adopsjonServiceMock = mockAdopsjonService()
+    val integrasjonClientMock = mockIntegrasjonClient()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
@@ -90,8 +92,6 @@ class CucumberMock(
     val fagsakService =
         FagsakService(
             personidentService = personidentService,
-            integrasjonService = integrasjonServiceMock,
-            personopplysningerService = personopplysningerServiceMock,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepositoryMock,
             fagsakRepository = fagsakRepositoryMock,
             personRepository = personRepository,

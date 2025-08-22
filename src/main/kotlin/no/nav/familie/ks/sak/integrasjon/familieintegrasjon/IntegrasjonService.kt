@@ -41,4 +41,6 @@ class IntegrasjonService(
     fun hentJournalpost(journalpostId: String): Journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
     fun hentAInntektUrl(personIdent: PersonIdent) = integrasjonClient.hentAInntektUrl(personIdent)
+
+    fun sjekkErEgenAnsattBulk(personIdenter: Set<String>) = integrasjonClient.sjekkErEgenAnsatt(personIdenter)
 }
