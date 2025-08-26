@@ -30,7 +30,7 @@
 
         <!-- Spring -->
         <spring-boot-dependencies.version>3.5.5</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
-        <springdoc.version>2.8.10</springdoc.version>
+        <springdoc.version>2.8.11</springdoc.version>
 
         <!-- Nav felles -->
         <nav-token-client.version>5.0.34</nav-token-client.version>
