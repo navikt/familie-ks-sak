@@ -38,11 +38,11 @@
 
         <!-- Nav Familie-->
         <prosessering.version>2.20250825143618_c0302c9</prosessering.version>
-        <felles-kontrakter.version>3.0_20250822084705_acb7066</felles-kontrakter.version>
+        <felles-kontrakter.version>3.0_20250826121939_ee97111</felles-kontrakter.version>
         <felles.version>3.20250804101327_a0f5fad</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250819081736_d4884f9</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250819081736_d4884f9</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250819081736_d4884f9</familie.kontrakter.saksstatistikk>
+        <eksterne-kontrakter-bisys.version>2.0_20250826113118_c8aa66d</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250826113118_c8aa66d</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250826113118_c8aa66d</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20250804104526_5648100</utbetalingsgenerator.version>
 
         <!-- Database -->
