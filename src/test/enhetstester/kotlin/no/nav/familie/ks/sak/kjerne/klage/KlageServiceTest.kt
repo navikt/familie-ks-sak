@@ -2,16 +2,12 @@ package no.nav.familie.ks.sak.kjerne.klage
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.BehandlingStatus
-import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagKlagebehandlingDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -24,22 +20,20 @@ import java.util.UUID
 
 class KlageServiceTest {
     private val fagsakService = mockk<FagsakService>()
-    private val klageClient = mockk<KlageClient>()
-    private val integrasjonClient = mockk<IntegrasjonClient>()
     private val behandlingService = mockk<BehandlingService>()
     private val vedtakService = mockk<VedtakService>()
     private val tilbakekrevingKlient = mockk<TilbakekrevingKlient>()
     private val klagebehandlingHenter = mockk<KlagebehandlingHenter>()
+    private val klagebehandlingOppretter = mockk<KlagebehandlingOppretter>()
 
     private val klageService =
         KlageService(
             fagsakService = fagsakService,
-            klageClient = klageClient,
-            integrasjonClient = integrasjonClient,
             behandlingService = behandlingService,
             vedtakService = vedtakService,
             tilbakekrevingKlient = tilbakekrevingKlient,
             klagebehandlingHenter = klagebehandlingHenter,
+            klagebehandlingOppretter = klagebehandlingOppretter,
         )
 
     @Nested
@@ -92,24 +86,37 @@ class KlageServiceTest {
     }
 
     @Nested
-    inner class SettRiktigEnhetVedOpprettelseAvKlage {
+    inner class OpprettKlage {
         @Test
-        fun `skal sette enheten til saksbehandlers enhet ved opprettelse av klagebehandling`() {
+        fun `skal opprette klagebehandling for fagsakId`() {
             // Arrange
-            val fagsak = lagFagsak()
-            val forventetEnhet = KontantstøtteEnhet.VADSØ
-            val enhetSomIkkeSkalVelges = KontantstøtteEnhet.OSLO
+            val fagsakId = 1L
+            val klagebehandlingId = UUID.randomUUID()
+            val klageMottattDato = LocalDate.now()
 
-            every { integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(forventetEnhet, enhetSomIkkeSkalVelges)
-
-            val opprettKlageRequest = slot<OpprettKlagebehandlingRequest>()
-            every { klageClient.opprettKlage(capture(opprettKlageRequest)) } returns UUID.randomUUID()
+            every { klagebehandlingOppretter.opprettKlage(fagsakId, klageMottattDato) } returns klagebehandlingId
 
             // Act
-            klageService.opprettKlage(fagsak, LocalDate.now())
+            val id = klageService.opprettKlage(fagsakId, klageMottattDato)
 
             // Assert
-            assertThat(opprettKlageRequest.captured.behandlendeEnhet).isEqualTo(forventetEnhet.enhetsnummer)
+            assertThat(id).isEqualTo(klagebehandlingId)
+        }
+
+        @Test
+        fun `skal opprette klagebehandling for fagsak`() {
+            // Arrange
+            val fagsak = lagFagsak()
+            val klagebehandlingId = UUID.randomUUID()
+            val klageMottattDato = LocalDate.now()
+
+            every { klagebehandlingOppretter.opprettKlage(fagsak, klageMottattDato) } returns klagebehandlingId
+
+            // Act
+            val id = klageService.opprettKlage(fagsak, klageMottattDato)
+
+            // Assert
+            assertThat(id).isEqualTo(klagebehandlingId)
         }
     }
 }

@@ -25,11 +25,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal kaste feil om arbeidsfordeling er midlertidig enhet 4863 og NAV-ident er null`() {
             // Arrange
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             // Act & assert
             val exception =
@@ -45,11 +41,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal kaste feil om arbeidsfordeling er midlertidig enhet 4863 og NAV-ident er systembruker`() {
             // Arrange
-            val arbeidsfordelingPåBehandling =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
-                )
+            val arbeidsfordelingPåBehandling = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             // Act & assert
             val exception =
@@ -67,11 +59,7 @@ class TilpassArbeidsfordelingServiceTest {
             // Arrange
             val navIdent = NavIdent("1")
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -95,11 +83,7 @@ class TilpassArbeidsfordelingServiceTest {
             // Arrange
             val navIdent = NavIdent("1")
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -128,11 +112,7 @@ class TilpassArbeidsfordelingServiceTest {
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil = KontantstøtteEnhet.OSLO
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -160,11 +140,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal kaste feil hvis arbeidsfordeling er Vikafossen 2103 og NAV-ident er null`() {
             // Arrange
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
 
             // Act & assert
             val exception =
@@ -181,14 +157,8 @@ class TilpassArbeidsfordelingServiceTest {
         fun `skal returnere Vikafossen 2103 dersom arbeidsfordeling er Vikafossen 2103 og NAV-ident ikke har tilgang til Vikafossen 2103`() {
             // Arrange
             val navIdent = NavIdent("1")
-            val enhetNavIdentHarTilgangTil1 = KontantstøtteEnhet.STEINKJER
-            val enhetNavIdentHarTilgangTil2 = KontantstøtteEnhet.VADSØ
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -218,11 +188,7 @@ class TilpassArbeidsfordelingServiceTest {
             val navIdent = NavIdent("1")
             val enhetNavIdentHarTilgangTil = KontantstøtteEnhet.VIKAFOSSEN
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -249,11 +215,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere enhetId dersom arbeidsfordeling ikke er 2103 eller 4863 og NAV-ident er null`() {
             // Arrange
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.STEINKJER.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.STEINKJER.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.STEINKJER)
 
             // Act
             val tilpassetArbeidsfordelingsenhet =
@@ -272,11 +234,7 @@ class TilpassArbeidsfordelingServiceTest {
             // Arrange
             val navIdent = NavIdent("1")
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.DRAMMEN.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.DRAMMEN.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.DRAMMEN)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -334,11 +292,7 @@ class TilpassArbeidsfordelingServiceTest {
 
             val enhetNavIdentHarTilgangTil = KontantstøtteEnhet.OSLO
 
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.STEINKJER.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.STEINKJER.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.STEINKJER)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -367,13 +321,7 @@ class TilpassArbeidsfordelingServiceTest {
             // Arrange
             val navIdent = NavIdent("1")
 
-            val arbeidsfordelingEnhet = KontantstøtteEnhet.OSLO
-
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = arbeidsfordelingEnhet.enhetsnummer,
-                    enhetNavn = arbeidsfordelingEnhet.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.OSLO)
 
             every {
                 mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
@@ -394,8 +342,8 @@ class TilpassArbeidsfordelingServiceTest {
                 )
 
             // Assert
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(arbeidsfordelingEnhet.enhetsnummer)
-            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(arbeidsfordelingEnhet.enhetsnavn)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetId).isEqualTo(arbeidsfordelingsenhet.enhetId)
+            assertThat(tilpassetArbeidsfordelingsenhet.enhetNavn).isEqualTo(arbeidsfordelingsenhet.enhetNavn)
         }
 
         @Test
@@ -425,7 +373,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere navIdent dersom navIdent har tilgang til arbeidsfordelingsenhet`() {
             // Arrange
-            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer, enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
             val navIdent = NavIdent("1")
 
             every { mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
@@ -443,7 +391,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere null dersom navIdent ikke har tilgang til arbeidsfordelingsenhet`() {
             // Arrange
-            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer, enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
             val navIdent = NavIdent("1")
 
             every { mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
@@ -461,7 +409,7 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere null dersom navIdent er null`() {
             // Arrange
-            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet(enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer, enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn)
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
             val navIdent = null
 
             // Act
@@ -474,16 +422,11 @@ class TilpassArbeidsfordelingServiceTest {
         @Test
         fun `skal returnere null dersom vi er i systemkontekst`() {
             // Arrange
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-                    enhetNavn = KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-                )
+            val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
             val navIdent = NavIdent(SYSTEM_FORKORTELSE)
 
             // Act
-            val tilordnetRessurs =
-                tilpassArbeidsfordelingService.bestemTilordnetRessursPåOppgave(arbeidsfordelingsenhet, navIdent)
+            val tilordnetRessurs = tilpassArbeidsfordelingService.bestemTilordnetRessursPåOppgave(arbeidsfordelingsenhet, navIdent)
 
             // Assert
             assertThat(tilordnetRessurs).isNull()
