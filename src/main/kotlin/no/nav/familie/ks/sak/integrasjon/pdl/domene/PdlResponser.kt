@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.ForelderBarnRelasjon
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.Opphold
+import no.nav.familie.kontrakter.felles.personopplysning.Oppholdsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -120,6 +121,7 @@ data class PdlPersonData(
     val adressebeskyttelse: List<Adressebeskyttelse> = emptyList(),
     val sivilstand: List<Sivilstand> = emptyList(),
     val bostedsadresse: List<Bostedsadresse>,
+    val oppholdsadresse: List<Oppholdsadresse> = emptyList(),
     val opphold: List<Opphold> = emptyList(),
     val statsborgerskap: List<Statsborgerskap> = emptyList(),
     val doedsfall: List<Doedsfall> = emptyList(),
