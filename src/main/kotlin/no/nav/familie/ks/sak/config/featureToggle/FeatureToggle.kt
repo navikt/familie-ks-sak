@@ -12,4 +12,5 @@ enum class FeatureToggle(
     // Ikke operasjonelle
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
     IKKE_LAG_OPPHOERSPERIODE_AV_AVSLAAT_BEHANDLINGSRESULTAT("familie-ba-sak.ikke-lag-opphoersperiode-ved-avslaatt-behandlingsresultat"),
+    BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING("familie-ks-sak.bruk-ny-logikk-for-aa-finne-enhet-for-oppretting-av-klagebehandling"),
 }
