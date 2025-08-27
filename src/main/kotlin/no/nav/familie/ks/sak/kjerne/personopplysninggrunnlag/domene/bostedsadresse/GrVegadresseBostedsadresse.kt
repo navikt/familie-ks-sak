@@ -8,9 +8,9 @@ import no.nav.familie.ks.sak.common.util.nullableTilString
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import java.util.Objects
 
-@Entity(name = "GrVegadresse")
+@Entity(name = "GrVegadresseBostedsadresse")
 @DiscriminatorValue("Vegadresse")
-data class GrVegadresse(
+data class GrVegadresseBostedsadresse(
     @Column(name = "matrikkel_id")
     val matrikkelId: Long?,
     @Column(name = "husnummer")
@@ -29,12 +29,12 @@ data class GrVegadresse(
     val postnummer: String?,
 ) : GrBostedsadresse() {
     override fun toSecureString(): String =
-        """VegadresseDao(husnummer=$husnummer,husbokstav=$husbokstav,matrikkelId=$matrikkelId,
+        """GrVegadresseBostedsadresse(husnummer=$husnummer,husbokstav=$husbokstav,matrikkelId=$matrikkelId,
                 |bruksenhetsnummer=$bruksenhetsnummer,adressenavn=$adressenavn,kommunenummer=$kommunenummer,
                 |tilleggsnavn=$tilleggsnavn,postnummer=$postnummer
         """.trimMargin()
 
-    override fun toString(): String = "Vegadresse(detaljer skjult)"
+    override fun toString(): String = "GrVegadresseBostedsadresse(detaljer skjult)"
 
     override fun tilFrontendString() =
         """${adressenavn.nullableTilString().storForbokstav()} 
@@ -44,7 +44,7 @@ data class GrVegadresse(
         if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val otherVegadresse = other as GrVegadresse
+        val otherVegadresse = other as GrVegadresseBostedsadresse
 
         return this === other ||
             (
@@ -64,8 +64,8 @@ data class GrVegadresse(
     override fun hashCode(): Int = Objects.hash(matrikkelId)
 
     companion object {
-        fun fraVegadresse(vegadresse: Vegadresse): GrVegadresse =
-            GrVegadresse(
+        fun fraVegadresse(vegadresse: Vegadresse): GrVegadresseBostedsadresse =
+            GrVegadresseBostedsadresse(
                 matrikkelId = vegadresse.matrikkelId,
                 husnummer = vegadresse.husnummer,
                 husbokstav = vegadresse.husbokstav,

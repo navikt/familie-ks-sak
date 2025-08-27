@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.opphold.GrOpphold
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import org.springframework.stereotype.Service
 
@@ -47,6 +48,10 @@ class PersonService(
                 personinfo.bostedsadresser
                     .filtrerUtKunNorskeBostedsadresser()
                     .map { GrBostedsadresse.fraBostedsadresse(it, person) }
+                    .toMutableList()
+            person.oppholdsadresser =
+                personinfo.oppholdsadresser
+                    .map { GrOppholdsadresse.fraOppholdsadresse(it, person) }
                     .toMutableList()
             person.sivilstander = personinfo.sivilstander.map { GrSivilstand.fraSivilstand(it, person) }.toMutableList()
             person.dødsfall =
