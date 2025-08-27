@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -73,7 +73,7 @@ class VedtaksperiodeService(
     private val opphørsperiodeGenerator: OpphørsperiodeGenerator,
     private val utbetalingsperiodeGenerator: UtbetalingsperiodeGenerator,
     private val avslagsperiodeGenerator: AvslagsperiodeGenerator,
-    private val unleash: UnleashNextMedContextService,
+    private val unleash: FeatureToggleService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,

@@ -9,7 +9,7 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagOpphørsperiode
 import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
@@ -77,7 +77,7 @@ internal class VedtaksperiodeServiceTest {
     private val opphørsperiodeGenerator = mockk<OpphørsperiodeGenerator>()
     private val utbetalingsperiodeGenerator = mockk<UtbetalingsperiodeGenerator>()
     private val avslagsperiodeGenerator = mockk<AvslagsperiodeGenerator>()
-    private val unleash = mockk<UnleashNextMedContextService>()
+    private val unleash = mockk<FeatureToggleService>()
 
     private val vedtaksperiodeService =
         VedtaksperiodeService(

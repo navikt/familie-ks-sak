@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
@@ -34,7 +34,7 @@ class KlagebehandlingOppretterTest {
     private val integrasjonClient = mockk<IntegrasjonClient>()
     private val tilpassArbeidsfordelingService = mockk<TilpassArbeidsfordelingService>()
     private val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(dagensDato)
-    private val unleash = mockk<UnleashNextMedContextService>()
+    private val unleash = mockk<FeatureToggleService>()
 
     private val klagebehandlingOppretter =
         KlagebehandlingOppretter(

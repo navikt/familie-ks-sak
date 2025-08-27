@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsa
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.HttpStatus
@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class SammensattKontrollsakValidator(
-    private val unleashService: UnleashNextMedContextService,
+    private val featureToggleService: FeatureToggleService,
     private val tilgangService: TilgangService,
     private val sammensattKontrollsakService: SammensattKontrollsakService,
     private val behandlingService: BehandlingService,
 ) {
     fun validerHentSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å hente sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,
@@ -31,7 +31,7 @@ class SammensattKontrollsakValidator(
     }
 
     fun validerOpprettSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å opprette sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,
@@ -45,7 +45,7 @@ class SammensattKontrollsakValidator(
     }
 
     fun validerOppdaterSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å oppdatere sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,
@@ -59,7 +59,7 @@ class SammensattKontrollsakValidator(
     }
 
     fun validerSlettSammensattKontrollsakTilgang() {
-        if (!unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
+        if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å slette sammensatt kontrollsak.",
                 httpStatus = HttpStatus.FORBIDDEN,

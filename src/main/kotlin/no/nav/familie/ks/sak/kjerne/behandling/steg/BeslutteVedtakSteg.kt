@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -40,7 +40,7 @@ class BeslutteVedtakSteg(
     private val taskService: TaskService,
     private val loggService: LoggService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val unleashService: UnleashNextMedContextService,
+    private val featureToggleService: FeatureToggleService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val brevmottakerService: BrevmottakerService,
     private val tilbakekrevingService: TilbakekrevingService,
@@ -57,7 +57,7 @@ class BeslutteVedtakSteg(
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         if (behandling.erTekniskEndring() &&
-            !unleashService.isEnabled(
+            !featureToggleService.isEnabled(
                 FeatureToggle.TEKNISK_ENDRING,
                 behandling.id,
             )
@@ -136,7 +136,7 @@ class BeslutteVedtakSteg(
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
 
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
+                !featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
                 throw FunksjonellFeil(
                     melding =
                         "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +

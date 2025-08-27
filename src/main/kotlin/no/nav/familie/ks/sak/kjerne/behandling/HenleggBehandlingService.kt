@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class HenleggBehandlingService(
     private val stegService: StegService,
-    private val unleashService: UnleashNextMedContextService,
+    private val featureToggleService: FeatureToggleService,
     private val brevService: BrevService,
     private val oppgaveService: OppgaveService,
     private val loggService: LoggService,
@@ -104,7 +104,7 @@ class HenleggBehandlingService(
         val behandlingId = behandling.id
         when {
             HenleggÅrsak.TEKNISK_VEDLIKEHOLD == henleggÅrsak &&
-                !unleashService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
+                !featureToggleService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) -> {
                 throw Feil(
                     "Teknisk vedlikehold henleggele er ikke påslått for " +
                         "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
@@ -121,7 +121,7 @@ class HenleggBehandlingService(
                 )
             }
 
-            behandling.erTekniskEndring() && !unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING) -> {
+            behandling.erTekniskEndring() && !featureToggleService.isEnabled(FeatureToggle.TEKNISK_ENDRING) -> {
                 throw FunksjonellFeil(
                     "Du har ikke tilgang til å henlegge en behandling " +
                         "som er opprettet med årsak=${behandling.opprettetÅrsak.visningsnavn}. " +

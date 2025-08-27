@@ -6,7 +6,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -18,9 +18,9 @@ import java.util.UUID
 class SaksbehandlerContextTest {
     private val mockIntegrasjonClient = mockk<IntegrasjonClient>()
     private val kode6GruppeId = "kode6GruppeId"
-    private val mockUnleashNextMedContextService = mockk<UnleashNextMedContextService>()
+    private val mockFeatureToggleService = mockk<FeatureToggleService>()
 
-    private val saksbehandlerContext = SaksbehandlerContext(kode6GruppeId, mockIntegrasjonClient, mockUnleashNextMedContextService)
+    private val saksbehandlerContext = SaksbehandlerContext(kode6GruppeId, mockIntegrasjonClient, mockFeatureToggleService)
 
     @BeforeEach
     fun beforeEach() {
