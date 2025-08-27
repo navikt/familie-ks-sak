@@ -73,7 +73,7 @@ class VedtaksperiodeService(
     private val opphørsperiodeGenerator: OpphørsperiodeGenerator,
     private val utbetalingsperiodeGenerator: UtbetalingsperiodeGenerator,
     private val avslagsperiodeGenerator: AvslagsperiodeGenerator,
-    private val unleash: FeatureToggleService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     fun oppdaterVedtaksperiodeMedFritekster(
         vedtaksperiodeId: Long,
@@ -223,7 +223,7 @@ class VedtaksperiodeService(
         }
 
         val opphørsperioder =
-            if (vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT && unleash.isEnabled(FeatureToggle.IKKE_LAG_OPPHOERSPERIODE_AV_AVSLAAT_BEHANDLINGSRESULTAT)) {
+            if (vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT && featureToggleService.isEnabled(FeatureToggle.IKKE_LAG_OPPHOERSPERIODE_AV_AVSLAAT_BEHANDLINGSRESULTAT)) {
                 emptyList()
             } else {
                 opphørsperiodeGenerator.genererOpphørsperioder(vedtak.behandling).map { it.tilVedtaksperiodeMedBegrunnelse(vedtak) }
