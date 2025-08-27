@@ -18,9 +18,8 @@ import java.util.UUID
 class SaksbehandlerContextTest {
     private val mockIntegrasjonClient = mockk<IntegrasjonClient>()
     private val kode6GruppeId = "kode6GruppeId"
-    private val mockFeatureToggleService = mockk<FeatureToggleService>()
 
-    private val saksbehandlerContext = SaksbehandlerContext(kode6GruppeId, mockIntegrasjonClient, mockFeatureToggleService)
+    private val saksbehandlerContext = SaksbehandlerContext(kode6GruppeId, mockIntegrasjonClient)
 
     @BeforeEach
     fun beforeEach() {
