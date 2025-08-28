@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagNyEksternBehandlingRelasjon
@@ -52,7 +52,7 @@ class OpprettBehandlingServiceTest {
     private val behandlingRepository = mockk<BehandlingRepository>()
     private val taskService = mockk<TaskService>()
     private val behandlingMetrikker = mockk<BehandlingMetrikker>()
-    private val unleashNextMedContextService = mockk<UnleashNextMedContextService>()
+    private val featureToggleService = mockk<FeatureToggleService>()
     private val eksternBehandlingRelasjonService = mockk<EksternBehandlingRelasjonService>()
 
     private val opprettBehandlingService =
@@ -66,7 +66,7 @@ class OpprettBehandlingServiceTest {
             taskService = taskService,
             stegService = stegService,
             behandlingMetrikker = behandlingMetrikker,
-            unleashService = unleashNextMedContextService,
+            featureToggleService = featureToggleService,
             eksternBehandlingRelasjonService = eksternBehandlingRelasjonService,
         )
 
@@ -335,7 +335,7 @@ class OpprettBehandlingServiceTest {
                     behandlingÅrsak = BehandlingÅrsak.IVERKSETTE_KA_VEDTAK,
                 )
 
-            every { unleashNextMedContextService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK) } returns false
+            every { featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK) } returns false
 
             // Act & assert
             val exception =

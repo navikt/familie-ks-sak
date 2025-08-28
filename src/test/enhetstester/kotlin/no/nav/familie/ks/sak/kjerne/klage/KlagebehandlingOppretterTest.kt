@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
@@ -34,7 +34,7 @@ class KlagebehandlingOppretterTest {
     private val integrasjonClient = mockk<IntegrasjonClient>()
     private val tilpassArbeidsfordelingService = mockk<TilpassArbeidsfordelingService>()
     private val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(dagensDato)
-    private val unleash = mockk<UnleashNextMedContextService>()
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val klagebehandlingOppretter =
         KlagebehandlingOppretter(
@@ -43,12 +43,12 @@ class KlagebehandlingOppretterTest {
             integrasjonClient,
             tilpassArbeidsfordelingService,
             clockProvider,
-            unleash,
+            featureToggleService,
         )
 
     @BeforeEach
     fun setup() {
-        every { unleash.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING) } returns true
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING) } returns true
     }
 
     @Nested
@@ -195,7 +195,7 @@ class KlagebehandlingOppretterTest {
 
             val opprettKlageRequest = slot<OpprettKlagebehandlingRequest>()
 
-            every { unleash.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING) } returns false
+            every { featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING) } returns false
             every { integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(KontantstøtteEnhet.OSLO, KontantstøtteEnhet.VIKAFOSSEN)
             every { klageClient.opprettKlage(capture(opprettKlageRequest)) } returns klagebehandlingId
 

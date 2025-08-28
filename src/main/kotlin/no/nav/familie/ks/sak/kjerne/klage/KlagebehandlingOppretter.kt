@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.TilpassArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -27,7 +27,7 @@ class KlagebehandlingOppretter(
     private val integrasjonClient: IntegrasjonClient,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val clockProvider: ClockProvider,
-    private val unleashNextMedContextService: UnleashNextMedContextService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(KlagebehandlingOppretter::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -52,7 +52,7 @@ class KlagebehandlingOppretter(
         val navIdent = NavIdent(SikkerhetContext.hentSaksbehandler())
 
         val behandlendeEnhet =
-            if (unleashNextMedContextService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING)) {
+            if (featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING)) {
                 val arbeidsfordelingsenheter = integrasjonClient.hentBehandlendeEnheter(fødselsnummer)
 
                 if (arbeidsfordelingsenheter.isEmpty()) {
