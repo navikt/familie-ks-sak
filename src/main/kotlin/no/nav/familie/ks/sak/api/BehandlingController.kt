@@ -58,7 +58,7 @@ class BehandlingController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
     }
 
-    @GetMapping(path = ["fagsak/{fagsakId}"])
+    @GetMapping(path = ["/fagsak/{fagsakId}"])
     fun hentBehandlinger(
         @PathVariable fagsakId: Long,
     ): ResponseEntity<Ressurs<List<MinimalBehandlingResponsDto>>> {

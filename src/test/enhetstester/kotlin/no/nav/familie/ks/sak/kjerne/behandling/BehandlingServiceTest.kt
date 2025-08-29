@@ -472,8 +472,8 @@ class BehandlingServiceTest {
         @Test
         fun `skal hente minimal behandling basert på fagsakId`() {
             // Arrange
-            val behandling1 = lagBehandling(fagsak, id=1L)
-            val behandling2 = lagBehandling(fagsak, id=2L)
+            val behandling1 = lagBehandling(fagsak, id = 1L)
+            val behandling2 = lagBehandling(fagsak, id = 2L)
             every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling1, behandling2)
 
             val vedtak = lagVedtak(behandling1)
@@ -496,7 +496,6 @@ class BehandlingServiceTest {
                 assertThat(it.status).isEqualTo(behandling1.status)
                 assertThat(it.resultat).isEqualTo(behandling1.resultat)
                 assertThat(it.vedtaksdato).isEqualTo(vedtak.vedtaksdato)
-
             }
             assertThat(minimalBehandlinger).anySatisfy {
                 assertThat(it.behandlingId).isEqualTo(behandling2.id)
@@ -510,7 +509,6 @@ class BehandlingServiceTest {
                 assertThat(it.resultat).isEqualTo(behandling2.resultat)
                 assertThat(it.vedtaksdato).isNull()
             }
-
         }
     }
 }

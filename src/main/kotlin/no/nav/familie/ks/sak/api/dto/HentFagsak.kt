@@ -38,8 +38,9 @@ data class MinimalBehandlingResponsDto(
     val vedtaksdato: LocalDateTime?,
 ) {
     companion object {
-        fun opprettFraBehandling(behandling: Behandling,
-                vedtaksdato: LocalDateTime?,
+        fun opprettFraBehandling(
+            behandling: Behandling,
+            vedtaksdato: LocalDateTime?,
         ) = MinimalBehandlingResponsDto(
             behandlingId = behandling.id,
             opprettetTidspunkt = behandling.opprettetTidspunkt,
