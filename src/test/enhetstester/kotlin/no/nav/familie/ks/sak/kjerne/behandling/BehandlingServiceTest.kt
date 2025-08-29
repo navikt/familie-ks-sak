@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -463,6 +464,53 @@ class BehandlingServiceTest {
 
             // Assert
             assertThat(forrigeBehandlingSomErVedtatt).isNull()
+        }
+    }
+
+    @Nested
+    inner class HentMinimalBehandlinger {
+        @Test
+        fun `skal hente minimal behandling basert på fagsakId`() {
+            // Arrange
+            val behandling1 = lagBehandling(fagsak, id=1L)
+            val behandling2 = lagBehandling(fagsak, id=2L)
+            every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling1, behandling2)
+
+            val vedtak = lagVedtak(behandling1)
+            every { mockVedtakRepository.findByBehandlingAndAktivOptional(behandling1.id) } returns vedtak
+            every { mockVedtakRepository.findByBehandlingAndAktivOptional(behandling2.id) } returns null
+
+            // Act
+            val minimalBehandlinger = behandlingService.hentMinimalBehandlinger(fagsak.id)
+
+            // Assert
+            assertThat(minimalBehandlinger).hasSize(2)
+            assertThat(minimalBehandlinger).anySatisfy {
+                assertThat(it.behandlingId).isEqualTo(behandling1.id)
+                assertThat(it.opprettetTidspunkt).isEqualTo(behandling1.opprettetTidspunkt)
+                assertThat(it.aktivertTidspunkt).isEqualTo(behandling1.aktivertTidspunkt)
+                assertThat(it.kategori).isEqualTo(behandling1.kategori)
+                assertThat(it.aktiv).isEqualTo(behandling1.aktiv)
+                assertThat(it.årsak).isEqualTo(behandling1.opprettetÅrsak)
+                assertThat(it.type).isEqualTo(behandling1.type)
+                assertThat(it.status).isEqualTo(behandling1.status)
+                assertThat(it.resultat).isEqualTo(behandling1.resultat)
+                assertThat(it.vedtaksdato).isEqualTo(vedtak.vedtaksdato)
+
+            }
+            assertThat(minimalBehandlinger).anySatisfy {
+                assertThat(it.behandlingId).isEqualTo(behandling2.id)
+                assertThat(it.opprettetTidspunkt).isEqualTo(behandling2.opprettetTidspunkt)
+                assertThat(it.aktivertTidspunkt).isEqualTo(behandling2.aktivertTidspunkt)
+                assertThat(it.kategori).isEqualTo(behandling2.kategori)
+                assertThat(it.aktiv).isEqualTo(behandling2.aktiv)
+                assertThat(it.årsak).isEqualTo(behandling2.opprettetÅrsak)
+                assertThat(it.type).isEqualTo(behandling2.type)
+                assertThat(it.status).isEqualTo(behandling2.status)
+                assertThat(it.resultat).isEqualTo(behandling2.resultat)
+                assertThat(it.vedtaksdato).isNull()
+            }
+
         }
     }
 }

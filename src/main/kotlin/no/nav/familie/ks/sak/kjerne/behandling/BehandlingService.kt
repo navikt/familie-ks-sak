@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.tilTotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
@@ -120,6 +121,11 @@ class BehandlingService(
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppdaterer behandling $behandling")
         return behandlingRepository.save(behandling)
     }
+
+    fun hentMinimalBehandlinger(fagsakId: Long): List<MinimalBehandlingResponsDto> =
+        behandlingRepository
+            .finnBehandlinger(fagsakId)
+            .map { MinimalBehandlingResponsDto.opprettFraBehandling(it, vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato) }
 
     fun lagBehandlingRespons(behandlingId: Long): BehandlingResponsDto {
         val behandling = hentBehandling(behandlingId)
