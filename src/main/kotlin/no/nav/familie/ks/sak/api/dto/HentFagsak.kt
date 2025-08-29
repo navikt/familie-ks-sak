@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
@@ -35,4 +36,21 @@ data class MinimalBehandlingResponsDto(
     val status: BehandlingStatus,
     val resultat: Behandlingsresultat,
     val vedtaksdato: LocalDateTime?,
-)
+) {
+    companion object {
+        fun opprettFraBehandling(behandling: Behandling,
+                vedtaksdato: LocalDateTime?,
+        ) = MinimalBehandlingResponsDto(
+            behandlingId = behandling.id,
+            opprettetTidspunkt = behandling.opprettetTidspunkt,
+            aktivertTidspunkt = behandling.aktivertTidspunkt,
+            kategori = behandling.kategori,
+            aktiv = behandling.aktiv,
+            årsak = behandling.opprettetÅrsak,
+            type = behandling.type,
+            status = behandling.status,
+            resultat = behandling.resultat,
+            vedtaksdato = vedtaksdato,
+        )
+    }
+}
