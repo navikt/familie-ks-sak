@@ -539,6 +539,24 @@ class IntegrasjonClient(
         }
     }
 
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
+    )
+    @Cacheable("poststeder", cacheManager = "dailyCache")
+    fun hentPoststeder(): KodeverkDto {
+        val uri = URI.create("$integrasjonUri/kodeverk/poststed")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent postnumre",
+        ) {
+            getForEntity(uri)
+        }
+    }
+
     private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo?) =
         manuellAdresseInfo?.let {
             ManuellAdresse(
