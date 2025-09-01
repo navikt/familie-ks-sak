@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.forrigebehandling
 
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.tilTidslinje
@@ -64,8 +65,11 @@ object EndringIVilkårsvurderingUtil {
             nåværendeVilkårTidslinje.kombinerMed(tidligereVilkårTidslinje) { nåværende, forrige ->
                 if (nåværende == null || forrige == null) return@kombinerMed false
 
-                val erEndringerIUtdypendeVilkårsvurdering =
-                    nåværende.utdypendeVilkårsvurderinger.toSet() != forrige.utdypendeVilkårsvurderinger.toSet()
+                val nåværendeUtdypendeVilkårsvurderingUtenBosattPåSvalbard = nåværende.utdypendeVilkårsvurderinger.filter { it != UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD }.toSet()
+                val forrigeUtdypendeVilkårsvurderingUtenBosattPåSvalbard = forrige.utdypendeVilkårsvurderinger.filter { it != UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD }.toSet()
+
+                val erEndringerIUtdypendeVilkårsvurdering = nåværendeUtdypendeVilkårsvurderingUtenBosattPåSvalbard != forrigeUtdypendeVilkårsvurderingUtenBosattPåSvalbard
+
                 val erEndringerIRegelverk = nåværende.vurderesEtter != forrige.vurderesEtter
                 val erVilkårSomErSplittetOpp = nåværende.periodeFom != forrige.periodeFom
 
