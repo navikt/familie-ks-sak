@@ -57,10 +57,11 @@ abstract class GrOppholdsadresse(
         fun fraOppholdsadresse(
             oppholdsadresse: Oppholdsadresse,
             person: Person,
+            poststed: String? = null,
         ): GrOppholdsadresse =
             (
-                oppholdsadresse.vegadresse?.let { fraVegadresse(it) }
-                    ?: oppholdsadresse.matrikkeladresse?.let { fraMatrikkeladresse(it) }
+                oppholdsadresse.vegadresse?.let { fraVegadresse(it, poststed) }
+                    ?: oppholdsadresse.matrikkeladresse?.let { fraMatrikkeladresse(it, poststed) }
                     ?: oppholdsadresse.utenlandskAdresse?.let { fraUtenlandskAdresse(it) }
                     ?: GrUkjentAdresseOppholdsadresse()
             ).also {

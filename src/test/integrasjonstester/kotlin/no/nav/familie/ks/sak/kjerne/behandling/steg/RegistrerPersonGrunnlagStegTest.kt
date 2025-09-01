@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
@@ -11,6 +12,7 @@ import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -44,6 +46,9 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
 
+    @MockkBean
+    private lateinit var integrasjonClient: IntegrasjonClient
+
     @MockkBean(relaxed = true)
     private lateinit var personOpplysningerService: PersonopplysningerService
 
@@ -62,6 +67,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandlendeEnhet(any()) } just runs
         every { endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(any(), any()) } just runs
+        every { integrasjonClient.hentPoststeder() } returns mockk(relaxed = true)
     }
 
     @Test
