@@ -70,7 +70,7 @@ import java.time.LocalDate
 @SpringBootTest(classes = [DevLauncherLocal::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integrasjonstest")
 @EnableMockOAuth2Server
-@Tag("integrationTest")
+@Tag("integration")
 abstract class OppslagSpringRunnerTest {
     private val listAppender = initLoggingEventListAppender()
     protected var loggingEvents: MutableList<ILoggingEvent> = listAppender.list
