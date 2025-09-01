@@ -544,7 +544,7 @@ class IntegrasjonClient(
         maxAttempts = 3,
         backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
     )
-    @Cacheable("poststeder", cacheManager = "dailyCache")
+    @Cacheable("poststeder", cacheManager = "kodeverkCache")
     fun hentPoststeder(): KodeverkDto {
         val uri = URI.create("$integrasjonUri/kodeverk/poststed")
 
