@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.called
 import io.mockk.every
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
@@ -16,6 +17,7 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -51,6 +53,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
 
+    @MockkBean
+    private lateinit var integrasjonClient: IntegrasjonClient
+
     @MockkBean(relaxed = true)
     private lateinit var personOpplysningerService: PersonopplysningerService
 
@@ -77,6 +82,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         // Mocker ut tjenester som kjører eksterne kall
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandlendeEnhet(any()) } just runs
+        every { integrasjonClient.hentPoststeder() } returns mockk(relaxed = true)
     }
 
     @Test
