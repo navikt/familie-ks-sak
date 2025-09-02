@@ -51,3 +51,5 @@ fun hentDokument(dokumentNavn: String): ByteArray {
 
     return dokumentByteArray
 }
+
+fun <T, R> List<T>.tilEtterfølgendePar(transform: (a: T, b: T?) -> R): List<R> = this.windowed(size = 2, step = 1, partialWindows = true) { transform(it[0], it.getOrNull(1)) }

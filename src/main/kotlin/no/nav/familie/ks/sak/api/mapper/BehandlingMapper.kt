@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
+import no.nav.familie.ks.sak.api.dto.ManglendeSvalbardmerkingDto
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
@@ -50,7 +51,7 @@ object BehandlingMapper {
         arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling,
         søknadsgrunnlag: SøknadDto?,
         personer: List<PersonResponsDto>,
-        personResultater: List<PersonResultat>?,
+        personResultater: Set<PersonResultat>?,
         personerMedAndelerTilkjentYtelse: List<PersonerMedAndelerResponsDto>,
         utbetalingsperioder: List<UtbetalingsperiodeResponsDto>,
         vedtak: VedtakDto?,
@@ -68,6 +69,7 @@ object BehandlingMapper {
         korrigertEtterbetaling: KorrigertEtterbetaling?,
         korrigertVedtak: KorrigertVedtak?,
         brevmottakere: List<BrevmottakerDto>,
+        manglendeSvalbardmerking: List<ManglendeSvalbardmerkingDto>,
     ) = BehandlingResponsDto(
         behandlingId = behandling.id,
         steg = behandling.steg,
@@ -118,6 +120,7 @@ object BehandlingMapper {
         korrigertEtterbetaling = korrigertEtterbetaling?.tilKorrigertEtterbetalingResponsDto(),
         korrigertVedtak = korrigertVedtak?.tilKorrigertVedtakResponsDto(),
         brevmottakere = brevmottakere,
+        manglendeSvalbardmerking = manglendeSvalbardmerking,
     )
 
     private fun lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling: ArbeidsfordelingPåBehandling) =

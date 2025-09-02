@@ -12,4 +12,6 @@ class GrUkjentAdresseOppholdsadresse : GrOppholdsadresse() {
     override fun toSecureString(): String = "GrUkjentAdresseOppholdsadresse(${oppholdAnnetSted ?: ""})"
 
     override fun tilFrontendString(): String = "Ukjent adresse${oppholdAnnetSted.takeIf { it == PAA_SVALBARD }?.let { ", $it" } ?: ""}"
+
+    override fun erPåSvalbard(): Boolean = oppholdAnnetSted == PAA_SVALBARD
 }

@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
+import no.nav.familie.ks.sak.api.dto.tilManglendeSvalbardmerkingDto
 import no.nav.familie.ks.sak.api.dto.tilTotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
@@ -150,7 +151,7 @@ class BehandlingService(
 
         val søknadsgrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)?.tilSøknadDto()
         val personResultater =
-            vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater?.toList()
+            vilkårsvurderingService.finnAktivVilkårsvurdering(behandlingId)?.personResultater
 
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
         val personerMedAndelerTilkjentYtelse =
@@ -229,29 +230,32 @@ class BehandlingService(
 
         val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId)
 
+        val manglendeSvalbardmerking = personer.tilManglendeSvalbardmerkingDto(personResultater)
+
         return BehandlingMapper.lagBehandlingRespons(
-            behandling,
-            arbeidsfordelingPåBehandling,
-            søknadsgrunnlag,
-            personResponser,
-            personResultater,
-            personerMedAndelerTilkjentYtelse,
-            utbetalingsperioder,
-            vedtak,
-            totrinnskontroll,
-            endreteUtbetalingerMedAndeler,
-            overgangsordningAndeler,
-            endringstidspunkt,
-            tilbakekreving,
-            sisteVedtaksperiodeVisningDato,
-            feilutbetalteValuta,
-            kompetanser,
-            refusjonEøs,
-            utenlandskePeriodebeløp,
-            valutakurser,
-            korrigertEtterbetaling,
-            korrigertVedtak,
-            brevmottakere,
+            behandling = behandling,
+            arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandling,
+            søknadsgrunnlag = søknadsgrunnlag,
+            personer = personResponser,
+            personResultater = personResultater,
+            personerMedAndelerTilkjentYtelse = personerMedAndelerTilkjentYtelse,
+            utbetalingsperioder = utbetalingsperioder,
+            vedtak = vedtak,
+            totrinnskontroll = totrinnskontroll,
+            endretUtbetalingAndeler = endreteUtbetalingerMedAndeler,
+            overgangsordningAndeler = overgangsordningAndeler,
+            endringstidspunkt = endringstidspunkt,
+            tilbakekreving = tilbakekreving,
+            sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
+            feilutbetalteValuta = feilutbetalteValuta,
+            kompetanser = kompetanser,
+            refusjonEøs = refusjonEøs,
+            utenlandskePeriodebeløp = utenlandskePeriodebeløp,
+            valutakurser = valutakurser,
+            korrigertEtterbetaling = korrigertEtterbetaling,
+            korrigertVedtak = korrigertVedtak,
+            brevmottakere = brevmottakere,
+            manglendeSvalbardmerking = manglendeSvalbardmerking,
         )
     }
 
