@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlingstemaDto
 import no.nav.familie.ks.sak.api.dto.HenleggBehandlingDto
 import no.nav.familie.ks.sak.api.dto.LeggTilBarnDto
+import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -55,6 +56,17 @@ class BehandlingController(
         )
         val behandling = opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)))
+    }
+
+    @GetMapping(path = ["/fagsak/{fagsakId}"])
+    fun hentBehandlinger(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<List<MinimalBehandlingResponsDto>>> {
+        tilgangService.validerTilgangTilFagsak(event = AuditLoggerEvent.ACCESS, fagsakId = fagsakId)
+        tilgangService.validerTilgangTilHandling(minimumBehandlerRolle = BehandlerRolle.VEILEDER, handling = "hent behandlinger")
+
+        val behandlinger = behandlingService.hentMinimalBehandlinger(fagsakId)
+        return ResponseEntity.ok(Ressurs.success(behandlinger))
     }
 
     @GetMapping(path = ["/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])

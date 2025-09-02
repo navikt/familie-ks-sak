@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import org.hamcrest.CoreMatchers.hasItem
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -162,6 +163,22 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                 "frontendFeilmelding",
                 Is("Kan ikke lage ny behandling. Fagsaken har en aktiv behandling som ikke er ferdigstilt."),
             )
+        }
+    }
+
+    @Test
+    fun `hentBehandlinger - skal returnere MinimalBehandlingResponsDto og 200 OK dersom behandlinger finnes`() {
+        val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
+
+        Given {
+            header("Authorization", "Bearer $token")
+        } When {
+            get("$behandlingControllerUrl/fagsak/${fagsak.id}")
+        } Then {
+            statusCode(HttpStatus.OK.value())
+            body("data.behandlingId", hasItem(behandling.id.toInt()))
+            body("data.årsak", hasItem("SØKNAD"))
         }
     }
 }
