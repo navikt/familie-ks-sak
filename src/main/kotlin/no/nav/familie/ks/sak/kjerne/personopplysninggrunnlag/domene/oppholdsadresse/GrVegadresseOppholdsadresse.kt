@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted.PAA_SVALBARD
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
+import no.nav.familie.kontrakter.felles.svalbard.erKommunePåSvalbard
 import no.nav.familie.ks.sak.common.util.nullableTilString
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import java.util.Objects
@@ -59,6 +60,8 @@ data class GrVegadresseOppholdsadresse(
             else -> "$adressenavn $husnummer$husbokstav$postnummer$poststed$oppholdAnnetSted"
         }
     }
+
+    override fun erPåSvalbard(): Boolean = (kommunenummer != null && erKommunePåSvalbard(kommunenummer)) || oppholdAnnetSted == PAA_SVALBARD
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {

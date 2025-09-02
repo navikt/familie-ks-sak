@@ -53,6 +53,8 @@ abstract class GrOppholdsadresse(
 
     abstract fun tilFrontendString(): String
 
+    abstract fun erPåSvalbard(): Boolean
+
     companion object {
         fun fraOppholdsadresse(
             oppholdsadresse: Oppholdsadresse,

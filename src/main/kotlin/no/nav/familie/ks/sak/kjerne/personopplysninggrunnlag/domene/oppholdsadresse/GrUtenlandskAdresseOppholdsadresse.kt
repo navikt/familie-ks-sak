@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadr
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
+import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted.PAA_SVALBARD
 import no.nav.familie.kontrakter.felles.personopplysning.UtenlandskAdresse
 import no.nav.familie.ks.sak.common.util.storForbokstav
 
@@ -50,6 +51,8 @@ data class GrUtenlandskAdresseOppholdsadresse(
     }
 
     override fun toString(): String = "GrUtenlandskAdresseOppholdsadresse(detaljer skjult)"
+
+    override fun erPåSvalbard(): Boolean = oppholdAnnetSted == PAA_SVALBARD
 
     companion object {
         fun fraUtenlandskAdresse(utenlandskAdresse: UtenlandskAdresse): GrUtenlandskAdresseOppholdsadresse =
