@@ -1264,10 +1264,11 @@ fun lagTestPersonopplysningGrunnlag(
 fun lagVedtak(
     behandling: Behandling = lagBehandling(),
     stønadBrevPdF: ByteArray? = null,
+    vedtaksDato: LocalDateTime = LocalDateTime.now(),
 ) = Vedtak(
     id = nesteVedtakId(),
     behandling = behandling,
-    vedtaksdato = LocalDateTime.now(),
+    vedtaksdato = vedtaksDato,
     stønadBrevPdf = stønadBrevPdF,
 )
 
