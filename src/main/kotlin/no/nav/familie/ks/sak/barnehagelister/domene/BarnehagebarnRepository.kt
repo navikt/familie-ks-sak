@@ -56,7 +56,8 @@ avvik_antall_timer_vilkar_resultat_og_barnehagebarn AS (
 ),
 input_params AS (
     --Vi referer til disse variablene to ganger så da må de legges inn slik
-    SELECT :ident AS ident_param, :kommuneNavn AS kommunenavn_param
+    SELECT 
+    CAST(:ident AS TEXT) AS ident_param, CAST(:kommuneNavn AS TEXT) AS kommunenavn_param
 ),
 barnehagebarn_visning AS (
     --Må trekkes ut til egen CTE for at sortering for pageables skal fungere på felter som ikke ligger i barnehagebarn fra før
