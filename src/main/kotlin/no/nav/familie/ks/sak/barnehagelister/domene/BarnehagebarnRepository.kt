@@ -11,7 +11,11 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
 
     @Query(
         """
-    WITH siste_iverksatte_behandling_i_løpende_fagsak AS (
+    WITH input AS (
+    --Vi referer til disse variablene flere ganger så da må de legges inn slik
+        SELECT CAST(:ident AS TEXT) AS ident_param, CAST(:kommuneNavn AS TEXT) AS kommunenavn_param
+),     
+    siste_iverksatte_behandling_i_løpende_fagsak AS (
     -- Finn nyeste iverksatte behandling med utbetaling for løpende og ikke-arkivert fagsak for barn
     SELECT f.id AS fagsakid, MAX(b.aktivert_tid) AS aktivert_tid
     FROM personident p
@@ -19,7 +23,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
              JOIN behandling b ON aty.fk_behandling_id = b.id
              JOIN fagsak f ON b.fk_fagsak_id = f.id
              JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
-    WHERE (:ident IS NULL OR p.foedselsnummer = :ident)
+    WHERE (input.ident_param IS NULL OR p.foedselsnummer = input.ident_param)
       AND p.aktiv = true
       AND f.status = 'LØPENDE'
       AND f.arkivert = false
@@ -33,10 +37,10 @@ lopende_andel_i_siste_iverksatte_behandling AS (
              JOIN andel_tilkjent_ytelse aty ON p.fk_aktoer_id = aty.fk_aktoer_id
              JOIN behandling b ON aty.fk_behandling_id = b.id
              JOIN fagsak f ON b.fk_fagsak_id = f.id
-             JOIN siste_iverksatte_behandling_i_løpende_fagsak sibilf
-                  ON f.id = sibilf.fagsakid
-                  AND b.aktivert_tid = sibilf.aktivert_tid
-    WHERE (:ident IS NULL OR p.foedselsnummer = :ident)
+             JOIN siste_iverksatte_behandling_i_løpende_fagsak iblf
+                  ON f.id = iblf.fagsakid
+                  AND b.aktivert_tid = iblf.aktivert_tid
+    WHERE (input.ident_param IS NULL OR p.foedselsnummer = input.ident_param)
       AND p.aktiv = true
 ),
 avvik_antall_timer_vilkar_resultat_og_barnehagebarn AS (
@@ -54,11 +58,6 @@ avvik_antall_timer_vilkar_resultat_og_barnehagebarn AS (
                       AND vr.vilkar = 'BARNEHAGEPLASS'
                       AND bb.fom = vr.periode_fom::date
 ),
-input_params AS (
-    --Vi referer til disse variablene to ganger så da må de legges inn slik
-    SELECT 
-    CAST(:ident AS TEXT) AS ident_param, CAST(:kommuneNavn AS TEXT) AS kommunenavn_param
-),
 barnehagebarn_visning AS (
     --Må trekkes ut til egen CTE for at sortering for pageables skal fungere på felter som ikke ligger i barnehagebarn fra før
     SELECT bb.ident,
@@ -71,14 +70,14 @@ barnehagebarn_visning AS (
            MAX(bb.endret_tid) AS endretTid,
            atv.avvik
     FROM barnehagebarn bb
-             LEFT JOIN lopende_andel_i_siste_iverksatte_behandling laisib
-                       ON bb.ident = laisib.foedselsnummer
+             LEFT JOIN lopende_andel_i_siste_iverksatte_behandling lab
+                       ON bb.ident = lab.foedselsnummer
              LEFT JOIN avvik_antall_timer_vilkar_resultat_og_barnehagebarn atv
                        ON bb.id = atv.barnehagebarn_id
-             CROSS JOIN input_params
-    WHERE (NOT :kunLøpendeAndeler OR laisib.lopende_andel = true)
-      AND (input_params.ident_param IS NULL OR bb.ident = input_params.ident_param)
-      AND (input_params.kommunenavn_param IS NULL OR bb.kommune_navn ILIKE input_params.kommunenavn_param)
+             CROSS JOIN input
+    WHERE (NOT :kunLøpendeAndeler OR lab.lopende_andel = true)
+      AND (input.ident_param IS NULL OR bb.ident = input.ident_param)
+      AND (input.kommunenavn_param IS NULL OR bb.kommune_navn ILIKE input.kommunenavn_param)
     GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype,
              bb.kommune_navn, bb.kommune_nr, atv.avvik
 )
