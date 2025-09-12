@@ -15,11 +15,13 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         -- Referer til disse variablene flere ganger så de må legges inn slik
         SELECT 
         CAST(:ident AS TEXT) as ident_param,
-        CAST (:kommuneNavn AS TEXT) as kommunenavn_param
+        CAST(:kommuneNavn AS TEXT) as kommunenavn_param
     ),
     siste_iverksatte_behandling_i_løpende_fagsak AS (
     -- Finn nyeste iverksatte behandling med utbetaling for løpende og ikke-arkivert fagsak for barn
-    SELECT f.id AS fagsakid, MAX(b.aktivert_tid) AS aktivert_tid
+    SELECT 
+        f.id AS fagsakid, 
+        MAX(b.aktivert_tid) AS aktivert_tid
     FROM personident p
              JOIN andel_tilkjent_ytelse aty ON p.fk_aktoer_id = aty.fk_aktoer_id
              JOIN behandling b ON aty.fk_behandling_id = b.id
@@ -35,7 +37,9 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
 ),
 lopende_andel_i_siste_iverksatte_behandling AS (
     -- Sjekker om barnet har en løpende andel i siste iverksatte behandling 
-    SELECT p.foedselsnummer, aty.stonad_tom + interval '1 month - 1 day' >= current_date AS lopende_andel
+    SELECT 
+        p.foedselsnummer, 
+        aty.stonad_tom + interval '1 month - 1 day' >= current_date AS lopende_andel -- stonad_tom blir satt til første dag i mnd, men vi ønsker å ha med hele måneden i filtreringen
     FROM personident p
              JOIN andel_tilkjent_ytelse aty ON p.fk_aktoer_id = aty.fk_aktoer_id
              JOIN behandling b ON aty.fk_behandling_id = b.id
@@ -48,9 +52,10 @@ lopende_andel_i_siste_iverksatte_behandling AS (
       AND p.aktiv = true
 ),
 avvik_antall_timer_vilkar_resultat_og_barnehagebarn AS (
-    SELECT bb.id as barnehagebarn_id,
+    SELECT 
+        bb.id as barnehagebarn_id,
            CASE
-               WHEN bb.antall_timer_i_barnehage < 33
+               WHEN bb.antall_timer_i_barnehage < 33 -- minst 33 timer barnehageplass regnes som fulltidsplass
                    THEN vr.antall_timer != bb.antall_timer_i_barnehage
                ELSE vr.antall_timer <= 33
            END as avvik
