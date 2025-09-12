@@ -11,7 +11,7 @@ INSERT INTO personident (foedselsnummer, fk_aktoer_id, aktiv) VALUES ('123456789
 INSERT INTO personident (foedselsnummer, fk_aktoer_id, aktiv) VALUES ('23456789012', '2345', true);
 INSERT INTO personident (foedselsnummer, fk_aktoer_id, aktiv) VALUES ('90123456789', '9876', true);
 
-INSERT INTO fagsak(id, fk_aktoer_id) VALUES (1, '9876');
+INSERT INTO fagsak(id, fk_aktoer_id, status, arkivert) VALUES (1, '9876', 'LØPENDE', false);
 
 INSERT INTO behandling(id, fk_fagsak_id, behandling_type, aktivert_tid, aktiv, kategori, opprettet_aarsak) VALUES (1, 1, 'FØRSTEGANGSBEHANDLING', NOW(), true, 'NASJONAL', 'SØKNAD');
 
@@ -29,7 +29,7 @@ INSERT INTO person_resultat(id, fk_aktoer_id, fk_vilkaarsvurdering_id) VALUES (2
 INSERT INTO vilkar_resultat(id, vilkar, periode_fom, periode_tom, resultat, fk_person_resultat_id, fk_behandling_id, antall_timer) VALUES (1, 'BARNEHAGEPLASS', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 months', 'OPPFYLT', 1, 1, 30);
 INSERT INTO vilkar_resultat(id, vilkar, periode_fom, periode_tom, resultat, fk_person_resultat_id, fk_behandling_id, antall_timer) VALUES (2, 'BARNEHAGEPLASS', CURRENT_TIMESTAMP - INTERVAL '3 months', CURRENT_TIMESTAMP - INTERVAL '1 months', 'OPPFYLT', 2, 1, 30);
 
-INSERT INTO tilkjent_ytelse(id, fk_behandling_id, opprettet_dato) VALUES (1, 1, CURRENT_TIMESTAMP);
+INSERT INTO tilkjent_ytelse(id, fk_behandling_id, opprettet_dato, utbetalingsoppdrag) VALUES (1, 1, CURRENT_TIMESTAMP, '{}');
 
 INSERT INTO andel_tilkjent_ytelse(id, fk_behandling_id, tilkjent_ytelse_id, fk_aktoer_id, kalkulert_utbetalingsbelop, stonad_fom, stonad_tom, type, sats, prosent) VALUES (1, 1, 1, '1234', 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '2 months', 'ORDINÆR_KONTANTSTØTTE', 100, 100);
 INSERT INTO andel_tilkjent_ytelse(id, fk_behandling_id, tilkjent_ytelse_id, fk_aktoer_id, kalkulert_utbetalingsbelop, stonad_fom, stonad_tom, type, sats, prosent) VALUES (2, 1, 1, '2345', 100, CURRENT_TIMESTAMP - INTERVAL '3 months', CURRENT_TIMESTAMP - INTERVAL '1 months', 'ORDINÆR_KONTANTSTØTTE', 100, 100);
