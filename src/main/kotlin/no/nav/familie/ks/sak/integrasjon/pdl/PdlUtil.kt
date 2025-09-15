@@ -81,6 +81,7 @@ fun tilPersonInfo(
         forelderBarnRelasjonerMaskert = maskertForelderBarnRelasjoner,
         adressebeskyttelseGradering = pdlPersonData.adressebeskyttelse.firstOrNull()?.gradering,
         bostedsadresser = pdlPersonData.bostedsadresse,
+        oppholdsadresser = pdlPersonData.oppholdsadresse,
         statsborgerskap = pdlPersonData.statsborgerskap,
         opphold = pdlPersonData.opphold,
         sivilstander = pdlPersonData.sivilstand,

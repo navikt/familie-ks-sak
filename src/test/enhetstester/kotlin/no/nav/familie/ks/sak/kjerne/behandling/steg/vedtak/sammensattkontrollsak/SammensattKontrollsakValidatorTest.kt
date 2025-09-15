@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -23,14 +23,14 @@ import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.http.HttpStatus
 
 class SammensattKontrollsakValidatorTest {
-    private val unleashService: UnleashNextMedContextService = mockk()
+    private val featureToggleService: FeatureToggleService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val sammensattKontrollsakService: SammensattKontrollsakService = mockk()
     private val behandlingService: BehandlingService = mockk()
 
     private val sammensattKontrollsakValidator: SammensattKontrollsakValidator =
         SammensattKontrollsakValidator(
-            unleashService = unleashService,
+            featureToggleService = featureToggleService,
             tilgangService = tilgangService,
             sammensattKontrollsakService = sammensattKontrollsakService,
             behandlingService = behandlingService,
@@ -42,7 +42,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om toggel ikke er skrudd på`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns false
 
             // Act & assert
@@ -58,7 +58,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om man mangler egnet rolle`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -81,7 +81,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal ikke kaste feil om valideringen er godkjent`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -104,7 +104,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om toggel ikke er skrudd på`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns false
 
             // Act & assert
@@ -120,7 +120,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om man mangler egnet rolle`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -143,7 +143,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal ikke kaste feil om valideringen er godkjent`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -166,7 +166,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om toggel ikke er skrudd på`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns false
 
             // Act & assert
@@ -182,7 +182,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om man mangler egnet rolle`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -205,7 +205,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal ikke kaste feil om valideringen er godkjent`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -228,7 +228,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om toggel ikke er skrudd på`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns false
 
             // Act & assert
@@ -244,7 +244,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal kaste exception om man mangler egnet rolle`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {
@@ -267,7 +267,7 @@ class SammensattKontrollsakValidatorTest {
         fun `skal ikke kaste feil om valideringen er godkjent`() {
             // Arrange
             every {
-                unleashService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
+                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
             } returns true
 
             every {

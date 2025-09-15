@@ -9,7 +9,7 @@ import no.nav.familie.unleash.UnleashService
 import org.springframework.stereotype.Service
 
 @Service
-class UnleashNextMedContextService(
+class FeatureToggleService(
     private val unleashService: UnleashService,
     private val behandlingRepository: BehandlingRepository,
     private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,

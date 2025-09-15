@@ -165,20 +165,19 @@ private fun List<AndelTilkjentYtelseMedEndreteUtbetalinger>.tilTidslinje(): Tids
 data class SplittkriterierForVilkår(
     val vilkårType: Vilkår,
     val resultat: Resultat,
-    val periodeFom: LocalDate?,
-    val periodeTom: LocalDate?,
-    val erEksplisittAvslagPåSøknad: Boolean?,
+    val erEksplisittAvslagPåSøknad: Boolean,
     val regelverk: Regelverk?,
     val utdypendeVilkårsvurderinger: Set<UtdypendeVilkårsvurdering>,
 ) {
     constructor(vilkårResultat: VilkårResultat) : this(
         vilkårType = vilkårResultat.vilkårType,
         resultat = vilkårResultat.resultat,
-        periodeFom = vilkårResultat.periodeFom,
-        periodeTom = vilkårResultat.periodeTom,
-        erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad,
+        erEksplisittAvslagPåSøknad = vilkårResultat.erEksplisittAvslagPåSøknad ?: false,
         regelverk = vilkårResultat.vurderesEtter,
-        utdypendeVilkårsvurderinger = vilkårResultat.utdypendeVilkårsvurderinger.toSet(),
+        utdypendeVilkårsvurderinger =
+            vilkårResultat.utdypendeVilkårsvurderinger
+                .filter { it != UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD }
+                .toSet(),
     )
 }
 
