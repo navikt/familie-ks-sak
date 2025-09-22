@@ -37,12 +37,12 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250908124930_1c1ba6c</prosessering.version>
-        <felles-kontrakter.version>3.0_20250908122449_a228daf</felles-kontrakter.version>
-        <felles.version>3.20250909155158_81fc464</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250826113118_c8aa66d</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250826113118_c8aa66d</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250826113118_c8aa66d</familie.kontrakter.saksstatistikk>
+        <prosessering.version>2.20250915083819_745c62b</prosessering.version>
+        <felles-kontrakter.version>3.0_20250916123655_5035eb9</felles-kontrakter.version>
+        <felles.version>3.20250915092837_153983f</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20250915155846_3e7ecd7</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250915155846_3e7ecd7</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250915155846_3e7ecd7</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20250804104526_5648100</utbetalingsgenerator.version>
 
         <!-- Database -->
@@ -56,8 +56,8 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>11.1.0</unleash.version>
-        <microsoft-graph.version>6.51.0</microsoft-graph.version>
-        <azure-identity.version>1.17.0</azure-identity.version>
+        <microsoft-graph.version>6.53.0</microsoft-graph.version>
+        <azure-identity.version>1.18.0</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.28.2</cucumber.version>
@@ -72,7 +72,7 @@
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <ktlint-cli.version>1.7.1</ktlint-cli.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
@@ -89,6 +89,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <!-- Denne inkluderer junit-platform 1.13.3 som kreves av cucumber 7.26, kan muligens fjernes når spring bumper til junit versjon 1.13.3 -->
+                <version>5.13.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
