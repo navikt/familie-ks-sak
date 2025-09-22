@@ -90,6 +90,14 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <!-- Denne inkluderer junit-platform 1.13.3 som kreves av cucumber 7.26, kan muligens fjernes når spring bumper til junit versjon 1.13.3 -->
+                <version>5.13.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot-dependencies.version}</version>
@@ -123,6 +131,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
