@@ -52,6 +52,7 @@ data class BehandlingResponsDto(
     val korrigertVedtak: KorrigertVedtakResponsDto?,
     val brevmottakere: List<BrevmottakerDto> = emptyList(),
     val søknadMottattDato: LocalDateTime?,
+    val manglendeSvalbardmerking: List<ManglendeSvalbardmerkingDto>,
 )
 
 data class BehandlingStegTilstandResponsDto(

@@ -228,4 +228,52 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
             .isEqualTo("23456789012")
         assertThat(barnehagebarnSide2.last().ident).`as`("Barn som ble endret nyligst:").isEqualTo("12345678901")
     }
+
+    @Test
+    @Sql(
+        scripts = ["/barnehagelister/barnehagebarn-19mnd-lopende-andel.sql"],
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+    )
+    fun `hentBarnehageBarn henter barn som fyller 19 mnd i inneværende mnd med løpende andel`() {
+        // Arrange
+        val params =
+            BarnehagebarnRequestParams(
+                ident = null,
+                kommuneNavn = null,
+                kunLøpendeAndel = true,
+            )
+
+        // Act
+        val barnehagebarn =
+            barnehagebarnService.hentBarnehagebarnForVisning(barnehagebarnRequestParams = params).content
+
+        // Assert
+        assertThat(barnehagebarn.size).`as`("Forventet 1 barn, fikk ${barnehagebarn.size}").isEqualTo(1)
+
+        assertThat(barnehagebarn.map { it.ident }).containsExactly("34567890123")
+    }
+
+    @Test
+    @Sql(
+        scripts = ["/barnehagelister/barnehagebarn-lopende-andel-i-ikke-aktiv-behandling.sql"],
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+    )
+    fun `hentBarnehageBarn henter barn med løpende andel i behandling som ikke er aktiv`() {
+        // Arrange
+        val params =
+            BarnehagebarnRequestParams(
+                ident = null,
+                kommuneNavn = null,
+                kunLøpendeAndel = true,
+            )
+
+        // Act
+        val barnehagebarn =
+            barnehagebarnService.hentBarnehagebarnForVisning(barnehagebarnRequestParams = params).content
+
+        // Assert
+        assertThat(barnehagebarn.size).`as`("Forventet 1 barn, fikk ${barnehagebarn.size}").isEqualTo(1)
+
+        assertThat(barnehagebarn.map { it.ident }).containsExactly("34567890123")
+    }
 }

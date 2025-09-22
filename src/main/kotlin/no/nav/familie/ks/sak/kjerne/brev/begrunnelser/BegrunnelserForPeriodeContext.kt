@@ -473,7 +473,6 @@ class BegrunnelserForPeriodeContext(
                         .singleOrNull {
                             it.tom?.plusDays(1) == vedtaksperiode.fom
                         }?.verdi
-                        ?.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
                 if (vilkårResultatSomSlutterFørVedtaksperiode != null) {
                     Pair(person, vilkårResultatSomSlutterFørVedtaksperiode)

@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted.PAA_SVALBARD
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
+import no.nav.familie.kontrakter.felles.svalbard.erKommunePåSvalbard
 import no.nav.familie.ks.sak.common.util.nullableTilString
 import no.nav.familie.ks.sak.common.util.storForbokstav
 import java.util.Objects
@@ -28,6 +29,8 @@ data class GrVegadresseOppholdsadresse(
     val tilleggsnavn: String?,
     @Column(name = "postnummer")
     val postnummer: String?,
+    @Column(name = "poststed")
+    val poststed: String?,
 ) : GrOppholdsadresse() {
     override fun toSecureString(): String =
         "GrVegadresseOppholdsadresse(" +
@@ -39,6 +42,7 @@ data class GrVegadresseOppholdsadresse(
             "kommunenummer=$kommunenummer, " +
             "tilleggsnavn=$tilleggsnavn, " +
             "postnummer=$postnummer, " +
+            "poststed=$poststed, " +
             "oppholdAnnetSted=$oppholdAnnetSted" +
             ")"
 
@@ -49,12 +53,15 @@ data class GrVegadresseOppholdsadresse(
         val husnummer = husnummer.nullableTilString()
         val husbokstav = husbokstav.nullableTilString()
         val postnummer = postnummer?.let { ", $it" } ?: ""
+        val poststed = poststed?.let { ", $it" } ?: ""
         val oppholdAnnetSted = oppholdAnnetSted.takeIf { it == PAA_SVALBARD }?.let { ", $it" } ?: ""
         return when (adressenavn) {
             null -> "Ukjent adresse$oppholdAnnetSted"
-            else -> "$adressenavn $husnummer$husbokstav$postnummer$oppholdAnnetSted"
+            else -> "$adressenavn $husnummer$husbokstav$postnummer$poststed$oppholdAnnetSted"
         }
     }
+
+    override fun erPåSvalbard(): Boolean = (kommunenummer != null && erKommunePåSvalbard(kommunenummer)) || oppholdAnnetSted == PAA_SVALBARD
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {
@@ -80,7 +87,10 @@ data class GrVegadresseOppholdsadresse(
     override fun hashCode(): Int = Objects.hash(matrikkelId)
 
     companion object {
-        fun fraVegadresse(vegadresse: Vegadresse): GrVegadresseOppholdsadresse =
+        fun fraVegadresse(
+            vegadresse: Vegadresse,
+            poststed: String?,
+        ): GrVegadresseOppholdsadresse =
             GrVegadresseOppholdsadresse(
                 matrikkelId = vegadresse.matrikkelId,
                 husnummer = vegadresse.husnummer.takeUnless { it.isNullOrBlank() },
@@ -90,6 +100,7 @@ data class GrVegadresseOppholdsadresse(
                 kommunenummer = vegadresse.kommunenummer.takeUnless { it.isNullOrBlank() },
                 tilleggsnavn = vegadresse.tilleggsnavn.takeUnless { it.isNullOrBlank() },
                 postnummer = vegadresse.postnummer.takeUnless { it.isNullOrBlank() },
+                poststed = poststed,
             )
     }
 }

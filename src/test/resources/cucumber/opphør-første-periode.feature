@@ -417,3 +417,67 @@ Egenskap: Opphør første periode
       | Begrunnelse              | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Måned og år før vedtaksperiode |
       | INNVILGET_IKKE_BARNEHAGE | STANDARD |               | 02.01.24             | 1           | april 2025                           | 7 500 |                  | 0                           | Ja                     |         | mars 2025                      |
 
+
+  Scenario: Skal gi opphørsbegrunnelse fulltidsplass barnehage ved opphør etter ikke oppfylt vilkår
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | AVSLUTTET         |
+      | 2            | 1        | 1                   | BARNEHAGELISTE   | NASJONAL            | UTREDES           |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 30.10.1988  |
+      | 1            | 2       | BARN       | 03.04.2024  |
+      | 2            | 1       | SØKER      | 30.10.1988  |
+      | 2            | 2       | BARN       | 03.04.2024  |
+
+    Og følgende dagens dato 17.09.2025
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 30.10.1988 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 30.10.1993 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 02.09.1996 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET |                  | 03.04.2024 |            | OPPFYLT  | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 03.04.2024 | 03.08.2025 | OPPFYLT  | Nei                  |                      |                  | Ja                                    |              |
+      | 2       | BARNETS_ALDER                |                  | 03.04.2025 | 03.12.2025 | OPPFYLT  | Nei                  |                      |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 30.10.1988 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 30.10.1993 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 02.09.1996 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 03.04.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 03.04.2024 | 30.11.2024 | OPPFYLT      | Nei                  |                      |                  | Ja                                    |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.12.2024 | 30.04.2025 | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 33           |
+      | 2       | BARNETS_ALDER                |                  | 03.04.2025 | 03.12.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.05.2025 | 03.08.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 04.08.2025 |            | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 33           |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 2
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+      | 2       | 01.06.2025 | 31.07.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
+    Og når behandlingsresultatet er utledet for behandling 2
+    Så forvent at behandlingsresultatet er ENDRET_UTBETALING på behandling 2
+
+    Og vedtaksperioder er laget for behandling 2
+
+    Så forvent følgende vedtaksperioder på behandling 2
+      | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
+      | 01.05.2025 | 31.05.2025 | OPPHØR             |           |
+      | 01.06.2025 | 31.07.2025 | UTBETALING         |           |
+      | 01.08.2025 |            | OPPHØR             |           |
+
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser             | Ugyldige begrunnelser |
+      | 01.05.2025 | 31.05.2025 | OPPHØR             |                                | OPPHØR_FULLTIDSPLASS_I_BARNEHAGE |                       |

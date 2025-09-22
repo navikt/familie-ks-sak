@@ -27,18 +27,21 @@ data class GrVegadresseBostedsadresse(
     val tilleggsnavn: String?,
     @Column(name = "postnummer")
     val postnummer: String?,
+    @Column(name = "poststed")
+    val poststed: String?,
 ) : GrBostedsadresse() {
     override fun toSecureString(): String =
         """GrVegadresseBostedsadresse(husnummer=$husnummer,husbokstav=$husbokstav,matrikkelId=$matrikkelId,
                 |bruksenhetsnummer=$bruksenhetsnummer,adressenavn=$adressenavn,kommunenummer=$kommunenummer,
-                |tilleggsnavn=$tilleggsnavn,postnummer=$postnummer
+                |tilleggsnavn=$tilleggsnavn,postnummer=$postnummer,poststed=$poststed
         """.trimMargin()
 
     override fun toString(): String = "GrVegadresseBostedsadresse(detaljer skjult)"
 
     override fun tilFrontendString() =
         """${adressenavn.nullableTilString().storForbokstav()} 
-    |${husnummer.nullableTilString()}${husbokstav.nullableTilString()}${postnummer.let { ", $it" }} """.trimMargin()
+    |${husnummer.nullableTilString()}${husbokstav.nullableTilString()}${postnummer.let { ", $it" }}${poststed?.let { ", $it" } ?: ""}
+        """.trimMargin()
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {
@@ -64,7 +67,10 @@ data class GrVegadresseBostedsadresse(
     override fun hashCode(): Int = Objects.hash(matrikkelId)
 
     companion object {
-        fun fraVegadresse(vegadresse: Vegadresse): GrVegadresseBostedsadresse =
+        fun fraVegadresse(
+            vegadresse: Vegadresse,
+            poststed: String?,
+        ): GrVegadresseBostedsadresse =
             GrVegadresseBostedsadresse(
                 matrikkelId = vegadresse.matrikkelId,
                 husnummer = vegadresse.husnummer,
@@ -74,6 +80,7 @@ data class GrVegadresseBostedsadresse(
                 kommunenummer = vegadresse.kommunenummer,
                 tilleggsnavn = vegadresse.tilleggsnavn,
                 postnummer = vegadresse.postnummer,
+                poststed = poststed,
             )
     }
 }
