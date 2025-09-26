@@ -23,7 +23,7 @@
 
         <!-- Java/Kotlin -->
         <java.version>21</java.version>
-        <kotlin.version>2.2.10</kotlin.version>
+        <kotlin.version>2.2.20</kotlin.version>
         <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
         <kotlinx.version>1.10.2</kotlinx.version>
