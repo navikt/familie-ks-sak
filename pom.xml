@@ -37,13 +37,13 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250915083819_745c62b</prosessering.version>
-        <felles-kontrakter.version>3.0_20250916123655_5035eb9</felles-kontrakter.version>
+        <prosessering.version>2.20250922094930_4bb329c</prosessering.version>
+        <felles-kontrakter.version>3.0_20250929124430_91dd0fd</felles-kontrakter.version>
         <felles.version>3.20250915092837_153983f</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250915155846_3e7ecd7</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250915155846_3e7ecd7</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250915155846_3e7ecd7</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20250804104526_5648100</utbetalingsgenerator.version>
+        <eksterne-kontrakter-bisys.version>2.0_20250929124738_f28327d</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250929124738_f28327d</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250929124738_f28327d</familie.kontrakter.saksstatistikk>
+        <utbetalingsgenerator.version>1.0_20250922101633_e4c1c4d</utbetalingsgenerator.version>
 
         <!-- Database -->
         <jsqlparser.version>5.3</jsqlparser.version>
