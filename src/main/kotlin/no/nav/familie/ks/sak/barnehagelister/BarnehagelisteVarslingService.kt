@@ -2,12 +2,9 @@ package no.nav.familie.ks.sak.barnehagelister
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.nav.familie.kontrakter.felles.kodeverk.Fylke
-import no.nav.familie.kontrakter.felles.kodeverk.HierarkiGeografiInnlandDto
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -18,7 +15,7 @@ import java.time.LocalDateTime
 class BarnehagelisteVarslingService(
     val barnehageBarnRepository: BarnehagebarnRepository,
     val epostService: EpostService,
-    val integrasjonClient: IntegrasjonClient,
+    val geografiService: GeografiHierarkiService,
 ) {
     @Scheduled(cron = "0 0 6 * * ?")
     @Transactional
@@ -31,19 +28,19 @@ class BarnehagelisteVarslingService(
         dryRunEpost: String = "",
     ) {
         logger.info("Sjekker om det er kommet inn barnehagelister ila siste døgn.")
+
         val kommunerSendtForFørsteGangSisteDøgn = finnKommunerSendtInnSisteDøgn()
-        val enheterSomSkalVarslesTilKommuner = kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommuneEllerBydel(it.kode) }
+        val enheterSomSkalVarslesTilKommuner =
+            kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommuneEllerBydel(it.kode) }
 
         if (enheterSomSkalVarslesTilKommuner.isNotEmpty()) {
             logger.info("Sender epost for nye kommuner i barnehagelister: $kommunerSendtForFørsteGangSisteDøgn")
 
-            enheterSomSkalVarslesTilKommuner
-                .map { (enhetsNr, kommuneNrTilhørendeEnhet) ->
-                    finnKontaktEpostForEnhet(enhetsNr) to
-                        kommuneNrTilhørendeEnhet
-                            .map {
-                                it.navn
-                            }.toSet()
+            enheterSomSkalVarslesTilKommuner.entries
+                .map { (enhetsNr, liste) ->
+                    val epost = finnKontaktEpostForEnhet(enhetsNr)
+                    val navnSet = liste.map { it.navn }.toSet()
+                    epost to navnSet
                 }.forEach { (epostAdresse, kommunerTilhørendeEnhet) ->
                     if (dryRun) {
                         epostService.sendEpostVarslingBarnehagelister(dryRunEpost, kommunerTilhørendeEnhet)
@@ -63,12 +60,6 @@ class BarnehagelisteVarslingService(
         return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
     }
 
-    private fun hentFylkerOgKommuner(): List<Fylke> {
-        val dto: HierarkiGeografiInnlandDto = integrasjonClient.hentFylkerOgKommuner()
-
-        return dto.norgeNode.fylker
-    }
-
     private fun hentAnsvarligEnhetForFylkeMap(): Map<String, Set<String>> {
         val objectMapper = jacksonObjectMapper()
 
@@ -78,46 +69,26 @@ class BarnehagelisteVarslingService(
     }
 
     private fun hentAnsvarligEnhetForKommuneEllerBydelMap(): Map<String, Set<KommuneEllerBydel>> {
-        val enhetTilFylkeMap: Map<String, Set<String>> = hentAnsvarligEnhetForFylkeMap() // enhet -> fylkeskoder
-        val fylker: List<Fylke> = hentFylkerOgKommuner()
-        val fylkeByKode: Map<String, Fylke> = fylker.associateBy(Fylke::kode)
+        val enhetTilFylkeMap: Map<String, Set<String>> = hentAnsvarligEnhetForFylkeMap()
 
         return enhetTilFylkeMap.mapValues { (_, fylkeKoder) ->
             buildSet {
                 fylkeKoder.forEach { fk ->
-                    val fylke =
-                        fylkeByKode[fk]
-                            ?: throw Feil("Finner ikke fylke med kode $fk i geografihierarki hentet fra kodeverk.")
-                    fylke.kommuner.forEach { kommune ->
-                        val bydeler = kommune.bydeler
-                        if (bydeler.isNotEmpty()) {
-                            // Hvis kommunen har bydeler: legg inn KUN bydelene
-                            bydeler.forEach { bydel ->
-                                add(KommuneEllerBydel(kode = bydel.kode, navn = bydel.navn))
-                            }
-                        } else {
-                            // Ellers: legg inn kommunen
-                            add(KommuneEllerBydel(kode = kommune.kode, navn = kommune.navn))
-                        }
+                    val kodeTilNavnIFylke = geografiService.hentBydelerEllerKommunerPerKommuneMedNavn(fk)
+                    kodeTilNavnIFylke.forEach { (kode, navn) ->
+                        add(KommuneEllerBydel(kode = kode, navn = navn))
                     }
                 }
             }
         }
     }
 
-    private fun finnEnhetForKommuneEllerBydel(KommuneEllerBydelNr: String): String {
-        val enhetTilKommuneEllerBydel: Map<String, Set<KommuneEllerBydel>> = hentAnsvarligEnhetForKommuneEllerBydelMap()
+    private fun finnEnhetForKommuneEllerBydel(kode: String): String {
+        val ansvarligMap = hentAnsvarligEnhetForKommuneEllerBydelMap()
+        val kodeTilEnhet = ansvarligMap.flatMap { (enhet, set) -> set.map { it.kode to enhet } }.toMap()
 
-        val enhet =
-            enhetTilKommuneEllerBydel
-                .filter { (_, kommuneEllerBydel) ->
-                    kommuneEllerBydel.map { it.kode }.contains(KommuneEllerBydelNr)
-                }.keys
-
-        if (enhet.size > 1) throw Feil("Flere enheter er ansvarlige for kommunen/bydelen $KommuneEllerBydelNr")
-        if (enhet.isEmpty()) throw Feil("Ingen enheter har ansvar for kommunen/bydelen $KommuneEllerBydelNr")
-
-        return enhet.single()
+        return kodeTilEnhet[kode]
+            ?: throw Feil("Ingen enheter har ansvar for kommunen/bydelen $kode")
     }
 
     companion object {
