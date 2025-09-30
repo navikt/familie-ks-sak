@@ -8,8 +8,6 @@ import no.nav.familie.kontrakter.felles.klage.Stønadstype
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.TilpassArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -27,7 +25,6 @@ class KlagebehandlingOppretter(
     private val integrasjonClient: IntegrasjonClient,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val clockProvider: ClockProvider,
-    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(KlagebehandlingOppretter::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -51,35 +48,25 @@ class KlagebehandlingOppretter(
         val fødselsnummer = fagsak.aktør.aktivFødselsnummer()
         val navIdent = NavIdent(SikkerhetContext.hentSaksbehandler())
 
-        val behandlendeEnhet =
-            if (featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_AA_FINNE_ENHET_FOR_OPPRETTING_AV_KLAGEBEHANDLING)) {
-                val arbeidsfordelingsenheter = integrasjonClient.hentBehandlendeEnheter(fødselsnummer)
+        val arbeidsfordelingsenheter = integrasjonClient.hentBehandlendeEnheter(fødselsnummer)
 
-                if (arbeidsfordelingsenheter.isEmpty()) {
-                    logger.error("Fant ingen arbeidsfordelingsenheter for aktør. Se SecureLogs for detaljer.")
-                    secureLogger.error("Fant ingen arbeidsfordelingsenheter for aktør $fødselsnummer.")
-                    throw Feil("Fant ingen arbeidsfordelingsenhet for aktør.")
-                }
+        if (arbeidsfordelingsenheter.isEmpty()) {
+            logger.error("Fant ingen arbeidsfordelingsenheter for aktør. Se SecureLogs for detaljer.")
+            secureLogger.error("Fant ingen arbeidsfordelingsenheter for aktør $fødselsnummer.")
+            throw Feil("Fant ingen arbeidsfordelingsenhet for aktør.")
+        }
 
-                if (arbeidsfordelingsenheter.size > 1) {
-                    logger.error("Fant flere arbeidsfordelingsenheter for aktør. Se SecureLogs for detaljer.")
-                    secureLogger.error("Fant flere arbeidsfordelingsenheter for aktør $fødselsnummer.")
-                    throw Feil("Fant flere arbeidsfordelingsenheter for aktør.")
-                }
+        if (arbeidsfordelingsenheter.size > 1) {
+            logger.error("Fant flere arbeidsfordelingsenheter for aktør. Se SecureLogs for detaljer.")
+            secureLogger.error("Fant flere arbeidsfordelingsenheter for aktør $fødselsnummer.")
+            throw Feil("Fant flere arbeidsfordelingsenheter for aktør.")
+        }
 
-                val tilpassetArbeidsfordelingsenhet =
-                    tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
-                        arbeidsfordelingsenheter.single(),
-                        navIdent,
-                    )
-
-                tilpassetArbeidsfordelingsenhet.enhetId
-            } else {
-                integrasjonClient
-                    .hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent)
-                    .first()
-                    .enhetsnummer
-            }
+        val tilpassetArbeidsfordelingsenhet =
+            tilpassArbeidsfordelingService.tilpassArbeidsfordelingsenhetTilSaksbehandler(
+                arbeidsfordelingsenheter.single(),
+                navIdent,
+            )
 
         return klageClient.opprettKlage(
             OpprettKlagebehandlingRequest(
@@ -88,7 +75,7 @@ class KlagebehandlingOppretter(
                 eksternFagsakId = fagsak.id.toString(),
                 fagsystem = Fagsystem.KS,
                 klageMottatt = klageMottattDato,
-                behandlendeEnhet = behandlendeEnhet,
+                behandlendeEnhet = tilpassetArbeidsfordelingsenhet.enhetId,
                 behandlingsårsak = Klagebehandlingsårsak.ORDINÆR,
             ),
         )
