@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 class GeografiHierarkiService(
     private val integrasjonClient: IntegrasjonClient,
 ) {
-    fun hentBydelerEllerKommunerPerKommuneMedNavn(fylkeNr: String): Map<String, String> =
+    fun hentBydelEllerKommuneKodeTilNavnFraFylkeNr(fylkeNr: String): Map<String, String> =
         integrasjonClient
             .hentFylkerOgKommuner()
             .norgeNode

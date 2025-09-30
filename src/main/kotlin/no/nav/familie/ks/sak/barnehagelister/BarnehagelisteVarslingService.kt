@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.barnehagelister
 
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -29,17 +29,18 @@ class BarnehagelisteVarslingService(
     ) {
         logger.info("Sjekker om det er kommet inn barnehagelister ila siste døgn.")
 
+        val enhetTilFylkeMap = hentEnhetTilFylkeMap()
         val kommunerSendtForFørsteGangSisteDøgn = finnKommunerSendtInnSisteDøgn()
         val enheterSomSkalVarslesTilKommuner =
-            kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommuneEllerBydel(it.kode) }
+            kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommuneEllerBydel(it.kode, enhetTilFylkeMap) }
 
         if (enheterSomSkalVarslesTilKommuner.isNotEmpty()) {
             logger.info("Sender epost for nye kommuner i barnehagelister: $kommunerSendtForFørsteGangSisteDøgn")
 
             enheterSomSkalVarslesTilKommuner.entries
-                .map { (enhetsNr, liste) ->
+                .map { (enhetsNr, kommuneEllerBydelListe) ->
                     val epost = finnKontaktEpostForEnhet(enhetsNr)
-                    val navnSet = liste.map { it.navn }.toSet()
+                    val navnSet = kommuneEllerBydelListe.map { it.navn }.toSet()
                     epost to navnSet
                 }.forEach { (epostAdresse, kommunerTilhørendeEnhet) ->
                     if (dryRun) {
@@ -60,31 +61,29 @@ class BarnehagelisteVarslingService(
         return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
     }
 
-    private fun hentAnsvarligEnhetForFylkeMap(): Map<String, Set<String>> {
-        val objectMapper = jacksonObjectMapper()
-
+    private fun hentEnhetTilFylkeMap(): Map<String, Set<String>> {
         val enhetTilFylkeFil = Thread.currentThread().contextClassLoader.getResource(PATH_ENHETSNR_TIL_FYLKENR_OVERSIKT)
 
         return objectMapper.readValue(enhetTilFylkeFil, object : TypeReference<Map<String, Set<String>>>() {})
     }
 
-    private fun hentAnsvarligEnhetForKommuneEllerBydelMap(): Map<String, Set<KommuneEllerBydel>> {
-        val enhetTilFylkeMap: Map<String, Set<String>> = hentAnsvarligEnhetForFylkeMap()
-
-        return enhetTilFylkeMap.mapValues { (_, fylkeKoder) ->
+    private fun hentAnsvarligEnhetForKommuneEllerBydelMap(enhetTilFylkeMap: Map<String, Set<String>>): Map<String, Set<KommuneEllerBydel>> =
+        enhetTilFylkeMap.mapValues { (_, fylkeKoder) ->
             buildSet {
                 fylkeKoder.forEach { fk ->
-                    val kodeTilNavnIFylke = geografiService.hentBydelerEllerKommunerPerKommuneMedNavn(fk)
+                    val kodeTilNavnIFylke = geografiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr(fk)
                     kodeTilNavnIFylke.forEach { (kode, navn) ->
                         add(KommuneEllerBydel(kode = kode, navn = navn))
                     }
                 }
             }
         }
-    }
 
-    private fun finnEnhetForKommuneEllerBydel(kode: String): String {
-        val ansvarligMap = hentAnsvarligEnhetForKommuneEllerBydelMap()
+    private fun finnEnhetForKommuneEllerBydel(
+        kode: String,
+        enhetTilFylkeMap: Map<String, Set<String>>,
+    ): String {
+        val ansvarligMap = hentAnsvarligEnhetForKommuneEllerBydelMap(enhetTilFylkeMap)
         val kodeTilEnhet = ansvarligMap.flatMap { (enhet, set) -> set.map { it.kode to enhet } }.toMap()
 
         return kodeTilEnhet[kode]

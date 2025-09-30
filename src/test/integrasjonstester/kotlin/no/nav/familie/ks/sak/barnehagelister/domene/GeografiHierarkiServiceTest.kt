@@ -25,7 +25,7 @@ class GeografiHierarkiServiceTest {
         every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
 
         // Act
-        val resultat = service.hentBydelerEllerKommunerPerKommuneMedNavn("03")
+        val resultat = service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("03")
 
         // Assert
         assertEquals("Grünerløkka", resultat["0302"])
@@ -39,7 +39,7 @@ class GeografiHierarkiServiceTest {
         every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
 
         // Act
-        val resultat = service.hentBydelerEllerKommunerPerKommuneMedNavn("31")
+        val resultat = service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("31")
 
         // Assert
         assertEquals(mapOf("3103" to "Moss"), resultat)
@@ -52,7 +52,7 @@ class GeografiHierarkiServiceTest {
 
         // Act + Assert
         assertThrows(NoSuchElementException::class.java) {
-            service.hentBydelerEllerKommunerPerKommuneMedNavn("42")
+            service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("42")
         }
     }
 

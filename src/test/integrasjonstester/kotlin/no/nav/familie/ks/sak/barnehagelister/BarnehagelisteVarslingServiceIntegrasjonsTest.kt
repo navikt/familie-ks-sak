@@ -28,13 +28,12 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
         clearMocks(epostService, geografiHierarkiService)
         every { epostService.sendEpostVarslingBarnehagelister(any(), any()) } just runs
 
-        // Brukes når service bygger enhet -> (bydeler/kommuner) fra fylkene i JSON
-        every { geografiHierarkiService.hentBydelerEllerKommunerPerKommuneMedNavn("03") } returns
+        every { geografiHierarkiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("03") } returns
             mapOf(
                 "0302" to "Grünerløkka",
                 "0303" to "Sagene",
             )
-        every { geografiHierarkiService.hentBydelerEllerKommunerPerKommuneMedNavn("31") } returns
+        every { geografiHierarkiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("31") } returns
             mapOf(
                 "3103" to "Moss",
             )
