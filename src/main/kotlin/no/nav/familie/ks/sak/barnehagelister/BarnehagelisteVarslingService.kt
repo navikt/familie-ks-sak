@@ -32,7 +32,7 @@ class BarnehagelisteVarslingService(
         val enhetTilFylkeMap = hentEnhetTilFylkeMap()
         val kommunerSendtForFørsteGangSisteDøgn = finnKommunerSendtInnSisteDøgn()
         val enheterSomSkalVarslesTilKommuner =
-            kommunerSendtForFørsteGangSisteDøgn.groupBy { finnEnhetForKommuneEllerBydel(it.kode, enhetTilFylkeMap) }
+            kommunerSendtForFørsteGangSisteDøgn.groupBy { hentAnsvarligEnhetForKommuneEllerBydel(enhetTilFylkeMap, it.nummer) }
 
         if (enheterSomSkalVarslesTilKommuner.isNotEmpty()) {
             logger.info("Sender epost for nye kommuner i barnehagelister: $kommunerSendtForFørsteGangSisteDøgn")
@@ -67,28 +67,17 @@ class BarnehagelisteVarslingService(
         return objectMapper.readValue(enhetTilFylkeFil, object : TypeReference<Map<String, Set<String>>>() {})
     }
 
-    private fun hentAnsvarligEnhetForKommuneEllerBydelMap(enhetTilFylkeMap: Map<String, Set<String>>): Map<String, Set<KommuneEllerBydel>> =
-        enhetTilFylkeMap.mapValues { (_, fylkeKoder) ->
-            buildSet {
-                fylkeKoder.forEach { fk ->
-                    val kodeTilNavnIFylke = geografiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr(fk)
-                    kodeTilNavnIFylke.forEach { (kode, navn) ->
-                        add(KommuneEllerBydel(kode = kode, navn = navn))
-                    }
-                }
-            }
-        }
-
-    private fun finnEnhetForKommuneEllerBydel(
-        kode: String,
+    private fun hentAnsvarligEnhetForKommuneEllerBydel(
         enhetTilFylkeMap: Map<String, Set<String>>,
-    ): String {
-        val ansvarligMap = hentAnsvarligEnhetForKommuneEllerBydelMap(enhetTilFylkeMap)
-        val kodeTilEnhet = ansvarligMap.flatMap { (enhet, set) -> set.map { it.kode to enhet } }.toMap()
-
-        return kodeTilEnhet[kode]
-            ?: throw Feil("Ingen enheter har ansvar for kommunen/bydelen $kode")
-    }
+        nummer: String,
+    ): String =
+        enhetTilFylkeMap.entries
+            .find { (_, fylker) ->
+                fylker.any { fk ->
+                    val kommunerOgBydelerIFylke = geografiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr(fk)
+                    kommunerOgBydelerIFylke.containsKey(nummer)
+                }
+            }?.key ?: throw Feil("Ingen enheter har ansvar for kommunen/bydelen $nummer")
 
     companion object {
         val `KONTAKT_E-POST_VADSØ` = "nav.familie-.og.pensjonsytelser.vadso.kontantstotte@nav.no"
@@ -100,8 +89,8 @@ class BarnehagelisteVarslingService(
     }
 }
 
-data class KommuneEllerBydel(
-    val kode: String,
+private data class KommuneEllerBydel(
+    val nummer: String,
     val navn: String,
 )
 
