@@ -19,6 +19,7 @@ import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
+import no.nav.familie.kontrakter.felles.kodeverk.HierarkiGeografiInnlandDto
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
@@ -552,6 +553,19 @@ class IntegrasjonClient(
             tjeneste = "kodeverk",
             uri = uri,
             formål = "Hent postnumre",
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    @Cacheable("fylker-og-kommuner", cacheManager = "kodeverkCache")
+    fun hentFylkerOgKommuner(): HierarkiGeografiInnlandDto {
+        val uri = URI.create("$integrasjonUri/kodeverk/kommuner")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent fylker og kommuner",
         ) {
             getForEntity(uri)
         }
