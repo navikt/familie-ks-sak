@@ -23,7 +23,7 @@ class GeografiHierarkiServiceTest {
         // Act
         val resultat = service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("03")
 
-        // Assert – NY LOGIKK: kommunen ("0301") er med, i tillegg til bydelene
+        // Assert
         assertEquals("Oslo", resultat["0301"])
         assertEquals("Grünerløkka", resultat["0302"])
         assertEquals("Sagene", resultat["0303"])
@@ -97,7 +97,6 @@ class GeografiHierarkiServiceTest {
                             kode = "31",
                             tekster = nb("Viken"),
                             termer = emptyMap(),
-                            // Merk: undernoder for kommunen settes uten bydeler
                             undernoder =
                                 mapOf(
                                     "3103" to
@@ -105,8 +104,6 @@ class GeografiHierarkiServiceTest {
                                             kode = "3103",
                                             tekster = nb("Moss"),
                                             termer = emptyMap(),
-                                            // Dersom denne mappes til null i bydel-lista i domenet ditt
-                                            // og funksjonen ikke er null-sikker, må selve tjenesten bruke .orEmpty()
                                             undernoder = null,
                                         ),
                                 ),
