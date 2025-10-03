@@ -560,7 +560,7 @@ class IntegrasjonClient(
 
     @Cacheable("fylker-og-kommuner", cacheManager = "kodeverkCache")
     fun hentFylkerOgKommuner(): HierarkiGeografiInnlandDto {
-        val uri = URI.create("$integrasjonUri/kodeverk/kommuner")
+        val uri = URI.create("$integrasjonUri/kodeverk/fylkerOgKommuner")
 
         return kallEksternTjenesteRessurs(
             tjeneste = "kodeverk",
