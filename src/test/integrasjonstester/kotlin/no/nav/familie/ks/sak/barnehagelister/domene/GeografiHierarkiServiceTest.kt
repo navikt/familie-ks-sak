@@ -8,7 +8,6 @@ import no.nav.familie.kontrakter.felles.kodeverk.Kommune
 import no.nav.familie.kontrakter.felles.kodeverk.LandDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
@@ -17,7 +16,7 @@ class GeografiHierarkiServiceTest {
     private val service = GeografiHierarkiService(integrasjonClient)
 
     @Test
-    fun `returnerer kun bydeler når kommunen har bydeler (Oslo)`() {
+    fun `returnerer kommunen og bydeler når kommunen har bydeler (Oslo)`() {
         // Arrange
         every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
 
@@ -25,13 +24,14 @@ class GeografiHierarkiServiceTest {
         val resultat = service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("03")
 
         // Assert
+        assertEquals("Oslo", resultat["0301"])
         assertEquals("Grünerløkka", resultat["0302"])
         assertEquals("Sagene", resultat["0303"])
-        assertFalse(resultat.containsKey("0301"))
+        assertEquals(3, resultat.size)
     }
 
     @Test
-    fun `returnerer kommunen når den ikke har bydeler (Moss i Viken)`() {
+    fun `returnerer kun kommunen når den ikke har bydeler (Moss i Viken)`() {
         // Arrange
         every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
 
@@ -40,6 +40,7 @@ class GeografiHierarkiServiceTest {
 
         // Assert
         assertEquals(mapOf("3103" to "Moss"), resultat)
+        assertEquals(1, resultat.size)
     }
 
     @Test
