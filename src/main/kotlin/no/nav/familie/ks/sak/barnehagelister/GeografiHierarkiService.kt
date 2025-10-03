@@ -14,10 +14,9 @@ class GeografiHierarkiService(
             .first { it.kode == fylkeNr }
             .kommuner
             .flatMap { kommune ->
-                if (kommune.bydeler.isNotEmpty()) {
-                    kommune.bydeler.map { it.kode to it.navn }
-                } else {
-                    listOf(kommune.kode to kommune.navn)
+                buildList {
+                    add(kommune.kode to kommune.navn)
+                    kommune.bydeler.forEach { add(it.kode to it.navn) }
                 }
             }.toMap()
 }
