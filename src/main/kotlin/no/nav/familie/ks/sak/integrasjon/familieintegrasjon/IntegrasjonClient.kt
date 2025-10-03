@@ -19,8 +19,8 @@ import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
-import no.nav.familie.kontrakter.felles.kodeverk.HierarkiGeografiInnlandDto
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
+import no.nav.familie.kontrakter.felles.kodeverk.LandDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
@@ -559,8 +559,8 @@ class IntegrasjonClient(
     }
 
     @Cacheable("fylker-og-kommuner", cacheManager = "kodeverkCache")
-    fun hentFylkerOgKommuner(): HierarkiGeografiInnlandDto {
-        val uri = URI.create("$integrasjonUri/kodeverk/kommuner")
+    fun hentFylkerOgKommuner(): LandDto {
+        val uri = URI.create("$integrasjonUri/kodeverk/fylkerOgKommuner")
 
         return kallEksternTjenesteRessurs(
             tjeneste = "kodeverk",

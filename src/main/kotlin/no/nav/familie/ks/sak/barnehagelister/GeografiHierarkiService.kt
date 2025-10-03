@@ -10,7 +10,6 @@ class GeografiHierarkiService(
     fun hentBydelEllerKommuneKodeTilNavnFraFylkeNr(fylkeNr: String): Map<String, String> =
         integrasjonClient
             .hentFylkerOgKommuner()
-            .norgeNode
             .fylker
             .first { it.kode == fylkeNr }
             .kommuner
