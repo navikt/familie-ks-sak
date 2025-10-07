@@ -1,23 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
-import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagBehandlingResponsDto
-import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagMinimalFagsakResponsDto
-import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagTilbakekrevingsbehandlingResponsDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
-import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -33,71 +25,30 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
-import java.time.Period
+import java.time.YearMonth
 
 @Service
 class FagsakService(
     private val personidentService: PersonidentService,
-    private val integrasjonService: IntegrasjonService,
-    private val personopplysningerService: PersonopplysningerService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,
     private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
     private val taskService: TaskService,
-    private val tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService,
     private val vedtakRepository: VedtakRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
-    private val localDateProvider: LocalDateProvider,
+    private val clockProvider: ClockProvider,
     private val adopsjonService: AdopsjonService,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
-
-    fun hentFagsakDeltagere(personIdent: String): List<FagsakDeltagerResponsDto> {
-        val aktør = personidentService.hentAktør(personIdent)
-
-        // returnerer maskert fagsak deltaker hvis saksbehandler ikke har tilgang til aktøren
-        hentMaskertFagsakdeltakerVedManglendeTilgang(aktør)?.let { return listOf(it) }
-
-        val personInfoMedRelasjoner = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
-
-        // finner fagsak på aktør og henter assosierte fagsak deltagere
-        val assosierteFagsakDeltagere =
-            hentForelderdeltagereFraBehandling(aktør, personInfoMedRelasjoner).toMutableList()
-
-        val erBarn = Period.between(personInfoMedRelasjoner.fødselsdato, LocalDate.now()).years < 18
-
-        // fagsaker som ikke finnes i assosierteForeldreDeltagere, er barn
-        val fagsakForBarn = fagsakRepository.finnFagsakForAktør(aktør)
-
-        if (assosierteFagsakDeltagere.none { it.ident == aktør.aktivFødselsnummer() && it.fagsakId == fagsakForBarn?.id }) {
-            assosierteFagsakDeltagere.add(
-                lagFagsakDeltagerResponsDto(
-                    personInfo = personInfoMedRelasjoner,
-                    ident = aktør.aktivFødselsnummer(),
-                    // Vi setter rollen til Ukjent når det ikke er barn
-                    rolle = if (erBarn) FagsakDeltagerRolle.BARN else FagsakDeltagerRolle.UKJENT,
-                    fagsak = fagsakForBarn,
-                ),
-            )
-        }
-
-        // Hvis søkparam(aktør) er barn og søker til barn ikke har behandling ennå, hentes det søker til barnet
-        if (erBarn) {
-            leggTilForeldreDeltagerSomIkkeHarBehandling(personInfoMedRelasjoner, assosierteFagsakDeltagere)
-        }
-        return assosierteFagsakDeltagere
-    }
 
     @Transactional
     fun hentEllerOpprettFagsak(fagsakRequest: FagsakRequestDto): MinimalFagsakResponsDto {
@@ -111,13 +62,20 @@ class FagsakService(
         val aktør = personidentService.hentOgLagreAktør(personident, true)
         val fagsak = fagsakRepository.finnFagsakForAktør(aktør) ?: lagre(Fagsak(aktør = aktør))
         antallFagsakerOpprettetFraManuell.increment()
-        return lagMinimalFagsakResponsDto(fagsak, behandlingRepository.findByFagsakAndAktiv(fagsak.id))
+        val behandlinger = behandlingRepository.finnBehandlinger(fagsak.id)
+        val minimaleBehandlinger =
+            behandlinger.map {
+                lagBehandlingResponsDto(
+                    behandling = it,
+                    vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
+                )
+            }
+        return lagMinimalFagsakResponsDto(fagsak = fagsak, aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id), behandlinger = minimaleBehandlinger)
     }
 
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
         val fagsak = hentFagsak(fagsakId)
         val alleBehandlinger = behandlingRepository.finnBehandlinger(fagsakId)
-        val tilbakekrevingsbehandlinger = tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId)
 
         val sistIverksatteBehandling =
             alleBehandlinger
@@ -144,7 +102,6 @@ class FagsakService(
                         vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
                     )
                 },
-            tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger.map { lagTilbakekrevingsbehandlingResponsDto(it) },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList(),
         )
     }
@@ -180,88 +137,6 @@ class FagsakService(
         )
         fagsak.status = nyStatus
         return lagre(fagsak)
-    }
-
-    private fun hentForelderdeltagereFraBehandling(
-        aktør: Aktør,
-        personInfoMedRelasjoner: PdlPersonInfo,
-    ): List<FagsakDeltagerResponsDto> {
-        val assosierteFagsakDeltagerMap = mutableMapOf<Long, FagsakDeltagerResponsDto>()
-        personRepository.findByAktør(aktør).filter { it.personopplysningGrunnlag.aktiv }.forEach { person ->
-            val behandling = behandlingRepository.hentBehandling(person.personopplysningGrunnlag.behandlingId)
-            val fagsak = behandling.fagsak // Behandling opprettet alltid med søker aktør
-            if (assosierteFagsakDeltagerMap.containsKey(fagsak.id)) return@forEach
-            val fagsakDeltagerRespons: FagsakDeltagerResponsDto =
-                when {
-                    // når søkparam er samme som aktør til behandlingen
-                    fagsak.aktør == aktør ->
-                        lagFagsakDeltagerResponsDto(
-                            personInfo = personInfoMedRelasjoner,
-                            ident = fagsak.aktør.aktivFødselsnummer(),
-                            rolle = FagsakDeltagerRolle.FORELDER,
-                            fagsak = behandling.fagsak,
-                        )
-
-                    else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
-                        val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
-                        maskertForelder?.copy(rolle = FagsakDeltagerRolle.FORELDER)
-                            ?: lagFagsakDeltagerResponsDto(
-                                personopplysningerService.hentPersoninfoEnkel(fagsak.aktør),
-                                fagsak.aktør.aktivFødselsnummer(),
-                                FagsakDeltagerRolle.FORELDER,
-                                fagsak,
-                            )
-                    }
-                }
-            assosierteFagsakDeltagerMap[fagsak.id] = fagsakDeltagerRespons
-        }
-        return assosierteFagsakDeltagerMap.values.toList()
-    }
-
-    private fun leggTilForeldreDeltagerSomIkkeHarBehandling(
-        personInfoMedRelasjoner: PdlPersonInfo,
-        assosierteFagsakDeltagere: MutableList<FagsakDeltagerResponsDto>,
-    ) {
-        personInfoMedRelasjoner.forelderBarnRelasjoner.filter { it.harForelderRelasjon() }.forEach { relasjon ->
-            if (assosierteFagsakDeltagere.none { it.ident == relasjon.aktør.aktivFødselsnummer() }) {
-                val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(relasjon.aktør)
-                when {
-                    maskertForelder != null -> assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
-                    else -> {
-                        val forelderInfo = personopplysningerService.hentPersoninfoEnkel(relasjon.aktør)
-                        val fagsak = fagsakRepository.finnFagsakForAktør(relasjon.aktør)
-                        assosierteFagsakDeltagere.add(
-                            lagFagsakDeltagerResponsDto(
-                                personInfo = forelderInfo,
-                                ident = relasjon.aktør.aktivFødselsnummer(),
-                                rolle = FagsakDeltagerRolle.FORELDER,
-                                fagsak = fagsak,
-                            ),
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun hentMaskertFagsakdeltakerVedManglendeTilgang(aktør: Aktør): FagsakDeltagerResponsDto? {
-        val harTilgang = integrasjonService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
-
-        return when {
-            !harTilgang -> {
-                val adressebeskyttelse = personopplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
-
-                lagFagsakDeltagerResponsDto(
-                    rolle = FagsakDeltagerRolle.UKJENT,
-                    adressebeskyttelseGradering = adressebeskyttelse,
-                    harTilgang = false,
-                )
-            }
-
-            else -> {
-                null
-            }
-        }
     }
 
     fun hentFagsak(fagsakId: Long): Fagsak =
@@ -301,7 +176,7 @@ class FagsakService(
                 .finnAndelerTilkjentYtelseForAktør(aktør = aktør)
                 .filter { it.type == YtelseType.ORDINÆR_KONTANTSTØTTE }
 
-        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende(localDateProvider.now().toYearMonth()) }
+        val løpendeAndeler = ordinæreAndelerPåAktør.filter { it.erLøpende(YearMonth.now(clockProvider.get())) }
 
         val behandlingerMedLøpendeAndeler =
             løpendeAndeler

@@ -5,28 +5,35 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.UnleashNextMedContextService
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
+import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import java.math.BigDecimal
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class BeslutteVedtakStegTest {
@@ -36,10 +43,12 @@ class BeslutteVedtakStegTest {
     private val taskService = mockk<TaskService>()
     private val loggService = mockk<LoggService>()
     private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
-    private val unleashService = mockk<UnleashNextMedContextService>()
+    private val featureToggleService = mockk<FeatureToggleService>()
     private val genererBrevService = mockk<GenererBrevService>()
     private val tilkjentYtelseValideringService = mockk<TilkjentYtelseValideringService>()
     private val brevmottakerService = mockk<BrevmottakerService>()
+    private val tilbakekrevingService = mockk<TilbakekrevingService>()
+    private val simuleringService = mockk<SimuleringService>()
 
     private val beslutteVedtakSteg =
         BeslutteVedtakSteg(
@@ -49,9 +58,11 @@ class BeslutteVedtakStegTest {
             taskService = taskService,
             loggService = loggService,
             vilkårsvurderingService = vilkårsvurderingService,
-            unleashService = unleashService,
+            featureToggleService = featureToggleService,
             tilkjentYtelseValideringService = tilkjentYtelseValideringService,
             brevmottakerService = brevmottakerService,
+            tilbakekrevingService = tilbakekrevingService,
+            simuleringService = simuleringService,
         )
 
     private val underkjentVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
@@ -60,7 +71,7 @@ class BeslutteVedtakStegTest {
     @BeforeEach
     fun init() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
+        every { featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
@@ -93,7 +104,7 @@ class BeslutteVedtakStegTest {
     @Test
     fun `utførSteg skal kaste FunksjonellFeil dersom behandling årsaken er satt til KORREKSJON_VEDTAKSBREV og SB ikke har feature togglet på `() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV)
-        every { unleashService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
+        every { featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
 
         val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
@@ -157,6 +168,9 @@ class BeslutteVedtakStegTest {
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
         every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(any()) } returns false
+        every { tilbakekrevingService.finnTilbakekrevingsbehandling(any()) } returns null
+        every { simuleringService.hentFeilutbetaling(any()) } returns BigDecimal.ZERO
 
         beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto)
 
@@ -176,7 +190,7 @@ class BeslutteVedtakStegTest {
 
     @Test
     fun `Skal kaste feil dersom saksbehandler uten tilgang til teknisk endring prøve å godkjenne en behandling med årsak=teknisk endring`() {
-        every { unleashService.isEnabled(FeatureToggle.TEKNISK_ENDRING, any<Long>()) } returns false
+        every { featureToggleService.isEnabled(FeatureToggle.TEKNISK_ENDRING, any<Long>()) } returns false
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 
@@ -250,5 +264,69 @@ class BeslutteVedtakStegTest {
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) }
         verify(exactly = 1) { vilkårsvurderingService.oppdater(any()) }
         verify(exactly = 1) { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) }
+    }
+
+    @Test
+    fun `utførSteg skal kaste feil dersom det er feilutbetalt beløp men det er ikke valgt å opprette tilbakekrevingssak`() {
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                godkjentVedtakDto.beslutning,
+                emptyList(),
+            )
+        } returns mockk(relaxed = true)
+        every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) } just runs
+
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(any()) } returns false
+        every { tilbakekrevingService.finnTilbakekrevingsbehandling(any()) } returns null
+        every { simuleringService.hentFeilutbetaling(any()) } returns BigDecimal.valueOf(50000)
+
+        // Act & assert
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto)
+            }
+
+        assertThat(exception.message, Is("Det er en feilutbetaling som saksbehandler ikke har tatt stilling til. Saken må underkjennes og sendes tilbake til saksbehandler for ny vurdering."))
+    }
+
+    @ParameterizedTest
+    @EnumSource(Tilbakekrevingsvalg::class, names = ["OPPRETT_TILBAKEKREVING_MED_VARSEL", "OPPRETT_TILBAKEKREVING_UTEN_VARSEL", "OPPRETT_TILBAKEKREVING_AUTOMATISK"], mode = EnumSource.Mode.INCLUDE)
+    fun `Skal kaste feil dersom feilutbetaling ikke lenger finnes og det er valgt å opprette en tilbakekrevingssak`(tilbakekrevingsvalg: Tilbakekrevingsvalg) {
+        val mocketTilbakekreving =
+            mockk<Tilbakekreving>(relaxed = true).apply {
+                every { valg } returns tilbakekrevingsvalg
+            }
+
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                any(),
+                any(),
+                any(),
+                godkjentVedtakDto.beslutning,
+                emptyList(),
+            )
+        } returns mockk(relaxed = true)
+        every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(any()) } just runs
+
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(any()) } returns false
+        every { tilbakekrevingService.finnTilbakekrevingsbehandling(any()) } returns mocketTilbakekreving
+        every { simuleringService.hentFeilutbetaling(any()) } returns BigDecimal.ZERO
+
+        // Act & assert
+        val exception =
+            assertThrows<FunksjonellFeil> {
+                beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto)
+            }
+
+        assertThat(exception.message, Is("Det er valgt å opprette tilbakekrevingssak men det er ikke lenger feilutbetalt beløp. Behandlingen må underkjennes, og saksbehandler må gå tilbake til behandlingsresultatet og trykke neste og fullføre behandlingen på nytt."))
     }
 }

@@ -2,6 +2,7 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -61,7 +62,7 @@ class BrevPeriodeService(
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
         val vilkårsvurdering =
             vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
-                ?: error("Finner ikke vilkårsvurdering ved begrunning av vedtak")
+                ?: throw Feil("Finner ikke vilkårsvurdering ved begrunning av vedtak")
 
         val andelTilkjentYtelserMedEndreteUtbetalinger =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(

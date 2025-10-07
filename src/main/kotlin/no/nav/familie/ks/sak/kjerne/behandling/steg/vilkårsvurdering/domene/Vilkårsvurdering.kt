@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 
 @Entity(name = "Vilkårsvurdering")
@@ -40,7 +41,7 @@ data class Vilkårsvurdering(
 ) : BaseEntitet() {
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
-            ?: throw IllegalStateException("Fant ikke personresultat for $aktørId")
+            ?: throw Feil("Fant ikke personresultat for $aktørId")
 
     fun finnOpplysningspliktVilkår(): AnnenVurdering? =
         personResultater

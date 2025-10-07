@@ -48,6 +48,8 @@ class TilbakekrevingService(
 ) {
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean = tilbakekrevingKlient.harÅpenTilbakekrevingsbehandling(fagsakId)
 
+    fun finnTilbakekrevingsbehandling(behandlingId: Long): Tilbakekreving? = tilbakekrevingRepository.findByBehandlingId(behandlingId)
+
     @Transactional
     fun lagreTilbakekreving(
         tilbakekrevingRequestDto: TilbakekrevingRequestDto,

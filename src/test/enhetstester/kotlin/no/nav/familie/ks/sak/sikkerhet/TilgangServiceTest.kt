@@ -29,10 +29,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 import no.nav.familie.log.mdc.MDCConstants
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -41,7 +39,6 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import java.time.LocalDate
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TilgangServiceTest {
     private val mockIntegrasjonService = mockk<IntegrasjonService>()
     private val mockBehandlingRepository = mockk<BehandlingRepository>()
@@ -61,7 +58,17 @@ class TilgangServiceTest {
             KODE7 = "kode7",
         )
     private val auditLogger = AuditLogger("familie-ks-sak")
-    private lateinit var tilgangService: TilgangService
+    private val tilgangService =
+        TilgangService(
+            integrasjonService = mockIntegrasjonService,
+            behandlingRepository = mockBehandlingRepository,
+            personopplysningGrunnlagRepository = mockPersonopplysningGrunnlagRepository,
+            rolleConfig = rolleConfig,
+            cacheManager = cacheManager,
+            auditLogger = auditLogger,
+            personidentService = personidentService,
+            fagsakRepository = mockFagsakRepository,
+        )
 
     private val fagsak = lagFagsak()
     private val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -73,21 +80,6 @@ class TilgangServiceTest {
             barnasIdenter = emptyList(),
         )
     private val defaultHandling = "gjøre handling"
-
-    @BeforeAll
-    fun beforeAll() {
-        tilgangService =
-            TilgangService(
-                integrasjonService = mockIntegrasjonService,
-                behandlingRepository = mockBehandlingRepository,
-                personopplysningGrunnlagRepository = mockPersonopplysningGrunnlagRepository,
-                rolleConfig = rolleConfig,
-                cacheManager = cacheManager,
-                auditLogger = auditLogger,
-                personidentService = personidentService,
-                fagsakRepository = mockFagsakRepository,
-            )
-    }
 
     @BeforeEach
     internal fun beforeEach() {
@@ -183,11 +175,8 @@ class TilgangServiceTest {
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til person`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), false),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
             )
 
         val personIdenter = listOf(aktør.aktivFødselsnummer())
@@ -202,7 +191,7 @@ class TilgangServiceTest {
                 )
             }
         assertEquals(
-            "Saksbehandler A har ikke tilgang til å behandle $personIdenter",
+            "Saksbehandler A har ikke tilgang til å behandle $personIdenter. Bruker mangler rolle 'TEST_ROLLE'.",
             rolleTilgangskontrollFeil.melding,
         )
     }
@@ -210,11 +199,8 @@ class TilgangServiceTest {
     @Test
     internal fun `skal ikke feile når saksbehandler har tilgang til person`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         tilgangService.validerTilgangTilHandlingOgPersoner(
@@ -228,11 +214,8 @@ class TilgangServiceTest {
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til behandling`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), false),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
             )
 
         val rolleTilgangskontrollFeil =
@@ -245,19 +228,20 @@ class TilgangServiceTest {
                 )
             }
         assertEquals(
-            "Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.",
+            "Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}. Bruker mangler rolle 'TEST_ROLLE'.",
             rolleTilgangskontrollFeil.melding,
+        )
+        assertEquals(
+            "Fagsaken inneholder personer som krever ytterligere tilganger. Bruker mangler rolle 'TEST_ROLLE'.",
+            rolleTilgangskontrollFeil.frontendFeilmelding,
         )
     }
 
     @Test
     internal fun `skal ikke feile når saksbehandler har tilgang til behandling`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
@@ -271,11 +255,8 @@ class TilgangServiceTest {
     @Test
     internal fun `validerTilgangTilPersoner - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         mockBrukerContext("A", groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
@@ -301,11 +282,8 @@ class TilgangServiceTest {
     @Test
     internal fun `validerTilgangTilPersoner - hvis to ulike saksbehandler kaller skal den sjekke tilgang på nytt`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
@@ -335,11 +313,8 @@ class TilgangServiceTest {
     @Test
     internal fun `validerTilgangTilBehandling - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
@@ -365,11 +340,8 @@ class TilgangServiceTest {
     @Test
     internal fun `validerTilgangTilBehandling - hvis to ulike saksbehandler kaller skal den sjekke tilgang på nytt`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
@@ -397,11 +369,8 @@ class TilgangServiceTest {
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), false),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
             )
 
         val rolleTilgangskontrollFeil =
@@ -413,17 +382,18 @@ class TilgangServiceTest {
                     "hente behandling",
                 )
             }
-        assertEquals("Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.", rolleTilgangskontrollFeil.melding)
+        assertEquals("Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}. Bruker mangler rolle 'TEST_ROLLE'.", rolleTilgangskontrollFeil.melding)
+        assertEquals(
+            "Fagsaken inneholder personer som krever ytterligere tilganger. Bruker mangler rolle 'TEST_ROLLE'.",
+            rolleTilgangskontrollFeil.frontendFeilmelding,
+        )
     }
 
     @Test
     internal fun `skal ikke feile når saksbehandler har tilgang til fagsak`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         tilgangService.validerTilgangTilHandlingOgFagsak(
@@ -449,11 +419,8 @@ class TilgangServiceTest {
     @Test
     internal fun `validerTilgangTilFagsak - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
@@ -479,11 +446,8 @@ class TilgangServiceTest {
     @Test
     internal fun `validerTilgangTilFagsak - hvis to ulike saksbehandlere kaller skal den sjekke tilgang på nytt`() {
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
@@ -512,11 +476,8 @@ class TilgangServiceTest {
     internal fun `validerTilgangTilFagsakForPerson - skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
         val aktør = randomAktør("12345678910")
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), false),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
             )
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
         every { mockFagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
@@ -530,18 +491,19 @@ class TilgangServiceTest {
                     "hente behandling",
                 )
             }
-        assertEquals("Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}.", rolleTilgangskontrollFeil.melding)
+        assertEquals("Saksbehandler A har ikke tilgang til fagsak=${fagsak.id}. Bruker mangler rolle 'TEST_ROLLE'.", rolleTilgangskontrollFeil.melding)
+        assertEquals(
+            "Fagsaken inneholder personer som krever ytterligere tilganger. Bruker mangler rolle 'TEST_ROLLE'.",
+            rolleTilgangskontrollFeil.frontendFeilmelding,
+        )
     }
 
     @Test
     internal fun `validerTilgangTilFagsakForPerson - skal ikke feile når saksbehandler har tilgang til fagsak`() {
         val aktør = randomAktør("12345678910")
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
-            mapOf(
-                Pair(
-                    aktør.aktivFødselsnummer(),
-                    Tilgang(aktør.aktivFødselsnummer(), true),
-                ),
+            listOf(
+                Tilgang(aktør.aktivFødselsnummer(), true),
             )
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
         every { mockFagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
@@ -618,18 +580,12 @@ class TilgangServiceTest {
                     "12345678910",
                 ),
             )
-        }.returns(
-            mapOf(
-                Pair(
-                    "65434563721",
-                    Tilgang("65434563721", false),
-                ),
-                Pair(
-                    "12345678910",
-                    Tilgang("12345678910", false),
-                ),
-            ),
-        )
+        } returns
+            listOf(
+                Tilgang("65434563721", false),
+                Tilgang("12345678910", false),
+            )
+
         assertThrows<RolleTilgangskontrollFeil> {
             tilgangService.validerTilgangTilHandlingOgFagsak(
                 fagsak.id,

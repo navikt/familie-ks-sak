@@ -26,13 +26,21 @@ updates:
       prod-avhengigheter:
         dependency-type: "production"
         exclude-patterns:
+          - "org.springframework*"
           - "no.nav.security*"
+          - "org.springdoc*"
+          - "no.nav.familie*"
       utvikler-avhengigheter:
         dependency-type: "development"
         exclude-patterns:
           - "no.nav.security*"
+          - "no.nav.familie*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    groups:
+      workflows:
+        patterns:
+          - "*"

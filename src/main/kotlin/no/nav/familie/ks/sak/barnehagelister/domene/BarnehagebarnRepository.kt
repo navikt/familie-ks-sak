@@ -10,202 +10,110 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
     fun findAllByIdent(ident: String): List<Barnehagebarn>
 
     @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
-            INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            INNER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            INNER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false
-            AND f.status IN (:fagsakStatuser)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
+        """    
+    WITH input AS (
+        -- Referer til disse variablene flere ganger så de må legges inn slik
+        SELECT 
+        CAST(:ident AS TEXT) as ident_param,
+        CAST(:kommuneNavn AS TEXT) as kommunenavn_param
+    ),
+    siste_iverksatte_behandling_i_løpende_fagsak AS (
+    -- Finn nyeste iverksatte behandling med utbetaling for løpende og ikke-arkivert fagsak for barn
+    SELECT 
+        f.id AS fagsakid, 
+        MAX(b.aktivert_tid) AS aktivert_tid
+    FROM personident p
+             JOIN andel_tilkjent_ytelse aty ON p.fk_aktoer_id = aty.fk_aktoer_id
+             JOIN behandling b ON aty.fk_behandling_id = b.id
+             JOIN fagsak f ON b.fk_fagsak_id = f.id
+             JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
+             CROSS JOIN input i
+    WHERE (i.ident_param IS NULL OR p.foedselsnummer = i.ident_param)
+      AND p.aktiv = true
+      AND f.status = 'LØPENDE'
+      AND f.arkivert = false
+      AND ty.utbetalingsoppdrag IS NOT NULL
+    GROUP BY f.id
+),
+lopende_andel_i_siste_iverksatte_behandling AS (
+    -- Sjekker om barnet har en løpende andel i siste iverksatte behandling 
+    SELECT 
+        p.foedselsnummer, 
+        aty.stonad_tom + interval '1 month - 1 day' >= current_date AS lopende_andel -- stonad_tom blir satt til første dag i mnd, men vi ønsker å ha med hele måneden i filtreringen
+    FROM personident p
+             JOIN andel_tilkjent_ytelse aty ON p.fk_aktoer_id = aty.fk_aktoer_id
+             JOIN behandling b ON aty.fk_behandling_id = b.id
+             JOIN fagsak f ON b.fk_fagsak_id = f.id
+             JOIN siste_iverksatte_behandling_i_løpende_fagsak iblf
+                  ON f.id = iblf.fagsakid
+                  AND b.aktivert_tid = iblf.aktivert_tid
+    CROSS JOIN input i
+    WHERE (i.ident_param IS NULL OR p.foedselsnummer = i.ident_param)
+      AND p.aktiv = true
+),
+avvik_antall_timer_vilkar_resultat_og_barnehagebarn AS (
+    SELECT 
+        bb.id as barnehagebarn_id,
+           CASE
+               WHEN bb.antall_timer_i_barnehage < 33 -- minst 33 timer barnehageplass regnes som fulltidsplass
+                   THEN vr.antall_timer != bb.antall_timer_i_barnehage
+               ELSE vr.antall_timer <= 33
+           END as avvik
+    FROM barnehagebarn bb
+             JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv
+             JOIN person_resultat pr ON pr.fk_aktoer_id = p.fk_aktoer_id
+             JOIN vilkar_resultat vr
+                  ON pr.id = vr.fk_person_resultat_id
+                      AND vr.vilkar = 'BARNEHAGEPLASS'
+                      AND bb.fom = vr.periode_fom::date
+),
+barnehagebarn_visning AS (
+    --Må trekkes ut til egen CTE for at sortering for pageables skal fungere på felter som ikke ligger i barnehagebarn fra før
+    SELECT bb.ident,
+           bb.fom,
+           bb.tom,
+           bb.antall_timer_i_barnehage AS antallTimerBarnehage,
+           bb.endringstype,
+           bb.kommune_navn AS kommuneNavn,
+           bb.kommune_nr AS kommuneNr,
+           MAX(bb.endret_tid) AS endretTid,
+           atv.avvik
+    FROM barnehagebarn bb
+             LEFT JOIN lopende_andel_i_siste_iverksatte_behandling lab
+                       ON bb.ident = lab.foedselsnummer
+             LEFT JOIN avvik_antall_timer_vilkar_resultat_og_barnehagebarn atv
+                       ON bb.id = atv.barnehagebarn_id
+    CROSS JOIN input i
+    WHERE (NOT :kunLøpendeAndeler OR lab.lopende_andel = true)
+      AND (i.ident_param IS NULL OR bb.ident = i.ident_param)
+      AND (i.kommunenavn_param IS NULL OR bb.kommune_navn ILIKE i.kommunenavn_param)
+    GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype,
+             bb.kommune_navn, bb.kommune_nr, atv.avvik
+)
+SELECT ident,
+       fom,
+       tom,
+       antallTimerBarnehage,
+       endringstype,
+       kommuneNavn,
+       kommuneNr,
+       endretTid,
+       avvik
+FROM barnehagebarn_visning;     
+ """,
         nativeQuery = true,
     )
-    fun findBarnehagebarn(
-        fagsakStatuser: List<String>,
+    fun finnBarnehagebarn(
+        kunLøpendeAndeler: Boolean,
+        ident: String?,
+        kommuneNavn: String?,
         pageable: Pageable,
-    ): Page<BarnehagebarnDtoInterface>
+    ): Page<BarnehagebarnPaginerbar>
 
     @Query(
         """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
-            INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            INNER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            INNER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false WHERE bb.ident = :ident
-            AND f.status IN (:fagsakStatuser)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
-        nativeQuery = true,
+            SELECT DISTINCT bb.kommuneNavn FROM Barnehagebarn bb
+        """,
     )
-    fun findBarnehagebarnByIdent(
-        fagsakStatuser: List<String>,
-        ident: String,
-        pageable: Pageable,
-    ): Page<BarnehagebarnDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            INNER JOIN personident p ON bb.ident = p.foedselsnummer AND p.aktiv = true
-            INNER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            INNER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            INNER JOIN behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            INNER JOIN fagsak f ON b.fk_fagsak_id = f.id AND f.arkivert = false WHERE UPPER(bb.kommune_navn) = UPPER(:kommuneNavn)
-            AND f.status IN (:fagsakStatuser)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByKommuneNavn(
-        fagsakStatuser: List<String>,
-        kommuneNavn: String,
-        pageable: Pageable,
-    ): Page<BarnehagebarnDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            LEFT OUTER JOIN personident p ON bb.ident = p.foedselsnummer
-            LEFT OUTER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            LEFT OUTER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            LEFT OUTER JOIN  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            LEFT OUTER JOIN fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
-        nativeQuery = true,
-    )
-    fun findAlleBarnehagebarnUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            LEFT OUTER JOIN personident p ON bb.ident = p.foedselsnummer
-            LEFT OUTER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            LEFT OUTER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            LEFT OUTER JOIN  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            LEFT OUTER JOIN fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false 
-            WHERE bb.ident = :ident
-            GROUP BY ident, fom, tom, antallTimerIBarnehage, endringstype, kommuneNavn, kommuneNr, fagsakId, fagsakstatus""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByIdentUavhengigAvFagsak(
-        ident: String,
-        pageable: Pageable,
-    ): Page<BarnehagebarnDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage,
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid,
-            f.id as fagsakId, f.status as fagsakstatus
-            FROM barnehagebarn bb
-            LEFT OUTER JOIN personident p ON bb.ident = p.foedselsnummer
-            LEFT OUTER JOIN po_person pp ON p.fk_aktoer_id = pp.fk_aktoer_id
-            LEFT OUTER JOIN gr_personopplysninger go ON pp.fk_gr_personopplysninger_id = go.id
-            LEFT OUTER JOIN  behandling b ON go.fk_behandling_id = b.id AND b.aktiv = true
-            LEFT OUTER JOIN fagsak f ON b.fk_fagsak_id = f.id and f.arkivert = false 
-            WHERE UPPER(bb.kommune_navn) = UPPER(:kommuneNavn)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, f.id, f.status""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByKommuneNavnUavhengigAvFagsak(
-        kommuneNavn: String,
-        pageable: Pageable,
-    ): Page<BarnehagebarnDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
-            WHERE bb.ident in (:barna) AND UPPER(bb.kommune_navn) = UPPER(:kommuneNavn)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByKommuneNavnInfotrygd(
-        kommuneNavn: String,
-        barna: List<String>,
-        pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
-            WHERE UPPER(bb.kommune_navn) = UPPER(:kommuneNavn)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByKommuneNavnInfotrygdUavhengigAvFagsak(
-        kommuneNavn: String,
-        pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
-            WHERE bb.ident in (:barna) AND bb.ident = :ident
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByIdentInfotrygd(
-        ident: String,
-        barna: List<String>,
-        pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
-            WHERE bb.ident = :ident
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnByIdentInfotrygdUavhengigAvFagsak(
-        ident: String,
-        pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
-            WHERE bb.ident in (:barna)
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr""",
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnInfotrygd(
-        barna: List<String>,
-        pageable: Pageable,
-    ): Page<BarnehagebarnInfotrygdDtoInterface>
-
-    @Query(
-        """
-            SELECT bb.ident as ident, bb.fom as fom, bb.tom as tom, bb.antall_timer_i_barnehage as antallTimerIBarnehage, 
-            bb.endringstype as endringstype, bb.kommune_navn as kommuneNavn, bb.kommune_nr as kommuneNr, MAX(bb.endret_tid) as endretTid
-            FROM barnehagebarn bb
-            GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr """,
-        nativeQuery = true,
-    )
-    fun findBarnehagebarnInfotrygdUavhengigAvFagsak(pageable: Pageable): Page<BarnehagebarnInfotrygdDtoInterface>
+    fun hentAlleKommuner(): Set<String>
 }

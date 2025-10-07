@@ -139,6 +139,9 @@ spring:
         format_sql=false
     hibernate:
       ddl-auto: none
+  sql:
+    init:
+      mode: never #Hindre Spring Boot fra å automatisk laste test.sql - filer i alle tester
 
 AZURE_APP_WELL_KNOWN_URL: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/v2.0/token
@@ -159,3 +162,4 @@ NAIS_APP_NAME: familie-ks-sak
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/10 * ? * *"
 AZURE_APP_CLIENT_ID: testid
 AZURE_APP_CLIENT_SECRET: testsecret
+AZURE_APP_TENANT_ID: testtenant

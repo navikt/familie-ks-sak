@@ -93,6 +93,8 @@ spec:
           cluster: dev-fss
         - application: familie-klage
           cluster: dev-gcp
+        - application: logging
+          namespace: nais-system
       external:
         - host: nav-dev-kafka-nav-dev.aivencloud.com
         - host: xsrv1mh6.api.sanity.io
@@ -109,7 +111,7 @@ spec:
     limits:
       memory: 2048Mi
     requests:
-      memory: 1024Mi
+      memory: 512Mi
       cpu: 50m
   ingresses:
     - https://familie-ks-sak.intern.dev.nav.no
@@ -124,6 +126,10 @@ spec:
   kafka:
     pool: nav-dev
   observability:
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
     autoInstrumentation:
       enabled: true
       runtime: java

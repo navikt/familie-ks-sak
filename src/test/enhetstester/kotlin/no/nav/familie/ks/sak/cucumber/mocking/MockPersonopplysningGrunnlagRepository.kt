@@ -2,6 +2,7 @@
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 
@@ -11,7 +12,7 @@ fun mockPersonopplysningGrunnlagRepository(stepDefinition: StepDefinition): Pers
     every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } answers {
         val behandlingsId = firstArg<Long>()
         stepDefinition.personopplysningGrunnlagMap[behandlingsId]
-            ?: error("Fant ikke personopplysninggrunnlag for behandling $behandlingsId")
+            ?: throw Feil("Fant ikke personopplysninggrunnlag for behandling $behandlingsId")
     }
     return personopplysningGrunnlagRepository
 }

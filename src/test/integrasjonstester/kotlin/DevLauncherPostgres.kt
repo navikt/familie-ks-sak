@@ -12,7 +12,12 @@ fun main(args: Array<String>) {
     System.setProperty("spring.profiles.active", "postgres")
     val springBuilder =
         SpringApplicationBuilder(ApplicationConfig::class.java).profiles(
-            "local, mock-pdl, mock-oauth, mock-oppgave, mock-integrasjoner, mock-økonomi",
+            "local",
+            "mock-pdl",
+            "mock-oauth",
+            "mock-oppgave",
+            "mock-integrasjoner",
+            "mock-økonomi",
         )
 
     if (args.contains("--dbcontainer")) {

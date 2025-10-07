@@ -23,9 +23,9 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.lagUtbetalingsperiodeDetaljer
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiode.UtbetalingsperiodeDetalj
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiode.lagUtbetalingsperiodeDetaljer
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.tilKombinertTidslinjePerAktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -147,10 +147,13 @@ data class VedtaksperiodeMedBegrunnelser(
             -> emptyList()
         }
 
-    fun støtterFritekst(sanityBegrunnelser: List<SanityBegrunnelse>) =
+    fun støtterFritekst(
+        sanityBegrunnelser: List<SanityBegrunnelse>,
+        alleBegrunnelserStøtterFritekst: Boolean,
+    ) = alleBegrunnelserStøtterFritekst ||
         (type !== Vedtaksperiodetype.UTBETALING) ||
-            begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser) } ||
-            eøsBegrunnelser.any { it.begrunnelse.støtterFritekst(sanityBegrunnelser) }
+        begrunnelser.any { it.nasjonalEllerFellesBegrunnelse.støtterFritekst(sanityBegrunnelser) } ||
+        eøsBegrunnelser.any { it.begrunnelse.støtterFritekst(sanityBegrunnelser) }
 
     private fun validerIkkeDelvisOverlappIAndelTilkjentYtelserOgVedtaksperiodeBegrunnelse(
         andelTilkjentYtelserIPeriode: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,

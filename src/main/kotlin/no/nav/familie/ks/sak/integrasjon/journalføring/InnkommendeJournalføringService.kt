@@ -18,10 +18,13 @@ import no.nav.familie.ks.sak.api.dto.JournalpostDokumentDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.api.dto.Sakstype
+import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.api.dto.tilOppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -33,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Søknadsinfo
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.klage.KlageService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -47,6 +51,7 @@ class InnkommendeJournalføringService(
     private val journalføringRepository: JournalføringRepository,
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
+    private val klageService: KlageService,
 ) {
     fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
         integrasjonClient
@@ -75,72 +80,119 @@ class InnkommendeJournalføringService(
         journalpostId: String,
         oppgaveId: String,
     ): String {
-        val tilknyttedeBehandlingIder = request.tilknyttedeBehandlingIder.toMutableList()
+        val fagsakId = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
+        val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonClient.hentJournalpost(journalpostId)
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            val nyBehandling =
-                opprettBehandlingOgEvtFagsakForJournalføring(
-                    personIdent = request.bruker.id,
-                    saksbehandlerIdent = request.navIdent,
-                    type = request.nyBehandlingstype,
-                    årsak = request.nyBehandlingsårsak,
-                    kategori = request.kategori,
-                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
-                )
+            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
+                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$journalpostId")
+                val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
+                tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
+            } else {
+                val nyBehandling =
+                    opprettBehandlingForJournalføring(
+                        personIdent = request.bruker.id,
+                        saksbehandlerIdent = request.navIdent,
+                        type = request.nyBehandlingstype.tilBehandingType(),
+                        årsak = request.nyBehandlingsårsak,
+                        kategori = request.kategori,
+                        søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                    )
 
-            tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
+                tilknyttedeBehandlinger.add(
+                    TilknyttetBehandling(
+                        behandlingstype = request.nyBehandlingstype,
+                        behandlingId = nyBehandling.id.toString(),
+                    ),
+                )
+            }
         }
 
-        val (tilknyttetFagsak, behandlinger) =
-            lagreJournalpostOgKnyttFagsakTilJournalpost(
-                tilknyttedeBehandlingIder,
-                journalpostId,
-            )
+        val kontantstøtteBehandlinger =
+            tilknyttedeBehandlinger
+                .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
+                .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
+
+        knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
+            kontantstøtteBehandlinger = kontantstøtteBehandlinger,
+            journalpost = journalpost,
+        )
 
         oppdaterLogiskeVedlegg(request.dokumenter)
 
         oppdaterOgFerdigstill(
-            oppdaterJournalPostRequest = request.tilOppdaterJournalpostRequestDto(tilknyttetFagsak, journalpost),
+            oppdaterJournalPostRequest =
+                request.tilOppdaterJournalpostRequestDto(
+                    sak =
+                        Sak(
+                            fagsakId = fagsakId.toString(),
+                            fagsaksystem = Fagsystem.KONT.name,
+                            sakstype = Sakstype.FAGSAK.type,
+                        ),
+                    journalpost = journalpost,
+                ),
             journalpostId = journalpostId,
             behandlendeEnhet = request.journalførendeEnhet,
             oppgaveId = oppgaveId,
-            behandlinger = behandlinger,
+            kontantstøtteBehandlinger = kontantstøtteBehandlinger,
         )
 
-        return tilknyttetFagsak.fagsakId ?: ""
+        return fagsakId.toString()
     }
 
     fun knyttJournalpostTilFagsakOgFerdigstillOppgave(
         request: FerdigstillOppgaveKnyttJournalpostDto,
         oppgaveId: Long,
     ): String {
-        val tilknyttedeBehandlingIder: MutableList<String> = request.tilknyttedeBehandlingIder.toMutableList()
-
+        val fagsakId = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
+        val tilknyttedeBehandlinger: MutableList<TilknyttetBehandling> = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = hentJournalpost(request.journalpostId)
-        journalpost.sak?.fagsakId
 
         if (request.opprettOgKnyttTilNyBehandling) {
-            val nyBehandling =
-                opprettBehandlingOgEvtFagsakForJournalføring(
-                    personIdent = request.bruker!!.id,
-                    saksbehandlerIdent = request.navIdent!!,
-                    type = request.nyBehandlingstype!!,
-                    årsak = request.nyBehandlingsårsak!!,
-                    kategori = request.kategori!!,
-                    søknadMottattDato = request.datoMottatt?.toLocalDate(),
+            if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
+                val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$request.journalpostId")
+                val klageBehandlingId = klageService.opprettKlage(fagsakId, klageMottattDato)
+                tilknyttedeBehandlinger.add(TilknyttetBehandling(behandlingstype = JournalføringBehandlingstype.KLAGE, behandlingId = klageBehandlingId.toString()))
+            } else {
+                if (request.navIdent == null || request.nyBehandlingstype == null || request.nyBehandlingsårsak == null || request.kategori == null) {
+                    secureLogger.info("Obligatoriske felter er ikke sendt med ved oppretting av ny behandling: $request")
+                    throw Feil("Obligatoriske felter er ikke sendt med for oppretting av ny behandling for journalpostId=${request.journalpostId}. Se secure logs for detaljer.")
+                }
+                val nyBehandling =
+                    opprettBehandlingForJournalføring(
+                        personIdent = request.bruker.id,
+                        saksbehandlerIdent = request.navIdent,
+                        type = request.nyBehandlingstype.tilBehandingType(),
+                        årsak = request.nyBehandlingsårsak,
+                        kategori = request.kategori,
+                        søknadMottattDato = request.datoMottatt?.toLocalDate(),
+                    )
+                tilknyttedeBehandlinger.add(
+                    TilknyttetBehandling(
+                        behandlingstype = request.nyBehandlingstype,
+                        behandlingId = nyBehandling.id.toString(),
+                    ),
                 )
-            tilknyttedeBehandlingIder.add(nyBehandling.id.toString())
+            }
         }
 
-        val (sak) = lagreJournalpostOgKnyttFagsakTilJournalpost(tilknyttedeBehandlingIder, journalpost.journalpostId)
+        val kontantstøtteBehandlinger =
+            tilknyttedeBehandlinger
+                .filter { !it.behandlingstype.skalBehandlesIEksternApplikasjon() }
+                .map { behandlingService.hentBehandling(it.behandlingId.toLong()) }
+
+        knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
+            kontantstøtteBehandlinger = kontantstøtteBehandlinger,
+            journalpost = journalpost,
+        )
 
         integrasjonClient.ferdigstillOppgave(oppgaveId = oppgaveId)
 
-        return sak.fagsakId ?: ""
+        return fagsakId.toString()
     }
 
-    private fun opprettBehandlingOgEvtFagsakForJournalføring(
+    private fun opprettBehandlingForJournalføring(
         personIdent: String,
         saksbehandlerIdent: String,
         type: BehandlingType,
@@ -148,8 +200,6 @@ class InnkommendeJournalføringService(
         kategori: BehandlingKategori? = null,
         søknadMottattDato: LocalDate? = null,
     ): Behandling {
-        fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent))
-
         val nyBehandlingDto =
             OpprettBehandlingDto(
                 kategori = kategori,
@@ -163,19 +213,18 @@ class InnkommendeJournalføringService(
         return opprettBehandlingService.opprettBehandling(nyBehandlingDto)
     }
 
-    private fun lagreJournalpostOgKnyttFagsakTilJournalpost(
-        tilknyttedeBehandlingIder: List<String>,
-        journalpostId: String,
-    ): Pair<Sak, List<Behandling>> {
-        val behandlinger = tilknyttedeBehandlingIder.map { behandlingService.hentBehandling(it.toLong()) }
-        val journalpost = hentJournalpost(journalpostId)
+    private fun knyttBehandlingerTilJournalpostOgLagreSøknadsinfo(
+        kontantstøtteBehandlinger: List<Behandling>,
+        journalpost: Journalpost,
+    ) {
         val erSøknad = journalpost.dokumenter?.any { it.brevkode == SØKNADSKODE_KONTANTSTØTTE } ?: false
 
-        behandlinger.forEach {
+        // TODO: Finne ut hvordan man kan knytte journalpost til ekstern behandling, nå funker det kun med interne behandlinger
+        kontantstøtteBehandlinger.forEach {
             journalføringRepository.save(
                 DbJournalpost(
                     behandling = it,
-                    journalpostId = journalpostId,
+                    journalpostId = journalpost.journalpostId,
                     type = DbJournalpostType.valueOf(journalpost.journalposttype.name),
                 ),
             )
@@ -184,24 +233,13 @@ class InnkommendeJournalføringService(
                     søknadsinfo =
                         Søknadsinfo(
                             mottattDato = journalpost.datoMottatt ?: LocalDateTime.now(),
-                            journalpostId = journalpostId,
+                            journalpostId = journalpost.journalpostId,
                             erDigital = journalpost.kanal == NAV_NO,
                         ),
                     behandling = it,
                 )
             }
         }
-
-        val fagsak = behandlinger.map { it.fagsak }.toSet().singleOrNull()
-
-        val tilknyttetFagsak =
-            Sak(
-                fagsakId = fagsak?.id?.toString(),
-                fagsaksystem = fagsak?.let { Fagsystem.KONT.name },
-                sakstype = fagsak?.let { Sakstype.FAGSAK.type } ?: Sakstype.GENERELL_SAK.type,
-            )
-
-        return Pair(tilknyttetFagsak, behandlinger)
     }
 
     private fun oppdaterLogiskeVedlegg(dokumenter: List<JournalpostDokumentDto>) {
@@ -227,14 +265,14 @@ class InnkommendeJournalføringService(
         journalpostId: String,
         behandlendeEnhet: String,
         oppgaveId: String,
-        behandlinger: List<Behandling>,
+        kontantstøtteBehandlinger: List<Behandling>,
     ) {
         runCatching {
             secureLogger.info("Oppdaterer journalpost $journalpostId med $oppdaterJournalPostRequest")
 
             integrasjonClient.oppdaterJournalpost(oppdaterJournalPostRequest, journalpostId)
 
-            opprettLoggPåDokumenter(journalpostId, behandlinger)
+            opprettLoggPåDokumenter(journalpostId, kontantstøtteBehandlinger)
 
             secureLogger.info("Ferdigstiller journalpost $journalpostId")
 

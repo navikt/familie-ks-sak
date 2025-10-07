@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.arbeidsforho
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.opphold.GrOpphold
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import org.hibernate.annotations.Fetch
@@ -65,6 +66,9 @@ data class Person(
     // Workaround før Hibernatebug https://hibernate.atlassian.net/browse/HHH-1718
     @Fetch(value = FetchMode.SUBSELECT)
     var bostedsadresser: MutableList<GrBostedsadresse> = mutableListOf(),
+    @OneToMany(mappedBy = "person", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    var oppholdsadresser: MutableList<GrOppholdsadresse> = mutableListOf(),
     @OneToMany(mappedBy = "person", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     // Workaround før Hibernatebug https://hibernate.atlassian.net/browse/HHH-1718
     @Fetch(value = FetchMode.SUBSELECT)

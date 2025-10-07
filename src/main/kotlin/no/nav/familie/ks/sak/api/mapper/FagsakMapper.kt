@@ -1,11 +1,11 @@
 package no.nav.familie.ks.sak.api.mapper
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
+import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
-import no.nav.familie.ks.sak.api.dto.TilbakekrevingsbehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -26,7 +26,7 @@ object FagsakMapper {
             navn = personInfo?.navn,
             ident = ident,
             rolle = rolle,
-            kjønn = personInfo?.kjønn,
+            kjønn = personInfo?.kjønn ?: KJOENN.UKJENT,
             fagsakId = fagsak?.id,
             fagsakStatus = fagsak?.status,
             adressebeskyttelseGradering = adressebeskyttelseGradering,
@@ -37,7 +37,6 @@ object FagsakMapper {
         fagsak: Fagsak,
         aktivtBehandling: Behandling? = null,
         behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
-        tilbakekrevingsbehandlinger: List<TilbakekrevingsbehandlingResponsDto> = emptyList(),
         gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
     ): MinimalFagsakResponsDto =
         MinimalFagsakResponsDto(
@@ -48,7 +47,6 @@ object FagsakMapper {
             underBehandling = if (aktivtBehandling == null) false else aktivtBehandling.status != BehandlingStatus.AVSLUTTET,
             løpendeKategori = aktivtBehandling?.kategori,
             behandlinger = behandlinger,
-            tilbakekrevingsbehandlinger = tilbakekrevingsbehandlinger,
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
         )
 
@@ -67,16 +65,4 @@ object FagsakMapper {
         resultat = behandling.resultat,
         vedtaksdato = vedtaksdato,
     )
-
-    fun lagTilbakekrevingsbehandlingResponsDto(tilbakekrevingsbehandling: no.nav.familie.kontrakter.felles.tilbakekreving.Behandling) =
-        TilbakekrevingsbehandlingResponsDto(
-            behandlingId = tilbakekrevingsbehandling.behandlingId,
-            opprettetTidspunkt = tilbakekrevingsbehandling.opprettetTidspunkt,
-            aktiv = tilbakekrevingsbehandling.aktiv,
-            årsak = tilbakekrevingsbehandling.årsak,
-            type = tilbakekrevingsbehandling.type,
-            status = tilbakekrevingsbehandling.status,
-            resultat = tilbakekrevingsbehandling.resultat,
-            vedtaksdato = tilbakekrevingsbehandling.vedtaksdato,
-        )
 }

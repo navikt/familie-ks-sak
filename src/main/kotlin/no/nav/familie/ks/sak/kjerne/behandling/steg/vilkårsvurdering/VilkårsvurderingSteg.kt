@@ -5,6 +5,8 @@ import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
+import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
+import no.nav.familie.ks.sak.common.util.erSenereEnnNesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -133,6 +135,7 @@ class VilkårsvurderingSteg(
                 vilkårsvurdering = vilkårsvurdering,
             )
         }
+        validerAtAlleVilkårHarGyldigFomDato(vilkårsvurdering, personopplysningGrunnlag)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
@@ -157,6 +160,42 @@ class VilkårsvurderingSteg(
                 frontendFeilmelding = "Barn må legges til for å gjennomføre vilkårsvurdering.",
             )
         }
+    }
+
+    private fun validerAtAlleVilkårHarGyldigFomDato(
+        vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+    ) {
+        vilkårsvurdering.personResultater
+            .flatMap { it.vilkårResultater }
+            .forEach { vilkårResultat ->
+                val person = personopplysningGrunnlag.personer.single { it.aktør == vilkårResultat.personResultat?.aktør }
+                val fom = vilkårResultat.periodeFom
+
+                when (vilkårResultat.vilkårType) {
+                    Vilkår.BARNEHAGEPLASS -> {
+                        if (fom?.erSenereEnnNesteMåned() == true) {
+                            throw FunksjonellFeil(
+                                melding = "Vilkår ${vilkårResultat.vilkårType} for person født ${person.fødselsdato} har perioder der f.o.m dato er satt senere enn neste måned.",
+                            )
+                        }
+                    }
+
+                    Vilkår.BOSATT_I_RIKET,
+                    Vilkår.LOVLIG_OPPHOLD,
+                    Vilkår.MEDLEMSKAP,
+                    Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                    Vilkår.BOR_MED_SØKER,
+                    Vilkår.BARNETS_ALDER,
+                    -> {
+                        if (fom?.erSenereEnnInneværendeMåned() == true) {
+                            throw FunksjonellFeil(
+                                melding = "Vilkår ${vilkårResultat.vilkårType} for person født ${person.fødselsdato} har perioder der f.o.m dato er satt senere enn inneværende måned.",
+                            )
+                        }
+                    }
+                }
+            }
     }
 
     private fun validerAtIngenVilkårErSattEtterSøkersDød(

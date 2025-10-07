@@ -137,8 +137,7 @@ class OppgaveController(
     @PostMapping(path = ["/{oppgaveId}/ferdigstillOgKnyttjournalpost"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun ferdigstillOppgaveOgKnyttJournalpostTilBehandling(
         @PathVariable oppgaveId: Long,
-        @RequestBody @Valid
-        request: FerdigstillOppgaveKnyttJournalpostDto,
+        @RequestBody @Valid request: FerdigstillOppgaveKnyttJournalpostDto,
     ): ResponseEntity<Ressurs<String?>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
@@ -146,9 +145,7 @@ class OppgaveController(
         )
         // Validerer at oppgave med gitt oppgaveId eksisterer
         oppgaveService.hentOppgave(oppgaveId)
-
         val fagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request, oppgaveId)
-
         return ResponseEntity.ok(Ressurs.success(fagsakId, "Oppgaven $oppgaveId er lukket"))
     }
 }

@@ -2,8 +2,8 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domen
 
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiode.UtbetalingsperiodeDetalj
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
@@ -37,6 +37,7 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
     personopplysningGrunnlag: PersonopplysningGrunnlag,
     andelerTilkjentYtelse: List<AndelTilkjentYtelseMedEndreteUtbetalinger>,
     sanityBegrunnelser: List<SanityBegrunnelse>,
+    alleBegrunnelserStøtterFritekst: Boolean,
     dagensDato: LocalDate = LocalDate.now(),
 ): UtvidetVedtaksperiodeMedBegrunnelser {
     val utbetalingsperiodeDetaljer =
@@ -55,7 +56,7 @@ fun VedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelser(
         eøsBegrunnelser = this.eøsBegrunnelser.toList(),
         fritekster = this.fritekster.sortedBy { it.id }.map { it.fritekst },
         utbetalingsperiodeDetaljer = utbetalingsperiodeDetaljer,
-        støtterFritekst = this.støtterFritekst(sanityBegrunnelser),
+        støtterFritekst = this.støtterFritekst(sanityBegrunnelser, alleBegrunnelserStøtterFritekst),
     )
 }
 

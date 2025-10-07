@@ -56,12 +56,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Res
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.klage.KlageClient
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -96,6 +98,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @MockkBean(relaxed = true)
     private lateinit var avsluttBehandlingSteg: AvsluttBehandlingSteg
 
+    @MockkBean(relaxed = true)
+    private lateinit var klageClient: KlageClient
+
     @MockkBean
     private lateinit var taskService: TaskService
 
@@ -116,6 +121,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @BeforeEach
     fun setup() {
+        every { klageClient.hentKlagebehandlinger(any()) } returns emptyList()
+
         opprettSøkerFagsakOgBehandling(fagsakStatus = FagsakStatus.LØPENDE)
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = behandling.id))
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
@@ -154,6 +161,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
                 every { taskService.save(any()) } returns mockk()
             }
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkObject(SikkerhetContext)
     }
 
     @Test

@@ -61,6 +61,8 @@ Egenskap: Reduksjon pga færre antall timer i barnehage etter lovendring 2025
     Så forvent følgende vedtaksperioder på behandling 2
       | Fra dato   | Til dato   | Vedtaksperiodetype | Kommentar |
       | 01.03.2025 | 31.08.2025 | UTBETALING         |           |
+      | 01.09.2025 |            | OPPHØR             |           |
+
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
       | Fra dato   | Til dato   | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser             | Ugyldige begrunnelser |

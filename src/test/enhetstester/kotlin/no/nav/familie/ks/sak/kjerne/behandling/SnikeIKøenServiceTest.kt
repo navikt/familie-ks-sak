@@ -5,7 +5,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import no.nav.familie.ks.sak.common.util.LocalDateTimeProvider
+import no.nav.familie.ks.sak.common.TestClockProvider
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -17,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -27,7 +27,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class SnikeIKøenServiceTest {
-    private val localDateTimeProvider: LocalDateTimeProvider = mockk()
+    private val dagensDato = LocalDateTime.of(2024, 1, 1, 18, 0)
+
+    private val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(dagensDato)
     private val behandlingRepository: BehandlingRepository = mockk()
     private val loggService: LoggService = mockk(relaxed = true)
     private val tilbakestillBehandlingService: TilbakestillBehandlingService = mockk(relaxed = true)
@@ -37,15 +39,8 @@ class SnikeIKøenServiceTest {
             behandlingRepository = behandlingRepository,
             loggService = loggService,
             tilbakestillBehandlingService = tilbakestillBehandlingService,
-            localDateTimeProvider = localDateTimeProvider,
+            clockProvider = clockProvider,
         )
-
-    private val dagensDato = LocalDateTime.of(2024, 1, 1, 18, 0)
-
-    @BeforeEach
-    fun setUp() {
-        every { localDateTimeProvider.now() } returns dagensDato
-    }
 
     @Nested
     inner class SettAktivBehandlingPåMaskinellVentTest {
@@ -58,7 +53,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.settAktivBehandlingPåMaskinellVent(
                         1L,
                         SettPåMaskinellVentÅrsak.SATSENDRING,
@@ -89,7 +84,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.settAktivBehandlingPåMaskinellVent(
                         1L,
                         SettPåMaskinellVentÅrsak.SATSENDRING,
@@ -247,7 +242,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomHarSneketIKøen)
                 }
             assertThat(exception.message).isEqualTo("Forventet kun en eller ingen behandling på maskinell vent for fagsak=${fagsak.id}")
@@ -283,7 +278,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
                 }
             assertThat(exception.message).isEqualTo("Behandling på maskinell vent er aktiv")
@@ -321,7 +316,7 @@ class SnikeIKøenServiceTest {
 
             // Act & assert
             val exception =
-                assertThrows<IllegalStateException> {
+                assertThrows<Feil> {
                     snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen)
                 }
             assertThat(exception.message).isEqualTo(

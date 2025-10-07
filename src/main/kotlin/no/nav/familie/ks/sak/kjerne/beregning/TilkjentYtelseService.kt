@@ -33,16 +33,13 @@ class TilkjentYtelseService(
                 opprettetDato = LocalDate.now(),
                 endretDato = LocalDate.now(),
             )
-        val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.person?.type == PersonType.BARN }
+        val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.personer.any { person -> person.type == PersonType.BARN } }
 
         val andelerTilkjentYtelseBarnaUtenEndringer =
             beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)
 
         val andelerTilkjentYtelseBarnaMedAlleEndringer =
-            AndelTilkjentYtelseMedEndretUtbetalingBehandler.oppdaterAndelerTilkjentYtelseMedEndretUtbetalingAndeler(
-                andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer,
-                endretUtbetalingAndeler = endretUtbetalingAndelerBarna,
-            )
+            AndelTilkjentYtelseMedEndretUtbetalingBehandler.lagAndelerMedEndretUtbetalingAndeler(andelTilkjentYtelserUtenEndringer = andelerTilkjentYtelseBarnaUtenEndringer, endretUtbetalingAndeler = endretUtbetalingAndelerBarna, tilkjentYtelse = tilkjentYtelse)
 
         val overgangsordningAndelerSomAndelTilkjentYtelse =
             genererAndelerTilkjentYtelseFraOvergangsordningAndeler(

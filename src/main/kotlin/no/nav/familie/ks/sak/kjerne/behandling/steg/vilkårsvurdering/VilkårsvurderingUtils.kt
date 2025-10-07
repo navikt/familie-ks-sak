@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
@@ -187,16 +188,16 @@ private fun validerAvslagUtenPeriodeMedLøpende(
         // For bor med søker-vilkåret kan avslag og innvilgelse være overlappende, da man kan f.eks. avslå full kontantstøtte, men innvilge delt
         endretVilkårResultat.vilkårType == Vilkår.BOR_MED_SØKER -> return
 
-        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT && it.harFremtidigTom() } ->
+        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT } ->
             throw FunksjonellFeil(
-                "Finnes løpende oppfylt ved forsøk på å legge til avslag uten periode ",
-                "Du kan ikke legge til avslag uten datoer fordi det finnes oppfylt løpende periode på vilkåret.",
+                "Finnes oppfylte perioder ved forsøk på å legge til avslag uten periode.",
+                "Du kan ikke legge til avslagperiode uten datoer fordi det finnes oppfylte perioder på vilkåret. Disse må fjernes først.",
             )
 
-        endretVilkårResultat.harFremtidigTom() && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
+        endretVilkårResultat.resultat == Resultat.OPPFYLT && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
             throw FunksjonellFeil(
-                "Finnes avslag uten periode ved forsøk på å legge til løpende oppfylt",
-                "Du kan ikke legge til løpende periode fordi det er vurdert avslag uten datoer på vilkåret.",
+                "Finnes avslag uten periode ved forsøk på å legge til oppfylt periode.",
+                "Du kan ikke legge til perioden fordi det er vurdert avslag uten datoer på vilkåret. Denne må fjernes først.",
             )
     }
 }
@@ -453,8 +454,8 @@ private fun VilkårResultat.krysserRegelendring() =
 
 fun Collection<VilkårResultat>.forkortTomTilGyldigLengde(): List<VilkårResultat> =
     this.flatMap {
-        it.periodeFom ?: throw IllegalStateException("Barnets alder vilkår kan ikke begynne tidenes morgen")
-        it.periodeTom ?: throw IllegalStateException("Barnets alder vilkår kan ikke ende ved tidenes ende")
+        it.periodeFom ?: throw Feil("Barnets alder vilkår kan ikke begynne tidenes morgen")
+        it.periodeTom ?: throw Feil("Barnets alder vilkår kan ikke ende ved tidenes ende")
 
         val lengdePåPeriode = it.periodeFom!!.until(it.periodeTom).toTotalMonths()
         val fomTilLovendringsDato = it.periodeFom!!.until(DATO_LOVENDRING_2024).toTotalMonths()

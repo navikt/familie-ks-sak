@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.opphold.GrOpphold
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 
@@ -30,6 +31,7 @@ object RegisterHistorikkMapper {
             hentetTidspunkt = person.personopplysningGrunnlag.opprettetTidspunkt,
             oppholdstillatelse = person.opphold.map { lagRegisterOpplysningDto(it) },
             bostedsadresse = person.bostedsadresser.map { lagRegisterOpplysningDto(it) },
+            oppholdsadresse = person.oppholdsadresser.map { lagRegisterOpplysningDto(it) },
             sivilstand = person.sivilstander.map { lagRegisterOpplysningDto(it) },
         )
     }
@@ -56,6 +58,13 @@ object RegisterHistorikkMapper {
             fom = bostedsAdresse.periode?.fom,
             tom = bostedsAdresse.periode?.tom,
             verdi = bostedsAdresse.tilFrontendString(),
+        )
+
+    private fun lagRegisterOpplysningDto(oppholdsadresse: GrOppholdsadresse) =
+        RegisteropplysningResponsDto(
+            fom = oppholdsadresse.periode?.fom,
+            tom = oppholdsadresse.periode?.tom,
+            verdi = oppholdsadresse.tilFrontendString(),
         )
 
     private fun lagRegisterOpplysningDto(

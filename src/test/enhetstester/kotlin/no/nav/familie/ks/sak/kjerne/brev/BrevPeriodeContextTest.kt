@@ -487,7 +487,7 @@ fun lagBrevPeriodeContext(
             persongrunnlag.barna.map {
                 EndretUtbetalingAndel(
                     behandlingId = 0,
-                    person = it,
+                    personer = mutableSetOf(it),
                     fom = YearMonth.of(2020, 12),
                     tom = vedtaksperiodeMedBegrunnelser.fom?.toYearMonth()?.minusMonths(1),
                     årsak = Årsak.ETTERBETALING_3MND,
@@ -509,6 +509,7 @@ fun lagBrevPeriodeContext(
                 persongrunnlag,
                 andelTilkjentYtelserMedEndreteUtbetalinger,
                 emptyList(),
+                false,
             ),
         sanityBegrunnelser = lagSanityBegrunnelserFraDump(),
         personopplysningGrunnlag = persongrunnlag,

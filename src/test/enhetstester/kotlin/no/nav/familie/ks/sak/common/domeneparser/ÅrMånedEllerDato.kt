@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.common.domeneparser
 
+import no.nav.familie.ks.sak.common.exception.Feil
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -13,7 +14,7 @@ data class ÅrMånedEllerDato(
         } else if (dato is YearMonth) {
             dato.atDay(1)
         } else {
-            error("Typen er feil - ${dato::class.java.simpleName}")
+            throw Feil("Typen er feil - ${dato::class.java.simpleName}")
         }
 
     fun sisteDagenIMåneden(): LocalDate =
@@ -23,7 +24,7 @@ data class ÅrMånedEllerDato(
         } else if (dato is YearMonth) {
             dato.atEndOfMonth()
         } else {
-            error("Typen er feil - ${dato::class.java.simpleName}")
+            throw Feil("Typen er feil - ${dato::class.java.simpleName}")
         }
 }
 

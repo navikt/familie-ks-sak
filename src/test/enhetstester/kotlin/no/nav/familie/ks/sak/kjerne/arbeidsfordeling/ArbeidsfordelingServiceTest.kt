@@ -7,6 +7,7 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -60,7 +61,7 @@ internal class ArbeidsfordelingServiceTest {
         every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(404) } returns null
 
         val feil =
-            assertThrows<IllegalStateException> { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(404) }
+            assertThrows<Feil> { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(404) }
 
         assertThat(feil.message).isEqualTo("Finner ikke tilknyttet arbeidsfordeling på behandling med id 404")
     }
@@ -83,7 +84,7 @@ internal class ArbeidsfordelingServiceTest {
         every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns null
 
         val feil =
-            assertThrows<IllegalStateException> {
+            assertThrows<Feil> {
                 arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
                     behandling,
                     endreBehandlendeEnhetDto,

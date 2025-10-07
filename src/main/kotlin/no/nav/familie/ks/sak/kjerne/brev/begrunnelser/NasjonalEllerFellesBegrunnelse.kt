@@ -123,6 +123,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetInnvilgetPaaGrunnAvLovendring"
     },
+    INNVILGET_OVERGANG_EØS_TIL_NASJONAL {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetOvergangEosTilNasjonal"
+    },
     AVSLAG_UREGISTRERT_BARN {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"
@@ -294,6 +298,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
     AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagFulltidsplassIBarnehageAugust2024"
+    },
+    AVSLAG_BARN_UNDER_12_MÅNEDER {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagBarnUnder12maaneder"
     },
     OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
         override val begrunnelseType = BegrunnelseType.OPPHØR
@@ -743,6 +751,11 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
 
     INNVILGET_RETTSAVGJØRELSE_BOR_FAST_HOS_SØKER_0824 {
         override val sanityApiNavn = "innvilgetRettsavgjorelseBorFastHosSoker0824"
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+    },
+
+    INNVILGET_BOSATT_ETTER_UTENLANDSOPPHOLD {
+        override val sanityApiNavn = "innvilgetBosattEtterUtenlandsopphold"
         override val begrunnelseType = BegrunnelseType.INNVILGET
     },
 

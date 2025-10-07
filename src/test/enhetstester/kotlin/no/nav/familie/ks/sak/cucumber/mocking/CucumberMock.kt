@@ -2,7 +2,8 @@ package no.nav.familie.ks.sak.cucumber.mocking
 
 import io.mockk.mockk
 import mockAdopsjonService
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
+import mockIntegrasjonClient
+import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
@@ -26,13 +27,11 @@ import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
-import java.time.LocalDate
 
 class CucumberMock(
     stepDefinition: StepDefinition,
 ) {
-    val mockedDateProvider = MockedDateProvider(stepDefinition.dagensDato)
+    val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(stepDefinition.dagensDato)
 
     val vilkårsvurderingRepositoryMock = mockVilkårsvurderingRepository(stepDefinition)
     val andelTilkjentYtelseRepositoryMock = mockAndelTilkjentYtelseRepository(stepDefinition)
@@ -55,10 +54,10 @@ class CucumberMock(
     val behandlingRepositoryMock = mockk<BehandlingRepository>()
     val integrasjonServiceMock = mockk<IntegrasjonService>()
     val personRepository = mockk<PersonRepository>()
-    val tilbakekrevingsbehandlingHentService = mockk<TilbakekrevingsbehandlingHentService>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
     val praksisendring2024Service = mockPraksisendring2024Service()
     val adopsjonServiceMock = mockAdopsjonService()
+    val integrasjonClientMock = mockIntegrasjonClient()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
@@ -93,18 +92,15 @@ class CucumberMock(
     val fagsakService =
         FagsakService(
             personidentService = personidentService,
-            integrasjonService = integrasjonServiceMock,
-            personopplysningerService = personopplysningerServiceMock,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepositoryMock,
             fagsakRepository = fagsakRepositoryMock,
             personRepository = personRepository,
             behandlingRepository = behandlingRepositoryMock,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
             taskService = taskServiceMock,
-            tilbakekrevingsbehandlingHentService = tilbakekrevingsbehandlingHentService,
             vedtakRepository = vedtakRepositoryMock,
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
-            localDateProvider = mockedDateProvider,
+            clockProvider = clockProvider,
             adopsjonService = adopsjonServiceMock,
         )
 
@@ -142,10 +138,4 @@ class CucumberMock(
             adopsjonService = adopsjonServiceMock,
             adopsjonValidator = adopsjonValidator,
         )
-}
-
-class MockedDateProvider(
-    val mockedDate: LocalDate,
-) : LocalDateProvider {
-    override fun now(): LocalDate = this.mockedDate
 }

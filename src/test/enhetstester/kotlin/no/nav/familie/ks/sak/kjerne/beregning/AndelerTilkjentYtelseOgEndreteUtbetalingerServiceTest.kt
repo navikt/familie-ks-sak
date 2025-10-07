@@ -71,7 +71,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 // overlappende periode, kommer med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søkerPerson,
+                    personer = setOf(søkerPerson),
                     prosent = BigDecimal(100),
                     periodeFom = YearMonth.now().minusMonths(2),
                     periodeTom = YearMonth.now().minusMonths(1),
@@ -79,7 +79,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 // ikke overlappende perioder, kommer ikke med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søkerPerson,
+                    personer = setOf(søkerPerson),
                     prosent = BigDecimal(100),
                     periodeFom = YearMonth.now().minusMonths(10),
                     periodeTom = YearMonth.now().minusMonths(9),
@@ -129,7 +129,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 // overlappende periode, kommer med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    person = søkerPerson,
+                    personer = setOf(søkerPerson),
                     prosent = BigDecimal(100),
                     periodeFom = fom,
                     periodeTom = tom,

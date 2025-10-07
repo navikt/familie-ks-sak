@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -174,7 +175,7 @@ class TilkjentYtelseValideringServiceTest {
                     ),
             )
 
-        every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { tilkjentYtelse }
+        every { beregningService.finnTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { tilkjentYtelse }
         every { behandlingService.hentBehandling(behandlingId = behandling.id) } answers { behandling }
         every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id) } answers { forrigeBehandling }
         every { beregningService.hentTilkjentYtelseForBehandling(behandlingId = forrigeBehandling.id) } answers { forrigeTilkjentYtelse }
@@ -189,6 +190,19 @@ class TilkjentYtelseValideringServiceTest {
             barn2,
             aktørerMedUgyldigEtterbetalingsperiode.single(),
         )
+    }
+
+    @Test
+    fun `finnAktørerMedUgyldigEtterbetalingsperiode - skal returnere tom liste dersom tilkjent ytelse for nåværende behandling ikke finnes`() {
+        // Arrange
+        every { beregningService.finnTilkjentYtelseForBehandling(behandlingId = behandling.id) } answers { null }
+
+        // Act
+        val aktørerMedUgyldigEtterbetalingsperiode =
+            tilkjentYtelseValideringService.finnAktørerMedUgyldigEtterbetalingsperiode(behandlingId = behandling.id)
+
+        // Assert
+        assertThat(aktørerMedUgyldigEtterbetalingsperiode).isEmpty()
     }
 
     @Test

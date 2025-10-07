@@ -29,6 +29,7 @@ import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.YearMonth
@@ -39,6 +40,7 @@ object TilkjentYtelseValidator {
         personopplysningGrunnlag: PersonopplysningGrunnlag,
         alleBarnetsAlderVilkårResultater: List<VilkårResultat>,
         adopsjonerIBehandling: List<Adopsjon>,
+        dagensDato: LocalDate,
     ) {
         val søker = personopplysningGrunnlag.søker
         val barna = personopplysningGrunnlag.barna
@@ -84,6 +86,12 @@ object TilkjentYtelseValidator {
                     "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                         "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
                 throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
+            }
+
+            if (stønadFom > dagensDato.toYearMonth().plusMonths(1)) {
+                throw FunksjonellFeil(
+                    melding = "Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 1 måned fram i tid. Dette gjelder barn født ${relevantBarn.fødselsdato}.",
+                )
             }
         }
 
@@ -189,11 +197,11 @@ object TilkjentYtelseValidator {
                     }
                 }.map { it.first }
 
-        val periodeMedTillatOverlappÉnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 1))
+        val periodeMedTillatOverlappEnMåned = MånedPeriode(YearMonth.of(2024, 8), YearMonth.of(2025, 2))
         return when {
             overlappendeMåneder.isEmpty() -> false
             overlappendeMåneder.size > 1 -> true
-            else -> !periodeMedTillatOverlappÉnMåned.inkluderer(overlappendeMåneder.first())
+            else -> !periodeMedTillatOverlappEnMåned.inkluderer(overlappendeMåneder.first())
         }
     }
 

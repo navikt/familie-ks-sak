@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.mapForventetVedtaksperioderMedBegrunnelser
@@ -20,11 +21,11 @@ import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.cucumber.BrevBegrunnelseParser.mapBegrunnelser
 import no.nav.familie.ks.sak.cucumber.mocking.CucumberMock
+import no.nav.familie.ks.sak.cucumber.mocking.mockFeatureToggleService
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseDto
@@ -38,10 +39,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.avslagsperiode.AvslagsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.UtvidetVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.tilUtvidetVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiodeMedBegrunnelser.UtbetalingsperiodeMedBegrunnelserService
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.opphørsperiode.OpphørsperiodeGenerator
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.utbetalingsperiode.UtbetalingsperiodeGenerator
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -356,16 +359,21 @@ class StepDefinition {
         dataTable: DataTable,
     ) {
         val forventedeStandardBegrunnelser = mapBegrunnelser(dataTable).toSet()
+        val forventedeSanityBegrunnelser =
+            forventedeStandardBegrunnelser
+                .flatMap { it.inkluderteStandardBegrunnelser }
+                .mapNotNull { begrunnelse -> sanityBegrunnelserMock.singleOrNull { it.apiNavn == begrunnelse.sanityApiNavn } }
 
         forventedeStandardBegrunnelser.forEach { forventet ->
             val faktisk =
                 hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId)
+                    .sortedBy { it.fom }
                     .mapIndexed { index, utvidetVedtaksperiodeMedBegrunnelser ->
                         utvidetVedtaksperiodeMedBegrunnelser.copy(
                             gyldigeBegrunnelser =
                                 BegrunnelserForPeriodeContext(
                                     utvidetVedtaksperiodeMedBegrunnelser = utvidetVedtaksperiodeMedBegrunnelser,
-                                    sanityBegrunnelser = sanityBegrunnelserMock,
+                                    sanityBegrunnelser = forventedeSanityBegrunnelser,
                                     personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                                     personResultater = vilkårsvurdering[behandlingId]!!.personResultater.toList(),
                                     endretUtbetalingsandeler = endredeUtbetalinger[behandlingId] ?: emptyList(),
@@ -408,12 +416,15 @@ class StepDefinition {
         behandlingId: Long,
     ): List<UtvidetVedtaksperiodeMedBegrunnelser> {
         val vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser[behandlingId]!!
+        val behandling = behandlinger[behandlingId]!!
+
         return vedtaksperioderMedBegrunnelser.map {
             it.tilUtvidetVedtaksperiodeMedBegrunnelser(
                 personopplysningGrunnlag = personopplysningGrunnlagMap[behandlingId]!!,
                 andelerTilkjentYtelse = hentAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId),
                 dagensDato = dagensDato,
                 sanityBegrunnelser = emptyList(),
+                alleBegrunnelserStøtterFritekst = behandling.erRevurderingKlage(),
             )
         }
     }
@@ -605,8 +616,7 @@ class StepDefinition {
             kompetanser[behandlingId.id] ?: emptyList()
         }
 
-        val localDateProvider = mockk<LocalDateProvider>()
-        every { localDateProvider.now() } returns dagensDato
+        val clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(dagensDato)
 
         return BehandlingsresultatService(
             behandlingService = behandlingService,
@@ -617,7 +627,7 @@ class StepDefinition {
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             endretUtbetalingAndelService = endretUtbetalingAndelService,
             kompetanseService = kompetanseService,
-            localDateProvider = localDateProvider,
+            clockProvider = clockProvider,
         )
     }
 
@@ -688,8 +698,8 @@ class StepDefinition {
             kompetanser[behandlingId.id] ?: emptyList()
         }
 
-        val utbetalingsperiodeMedBegrunnelserService =
-            UtbetalingsperiodeMedBegrunnelserService(
+        val utbetalingsperiodeGenerator =
+            UtbetalingsperiodeGenerator(
                 vilkårsvurderingService = mockVilkårsvurderingService(),
                 andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
                 personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
@@ -732,15 +742,31 @@ class StepDefinition {
                 vilkårsvurderingService = mockVilkårsvurderingService(),
             )
 
+        val opphørsperiodeGenerator =
+            OpphørsperiodeGenerator(
+                behandlingRepository = behandlingRepository,
+                personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+                adopsjonService = mockAdopsjonService(),
+                endringstidspunktService = endringstidspunktService,
+            )
+
+        val avslagsperiodeGenerator =
+            AvslagsperiodeGenerator(
+                vedtaksperiodeHentOgPersisterService = mockk(relaxed = true),
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
+                søknadGrunnlagService = søknadGrunnlagService,
+                andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
+            )
+
         return VedtaksperiodeService(
             behandlingRepository = behandlingRepository,
             personopplysningGrunnlagService = mockPersonopplysningGrunnlagService(),
-            vedtaksperiodeHentOgPersisterService = mockk(),
+            vedtaksperiodeHentOgPersisterService = mockk(relaxed = true),
             vedtakRepository = mockk(),
             vilkårsvurderingRepository = vilkårsvurderingRepository,
             sanityService = mockk(),
-            søknadGrunnlagService = søknadGrunnlagService,
-            utbetalingsperiodeMedBegrunnelserService = utbetalingsperiodeMedBegrunnelserService,
             overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
             integrasjonClient = mockk(),
@@ -748,6 +774,10 @@ class StepDefinition {
             kompetanseService = kompetanseService,
             adopsjonService = mockAdopsjonService(),
             endringstidspunktService = endringstidspunktService,
+            opphørsperiodeGenerator = opphørsperiodeGenerator,
+            utbetalingsperiodeGenerator = utbetalingsperiodeGenerator,
+            avslagsperiodeGenerator = avslagsperiodeGenerator,
+            featureToggleService = mockFeatureToggleService(),
         )
     }
 

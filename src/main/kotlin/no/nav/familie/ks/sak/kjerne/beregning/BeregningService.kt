@@ -44,6 +44,8 @@ class BeregningService(
             .filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } }
     }
 
+    fun finnTilkjentYtelseForBehandling(behandlingId: Long) = tilkjentYtelseRepository.hentOptionalTilkjentYtelseForBehandling(behandlingId)
+
     fun hentTilkjentYtelseForBehandling(behandlingId: Long) = tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId)
 
     fun hentAndelerTilkjentYtelseMedUtbetalingerForBehandling(behandlingId: Long): List<AndelTilkjentYtelse> =

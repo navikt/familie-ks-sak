@@ -59,7 +59,7 @@ Egenskap: Overgangsordning
       | 2       | 01.02.2024 | 31.08.2024 | 3000  | ORDINÆR_KONTANTSTØTTE | 40      | 7500 | 3000                   |                          |
       | 2       | 01.09.2024 | 31.10.2024 | 1500  | OVERGANGSORDNING      | 20      | 7500 | 1500                   |                          |
     Og når behandlingsresultatet er utledet for behandling 2
-    Så forvent at behandlingsresultatet er ENDRET_UTBETALING på behandling 2
+    Så forvent at behandlingsresultatet er ENDRET_OG_OPPHØRT på behandling 2
 
 
     Og vedtaksperioder er laget for behandling 2

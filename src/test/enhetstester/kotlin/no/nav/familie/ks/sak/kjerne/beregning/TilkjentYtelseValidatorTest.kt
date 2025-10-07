@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtB
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -76,6 +77,7 @@ internal class TilkjentYtelseValidatorTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
                 )
             }
         val feilmelding =
@@ -125,6 +127,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
                 )
             }
         val feilmelding =
@@ -166,6 +169,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
                 )
             }
         val feilmelding =
@@ -217,6 +221,7 @@ internal class TilkjentYtelseValidatorTest {
                 ),
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
                 adopsjonerIBehandling = emptyList(),
+                dagensDato = LocalDate.of(2025, 4, 1),
             )
         }
     }
@@ -247,6 +252,7 @@ internal class TilkjentYtelseValidatorTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
                 )
             }
 
@@ -287,6 +293,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
                 )
             }
 
@@ -387,6 +394,99 @@ internal class TilkjentYtelseValidatorTest {
             ),
             personopplysningGrunnlag,
         )
+    }
+
+    @Test
+    fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal tillate 1 måned overlapp mellom 2024 august og 2025 februar`() {
+        val andelTilkjentYtelseForBarn =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn.aktør,
+                stønadFom = YearMonth.of(2025, 2),
+                stønadTom = YearMonth.of(2025, 2),
+                sats = 8000,
+            )
+        tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
+
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            lagInitieltTilkjentYtelse(annenBehandling).also {
+                it.stønadFom = YearMonth.now().minusMonths(11)
+                it.stønadTom = YearMonth.now()
+                it.andelerTilkjentYtelse.add(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        behandling = behandling,
+                        aktør = barn.aktør,
+                        stønadFom = YearMonth.of(2025, 2),
+                        stønadTom = YearMonth.of(2025, 2),
+                        sats = 8000,
+                    ),
+                )
+            }
+
+        val andreTilkjenteYtelser = listOf(annenTilkjentYtelse)
+        val person = lagPerson(personopplysningGrunnlag, barn.aktør, PersonType.BARN)
+
+        assertDoesNotThrow {
+            validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
+                tilkjentYtelse,
+                listOf(
+                    Pair(person, andreTilkjenteYtelser),
+                ),
+                personopplysningGrunnlag,
+            )
+        }
+    }
+
+    @Test
+    fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal ikke tillate 1 måned overlapp dersom andelen ikke utbetales mellom 2024 august og 2025 februar`() {
+        val andelTilkjentYtelseForBarn =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn.aktør,
+                stønadFom = YearMonth.of(2025, 3),
+                stønadTom = YearMonth.of(2025, 3),
+                sats = 8000,
+            )
+        tilkjentYtelse.andelerTilkjentYtelse.add(andelTilkjentYtelseForBarn)
+
+        val annenBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        val annenTilkjentYtelse =
+            lagInitieltTilkjentYtelse(annenBehandling).also {
+                it.stønadFom = YearMonth.now().minusMonths(11)
+                it.stønadTom = YearMonth.now()
+                it.andelerTilkjentYtelse.add(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        behandling = behandling,
+                        aktør = barn.aktør,
+                        stønadFom = YearMonth.of(2025, 3),
+                        stønadTom = YearMonth.of(2025, 3),
+                        sats = 8000,
+                    ),
+                )
+            }
+
+        val andreTilkjenteYtelser = listOf(annenTilkjentYtelse)
+        val person = lagPerson(personopplysningGrunnlag, barn.aktør, PersonType.BARN)
+
+        val feilmelding =
+            assertThrows<UtbetalingsikkerhetFeil> {
+                validerAtBarnIkkeFårFlereUtbetalingerSammePeriode(
+                    tilkjentYtelse,
+                    listOf(
+                        Pair(person, andreTilkjenteYtelser),
+                    ),
+                    personopplysningGrunnlag,
+                )
+            }.message
+
+        assertThat(feilmelding).isEqualTo("Vi finner utbetalinger som overstiger 100% på hvert av barna: 01.01.21")
     }
 
     @Test
@@ -533,6 +633,7 @@ internal class TilkjentYtelseValidatorTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 adopsjonerIBehandling = emptyList(),
+                dagensDato = LocalDate.of(2025, 4, 1),
             )
         }
     }
@@ -561,6 +662,7 @@ internal class TilkjentYtelseValidatorTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 adopsjonerIBehandling = emptyList(),
+                dagensDato = LocalDate.of(2025, 4, 1),
             )
         }
     }
@@ -589,8 +691,41 @@ internal class TilkjentYtelseValidatorTest {
                 personopplysningGrunnlag = personopplysningGrunnlag,
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                 adopsjonerIBehandling = emptyList(),
+                dagensDato = LocalDate.of(2025, 4, 1),
             )
         }
+    }
+
+    @Test
+    fun `Det skal kastes feil dersom det forsøkes å innvilge mer enn 1 måned fram i tid`() {
+        val andeler =
+            listOf(
+                lagAndelTilkjentYtelse(
+                    behandling = behandling,
+                    aktør = barn.aktør,
+                    stønadFom = YearMonth.of(2025, 6),
+                    stønadTom = YearMonth.of(2025, 7),
+                    sats = 5000,
+                ),
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(andeler)
+
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 7, 1), adopsjonsdato = LocalDate.of(2023, 10, 10))
+
+        val feilmelding =
+            assertThrows<FunksjonellFeil> {
+                validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                    tilkjentYtelse = tilkjentYtelse,
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
+                    adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
+                )
+            }.frontendFeilmelding
+
+        assertThat(feilmelding).isEqualTo("Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 1 måned fram i tid. Dette gjelder barn født 2021-01-01.")
     }
 
     @Test
@@ -618,6 +753,7 @@ internal class TilkjentYtelseValidatorTest {
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
+                    dagensDato = LocalDate.of(2025, 4, 1),
                 )
             }
         assertEquals(

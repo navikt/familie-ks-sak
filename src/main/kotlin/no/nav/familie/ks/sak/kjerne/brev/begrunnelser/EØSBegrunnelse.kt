@@ -354,6 +354,22 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetPrimarlandOppholdAnnetEosLandNorgeLovvalgsland"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
+    INNVILGET_TILLEGGSTEKST_SEKUNDÆR_FÅR_IKKE_KS_I_ANNET_LAND {
+        override val sanityApiNavn = "innvilgetTilleggstekstSekundarFaarIkkeKsIAnnetLand"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_SEKUNDÆR_FÅR_IKKE_KS_I_ANNET_LAND {
+        override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstSekundarFaarIkkeKsIAnnetLand"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_TILLEGGSTEKST_SEKUNDÆR_INFO_OM_MULIG_REFUSJON {
+        override val sanityApiNavn = "innvilgetTilleggstekstSekundarInfoOmMuligRefusjon"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_SELVSTENDIG_RETT_TILLEGGSTEKST_SEKUNDÆR_INFO_OM_MULIG_REFUSJON {
+        override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstSekundarInfoOmMuligRefusjon"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
 
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"

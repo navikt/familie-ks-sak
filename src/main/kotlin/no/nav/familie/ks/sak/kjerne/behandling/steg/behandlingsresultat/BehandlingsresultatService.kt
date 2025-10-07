@@ -3,8 +3,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.util.LocalDateProvider
-import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -19,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
+import java.time.YearMonth
 
 @Service
 class BehandlingsresultatService(
@@ -30,7 +30,7 @@ class BehandlingsresultatService(
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val endretUtbetalingAndelService: EndretUtbetalingAndelService,
     private val kompetanseService: KompetanseService,
-    private val localDateProvider: LocalDateProvider,
+    private val clockProvider: ClockProvider,
 ) {
     internal fun utledBehandlingsresultat(behandlingId: Long): Behandlingsresultat {
         val behandling = behandlingService.hentBehandling(behandlingId)
@@ -109,7 +109,7 @@ class BehandlingsresultatService(
                 forrigeEndretAndeler = forrigeEndretUtbetalingAndeler,
                 nåværendePersonResultaterPåBarn = nåværendePersonResultat.filter { !it.erSøkersResultater() },
                 forrigePersonResultaterPåBarn = forrigePersonResultat.filter { !it.erSøkersResultater() },
-                nåMåned = localDateProvider.now().toYearMonth(),
+                nåMåned = YearMonth.now(clockProvider.get()),
             )
 
         // KOMBINER

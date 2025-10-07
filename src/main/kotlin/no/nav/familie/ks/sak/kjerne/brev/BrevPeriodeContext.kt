@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.DATO_LOVENDRING_2024
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
@@ -265,7 +266,7 @@ class BrevPeriodeContext(
             nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE &&
             nasjonalEllerFellesBegrunnelse != NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024
         ) {
-            throw IllegalStateException("Ingen personer på brevbegrunnelse $nasjonalEllerFellesBegrunnelse")
+            throw FunksjonellFeil("Begrunnelsen '${sanityBegrunnelse.apiNavn}' passer ikke vedtaksperioden. Hvis du mener dette er feil ta kontakt med team BAKS.")
         }
     }
 
@@ -611,7 +612,7 @@ class BrevPeriodeContext(
 
                 kastFeilHvisFomErUgyldig(vedtaksperiodeFom)
                 when {
-                    sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
+                    sanityBegrunnelse.inneholderGjelderFørstePeriodeTrigger() -> hentSenesteFomSomIkkeErOppfyltOgOverstiger33Timer(vilkårResultaterForRelevantePersoner, vedtaksperiodeFom)
                     alleLovverkForBarna.all { it == Lovverk.LOVENDRING_FEBRUAR_2025 } -> vedtaksperiodeFom.tilMånedÅr()
                     opphørGrunnetFulltidsBarnehageplassAugust2024 -> vedtaksperiodeFom.tilMånedÅr()
                     fomErFørLovendring2024 -> vedtaksperiodeFom.tilMånedÅr()
@@ -632,7 +633,7 @@ class BrevPeriodeContext(
         }
     }
 
-    private fun hentTidligesteFomSomIkkeErOppfyltOgOverstiger33Timer(
+    private fun hentSenesteFomSomIkkeErOppfyltOgOverstiger33Timer(
         vilkårResultaterForRelevantePersoner: List<VilkårResultat>,
         fom: LocalDate,
     ): String =
@@ -642,7 +643,7 @@ class BrevPeriodeContext(
                 val vilkårResultatOverstiger33Timer = (it.antallTimer ?: BigDecimal(0)) >= BigDecimal(33)
 
                 vilkårResultatErIkkeOppfylt && vilkårResultatOverstiger33Timer
-            }.minOfOrNull { it.periodeFom ?: fom }
+            }.maxOfOrNull { it.periodeFom ?: fom }
             ?.tilMånedÅr() ?: fom.tilMånedÅr()
 
     private fun kastFeilHvisFomErUgyldig(fom: LocalDate) {
@@ -660,14 +661,20 @@ class BrevPeriodeContext(
         )
 
     private fun Person.hentAntallTimerBarnehageplass(): BigDecimal {
-        val forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode =
-            hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]
-                ?.get(Vilkår.BARNEHAGEPLASS)
-                ?.tilPerioderIkkeNull()
+        val forskjøvetBarnehageplassPeriodeSomPasserVedtaksperiode =
+            if (utvidetVedtaksperiodeMedBegrunnelser.type == Vedtaksperiodetype.FORTSATT_INNVILGET) {
+                hentForskjøvedeVilkårResultater()[this.aktør]
+                    ?.get(Vilkår.BARNEHAGEPLASS)
+                    ?.tilPerioderIkkeNull()
+            } else {
+                hentForskjøvedeVilkårResultaterSomErSamtidigSomVedtaksperiode()[this.aktør]
+                    ?.get(Vilkår.BARNEHAGEPLASS)
+                    ?.tilPerioderIkkeNull()
+            }
 
         val antallTimerIBarnehageplassVilkår =
-            forskjøvetBarnehageplassPeriodeSomErSamtidigSomVedtaksperiode
-                ?.singleOrNull() // Skal være maks ett barnehageresultat i periode, ellers burde vi ha splittet opp vedtaksperioden.
+            forskjøvetBarnehageplassPeriodeSomPasserVedtaksperiode
+                ?.maxByOrNull { it.fom ?: TIDENES_ENDE }
                 ?.verdi
                 ?.antallTimer
 

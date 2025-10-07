@@ -66,9 +66,9 @@ import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils
 import java.math.BigDecimal
 import java.time.LocalDate
 
-fun Map<Long, Behandling>.finnBehandling(behandlingId: Long) = this[behandlingId] ?: error("Finner ikke behandling med id $behandlingId")
+fun Map<Long, Behandling>.finnBehandling(behandlingId: Long) = this[behandlingId] ?: throw Feil("Finner ikke behandling med id $behandlingId")
 
-fun Map<Long, PersonopplysningGrunnlag>.finnPersonGrunnlagForBehandling(behandlingId: Long): PersonopplysningGrunnlag = this[behandlingId] ?: error("Finner ikke persongrunnlag for behandling med id $behandlingId")
+fun Map<Long, PersonopplysningGrunnlag>.finnPersonGrunnlagForBehandling(behandlingId: Long): PersonopplysningGrunnlag = this[behandlingId] ?: throw Feil("Finner ikke persongrunnlag for behandling med id $behandlingId")
 
 fun lagFagsaker(dataTable: DataTable) =
     dataTable
@@ -128,7 +128,7 @@ fun lagVilkårsvurdering(
 ): Vilkårsvurdering {
     val vilkårvurdering =
         Vilkårsvurdering(
-            behandling = stepDefinition.behandlinger[behandlingId] ?: error("Fant ikke behandling med id $behandlingId"),
+            behandling = stepDefinition.behandlinger[behandlingId] ?: throw Feil("Fant ikke behandling med id $behandlingId"),
         )
 
     val vilkårResultaterPerPerson =
@@ -357,7 +357,7 @@ fun lagUtenlandskperiodeBeløp(
 
 private fun validerErLandkode(it: String) {
     if (it.length != 2) {
-        error("$it er ikke en landkode")
+        throw Feil("$it er ikke en landkode")
     }
 }
 
@@ -366,13 +366,18 @@ fun lagEndredeUtbetalinger(
     persongrunnlag: Map<Long, PersonopplysningGrunnlag>,
 ) = nyeEndredeUtbetalingAndeler
     .map { rad ->
-        val aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)
+        val aktørIder = VedtaksperiodeMedBegrunnelserParser.parseAktørIdListe(rad)
         val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
         EndretUtbetalingAndel(
             behandlingId = behandlingId,
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
-            person = persongrunnlag.finnPersonGrunnlagForBehandling(behandlingId).personer.find { aktørId == it.aktør.aktørId },
+            personer =
+                persongrunnlag
+                    .finnPersonGrunnlagForBehandling(behandlingId)
+                    .personer
+                    .filter { it.aktør.aktørId in aktørIder }
+                    .toMutableSet(),
             prosent =
                 parseValgfriLong(
                     VedtaksperiodeMedBegrunnelserParser.DomenebegrepEndretUtbetaling.PROSENT,

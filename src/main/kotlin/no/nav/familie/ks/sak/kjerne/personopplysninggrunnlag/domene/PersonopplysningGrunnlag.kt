@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
+import no.nav.familie.ks.sak.common.exception.Feil
 
 @Entity
 @Table(name = "GR_PERSONOPPLYSNINGER")
@@ -41,5 +42,5 @@ data class PersonopplysningGrunnlag(
     val søker: Person
         get() =
             personer.singleOrNull { it.type == PersonType.SØKER }
-                ?: error("Persongrunnlag mangler søker eller det finnes flere personer i grunnlaget med type=SØKER")
+                ?: throw Feil("Persongrunnlag mangler søker eller det finnes flere personer i grunnlaget med type=SØKER")
 }

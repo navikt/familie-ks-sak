@@ -67,18 +67,15 @@ class JournalføringController(
     fun journalførOppgave(
         @PathVariable journalpostId: String,
         @PathVariable oppgaveId: String,
-        @RequestBody @Valid
-        request: JournalføringRequestDto,
+        @RequestBody @Valid request: JournalføringRequestDto,
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "journalføring",
         )
-
         if (request.dokumenter.any { it.dokumentTittel.isNullOrBlank() }) {
             throw FunksjonellFeil("Minst ett av dokumentene mangler dokumenttittel.")
         }
-
         val fagsakId = innkommendeJournalføringService.journalfør(request, journalpostId, oppgaveId)
         return ResponseEntity.ok(Ressurs.success(fagsakId, "Journalpost $journalpostId Journalført"))
     }

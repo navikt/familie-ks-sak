@@ -109,6 +109,7 @@ class BegrunnelserForPeriodeContext(
                 hentPersonerSomPasserForKompetanseIPeriode(this, sanityBegrunnelse)
 
         return when {
+            sanityApiNavn == NasjonalEllerFellesBegrunnelse.REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS.sanityApiNavn -> false
             sanityBegrunnelse.skalAlltidVises -> true
             sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty() -> erEtterEndretPeriodeAvSammeÅrsak(sanityBegrunnelse)
 
@@ -185,7 +186,7 @@ class BegrunnelserForPeriodeContext(
                     ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) ?: false
 
             val endringsperiodeGjelderSammePersonSomVedtaksperiode =
-                personResultater.any { person -> person.aktør.aktørId == endretUtbetalingAndel.person?.aktør?.aktørId }
+                personResultater.any { endretUtbetalingAndel.personer.any { person -> person.aktør == it.aktør } }
 
             val begrunnelseHarSammeÅrsakSomEndringsperiode =
                 begrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
@@ -269,7 +270,7 @@ class BegrunnelserForPeriodeContext(
                 val endretUtbetalingAndelStarterSamtidigSomVedtaksperiode = endretUtbetalingAndel.fom == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
 
                 endretUtbetalingAndelStarterFørVedtaksperiode || endretUtbetalingAndelStarterSamtidigSomVedtaksperiode
-            }.mapNotNull { it.person }
+            }.flatMap { it.personer }
             .toSet()
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(
@@ -412,9 +413,9 @@ class BegrunnelserForPeriodeContext(
 
                 val senesteVilkårSomIkkeErOppfyltPåPersonPerVilkårType =
                     vilkårResultaterPåPerson
+                        .filter { !it.erOppfylt() }
                         .groupBy { it.vilkårType }
                         .map { (_, vilkår) -> vilkår.maxBy { it.periodeFom ?: TIDENES_MORGEN } }
-                        .filter { !it.erOppfylt() }
 
                 val senesteVilkårSomIkkeErOppfyltForrigeEllerDennePerioden =
                     senesteVilkårSomIkkeErOppfyltPåPersonPerVilkårType.filter {
@@ -472,7 +473,6 @@ class BegrunnelserForPeriodeContext(
                         .singleOrNull {
                             it.tom?.plusDays(1) == vedtaksperiode.fom
                         }?.verdi
-                        ?.filter { it.erOppfylt() || it.erIkkeAktuelt() }
 
                 if (vilkårResultatSomSlutterFørVedtaksperiode != null) {
                     Pair(person, vilkårResultatSomSlutterFørVedtaksperiode)

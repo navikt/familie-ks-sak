@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.eksterne.kontrakter.KompetanseAktivitet
 import no.nav.familie.eksterne.kontrakter.Vilkår
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -93,7 +94,7 @@ internal class StønadsstatistikkServiceTest {
 
         // Act
         val exception =
-            assertThrows<IllegalStateException> {
+            assertThrows<Feil> {
                 stønadsstatistikkService.hentVedtakDVH(1L)
             }
 

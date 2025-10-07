@@ -14,11 +14,13 @@ import no.nav.familie.ks.sak.integrasjon.infotrygd.Foedselsnummer
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InnsynResponse
 import no.nav.familie.ks.sak.integrasjon.infotrygd.StonadDto
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelTilkjentYtelseMedEndreteUtbetalinger
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.person.pdl.aktor.v2.Type
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -55,6 +57,8 @@ internal class BisysServiceTest {
     fun setup() {
         every { personidentService.hentAktør(barn1IKsSak) } returns barn1Aktør
         every { personidentService.hentAktør(barn2IInfotrygd) } returns barn2Aktør
+        every { personidentService.hentIdenter(barn1IKsSak, any()) } answers { listOf(PdlIdent(barn1IKsSak, false, Type.FOLKEREGISTERIDENT.name)) }
+        every { personidentService.hentIdenter(barn2IInfotrygd, any()) } answers { listOf(PdlIdent(barn2IInfotrygd, false, Type.FOLKEREGISTERIDENT.name)) }
         every { fagsakService.hentFagsakerPåPerson(barn1Aktør) } returns listOf(fagsak)
         every { fagsakService.hentFagsakerPåPerson(barn2Aktør) } returns emptyList()
         every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns behandling
@@ -213,6 +217,18 @@ internal class BisysServiceTest {
             fomMåned = YearMonth.now().minusMonths(5),
             tomMåned = YearMonth.now().plusMonths(3),
         )
+    }
+
+    @Test
+    fun `hentUtbetalingsinfo filtrerer vekk identer med bare NPID`() {
+        every {
+            infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+        } returns InnsynResponse(data = emptyList())
+        every { personidentService.hentIdenter(any(), false) } returns listOf(PdlIdent("NPID", false, Type.NPID.name))
+
+        val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), listOf("NPID"))
+        assertTrue { utbetalinger.infotrygdPerioder.isEmpty() }
+        assertTrue { utbetalinger.ksSakPerioder.isEmpty() }
     }
 
     private fun List<KsSakPeriode>.assertUtbetaling(

@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.called
 import io.mockk.every
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
@@ -13,10 +14,10 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
@@ -52,6 +52,9 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
+
+    @MockkBean
+    private lateinit var integrasjonClient: IntegrasjonClient
 
     @MockkBean(relaxed = true)
     private lateinit var personOpplysningerService: PersonopplysningerService
@@ -79,6 +82,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         // Mocker ut tjenester som kjører eksterne kall
         every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
         every { arbeidsfordelingService.fastsettBehandlendeEnhet(any()) } just runs
+        every { integrasjonClient.hentPoststeder() } returns mockk(relaxed = true)
     }
 
     @Test
@@ -191,25 +195,5 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
         verify { personOpplysningerService wasNot called }
         verify { arbeidsfordelingService wasNot called }
-    }
-
-    @Test
-    fun `utførSteg - skal kaste feil dersom barn fyller 1 år senere enn inneværende måned`() {
-        val søknadDto =
-            SøknadDto(
-                søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
-                barnaMedOpplysninger =
-                    listOf(
-                        BarnMedOpplysningerDto(
-                            ident = barn1.aktivFødselsnummer(),
-                            fødselsdato = LocalDate.now().minusMonths(11),
-                        ),
-                    ),
-                endringAvOpplysningerBegrunnelse = "",
-            )
-
-        assertThrows<FunksjonellFeil> {
-            registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))
-        }
     }
 }

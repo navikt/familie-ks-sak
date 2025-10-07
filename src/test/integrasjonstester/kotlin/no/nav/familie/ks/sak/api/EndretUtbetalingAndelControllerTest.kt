@@ -76,7 +76,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
                         behandlingId = behandling.id,
-                        person = søkerPerson,
+                        personer = setOf(søkerPerson),
                     ),
                 )
 
@@ -141,7 +141,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
                         behandlingId = behandling.id,
-                        person = søkerPerson,
+                        personer = setOf(søkerPerson),
                     ),
                 )
 
@@ -212,7 +212,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
                         behandlingId = behandling.id,
-                        person = søkerPerson,
+                        personer = setOf(søkerPerson),
                     ),
                 )
 
@@ -270,7 +270,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
                         behandlingId = behandling.id,
-                        person = søkerPerson,
+                        personer = setOf(søkerPerson),
                     ),
                 )
 
@@ -302,7 +302,7 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
                         behandlingId = behandling.id,
-                        person = søkerPerson,
+                        personer = setOf(søkerPerson),
                     ),
                 )
 

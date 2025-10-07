@@ -16,12 +16,11 @@ import no.nav.familie.kontrakter.felles.dokdist.DistribuerJournalpostRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstidspunkt
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.dokdist.ManuellAdresse
-import no.nav.familie.kontrakter.felles.enhet.Enhet
-import no.nav.familie.kontrakter.felles.enhet.HentEnheterNavIdentHarTilgangTilRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
+import no.nav.familie.kontrakter.felles.kodeverk.LandDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
@@ -29,6 +28,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
+import no.nav.familie.kontrakter.felles.saksbehandler.SaksbehandlerGrupper
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
@@ -36,7 +36,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordel
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.Companion.erGyldigBehandlendeKontantstøtteEnhet
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -281,15 +281,26 @@ class IntegrasjonClient(
         }
     }
 
-    fun hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<Enhet> {
-        val uri = URI.create("$integrasjonUri/enhetstilganger")
-        return kallEksternTjenesteRessurs<List<Enhet>>(
-            tjeneste = "enhetstilganger",
-            uri = uri,
-            formål = "Hent enheter en NAV-ident har tilgang til",
-        ) {
-            postForEntity(uri, HentEnheterNavIdentHarTilgangTilRequest(navIdent, Tema.KON))
-        }.filter { erGyldigBehandlendeKontantstøtteEnhet(it.enhetsnummer) }
+    fun hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent: NavIdent): List<KontantstøtteEnhet> {
+        val uri =
+            UriComponentsBuilder
+                .fromUri(integrasjonUri)
+                .pathSegment("saksbehandler", navIdent.ident, "grupper")
+                .build()
+                .toUri()
+
+        val saksbehandlerSineGrupper =
+            kallEksternTjenesteRessurs<SaksbehandlerGrupper>(
+                tjeneste = "saksbehandler",
+                uri = uri,
+                formål = "Henter gruppene til saksbehandler",
+            ) {
+                getForEntity(uri)
+            }
+
+        return saksbehandlerSineGrupper.value.mapNotNull { navn ->
+            KontantstøtteEnhet.entries.find { it.gruppenavn == navn.displayName }
+        }
     }
 
     @Cacheable("enhet", cacheManager = "kodeverkCache")
@@ -494,6 +505,67 @@ class IntegrasjonClient(
             tjeneste = "kodeverk",
             uri = uri,
             formål = "Hent landkoderISO2",
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    fun hentAInntektUrl(personIdent: PersonIdent): String {
+        val url = URI.create("$integrasjonUri/arbeid-og-inntekt/hent-url")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "a-inntekt-url",
+            uri = url,
+            formål = "Hent URL for person til A-inntekt",
+        ) {
+            postForEntity(
+                url,
+                personIdent,
+            )
+        }
+    }
+
+    fun sjekkErEgenAnsatt(personIdenter: Set<String>): Map<String, Boolean> {
+        val url = URI.create("$integrasjonUri/egenansatt/bulk")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "skjermede-personer-pip",
+            uri = url,
+            formål = "Sjekk om personer er egen ansatt",
+        ) {
+            postForEntity<Ressurs<Map<String, Boolean>>>(
+                url,
+                personIdenter,
+            )
+        }
+    }
+
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
+    )
+    @Cacheable("poststeder", cacheManager = "kodeverkCache")
+    fun hentPoststeder(): KodeverkDto {
+        val uri = URI.create("$integrasjonUri/kodeverk/poststed")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent postnumre",
+        ) {
+            getForEntity(uri)
+        }
+    }
+
+    @Cacheable("fylker-og-kommuner", cacheManager = "kodeverkCache")
+    fun hentFylkerOgKommuner(): LandDto {
+        val uri = URI.create("$integrasjonUri/kodeverk/fylkerOgKommuner")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "kodeverk",
+            uri = uri,
+            formål = "Hent fylker og kommuner",
         ) {
             getForEntity(uri)
         }

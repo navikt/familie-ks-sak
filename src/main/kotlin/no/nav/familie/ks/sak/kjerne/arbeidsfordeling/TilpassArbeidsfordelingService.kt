@@ -55,43 +55,33 @@ class TilpassArbeidsfordelingService(
         navIdent: NavIdent?,
     ): Arbeidsfordelingsenhet {
         if (navIdent == null) {
-            logger.error("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
-            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} om man mangler NAV-ident.")
+            håndterNavIdentErNull(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
         }
-        val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
-        if (enheterNavIdentHarTilgangTil.isEmpty()) {
-            logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
-            secureLogger.warn("Nav-Ident $navIdent har ikke tilgang til noen enheter.")
-            throw FunksjonellFeil("Nav-Ident har ikke tilgang til noen enheter.")
+        if (navIdent.erSystemIdent()) {
+            logger.error("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} i automatiske behandlinger.")
+            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.MIDLERTIDIG_ENHET} i automatiske behandlinger.")
         }
-        val navIdentHarKunTilgangTilVikafossen = enheterNavIdentHarTilgangTil.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
+
+        val enheterNavIdentHarTilgangTil = hentEnheterNavIdentHarTilgangTil(navIdent)
+
+        val navIdentHarKunTilgangTilVikafossen = enheterNavIdentHarTilgangTil.inneholderKunVikafossen()
         if (navIdentHarKunTilgangTilVikafossen) {
             // Skal kun være lovt til å sette Vikafossen når det er eneste valgmulighet
-            return Arbeidsfordelingsenhet(
-                KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-                KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-            )
+            return Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
         }
         val enheterNavIdentHarTilgangTilForutenVikafossen = enheterNavIdentHarTilgangTil.filter { it.enhetsnummer != KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer }
         // Velger bare det første enhetsnummeret i tilfeller hvor man har flere, avklart med fag
         val nyBehandlendeEnhet = enheterNavIdentHarTilgangTilForutenVikafossen.first()
-        return Arbeidsfordelingsenhet(
-            nyBehandlendeEnhet.enhetsnummer,
-            nyBehandlendeEnhet.enhetsnavn,
-        )
+        return Arbeidsfordelingsenhet.opprettFra(nyBehandlendeEnhet)
     }
 
     private fun håndterVikafossenEnhet2103(
         navIdent: NavIdent?,
     ): Arbeidsfordelingsenhet {
         if (navIdent == null) {
-            logger.error("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident.")
-            throw Feil("Kan ikke håndtere ${KontantstøtteEnhet.VIKAFOSSEN} om man mangler NAV-ident.")
+            håndterNavIdentErNull(KontantstøtteEnhet.VIKAFOSSEN)
         }
-        return Arbeidsfordelingsenhet(
-            KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-            KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-        )
+        return Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
     }
 
     private fun håndterAndreEnheter(
@@ -100,40 +90,40 @@ class TilpassArbeidsfordelingService(
     ): Arbeidsfordelingsenhet {
         if (navIdent == null || navIdent.erSystemIdent()) {
             // navIdent er null ved automatisk journalføring
-            return Arbeidsfordelingsenhet(
-                arbeidsfordelingsenhet.enhetId,
-                arbeidsfordelingsenhet.enhetNavn,
-            )
+            return arbeidsfordelingsenhet
         }
-        val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
-        if (enheterNavIdentHarTilgangTil.isEmpty()) {
-            logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
-            secureLogger.warn("Nav-Ident $navIdent har ikke tilgang til noen enheter.")
-            throw FunksjonellFeil("Nav-Ident har ikke tilgang til noen enheter.")
-        }
-        val navIdentHarKunTilgangTilVikafossen = enheterNavIdentHarTilgangTil.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
+        val enheterNavIdentHarTilgangTil = hentEnheterNavIdentHarTilgangTil(navIdent = navIdent)
+        val navIdentHarKunTilgangTilVikafossen = enheterNavIdentHarTilgangTil.inneholderKunVikafossen()
         if (navIdentHarKunTilgangTilVikafossen) {
             // Skal kun være lovt til å sette Vikafossen når det er eneste valgmulighet
-            return Arbeidsfordelingsenhet(
-                KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer,
-                KontantstøtteEnhet.VIKAFOSSEN.enhetsnavn,
-            )
+            return Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
         }
         val enheterNavIdentHarTilgangTilForutenVikafossen = enheterNavIdentHarTilgangTil.filter { it.enhetsnummer != KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer }
         val harTilgangTilBehandledeEnhet = enheterNavIdentHarTilgangTilForutenVikafossen.any { it.enhetsnummer == arbeidsfordelingsenhet.enhetId }
         if (!harTilgangTilBehandledeEnhet) {
             // Velger bare det første enhetsnummeret i tilfeller hvor man har flere, avklart med fag
             val nyBehandlendeEnhet = enheterNavIdentHarTilgangTilForutenVikafossen.first()
-            return Arbeidsfordelingsenhet(
-                nyBehandlendeEnhet.enhetsnummer,
-                nyBehandlendeEnhet.enhetsnavn,
-            )
+            return Arbeidsfordelingsenhet.opprettFra(nyBehandlendeEnhet)
         }
-        return Arbeidsfordelingsenhet(
-            arbeidsfordelingsenhet.enhetId,
-            arbeidsfordelingsenhet.enhetNavn,
-        )
+        return arbeidsfordelingsenhet
     }
+
+    private fun hentEnheterNavIdentHarTilgangTil(navIdent: NavIdent): List<KontantstøtteEnhet> {
+        val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
+        if (enheterNavIdentHarTilgangTil.isEmpty()) {
+            logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
+            secureLogger.warn("Nav-Ident $navIdent har ikke tilgang til noen enheter.")
+            throw FunksjonellFeil("Nav-Ident har ikke tilgang til noen enheter.")
+        }
+        return enheterNavIdentHarTilgangTil
+    }
+
+    private fun håndterNavIdentErNull(kontantstøtteEnhet: KontantstøtteEnhet): Nothing {
+        logger.error("Kan ikke håndtere $kontantstøtteEnhet om man mangler NAV-ident.")
+        throw Feil("Kan ikke håndtere $kontantstøtteEnhet om man mangler NAV-ident.")
+    }
+
+    private fun List<KontantstøtteEnhet>.inneholderKunVikafossen(): Boolean = this.map { it.enhetsnummer }.containsExactly(KontantstøtteEnhet.VIKAFOSSEN.enhetsnummer)
 
     private fun NavIdent.erSystemIdent(): Boolean = this.ident == SYSTEM_FORKORTELSE
 }

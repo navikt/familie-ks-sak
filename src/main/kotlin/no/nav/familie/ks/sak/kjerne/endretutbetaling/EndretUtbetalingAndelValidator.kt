@@ -22,25 +22,26 @@ object EndretUtbetalingAndelValidator {
         val frontendFeilMelding =
             "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person " +
                 "i hele eller deler av perioden."
+        endretUtbetalingAndel.personer.forEach { person ->
+            val minsteDatoForTilkjentYtelse =
+                andelTilkjentYtelser
+                    .filter { it.aktør == person.aktør }
+                    .minByOrNull { it.stønadFom }
+                    ?.stønadFom
+                    ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
 
-        val minsteDatoForTilkjentYtelse =
-            andelTilkjentYtelser
-                .filter { it.aktør == endretUtbetalingAndel.person?.aktør }
-                .minByOrNull { it.stønadFom }
-                ?.stønadFom
-                ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
+            val størsteDatoForTilkjentYtelse =
+                andelTilkjentYtelser
+                    .filter { it.aktør == person.aktør }
+                    .maxByOrNull { it.stønadTom }
+                    ?.stønadTom
+                    ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
 
-        val størsteDatoForTilkjentYtelse =
-            andelTilkjentYtelser
-                .filter { it.aktør == endretUtbetalingAndel.person!!.aktør }
-                .maxByOrNull { it.stønadTom }
-                ?.stønadTom
-                ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
-
-        if (checkNotNull(endretUtbetalingAndel.fom).isBefore(minsteDatoForTilkjentYtelse) ||
-            checkNotNull(endretUtbetalingAndel.tom).isAfter(størsteDatoForTilkjentYtelse)
-        ) {
-            throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
+            if (checkNotNull(endretUtbetalingAndel.fom).isBefore(minsteDatoForTilkjentYtelse) ||
+                checkNotNull(endretUtbetalingAndel.tom).isAfter(størsteDatoForTilkjentYtelse)
+            ) {
+                throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
+            }
         }
     }
 
@@ -73,7 +74,7 @@ object EndretUtbetalingAndelValidator {
     ) {
         val august2024 = YearMonth.of(2024, 8)
         if (endretUtbetalingAndel.fom != august2024 || endretUtbetalingAndel.tom != august2024) {
-            val årsak = endretUtbetalingAndel.årsak ?: throw IllegalStateException("Årsak må være satt")
+            val årsak = endretUtbetalingAndel.årsak ?: throw FunksjonellFeil("Årsak må være satt")
             throw FunksjonellFeil("Årsak \"${årsak.visningsnavn}\" er bare mulig å sette til august 2024")
         }
     }
@@ -146,8 +147,7 @@ object EndretUtbetalingAndelValidator {
         if (eksisterendeEndringerPåBehandling.any
                 {
                     it.overlapperMed(endretUtbetalingAndel.periode) &&
-                        it.person == endretUtbetalingAndel.person &&
-                        it.årsak == endretUtbetalingAndel.årsak
+                        it.personer.intersect(endretUtbetalingAndel.personer).isNotEmpty()
                 }
         ) {
             throw FunksjonellFeil(

@@ -8,8 +8,8 @@ import no.nav.familie.kontrakter.felles.journalpost.Dokumentstatus
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.LogiskVedlegg
 import no.nav.familie.kontrakter.felles.journalpost.Sak
+import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.LocalDateTime
 
@@ -21,18 +21,22 @@ data class JournalpostDokumentDto(
     val eksisterendeLogiskeVedlegg: List<LogiskVedlegg>?,
 )
 
+data class TilknyttetBehandling(
+    val behandlingstype: JournalføringBehandlingstype,
+    val behandlingId: String,
+)
+
 data class JournalføringRequestDto(
     val avsender: NavnOgIdentDto,
     val bruker: NavnOgIdentDto,
     val datoMottatt: LocalDateTime?,
     val journalpostTittel: String?,
     val kategori: BehandlingKategori?,
-    val knyttTilFagsak: Boolean,
     val opprettOgKnyttTilNyBehandling: Boolean,
-    val tilknyttedeBehandlingIder: List<String>,
+    val tilknyttedeBehandlinger: List<TilknyttetBehandling> = emptyList(),
     val dokumenter: List<JournalpostDokumentDto>,
     val navIdent: String,
-    val nyBehandlingstype: BehandlingType,
+    val nyBehandlingstype: JournalføringBehandlingstype,
     val nyBehandlingsårsak: BehandlingÅrsak,
     val journalførendeEnhet: String,
 )

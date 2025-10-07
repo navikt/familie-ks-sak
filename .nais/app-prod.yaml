@@ -36,9 +36,11 @@ spec:
             envVarPrefix: DB
         flags:
           - name: cloudsql.enable_pgaudit
-            value: "true"
+            value: "on"
           - name: pgaudit.log
-            value: 'write'
+            value: "write,ddl,role"
+          - name: "pgaudit.log_parameter"
+            value: "on"
   azure:
     application:
       enabled: true
@@ -51,7 +53,7 @@ spec:
           - id: "54cd86b8-2e23-48b2-8852-b05b5827bb0f"  # VEILEDER_ROLLE
           - id: "e40090eb-c2fb-400e-b412-e9084019a73b"  # SAKSBEHANDLER_ROLLE
           - id: "4e7f23d9-5db1-45c0-acec-89c86a9ec678"  # BESLUTTER_ROLLE
-          - id: "3d718ae5-f25e-47a4-b4b3-084a97604c1d"  # teamfamilie-forvaltning
+          - id: "024bfb25-ead3-4c04-bbe1-1db3d3362188"  # teamfamilie-baks-forvaltning
       replyURLs:
         - "https://familie-ks-sak.intern.nav.no/swagger-ui/oauth2-redirect.html"
       singlePageApplication: true
@@ -95,6 +97,8 @@ spec:
           cluster: prod-gcp
         - application: familie-baks-mottak
           cluster: prod-gcp
+        - application: logging
+          namespace: nais-system
       external:
         - host: nav-prod-kafka-nav-prod.aivencloud.com
         - host: xsrv1mh6.api.sanity.io
@@ -104,6 +108,9 @@ spec:
         - host: familie-oppdrag.prod-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
+        - host: graph.microsoft.com
+          ports:
+            - port: 443
           # Sanity IPs https://www.sanity.io/docs/api-cdn#5fa01dfe1285 (Fjernes når feilen er rettet av platform teamet https://nav-it.slack.com/archives/C5KUST8N6/p1719994144462539)
         - ipv4: 35.241.31.122
         - ipv4: 35.190.70.79
@@ -148,8 +155,8 @@ spec:
     limits:
       memory: 4096Mi
     requests:
-      memory: 512Mi
-      cpu: 100m
+      memory: 2048Mi
+      cpu: 250m
   ingresses:
     - https://familie-ks-sak.intern.nav.no
   secureLogs:
@@ -163,6 +170,10 @@ spec:
   kafka:
     pool: nav-prod
   observability:
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
     autoInstrumentation:
       enabled: true
       runtime: java

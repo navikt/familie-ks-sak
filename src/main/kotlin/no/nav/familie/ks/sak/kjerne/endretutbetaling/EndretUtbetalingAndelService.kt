@@ -4,6 +4,7 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.api.dto.SanityBegrunnelseMedEndringsårsakResponseDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -47,11 +48,18 @@ class EndretUtbetalingAndelService(
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
-        val person =
-            personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == endretUtbetalingAndelRequestDto.personIdent }
+
+        val personIdenterPåEndretUtbetalingAndel =
+            endretUtbetalingAndelRequestDto.personIdenter
+                ?: endretUtbetalingAndelRequestDto.personIdent?.let { listOf(it) }
+                ?: throw FunksjonellFeil("Endret utbetaling andel må ha minst én person ident")
+
+        val personer =
+            personopplysningGrunnlag.personer.filter { it.aktør.aktivFødselsnummer() in personIdenterPåEndretUtbetalingAndel }
+
         val andelTilkjentYtelser = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
 
-        endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, person)
+        endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, personer)
 
         val andreEndredeAndelerPåBehandling =
             hentEndredeUtbetalingAndeler(behandling.id)
@@ -124,7 +132,13 @@ class EndretUtbetalingAndelService(
         forrigeBehandling: Behandling,
     ) = hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
         val kopiertOverEndretUtbetalingAndel =
-            it.copy(id = 0, behandlingId = behandling.id, erEksplisittAvslagPåSøknad = false, vedtaksbegrunnelser = emptyList())
+            it.copy(
+                id = 0,
+                behandlingId = behandling.id,
+                erEksplisittAvslagPåSøknad = false,
+                vedtaksbegrunnelser = emptyList(),
+                personer = it.personer.toMutableSet(),
+            )
         endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
     }
 

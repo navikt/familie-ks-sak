@@ -35,7 +35,7 @@ class ArbeidsfordelingService(
 
     fun hentArbeidsfordelingPåBehandling(behandlingId: Long) =
         arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandlingId)
-            ?: error("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
+            ?: throw Feil("Finner ikke tilknyttet arbeidsfordeling på behandling med id $behandlingId")
 
     fun fastsettBehandlendeEnhet(
         behandling: Behandling,
@@ -188,8 +188,7 @@ class ArbeidsfordelingService(
                 oppdatertArbeidsfordelingPåBehandling.toSecureString(),
         )
 
-        if (aktivArbeidsfordelingEnhet != null && aktivArbeidsfordelingEnhet.enhetId != oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId
-        ) {
+        if (aktivArbeidsfordelingEnhet != null && aktivArbeidsfordelingEnhet.enhetId != oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId) {
             loggService.opprettBehandlendeEnhetEndret(
                 behandling = behandling,
                 fraEnhet = aktivArbeidsfordelingEnhet,

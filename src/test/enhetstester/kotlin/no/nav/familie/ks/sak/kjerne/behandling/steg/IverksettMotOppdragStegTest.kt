@@ -51,6 +51,7 @@ class IverksettMotOppdragStegTest {
                 saksbehandler = "SB1",
                 beslutter = "SB1",
                 saksbehandlerId = "1234",
+                beslutterId = "1234",
                 godkjent = true,
             )
 

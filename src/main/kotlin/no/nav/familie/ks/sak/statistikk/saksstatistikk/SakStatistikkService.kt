@@ -34,6 +34,7 @@ class SakStatistikkService(
     private val fagsakService: FagsakService,
     private val personopplysningService: PersonopplysningerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val relatertBehandlingUtleder: RelatertBehandlingUtleder,
 ) {
     fun opprettSendingAvBehandlingensTilstand(
         behandlingId: Long,
@@ -78,6 +79,16 @@ class SakStatistikkService(
         taskService.save(task)
     }
 
+    fun sendMeldingOmManuellEndringAvBehandlendeEnhet(
+        behandlingId: Long,
+    ) {
+        val hendelsesbeskrivelse =
+            "Endrer behandlende enhet manuelt for behandling $behandlingId"
+
+        val tilstand = hentBehandlingensTilstandV2(behandlingId, false)
+        opprettProsessTask(behandlingId, tilstand, hendelsesbeskrivelse, SendBehandlinghendelseTilDvhV2Task.TASK_TYPE)
+    }
+
     fun hentBehandlingensTilstandV2(
         behandlingId: Long,
         brukEndretTidspunktSomFunksjonellTidspunkt: Boolean,
@@ -91,6 +102,8 @@ class SakStatistikkService(
                 ?.let { BehandlingPåVentDto(it.frist!!, it.årsak!!) }
 
         val mottattTid = behandling.søknadMottattDato ?: behandling.opprettetTidspunkt
+
+        val relatertBehandling = relatertBehandlingUtleder.utledRelatertBehandling(behandling)
 
         return BehandlingStatistikkV2Dto(
             saksnummer = behandling.fagsak.id,
@@ -121,6 +134,8 @@ class SakStatistikkService(
                     )
                 },
             behandlingOpprettetÅrsak = behandling.opprettetÅrsak,
+            relatertBehandlingId = relatertBehandling?.id,
+            relatertBehandlingFagsystem = relatertBehandling?.fagsystem?.name,
         )
     }
 
