@@ -12,9 +12,12 @@ import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.beskjærEtter
 import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.klipp
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import java.time.LocalDate
+
+private val cutOffDatoForVisningAvManglendeMerkinger = LocalDate.of(2025, 9, 1)
 
 data class ManglendeSvalbardmerkingDto(
     val ident: String,
@@ -53,7 +56,8 @@ fun List<Person>?.tilManglendeSvalbardmerkingDto(personResultater: Set<PersonRes
                         !bosattIRiketVilkår.utdypendeVilkårsvurderinger.contains(
                             UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD,
                         )
-                }.tilPerioderIkkeNull()
+                }.klipp(cutOffDatoForVisningAvManglendeMerkinger)
+                .tilPerioderIkkeNull()
                 .filter { it.verdi }
                 .map { ManglendeSvalbardmerkingPeriodeDto(fom = it.fom, tom = it.tom) }
 
