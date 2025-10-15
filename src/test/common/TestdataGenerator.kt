@@ -117,8 +117,11 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonEnkel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.arbeidsforhold.GrArbeidsforhold
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.opphold.GrOpphold
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
@@ -451,6 +454,44 @@ fun lagAndelTilkjentYtelse(
     kildeBehandlingId = behandling.id,
     differanseberegnetPeriodebeløp = differanseberegnetPeriodebeløp,
 )
+
+fun lagPerson(
+    id: Long = 0,
+    type: PersonType = PersonType.SØKER,
+    fødselsdato: LocalDate = LocalDate.now().minusYears(19),
+    navn: String = PersonType.SØKER.name,
+    kjønn: Kjønn = Kjønn.KVINNE,
+    målform: Målform = Målform.NB,
+    personopplysningGrunnlag: PersonopplysningGrunnlag,
+    aktør: Aktør = randomAktør(),
+    bostedsadresser: (person: Person) -> List<GrBostedsadresse> = { listOf() },
+    oppholdsadresser: (person: Person) -> List<GrOppholdsadresse> = { listOf() },
+    statsborgerskap: (person: Person) -> List<GrStatsborgerskap> = { listOf() },
+    opphold: (person: Person) -> List<GrOpphold> = { listOf() },
+    arbeidsforhold: (person: Person) -> List<GrArbeidsforhold> = { listOf() },
+    sivilstander: (person: Person) -> List<GrSivilstand> = { listOf() },
+    dødsfall: Dødsfall? = null,
+): Person {
+    val person =
+        Person(
+            id = id,
+            type = type,
+            fødselsdato = fødselsdato,
+            navn = navn,
+            kjønn = kjønn,
+            målform = målform,
+            personopplysningGrunnlag = personopplysningGrunnlag,
+            aktør = aktør,
+            dødsfall = dødsfall,
+        )
+    person.bostedsadresser.addAll(bostedsadresser(person))
+    person.oppholdsadresser.addAll(oppholdsadresser(person))
+    person.statsborgerskap.addAll(statsborgerskap(person))
+    person.opphold.addAll(opphold(person))
+    person.arbeidsforhold.addAll(arbeidsforhold(person))
+    person.sivilstander.addAll(sivilstander(person))
+    return person
+}
 
 fun lagPerson(
     personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
