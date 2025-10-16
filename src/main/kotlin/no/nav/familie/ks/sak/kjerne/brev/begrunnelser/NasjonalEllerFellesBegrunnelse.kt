@@ -123,6 +123,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetInnvilgetPaaGrunnAvLovendring"
     },
+    INNVILGET_OVERGANG_EØS_TIL_NASJONAL {
+        override val begrunnelseType = BegrunnelseType.INNVILGET
+        override val sanityApiNavn = "innvilgetOvergangEosTilNasjonal"
+    },
     AVSLAG_UREGISTRERT_BARN {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUregistrertBarn"

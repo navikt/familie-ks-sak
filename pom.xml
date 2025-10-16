@@ -37,13 +37,13 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20250915083819_745c62b</prosessering.version>
-        <felles-kontrakter.version>3.0_20250916123655_5035eb9</felles-kontrakter.version>
+        <prosessering.version>2.20250922094930_4bb329c</prosessering.version>
+        <felles-kontrakter.version>3.0_20250929124430_91dd0fd</felles-kontrakter.version>
         <felles.version>3.20250915092837_153983f</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20250915155846_3e7ecd7</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20250915155846_3e7ecd7</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20250915155846_3e7ecd7</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20250804104526_5648100</utbetalingsgenerator.version>
+        <eksterne-kontrakter-bisys.version>2.0_20250929124738_f28327d</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20250929124738_f28327d</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20250929124738_f28327d</familie.kontrakter.saksstatistikk>
+        <utbetalingsgenerator.version>1.0_20250922101633_e4c1c4d</utbetalingsgenerator.version>
 
         <!-- Database -->
         <jsqlparser.version>5.3</jsqlparser.version>
@@ -60,11 +60,11 @@
         <azure-identity.version>1.18.0</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.28.2</cucumber.version>
+        <cucumber.version>7.30.0</cucumber.version>
         <rest-assured.version>5.5.6</rest-assured.version>
         <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
-        <mockk.version>1.14.5</mockk.version>
+        <mockk.version>1.14.6</mockk.version>
         <wiremock.version>3.13.1</wiremock.version>
         <okhttp3.version>4.9.0</okhttp3.version> <!-- Må settes for å kjøre opp mock-oauth2-server i unit-tester -->
         <springmockk.version>4.0.2</springmockk.version>
