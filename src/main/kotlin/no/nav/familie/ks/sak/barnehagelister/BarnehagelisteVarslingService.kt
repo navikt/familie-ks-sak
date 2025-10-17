@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.leader.LeaderClient
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -19,7 +20,10 @@ class BarnehagelisteVarslingService(
 ) {
     @Scheduled(cron = "0 0 6 * * ?")
     @Transactional
-    fun sendVarlingOmBarnehagelisteHverMorgenKl6() {
+    fun sendVarslingOmBarnehagelisteHverMorgenKl6() {
+        if (LeaderClient.isLeader() != true) {
+            return
+        }
         sendVarslingOmNyBarnehagelisteTilEnhet()
     }
 
