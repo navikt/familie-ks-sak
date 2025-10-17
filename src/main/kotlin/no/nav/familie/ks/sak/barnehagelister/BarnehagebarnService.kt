@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class BarnehagebarnService(
@@ -59,4 +60,13 @@ class BarnehagebarnService(
     }
 
     fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
+
+    @Transactional
+    fun finnKommunerSendtInnSisteDøgn(): Set<KommuneEllerBydel> {
+        val barnSendtInnSisteDøgn =
+            barnehagebarnRepository
+                .findAll()
+                .filter { it.endretTidspunkt >= LocalDateTime.now().minusDays(1) }
+        return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
+    }
 }

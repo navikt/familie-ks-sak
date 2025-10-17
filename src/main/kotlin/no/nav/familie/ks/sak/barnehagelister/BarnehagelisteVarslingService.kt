@@ -14,12 +14,11 @@ import java.time.LocalDateTime
 
 @Service
 class BarnehagelisteVarslingService(
-    val barnehageBarnRepository: BarnehagebarnRepository,
+    val barnehageBarnService: BarnehagebarnService,
     val epostService: EpostService,
     val geografiService: GeografiHierarkiService,
 ) {
     @Scheduled(cron = "0 0 6 * * ?")
-    @Transactional
     fun sendVarslingOmBarnehagelisteHverMorgenKl6() {
         if (LeaderClient.isLeader() != true) {
             return
@@ -34,7 +33,7 @@ class BarnehagelisteVarslingService(
         logger.info("Sjekker om det er kommet inn barnehagelister ila siste døgn.")
 
         val enhetTilFylkeMap = hentEnhetTilFylkeMap()
-        val kommunerSendtForFørsteGangSisteDøgn = finnKommunerSendtInnSisteDøgn()
+        val kommunerSendtForFørsteGangSisteDøgn = barnehageBarnService.finnKommunerSendtInnSisteDøgn()
         val enheterSomSkalVarslesTilKommuner =
             kommunerSendtForFørsteGangSisteDøgn.groupBy { hentAnsvarligEnhetForKommuneEllerBydel(enhetTilFylkeMap, it.nummer) }
 
@@ -54,15 +53,6 @@ class BarnehagelisteVarslingService(
                     }
                 }
         }
-    }
-
-    // Bruker kommuneNr i stedet for kommunenavn siden det er mindre mulighet for feilskriving
-    private fun finnKommunerSendtInnSisteDøgn(): Set<KommuneEllerBydel> {
-        val barnSendtInnSisteDøgn =
-            barnehageBarnRepository
-                .findAll()
-                .filter { it.endretTidspunkt >= LocalDateTime.now().minusDays(1) }
-        return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
     }
 
     private fun hentEnhetTilFylkeMap(): Map<String, Set<String>> {
@@ -93,7 +83,7 @@ class BarnehagelisteVarslingService(
     }
 }
 
-private data class KommuneEllerBydel(
+data class KommuneEllerBydel(
     val nummer: String,
     val navn: String,
 )
