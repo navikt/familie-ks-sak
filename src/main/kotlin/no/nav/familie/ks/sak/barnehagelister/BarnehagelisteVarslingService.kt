@@ -2,15 +2,12 @@ package no.nav.familie.ks.sak.barnehagelister
 
 import com.fasterxml.jackson.core.type.TypeReference
 import no.nav.familie.kontrakter.felles.objectMapper
-import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.leader.LeaderClient
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
 @Service
 class BarnehagelisteVarslingService(
