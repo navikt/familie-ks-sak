@@ -61,7 +61,6 @@ class BarnehagebarnService(
 
     fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
 
-    @Transactional
     fun finnKommunerSendtInnSisteDøgn(): Set<KommuneEllerBydel> {
         val barnSendtInnSisteDøgn =
             barnehagebarnRepository
