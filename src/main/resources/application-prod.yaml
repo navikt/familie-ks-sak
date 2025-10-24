@@ -103,9 +103,8 @@ rolle:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/familie-ks-sak
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_JDBC_URL}
+
 
 prosessering.rolle: "87190cf3-b278-457d-8ab7-1a5c55a9edd7"
 

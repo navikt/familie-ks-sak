@@ -94,9 +94,7 @@ no.nav.security.jwt:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/familie-ks-sak
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_JDBC_URL}
   kafka:
     bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
 
