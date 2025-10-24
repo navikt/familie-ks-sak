@@ -265,7 +265,7 @@ fun hentTekstForEndretUtbetaling(
         """
 
     Og følgende endrede utbetalinger
-      | AktørId  | BehandlingId | Fra dato   | Til dato   | Årsak             | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted |""" +
+      | AktørId  | BehandlingId | Fra dato   | Til dato   | Årsak             | Prosent | Søknadstidspunkt |""" +
             hentEndretUtbetalingRader(endredeUtbetalingerForrigeBehandling) +
             hentEndretUtbetalingRader(endredeUtbetalinger)
     }
