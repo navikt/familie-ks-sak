@@ -1,0 +1,1 @@
+CREATE INDEX personident_aktiv ON personident (aktiv);
