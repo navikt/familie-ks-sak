@@ -1,1 +1,1 @@
-CREATE INDEX personident_aktiv ON personident (aktiv);
+CREATE INDEX IF NOT EXISTS personident_aktiv ON personident (aktiv);
