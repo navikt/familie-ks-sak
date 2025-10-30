@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>3.5.7</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -29,7 +29,7 @@
         <kotlinx.version>1.10.2</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>3.5.6</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <spring-boot-dependencies.version>3.5.7</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>2.8.13</springdoc.version>
 
         <!-- Nav felles -->
@@ -62,7 +62,7 @@
         <!-- Test -->
         <cucumber.version>7.30.0</cucumber.version>
         <rest-assured.version>5.5.6</rest-assured.version>
-        <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
+        <mock-oauth2-server.version>3.0.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
         <mockk.version>1.14.6</mockk.version>
         <wiremock.version>3.13.1</wiremock.version>
