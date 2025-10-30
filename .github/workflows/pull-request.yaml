@@ -1,0 +1,56 @@
+name: Pull request
+on:
+  workflow_dispatch:
+  merge_group:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  ktlint:
+    name: Ktlint
+    if: github.event_name != 'merge_group'
+    permissions:
+      contents: read
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/ktlint.yaml@main # ratchet:exclude
+    secrets: inherit
+
+  enhetstest:
+    name: Enhetstest
+    permissions:
+      contents: read
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/pull-request-maven.yaml@main # ratchet:exclude
+    with:
+      profile: 'enhetstest'
+      with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
+      coverage-artifact-name: 'enhetstest'
+      coverage-artifact-path: 'target/coverage/enhetstest.exec'
+    secrets: inherit
+
+  integrasjonstest:
+    name: Integrasjonstest
+    permissions:
+      contents: read
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/pull-request-maven.yaml@main # ratchet:exclude
+    with:
+      profile: 'integrasjonstest'
+      with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
+      coverage-artifact-name: 'integrasjonstest'
+      coverage-artifact-path: 'target/coverage/integrasjonstest.exec'
+    secrets: inherit
+
+  sonar:
+    if: github.actor != 'dependabot[bot]' && github.event_name != 'merge_group'
+    name: Sonar
+    needs: [ enhetstest, integrasjonstest ]
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/sonar.yaml@main # ratchet:exclude
+    with:
+      unit-test-artifact-name: 'enhetstest'
+      unit-test-artifact-path: 'coverage/enhetstest'
+      integration-test-artifact-name: 'integrasjonstest'
+      integration-test-artifact-path: 'coverage/integrasjonstest'
+    secrets: inherit
+
