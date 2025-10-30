@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -44,7 +45,7 @@ class StegService(
     private val vedtakRepository: VedtakRepository,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sakStatistikkService: SakStatistikkService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val loggService: LoggService,
     private val behandlingService: BehandlingService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,

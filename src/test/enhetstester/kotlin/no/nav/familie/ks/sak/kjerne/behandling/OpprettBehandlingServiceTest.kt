@@ -10,6 +10,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -50,7 +51,7 @@ class OpprettBehandlingServiceTest {
     private val stegService = mockk<StegService>()
     private val fagsakRepository = mockk<FagsakRepository>()
     private val behandlingRepository = mockk<BehandlingRepository>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val behandlingMetrikker = mockk<BehandlingMetrikker>()
     private val featureToggleService = mockk<FeatureToggleService>()
     private val eksternBehandlingRelasjonService = mockk<EksternBehandlingRelasjonService>()

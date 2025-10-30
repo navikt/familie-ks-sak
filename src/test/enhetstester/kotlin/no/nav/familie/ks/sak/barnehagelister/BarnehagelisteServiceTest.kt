@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
@@ -24,7 +25,7 @@ import java.util.UUID
 class BarnehagelisteServiceTest {
     private val mockBarnehagelisteMottattRepository = mockk<BarnehagelisteMottattRepository>()
     private val mockBarnehagebarnRepository = mockk<BarnehagebarnRepository>()
-    private val mockTaskService = mockk<TaskService>()
+    private val mockTaskService = mockk<TaskRepositoryWrapper>()
     private val mockBarnehagelisteMottattArkivRepository = mockk<BarnehagelisteMottattArkivRepository>()
 
     private val barnehageListeService =

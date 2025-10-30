@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
@@ -74,7 +75,7 @@ class ForvaltningController(
     private val integrasjonClient: IntegrasjonClient,
     private val sakStatistikkService: SakStatistikkService,
     private val stønadsstatistikkService: StønadsstatistikkService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val personidentService: PersonidentService,
     private val vilkårsvurderingService: VilkårsvurderingService,

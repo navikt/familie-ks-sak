@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkiv
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.Melding
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -22,7 +23,7 @@ import java.util.UUID
 class BarnehageListeService(
     val barnehagelisteMottattRepository: BarnehagelisteMottattRepository,
     val barnehagebarnRepository: BarnehagebarnRepository,
-    val taskService: TaskService,
+    val taskService: TaskRepositoryWrapper,
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
 ) {
     private val xmlDeserializer =

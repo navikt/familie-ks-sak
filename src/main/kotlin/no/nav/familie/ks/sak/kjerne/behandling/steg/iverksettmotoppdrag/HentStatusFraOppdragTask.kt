@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -40,7 +41,7 @@ import java.util.Properties
 )
 class HentStatusFraOppdragTask(
     private val oppdragKlient: OppdragKlient,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val stegService: StegService,
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
 ) : AsyncTaskStep {

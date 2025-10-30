@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -27,7 +28,7 @@ import java.time.LocalDate
 @Service
 class VedtakSteg(
     private val behandlingService: BehandlingService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val totrinnskontrollService: TotrinnskontrollService,
     private val loggService: LoggService,
     private val oppgaveService: OppgaveService,

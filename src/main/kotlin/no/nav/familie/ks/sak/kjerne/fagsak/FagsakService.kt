@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -41,7 +42,7 @@ class FagsakService(
     private val personRepository: PersonRepository,
     private val behandlingRepository: BehandlingRepository,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val vedtakRepository: VedtakRepository,
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val clockProvider: ClockProvider,

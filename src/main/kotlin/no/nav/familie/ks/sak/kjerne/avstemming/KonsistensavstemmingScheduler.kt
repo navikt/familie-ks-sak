@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
 import no.nav.familie.ks.sak.common.EnvService
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.log.mdc.MDCConstants
@@ -19,7 +20,7 @@ import java.util.UUID
 class KonsistensavstemmingScheduler(
     private val envService: EnvService,
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
 ) {
     @Scheduled(cron = "\${CRON_KONSISTENS_AVSTEMMING}")
     @Transactional

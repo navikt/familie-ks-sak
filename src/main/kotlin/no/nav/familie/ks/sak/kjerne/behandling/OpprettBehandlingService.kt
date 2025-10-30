@@ -9,6 +9,7 @@ import no.nav.familie.kontrakter.felles.klage.Opprettet
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
@@ -46,7 +47,7 @@ class OpprettBehandlingService(
     private val loggService: LoggService,
     private val fagsakRepository: FagsakRepository,
     private val behandlingRepository: BehandlingRepository,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val stegService: StegService,
     private val behandlingMetrikker: BehandlingMetrikker,
     private val featureToggleService: FeatureToggleService,

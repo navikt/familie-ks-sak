@@ -8,6 +8,7 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagVedtak
@@ -38,7 +39,7 @@ class StegServiceUnitTest {
     private val vedtakRepository = mockk<VedtakRepository>()
     private val tilbakekrevingRepository = mockk<TilbakekrevingRepository>()
     private val sakStatistikkService = mockk<SakStatistikkService>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val behandlingService = mockk<BehandlingService>()
     private val loggService = mockk<LoggService>()

@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomAktørId
 import no.nav.familie.ks.sak.data.randomFnr
@@ -19,7 +20,7 @@ class PersonidentServiceTest {
     private val personidentRepository = mockk<PersonidentRepository>()
     private val aktørRepository = mockk<AktørRepository>()
     private val pdlClient = mockk<PdlClient>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
 
     private val personidentService =
         PersonidentService(

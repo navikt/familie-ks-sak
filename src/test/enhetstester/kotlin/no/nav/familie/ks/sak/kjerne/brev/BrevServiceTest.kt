@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -57,7 +58,7 @@ class BrevServiceTest {
     private val journalføringRepository = mockk<JournalføringRepository>()
     private val integrasjonClient = mockk<IntegrasjonClient>()
     private val loggService = mockk<LoggService>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val settBehandlingPåVentService = mockk<SettBehandlingPåVentService>(relaxed = true)
     private val validerBrevmottakerService = mockk<ValiderBrevmottakerService>(relaxed = true)
     private val brevmottakerService =

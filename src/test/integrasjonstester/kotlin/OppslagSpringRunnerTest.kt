@@ -68,7 +68,16 @@ import java.time.LocalDate
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(initializers = [DbContainerInitializer::class])
 @SpringBootTest(classes = [DevLauncherLocal::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integrasjonstest")
+@ActiveProfiles(
+    "integrasjonstest",
+    "fake-integrasjon-klient",
+    "fake-tilbakekreving-klient",
+    "fake-pdl-client",
+    "mock-pdl",
+    "mock-unleash",
+    "mock-brev-klient",
+    "fake-task-repository",
+)
 @EnableMockOAuth2Server
 @Tag("integrationTest")
 abstract class OppslagSpringRunnerTest {
@@ -349,11 +358,14 @@ abstract class OppslagSpringRunnerTest {
         arbeidsfordelingPåBehandlingRepository.saveAndFlush(arbeidsfordelingPåBehandling)
     }
 
-    fun lagTilkjentYtelse(utbetalingsOppdrag: String? = null) {
+    fun lagTilkjentYtelse(
+        utbetalingsOppdrag: String? = null,
+        nyBehandling: Behandling? = null,
+    ) {
         tilkjentYtelse =
             tilkjentYtelseRepository.saveAndFlush(
                 TilkjentYtelse(
-                    behandling = behandling,
+                    behandling = nyBehandling ?: behandling,
                     endretDato = LocalDate.now(),
                     opprettetDato = LocalDate.now(),
                     utbetalingsoppdrag = utbetalingsOppdrag,

@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.kjerne.personident
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
@@ -16,7 +17,7 @@ class PersonidentService(
     private val personidentRepository: PersonidentRepository,
     private val aktørRepository: AktørRepository,
     private val pdlClient: PdlClient,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 

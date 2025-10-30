@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.api
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
@@ -13,7 +12,6 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -38,16 +36,12 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
-    @MockkBean
-    private lateinit var integrasjonClient: IntegrasjonClient
-
     private val controllerUrl: String = "/api/endretutbetalingandel"
 
     @BeforeEach
     fun setUp() {
         RestAssured.port = port
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
-        every { integrasjonClient.hentLand(any()) } returns "Norge"
     }
 
     @Nested
@@ -135,8 +129,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 ),
             )
 
-            every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
-
             val lagretTomEndretUtbetalingAndel =
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
@@ -206,8 +198,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                 ),
             )
 
-            every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
-
             val lagretTomEndretUtbetalingAndel =
                 endretUtbetalingAndelRepository.saveAndFlush(
                     lagEndretUtbetalingAndel(
@@ -263,8 +253,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     behandlendeEnhetNavn = "test",
                 ),
             )
-
-            every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
             val lagretTomEndretUtbetalingAndel =
                 endretUtbetalingAndelRepository.saveAndFlush(
@@ -337,8 +325,6 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
                     behandlendeEnhetNavn = "test",
                 ),
             )
-
-            every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 

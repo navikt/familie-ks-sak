@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -50,7 +51,7 @@ class FagsakServiceTest {
     private val behandlingRepository = mockk<BehandlingRepository>()
     private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val vedtakRepository = mockk<VedtakRepository>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val clockProvider = mockk<ClockProvider>()

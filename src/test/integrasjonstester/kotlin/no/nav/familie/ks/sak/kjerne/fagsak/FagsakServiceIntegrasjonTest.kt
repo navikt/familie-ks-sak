@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
-import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -53,24 +52,12 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
 
-    @SpykBean
-    private lateinit var pdlClient: PdlClient
-
     @Autowired
     private lateinit var databaseCleanupService: DatabaseCleanupService
 
     @BeforeEach
     fun cleanUp() {
         databaseCleanupService.truncate()
-
-        every {
-            pdlClient.hentIdenter(any(), any())
-        } answers {
-            listOf(
-                PdlIdent(randomFnr(), true, "FOLKEREGISTERIDENT"),
-                PdlIdent(firstArg<String>(), true, "AKTORID"),
-            )
-        }
     }
 
     @Test

@@ -9,6 +9,7 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
@@ -32,7 +33,7 @@ import java.util.UUID
 
 internal class HentStatusFraOppdragTaskTest {
     private val oppdragKlient = mockk<OppdragKlient>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val stegService = mockk<StegService>()
     private val tilkjentYtelseRepository = mockk<TilkjentYtelseRepository>()
 

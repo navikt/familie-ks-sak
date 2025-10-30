@@ -7,6 +7,7 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -28,7 +29,7 @@ class IverksettMotOppdragStegTest {
     private val tilkjentYtelseValideringService = mockk<TilkjentYtelseValideringService>()
     private val utbetalingsoppdragService = mockk<UtbetalingsoppdragService>()
     private val vedtakService = mockk<VedtakService>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
 
     private val iverksettMotOppdragSteg =
         IverksettMotOppdragSteg(

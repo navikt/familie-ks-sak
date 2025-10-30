@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -19,7 +20,7 @@ import java.util.Properties
 @TaskStepBeskrivelse(taskStepType = TASK_STEP_TYPE, beskrivelse = "Iverksett vedtak mot oppdrag", maxAntallFeil = 3)
 class IverksettMotOppdragTask(
     private val stegService: StegService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val vedtakService: VedtakService,
     private val behandlingRepository: BehandlingRepository,
 ) : AsyncTaskStep {

@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
@@ -45,7 +46,7 @@ import java.util.Properties
 class BrevService(
     private val integrasjonClient: IntegrasjonClient,
     private val loggService: LoggService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,

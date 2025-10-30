@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.api
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.module.kotlin.extensions.Given
@@ -12,28 +11,27 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsstatus
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingstype
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsårsakstype
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.common.exception.IntegrasjonException
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
+import no.nav.familie.ks.sak.fake.FakeTilbakekrevingKlient
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 import java.util.UUID
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
-    @MockkBean
-    private lateinit var tilbakekrevingsbehandlingHentService: TilbakekrevingsbehandlingHentService
+    @Autowired
+    private lateinit var fakeTilbakekrevingKlient: FakeTilbakekrevingKlient
 
     private val controllerUrl = "/api/tilbakekreving"
 
     @BeforeEach
     fun setup() {
         RestAssured.port = port
-
-        every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(any()) } returns emptyList()
+        fakeTilbakekrevingKlient.reset()
     }
 
     @Test
@@ -74,7 +72,8 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
                 vedtaksdato = LocalDateTime.now(),
                 resultat = Behandlingsresultatstype.FULL_TILBAKEBETALING,
             )
-        every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId = 123456) } returns listOf(tilbakekrevingsbehandling)
+
+        fakeTilbakekrevingKlient.returnerteBehandlinger = listOf(tilbakekrevingsbehandling)
 
         Given {
             header("Authorization", "Bearer $token")
@@ -94,8 +93,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `hentTilbakekrevingsbehandlinger - skal feile dersom kall mot familie-tilbake feiler`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-        every { tilbakekrevingsbehandlingHentService.hentTilbakekrevingsbehandlinger(fagsakId = 123456) } throws IntegrasjonException("Feilet")
+        fakeTilbakekrevingKlient.errorVedHentingAvBehandlinger = true
 
         Given {
             header("Authorization", "Bearer $token")

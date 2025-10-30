@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -25,7 +26,7 @@ class IverksettMotOppdragSteg(
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val vedtakService: VedtakService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
 ) : IBehandlingSteg {
     private val iverksattOppdrag = Metrics.counter("familie.ks.sak.oppdrag.iverksatt")
 
