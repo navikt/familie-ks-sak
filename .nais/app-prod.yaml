@@ -30,7 +30,7 @@ spec:
         name: familie-ks-sak
         autoBackupHour: 2
         diskAutoresize: true
-        highAvailability: true
+        highAvailability: false
         databases:
           - name: familie-ks-sak
             envVarPrefix: DB
