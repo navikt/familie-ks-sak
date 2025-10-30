@@ -273,7 +273,7 @@ class ManglendeSvalbardmerkingDtoTest {
         }
 
         @Test
-        fun `skal ikke vise perioder som slutter før første oktober 2025`() {
+        fun `skal ikke vise perioder som slutter før 30 september 2025`() {
             // Arrange
             val behandling = lagBehandling()
             val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
@@ -290,14 +290,14 @@ class ManglendeSvalbardmerkingDtoTest {
                                 periode =
                                     DatoIntervallEntitet(
                                         fom = LocalDate.of(1980, 1, 1),
-                                        tom = LocalDate.of(2025, 9, 30),
+                                        tom = LocalDate.of(2025, 9, 29),
                                     ),
                             ),
                             lagGrVegadresseOppholdsadresse(
                                 kommunenummer = "0301",
                                 periode =
                                     DatoIntervallEntitet(
-                                        fom = LocalDate.of(2025, 10, 1),
+                                        fom = LocalDate.of(2025, 9, 30),
                                         tom = null,
                                     ),
                             ),
@@ -318,14 +318,14 @@ class ManglendeSvalbardmerkingDtoTest {
                                 periode =
                                     DatoIntervallEntitet(
                                         fom = LocalDate.of(2015, 1, 1),
-                                        tom = LocalDate.of(2025, 9, 30),
+                                        tom = LocalDate.of(2025, 9, 29),
                                     ),
                             ),
                             lagGrVegadresseOppholdsadresse(
                                 kommunenummer = "0301",
                                 periode =
                                     DatoIntervallEntitet(
-                                        fom = LocalDate.of(2025, 10, 1),
+                                        fom = LocalDate.of(2025, 9, 30),
                                         tom = null,
                                     ),
                             ),
@@ -350,7 +350,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             periode =
                                                 DatoIntervallEntitet(
                                                     fom = LocalDate.of(1980, 1, 1),
-                                                    tom = LocalDate.of(2025, 9, 30),
+                                                    tom = LocalDate.of(2025, 9, 29),
                                                 ),
                                             utdypendeVilkårsvurderinger = emptyList(),
                                         ),
@@ -359,7 +359,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             behandling = behandling,
                                             periode =
                                                 DatoIntervallEntitet(
-                                                    fom = LocalDate.of(2025, 10, 1),
+                                                    fom = LocalDate.of(2025, 9, 30),
                                                     tom = null,
                                                 ),
                                         ),
@@ -377,7 +377,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             periode =
                                                 DatoIntervallEntitet(
                                                     fom = LocalDate.of(2015, 1, 1),
-                                                    tom = LocalDate.of(2025, 9, 30),
+                                                    tom = LocalDate.of(2025, 9, 29),
                                                 ),
                                             utdypendeVilkårsvurderinger = emptyList(),
                                         ),
@@ -386,7 +386,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             behandling = behandling,
                                             periode =
                                                 DatoIntervallEntitet(
-                                                    fom = LocalDate.of(2025, 10, 1),
+                                                    fom = LocalDate.of(2025, 9, 30),
                                                     tom = null,
                                                 ),
                                         ),
@@ -407,7 +407,7 @@ class ManglendeSvalbardmerkingDtoTest {
         }
 
         @Test
-        fun `skal vise perioder som har fom dato før første oktober 2025 hvor tom dato er null`() {
+        fun `skal vise perioder som har fom dato før 30 september 2025 hvor tom dato er null`() {
             // Arrange
             val behandling = lagBehandling()
             val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
@@ -436,14 +436,14 @@ class ManglendeSvalbardmerkingDtoTest {
                 lagPerson(
                     personopplysningGrunnlag = personopplysningGrunnlag,
                     type = PersonType.BARN,
-                    fødselsdato = LocalDate.of(2015, 1, 1),
+                    fødselsdato = LocalDate.of(2025, 9, 29),
                     oppholdsadresser = {
                         listOf(
                             lagGrVegadresseOppholdsadresse(
                                 kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
                                 periode =
                                     DatoIntervallEntitet(
-                                        fom = LocalDate.of(2015, 1, 1),
+                                        fom = LocalDate.of(2025, 9, 29),
                                         tom = null,
                                     ),
                             ),
@@ -485,7 +485,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             behandling = behandling,
                                             periode =
                                                 DatoIntervallEntitet(
-                                                    fom = LocalDate.of(2015, 1, 1),
+                                                    fom = LocalDate.of(2025, 9, 29),
                                                     tom = null,
                                                 ),
                                             utdypendeVilkårsvurderinger = emptyList(),
@@ -513,13 +513,13 @@ class ManglendeSvalbardmerkingDtoTest {
             assertThat(manglendeSvalbardmerking).anySatisfy {
                 assertThat(it.ident).isEqualTo(barn.aktør.aktivFødselsnummer())
                 assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
-                assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(2015, 1, 1))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(2025, 9, 29))
                 assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isNull()
             }
         }
 
         @Test
-        fun `skal vise perioder som har tom dato lik første oktober 2025`() {
+        fun `skal vise perioder som har tom dato lik 30 september 2025`() {
             // Arrange
             val behandling = lagBehandling()
             val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
@@ -536,7 +536,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                 periode =
                                     DatoIntervallEntitet(
                                         fom = LocalDate.of(1980, 1, 1),
-                                        tom = LocalDate.of(2025, 10, 1),
+                                        tom = LocalDate.of(2025, 9, 30),
                                     ),
                             ),
                         )
@@ -556,7 +556,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                 periode =
                                     DatoIntervallEntitet(
                                         fom = LocalDate.of(2015, 1, 1),
-                                        tom = LocalDate.of(2025, 10, 1),
+                                        tom = LocalDate.of(2025, 9, 30),
                                     ),
                             ),
                         )
@@ -580,7 +580,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             periode =
                                                 DatoIntervallEntitet(
                                                     fom = LocalDate.of(1980, 1, 1),
-                                                    tom = LocalDate.of(2025, 10, 1),
+                                                    tom = LocalDate.of(2025, 9, 30),
                                                 ),
                                             utdypendeVilkårsvurderinger = emptyList(),
                                         ),
@@ -598,7 +598,7 @@ class ManglendeSvalbardmerkingDtoTest {
                                             periode =
                                                 DatoIntervallEntitet(
                                                     fom = LocalDate.of(2015, 1, 1),
-                                                    tom = LocalDate.of(2025, 10, 1),
+                                                    tom = LocalDate.of(2025, 9, 30),
                                                 ),
                                             utdypendeVilkårsvurderinger = emptyList(),
                                         ),
@@ -620,13 +620,13 @@ class ManglendeSvalbardmerkingDtoTest {
                 assertThat(it.ident).isEqualTo(søker.aktør.aktivFødselsnummer())
                 assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
                 assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(1980, 1, 1))
-                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isEqualTo(LocalDate.of(2025, 10, 1))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isEqualTo(LocalDate.of(2025, 9, 30))
             }
             assertThat(manglendeSvalbardmerking).anySatisfy {
                 assertThat(it.ident).isEqualTo(barn.aktør.aktivFødselsnummer())
                 assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
                 assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(2015, 1, 1))
-                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isEqualTo(LocalDate.of(2025, 10, 1))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isEqualTo(LocalDate.of(2025, 9, 30))
             }
         }
 

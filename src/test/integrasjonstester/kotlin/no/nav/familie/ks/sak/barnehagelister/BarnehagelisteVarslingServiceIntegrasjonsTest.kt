@@ -16,12 +16,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
 
 class BarnehagelisteVarslingServiceIntegrasjonsTest(
-    @Autowired private val barnehageBarnRepository: BarnehagebarnRepository,
+    @Autowired private val barnehagebarnRepository: BarnehagebarnRepository,
 ) : OppslagSpringRunnerTest() {
+    private val barnehageBarnService =
+        BarnehagebarnService(
+            barnehagebarnRepository = barnehagebarnRepository,
+            andelTilkjentYtelseRepository = mockk(),
+            fagsakRepository = mockk(),
+            behandlingRepository = mockk(),
+            vilkårsvurderingService = mockk(),
+        )
     private val epostService = mockk<EpostService>()
     private val geografiHierarkiService = mockk<GeografiHierarkiService>()
     private val barnehagelisteVarslingService =
-        BarnehagelisteVarslingService(barnehageBarnRepository, epostService, geografiHierarkiService)
+        BarnehagelisteVarslingService(barnehageBarnService, epostService, geografiHierarkiService)
 
     @BeforeEach
     fun setup() {
@@ -72,7 +80,7 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
                 kommuneNr = "0302",
                 kommuneNavn = "Grünerløkka",
             )
-        barnehageBarnRepository.saveAll(
+        barnehagebarnRepository.saveAll(
             listOf(
                 barnehageBarnSendtIGår,
                 barnehageBarnSendtIGårMedSammeKommuneSomIDag,
@@ -110,7 +118,7 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
                 kommuneNavn = "Gamle Oslo",
             )
 
-        barnehageBarnRepository.saveAll(
+        barnehagebarnRepository.saveAll(
             listOf(
                 barnehagebarnSendtForMerEnnEttDøgnSiden,
             ),
