@@ -11,10 +11,13 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadre
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.beskjærEtter
+import no.nav.familie.tidslinje.isSameOrAfter
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import java.time.LocalDate
+
+private val cutOffTomDatoForVisningAvManglendeMerkinger = LocalDate.of(2025, 9, 30)
 
 data class ManglendeSvalbardmerkingDto(
     val ident: String,
@@ -54,6 +57,7 @@ fun List<Person>?.tilManglendeSvalbardmerkingDto(personResultater: Set<PersonRes
                             UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD,
                         )
                 }.tilPerioderIkkeNull()
+                .filter { it.tom == null || it.tom!!.isSameOrAfter(cutOffTomDatoForVisningAvManglendeMerkinger) }
                 .filter { it.verdi }
                 .map { ManglendeSvalbardmerkingPeriodeDto(fom = it.fom, tom = it.tom) }
 

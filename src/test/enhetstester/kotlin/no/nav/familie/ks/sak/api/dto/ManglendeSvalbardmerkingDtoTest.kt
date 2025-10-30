@@ -6,7 +6,7 @@ import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonResultat
-import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.no.nav.familie.ks.sak.datagenerator.lagGrMatrikkelOppholdsadresse
@@ -32,7 +32,7 @@ class ManglendeSvalbardmerkingDtoTest {
         @Test
         fun `skal finne alle perioder for alle personer som ikke er markert med 'Bosatt på Svalbard' men har oppholdsadresse på Svalbard`() {
             // Arrange
-            val bosattPåSvalbardPeriode = DatoIntervallEntitet(fom = LocalDate.of(2024, 8, 15), tom = null)
+            val bosattPåSvalbardPeriode = DatoIntervallEntitet(fom = LocalDate.of(2025, 9, 1), tom = null)
 
             val søker =
                 lagPerson(personType = PersonType.SØKER).also {
@@ -78,14 +78,7 @@ class ManglendeSvalbardmerkingDtoTest {
                         )
                 }
             val behandling = lagBehandling()
-            val persongrunnlag =
-                lagTestPersonopplysningGrunnlag(
-                    behandling.id,
-                    søker,
-                    barn1,
-                    barn2,
-                    barn3,
-                )
+
             val vilkårsvurdering =
                 lagVilkårsvurdering(behandling = behandling, lagPersonResultat = { vilkårsvurdering ->
                     setOf(
@@ -160,7 +153,7 @@ class ManglendeSvalbardmerkingDtoTest {
         @Test
         fun `skal returnere tom liste dersom alle perioder for alle personer med oppholdsadresse på Svalbard har blitt markert med "Bosatt på Svalbard"`() {
             // Arrange
-            val bosattPåSvalbardPeriode = DatoIntervallEntitet(fom = LocalDate.of(2024, 8, 15), tom = null)
+            val bosattPåSvalbardPeriode = DatoIntervallEntitet(fom = LocalDate.of(2025, 9, 1), tom = null)
 
             val søker =
                 lagPerson(personType = PersonType.SØKER).also {
@@ -206,14 +199,7 @@ class ManglendeSvalbardmerkingDtoTest {
                         )
                 }
             val behandling = lagBehandling()
-            val persongrunnlag =
-                lagTestPersonopplysningGrunnlag(
-                    behandling.id,
-                    søker,
-                    barn1,
-                    barn2,
-                    barn3,
-                )
+
             val vilkårsvurdering =
                 lagVilkårsvurdering(behandling = behandling, lagPersonResultat = { vilkårsvurdering ->
                     setOf(
@@ -286,6 +272,364 @@ class ManglendeSvalbardmerkingDtoTest {
             assertThat(manglendeSvalbardmerking).hasSize(0)
         }
 
+        @Test
+        fun `skal ikke vise perioder som slutter før 30 september 2025`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
+
+            val søker =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    type = PersonType.SØKER,
+                    fødselsdato = LocalDate.of(1980, 1, 1),
+                    oppholdsadresser = {
+                        listOf(
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(1980, 1, 1),
+                                        tom = LocalDate.of(2025, 9, 29),
+                                    ),
+                            ),
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = "0301",
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(2025, 9, 30),
+                                        tom = null,
+                                    ),
+                            ),
+                        )
+                    },
+                )
+            personopplysningGrunnlag.personer.add(søker)
+
+            val barn =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    type = PersonType.BARN,
+                    fødselsdato = LocalDate.of(2015, 1, 1),
+                    oppholdsadresser = {
+                        listOf(
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(2015, 1, 1),
+                                        tom = LocalDate.of(2025, 9, 29),
+                                    ),
+                            ),
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = "0301",
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(2025, 9, 30),
+                                        tom = null,
+                                    ),
+                            ),
+                        )
+                    },
+                )
+            personopplysningGrunnlag.personer.add(barn)
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = behandling,
+                    lagPersonResultat = {
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                aktør = søker.aktør,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(1980, 1, 1),
+                                                    tom = LocalDate.of(2025, 9, 29),
+                                                ),
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(2025, 9, 30),
+                                                    tom = null,
+                                                ),
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                aktør = barn.aktør,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(2015, 1, 1),
+                                                    tom = LocalDate.of(2025, 9, 29),
+                                                ),
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(2025, 9, 30),
+                                                    tom = null,
+                                                ),
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            val personer = listOf(søker, barn)
+
+            // Act
+            val manglendeSvalbardmerking = personer.tilManglendeSvalbardmerkingDto(personResultater = vilkårsvurdering.personResultater)
+
+            // Assert
+            assertThat(manglendeSvalbardmerking).isEmpty()
+        }
+
+        @Test
+        fun `skal vise perioder som har fom dato før 30 september 2025 hvor tom dato er null`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
+
+            val søker =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    type = PersonType.SØKER,
+                    fødselsdato = LocalDate.of(1980, 1, 1),
+                    oppholdsadresser = {
+                        listOf(
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(1980, 1, 1),
+                                        tom = null,
+                                    ),
+                            ),
+                        )
+                    },
+                )
+            personopplysningGrunnlag.personer.add(søker)
+
+            val barn =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    type = PersonType.BARN,
+                    fødselsdato = LocalDate.of(2025, 9, 29),
+                    oppholdsadresser = {
+                        listOf(
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(2025, 9, 29),
+                                        tom = null,
+                                    ),
+                            ),
+                        )
+                    },
+                )
+            personopplysningGrunnlag.personer.add(barn)
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = behandling,
+                    lagPersonResultat = {
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                aktør = søker.aktør,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(1980, 1, 1),
+                                                    tom = null,
+                                                ),
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                aktør = barn.aktør,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(2025, 9, 29),
+                                                    tom = null,
+                                                ),
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            val personer = listOf(søker, barn)
+
+            // Act
+            val manglendeSvalbardmerking = personer.tilManglendeSvalbardmerkingDto(personResultater = vilkårsvurdering.personResultater)
+
+            // Assert
+            assertThat(manglendeSvalbardmerking).hasSize(2)
+            assertThat(manglendeSvalbardmerking).anySatisfy {
+                assertThat(it.ident).isEqualTo(søker.aktør.aktivFødselsnummer())
+                assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(1980, 1, 1))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isNull()
+            }
+            assertThat(manglendeSvalbardmerking).anySatisfy {
+                assertThat(it.ident).isEqualTo(barn.aktør.aktivFødselsnummer())
+                assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(2025, 9, 29))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isNull()
+            }
+        }
+
+        @Test
+        fun `skal vise perioder som har tom dato lik 30 september 2025`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
+
+            val søker =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    type = PersonType.SØKER,
+                    fødselsdato = LocalDate.of(1980, 1, 1),
+                    oppholdsadresser = {
+                        listOf(
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(1980, 1, 1),
+                                        tom = LocalDate.of(2025, 9, 30),
+                                    ),
+                            ),
+                        )
+                    },
+                )
+            personopplysningGrunnlag.personer.add(søker)
+
+            val barn =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    type = PersonType.BARN,
+                    fødselsdato = LocalDate.of(2015, 1, 1),
+                    oppholdsadresser = {
+                        listOf(
+                            lagGrVegadresseOppholdsadresse(
+                                kommunenummer = SvalbardKommune.SVALBARD.kommunenummer,
+                                periode =
+                                    DatoIntervallEntitet(
+                                        fom = LocalDate.of(2015, 1, 1),
+                                        tom = LocalDate.of(2025, 9, 30),
+                                    ),
+                            ),
+                        )
+                    },
+                )
+            personopplysningGrunnlag.personer.add(barn)
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = behandling,
+                    lagPersonResultat = {
+                        setOf(
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                aktør = søker.aktør,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(1980, 1, 1),
+                                                    tom = LocalDate.of(2025, 9, 30),
+                                                ),
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                vilkårsvurdering = it,
+                                aktør = barn.aktør,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagBosattIRiketVilkårForPersonResultat(
+                                            personResultat = personResultat,
+                                            behandling = behandling,
+                                            periode =
+                                                DatoIntervallEntitet(
+                                                    fom = LocalDate.of(2015, 1, 1),
+                                                    tom = LocalDate.of(2025, 9, 30),
+                                                ),
+                                            utdypendeVilkårsvurderinger = emptyList(),
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            val personer = listOf(søker, barn)
+
+            // Act
+            val manglendeSvalbardmerking = personer.tilManglendeSvalbardmerkingDto(personResultater = vilkårsvurdering.personResultater)
+
+            // Assert
+            assertThat(manglendeSvalbardmerking).hasSize(2)
+            assertThat(manglendeSvalbardmerking).anySatisfy {
+                assertThat(it.ident).isEqualTo(søker.aktør.aktivFødselsnummer())
+                assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(1980, 1, 1))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isEqualTo(LocalDate.of(2025, 9, 30))
+            }
+            assertThat(manglendeSvalbardmerking).anySatisfy {
+                assertThat(it.ident).isEqualTo(barn.aktør.aktivFødselsnummer())
+                assertThat(it.manglendeSvalbardmerkingPerioder).hasSize(1)
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().fom).isEqualTo(LocalDate.of(2015, 1, 1))
+                assertThat(it.manglendeSvalbardmerkingPerioder.first().tom).isEqualTo(LocalDate.of(2025, 9, 30))
+            }
+        }
+
         private fun lagBosattIRiketVilkårForPersonResultat(
             personResultat: PersonResultat,
             behandling: Behandling,
@@ -298,7 +642,7 @@ class ManglendeSvalbardmerkingDtoTest {
                 vilkårType = Vilkår.BOSATT_I_RIKET,
                 resultat = Resultat.OPPFYLT,
                 periodeFom = periode.fom,
-                periodeTom = null,
+                periodeTom = periode.tom,
                 begrunnelse = "",
                 utdypendeVilkårsvurderinger = utdypendeVilkårsvurderinger,
             )
