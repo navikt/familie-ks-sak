@@ -40,9 +40,9 @@ fun lagTestOppgaveDTO(
         tilordnetRessurs = tildeltRessurs,
         behandlesAvApplikasjon = "FS22",
         beskrivelse = "Beskrivelse for oppgave",
-        tema = Tema.BAR,
+        tema = Tema.KON,
         oppgavetype = oppgavetype.value,
-        behandlingstema = Behandlingstema.OrdinærBarnetrygd.value,
+        behandlingstema = Behandlingstema.Kontantstøtte.value,
         behandlingstype = Behandlingstype.NASJONAL.value,
         opprettetTidspunkt =
             LocalDate
