@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
+import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
@@ -36,12 +37,16 @@ class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
+    @Autowired
+    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
+
     private val controllerUrl: String = "/api/endretutbetalingandel"
 
     @BeforeEach
     fun setUp() {
         RestAssured.port = port
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+        fakeIntegrasjonKlient.reset()
     }
 
     @Nested
