@@ -363,7 +363,7 @@ class ForvaltningController(
 
     @GetMapping("/redirect/behandling/{behandlingId}")
     @Unprotected
-    fun redirectTilBarnetrygd(
+    fun redirectTilKontantstøtte(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Any> {
         val hostname =
