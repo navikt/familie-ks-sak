@@ -11,7 +11,7 @@ class ArbeidsfordelingsenhetTest {
     inner class OpprettFra {
         @ParameterizedTest
         @EnumSource(KontantstøtteEnhet::class)
-        fun `skal opprette arbeidsfordelingsenhet fra barnetrygdenhet`(enhet: KontantstøtteEnhet) {
+        fun `skal opprette arbeidsfordelingsenhet fra kontantstøtte enhet`(enhet: KontantstøtteEnhet) {
             // Act
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(enhet)
 
