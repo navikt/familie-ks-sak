@@ -27,9 +27,7 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
              JOIN behandling b ON aty.fk_behandling_id = b.id
              JOIN fagsak f ON b.fk_fagsak_id = f.id
              JOIN tilkjent_ytelse ty ON b.id = ty.fk_behandling_id
-             CROSS JOIN input i
-    WHERE (i.ident_param IS NULL OR p.foedselsnummer = i.ident_param)
-      AND p.aktiv = true
+    WHERE p.aktiv = true
       AND f.status = 'LØPENDE'
       AND f.arkivert = false
       AND ty.utbetalingsoppdrag IS NOT NULL
@@ -47,9 +45,7 @@ lopende_andel_i_siste_iverksatte_behandling AS (
              JOIN siste_iverksatte_behandling_i_løpende_fagsak iblf
                   ON f.id = iblf.fagsakid
                   AND b.aktivert_tid = iblf.aktivert_tid
-    CROSS JOIN input i
-    WHERE (i.ident_param IS NULL OR p.foedselsnummer = i.ident_param)
-      AND p.aktiv = true
+    WHERE p.aktiv = true
 ),
 avvik_antall_timer_vilkar_resultat_og_barnehagebarn AS (
     SELECT 
@@ -83,12 +79,8 @@ barnehagebarn_visning AS (
                        ON bb.ident = lab.foedselsnummer
              LEFT JOIN avvik_antall_timer_vilkar_resultat_og_barnehagebarn atv
                        ON bb.id = atv.barnehagebarn_id
-    CROSS JOIN input i
     WHERE (NOT :kunLøpendeAndeler OR lab.lopende_andel = true)
-      AND (i.ident_param IS NULL OR bb.ident = i.ident_param)
-      AND (i.kommunenavn_param IS NULL OR bb.kommune_navn ILIKE i.kommunenavn_param)
-    GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype,
-             bb.kommune_navn, bb.kommune_nr, atv.avvik
+    GROUP BY bb.ident, bb.fom, bb.tom, bb.antall_timer_i_barnehage, bb.endringstype, bb.kommune_navn, bb.kommune_nr, atv.avvik
 )
 SELECT ident,
        fom,
@@ -99,7 +91,10 @@ SELECT ident,
        kommuneNr,
        endretTid,
        avvik
-FROM barnehagebarn_visning;     
+FROM barnehagebarn_visning
+    CROSS JOIN input i
+    WHERE (ident = i.ident_param OR i.ident_param IS NULL)
+        AND (i.kommunenavn_param IS NULL OR kommuneNavn ILIKE i.kommunenavn_param)
  """,
         nativeQuery = true,
     )
