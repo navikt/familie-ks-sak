@@ -1,18 +1,15 @@
 package no.nav.familie.ks.sak.api
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagVedtaksbegrunnelse
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -55,8 +52,8 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
 
-    @MockkBean
-    private lateinit var integrasjonClient: IntegrasjonClient
+    @Autowired
+    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
 
     val vilkårsvurderingControllerUrl = "/api/vilkårsvurdering"
 
@@ -80,10 +77,8 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         )
         lagreBehandling(behandling)
 
-        every { integrasjonClient.hentLand(any()) } returns "Norge"
-
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
+        fakeIntegrasjonKlient.reset()
     }
 
     @Test

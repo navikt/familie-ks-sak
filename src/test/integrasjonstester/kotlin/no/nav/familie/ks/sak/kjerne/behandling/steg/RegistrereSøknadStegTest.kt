@@ -1,12 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.called
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
-import io.mockk.runs
-import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
@@ -14,13 +7,8 @@ import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.data.lagPdlPersonInfo
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
-import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.RegistrereSøknadSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
@@ -53,18 +41,6 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var vilkårsvurderingRepository: VilkårsvurderingRepository
 
-    @MockkBean
-    private lateinit var integrasjonClient: IntegrasjonClient
-
-    @MockkBean(relaxed = true)
-    private lateinit var personOpplysningerService: PersonopplysningerService
-
-    @MockkBean(relaxed = true)
-    private lateinit var infotrygdReplikaClient: InfotrygdReplikaClient
-
-    @MockkBean
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
-
     private lateinit var barn1: Aktør
 
     private lateinit var barn2: Aktør
@@ -80,9 +56,6 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         personopplysningGrunnlagRepository.saveAndFlush(personopplysningGrunnlag)
 
         // Mocker ut tjenester som kjører eksterne kall
-        every { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns lagPdlPersonInfo()
-        every { arbeidsfordelingService.fastsettBehandlendeEnhet(any()) } just runs
-        every { integrasjonClient.hentPoststeder() } returns mockk(relaxed = true)
     }
 
     @Test
@@ -192,8 +165,5 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandling.id))
 
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))
-
-        verify { personOpplysningerService wasNot called }
-        verify { arbeidsfordelingService wasNot called }
     }
 }

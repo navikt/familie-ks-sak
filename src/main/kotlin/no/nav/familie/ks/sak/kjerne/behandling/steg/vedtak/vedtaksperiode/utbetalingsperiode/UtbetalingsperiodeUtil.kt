@@ -37,7 +37,6 @@ import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import java.math.BigDecimal
-import java.time.LocalDate
 
 // Om noe av dette endrer seg skal vi ha en splitt i vedtaksperiodene.
 data class SplittkriterierForVedtaksperiode(

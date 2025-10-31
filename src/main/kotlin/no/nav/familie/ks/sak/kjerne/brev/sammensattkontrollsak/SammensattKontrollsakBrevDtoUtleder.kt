@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak
 import no.nav.familie.ks.sak.kjerne.brev.BrevmalService
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal.INFORMASJONSBREV_KAN_HA_RETT_TIL_PENGESTØTTE_FRA_NAV
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

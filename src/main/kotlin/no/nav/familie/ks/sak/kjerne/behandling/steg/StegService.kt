@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -30,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbeh
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
-import no.nav.familie.prosessering.internal.TaskService
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -44,7 +44,7 @@ class StegService(
     private val vedtakRepository: VedtakRepository,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sakStatistikkService: SakStatistikkService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val loggService: LoggService,
     private val behandlingService: BehandlingService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,

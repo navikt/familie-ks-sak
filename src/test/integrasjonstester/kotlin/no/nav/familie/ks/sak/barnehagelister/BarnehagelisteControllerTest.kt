@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.barnehagelister
 
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
@@ -13,7 +11,6 @@ import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteServiceTest
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,9 +21,6 @@ import java.time.LocalDateTime
 class BarnehagelisteControllerTest(
     @Autowired private val barnehageListeService: BarnehageListeService,
 ) : OppslagSpringRunnerTest() {
-    @MockK
-    lateinit var tilgangService: TilgangService
-
     @BeforeEach
     fun setup() {
         RestAssured.port = port
@@ -45,7 +39,6 @@ class BarnehagelisteControllerTest(
         barnehageListeService.lagreBarnehagelisteMottattOgOpprettTaskForLesing(barnehagelisteMottatt)
         Assertions.assertNotNull(barnehageListeService.hentUarkiverteBarnehagelisteUuider())
         barnehageListeService.lesOgArkiverBarnehageliste(barnehagelisteMottatt.id)
-        every { tilgangService.validerTilgangTilHandling(any(), any()) }
 
         Given {
             header("Authorization", "Bearer $token")

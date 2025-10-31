@@ -6,10 +6,10 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.EnvService
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,7 +18,7 @@ import java.time.LocalDate
 internal class KonsistensavstemmingSchedulerTest {
     private val envService = mockk<EnvService>()
     private val konsistensavstemmingKjøreplanService = mockk<KonsistensavstemmingKjøreplanService>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
 
     private val konsistensavstemmingScheduler =
         KonsistensavstemmingScheduler(

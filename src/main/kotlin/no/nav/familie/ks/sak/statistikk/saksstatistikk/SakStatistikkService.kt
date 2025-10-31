@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.statistikk.saksstatistikk
 import no.nav.familie.eksterne.kontrakter.saksstatistikk.AktørDVH
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -16,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.ZoneId
@@ -28,7 +28,7 @@ import java.util.UUID
 class SakStatistikkService(
     private val behandlingRepository: BehandlingRepository,
     private val fagsakRepository: FagsakRepository,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val totrinnskontrollService: TotrinnskontrollService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val fagsakService: FagsakService,

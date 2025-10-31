@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
 import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.common.util.hentDokument
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
@@ -24,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -34,7 +34,7 @@ class JournalførVedtaksbrevSteg(
     private val vedtakService: VedtakService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val utgåendeJournalføringService: UtgåendeJournalføringService,
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val fagsakService: FagsakService,
     private val brevmottakerService: BrevmottakerService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,

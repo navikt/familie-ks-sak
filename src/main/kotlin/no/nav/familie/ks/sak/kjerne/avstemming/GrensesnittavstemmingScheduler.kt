@@ -3,12 +3,12 @@ package no.nav.familie.ks.sak.kjerne.avstemming
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.util.erHelligdag
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.ks.sak.task.utledNesteTriggerTidIHverdagerForTask
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.domene.Status
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Service
 class GrensesnittavstemmingScheduler(
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val envService: EnvService,
 ) {
     @Scheduled(cron = "\${CRON_GRENSESNITT_AVSTEMMING}")

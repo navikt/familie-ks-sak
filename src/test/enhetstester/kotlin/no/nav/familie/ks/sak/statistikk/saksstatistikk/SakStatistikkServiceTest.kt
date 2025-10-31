@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagRelatertBehandling
@@ -14,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService.Companion.TIMEZONE
-import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class SakStatistikkServiceTest {
     private val behandlingRepository = mockk<BehandlingRepository>()
     private val fagsakRepository = mockk<FagsakRepository>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val totrinnskontrollService = mockk<TotrinnskontrollService>()
     private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
     private val fagsakService = mockk<FagsakService>()

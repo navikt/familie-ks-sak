@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.data.no.nav.familie.ks.sak.datagenerator
+package no.nav.familie.ks.sak.datagenerator
 
 import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
