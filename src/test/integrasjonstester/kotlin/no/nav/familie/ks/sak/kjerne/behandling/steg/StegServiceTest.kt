@@ -2,12 +2,15 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import io.mockk.every
 import io.mockk.mockkObject
-import io.mockk.slot
 import io.mockk.unmockkObject
-import io.mockk.verify
+import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
+import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
@@ -38,10 +41,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.TILBAKE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.UTFØRT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus.VENTER
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
@@ -51,8 +55,6 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
-import no.nav.familie.prosessering.domene.Task
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -77,6 +79,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vedtaksperiodeService: VedtaksperiodeService
+
+    @Autowired
+    private lateinit var vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService
+
+    @Autowired
+    private lateinit var søknadGrunnlagService: SøknadGrunnlagService
 
     @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
@@ -147,6 +155,9 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     fun `utførSteg skal tilbakeføre behandlingsresultat når REGISTRERE_SØKNAD utføres på nytt for FGB`() {
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+        val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
+        vedtakRepository.saveAndFlush(vedtak)
+
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegistrerSøknadDto()) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
@@ -264,12 +275,23 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR))
-        behandling.resultat = Behandlingsresultat.OPPHØRT
+        behandling.resultat = Behandlingsresultat.INNVILGET
         behandling.status = BehandlingStatus.FATTER_VEDTAK
-        behandling.opprettetÅrsak
         lagreBehandling(behandling)
         val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
         vedtakRepository.saveAndFlush(vedtak)
+
+        søknadGrunnlagService.lagreOgDeaktiverGammel(
+            SøknadDto(
+                søkerMedOpplysninger = SøkerMedOpplysningerDto("søkerIdent"),
+                barnaMedOpplysninger =
+                    listOf(
+                        BarnMedOpplysningerDto(ident = "barn1"),
+                        BarnMedOpplysningerDto("barn2"),
+                    ),
+                "begrunnelse",
+            ).tilSøknadGrunnlag(behandling.id),
+        )
 
         lagTilkjentYtelse("")
         val andelTilkjentYtelse =
@@ -279,6 +301,17 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 behandling = behandling,
             )
         andelTilkjentYtelseRepository.saveAndFlush(andelTilkjentYtelse)
+
+        val vedtaksperioder = vedtaksperiodeService.genererVedtaksperioderMedBegrunnelser(vedtak)
+        vedtaksperiodeHentOgPersisterService.lagre(vedtaksperioder)
+
+        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
+            vedtaksperioder.first().id,
+            begrunnelserFraFrontend =
+                listOf(
+                    NasjonalEllerFellesBegrunnelse.INNVILGET_SATSENDRING,
+                ),
+        )
 
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
         totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling = behandling)
@@ -347,6 +380,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         lagreBehandling(behandling)
 
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.UNDERKJENT, begrunnelse = "Underkjent")
+        totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling = behandling)
+
         assertDoesNotThrow { stegService.utførSteg(behandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
@@ -356,20 +391,26 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     }
 
     @Test
+    @Transactional
     fun `utførStegEtterIverksettelseAutomatisk skal utføre AVSLUTT_BEHANDLING steg automatisk`() {
-        val taskSlot = slot<Task>()
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, AVSLUTT_BEHANDLING, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
-        lagreBehandling(behandling)
+        behandling.resultat = Behandlingsresultat.INNVILGET
+        lagTilkjentYtelse("")
+        val andelTilkjentYtelse =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                kalkulertUtbetalingsbeløp = 1000,
+                behandling = behandling,
+            )
+        andelTilkjentYtelseRepository.saveAndFlush(andelTilkjentYtelse)
+        val lagretBehandling = lagreBehandling(behandling)
 
-        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
+        assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(lagretBehandling.id) }
 
-        verify(exactly = 1) { taskService.save(capture(taskSlot)) }
-        assertTrue { taskSlot.captured.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE }
-
-        val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
+        val oppdatertBehandling = behandlingRepository.hentBehandling(lagretBehandling.id)
         assertBehandlingHarSteg(oppdatertBehandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
         assertBehandlingHarSteg(oppdatertBehandling, AVSLUTT_BEHANDLING, UTFØRT)
     }

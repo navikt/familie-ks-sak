@@ -72,7 +72,7 @@ import java.time.LocalDate
     "integrasjonstest",
     "fake-integrasjon-klient",
     "fake-tilbakekreving-klient",
-    "fake-pdl-client",
+    "fake-pdl-klient",
     "mock-pdl",
     "mock-unleash",
     "mock-brev-klient",
