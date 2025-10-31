@@ -7,13 +7,13 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 /*
-TaskRepository in familie-prosessering is @Primary, which is not able to mock so we use this wrapper class for testibility
+TaskRepository in familie-prosessering is @Primary, which is not able to mock so we use this wrapper class for testability
  */
 @Component
 class TaskRepositoryWrapper(
     private val taskService: TaskService,
 ) {
-    fun save(task: Task) = taskService.save(task)
+    fun save(task: Task): Task = taskService.save(task)
 
     fun findAll(): Iterable<Task> = taskService.findAll()
 

@@ -19,7 +19,7 @@ class FakeTaskRepositoryWrapper(
 
     override fun findAll(): List<Task> = lagredeTasker
 
-    override fun findByStatus(status: Status): List<Task> = lagredeTasker.filter { it.status === status }
+    override fun findByStatus(status: Status): List<Task> = lagredeTasker.filter { it.status == status }
 
     fun hentLagredeTaskerAvType(type: String): List<Task> = this.lagredeTasker.filter { it.type == type }
 
