@@ -28,9 +28,6 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
     private lateinit var taskService: FakeTaskRepositoryWrapper
 
     @Autowired
-    private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
-
-    @Autowired
     private lateinit var stegService: StegService
 
     @Autowired

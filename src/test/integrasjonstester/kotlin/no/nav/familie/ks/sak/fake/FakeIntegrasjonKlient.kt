@@ -25,7 +25,6 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
-import no.nav.familie.kontrakter.ks.søknad.VersjonertKontantstøtteSøknad
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.datagenerator.lagKodeverkLand
 import no.nav.familie.ks.sak.datagenerator.lagTestJournalpost
@@ -45,7 +44,6 @@ class FakeIntegrasjonKlient(
 ) : IntegrasjonClient(URI("integrasjoner-url"), restOperations) {
     private val egenansatt = mutableSetOf<String>()
     private val behandlendeEnhetForIdent = mutableMapOf<String, List<Arbeidsfordelingsenhet>>()
-    private val versjonertKontantstøtteSøknad = mutableMapOf<String, VersjonertKontantstøtteSøknad>()
     private val journalførteDokumenter = mutableListOf<ArkiverDokumentRequest>()
     private val personIdentTilTilgang = mutableMapOf<String, Tilgang>()
     private val kallMotSjekkTilgangTilPersoner: MutableList<List<String>> = mutableListOf()
@@ -158,8 +156,6 @@ class FakeIntegrasjonKlient(
         return ArkiverDokumentResponse(ferdigstilt = true, journalpostId = "journalpostId")
     }
 
-    fun hentJournalførteDokumenter(): List<ArkiverDokumentRequest> = journalførteDokumenter
-
     override fun hentLandkoderISO2(): Map<String, String> = hentLandkoder()
 
     override fun hentAInntektUrl(personIdent: PersonIdent): String = "/test/1234"
@@ -182,18 +178,12 @@ class FakeIntegrasjonKlient(
             "navStatus",
         )
 
-    fun leggTilEgenansatt(ident: String) {
-        egenansatt.add(ident)
-    }
-
     private fun hentLandkoder(): Map<String, String> {
         val landkoder =
             ClassPathResource("landkoder/landkoder.json").inputStream.bufferedReader().use(BufferedReader::readText)
 
         return objectMapper.readValue<List<LandkodeISO2>>(landkoder).associate { it.code to it.name }
     }
-
-    fun antallKallTilSjekkTilgangTilPersoner(): Int = kallMotSjekkTilgangTilPersoner.size
 
     /**
      * Legger til tilgang for testIdenter og setter defaulten for godkjenning til false

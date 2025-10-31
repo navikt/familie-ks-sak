@@ -8,22 +8,9 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OppgavePrioritet
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
-import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.StatusEnum
 import no.nav.familie.ks.sak.data.randomAktør
 import java.time.LocalDate
-
-fun lagTestOppgave(): OpprettOppgaveRequest =
-    OpprettOppgaveRequest(
-        ident = OppgaveIdentV2(ident = "test", gruppe = IdentGruppe.AKTOERID),
-        saksId = "123",
-        tema = Tema.BAR,
-        oppgavetype = Oppgavetype.BehandleSak,
-        fristFerdigstillelse = LocalDate.now(),
-        beskrivelse = "test",
-        enhetsnummer = "1234",
-        behandlingstema = "behandlingstema",
-    )
 
 fun lagTestOppgaveDTO(
     oppgaveId: Long,
