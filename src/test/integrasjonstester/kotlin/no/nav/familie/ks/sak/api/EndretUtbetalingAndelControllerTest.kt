@@ -1,12 +1,10 @@
 package no.nav.familie.ks.sak.api
 
-import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle

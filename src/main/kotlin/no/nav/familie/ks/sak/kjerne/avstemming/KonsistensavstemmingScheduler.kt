@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.leader.LeaderClient
 import no.nav.familie.log.mdc.MDCConstants
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC

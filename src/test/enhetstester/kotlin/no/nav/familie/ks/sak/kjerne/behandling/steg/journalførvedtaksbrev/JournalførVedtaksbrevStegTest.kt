@@ -22,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
-import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.hamcrest.CoreMatchers.`is` as Is

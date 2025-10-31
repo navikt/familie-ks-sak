@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.data.randomAktørId
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
-import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test

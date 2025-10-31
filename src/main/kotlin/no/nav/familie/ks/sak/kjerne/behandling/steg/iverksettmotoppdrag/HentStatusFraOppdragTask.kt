@@ -18,7 +18,6 @@ import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.error.RekjørSenereException
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

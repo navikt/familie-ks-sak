@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService.Companion.TIMEZONE
-import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

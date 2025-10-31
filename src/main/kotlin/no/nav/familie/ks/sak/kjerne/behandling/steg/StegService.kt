@@ -31,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.SendOpprettTilbakekrevingsbeh
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
-import no.nav.familie.prosessering.internal.TaskService
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

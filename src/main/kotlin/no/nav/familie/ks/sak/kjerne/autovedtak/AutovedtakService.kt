@@ -22,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

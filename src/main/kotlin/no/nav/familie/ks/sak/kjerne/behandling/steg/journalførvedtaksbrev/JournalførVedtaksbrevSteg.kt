@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

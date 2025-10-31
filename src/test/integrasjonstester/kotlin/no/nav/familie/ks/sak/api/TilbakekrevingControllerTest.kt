@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.api
 
-import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then

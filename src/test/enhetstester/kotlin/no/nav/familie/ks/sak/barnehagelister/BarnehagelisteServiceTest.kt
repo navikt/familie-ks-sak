@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattArkivRe
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottattRepository
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.data.repository.findByIdOrNull

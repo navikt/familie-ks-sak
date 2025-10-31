@@ -3,7 +3,6 @@
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.prosessering.internal.TaskService
 
 fun mockTaskService(): TaskRepositoryWrapper {
     val taskService = mockk<TaskRepositoryWrapper>()

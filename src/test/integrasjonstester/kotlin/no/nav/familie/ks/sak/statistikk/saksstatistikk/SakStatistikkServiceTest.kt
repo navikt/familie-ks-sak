@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.no.nav.familie.ks.sak.statistikk.saksstatistikk
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.fake.FakeTaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
@@ -14,7 +13,6 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals

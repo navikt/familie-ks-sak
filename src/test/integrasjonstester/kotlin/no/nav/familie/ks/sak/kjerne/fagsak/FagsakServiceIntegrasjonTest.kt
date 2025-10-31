@@ -1,13 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
-import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository

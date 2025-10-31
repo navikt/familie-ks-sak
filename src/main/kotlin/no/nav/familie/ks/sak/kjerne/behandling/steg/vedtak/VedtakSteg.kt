@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.valide
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

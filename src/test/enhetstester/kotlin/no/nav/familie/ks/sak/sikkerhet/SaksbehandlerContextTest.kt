@@ -6,7 +6,6 @@ import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach

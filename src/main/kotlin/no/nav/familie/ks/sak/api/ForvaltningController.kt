@@ -43,7 +43,6 @@ import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkService
-import no.nav.familie.prosessering.internal.TaskService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory

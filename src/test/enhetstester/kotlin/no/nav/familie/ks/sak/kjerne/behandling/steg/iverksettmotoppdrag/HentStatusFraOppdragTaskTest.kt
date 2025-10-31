@@ -21,7 +21,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.error.RekjørSenereException
-import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach

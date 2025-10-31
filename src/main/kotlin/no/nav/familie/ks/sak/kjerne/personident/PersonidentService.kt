@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
