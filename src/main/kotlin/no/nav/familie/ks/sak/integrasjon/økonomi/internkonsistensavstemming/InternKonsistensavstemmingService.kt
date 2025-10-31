@@ -15,7 +15,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.ordinæreOgPraksisendringAn
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.task.overstyrTaskMedNyCallId
 import no.nav.familie.log.IdUtils
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

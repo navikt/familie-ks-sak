@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.unleash.UnleashService
-import java.util.concurrent.ConcurrentHashMap
 
 class FakeFeatureToggleService(
     unleashService: UnleashService,

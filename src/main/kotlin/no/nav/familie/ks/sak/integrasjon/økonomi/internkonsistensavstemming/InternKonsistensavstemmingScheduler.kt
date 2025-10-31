@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.integrasjon.økonomi.internkonsistensavstemming
 
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.leader.LeaderClient
-import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 

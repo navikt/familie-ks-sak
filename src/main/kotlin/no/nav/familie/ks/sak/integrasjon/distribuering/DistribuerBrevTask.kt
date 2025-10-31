@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.task.utledNesteTriggerTidIHverdagerForTask
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import java.util.Properties
 
