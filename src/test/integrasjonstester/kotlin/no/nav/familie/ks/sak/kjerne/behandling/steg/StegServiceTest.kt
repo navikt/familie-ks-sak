@@ -55,6 +55,7 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SendBehandlinghendelseTilDvhV2Task
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -409,6 +410,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         val lagretBehandling = lagreBehandling(behandling)
 
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(lagretBehandling.id) }
+        assertNotNull(
+            taskService.lagredeTasker.find {
+                it.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE
+            },
+        )
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(lagretBehandling.id)
         assertBehandlingHarSteg(oppdatertBehandling, JOURNALFØR_VEDTAKSBREV, UTFØRT)
