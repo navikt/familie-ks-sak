@@ -6,6 +6,7 @@ import io.mockk.slot
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.ks.sak.common.util.hentDokument
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.randomFnr
@@ -21,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
-import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -30,7 +30,7 @@ class JournalførVedtaksbrevStegTest {
     private val vedtakService = mockk<VedtakService>()
     private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
     private val utgåendeJournalføringService = mockk<UtgåendeJournalføringService>()
-    private val taskService = mockk<TaskService>()
+    private val taskService = mockk<TaskRepositoryWrapper>()
     private val fagsakService = mockk<FagsakService>()
     private val brevmottakerService = mockk<BrevmottakerService>()
     private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()

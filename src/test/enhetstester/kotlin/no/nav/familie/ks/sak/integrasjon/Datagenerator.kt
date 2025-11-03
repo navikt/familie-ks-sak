@@ -93,7 +93,7 @@ fun lagJournalpost(
                 fagsakId = "10695768",
                 fagsaksystem = FAGSYSTEM,
             ),
-        tittel = "Søknad om ordinær barnetrygd",
+        tittel = "Søknad om ordinær kontantstøtte",
         relevanteDatoer = listOf(RelevantDato(LocalDateTime.now(), "DATO_REGISTRERT")),
     )
 

@@ -1,19 +1,15 @@
 package no.nav.familie.ks.sak.api
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -30,8 +26,8 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
-    @MockkBean
-    private lateinit var integrasjonClient: IntegrasjonClient
+    @Autowired
+    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
 
     val behandlingControllerUrl = "/api/behandlinger"
 
@@ -46,8 +42,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                 behandlendeEnhetNavn = "test",
             ),
         )
-
-        every { integrasjonClient.hentLand(any()) } returns "Norge"
+        fakeIntegrasjonKlient.reset()
     }
 
     @Test
@@ -75,7 +70,6 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `hentBehandling - skal returnere BehandlingResponsDto og 200 OK dersom behandling finnes`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")
@@ -91,8 +85,6 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `endreBehandlendeEnhet - skal kaste FunksjonellFeil hvis begrunnelse er tom`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")
@@ -110,14 +102,6 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `endreBehandlendeEnhet - skal returnere behandling med endret enhet`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
-        every { integrasjonClient.hentNavKontorEnhet("50") } returns
-            NavKontorEnhet(
-                50,
-                "nyNavn",
-                "nyEnhetNr",
-                "nyStatus",
-            )
 
         Given {
             header("Authorization", "Bearer $token")
@@ -128,7 +112,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
         } Then {
             statusCode(HttpStatus.OK.value())
             body("data.arbeidsfordelingPåBehandling.behandlendeEnhetId", Is("50"))
-            body("data.arbeidsfordelingPåBehandling.behandlendeEnhetNavn", Is("nyNavn"))
+            body("data.arbeidsfordelingPåBehandling.behandlendeEnhetNavn", Is("navKontor"))
             body("data.arbeidsfordelingPåBehandling.manueltOverstyrt", Is(true))
         }
     }
@@ -136,8 +120,6 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `opprettBehandling - skal kaste funksjonell feil hvis fagsak allerede har en aktiv behandling som ikke er ferdigstilt`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")
@@ -169,7 +151,6 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Test
     fun `hentBehandlinger - skal returnere MinimalBehandlingResponsDto og 200 OK dersom behandlinger finnes`() {
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
 
         Given {
             header("Authorization", "Bearer $token")

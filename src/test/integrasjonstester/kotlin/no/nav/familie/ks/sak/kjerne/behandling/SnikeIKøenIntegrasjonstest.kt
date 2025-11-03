@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.kjerne.behandling
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -29,12 +27,9 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.fagsak.PubliserSaksstatistikkTask
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.AktørRepository
-import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -57,14 +52,10 @@ class SnikeIKøenIntegrasjonstest(
 ) : OppslagSpringRunnerTest() {
     private var skalVenteLitt = false // for å unngå at behandlingen opprettes med samme tidspunkt
 
-    @MockkBean
-    private lateinit var taskService: TaskService
-
     @BeforeEach
     fun setUp() {
         skalVenteLitt = false
         databaseCleanupService.truncate()
-        mockPubliserSaksstatistikk()
         fagsak = opprettLøpendeFagsak()
     }
 
@@ -254,16 +245,6 @@ class SnikeIKøenIntegrasjonstest(
 
             assertThatThrownBy { snikeIKøenService.reaktiverBehandlingPåMaskinellVent(behandlingSomSnekIKøen) }
                 .hasMessageContaining("er ikke avsluttet")
-        }
-    }
-
-    private fun mockPubliserSaksstatistikk() {
-        val publiserSaksstatistikkTask = mutableListOf<Task>()
-        every {
-            taskService.save(capture(publiserSaksstatistikkTask))
-        } answers {
-            publiserSaksstatistikkTask.single()
-            publiserSaksstatistikkTask.single { it.type == PubliserSaksstatistikkTask.TASK_STEP_TYPE }
         }
     }
 
