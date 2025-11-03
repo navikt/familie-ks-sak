@@ -150,9 +150,9 @@ Egenskap: Opphørsperiode
       | 2       | BARNETS_ALDER                                          |                  | 01.08.2024 | 18.08.2024 | OPPFYLT  | Nei                  |                      |                  | Nei                                   |              |
 
     Og følgende endrede utbetalinger
-      | AktørId | BehandlingId | Fra dato   | Til dato   | Årsak                                 | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted | Er eksplisitt avslag |
-      | 2       | 1            | 01.08.2024 | 31.08.2024 | FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 | 0       | 04.12.2024       |                             | Nei                  |
-      | 2       | 2            | 01.08.2024 | 31.08.2024 | FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 | 0       | 04.12.2024       |                             | Ja                   |
+      | AktørId | BehandlingId | Fra dato   | Til dato   | Årsak             | Prosent | Søknadstidspunkt | Avtaletidspunkt delt bosted | Er eksplisitt avslag |
+      | 2       | 1            | 01.08.2024 | 31.08.2024 | ALLEREDE_UTBETALT | 0       | 04.12.2024       |                             | Nei                  |
+      | 2       | 2            | 01.08.2024 | 31.08.2024 | ALLEREDE_UTBETALT | 0       | 04.12.2024       |                             | Ja                   |
 
     Og andeler er beregnet for behandling 1
 
@@ -173,13 +173,13 @@ Egenskap: Opphørsperiode
       | 01.08.2024 |          | AVSLAG             |           |
 
     Så forvent at følgende begrunnelser er gyldige for behandling 2
-      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                         | Ugyldige begrunnelser |
-      | 01.08.2024 |          | AVSLAG             |                                | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 |                       |
+      | Fra dato   | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                           | Ugyldige begrunnelser |
+      | 01.08.2024 |          | AVSLAG             |                                | AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER |                       |
 
     Og når disse begrunnelsene er valgt for behandling 2
-      | Fra dato   | Til dato | Standardbegrunnelser                         | Eøsbegrunnelser | Fritekster |
-      | 01.08.2024 |          |                                              |                 |            |
-      | 01.08.2024 |          | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 |                 |            |
+      | Fra dato   | Til dato | Standardbegrunnelser                           | Eøsbegrunnelser | Fritekster |
+      | 01.08.2024 |          |                                                |                 |            |
+      | 01.08.2024 |          | AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER |                 |            |
 
 
   Scenario: Ikke aktuelt vilkår som ender rett før en opphørsperiode skal være regnes som utgjørende vilkår
