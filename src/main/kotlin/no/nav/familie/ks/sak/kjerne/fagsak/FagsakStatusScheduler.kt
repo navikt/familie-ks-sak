@@ -1,15 +1,15 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import no.nav.familie.ks.sak.common.EnvService
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.leader.LeaderClient
-import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
 class FagsakStatusScheduler(
-    private val taskService: TaskService,
+    private val taskService: TaskRepositoryWrapper,
     private val envService: EnvService,
 ) {
     /*
