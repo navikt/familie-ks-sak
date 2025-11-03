@@ -9,10 +9,10 @@ import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
-import no.nav.familie.ks.sak.data.no.nav.familie.ks.sak.datagenerator.lagGrMatrikkelOppholdsadresse
-import no.nav.familie.ks.sak.data.no.nav.familie.ks.sak.datagenerator.lagGrUkjentAdresseOppholdsadresse
-import no.nav.familie.ks.sak.data.no.nav.familie.ks.sak.datagenerator.lagGrUtenlandskOppholdsadresse
-import no.nav.familie.ks.sak.data.no.nav.familie.ks.sak.datagenerator.lagGrVegadresseOppholdsadresse
+import no.nav.familie.ks.sak.datagenerator.lagGrMatrikkelOppholdsadresse
+import no.nav.familie.ks.sak.datagenerator.lagGrUkjentAdresseOppholdsadresse
+import no.nav.familie.ks.sak.datagenerator.lagGrUtenlandskOppholdsadresse
+import no.nav.familie.ks.sak.datagenerator.lagGrVegadresseOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat

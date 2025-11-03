@@ -18,7 +18,7 @@ enum class KontantstøtteEnhet(
     override fun toString(): String = "$enhetsnavn ($enhetsnummer)"
 
     companion object {
-        private val GYLDIGE_BEHANDLENDE_BARNETRYGD_ENHETER =
+        private val GYLDIGE_BEHANDLENDE_KONTANTSTØTTE_ENHETER =
             listOf(
                 VIKAFOSSEN,
                 DRAMMEN,
@@ -29,6 +29,6 @@ enum class KontantstøtteEnhet(
                 BERGEN,
             )
 
-        fun erGyldigBehandlendeKontantstøtteEnhet(enhetsnummer: String): Boolean = GYLDIGE_BEHANDLENDE_BARNETRYGD_ENHETER.any { it.enhetsnummer == enhetsnummer }
+        fun erGyldigBehandlendeKontantstøtteEnhet(enhetsnummer: String): Boolean = GYLDIGE_BEHANDLENDE_KONTANTSTØTTE_ENHETER.any { it.enhetsnummer == enhetsnummer }
     }
 }

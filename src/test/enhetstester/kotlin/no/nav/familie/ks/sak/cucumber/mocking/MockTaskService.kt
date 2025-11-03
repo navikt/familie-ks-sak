@@ -2,10 +2,10 @@
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.prosessering.internal.TaskService
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 
-fun mockTaskService(): TaskService {
-    val taskService = mockk<TaskService>()
+fun mockTaskService(): TaskRepositoryWrapper {
+    val taskService = mockk<TaskRepositoryWrapper>()
     every { taskService.save(any()) } answers { firstArg() }
     return taskService
 }
