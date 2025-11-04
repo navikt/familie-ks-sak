@@ -24,7 +24,7 @@ import java.util.UUID
 class OppdragKlient(
     @Value("\${FAMILIE_OPPDRAG_API_URL}")
     private val familieOppdragUri: String,
-    @Qualifier("jwtBearer") restOperations: RestOperations,
+    @Qualifier("jwtBearerLongTimeout") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "økonomi_kontantstøtte") {
     fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
         val uri = URI.create("$familieOppdragUri/oppdrag")
