@@ -3,6 +3,9 @@ package no.nav.familie.ks.sak.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.RetryOAuth2HttpClient
 import no.nav.familie.http.config.RestTemplateAzure
+import no.nav.familie.http.interceptor.BearerTokenClientInterceptor
+import no.nav.familie.http.interceptor.ConsumerIdClientInterceptor
+import no.nav.familie.http.interceptor.MdcValuesPropagatingClientInterceptor
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
@@ -119,6 +122,23 @@ class ApplicationConfig {
                 emptyList()
             }
     }
+
+    @Bean("jwtBearer")
+    fun restTemplateJwtBearer(
+        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
+        bearerTokenClientInterceptor: BearerTokenClientInterceptor,
+    ): RestOperations =
+        RestTemplateBuilder()
+            .readTimeout(Duration.ofMinutes(2))
+            .connectTimeout(Duration.ofMinutes(2))
+            .interceptors(
+                consumerIdClientInterceptor,
+                bearerTokenClientInterceptor,
+                MdcValuesPropagatingClientInterceptor(),
+            ).additionalMessageConverters(
+                ByteArrayHttpMessageConverter(),
+                MappingJackson2HttpMessageConverter(objectMapper),
+            ).build()
 
     companion object {
         private val log = LoggerFactory.getLogger(ApplicationConfig::class.java)

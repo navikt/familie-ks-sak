@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -87,6 +88,7 @@ class ForvaltningController(
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
+    private val oppdragKlient: OppdragKlient,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -310,6 +312,24 @@ class ForvaltningController(
         return testVerktøyService
             .hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
+    }
+
+    @PostMapping(path = ["/testTregtEndepunktOppdrag"])
+    fun sov(
+        @RequestParam sekunder: Long,
+        @RequestParam antallGanger: Long,
+    ): String {
+        var result = "OK"
+        repeat(antallGanger.toInt()) { i ->
+            try {
+                oppdragKlient.sov(sekunder)
+                logger.info("Run #${i + 1}: OK")
+            } catch (e: Exception) {
+                logger.error("Run #${i + 1}: FAILED", e)
+                result = "FAILED"
+            }
+        }
+        return result
     }
 
     @PostMapping("/opprettAutovedtakBehandlingPaaFagsak")
