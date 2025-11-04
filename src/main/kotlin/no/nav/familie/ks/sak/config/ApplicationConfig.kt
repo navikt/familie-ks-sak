@@ -133,7 +133,7 @@ class ApplicationConfig {
         bearerTokenClientInterceptor: BearerTokenClientInterceptor,
     ): RestOperations =
         RestTemplateBuilder()
-            .connectTimeout(Duration.of(2, ChronoUnit.SECONDS))
+            .connectTimeout(Duration.of(30, ChronoUnit.SECONDS))
             .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
             .additionalMessageConverters(listOf(MappingJackson2HttpMessageConverter(objectMapper)) + RestTemplate().messageConverters)
             .additionalInterceptors(
@@ -148,7 +148,7 @@ class ApplicationConfig {
         bearerTokenClientCredentialsClientInterceptor: BearerTokenClientCredentialsClientInterceptor,
     ): RestOperations =
         RestTemplateBuilder()
-            .connectTimeout(Duration.of(2, ChronoUnit.SECONDS))
+            .connectTimeout(Duration.of(30, ChronoUnit.SECONDS))
             .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
             .additionalMessageConverters(listOf(MappingJackson2HttpMessageConverter(objectMapper)) + RestTemplate().messageConverters)
             .additionalInterceptors(
