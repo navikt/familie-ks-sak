@@ -56,7 +56,7 @@ jobs:
         run: |
           mvn verify -B --no-transfer-progress --settings .m2/maven-settings.xml --file pom.xml -Dsurefire.rerunFailingTestsCount=2 -DexcludedGroups=integrationTest -Pjacoco -DjacocoTestDirectory=UT
       - name: Last opp Jacoco enhetstester rapport
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # ratchet:actions/upload-artifact@v4
         with:
           name: jacocoUT
           path: target/jacoco/UT/jacoco.xml
@@ -80,7 +80,7 @@ jobs:
         run: |
           mvn verify -B --no-transfer-progress --settings .m2/maven-settings.xml --file pom.xml -Dgroups=integrationTest -Dsurefire.rerunFailingTestsCount=2 -Pjacoco -DjacocoTestDirectory=IT
       - name: Last opp Jacoco integrasjonstester rapport
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # ratchet:actions/upload-artifact@v4
         with:
           name: jacocoIT
           path: target/jacoco/IT/jacoco.xml
@@ -102,12 +102,12 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Last ned Jacoco UT rapport
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # ratchet:actions/download-artifact@v4
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
         with:
           name: jacocoUT
           path: jacoco/UT
       - name: Last ned Jacoco IT rapport
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # ratchet:actions/download-artifact@v4
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
         with:
           name: jacocoIT
           path: jacoco/IT

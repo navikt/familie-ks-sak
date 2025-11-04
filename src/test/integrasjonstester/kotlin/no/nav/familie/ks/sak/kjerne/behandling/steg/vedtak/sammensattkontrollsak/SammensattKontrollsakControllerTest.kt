@@ -1,9 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import io.mockk.just
-import io.mockk.runs
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
@@ -14,8 +10,9 @@ import no.nav.familie.ks.sak.api.dto.OppdaterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettSammensattKontrollsakDto
 import no.nav.familie.ks.sak.api.dto.SlettSammensattKontrollsakDto
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.fake.FakeFeatureToggleService
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.junit.jupiter.api.BeforeEach
@@ -31,12 +28,13 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var sammensattKontrollsakRepository: SammensattKontrollsakRepository
 
-    @MockkBean
-    private lateinit var sammensattKontrollsakValidator: SammensattKontrollsakValidator
+    @Autowired
+    private lateinit var fakeFeatureToggleService: FakeFeatureToggleService
 
     @BeforeEach
     fun setUp() {
         RestAssured.port = port
+        fakeFeatureToggleService.reset()
     }
 
     @Nested
@@ -52,17 +50,11 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         }
 
         @Test
-        fun `skal returnere 403 forbidden når valideringen feiler`() {
+        fun `skal returnere 403 forbidden når man ikke har tilgang på å endre sammensatt kontrollsak`() {
             // Arrange
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
-            every {
-                sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.FORBIDDEN,
-                )
+            fakeFeatureToggleService.set(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER, false)
 
             // Act & assert
             Given {
@@ -73,8 +65,8 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("data", nullValue())
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
+                body("melding", Is("Mangler tilgang for å hente sammensatt kontrollsak."))
+                body("frontendFeilmelding", Is("Mangler tilgang for å hente sammensatt kontrollsak."))
             }
         }
 
@@ -92,10 +84,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
             sammensattKontrollsakRepository.save(sammensattKontrollsak)
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
-            } just runs
 
             // Act & assert
             Given {
@@ -117,10 +105,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         fun `skal håndtere tilfeller hvor ingen sammensatt kontrollsak er funnet for behandlingId`() {
             // Arrange
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
-            } just runs
 
             // Act & assert
             Given {
@@ -175,20 +159,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.FORBIDDEN,
-                )
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForBehandlingId(
-                    behandlingId = behandling.id,
-                )
-            } just runs
+            fakeFeatureToggleService.set(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER, false)
 
             // Act & assert
             Given {
@@ -201,53 +172,8 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("data", nullValue())
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
-            }
-        }
-
-        @Test
-        fun `skal returnere 400 bad request når validering av redigerbar behandling feiler`() {
-            // Arrange
-            opprettSøkerFagsakOgBehandling()
-
-            val body =
-                objectMapper.writeValueAsString(
-                    OpprettSammensattKontrollsakDto(
-                        behandlingId = behandling.id,
-                        fritekst = "blabla",
-                    ),
-                )
-
-            val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
-            } just runs
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForBehandlingId(
-                    behandlingId = behandling.id,
-                )
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.BAD_REQUEST,
-                )
-
-            // Act & assert
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(body)
-            } When {
-                post(controllerUrl)
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-                body("data", nullValue())
-                body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
+                body("melding", Is("Mangler tilgang for å opprette sammensatt kontrollsak."))
+                body("frontendFeilmelding", Is("Mangler tilgang for å opprette sammensatt kontrollsak."))
             }
         }
 
@@ -265,16 +191,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
-            } just runs
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForBehandlingId(
-                    behandlingId = behandling.id,
-                )
-            } just runs
 
             // Act & assert
             Given {
@@ -336,20 +252,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.FORBIDDEN,
-                )
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
-                    sammensattKontrollsakId = oppdaterSammensattKontrollsakDto.id,
-                )
-            } just runs
+            fakeFeatureToggleService.set(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER, false)
 
             // Act & assert
             Given {
@@ -362,8 +265,8 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("data", nullValue())
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
+                body("melding", Is("Mangler tilgang for å oppdatere sammensatt kontrollsak."))
+                body("frontendFeilmelding", Is("Mangler tilgang for å oppdatere sammensatt kontrollsak."))
             }
         }
 
@@ -374,7 +277,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
 
             val oppdaterSammensattKontrollsakDto =
                 OppdaterSammensattKontrollsakDto(
-                    id = 0L,
+                    id = behandling.id,
                     fritekst = "blabla",
                 )
 
@@ -384,20 +287,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
-            } just runs
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
-                    sammensattKontrollsakId = oppdaterSammensattKontrollsakDto.id,
-                )
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.BAD_REQUEST,
-                )
 
             // Act & assert
             Given {
@@ -410,8 +299,8 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 statusCode(HttpStatus.BAD_REQUEST.value())
                 body("data", nullValue())
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
+                body("melding", Is("Fant ingen sammensatt kontrollsak for id=${behandling.id}."))
+                body("frontendFeilmelding", Is("Fant ingen sammensatt kontrollsak for id=${behandling.id}."))
             }
         }
 
@@ -444,16 +333,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
-            } just runs
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
-                    sammensattKontrollsakId = oppdaterSammensattKontrollsakDto.id,
-                )
-            } just runs
 
             // Act & assert
             Given {
@@ -513,20 +392,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.FORBIDDEN,
-                )
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
-                    sammensattKontrollsakId = slettSammensattKontrollsakDto.id,
-                )
-            } just runs
+            fakeFeatureToggleService.set(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER, false)
 
             // Act & assert
             Given {
@@ -539,55 +405,8 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 statusCode(HttpStatus.FORBIDDEN.value())
                 body("data", nullValue())
                 body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
-            }
-        }
-
-        @Test
-        fun `skal returnere 400 bad request når validering av redigerbar behandling feiler`() {
-            // Arrange
-            opprettSøkerFagsakOgBehandling()
-
-            val slettSammensattKontrollsakDto =
-                SlettSammensattKontrollsakDto(
-                    id = 0L,
-                )
-
-            val body =
-                objectMapper.writeValueAsString(
-                    slettSammensattKontrollsakDto,
-                )
-
-            val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
-            } just runs
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
-                    sammensattKontrollsakId = slettSammensattKontrollsakDto.id,
-                )
-            } throws
-                FunksjonellFeil(
-                    melding = "En feil oppstod",
-                    httpStatus = HttpStatus.BAD_REQUEST,
-                )
-
-            // Act & assert
-            Given {
-                header("Authorization", "Bearer $token")
-                contentType(ContentType.JSON)
-                body(body)
-            } When {
-                delete(controllerUrl)
-            } Then {
-                statusCode(HttpStatus.BAD_REQUEST.value())
-                body("data", nullValue())
-                body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("En feil oppstod"))
-                body("frontendFeilmelding", Is("En feil oppstod"))
+                body("melding", Is("Mangler tilgang for å slette sammensatt kontrollsak."))
+                body("frontendFeilmelding", Is("Mangler tilgang for å slette sammensatt kontrollsak."))
             }
         }
 
@@ -619,16 +438,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            every {
-                sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
-            } just runs
-
-            every {
-                sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
-                    sammensattKontrollsakId = slettSammensattKontrollsakDto.id,
-                )
-            } just runs
 
             // Act & assert
             Given {

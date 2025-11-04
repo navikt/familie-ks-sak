@@ -1,21 +1,18 @@
 package no.nav.familie.ks.sak.api
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -42,8 +39,8 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var overgangsordningAndelRepository: OvergangsordningAndelRepository
 
-    @MockkBean
-    private lateinit var integrasjonClient: IntegrasjonClient
+    @Autowired
+    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
 
     private var token = ""
     private val overgangsordningAndelControllerUrl = "/api/overgangsordningandel"
@@ -67,9 +64,8 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 behandlendeEnhetNavn = "test",
             ),
         )
-        every { integrasjonClient.hentLand(any()) } returns "Norge"
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("test", true))
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
+        fakeIntegrasjonKlient.reset()
     }
 
     @Nested
