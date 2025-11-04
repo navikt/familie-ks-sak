@@ -170,9 +170,6 @@ class ApplicationConfig {
                 consumerIdClientInterceptor,
                 bearerTokenClientInterceptor,
                 MdcValuesPropagatingClientInterceptor(),
-            ).additionalMessageConverters(
-                ByteArrayHttpMessageConverter(),
-                MappingJackson2HttpMessageConverter(objectMapper),
             ).build()
 
     companion object {
