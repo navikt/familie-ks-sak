@@ -1,27 +1,20 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
-import com.ninjasquad.springmockk.SpykBean
-import io.mockk.every
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
-import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
-import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -39,22 +32,10 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     private lateinit var fagsakRepository: FagsakRepository
 
     @Autowired
-    private lateinit var personidentService: PersonidentService
-
-    @Autowired
-    private lateinit var opprettBehandlingService: OpprettBehandlingService
-
-    @Autowired
     private lateinit var behandlingRepository: BehandlingRepository
 
     @Autowired
     private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
-
-    @Autowired
-    private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository
-
-    @SpykBean
-    private lateinit var pdlClient: PdlClient
 
     @Autowired
     private lateinit var databaseCleanupService: DatabaseCleanupService
@@ -62,15 +43,6 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
     @BeforeEach
     fun cleanUp() {
         databaseCleanupService.truncate()
-
-        every {
-            pdlClient.hentIdenter(any(), any())
-        } answers {
-            listOf(
-                PdlIdent(randomFnr(), true, "FOLKEREGISTERIDENT"),
-                PdlIdent(firstArg<String>(), true, "AKTORID"),
-            )
-        }
     }
 
     @Test

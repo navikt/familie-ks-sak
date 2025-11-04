@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.avsluttbehandling.AvsluttBehandlingTask
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
@@ -11,7 +12,6 @@ import no.nav.familie.ks.sak.task.utledNesteTriggerTidIHverdagerForTask
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.internal.TaskService
 import org.springframework.stereotype.Service
 import java.util.Properties
 
@@ -24,7 +24,7 @@ import java.util.Properties
 class DistribuerBrevTask(
     private val behandlingService: BehandlingService,
     private val brevService: BrevService,
-    private val taskService: TaskService,
+    private val taskRepositoryWrapper: TaskRepositoryWrapper,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val distribuerBrevDto = objectMapper.readValue(task.payload, DistribuerBrevDto::class.java)
@@ -57,7 +57,7 @@ class DistribuerBrevTask(
                     søkerIdent = søkerIdent,
                     behandlingId = behandling.id,
                 )
-            taskService.save(avsluttBehandlingTask)
+            taskRepositoryWrapper.save(avsluttBehandlingTask)
         } else {
             throw Feil(
                 "erManueltSendt=${distribuerBrevDto.erManueltSendt} " +
