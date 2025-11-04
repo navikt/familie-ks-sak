@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
+import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.nesteMåned
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.tilAndelerTilkjentYtelse
@@ -37,11 +39,26 @@ object BehandlingsresultatOpphørUtils {
         }
 
         val nåværendeBehandlingOpphørsdato =
-            nåværendeAndeler.utledOpphørsdatoForNåværendeBehandlingMedFallback(
-                forrigeAndelerIBehandling = forrigeAndeler,
-                nåværendeEndretAndelerIBehandling = nåværendeEndretAndeler,
-                endretAndelerForForrigeBehandling = forrigeEndretAndeler,
-            )
+            if (nåværendeEndretAndeler.filtrerAvslagFulltidsplassBarnehageAugust2024().isNotEmpty()) {
+                val aktørIderMedAvslagFulltidsplassBarnehage2024 =
+                    nåværendeEndretAndeler
+                        .filtrerAvslagFulltidsplassBarnehageAugust2024()
+                        .flatMap { it.personer.map { it.aktør.aktørId } }
+
+                utledOpphørsdatoUtenAndelerForAktørIder(
+                    aktørIderMedAvslagFulltidsplassBarnehage2024 = aktørIderMedAvslagFulltidsplassBarnehage2024,
+                    nåværendeAndeler = nåværendeAndeler,
+                    forrigeAndeler = forrigeAndeler,
+                    nåværendeEndretAndeler = nåværendeEndretAndeler,
+                    forrigeEndretAndeler = forrigeEndretAndeler,
+                )
+            } else {
+                nåværendeAndeler.utledOpphørsdatoForNåværendeBehandlingMedFallback(
+                    forrigeAndelerIBehandling = forrigeAndeler,
+                    nåværendeEndretAndelerIBehandling = nåværendeEndretAndeler,
+                    endretAndelerForForrigeBehandling = forrigeEndretAndeler,
+                )
+            }
 
         val cutOffDato = nåMåned.plusMonths(2)
 
@@ -50,7 +67,7 @@ object BehandlingsresultatOpphørUtils {
                 forrigeEndretAndeler = forrigeEndretAndeler,
             )
 
-        val harTidligereOpphørsDatoEnnForrigeBehandling = forrigeBehandlingOpphørsdato?.let { it > nåværendeBehandlingOpphørsdato } ?: true
+        val harTidligereOpphørsDatoEnnForrigeBehandling = forrigeBehandlingOpphørsdato?.let { it > (nåværendeBehandlingOpphørsdato ?: TIDENES_ENDE.toYearMonth()) } ?: true
         val tidligereOpphørsDatoHarPassertEllerFinnesIkke = forrigeBehandlingOpphørsdato?.let { it < nåMåned } ?: true
 
         return when {
@@ -63,6 +80,27 @@ object BehandlingsresultatOpphørUtils {
             else -> Opphørsresultat.IKKE_OPPHØRT
         }
     }
+
+    private fun List<EndretUtbetalingAndel>.filtrerAvslagFulltidsplassBarnehageAugust2024(): List<EndretUtbetalingAndel> =
+        filter { andel ->
+            andel.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 &&
+                andel.erEksplisittAvslagPåSøknad == true
+        }
+
+    private fun utledOpphørsdatoUtenAndelerForAktørIder(
+        aktørIderMedAvslagFulltidsplassBarnehage2024: List<String>,
+        nåværendeAndeler: List<AndelTilkjentYtelse>,
+        forrigeAndeler: List<AndelTilkjentYtelse>,
+        nåværendeEndretAndeler: List<EndretUtbetalingAndel>,
+        forrigeEndretAndeler: List<EndretUtbetalingAndel>,
+    ): YearMonth? =
+        nåværendeAndeler
+            .filterNot { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 }
+            .utledOpphørsdatoForNåværendeBehandlingMedFallback(
+                forrigeAndeler.filterNot { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 },
+                nåværendeEndretAndeler.filterNot { it.personer.all { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 } },
+                forrigeEndretAndeler.filterNot { it.personer.all { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 } },
+            )
 
     private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(
         andelerIBehandling: List<AndelTilkjentYtelse>,
