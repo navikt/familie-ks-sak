@@ -21,9 +21,8 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import org.springframework.stereotype.Component
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @Component
 class AvslagsperiodeGenerator(
@@ -68,6 +67,7 @@ class AvslagsperiodeGenerator(
         val periodegrupperteAvslagEndreteUtbetalinger =
             endreteUtbetalinger
                 .filter { it.erEksplisittAvslagPåSøknad == true }
+                .filterNot { it.erEksplisittAvslagPåSøknad == true && it.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 }
                 .groupBy { NullablePeriode(it.fom?.toLocalDate(), it.tom?.toLocalDate()) }
 
         val avslagsperioder =
