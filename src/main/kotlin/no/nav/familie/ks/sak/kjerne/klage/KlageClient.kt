@@ -15,7 +15,7 @@ import java.util.UUID
 
 @Component
 class KlageClient(
-    @Qualifier("azure") restOperations: RestOperations,
+    @Qualifier("jwtBearer") restOperations: RestOperations,
     @Value("\${FAMILIE_KLAGE_URL}") private val familieKlageUri: URI,
 ) : AbstractRestClient(restOperations, "integrasjon") {
     fun opprettKlage(opprettKlagebehandlingRequest: OpprettKlagebehandlingRequest): UUID {
