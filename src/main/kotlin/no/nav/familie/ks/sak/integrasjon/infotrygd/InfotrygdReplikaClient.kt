@@ -16,7 +16,7 @@ import java.time.YearMonth
 @Component
 class InfotrygdReplikaClient(
     @Value("\${FAMILIE_KS_INFOTRYGD_API_URL}") private val familieKsInfotrygdUri: URI,
-    @Qualifier("azure") restOperations: RestOperations,
+    @Qualifier("jwtBearer") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "familie-ks-infotrygd") {
     fun hentKontantstøttePerioderFraInfotrygd(identer: List<String>): InnsynResponse {
         val requestURI =
