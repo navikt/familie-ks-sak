@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api
 
+import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
 import no.nav.familie.kontrakter.felles.Ressurs
@@ -314,6 +315,12 @@ class ForvaltningController(
             .replace("\n", System.lineSeparator())
     }
 
+    @Operation(
+        summary = "Endepunkt for å teste trege http kall",
+        description =
+            "Dette endepunktet kaller et endepunkt som vil sove x antall sekunder i familie-oppdrag",
+    )
+    @Deprecated("Kan slettes når spring er fikset med httpclient5")
     @PostMapping(path = ["/testTregtEndepunktOppdrag"])
     fun sov(
         @RequestParam sekunder: Long,
@@ -323,9 +330,9 @@ class ForvaltningController(
         repeat(antallGanger.toInt()) { i ->
             try {
                 avstemmingKlient.sov(sekunder)
-                logger.info("Run #${i + 1}: OK")
+                logger.info("testTregtEndepunktOppdrag kjørte ok #${i + 1}")
             } catch (e: Exception) {
-                logger.error("Run #${i + 1}: FAILED", e)
+                logger.error("testTregtEndepunktOppdrag feilet #${i + 1}", e)
                 result = "FAILED"
             }
         }
