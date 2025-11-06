@@ -26,7 +26,7 @@ class SwaggerConfig(
         OpenAPI()
             .info(Info().title("Kontantstøtte API").version("v1"))
             .components(Components().addSecuritySchemes("oauth2", securitySchemes()))
-            .addSecurityItem(SecurityRequirement().addList("oauth2", listOf("read", "write")))
+            .addSecurityItem(SecurityRequirement().addList("oauth2", listOf(apiScope)))
 
     private fun securitySchemes(): SecurityScheme =
         SecurityScheme()
