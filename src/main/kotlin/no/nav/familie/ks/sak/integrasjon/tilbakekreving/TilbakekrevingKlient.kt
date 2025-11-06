@@ -23,7 +23,7 @@ import java.net.URI
 @Service
 class TilbakekrevingKlient(
     @Value("\${FAMILIE_TILBAKE_API_URL}") private val familieTilbakeUri: URI,
-    @Qualifier("azure") restOperations: RestOperations,
+    @Qualifier("jwtBearer") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "tilbakreving") {
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean {
         val uri = URI.create("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/finnesApenBehandling/v1")

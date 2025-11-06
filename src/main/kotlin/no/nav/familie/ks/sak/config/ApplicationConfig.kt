@@ -2,7 +2,10 @@ package no.nav.familie.ks.sak.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.RetryOAuth2HttpClient
-import no.nav.familie.http.config.RestTemplateAzure
+import no.nav.familie.http.interceptor.BearerTokenClientCredentialsClientInterceptor
+import no.nav.familie.http.interceptor.BearerTokenClientInterceptor
+import no.nav.familie.http.interceptor.ConsumerIdClientInterceptor
+import no.nav.familie.http.interceptor.MdcValuesPropagatingClientInterceptor
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
@@ -42,7 +45,11 @@ import java.time.temporal.ChronoUnit
 @ConfigurationPropertiesScan
 @EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
 @EnableScheduling
-@Import(RestTemplateAzure::class)
+@Import(
+    ConsumerIdClientInterceptor::class,
+    BearerTokenClientInterceptor::class,
+    BearerTokenClientCredentialsClientInterceptor::class,
+)
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
     @Bean
@@ -119,6 +126,51 @@ class ApplicationConfig {
                 emptyList()
             }
     }
+
+    @Bean("jwtBearer")
+    fun restTemplateJwtBearer(
+        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
+        bearerTokenClientInterceptor: BearerTokenClientInterceptor,
+    ): RestOperations =
+        RestTemplateBuilder()
+            .connectTimeout(Duration.of(30, ChronoUnit.SECONDS))
+            .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
+            .additionalMessageConverters(listOf(MappingJackson2HttpMessageConverter(objectMapper)) + RestTemplate().messageConverters)
+            .additionalInterceptors(
+                consumerIdClientInterceptor,
+                bearerTokenClientInterceptor,
+                MdcValuesPropagatingClientInterceptor(),
+            ).build()
+
+    @Bean("jwtBearerClientCredential")
+    fun restTemplateClientCredentialBearer(
+        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
+        bearerTokenClientCredentialsClientInterceptor: BearerTokenClientCredentialsClientInterceptor,
+    ): RestOperations =
+        RestTemplateBuilder()
+            .connectTimeout(Duration.of(30, ChronoUnit.SECONDS))
+            .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
+            .additionalMessageConverters(listOf(MappingJackson2HttpMessageConverter(objectMapper)) + RestTemplate().messageConverters)
+            .additionalInterceptors(
+                consumerIdClientInterceptor,
+                bearerTokenClientCredentialsClientInterceptor,
+                MdcValuesPropagatingClientInterceptor(),
+            ).build()
+
+    @Bean("jwtBearerLongTimeout")
+    fun restTemplateJwtBearerLongTimeout(
+        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
+        bearerTokenClientInterceptor: BearerTokenClientInterceptor,
+    ): RestOperations =
+        RestTemplateBuilder()
+            .connectTimeout(Duration.of(150, ChronoUnit.SECONDS))
+            .readTimeout(Duration.of(150, ChronoUnit.SECONDS))
+            .additionalMessageConverters(listOf(MappingJackson2HttpMessageConverter(objectMapper)) + RestTemplate().messageConverters)
+            .interceptors(
+                consumerIdClientInterceptor,
+                bearerTokenClientInterceptor,
+                MdcValuesPropagatingClientInterceptor(),
+            ).build()
 
     companion object {
         private val log = LoggerFactory.getLogger(ApplicationConfig::class.java)
