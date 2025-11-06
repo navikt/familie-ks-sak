@@ -11,4 +11,5 @@ enum class FeatureToggle(
 
     // Ikke operasjonelle
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
+    JOURNALFOER_MANUELT_BREV_I_TASK("familie-ks-sak.journalfoer-manuelt-brev-i-task"),
 }

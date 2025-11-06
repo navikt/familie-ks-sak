@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import java.time.LocalDateTime
+import java.util.UUID
 
 fun lagTilgangsstyrtJournalpost(
     personIdent: String,
@@ -54,7 +55,8 @@ fun lagJournalpost(
     personIdent: String,
     journalpostId: String,
     kanal: String? = InnkommendeJournalføringService.NAV_NO,
-    avsenderMottaker: AvsenderMottaker?,
+    avsenderMottaker: AvsenderMottaker? = null,
+    eksternReferanseId: String? = UUID.randomUUID().toString(),
 ): Journalpost =
     Journalpost(
         journalpostId = journalpostId,
@@ -95,6 +97,7 @@ fun lagJournalpost(
             ),
         tittel = "Søknad om ordinær kontantstøtte",
         relevanteDatoer = listOf(RelevantDato(LocalDateTime.now(), "DATO_REGISTRERT")),
+        eksternReferanseId = eksternReferanseId,
     )
 
 fun lagAvsenderMottaker(

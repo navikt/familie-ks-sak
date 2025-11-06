@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerVedtaksbrevTilVergeEllerFullmektigTask
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
+import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.genererEksternReferanseIdForJournalpost
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.tilDokumenttype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -147,9 +148,8 @@ class JournalførVedtaksbrevSteg(
             journalførendeEnhet = journalførendeEnhet,
             brev = brev,
             vedlegg = vedlegg,
-            behandlingId = vedtak.behandling.id,
-            tilVergeEllerFullmektig = tilVergeEllerFullmektig,
             avsenderMottaker = avsenderMottaker,
+            eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, vedtak.behandling.id, tilVergeEllerFullmektig),
         )
     }
 

@@ -27,15 +27,12 @@ class UtgåendeJournalføringService(
         brev: List<Dokument>,
         vedlegg: List<Dokument> = emptyList(),
         førsteside: Førsteside? = null,
-        behandlingId: Long? = null,
-        tilVergeEllerFullmektig: Boolean = false,
         avsenderMottaker: AvsenderMottaker? = null,
+        eksternReferanseId: String,
     ): String {
         if (journalførendeEnhet == DEFAULT_JOURNALFØRENDE_ENHET) {
             logger.warn("Informasjon om enhet mangler på bruker og er satt til fallback-verdi, $DEFAULT_JOURNALFØRENDE_ENHET")
         }
-
-        val eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsakId, behandlingId, tilVergeEllerFullmektig)
 
         val journalpostId =
             try {
@@ -89,14 +86,14 @@ class UtgåendeJournalføringService(
             ).single { it.eksternReferanseId == eksternReferanseId }
             .journalpostId
 
-    private fun genererEksternReferanseIdForJournalpost(
-        fagsakId: Long,
-        behandlingId: Long?,
-        tilVergeEllerFullmektig: Boolean,
-    ) = "${fagsakId}_${behandlingId}${if (tilVergeEllerFullmektig) "_tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
-
     companion object {
         const val DEFAULT_JOURNALFØRENDE_ENHET = "9999"
         private val logger = LoggerFactory.getLogger(UtgåendeJournalføringService::class.java)
+
+        fun genererEksternReferanseIdForJournalpost(
+            fagsakId: Long,
+            behandlingId: Long?,
+            tilVergeEllerFullmektig: Boolean,
+        ) = "${fagsakId}_${behandlingId}${if (tilVergeEllerFullmektig) "_tilleggsmottaker" else ""}_${MDC.get(MDCConstants.MDC_CALL_ID)}"
     }
 }
