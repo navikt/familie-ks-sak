@@ -30,13 +30,13 @@
 
         <!-- Spring -->
         <spring-boot-dependencies.version>3.5.7</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
-        <springdoc.version>2.8.13</springdoc.version>
+        <springdoc.version>2.8.14</springdoc.version>
 
         <!-- Http Client - nyeste versjon fra httpclient(5.5.1) skaper problemer med Spring Boot 3.5.7. Issue: HTTPCLIENT-2405. Skal være fikset i 3.5.8, men bør testes -->
         <httpclient5.version>5.5</httpclient5.version>
 
         <!-- Nav felles -->
-        <nav-token-client.version>5.0.37</nav-token-client.version>
+        <nav-token-client.version>5.0.39</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
@@ -65,7 +65,7 @@
         <!-- Test -->
         <cucumber.version>7.31.0</cucumber.version>
         <rest-assured.version>5.5.6</rest-assured.version>
-        <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
+        <mock-oauth2-server.version>3.0.1</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
         <mockk.version>1.14.6</mockk.version>
         <wiremock.version>3.13.1</wiremock.version>
