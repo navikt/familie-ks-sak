@@ -65,7 +65,7 @@
         <!-- Test -->
         <cucumber.version>7.31.0</cucumber.version>
         <rest-assured.version>5.5.6</rest-assured.version>
-        <mock-oauth2-server.version>3.0.1</mock-oauth2-server.version>
+        <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
         <mockk.version>1.14.6</mockk.version>
         <wiremock.version>3.13.1</wiremock.version>
