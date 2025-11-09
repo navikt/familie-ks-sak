@@ -132,7 +132,10 @@ class BegrunnelserForPeriodeContext(
         return utfylteKompetanserPerBarn
             .filter { (barn, utfyltKompetansePåBarn) ->
                 val barnPerson = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == barn.aktivFødselsnummer() }
+                val søker = personopplysningGrunnlag.personer.find { it.type == PersonType.SØKER }
+
                 val vilkårResultaterPåBarnIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[barnPerson] ?: emptyList()
+                val vilkårResultaterPåSøkerIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[søker] ?: emptyList()
 
                 val innvilgedeAndelerPåPerson =
                     andelerTilkjentYtelse
@@ -167,7 +170,9 @@ class BegrunnelserForPeriodeContext(
                         kompetanseSomOverlapperMedVedtaksperioderPåBarn
                     }
 
-                utfyltKompetanse.erLikKompetanseIBegrunnelse(sanityBegrunnelse) && vilkårResultaterPåBarnIPeriode.erLikVilkårIBegrunnelse(sanityBegrunnelse)
+                utfyltKompetanse.erLikKompetanseIBegrunnelse(sanityBegrunnelse) &&
+                    (vilkårResultaterPåBarnIPeriode + vilkårResultaterPåSøkerIPeriode)
+                        .erLikVilkårIBegrunnelse(sanityBegrunnelse)
             }.keys
             .map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }
             .toSet()
@@ -175,7 +180,9 @@ class BegrunnelserForPeriodeContext(
 
     private fun UtfyltKompetanse?.erLikKompetanseIBegrunnelse(
         sanityBegrunnelse: SanityBegrunnelse,
-    ) = this?.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet && this?.resultat in sanityBegrunnelse.kompetanseResultat && this?.let { landkodeTilBarnetsBostedsland(it.barnetsBostedsland) } in sanityBegrunnelse.barnetsBostedsland
+    ) = (sanityBegrunnelse.annenForeldersAktivitet.isEmpty() || this?.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet) &&
+        (sanityBegrunnelse.kompetanseResultat.isEmpty() || this?.resultat in sanityBegrunnelse.kompetanseResultat) &&
+        (sanityBegrunnelse.barnetsBostedsland.isEmpty() || this?.let { landkodeTilBarnetsBostedsland(it.barnetsBostedsland) } in sanityBegrunnelse.barnetsBostedsland)
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
         endretUtbetalingsandeler.any { endretUtbetalingAndel ->
