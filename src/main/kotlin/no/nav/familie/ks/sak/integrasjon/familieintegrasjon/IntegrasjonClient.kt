@@ -52,7 +52,7 @@ import java.net.URI
 @Component
 class IntegrasjonClient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
-    @Qualifier("azure") restOperations: RestOperations,
+    @Qualifier("jwtBearer") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "integrasjon") {
     val tilgangPersonUri =
         UriComponentsBuilder
