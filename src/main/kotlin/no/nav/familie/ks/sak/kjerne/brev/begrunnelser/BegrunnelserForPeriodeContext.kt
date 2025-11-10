@@ -132,7 +132,10 @@ class BegrunnelserForPeriodeContext(
         return utfylteKompetanserPerBarn
             .filter { (barn, utfyltKompetansePåBarn) ->
                 val barnPerson = personopplysningGrunnlag.personer.find { it.aktør.aktivFødselsnummer() == barn.aktivFødselsnummer() }
+                val søker = personopplysningGrunnlag.personer.find { it.type == PersonType.SØKER }
+
                 val vilkårResultaterPåBarnIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[barnPerson] ?: emptyList()
+                val vilkårResultaterPåSøkerIPeriode = vilkårResultaterSomOverlapperVedtaksperiode[søker] ?: emptyList()
 
                 val innvilgedeAndelerPåPerson =
                     andelerTilkjentYtelse
@@ -167,7 +170,9 @@ class BegrunnelserForPeriodeContext(
                         kompetanseSomOverlapperMedVedtaksperioderPåBarn
                     }
 
-                utfyltKompetanse.erLikKompetanseIBegrunnelse(sanityBegrunnelse) && vilkårResultaterPåBarnIPeriode.erLikVilkårIBegrunnelse(sanityBegrunnelse)
+                utfyltKompetanse.erLikKompetanseIBegrunnelse(sanityBegrunnelse) &&
+                    (vilkårResultaterPåBarnIPeriode + vilkårResultaterPåSøkerIPeriode)
+                        .erLikVilkårIBegrunnelse(sanityBegrunnelse)
             }.keys
             .map { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør }!! }
             .toSet()
@@ -175,7 +180,9 @@ class BegrunnelserForPeriodeContext(
 
     private fun UtfyltKompetanse?.erLikKompetanseIBegrunnelse(
         sanityBegrunnelse: SanityBegrunnelse,
-    ) = this?.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet && this?.resultat in sanityBegrunnelse.kompetanseResultat && this?.let { landkodeTilBarnetsBostedsland(it.barnetsBostedsland) } in sanityBegrunnelse.barnetsBostedsland
+    ) = (sanityBegrunnelse.annenForeldersAktivitet.isEmpty() || this?.annenForeldersAktivitet in sanityBegrunnelse.annenForeldersAktivitet) &&
+        (sanityBegrunnelse.kompetanseResultat.isEmpty() || this?.resultat in sanityBegrunnelse.kompetanseResultat) &&
+        (sanityBegrunnelse.barnetsBostedsland.isEmpty() || this?.let { landkodeTilBarnetsBostedsland(it.barnetsBostedsland) } in sanityBegrunnelse.barnetsBostedsland)
 
     private fun erEtterEndretPeriodeAvSammeÅrsak(begrunnelse: SanityBegrunnelse) =
         endretUtbetalingsandeler.any { endretUtbetalingAndel ->
@@ -346,11 +353,11 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.REDUKSJON,
         BegrunnelseType.EØS_REDUKSJON,
         -> {
-            val personerMedReduksjonPgaOpphør = finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode().keys - finnPersonerMedVilkårResultaterSomGjelderIPeriode().keys
+            val personerMedReduksjonPgaOpphør = finnPersonerMedVilkårResultatRelevantForReduksjonOgOpphørBegrunnelser().keys - finnPersonerMedVilkårResultaterSomGjelderIPeriode().keys
             if (personerMedReduksjonPgaOpphør.isEmpty()) {
                 finnPersonerMedVilkårResultaterSomGjelderIPeriode()
             } else {
-                finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+                finnPersonerMedVilkårResultatRelevantForReduksjonOgOpphørBegrunnelser()
             }
         }
 
@@ -358,7 +365,11 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.ETTER_ENDRET_UTBETALING,
         BegrunnelseType.OPPHØR,
         -> {
-            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger) finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt() else finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode()
+            if (erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger) {
+                finnPersonerMedVilkårResultatIFørsteVedtaksperiodeSomIkkeErOppfylt()
+            } else {
+                finnPersonerMedVilkårResultatRelevantForReduksjonOgOpphørBegrunnelser()
+            }
         }
 
         BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
@@ -460,7 +471,7 @@ class BegrunnelserForPeriodeContext(
             }.toMap()
             .filterValues { it.isNotEmpty() }
 
-    private fun finnPersonerMedVilkårResultaterSomGjelderRettFørPeriode(): Map<Person, List<VilkårResultat>> =
+    private fun finnPersonerMedVilkårResultatRelevantForReduksjonOgOpphørBegrunnelser(): Map<Person, List<VilkårResultat>> =
         personResultater
             .tilForskjøvetVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,
@@ -474,8 +485,20 @@ class BegrunnelserForPeriodeContext(
                             it.tom?.plusDays(1) == vedtaksperiode.fom
                         }?.verdi
 
+                val ikkeForskjøvetVilkårResultater =
+                    personResultater.filter { it.aktør == person.aktør }.flatMap { it.vilkårResultater }
+
+                val ikkeOppfylteVilkårSomStarterISammePeriode =
+                    ikkeForskjøvetVilkårResultater
+                        .filter { it.resultat == Resultat.IKKE_OPPFYLT }
+                        .filter {
+                            val vilkårFom = (it.periodeFom ?: TIDENES_MORGEN).toYearMonth()
+
+                            vilkårFom == vedtaksperiode.fom.toYearMonth()
+                        }
+
                 if (vilkårResultatSomSlutterFørVedtaksperiode != null) {
-                    Pair(person, vilkårResultatSomSlutterFørVedtaksperiode)
+                    Pair(person, vilkårResultatSomSlutterFørVedtaksperiode + ikkeOppfylteVilkårSomStarterISammePeriode)
                 } else {
                     null
                 }
