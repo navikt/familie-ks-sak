@@ -64,7 +64,6 @@ Egenskap: Opphørsperiode
       | Begrunnelse                                   | Type     | Antall barn | Barnas fødselsdatoer | Gjelder søker | Beløp | Måned og år begrunnelsen gjelder for | Gjelder andre forelder | Antall timer barnehageplass | Måned og år før vedtaksperiode |
       | OPPHØR_TILLEGSTEKST_FOR_REGLER_FØR_01_08_2024 | STANDARD | 1           | 20.03.23             | Nei           | 0     | august 2024                          | true                   | 40                          | juli 2024                      |
 
-
   Scenario: Opphørsperioder som oppstår i mellom perioder skal ha tom dato, opphørsperioder som oppstår
     Gitt følgende fagsaker
       | FagsakId |
@@ -110,7 +109,6 @@ Egenskap: Opphørsperiode
       | 01.06.2024 | 31.07.2024 | UTBETALING         |           |
       | 01.08.2024 |            | OPPHØR             |           |
 
-
   Scenario: Opphørsperioder som starter og slutter samtidig som avslagsperioder skal bli filtrert ut.
     Gitt følgende fagsaker
       | FagsakId |
@@ -127,7 +125,6 @@ Egenskap: Opphørsperiode
       | 1            | 2       | BARN       | 18.01.2023  |
       | 2            | 1       | SØKER      | 21.03.1997  |
       | 2            | 2       | BARN       | 18.01.2023  |
-
 
     Og følgende dagens dato 07.12.2024
 
@@ -180,7 +177,6 @@ Egenskap: Opphørsperiode
       | Fra dato   | Til dato | Standardbegrunnelser                           | Eøsbegrunnelser | Fritekster |
       | 01.08.2024 |          |                                                |                 |            |
       | 01.08.2024 |          | AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER |                 |            |
-
 
   Scenario: Ikke aktuelt vilkår som ender rett før en opphørsperiode skal være regnes som utgjørende vilkår
     Gitt følgende fagsaker
@@ -237,7 +233,6 @@ Egenskap: Opphørsperiode
       | 2       | 01.06.2023 | 31.10.2023 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
     Og når behandlingsresultatet er utledet for behandling 2
     Så forvent at behandlingsresultatet er OPPHØRT på behandling 2
-
 
     Og vedtaksperioder er laget for behandling 2
 
@@ -337,7 +332,6 @@ Egenskap: Opphørsperiode
       | 01.08.2023 |            | OPPHØR             |                                | OPPHØR_FULLTIDSPLASS_I_BARNEHAGE |                       |
       | 01.03.2025 | 31.03.2025 | OPPHØR             |                                | OPPHØR_FULLTIDSPLASS_I_BARNEHAGE |                       |
 
-
     Og når disse begrunnelsene er valgt for behandling 2
       | Fra dato   | Til dato   | Standardbegrunnelser             | Eøsbegrunnelser | Fritekster |
       | 01.03.2025 | 31.03.2025 | OPPHØR_FULLTIDSPLASS_I_BARNEHAGE |                 |            |
@@ -399,7 +393,6 @@ Egenskap: Opphørsperiode
       | 2       | 01.07.2025 | 31.07.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
     Og når behandlingsresultatet er utledet for behandling 2
     Så forvent at behandlingsresultatet er OPPHØRT på behandling 2
-
 
     Og vedtaksperioder er laget for behandling 2
 
