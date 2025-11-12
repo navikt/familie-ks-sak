@@ -490,12 +490,12 @@ class BrevPeriodeContext(
                     nasjonalEllerFellesBegrunnelse = begrunnelse,
                 )
 
-                val antallTimerBarnehageplass =
-                    hentAntallTimerBarnehageplassTekst(personerGjeldendeForBegrunnelse)
-
                 val begrunnelseGjelderOpphørFraForrigeBehandling = sanityBegrunnelse.begrunnelseGjelderOpphørFraForrigeBehandling()
 
                 if (relevanteKompetanser.isEmpty() && (begrunnelse.begrunnelseType.erAvslagEllerEøsAvslag() || begrunnelse.begrunnelseType == BegrunnelseType.EØS_OPPHØR)) {
+                    val antallTimerBarnehageplass =
+                        hentAntallTimerBarnehageplassTekst(personerGjeldendeForBegrunnelse)
+
                     val barnIBegrunnelse = personerGjeldendeForBegrunnelse.filter { it.type == PersonType.BARN }
                     val barnasFødselsdagerForAvslagOgOpphør =
                         hentBarnasFødselsdagerForAvslagOgOpphør(
@@ -519,7 +519,7 @@ class BrevPeriodeContext(
                     )
                 } else {
                     relevanteKompetanser.mapNotNull { kompetanse ->
-                        val barnIBegrunnelseOgIKompetanseFødselsdato =
+                        val barnIBegrunnelseOgIKompetanse =
                             kompetanse.barnAktører
                                 .mapNotNull { barnAktør ->
                                     if (gjelderSøker && begrunnelseGjelderOpphørFraForrigeBehandling) {
@@ -527,9 +527,15 @@ class BrevPeriodeContext(
                                     } else {
                                         personerGjeldendeForBegrunnelse
                                     }.find { it.aktør == barnAktør }
-                                }.map { it.fødselsdato }
+                                }
+
+                        val barnIBegrunnelseOgIKompetanseFødselsdato =
+                            barnIBegrunnelseOgIKompetanse.map { it.fødselsdato }
 
                         if (barnIBegrunnelseOgIKompetanseFødselsdato.isNotEmpty()) {
+                            val antallTimerBarnehageplass =
+                                hentAntallTimerBarnehageplassTekst(barnIBegrunnelseOgIKompetanse.toSet())
+
                             EØSBegrunnelseMedKompetanseDto(
                                 vedtakBegrunnelseType = begrunnelse.begrunnelseType,
                                 apiNavn = begrunnelse.sanityApiNavn,
@@ -551,7 +557,10 @@ class BrevPeriodeContext(
                 }
             }
 
-    private fun Tidslinje<UtfyltKompetanse>.finnPeriodeSomAvsluttesRettFørVedtaksperioden() = tilPerioderIkkeNull().singleOrNull { it.avsluttesMånedenFørVedtaksperioden() }
+    private fun Tidslinje<UtfyltKompetanse>.finnPeriodeSomAvsluttesRettFørVedtaksperioden() =
+        tilPerioderIkkeNull().singleOrNull {
+            it.avsluttesMånedenFørVedtaksperioden()
+        }
 
     private fun Periode<UtfyltKompetanse>.avsluttesMånedenFørVedtaksperioden() =
         this.tom != null &&

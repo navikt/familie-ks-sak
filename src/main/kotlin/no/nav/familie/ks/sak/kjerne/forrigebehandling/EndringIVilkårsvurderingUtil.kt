@@ -71,11 +71,9 @@ object EndringIVilkårsvurderingUtil {
                 val erEndringerIUtdypendeVilkårsvurdering = nåværendeUtdypendeVilkårsvurderingUtenBosattPåSvalbard != forrigeUtdypendeVilkårsvurderingUtenBosattPåSvalbard
 
                 val erEndringerIRegelverk = nåværende.vurderesEtter != forrige.vurderesEtter
-                val erVilkårSomErSplittetOpp = nåværende.periodeFom != forrige.periodeFom
 
                 (forrige.obligatoriskUtdypendeVilkårsvurderingErSatt() && erEndringerIUtdypendeVilkårsvurdering) ||
-                    erEndringerIRegelverk ||
-                    erVilkårSomErSplittetOpp
+                    erEndringerIRegelverk
             }
 
         return endringIVilkårResultat
