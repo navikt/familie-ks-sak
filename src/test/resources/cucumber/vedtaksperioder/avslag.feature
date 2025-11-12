@@ -150,3 +150,71 @@ Egenskap: Avslag perioder
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.07.2024 til -
       | Begrunnelse              | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Måned og år før vedtaksperiode |
       | AVSLAG_FLYTTET_FRA_NORGE | STANDARD | Nei           | 15.05.23             | 1           | juli 2024                            | 0     |                  | 0                           |                        | juni 2024                      |
+
+  Scenario: Endringer i fom/tom i vilkårsvurderingen bør ikke lede til endring i behandlingsresultat med mindre det fører til endring i andeler
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | AVSLUTTET         |
+      | 2            | 1        | 1                   | SØKNAD           | NASJONAL            | UTREDES           |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 27.12.1967  |
+      | 1            | 2       | BARN       | 18.07.2024  |
+      | 2            | 1       | SØKER      | 27.12.1967  |
+      | 2            | 2       | BARN       | 18.07.2024  |
+
+    Og følgende dagens dato 11.11.2025
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser                             | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 19.10.2017 |            | OPPFYLT      | Nei                  |                                                  | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 11.07.2022 |            | OPPFYLT      | Nei                  |                                                  | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_OPPFYLT | Ja                   | AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 18.07.2024 |            | OPPFYLT      | Nei                  |                                                  |                  | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 18.07.2024 |            | OPPFYLT      | Nei                  |                                                  | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 18.07.2025 | 18.03.2026 | OPPFYLT      | Nei                  |                                                  |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser                             | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 10.07.2017 |            | OPPFYLT      | Nei                  |                                                  | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 11.07.2022 |            | OPPFYLT      | Nei                  |                                                  | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_OPPFYLT | Ja                   | AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOR_MED_SØKER,BOSATT_I_RIKET |                  | 18.07.2024 |            | OPPFYLT      | Nei                  |                                                  | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 18.07.2024 |            | OPPFYLT      | Nei                  |                                                  |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 18.07.2025 | 18.03.2026 | OPPFYLT      | Nei                  |                                                  |                  | Nei                                   |              |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 2
+      | AktørId | Fra dato | Til dato | Beløp | Ytelse type | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+
+    Og når behandlingsresultatet er utledet for behandling 2
+
+    Så forvent at behandlingsresultatet er AVSLÅTT på behandling 2
+
+    Og vedtaksperioder er laget for behandling 2
+
+    Så forvent følgende vedtaksperioder på behandling 2
+      | Fra dato | Til dato | Vedtaksperiodetype | Kommentar |
+      |          |          | AVSLAG             |           |
+
+    Så forvent at følgende begrunnelser er gyldige for behandling 2
+      | Fra dato | Til dato | VedtaksperiodeType | Regelverk Gyldige begrunnelser | Gyldige begrunnelser                             | Ugyldige begrunnelser |
+      |          |          | AVSLAG             |                                | AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR |                       |
+
+    Og når disse begrunnelsene er valgt for behandling 2
+      | Fra dato | Til dato | Standardbegrunnelser                             | Eøsbegrunnelser | Fritekster |
+      |          |          | AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR |                 |            |
+
+    Så forvent følgende brevbegrunnelser for behandling 2 i periode - til -
+      | Begrunnelse                                      | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Måned og år før vedtaksperiode |
+      | AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR | STANDARD |               | 18.07.24             | 1           |                                      | 0     |                  | 0                           | Ja                     |         |                                |

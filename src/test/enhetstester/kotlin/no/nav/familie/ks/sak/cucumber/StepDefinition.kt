@@ -498,6 +498,7 @@ class StepDefinition {
         dataTable: DataTable,
     ) {
         val utvidedeVedtaksperioderMedBegrunnelser = hentUtvidedeVedtaksperioderMedBegrunnelser(behandlingId).sortedBy { it.fom ?: TIDENES_MORGEN }
+
         val relevantUtvidetVedtaksperiode =
             utvidedeVedtaksperioderMedBegrunnelser.find {
                 it.fom == parseNullableDato(periodeFom) && it.tom == parseNullableDato(periodeTom)
