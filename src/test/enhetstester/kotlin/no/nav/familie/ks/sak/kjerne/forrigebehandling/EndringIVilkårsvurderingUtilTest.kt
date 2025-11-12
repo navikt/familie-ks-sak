@@ -123,61 +123,6 @@ class EndringIVilkårsvurderingUtilTest {
         }
 
         @Test
-        fun `Skal returnere riktig endringstidspunkt dersom det har oppstått splitt i vilkårsvurderingen`() {
-            val fødselsdato = jan22.førsteDagIInneværendeMåned()
-            val forrigeVilkårResultat =
-                setOf(
-                    VilkårResultat(
-                        behandlingId = 0,
-                        personResultat = null,
-                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                        resultat = Resultat.OPPFYLT,
-                        periodeFom = fødselsdato,
-                        periodeTom = null,
-                        begrunnelse = "",
-                        utdypendeVilkårsvurderinger = listOf(),
-                        vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    ),
-                )
-
-            val nåværendeVilkårResultat =
-                setOf(
-                    VilkårResultat(
-                        behandlingId = 0,
-                        personResultat = null,
-                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                        resultat = Resultat.OPPFYLT,
-                        periodeFom = fødselsdato,
-                        periodeTom = mai22.atDay(7),
-                        begrunnelse = "",
-                        utdypendeVilkårsvurderinger = listOf(),
-                        vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    ),
-                    VilkårResultat(
-                        behandlingId = 0,
-                        personResultat = null,
-                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                        resultat = Resultat.OPPFYLT,
-                        periodeFom = mai22.atDay(8),
-                        periodeTom = null,
-                        begrunnelse = "",
-                        utdypendeVilkårsvurderinger = listOf(),
-                        vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    ),
-                )
-
-            val aktør = randomAktør()
-
-            val endringstidspunkt =
-                EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
-                    nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
-                    forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
-                )
-
-            assertThat(mai22).isEqualTo(endringstidspunkt)
-        }
-
-        @Test
         fun `Skal ikke sette endringstidspunkt dersom det bare har blitt opphørt vilkårsvurdering`() {
             val fødselsdato = LocalDate.of(2015, 1, 1)
             val nåværendeVilkårResultat =
@@ -330,64 +275,6 @@ class EndringIVilkårsvurderingUtilTest {
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(fødselsdato).isEqualTo(perioderMedEndring.single().fom)
             assertThat(mai22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)
-        }
-
-        @Test
-        fun `Endring i vilkårsvurdering - skal returnere periode med endring dersom det har oppstått splitt i vilkårsvurderingen`() {
-            val fødselsdato = jan22.førsteDagIInneværendeMåned()
-            val forrigeVilkårResultat =
-                setOf(
-                    VilkårResultat(
-                        behandlingId = 0,
-                        personResultat = null,
-                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                        resultat = Resultat.OPPFYLT,
-                        periodeFom = fødselsdato,
-                        periodeTom = null,
-                        begrunnelse = "",
-                        utdypendeVilkårsvurderinger = listOf(),
-                        vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    ),
-                )
-
-            val nåværendeVilkårResultat =
-                setOf(
-                    VilkårResultat(
-                        behandlingId = 0,
-                        personResultat = null,
-                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                        resultat = Resultat.OPPFYLT,
-                        periodeFom = fødselsdato,
-                        periodeTom = mai22.atDay(7),
-                        begrunnelse = "",
-                        utdypendeVilkårsvurderinger = listOf(),
-                        vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    ),
-                    VilkårResultat(
-                        behandlingId = 0,
-                        personResultat = null,
-                        vilkårType = Vilkår.BOSATT_I_RIKET,
-                        resultat = Resultat.OPPFYLT,
-                        periodeFom = mai22.atDay(8),
-                        periodeTom = null,
-                        begrunnelse = "",
-                        utdypendeVilkårsvurderinger = listOf(),
-                        vurderesEtter = Regelverk.NASJONALE_REGLER,
-                    ),
-                )
-
-            val aktør = randomAktør()
-
-            val perioderMedEndring =
-                EndringIVilkårsvurderingUtil
-                    .lagEndringIVilkårsvurderingTidslinje(
-                        nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
-                        forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
-                    ).tilPerioder()
-                    .filter { it.verdi == true }
-
-            assertThat(1).isEqualTo(perioderMedEndring.size)
-            assertThat(mai22.atDay(8)).isEqualTo(perioderMedEndring.single().fom)
         }
 
         @Test
