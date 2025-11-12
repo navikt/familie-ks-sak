@@ -79,7 +79,7 @@ import java.time.LocalDate
     "fake-task-repository",
 )
 @EnableMockOAuth2Server
-@Tag("integrationTest")
+@Tag("integration")
 abstract class OppslagSpringRunnerTest {
     private val listAppender = initLoggingEventListAppender()
     protected var loggingEvents: MutableList<ILoggingEvent> = listAppender.list

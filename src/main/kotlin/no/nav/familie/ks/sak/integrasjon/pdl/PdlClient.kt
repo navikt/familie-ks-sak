@@ -38,7 +38,7 @@ import java.net.URI
 @Service
 class PdlClient(
     pdlConfig: PdlConfig,
-    @Qualifier("azureClientCredential") val restTemplate: RestOperations,
+    @Qualifier("jwtBearerClientCredential") val restTemplate: RestOperations,
 ) : AbstractPingableRestClient(restTemplate, "pdl.personinfo") {
     private val pdlUri = pdlConfig.pdlUri
 

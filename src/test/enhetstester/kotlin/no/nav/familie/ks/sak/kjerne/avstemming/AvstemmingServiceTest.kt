@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
+import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -15,13 +15,13 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.LocalDateTime
 
 internal class AvstemmingServiceTest {
-    private val oppdragKlient = mockk<OppdragKlient>()
+    private val avstemmingKlient = mockk<AvstemmingKlient>()
     private val behandlingService = mockk<BehandlingService>()
     private val beregningService = mockk<BeregningService>()
 
     private val avstemmingService =
         AvstemmingService(
-            oppdragKlient = oppdragKlient,
+            avstemmingKlient = avstemmingKlient,
             behandlingService = behandlingService,
             beregningService = beregningService,
         )
