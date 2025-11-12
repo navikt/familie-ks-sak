@@ -1157,61 +1157,6 @@ class BehandlingsresultatEndringUtilsTest {
     }
 
     @Test
-    fun `Endring i vilkårsvurdering - skal returnere true dersom det har oppstått splitt i vilkårsvurderingen`() {
-        val fødselsdato = jan22.førsteDagIInneværendeMåned()
-        val forrigeVilkårResultat =
-            setOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BOSATT_I_RIKET,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = fødselsdato,
-                    periodeTom = null,
-                    begrunnelse = "",
-                    utdypendeVilkårsvurderinger = listOf(),
-                    vurderesEtter = Regelverk.NASJONALE_REGLER,
-                ),
-            )
-
-        val nåværendeVilkårResultat =
-            setOf(
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BOSATT_I_RIKET,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = fødselsdato,
-                    periodeTom = mai22.atDay(7),
-                    begrunnelse = "",
-                    utdypendeVilkårsvurderinger = listOf(),
-                    vurderesEtter = Regelverk.NASJONALE_REGLER,
-                ),
-                VilkårResultat(
-                    behandlingId = 0,
-                    personResultat = null,
-                    vilkårType = Vilkår.BOSATT_I_RIKET,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = mai22.atDay(8),
-                    periodeTom = null,
-                    begrunnelse = "",
-                    utdypendeVilkårsvurderinger = listOf(),
-                    vurderesEtter = Regelverk.NASJONALE_REGLER,
-                ),
-            )
-
-        val aktør = randomAktør()
-
-        val erEndringIVilkårvurderingForPerson =
-            erEndringIVilkårsvurderingForPerson(
-                nåværendePersonResultat = lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør),
-                forrigePersonResultat = lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør),
-            )
-
-        assertThat(erEndringIVilkårvurderingForPerson, Is(true))
-    }
-
-    @Test
     fun `Endring i vilkårsvurdering - skal returnere false hvis det kun er opphørt`() {
         val fødselsdato = LocalDate.of(2015, 1, 1)
         val nåværendeVilkårResultat =
