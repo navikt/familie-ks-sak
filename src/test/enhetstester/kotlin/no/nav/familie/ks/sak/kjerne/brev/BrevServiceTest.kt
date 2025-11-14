@@ -10,10 +10,14 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.Bruker
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -40,8 +44,11 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.prosessering.domene.Task
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -68,6 +75,7 @@ class BrevServiceTest {
                 validerBrevmottakerService = mockk(),
             ),
         )
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val brevService =
         BrevService(
@@ -84,6 +92,7 @@ class BrevServiceTest {
             genererBrevService = genererBrevService,
             brevmottakerService = brevmottakerService,
             validerBrevmottakerService = validerBrevmottakerService,
+            featureToggleService = featureToggleService,
         )
 
     private val søker = randomAktør()
@@ -95,6 +104,11 @@ class BrevServiceTest {
             mottakerIdent = søker.aktivFødselsnummer(),
             multiselectVerdier = listOf("Dokumentasjon som viser når barna kom til Norge."),
         )
+
+    @BeforeEach
+    fun setup() {
+        every { featureToggleService.isEnabled(any<FeatureToggle>()) } returns false
+    }
 
     @Test
     fun `hentForhåndsvisningAvBrev - skal hente pdf i form av en ByteArray fra genererBrevService`() {
@@ -457,12 +471,11 @@ class BrevServiceTest {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),
                 fagsakId = any(),
-                behandlingId = any(),
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
                 avsenderMottaker = any(),
-                tilVergeEllerFullmektig = any(),
+                eksternReferanseId = any(),
             )
         } returns "mockJournalPostId" andThen "mockJournalPostId1"
 
@@ -477,24 +490,22 @@ class BrevServiceTest {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),
                 fagsakId = any(),
-                behandlingId = any(),
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
                 avsenderMottaker = null,
-                tilVergeEllerFullmektig = false,
+                eksternReferanseId = any(),
             )
         }
         verify(exactly = 1) {
             utgåendeJournalføringService.journalførDokument(
                 fnr = any(),
                 fagsakId = any(),
-                behandlingId = any(),
                 journalførendeEnhet = any(),
                 brev = any(),
                 førsteside = any(),
                 avsenderMottaker = capture(avsenderMottaker),
-                tilVergeEllerFullmektig = true,
+                eksternReferanseId = any(),
             )
         }
         assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
@@ -534,7 +545,7 @@ class BrevServiceTest {
                 brev = any(),
                 førsteside = any(),
                 avsenderMottaker = any(),
-                tilVergeEllerFullmektig = any(),
+                eksternReferanseId = any(),
             )
         } returns "mockJournalPostId" andThen "mockJournalPostId1"
 
@@ -552,7 +563,7 @@ class BrevServiceTest {
                 brev = any(),
                 førsteside = any(),
                 avsenderMottaker = capture(avsenderMottaker),
-                tilVergeEllerFullmektig = true,
+                eksternReferanseId = any(),
             )
         }
         verify(exactly = 1) {
@@ -563,7 +574,7 @@ class BrevServiceTest {
                 brev = any(),
                 førsteside = any(),
                 avsenderMottaker = null,
-                tilVergeEllerFullmektig = false,
+                eksternReferanseId = any(),
             )
         }
 
@@ -596,5 +607,66 @@ class BrevServiceTest {
             }
 
         assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
+    }
+
+    @Nested
+    inner class SendBrevNy {
+        @Test
+        fun `skal lage journalfør manuelt brev task for bruker og manuelt registrert fullmektig på behandling`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val manueltBrevDto = ManueltBrevDto(mottakerIdent = behandling.fagsak.aktør.aktivFødselsnummer(), brevmal = Brevmal.SVARTIDSBREV)
+            val brevmottakerDto = lagBrevmottakerDto(type = MottakerType.FULLMEKTIG)
+
+            val tasks = mutableListOf<Task>()
+            every { behandlingRepository.hentBehandling(any()) } returns behandling
+            every { brevmottakerService.hentBrevmottakere(behandling.id) } returns listOf(brevmottakerDto)
+            every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
+            every { taskService.save(capture(tasks)) } returnsArgument 0
+
+            // Act
+            brevService.sendBrevNy(behandling.fagsak, behandling.id, manueltBrevDto)
+
+            // Assert
+            verify(exactly = 2) { taskService.save(any()) }
+            assertThat(tasks).hasSize(2)
+            assertThat(tasks).anySatisfy {
+                assertThat(it.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
+                assertThat(it.metadata["fagsakId"]).isEqualTo(behandling.fagsak.id.toString())
+                assertThat(it.metadata["behandlingId"]).isEqualTo(behandling.id.toString())
+                assertThat(it.metadata["mottakerType"]).isEqualTo(Bruker::class.simpleName)
+            }
+            assertThat(tasks).anySatisfy {
+                assertThat(it.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
+                assertThat(it.metadata["fagsakId"]).isEqualTo(behandling.fagsak.id.toString())
+                assertThat(it.metadata["behandlingId"]).isEqualTo(behandling.id.toString())
+                assertThat(it.metadata["mottakerType"]).isEqualTo(FullmektigEllerVerge::class.simpleName)
+            }
+        }
+
+        @Test
+        fun `skal kaste feil dersom manuelle brevmottakere er ugyldige`() {
+            // Arrange
+            val aktør = randomAktør()
+            val fagsak = Fagsak(aktør = aktør)
+            val søkersident = aktør.aktivFødselsnummer()
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(id = 1234, postnummer = "0661", poststed = "Stockholm", landkode = "SE"),
+                )
+            val manueltBrevDto =
+                ManueltBrevDto(
+                    mottakerIdent = søkersident,
+                    brevmal = Brevmal.SVARTIDSBREV,
+                    manuelleBrevmottakere = brevmottakere,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    brevService.sendBrevNy(fagsak, behandlingId = null, manueltBrevDto)
+                }
+            assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
+        }
     }
 }

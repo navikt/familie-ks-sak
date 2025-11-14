@@ -31,6 +31,7 @@ import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
@@ -94,6 +95,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -1555,7 +1557,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
     )
 
 fun lagBrevmottakerDto(
-    id: Long,
+    id: Long = 1L,
     type: no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType = no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
     navn: String = "Test Testesen",
     adresselinje1: String = "En adresse her",
@@ -1752,4 +1754,35 @@ fun lagOpphørsperiode(
         periodeTom = periodeTom,
         vedtaksperiodetype = vedtaksperiodetype,
         begrunnelser = begrunnelser,
+    )
+
+fun lagManueltBrevDto(
+    brevmal: Brevmal = Brevmal.SVARTIDSBREV,
+    multiselectVerdier: List<String> = emptyList(),
+    mottakerIdent: String = "1",
+    barnIBrev: List<String> = emptyList(),
+    datoAvtale: String? = null,
+    mottakerMålform: Målform = Målform.NB,
+    mottakerNavn: String = "",
+    enhet: no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet? = null,
+    antallUkerSvarfrist: Int? = null,
+    barnasFødselsdager: List<LocalDate>? = null,
+    behandlingKategori: BehandlingKategori? = null,
+    manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
+    fritekstAvsnitt: String? = null,
+): ManueltBrevDto =
+    ManueltBrevDto(
+        brevmal = brevmal,
+        multiselectVerdier = multiselectVerdier,
+        mottakerIdent = mottakerIdent,
+        barnIBrev = barnIBrev,
+        datoAvtale = datoAvtale,
+        mottakerMålform = mottakerMålform,
+        mottakerNavn = mottakerNavn,
+        enhet = enhet,
+        antallUkerSvarfrist = antallUkerSvarfrist,
+        barnasFødselsdager = barnasFødselsdager,
+        behandlingKategori = behandlingKategori,
+        manuelleBrevmottakere = manuelleBrevmottakere,
+        fritekstAvsnitt = fritekstAvsnitt,
     )

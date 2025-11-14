@@ -9,6 +9,8 @@ import no.nav.familie.ks.sak.api.dto.leggTilEnhet
 import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -43,6 +45,7 @@ class BrevController(
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
     private val fagsakService: FagsakService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     @PostMapping(path = ["/forhaandsvis-brev/{behandlingId}"])
     fun hentForhåndsvisning(
@@ -101,10 +104,18 @@ class BrevController(
 
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
-        brevService.sendBrev(
-            manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
-            fagsak = fagsak,
-        )
+        if (featureToggleService.isEnabled(FeatureToggle.JOURNALFOER_MANUELT_BREV_I_TASK)) {
+            brevService.sendBrevNy(
+                manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+                fagsak = fagsak,
+            )
+        } else {
+            brevService.sendBrev(
+                manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+                fagsak = fagsak,
+            )
+        }
+
         return ResponseEntity.ok(Ressurs.success(fagsakService.hentMinimalFagsak(fagsakId = fagsakId)))
     }
 

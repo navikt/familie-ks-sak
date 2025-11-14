@@ -53,7 +53,7 @@ class JournalførVedtaksbrevStegTest {
         // Arrange
         val dokumentListeSlot = slot<List<Dokument>>()
         every { personopplysningGrunnlagService.hentSøkersMålform(behandlingId = any()) } returns Målform.NB
-        every { utgåendeJournalføringService.journalførDokument(any(), any(), any(), any(), capture(dokumentListeSlot), any(), any(), any(), any()) } returns "Test"
+        every { utgåendeJournalføringService.journalførDokument(any(), any(), any(), any(), capture(dokumentListeSlot), any(), any(), any()) } returns "Test"
 
         val vedtak = lagVedtak(behandling = lagBehandling(resultat = Behandlingsresultat.INNVILGET), stønadBrevPdF = ByteArray(5))
         val bokmålDokument = hentDokument(KONTANTSTØTTE_VEDTAK_BOKMÅL_VEDLEGG_FILNAVN)
@@ -81,7 +81,7 @@ class JournalførVedtaksbrevStegTest {
         val dokumentListeSlot = slot<List<Dokument>>()
         val nynorskDokument = hentDokument(KONTANTSTØTTE_VEDTAK_NYNORSK_VEDLEGG_FILNAVN)
         every { personopplysningGrunnlagService.hentSøkersMålform(behandlingId = any()) } returns Målform.NN
-        every { utgåendeJournalføringService.journalførDokument(any(), any(), any(), any(), capture(dokumentListeSlot), any(), any(), any(), any()) } returns "Test"
+        every { utgåendeJournalføringService.journalførDokument(any(), any(), any(), any(), capture(dokumentListeSlot), any(), any(), any()) } returns "Test"
 
         val vedtak = lagVedtak(behandling = lagBehandling(resultat = Behandlingsresultat.INNVILGET), stønadBrevPdF = ByteArray(5))
 
