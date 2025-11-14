@@ -59,7 +59,7 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>11.1.1</unleash.version>
-        <microsoft-graph.version>6.55.0</microsoft-graph.version>
+        <microsoft-graph.version>6.56.0</microsoft-graph.version>
         <azure-identity.version>1.18.1</azure-identity.version>
 
         <!-- Test -->
@@ -82,7 +82,7 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
         <!-- Sonar -->
-        <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.3.0.6276</sonar-maven-plugin.version>
         <sonar.organization>navikt</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.sources>src/main</sonar.sources>
@@ -96,7 +96,7 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <!-- Denne inkluderer junit-platform 1.13.3 som kreves av cucumber 7.26, kan muligens fjernes når spring bumper til junit versjon 1.13.3 -->
-                <version>5.13.4</version>
+                <version>6.0.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
