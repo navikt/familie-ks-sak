@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
+import no.nav.familie.ks.sak.common.exception.Feil
+
 enum class KontantstøtteEnhet(
     val enhetsnummer: String,
     val enhetsnavn: String,
@@ -30,5 +32,7 @@ enum class KontantstøtteEnhet(
             )
 
         fun erGyldigBehandlendeKontantstøtteEnhet(enhetsnummer: String): Boolean = GYLDIGE_BEHANDLENDE_KONTANTSTØTTE_ENHETER.any { it.enhetsnummer == enhetsnummer }
+
+        fun hentEnhet(enhetsnummer: String): KontantstøtteEnhet = entries.firstOrNull { it.enhetsnummer == enhetsnummer } ?: throw Feil("Finner ikke enhet med enhetsnummer $enhetsnummer")
     }
 }

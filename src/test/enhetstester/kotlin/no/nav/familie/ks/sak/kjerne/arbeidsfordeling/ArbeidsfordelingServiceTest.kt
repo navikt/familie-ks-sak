@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
+import io.mockk.Called
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.NavIdent
@@ -179,6 +182,89 @@ internal class ArbeidsfordelingServiceTest {
             val arbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingSlot.captured
             assertThat(arbeidsfordelingPåBehandling.behandlendeEnhetId).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnummer)
             assertThat(arbeidsfordelingPåBehandling.behandlendeEnhetNavn).isEqualTo(KontantstøtteEnhet.OSLO.enhetsnavn)
+        }
+    }
+
+    @Nested
+    inner class OppdaterBehandlendeEnhetPåBehandlingIForbindelseMedPorteføljejusteringTest {
+        @Test
+        fun `Skal ikke oppdatere enhet hvis ny enhet er det samme som gamle`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val nåværendeArbeidsfordelingsenhetPåBehandling =
+                ArbeidsfordelingPåBehandling(
+                    behandlendeEnhetId = KontantstøtteEnhet.OSLO.enhetsnummer,
+                    id = 0,
+                    behandlingId = behandling.id,
+                    behandlendeEnhetNavn = KontantstøtteEnhet.OSLO.enhetsnavn,
+                )
+
+            every {
+                arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(any())
+            } returns nåværendeArbeidsfordelingsenhetPåBehandling
+
+            // Act
+            arbeidsfordelingService.oppdaterBehandlendeEnhetPåBehandlingIForbindelseMedPorteføljejustering(
+                behandling = behandling,
+                nyEnhetId = KontantstøtteEnhet.OSLO.enhetsnummer,
+            )
+
+            // Assert
+            verify(exactly = 0) { arbeidsfordelingPåBehandlingRepository.save(any()) }
+            verify { loggService wasNot Called }
+        }
+
+        @Test
+        fun `Skal oppdatere enhet, opprette logg, og publisere sakstatistikk hvis ny enhet er ulikt gammel`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val nåværendeArbeidsfordelingsenhetPåBehandling =
+                ArbeidsfordelingPåBehandling(
+                    behandlendeEnhetId = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                    id = 0,
+                    behandlingId = behandling.id,
+                    behandlendeEnhetNavn = KontantstøtteEnhet.VADSØ.enhetsnavn,
+                )
+
+            every {
+                arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(any())
+            } returns nåværendeArbeidsfordelingsenhetPåBehandling
+
+            val lagretArbeidsfordelingPåBehandlingSlot = slot<ArbeidsfordelingPåBehandling>()
+            every { arbeidsfordelingPåBehandlingRepository.save(capture(lagretArbeidsfordelingPåBehandlingSlot)) } returnsArgument 0
+
+            every {
+                loggService.opprettBehandlendeEnhetEndret(
+                    behandling,
+                    fraEnhet = any(),
+                    tilEnhet = any(),
+                    manuellOppdatering = false,
+                    begrunnelse = "Porteføljejustering",
+                )
+            } just runs
+
+            // Act
+            arbeidsfordelingService.oppdaterBehandlendeEnhetPåBehandlingIForbindelseMedPorteføljejustering(
+                behandling = behandling,
+                nyEnhetId = KontantstøtteEnhet.BERGEN.enhetsnummer,
+            )
+
+            // Assert
+            val lagretArbeidsfordelingPåBehandling = lagretArbeidsfordelingPåBehandlingSlot.captured
+
+            assertThat(lagretArbeidsfordelingPåBehandling.behandlendeEnhetId).isEqualTo(KontantstøtteEnhet.BERGEN.enhetsnummer)
+            assertThat(lagretArbeidsfordelingPåBehandling.behandlendeEnhetNavn).isEqualTo(KontantstøtteEnhet.BERGEN.enhetsnavn)
+
+            verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.save(any()) }
+            verify(exactly = 1) {
+                loggService.opprettBehandlendeEnhetEndret(
+                    behandling,
+                    fraEnhet = Arbeidsfordelingsenhet(KontantstøtteEnhet.VADSØ.enhetsnummer, KontantstøtteEnhet.VADSØ.enhetsnavn),
+                    tilEnhet = lagretArbeidsfordelingPåBehandling,
+                    manuellOppdatering = false,
+                    begrunnelse = "Porteføljejustering",
+                )
+            }
         }
     }
 }

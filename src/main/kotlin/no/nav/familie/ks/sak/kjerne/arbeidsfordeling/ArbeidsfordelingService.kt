@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
+import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
@@ -10,6 +11,7 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.tilArbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -202,6 +204,38 @@ class ArbeidsfordelingService(
                 oppdatertArbeidsfordelingPåBehandling.behandlendeEnhetId,
             )
         }
+    }
+
+    @Transactional
+    fun oppdaterBehandlendeEnhetPåBehandlingIForbindelseMedPorteføljejustering(
+        behandling: Behandling,
+        nyEnhetId: String,
+    ) {
+        val aktivArbeidsfordelingPåBehandling = arbeidsfordelingPåBehandlingRepository.hentArbeidsfordelingPåBehandling(behandling.id)
+
+        if (nyEnhetId == aktivArbeidsfordelingPåBehandling.behandlendeEnhetId) return
+
+        val forrigeArbeidsfordelingsenhet =
+            Arbeidsfordelingsenhet(
+                enhetId = aktivArbeidsfordelingPåBehandling.behandlendeEnhetId,
+                enhetNavn = aktivArbeidsfordelingPåBehandling.behandlendeEnhetNavn,
+            )
+
+        val oppdatertArbeidsfordelingPåBehandling =
+            arbeidsfordelingPåBehandlingRepository.save(
+                aktivArbeidsfordelingPåBehandling.copy(
+                    behandlendeEnhetId = nyEnhetId,
+                    behandlendeEnhetNavn = KontantstøtteEnhet.hentEnhet(nyEnhetId).enhetsnavn,
+                ),
+            )
+
+        loggService.opprettBehandlendeEnhetEndret(
+            behandling = behandling,
+            fraEnhet = forrigeArbeidsfordelingsenhet,
+            tilEnhet = oppdatertArbeidsfordelingPåBehandling,
+            manuellOppdatering = false,
+            begrunnelse = "Porteføljejustering",
+        )
     }
 
     private fun identMedAdressebeskyttelse(aktør: Aktør) = aktør.aktivFødselsnummer() to personopplysningerService.hentPersoninfoEnkel(aktør).adressebeskyttelseGradering
