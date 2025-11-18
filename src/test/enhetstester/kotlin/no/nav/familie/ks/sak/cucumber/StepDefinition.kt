@@ -769,7 +769,7 @@ class StepDefinition {
             sanityService = mockk(),
             overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
-            integrasjonClient = mockk(),
+            integrasjonKlient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
             adopsjonService = mockAdopsjonService(),

@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagStatsborgerskap
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.Norden
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
@@ -24,18 +24,18 @@ import java.time.LocalDate
 import java.time.Month
 
 class StatsborgerskapServiceTest {
-    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
 
-    private val statsborgerskapService = StatsborgerskapService(integrasjonClient)
+    private val statsborgerskapService = StatsborgerskapService(integrasjonKlient)
 
     @BeforeEach
     fun setup() {
-        every { integrasjonClient.hentAlleEØSLand() } returns hentKodeverkLand()
+        every { integrasjonKlient.hentAlleEØSLand() } returns hentKodeverkLand()
     }
 
     @Test
     fun `hentLand skal hente returnere landNavn gitt landKode`() {
-        every { integrasjonClient.hentLand("NOR") } returns "Norge"
+        every { integrasjonKlient.hentLand("NOR") } returns "Norge"
 
         val landNavn = statsborgerskapService.hentLand("NOR")
 

@@ -17,7 +17,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.genererEksternReferanseIdForJournalpost
@@ -46,7 +46,7 @@ import java.util.Properties
 
 @Service
 class BrevService(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val loggService: LoggService,
     private val taskService: TaskRepositoryWrapper,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
@@ -316,7 +316,7 @@ class BrevService(
         loggBehandlerRolle: BehandlerRolle,
         manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) {
-        integrasjonClient.distribuerBrev(
+        integrasjonKlient.distribuerBrev(
             journalpostId = journalpostId,
             distribusjonstype = brevMal.distribusjonstype,
             manuellAdresseInfo = manuellAdresseInfo,

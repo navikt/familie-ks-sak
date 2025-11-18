@@ -6,19 +6,19 @@ import no.nav.familie.kontrakter.felles.kodeverk.Bydel
 import no.nav.familie.kontrakter.felles.kodeverk.Fylke
 import no.nav.familie.kontrakter.felles.kodeverk.Kommune
 import no.nav.familie.kontrakter.felles.kodeverk.LandDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class GeografiHierarkiServiceTest {
-    private val integrasjonClient = mockk<IntegrasjonClient>()
-    private val service = GeografiHierarkiService(integrasjonClient)
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
+    private val service = GeografiHierarkiService(integrasjonKlient)
 
     @Test
     fun `returnerer kommunen og bydeler når kommunen har bydeler (Oslo)`() {
         // Arrange
-        every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
+        every { integrasjonKlient.hentFylkerOgKommuner() } returns geografiFixture()
 
         // Act
         val resultat = service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("03")
@@ -33,7 +33,7 @@ class GeografiHierarkiServiceTest {
     @Test
     fun `returnerer kun kommunen når den ikke har bydeler (Moss i Viken)`() {
         // Arrange
-        every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
+        every { integrasjonKlient.hentFylkerOgKommuner() } returns geografiFixture()
 
         // Act
         val resultat = service.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("31")
@@ -46,7 +46,7 @@ class GeografiHierarkiServiceTest {
     @Test
     fun `kaster feil når fylket ikke finnes`() {
         // Arrange
-        every { integrasjonClient.hentFylkerOgKommuner() } returns geografiFixture()
+        every { integrasjonKlient.hentFylkerOgKommuner() } returns geografiFixture()
 
         // Act + Assert
         assertThrows(NoSuchElementException::class.java) {

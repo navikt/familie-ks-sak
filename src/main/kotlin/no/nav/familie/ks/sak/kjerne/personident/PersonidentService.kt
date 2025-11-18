@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import org.slf4j.LoggerFactory
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 class PersonidentService(
     private val personidentRepository: PersonidentRepository,
     private val aktørRepository: AktørRepository,
-    private val pdlClient: PdlClient,
+    private val pdlKlient: PdlKlient,
     private val taskService: TaskRepositoryWrapper,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -94,7 +94,7 @@ class PersonidentService(
     fun hentIdenter(
         personIdent: String,
         historikk: Boolean,
-    ): List<PdlIdent> = pdlClient.hentIdenter(personIdent, historikk)
+    ): List<PdlIdent> = pdlKlient.hentIdenter(personIdent, historikk)
 
     fun opprettTaskForIdentHendelse(nyIdent: PersonIdent) {
         if (identSkalLeggesTil(nyIdent)) {

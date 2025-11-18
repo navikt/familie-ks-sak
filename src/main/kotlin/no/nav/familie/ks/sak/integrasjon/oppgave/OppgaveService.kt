@@ -11,7 +11,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.TilpassArbeidsfordelingService
@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter
 
 @Service
 class OppgaveService(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val oppgaveRepository: OppgaveRepository,
     private val behandlingRepository: BehandlingRepository,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
@@ -85,7 +85,7 @@ class OppgaveService(
                 tilordnetRessurs = tilordnetRessurs?.ident,
             )
 
-        val opprettetOppgaveId = integrasjonClient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
+        val opprettetOppgaveId = integrasjonKlient.opprettOppgave(opprettOppgaveRequest).oppgaveId.toString()
 
         val oppgave = DbOppgave(gsakId = opprettetOppgaveId, behandling = behandling, type = oppgavetype)
         oppgaveRepository.save(oppgave)
@@ -99,7 +99,7 @@ class OppgaveService(
         overstyrFordeling: Boolean = false,
     ): String {
         if (!overstyrFordeling) {
-            val oppgave = integrasjonClient.finnOppgaveMedId(oppgaveId)
+            val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
 
             if (!oppgave.tilordnetRessurs.isNullOrEmpty()) {
                 throw FunksjonellFeil(
@@ -109,7 +109,7 @@ class OppgaveService(
             }
         }
 
-        return integrasjonClient.fordelOppgave(oppgaveId, saksbehandler).oppgaveId.toString()
+        return integrasjonKlient.fordelOppgave(oppgaveId, saksbehandler).oppgaveId.toString()
     }
 
     fun ferdigstillOppgaver(
@@ -121,7 +121,7 @@ class OppgaveService(
 
         oppgaverSomSkalFerdigstilles.forEach {
             try {
-                integrasjonClient.ferdigstillOppgave(it.gsakId.toLong())
+                integrasjonKlient.ferdigstillOppgave(it.gsakId.toLong())
 
                 it.erFerdigstilt = true
                 oppgaveRepository.saveAndFlush(it)
@@ -132,20 +132,20 @@ class OppgaveService(
     }
 
     fun tilbakestillFordelingPåOppgave(oppgaveId: Long): Oppgave {
-        integrasjonClient.fordelOppgave(oppgaveId, null)
-        return integrasjonClient.finnOppgaveMedId(oppgaveId)
+        integrasjonKlient.fordelOppgave(oppgaveId, null)
+        return integrasjonKlient.finnOppgaveMedId(oppgaveId)
     }
 
-    fun hentOppgave(oppgaveId: Long): Oppgave = integrasjonClient.finnOppgaveMedId(oppgaveId)
+    fun hentOppgave(oppgaveId: Long): Oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
 
-    fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto = integrasjonClient.hentOppgaver(finnOppgaveRequest)
+    fun hentOppgaver(finnOppgaveRequest: FinnOppgaveRequest): FinnOppgaveResponseDto = integrasjonKlient.hentOppgaver(finnOppgaveRequest)
 
     fun hentOppgaverSomIkkeErFerdigstilt(behandling: Behandling): List<DbOppgave> = oppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling)
 
     fun ferdigstillOppgave(oppgave: Oppgave) {
         val oppgaveId = oppgave.id
         requireNotNull(oppgaveId) { "Oppgaven må ha en id for å kunne ferdigstilles" }
-        integrasjonClient.ferdigstillOppgave(oppgaveId)
+        integrasjonKlient.ferdigstillOppgave(oppgaveId)
     }
 
     fun settNyFristÅpneOppgaverPåBehandling(
@@ -170,7 +170,7 @@ class OppgaveService(
 
                 else -> {
                     val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
-                    integrasjonClient.oppdaterOppgave(oppgaveOppdatering)
+                    integrasjonKlient.oppdaterOppgave(oppgaveOppdatering)
                 }
             }
         }
@@ -193,7 +193,7 @@ class OppgaveService(
 
                 else -> {
                     val oppgaveOppdatering = gammelOppgave.copy(fristFerdigstillelse = nyFrist.toString())
-                    integrasjonClient.oppdaterOppgave(oppgaveOppdatering = oppgaveOppdatering)
+                    integrasjonKlient.oppdaterOppgave(oppgaveOppdatering = oppgaveOppdatering)
                 }
             }
         }
@@ -206,7 +206,7 @@ class OppgaveService(
         hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
             val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
             logger.info("Oppdaterer enhet fra ${oppgave.tildeltEnhetsnr} til $nyEnhet på oppgave ${oppgave.id}")
-            integrasjonClient.tilordneEnhetOgRessursForOppgave(oppgaveId = oppgave.id!!, nyEnhet = nyEnhet)
+            integrasjonKlient.tilordneEnhetOgRessursForOppgave(oppgaveId = oppgave.id!!, nyEnhet = nyEnhet)
         }
     }
 
@@ -214,7 +214,7 @@ class OppgaveService(
         behandling: Behandling,
     ) = hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
         val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
-        integrasjonClient.oppdaterOppgave(oppgave.copy(behandlingstype = behandling.kategori.tilOppgavebehandlingType().value))
+        integrasjonKlient.oppdaterOppgave(oppgave.copy(behandlingstype = behandling.kategori.tilOppgavebehandlingType().value))
     }
 
     private fun lagOppgaveTekst(

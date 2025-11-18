@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.kodeverk.BetydningDto
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
@@ -13,9 +13,9 @@ import java.time.LocalDate
 
 @Service
 class StatsborgerskapService(
-    val integrasjonClient: IntegrasjonClient,
+    val integrasjonKlient: IntegrasjonKlient,
 ) {
-    fun hentLand(landkode: String): String = integrasjonClient.hentLand(landkode)
+    fun hentLand(landkode: String): String = integrasjonKlient.hentLand(landkode)
 
     fun hentStatsborgerskapMedMedlemskap(
         statsborgerskap: Statsborgerskap,
@@ -37,7 +37,7 @@ class StatsborgerskapService(
         }
 
         val eøsMedlemskapsPerioderForValgtLand =
-            integrasjonClient.hentAlleEØSLand().betydninger[statsborgerskap.land] ?: emptyList()
+            integrasjonKlient.hentAlleEØSLand().betydninger[statsborgerskap.land] ?: emptyList()
 
         val datoFra = statsborgerskap.hentFom()
 

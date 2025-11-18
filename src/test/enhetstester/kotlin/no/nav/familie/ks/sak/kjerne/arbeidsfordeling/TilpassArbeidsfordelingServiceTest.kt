@@ -5,7 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.SYSTEM_FORKORTELSE
 import org.assertj.core.api.Assertions.assertThat
@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class TilpassArbeidsfordelingServiceTest {
-    private val mockedIntegrasjonClient: IntegrasjonClient = mockk()
+    private val mockedIntegrasjonKlient: IntegrasjonKlient = mockk()
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService =
         TilpassArbeidsfordelingService(
-            integrasjonClient = mockedIntegrasjonClient,
+            integrasjonKlient = mockedIntegrasjonKlient,
         )
 
     @Nested
@@ -62,7 +62,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns emptyList()
@@ -86,7 +86,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -115,7 +115,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.MIDLERTIDIG_ENHET)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -161,7 +161,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -191,7 +191,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -237,7 +237,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.DRAMMEN)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns emptyList()
@@ -265,7 +265,7 @@ class TilpassArbeidsfordelingServiceTest {
                 )
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -295,7 +295,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.STEINKJER)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -324,7 +324,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.OSLO)
 
             every {
-                mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
+                mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(
                     navIdent = navIdent,
                 )
             } returns
@@ -376,7 +376,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
             val navIdent = NavIdent("1")
 
-            every { mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
+            every { mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
                 listOf(
                     KontantstøtteEnhet.VIKAFOSSEN,
                 )
@@ -394,7 +394,7 @@ class TilpassArbeidsfordelingServiceTest {
             val arbeidsfordelingsenhet = Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.VIKAFOSSEN)
             val navIdent = NavIdent("1")
 
-            every { mockedIntegrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
+            every { mockedIntegrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent) } returns
                 listOf(
                     KontantstøtteEnhet.OSLO,
                 )

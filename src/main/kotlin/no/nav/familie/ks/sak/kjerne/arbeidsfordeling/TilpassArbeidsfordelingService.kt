@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.containsExactly
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.SYSTEM_FORKORTELSE
 import org.slf4j.LoggerFactory
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TilpassArbeidsfordelingService(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
 ) {
     private val logger = LoggerFactory.getLogger(TilpassArbeidsfordelingService::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -46,7 +46,7 @@ class TilpassArbeidsfordelingService(
         navIdent: NavIdent?,
     ): Boolean =
         navIdent?.let {
-            integrasjonClient
+            integrasjonKlient
                 .hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
                 .any { it.enhetsnummer == enhetId }
         } ?: false
@@ -109,7 +109,7 @@ class TilpassArbeidsfordelingService(
     }
 
     private fun hentEnheterNavIdentHarTilgangTil(navIdent: NavIdent): List<KontantstøtteEnhet> {
-        val enheterNavIdentHarTilgangTil = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
+        val enheterNavIdentHarTilgangTil = integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent = navIdent)
         if (enheterNavIdentHarTilgangTil.isEmpty()) {
             logger.warn("Nav-Ident har ikke tilgang til noen enheter. Se SecureLogs for detaljer.")
             secureLogger.warn("Nav-Ident $navIdent har ikke tilgang til noen enheter.")

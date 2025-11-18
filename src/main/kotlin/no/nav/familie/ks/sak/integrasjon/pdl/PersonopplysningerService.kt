@@ -19,7 +19,7 @@ import kotlin.collections.getOrDefault
 
 @Service
 class PersonopplysningerService(
-    private val pdlClient: PdlClient,
+    private val pdlKlient: PdlKlient,
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,
 ) {
@@ -97,24 +97,24 @@ class PersonopplysningerService(
         )
     }
 
-    fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING = pdlClient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
+    fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING = pdlKlient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
 
     fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo = tilPersonInfo(hentPersoninfoMedQuery(aktør, PersonInfoQuery.ENKEL))
 
-    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap = pdlClient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
+    fun hentGjeldendeStatsborgerskap(aktør: Aktør): Statsborgerskap = pdlKlient.hentStatsborgerskapUtenHistorikk(aktør).firstOrNull() ?: UKJENT_STATSBORGERSKAP
 
     fun hentLandkodeUtenlandskBostedsadresse(aktør: Aktør): String {
-        val landkode = pdlClient.hentUtenlandskBostedsadresse(aktør)?.landkode
+        val landkode = pdlKlient.hentUtenlandskBostedsadresse(aktør)?.landkode
         return if (landkode.isNullOrEmpty()) UKJENT_LANDKODE else landkode
     }
 
     private fun hentPersoninfoMedQuery(
         aktør: Aktør,
         personInfoQuery: PersonInfoQuery,
-    ): PdlPersonData = pdlClient.hentPerson(aktør, personInfoQuery)
+    ): PdlPersonData = pdlKlient.hentPerson(aktør, personInfoQuery)
 
     fun hentLandkodeAlpha2UtenlandskBostedsadresse(aktør: Aktør): String {
-        val landkode = pdlClient.hentUtenlandskBostedsadresse(aktør)?.landkode
+        val landkode = pdlKlient.hentUtenlandskBostedsadresse(aktør)?.landkode
 
         if (landkode.isNullOrEmpty()) return UKJENT_LANDKODE
 
@@ -130,7 +130,7 @@ class PersonopplysningerService(
     }
 
     fun hentIdenterMedStrengtFortroligAdressebeskyttelse(personIdenter: List<String>): List<String> {
-        val adresseBeskyttelseBolk = pdlClient.hentAdressebeskyttelseBolk(personIdenter)
+        val adresseBeskyttelseBolk = pdlKlient.hentAdressebeskyttelseBolk(personIdenter)
         return adresseBeskyttelseBolk
             .filter { (_, person) ->
                 person.adressebeskyttelse.any { adressebeskyttelse ->
