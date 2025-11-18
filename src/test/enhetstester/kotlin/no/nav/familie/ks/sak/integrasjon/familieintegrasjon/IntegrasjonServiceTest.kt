@@ -9,7 +9,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class IntegrasjonServiceTest {
-    private val integrasjonClient = mockk<IntegrasjonClient>()
-    private val pdlClient = mockk<PdlClient>()
-    private val integrasjonService = IntegrasjonService(integrasjonClient, pdlClient)
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
+    private val pdlKlient = mockk<PdlKlient>()
+    private val integrasjonService = IntegrasjonService(integrasjonKlient, pdlKlient)
 
     @Test
     fun `hentMaskertPersonInfoVedManglendeTilgang skal returnere maskert personinfo hvis SB ikke har tilgang til aktør`() {
@@ -28,15 +28,15 @@ internal class IntegrasjonServiceTest {
 
         every { aktør.aktivFødselsnummer() } returns aktørFnr
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", false))
-        every { pdlClient.hentAdressebeskyttelse(aktør) } returns listOf(Adressebeskyttelse(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND))
+        every { integrasjonKlient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", false))
+        every { pdlKlient.hentAdressebeskyttelse(aktør) } returns listOf(Adressebeskyttelse(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND))
 
         mockBrukerContext()
 
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)!!
 
-        verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
-        verify(exactly = 1) { pdlClient.hentAdressebeskyttelse(aktør) }
+        verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
+        verify(exactly = 1) { pdlKlient.hentAdressebeskyttelse(aktør) }
 
         assertThat(maskertPersonInfo.personIdent, Is("1234567891234"))
         assertThat(maskertPersonInfo.harTilgang, Is(false))
@@ -54,13 +54,13 @@ internal class IntegrasjonServiceTest {
 
         every { aktør.aktivFødselsnummer() } returns aktørFnr
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", true))
+        every { integrasjonKlient.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang("1234567891234", true))
 
         mockBrukerContext()
 
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
 
-        verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
+        verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
 
         assertThat(maskertPersonInfo, Is(nullValue()))
 
@@ -71,11 +71,11 @@ internal class IntegrasjonServiceTest {
     fun `hentJournalpost skal returnere journalpost fra familie-integrasjoner`() {
         val mocketJournalPost = mockk<Journalpost>()
 
-        every { integrasjonClient.hentJournalpost("test") } returns mocketJournalPost
+        every { integrasjonKlient.hentJournalpost("test") } returns mocketJournalPost
 
         val hentetJournalPost = integrasjonService.hentJournalpost("test")
 
-        verify(exactly = 1) { integrasjonClient.hentJournalpost("test") }
+        verify(exactly = 1) { integrasjonKlient.hentJournalpost("test") }
 
         assertThat(hentetJournalPost, Is(mocketJournalPost))
     }
@@ -84,7 +84,7 @@ internal class IntegrasjonServiceTest {
     fun `sjekkTilgangTilPersoner skal sjekke om SB har tilgang til personidenter`() {
         val listeMedIdenter = listOf("Ident1", "Ident2")
 
-        every { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) } returns
+        every { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) } returns
             listOf(
                 Tilgang(
                     "Ident1",
@@ -98,7 +98,7 @@ internal class IntegrasjonServiceTest {
 
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
-        verify(exactly = 1) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
+        verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
         assertThat(tilgang.all { it.begrunnelse == "test" }, Is(true))
@@ -114,7 +114,7 @@ internal class IntegrasjonServiceTest {
 
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
-        verify(exactly = 0) { integrasjonClient.sjekkTilgangTilPersoner(listeMedIdenter) }
+        verify(exactly = 0) { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
 

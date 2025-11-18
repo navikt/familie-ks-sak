@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
@@ -32,7 +32,7 @@ internal class ArbeidsfordelingServiceTest {
 
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
 
-    private val integrasjonClient: IntegrasjonClient = mockk()
+    private val integrasjonKlient: IntegrasjonKlient = mockk()
 
     private val personopplysningerService: PersonopplysningerService = mockk()
 
@@ -48,7 +48,7 @@ internal class ArbeidsfordelingServiceTest {
         ArbeidsfordelingService(
             arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-            integrasjonClient = integrasjonClient,
+            integrasjonKlient = integrasjonKlient,
             personopplysningerService = personopplysningerService,
             oppgaveService = oppgaveService,
             loggService = loggService,
@@ -102,7 +102,7 @@ internal class ArbeidsfordelingServiceTest {
         val mockedArbeidsfordelingPåBehandlingEtterEndring = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
 
         every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns mockedArbeidsfordelingPåBehandling
-        every { integrasjonClient.hentNavKontorEnhet("testId") } returns
+        every { integrasjonKlient.hentNavKontorEnhet("testId") } returns
             NavKontorEnhet(
                 0,
                 "testNavn",
@@ -125,7 +125,7 @@ internal class ArbeidsfordelingServiceTest {
         arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(behandling, endreBehandlendeEnhetDto)
 
         verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) }
-        verify(exactly = 1) { integrasjonClient.hentNavKontorEnhet("testId") }
+        verify(exactly = 1) { integrasjonKlient.hentNavKontorEnhet("testId") }
         verify(exactly = 1) { mockedArbeidsfordelingPåBehandling.copy(0, 0, "testId", "testNavn", true) }
         verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) }
     }
@@ -154,7 +154,7 @@ internal class ArbeidsfordelingServiceTest {
                     .findByBehandlingAndAktiv(behandling.id)
             } returns lagPersonopplysningGrunnlag(søkerPersonIdent = søker.aktør.aktivFødselsnummer())
 
-            every { integrasjonClient.hentBehandlendeEnheter(søker.aktør.aktivFødselsnummer()) } returns
+            every { integrasjonKlient.hentBehandlendeEnheter(søker.aktør.aktivFødselsnummer()) } returns
                 listOf(
                     arbeidsfordelingsenhet,
                 )

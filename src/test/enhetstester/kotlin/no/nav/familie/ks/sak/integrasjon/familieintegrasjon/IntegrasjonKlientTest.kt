@@ -37,23 +37,23 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.web.client.RestOperations
 import java.net.URI
 
-internal class IntegrasjonClientTest {
+internal class IntegrasjonKlientTest {
     private val restOperations: RestOperations = RestTemplateBuilder().build()
-    private lateinit var integrasjonClient: IntegrasjonClient
+    private lateinit var integrasjonKlient: IntegrasjonKlient
     private lateinit var wiremockServerItem: WireMockServer
 
     @BeforeEach
     fun initClass() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonClient = IntegrasjonClient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations)
     }
 
     @AfterEach
     fun tearDown() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonClient = IntegrasjonClient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations)
         unmockkObject(SikkerhetContext)
     }
 
@@ -67,7 +67,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val oppgaver = integrasjonClient.hentOppgaver(FinnOppgaveRequest(Tema.KON))
+        val oppgaver = integrasjonKlient.hentOppgaver(FinnOppgaveRequest(Tema.KON))
 
         // Assert
         assertThat(oppgaver.antallTreffTotalt).isEqualTo(1)
@@ -85,7 +85,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val behandlendeEnheter = integrasjonClient.hentBehandlendeEnheter("testident")
+        val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident")
 
         // Assert
         assertThat(behandlendeEnheter).hasSize(2)
@@ -103,7 +103,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val navKontorEnhet = integrasjonClient.hentNavKontorEnhet("200")
+        val navKontorEnhet = integrasjonKlient.hentNavKontorEnhet("200")
 
         // Assert
         assertThat(navKontorEnhet.enhetId).isEqualTo(200)
@@ -122,7 +122,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val oppgave = integrasjonClient.finnOppgaveMedId(200)
+        val oppgave = integrasjonKlient.finnOppgaveMedId(200)
 
         // Assert
         assertThat(oppgave.id).isEqualTo(200)
@@ -145,7 +145,7 @@ internal class IntegrasjonClientTest {
         every { SikkerhetContext.erSystemKontekst() } returns false
 
         // Act
-        val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
+        val tilgangTilPersonIdent = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
         // Assert
         assertThat(tilgangTilPersonIdent.all { it.harTilgang }).isTrue()
@@ -165,7 +165,7 @@ internal class IntegrasjonClientTest {
         every { SikkerhetContext.erSystemKontekst() } returns false
 
         // Act
-        val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
+        val tilgangTilPersonIdent = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
         assertThat(tilgangTilPersonIdent.all { it.harTilgang }).isFalse()
         assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har ikke tilgang" }).isTrue()
@@ -184,7 +184,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.fordelOppgave(200, saksbehandler)
+        val fordeltOppgave = integrasjonKlient.fordelOppgave(200, saksbehandler)
 
         // Assert
         assertThat(fordeltOppgave.oppgaveId).isEqualTo(200)
@@ -202,7 +202,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.tilordneEnhetOgRessursForOppgave(200, nyEnhet)
+        val fordeltOppgave = integrasjonKlient.tilordneEnhetOgRessursForOppgave(200, nyEnhet)
 
         // Assert
         assertThat(fordeltOppgave.oppgaveId).isEqualTo(200)
@@ -220,7 +220,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.leggTilLogiskVedlegg(request, "testid")
+        val fordeltOppgave = integrasjonKlient.leggTilLogiskVedlegg(request, "testid")
 
         // Assert
         assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
@@ -236,7 +236,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.slettLogiskVedlegg("testId", "testDokumentId")
+        val fordeltOppgave = integrasjonKlient.slettLogiskVedlegg("testId", "testDokumentId")
 
         // Assert
         assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
@@ -254,7 +254,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.oppdaterJournalpost(request, "testJournalpostId")
+        val fordeltOppgave = integrasjonKlient.oppdaterJournalpost(request, "testJournalpostId")
 
         // Assert
         assertThat(fordeltOppgave.journalpostId).isEqualTo("oppdatertJournalpostId")
@@ -270,7 +270,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        integrasjonClient.ferdigstillJournalpost("testJournalPost", "testEnhet")
+        integrasjonKlient.ferdigstillJournalpost("testJournalPost", "testEnhet")
     }
 
     @Test
@@ -285,7 +285,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val arkiverDokumentResponse = integrasjonClient.journalførDokument(request)
+        val arkiverDokumentResponse = integrasjonKlient.journalførDokument(request)
 
         assertThat(arkiverDokumentResponse.ferdigstilt).isTrue()
         assertThat(arkiverDokumentResponse.journalpostId).isEqualTo("12345678")
@@ -303,7 +303,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val hentLandKodeRespons = integrasjonClient.hentLand(landKode)
+        val hentLandKodeRespons = integrasjonKlient.hentLand(landKode)
 
         // Assert
         assertThat(hentLandKodeRespons).isEqualTo("Norge")
@@ -319,7 +319,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val bestillingId = integrasjonClient.distribuerBrev("testId", Distribusjonstype.VEDTAK)
+        val bestillingId = integrasjonKlient.distribuerBrev("testId", Distribusjonstype.VEDTAK)
 
         // Assert
         assertThat(bestillingId).isEqualTo("testBestillingId")
@@ -336,7 +336,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val enheter = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent)
+        val enheter = integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent)
 
         // Assert
         assertThat(enheter).hasSize(2)
@@ -360,7 +360,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val tilgangsstyrteJournalposter = integrasjonClient.hentTilgangsstyrteJournalposterForBruker(JournalposterForBrukerRequest(brukerId = Bruker(id = "12345678910", type = BrukerIdType.FNR), antall = 100, tema = listOf(Tema.KON)))
+        val tilgangsstyrteJournalposter = integrasjonKlient.hentTilgangsstyrteJournalposterForBruker(JournalposterForBrukerRequest(brukerId = Bruker(id = "12345678910", type = BrukerIdType.FNR), antall = 100, tema = listOf(Tema.KON)))
 
         // Assert
         assertThat(tilgangsstyrteJournalposter).hasSize(1)
@@ -396,7 +396,7 @@ internal class IntegrasjonClientTest {
             ),
         )
 
-        val journalpost = integrasjonClient.hentJournalpost(journalpostId)
+        val journalpost = integrasjonKlient.hentJournalpost(journalpostId)
         assertThat(journalpost).isNotNull
         assertThat(journalpost.journalpostId).isEqualTo(journalpostId)
         assertThat(journalpost.bruker?.id).isEqualTo(fnr)
@@ -421,7 +421,7 @@ internal class IntegrasjonClientTest {
             ),
         )
 
-        val dokument = integrasjonClient.hentDokumentIJournalpost(journalpostId = journalpostId, dokumentId = dokumentId)
+        val dokument = integrasjonKlient.hentDokumentIJournalpost(journalpostId = journalpostId, dokumentId = dokumentId)
         assertThat(dokument).isNotNull
         assertThat(dokument.decodeToString()).isEqualTo("Test")
 

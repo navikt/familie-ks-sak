@@ -11,7 +11,7 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.infotrygd.BarnDto
 import no.nav.familie.ks.sak.integrasjon.infotrygd.Foedselsnummer
-import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaKlient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InnsynResponse
 import no.nav.familie.ks.sak.integrasjon.infotrygd.StonadDto
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
@@ -33,7 +33,7 @@ internal class BisysServiceTest {
     private val behandlingService = mockk<BehandlingService>()
     private val personidentService = mockk<PersonidentService>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
-    private val infotrygdReplikaClient = mockk<InfotrygdReplikaClient>()
+    private val infotrygdReplikaKlient = mockk<InfotrygdReplikaKlient>()
 
     private val bisysService =
         BisysService(
@@ -41,7 +41,7 @@ internal class BisysServiceTest {
             behandlingService = behandlingService,
             personidentService = personidentService,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
-            infotrygdReplikaClient = infotrygdReplikaClient,
+            infotrygdReplikaKlient = infotrygdReplikaKlient,
         )
 
     private val barn1IKsSak = randomFnr()
@@ -91,7 +91,7 @@ internal class BisysServiceTest {
     @Test
     fun `hentUtbetalingsinfo skal hente utbetalingsinfo fra både ks-sak og infotrygd`() {
         every {
-            infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+            infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns
             InnsynResponse(
                 data =
@@ -147,7 +147,7 @@ internal class BisysServiceTest {
     @Test
     fun `hentUtbetalingsinfo skal hente utbetalingsinfo kun fra ks-sak`() {
         every {
-            infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+            infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns InnsynResponse(data = emptyList())
 
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), barnIdenter)
@@ -171,7 +171,7 @@ internal class BisysServiceTest {
     @Test
     fun `hentUtbetalingsinfo skal hente utbetalingsinfo fra både ks-sak og infotrygd og filtrere på fomdato`() {
         every {
-            infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+            infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns
             InnsynResponse(
                 data =
@@ -222,7 +222,7 @@ internal class BisysServiceTest {
     @Test
     fun `hentUtbetalingsinfo filtrerer vekk identer med bare NPID`() {
         every {
-            infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
+            infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns InnsynResponse(data = emptyList())
         every { personidentService.hentIdenter(any(), false) } returns listOf(PdlIdent("NPID", false, Type.NPID.name))
 

@@ -9,7 +9,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.log.mdc.MDCConstants
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class UtgåendeJournalføringService(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
 ) {
     fun journalførDokument(
         fnr: String,
@@ -37,7 +37,7 @@ class UtgåendeJournalføringService(
         val journalpostId =
             try {
                 val journalpost =
-                    integrasjonClient.journalførDokument(
+                    integrasjonKlient.journalførDokument(
                         ArkiverDokumentRequest(
                             fnr = fnr,
                             forsøkFerdigstill = true,
@@ -77,7 +77,7 @@ class UtgåendeJournalføringService(
         eksternReferanseId: String,
         fnr: String,
     ): String =
-        integrasjonClient
+        integrasjonKlient
             .hentJournalposterForBruker(
                 JournalposterForBrukerRequest(
                     brukerId = Bruker(id = fnr, type = BrukerIdType.FNR),

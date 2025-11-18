@@ -36,7 +36,7 @@ import org.springframework.web.client.RestOperations
 import java.net.URI
 
 @Service
-class PdlClient(
+class PdlKlient(
     pdlConfig: PdlConfig,
     @Qualifier("jwtBearerClientCredential") val restTemplate: RestOperations,
 ) : AbstractPingableRestClient(restTemplate, "pdl.personinfo") {

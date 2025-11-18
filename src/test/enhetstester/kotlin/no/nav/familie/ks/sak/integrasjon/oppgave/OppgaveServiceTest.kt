@@ -16,7 +16,7 @@ import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.DbOppgave
 import no.nav.familie.ks.sak.integrasjon.oppgave.domene.OppgaveRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
@@ -32,14 +32,14 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class OppgaveServiceTest {
-    private val mockedIntegrasjonClient: IntegrasjonClient = mockk()
+    private val mockedIntegrasjonKlient: IntegrasjonKlient = mockk()
     private val mockedOppgaveRepository: OppgaveRepository = mockk()
     private val mockedBehandlingRepository: BehandlingRepository = mockk()
     private val mockedTilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
     private val mockedArbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository = mockk()
     private val oppgaveService: OppgaveService =
         OppgaveService(
-            integrasjonClient = mockedIntegrasjonClient,
+            integrasjonKlient = mockedIntegrasjonKlient,
             oppgaveRepository = mockedOppgaveRepository,
             behandlingRepository = mockedBehandlingRepository,
             tilpassArbeidsfordelingService = mockedTilpassArbeidsfordelingService,
@@ -105,7 +105,7 @@ class OppgaveServiceTest {
 
             val opprettOppgaveRequestSlot = slot<OpprettOppgaveRequest>()
             every {
-                mockedIntegrasjonClient.opprettOppgave(
+                mockedIntegrasjonKlient.opprettOppgave(
                     capture(opprettOppgaveRequestSlot),
                 )
             } returns OppgaveResponse(oppgaveId = oppgaveId)
@@ -200,7 +200,7 @@ class OppgaveServiceTest {
 
             val opprettOppgaveRequestSlot = slot<OpprettOppgaveRequest>()
             every {
-                mockedIntegrasjonClient.opprettOppgave(
+                mockedIntegrasjonKlient.opprettOppgave(
                     capture(opprettOppgaveRequestSlot),
                 )
             } returns OppgaveResponse(oppgaveId = oppgaveId)
@@ -253,18 +253,18 @@ class OppgaveServiceTest {
             val oppdaterteOppgaveList = mutableListOf<Oppgave>()
 
             every { mockedOppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling) } returns listOf(dbOppgave1, dbOppgave2)
-            every { mockedIntegrasjonClient.finnOppgaveMedId(1) } returns oppgave1
-            every { mockedIntegrasjonClient.finnOppgaveMedId(2) } returns oppgave2
-            every { mockedIntegrasjonClient.oppdaterOppgave(capture(oppdaterteOppgaveList)) } just runs
+            every { mockedIntegrasjonKlient.finnOppgaveMedId(1) } returns oppgave1
+            every { mockedIntegrasjonKlient.finnOppgaveMedId(2) } returns oppgave2
+            every { mockedIntegrasjonKlient.oppdaterOppgave(capture(oppdaterteOppgaveList)) } just runs
 
             // Act
             oppgaveService.oppdaterBehandlingstypePåOppgaverFraBehandling(behandling)
 
             // Assert
             verify(exactly = 1) { mockedOppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling) }
-            verify(exactly = 1) { mockedIntegrasjonClient.finnOppgaveMedId(1) }
-            verify(exactly = 1) { mockedIntegrasjonClient.finnOppgaveMedId(2) }
-            verify(exactly = 2) { mockedIntegrasjonClient.oppdaterOppgave(any()) }
+            verify(exactly = 1) { mockedIntegrasjonKlient.finnOppgaveMedId(1) }
+            verify(exactly = 1) { mockedIntegrasjonKlient.finnOppgaveMedId(2) }
+            verify(exactly = 2) { mockedIntegrasjonKlient.oppdaterOppgave(any()) }
 
             assertThat(oppdaterteOppgaveList.all { it.behandlingstype == "EØS" })
         }

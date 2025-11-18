@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.personident
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -24,7 +24,7 @@ import java.time.LocalDateTime
 class PatchMergetIdentTask(
     private val personidentService: PersonidentService,
     private val persongrunnlagService: PersonopplysningGrunnlagService,
-    private val pdlIdentRestClient: PdlClient,
+    private val pdlIdentRestClient: PdlKlient,
     private val aktørIdRepository: AktørRepository,
     private val personidentRepository: PersonidentRepository,
     private val aktørMergeLoggRepository: AktørMergeLoggRepository,

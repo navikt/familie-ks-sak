@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
@@ -37,7 +37,7 @@ class BrevPeriodeService(
     val vedtaksperiodeHentOgPersisterService: VedtaksperiodeHentOgPersisterService,
     val vedtaksperiodeService: VedtaksperiodeService,
     val kompetanseService: KompetanseService,
-    val integrasjonClient: IntegrasjonClient,
+    val integrasjonKlient: IntegrasjonKlient,
     private val adopsjonService: AdopsjonService,
 ) {
     fun hentBegrunnelsesteksterForPeriode(vedtaksperiodeId: Long): List<BegrunnelseDto> {
@@ -90,7 +90,7 @@ class BrevPeriodeService(
                         søknadGrunnlagService.finnAktiv(behandlingId)?.hentUregistrerteBarn()
                             ?: emptyList(),
                     kompetanser = kompetanser.map { it.tilIKompetanse() }.filterIsInstance<UtfyltKompetanse>(),
-                    landkoder = integrasjonClient.hentLandkoderISO2(),
+                    landkoder = integrasjonKlient.hentLandkoderISO2(),
                     erFørsteVedtaksperiode = erFørsteVedtaksperiodePåFagsak,
                     overgangsordningAndeler = overgangsordningAndelService.hentOvergangsordningAndeler(behandlingId),
                     adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId)),

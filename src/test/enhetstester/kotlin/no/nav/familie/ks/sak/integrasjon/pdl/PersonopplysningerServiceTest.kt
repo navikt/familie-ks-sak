@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class PersonopplysningerServiceTest {
-    private val pdlClient = mockk<PdlClient>()
+    private val pdlKlient = mockk<PdlKlient>()
     private val integrasjonService = mockk<IntegrasjonService>(relaxed = true)
     private val personidentService = mockk<PersonidentService>()
-    private val personopplysningerService = PersonopplysningerService(pdlClient, integrasjonService, personidentService)
+    private val personopplysningerService = PersonopplysningerService(pdlKlient, integrasjonService, personidentService)
 
     @Nested
     inner class HentPersonInfoMedRelasjonerOgRegisterinformasjon {
@@ -57,11 +57,11 @@ class PersonopplysningerServiceTest {
                     bostedsadresse = emptyList(),
                 )
 
-            every { pdlClient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
+            every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
             every { personidentService.hentAktør(barnIdent.fødselsnummer) } returns barnAktør
             every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnIdent.fødselsnummer, true)
-            every { pdlClient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
-            every { pdlClient.hentAdressebeskyttelse(any()) } returns emptyList()
+            every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
+            every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
 
             // Act
             val pdlPersonInfo = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
@@ -105,11 +105,11 @@ class PersonopplysningerServiceTest {
                     bostedsadresse = emptyList(),
                 )
 
-            every { pdlClient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
+            every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
             every { personidentService.hentAktør(barnIdent.fødselsnummer) } throws PdlPersonKanIkkeBehandlesIFagsystem("test")
             every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnIdent.fødselsnummer, true)
-            every { pdlClient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
-            every { pdlClient.hentAdressebeskyttelse(any()) } returns emptyList()
+            every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
+            every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
 
             // Act
             val pdlPersonInfo = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
@@ -147,11 +147,11 @@ class PersonopplysningerServiceTest {
                     bostedsadresse = emptyList(),
                 )
 
-            every { pdlClient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
+            every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
             every { personidentService.hentAktør(barnAktør.aktivFødselsnummer()) } returns barnAktør
             every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnAktør.aktivFødselsnummer(), true)
-            every { pdlClient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
-            every { pdlClient.hentAdressebeskyttelse(any()) } returns emptyList()
+            every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
+            every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
 
             every {
                 integrasjonService.sjekkErEgenAnsattBulk(match { it.containsAll(listOf(barnAktør.aktivFødselsnummer(), aktør.aktivFødselsnummer())) })

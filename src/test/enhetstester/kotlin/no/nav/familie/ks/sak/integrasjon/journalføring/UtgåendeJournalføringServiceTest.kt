@@ -7,7 +7,7 @@ import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.genererEksternReferanseIdForJournalpost
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
 import org.assertj.core.api.Assertions.assertThat
@@ -20,8 +20,8 @@ import org.springframework.http.HttpStatus
 import java.util.UUID
 
 class UtgåendeJournalføringServiceTest {
-    private val integrasjonClient = mockk<IntegrasjonClient>()
-    private val utgåendeJournalføringService = UtgåendeJournalføringService(integrasjonClient)
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
+    private val utgåendeJournalføringService = UtgåendeJournalføringService(integrasjonKlient)
 
     @Nested
     inner class JournalførDokument {
@@ -29,7 +29,7 @@ class UtgåendeJournalføringServiceTest {
         fun `skal kaste feil hvis ferdigstilling av journalpost ikke var vellykket`() {
             // Arrange
             val mocketResponse = ArkiverDokumentResponse("testId", false, emptyList())
-            every { integrasjonClient.journalførDokument(any()) } returns mocketResponse
+            every { integrasjonKlient.journalførDokument(any()) } returns mocketResponse
 
             // Act & assert
             val exception =
@@ -42,14 +42,14 @@ class UtgåendeJournalføringServiceTest {
                     )
                 }
             assertThat(exception.message).isEqualTo("Klarte ikke ferdigstille journalpost med id testId")
-            verify(exactly = 1) { integrasjonClient.journalførDokument(any()) }
+            verify(exactly = 1) { integrasjonKlient.journalførDokument(any()) }
         }
 
         @Test
         fun `skal returnere journalpostId hvis ferdigstilling er vellykket`() {
             // Arrange
             val mocketResponse = ArkiverDokumentResponse("testId", true, emptyList())
-            every { integrasjonClient.journalførDokument(any()) } returns mocketResponse
+            every { integrasjonKlient.journalførDokument(any()) } returns mocketResponse
 
             // Act
             val journalpostId =
@@ -62,7 +62,7 @@ class UtgåendeJournalføringServiceTest {
 
             // Assert
             assertThat(journalpostId).isEqualTo("testId")
-            verify(exactly = 1) { integrasjonClient.journalførDokument(any()) }
+            verify(exactly = 1) { integrasjonKlient.journalførDokument(any()) }
         }
 
         @Test
@@ -73,8 +73,8 @@ class UtgåendeJournalføringServiceTest {
             val eksternReferanseId = UUID.randomUUID().toString()
             val journalpost = lagJournalpost(personIdent = fnr, journalpostId = journalpostId, eksternReferanseId = eksternReferanseId)
 
-            every { integrasjonClient.journalførDokument(any()) } throws RessursException(mockk(), mockk(), HttpStatus.CONFLICT)
-            every { integrasjonClient.hentJournalposterForBruker(any()) } returns listOf(journalpost)
+            every { integrasjonKlient.journalførDokument(any()) } throws RessursException(mockk(), mockk(), HttpStatus.CONFLICT)
+            every { integrasjonKlient.hentJournalposterForBruker(any()) } returns listOf(journalpost)
 
             // Act
             val returnertJournalpostId =
@@ -87,8 +87,8 @@ class UtgåendeJournalføringServiceTest {
 
             // Assert
             assertThat(returnertJournalpostId).isEqualTo(journalpostId)
-            verify(exactly = 1) { integrasjonClient.journalførDokument(any()) }
-            verify(exactly = 1) { integrasjonClient.hentJournalposterForBruker(any()) }
+            verify(exactly = 1) { integrasjonKlient.journalførDokument(any()) }
+            verify(exactly = 1) { integrasjonKlient.hentJournalposterForBruker(any()) }
         }
     }
 

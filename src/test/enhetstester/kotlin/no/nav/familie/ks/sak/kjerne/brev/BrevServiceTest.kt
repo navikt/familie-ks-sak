@@ -26,7 +26,7 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.shouldNotBeNull
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -62,7 +62,7 @@ class BrevServiceTest {
     private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
     private val behandlingRepository = mockk<BehandlingRepository>()
     private val journalføringRepository = mockk<JournalføringRepository>()
-    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
     private val loggService = mockk<LoggService>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val settBehandlingPåVentService = mockk<SettBehandlingPåVentService>(relaxed = true)
@@ -79,7 +79,7 @@ class BrevServiceTest {
 
     private val brevService =
         BrevService(
-            integrasjonClient = integrasjonClient,
+            integrasjonKlient = integrasjonKlient,
             loggService = loggService,
             taskService = taskService,
             personopplysningGrunnlagService = personopplysningGrunnlagService,

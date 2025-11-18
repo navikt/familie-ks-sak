@@ -27,7 +27,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
@@ -73,7 +73,7 @@ import java.util.UUID
 @Validated
 class ForvaltningController(
     private val tilgangService: TilgangService,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val sakStatistikkService: SakStatistikkService,
     private val stønadsstatistikkService: StønadsstatistikkService,
     private val taskService: TaskRepositoryWrapper,
@@ -114,7 +114,7 @@ class ForvaltningController(
                         ),
                     ),
             )
-        val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
+        val journalførDokumentResponse = integrasjonKlient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
     }
 
@@ -141,7 +141,7 @@ class ForvaltningController(
                 behandlingstype = opprettOppgaveDto.behandlingstype,
                 tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs,
             )
-        integrasjonClient.opprettOppgave(opprettOppgaveRequest)
+        integrasjonKlient.opprettOppgave(opprettOppgaveRequest)
         return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
     }
 

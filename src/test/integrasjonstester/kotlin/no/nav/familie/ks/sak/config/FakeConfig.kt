@@ -3,12 +3,12 @@ package no.nav.familie.ks.sak.config
 import no.nav.familie.ks.sak.fake.FakeBrevKlient
 import no.nav.familie.ks.sak.fake.FakeFeatureToggleService
 import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
-import no.nav.familie.ks.sak.fake.FakePdlClient
+import no.nav.familie.ks.sak.fake.FakePdlKlient
 import no.nav.familie.ks.sak.fake.FakePersonopplysningerService
 import no.nav.familie.ks.sak.fake.FakeTaskRepositoryWrapper
 import no.nav.familie.ks.sak.fake.FakeTilbakekrevingKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -35,18 +35,18 @@ class FakeConfig {
     @Bean
     @Primary
     @Profile("fake-pdl-klient")
-    fun fakePdlClient(restOperations: RestOperations): FakePdlClient = FakePdlClient(restOperations)
+    fun fakePdlClient(restOperations: RestOperations): FakePdlKlient = FakePdlKlient(restOperations)
 
     @Bean
     @Primary
     @Profile("mock-pdl")
     fun fakePersonopplysningerService(
-        pdlClient: PdlClient,
+        pdlKlient: PdlKlient,
         integrasjonService: IntegrasjonService,
         personidentService: PersonidentService,
     ): FakePersonopplysningerService =
         FakePersonopplysningerService(
-            pdlClient = pdlClient,
+            pdlKlient = pdlKlient,
             integrasjonService = integrasjonService,
             personidentService = personidentService,
         )

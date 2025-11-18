@@ -14,7 +14,7 @@ import no.nav.familie.ks.sak.data.lagSanityBegrunnelse
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -67,7 +67,7 @@ internal class VedtaksperiodeServiceTest {
     private val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
     private val sanityService = mockk<SanityService>()
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService = mockk<AndelerTilkjentYtelseOgEndreteUtbetalingerService>()
-    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
     private val refusjonEøsRepository = mockk<RefusjonEøsRepository>()
     private val kompetanseService = mockk<KompetanseService>(relaxed = true)
     private val adopsjonService = mockk<AdopsjonService>()
@@ -86,7 +86,7 @@ internal class VedtaksperiodeServiceTest {
             overgangsordningAndelService = overgangsordningAndelService,
             sanityService = sanityService,
             andelerTilkjentYtelseOgEndreteUtbetalingerService = andelerTilkjentYtelseOgEndreteUtbetalingerService,
-            integrasjonClient = integrasjonClient,
+            integrasjonKlient = integrasjonKlient,
             refusjonEøsRepository = refusjonEøsRepository,
             kompetanseService = kompetanseService,
             adopsjonService = adopsjonService,
@@ -645,7 +645,7 @@ internal class VedtaksperiodeServiceTest {
     @Test
     fun `skal beskrive perioder med eøs refusjoner for behandlinger med avklarte refusjon eøs`() {
         every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
-        every { integrasjonClient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
+        every { integrasjonKlient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
         every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
 
         val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
@@ -678,7 +678,7 @@ internal class VedtaksperiodeServiceTest {
     @Test
     fun `skal beskrive perioder med eøs refusjoner for behandlinger med uavklarte refusjon eøs`() {
         every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
-        every { integrasjonClient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
+        every { integrasjonKlient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
         every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
 
         val behandling = lagBehandling(kategori = BehandlingKategori.EØS)

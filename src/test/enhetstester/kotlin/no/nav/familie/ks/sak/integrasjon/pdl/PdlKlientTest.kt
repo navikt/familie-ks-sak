@@ -17,16 +17,16 @@ import org.springframework.web.client.RestOperations
 import java.net.URI
 import org.hamcrest.CoreMatchers.`is` as Is
 
-internal class PdlClientTest {
+internal class PdlKlientTest {
     private val restOperations: RestOperations = RestTemplateBuilder().build()
-    private lateinit var pdlClient: PdlClient
+    private lateinit var pdlKlient: PdlKlient
     private lateinit var wiremockServerItem: WireMockServer
 
     @BeforeEach
     fun initClass() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        pdlClient = PdlClient(PdlConfig(URI.create(wiremockServerItem.baseUrl())), restOperations)
+        pdlKlient = PdlKlient(PdlConfig(URI.create(wiremockServerItem.baseUrl())), restOperations)
     }
 
     @Test
@@ -39,7 +39,7 @@ internal class PdlClientTest {
 
         val randomAktør = randomAktør()
 
-        val pdlPersonData = pdlClient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
+        val pdlPersonData = pdlKlient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
 
         assertThat(pdlPersonData.navn.single().fulltNavn(), Is("ENGASJERT FYR"))
         assertThat(pdlPersonData.kjoenn.single().kjoenn, Is(KJOENN.MANN))
@@ -57,7 +57,7 @@ internal class PdlClientTest {
 
         val feil =
             assertThrows<PdlNotFoundException> {
-                pdlClient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
+                pdlKlient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
             }
 
         assertThat(
