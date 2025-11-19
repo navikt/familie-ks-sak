@@ -56,11 +56,11 @@ class PorteføljejusteringFlyttOppgaveTask(
         val nyMappeId =
             oppgave.mappeId?.let {
                 hentMappeIdHosBergenSomTilsvarerMappeIVadsø(
-                    it.toInt(),
+                    it,
                 )
             }
 
-        val skalOppdatereEnhetEllerMappe = nyMappeId != oppgave.mappeId?.toInt() || nyEnhetId != oppgave.tildeltEnhetsnr
+        val skalOppdatereEnhetEllerMappe = nyMappeId != oppgave.mappeId?.toString() || nyEnhetId != oppgave.tildeltEnhetsnr
 
         if (skalOppdatereEnhetEllerMappe) { // Vi oppdaterer bare hvis det er forskjell på enhet eller mappe. Kaster ikke feil grunnet ønsket om idempotens.
             integrasjonKlient.tilordneEnhetOgMappeForOppgave(
