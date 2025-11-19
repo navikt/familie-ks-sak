@@ -9,6 +9,8 @@ import no.nav.familie.ks.sak.data.lagRelatertBehandling
 import no.nav.familie.ks.sak.data.lagToTrinnskontroll
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -24,7 +26,7 @@ class SakStatistikkServiceTest {
     private val fagsakRepository = mockk<FagsakRepository>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val totrinnskontrollService = mockk<TotrinnskontrollService>()
-    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val arbeidsfordelingPåBehandlingRepository = mockk<ArbeidsfordelingPåBehandlingRepository>()
     private val fagsakService = mockk<FagsakService>()
     private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
     private val personopplysningService = mockk<PersonopplysningerService>()
@@ -35,7 +37,7 @@ class SakStatistikkServiceTest {
             fagsakRepository = fagsakRepository,
             taskService = taskService,
             totrinnskontrollService = totrinnskontrollService,
-            arbeidsfordelingService = arbeidsfordelingService,
+            arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
             fagsakService = fagsakService,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             personopplysningService = personopplysningService,
@@ -55,7 +57,7 @@ class SakStatistikkServiceTest {
             val relatertBehandling = lagRelatertBehandling()
 
             every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
-            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
+            every { arbeidsfordelingPåBehandlingRepository.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
             every { totrinnskontrollService.finnAktivForBehandling(behandlingId) } returns totrinnskontroll
             every { relatertBehandlingUtleder.utledRelatertBehandling(behandling) } returns relatertBehandling
 
@@ -97,7 +99,7 @@ class SakStatistikkServiceTest {
             val totrinnskontroll = lagToTrinnskontroll(behandling = behandling)
 
             every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
-            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
+            every { arbeidsfordelingPåBehandlingRepository.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
             every { totrinnskontrollService.finnAktivForBehandling(behandlingId) } returns totrinnskontroll
             every { relatertBehandlingUtleder.utledRelatertBehandling(behandling) } returns null
 

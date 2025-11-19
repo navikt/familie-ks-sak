@@ -98,6 +98,7 @@ class ForvaltningController(
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
+    @PostMapping("/journalfør-søknad/{fnr}")
     fun opprettJournalføringOppgave(
         @PathVariable fnr: String,
     ): ResponseEntity<Ressurs<String>> {

@@ -25,6 +25,7 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -47,6 +48,8 @@ internal class ArbeidsfordelingServiceTest {
 
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService = mockk()
 
+    private val sakStatistikkService: SakStatistikkService = mockk()
+
     private val arbeidsfordelingService: ArbeidsfordelingService =
         ArbeidsfordelingService(
             arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
@@ -57,6 +60,7 @@ internal class ArbeidsfordelingServiceTest {
             loggService = loggService,
             personidentService = personidentService,
             tilpassArbeidsfordelingService = tilpassArbeidsfordelingService,
+            sakStatistikkService = sakStatistikkService,
         )
 
     @Test
@@ -243,6 +247,8 @@ internal class ArbeidsfordelingServiceTest {
                 )
             } just runs
 
+            every { sakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandling.id) } just runs
+
             // Act
             arbeidsfordelingService.oppdaterBehandlendeEnhetPåBehandlingIForbindelseMedPorteføljejustering(
                 behandling = behandling,
@@ -265,6 +271,7 @@ internal class ArbeidsfordelingServiceTest {
                     begrunnelse = "Porteføljejustering",
                 )
             }
+            verify(exactly = 1) { sakStatistikkService.sendMeldingOmManuellEndringAvBehandlendeEnhet(behandling.id) }
         }
     }
 }
