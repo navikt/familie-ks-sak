@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService.Companion.TIMEZONE
 import org.assertj.core.api.Assertions.assertThat
@@ -28,7 +29,7 @@ class SakStatistikkServiceTest {
     private val totrinnskontrollService = mockk<TotrinnskontrollService>()
     private val arbeidsfordelingPåBehandlingRepository = mockk<ArbeidsfordelingPåBehandlingRepository>()
     private val fagsakService = mockk<FagsakService>()
-    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     private val personopplysningService = mockk<PersonopplysningerService>()
     private val relatertBehandlingUtleder = mockk<RelatertBehandlingUtleder>()
     private val sakStatistikkService =
@@ -39,7 +40,7 @@ class SakStatistikkServiceTest {
             totrinnskontrollService = totrinnskontrollService,
             arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
             fagsakService = fagsakService,
-            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
             personopplysningService = personopplysningService,
             relatertBehandlingUtleder = relatertBehandlingUtleder,
         )
