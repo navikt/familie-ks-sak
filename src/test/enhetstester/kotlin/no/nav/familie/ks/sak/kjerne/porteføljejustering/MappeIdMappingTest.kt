@@ -17,8 +17,8 @@ class MappeIdMappingTest {
         "100012695, 100012765",
     )
     fun `skal returnere korrekt mappe id for Bergen når mappe id fra Vadsø finnes i mapping`(
-        mappeIdVadsø: Int,
-        forventetMappeIdBergen: Int,
+        mappeIdVadsø: Long,
+        forventetMappeIdBergen: String,
     ) {
         // Act
         val result = hentMappeIdHosBergenSomTilsvarerMappeIVadsø(mappeIdVadsø)
@@ -30,7 +30,7 @@ class MappeIdMappingTest {
     @Test
     fun `skal kaste Feil når mappe id fra Vadsø ikke finnes i mapping`() {
         // Arrange
-        val ugyldigMappeIdVadsø = 999999
+        val ugyldigMappeIdVadsø = 999999L
 
         // Act & Assert
         val feil =
