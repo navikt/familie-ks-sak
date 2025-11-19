@@ -8,7 +8,7 @@ import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomAktørId
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -18,14 +18,14 @@ import org.junit.jupiter.api.assertThrows
 class PersonidentServiceTest {
     private val personidentRepository = mockk<PersonidentRepository>()
     private val aktørRepository = mockk<AktørRepository>()
-    private val pdlClient = mockk<PdlClient>()
+    private val pdlKlient = mockk<PdlKlient>()
     private val taskService = mockk<TaskRepositoryWrapper>()
 
     private val personidentService =
         PersonidentService(
             personidentRepository = personidentRepository,
             aktørRepository = aktørRepository,
-            pdlClient = pdlClient,
+            pdlKlient = pdlKlient,
             taskService = taskService,
         )
 
@@ -61,7 +61,7 @@ class PersonidentServiceTest {
         every { personidentRepository.findByFødselsnummerOrNull(fødselsnummer) } returns null
         every { personidentRepository.findByFødselsnummerOrNull(pdlFødselsnummer) } returns personident
         every { aktørRepository.findByAktørId(fødselsnummer) } returns null
-        every { pdlClient.hentIdenter(any(), false) } returns listOf(pdlIdent)
+        every { pdlKlient.hentIdenter(any(), false) } returns listOf(pdlIdent)
 
         val hentetAktør = personidentService.hentOgLagreAktør(fødselsnummer, true)
 
@@ -85,7 +85,7 @@ class PersonidentServiceTest {
         every { aktørRepository.findByAktørId(pdlAktør.aktørId) } returns pdlAktør
         every { aktørRepository.saveAndFlush(pdlAktør) } returns pdlAktør
         every { aktørRepository.saveAndFlush(pdlAktørMedPersonIdent) } returns pdlAktørMedPersonIdent
-        every { pdlClient.hentIdenter(any(), false) } returns listOf(personIdentPDL, aktørIdentPDL)
+        every { pdlKlient.hentIdenter(any(), false) } returns listOf(personIdentPDL, aktørIdentPDL)
 
         val hentetAktør = personidentService.hentOgLagreAktør(fødselsnummer, true)
 
@@ -114,7 +114,7 @@ class PersonidentServiceTest {
         every { personidentRepository.findByFødselsnummerOrNull(pdlFødselsnummer) } returns null
         every { aktørRepository.findByAktørId(fødselsnummer) } returns null
         every { aktørRepository.findByAktørId(pdlAktør.aktørId) } returns null
-        every { pdlClient.hentIdenter(any(), false) } returns listOf(personIdentPDL, aktørIdentPDL)
+        every { pdlKlient.hentIdenter(any(), false) } returns listOf(personIdentPDL, aktørIdentPDL)
         every { aktørRepository.saveAndFlush(pdlAktørMedPersonIdent) } returns pdlAktørMedPersonIdent
 
         val hentetAktør = personidentService.hentOgLagreAktør(fødselsnummer, true)

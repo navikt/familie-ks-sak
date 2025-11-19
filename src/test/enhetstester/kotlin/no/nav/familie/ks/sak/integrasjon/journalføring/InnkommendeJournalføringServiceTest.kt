@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagMinimalFagsakResponsDto
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringBehandlingstype
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
@@ -35,7 +35,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class InnkommendeJournalføringServiceTest {
-    private val integrasjonClient: IntegrasjonClient = mockk()
+    private val integrasjonKlient: IntegrasjonKlient = mockk()
     private val fagsakService: FagsakService = mockk()
     private val behandlingService: BehandlingService = mockk()
     private val opprettBehandlingService: OpprettBehandlingService = mockk()
@@ -45,7 +45,7 @@ class InnkommendeJournalføringServiceTest {
     private val klageService: KlageService = mockk()
     private val innkommendeJournalføringService: InnkommendeJournalføringService =
         InnkommendeJournalføringService(
-            integrasjonClient = integrasjonClient,
+            integrasjonKlient = integrasjonKlient,
             fagsakService = fagsakService,
             opprettBehandlingService = opprettBehandlingService,
             behandlingService = behandlingService,
@@ -63,7 +63,7 @@ class InnkommendeJournalføringServiceTest {
         val tilgangsstyrteJournalposter = listOf(lagTilgangsstyrtJournalpost(personIdent = brukerId, journalpostId = journalpostId, harTilgang = true))
 
         every {
-            integrasjonClient.hentTilgangsstyrteJournalposterForBruker(
+            integrasjonKlient.hentTilgangsstyrteJournalposterForBruker(
                 JournalposterForBrukerRequest(
                     antall = 1000,
                     brukerId = Bruker(id = brukerId, type = BrukerIdType.FNR),
@@ -131,17 +131,17 @@ class InnkommendeJournalføringServiceTest {
         every { fagsakService.hentEllerOpprettFagsak(any()) } returns minimalFagsakResponsDto
         every { opprettBehandlingService.opprettBehandling(any()) } returns nyBehandling
         every { behandlingService.hentBehandling(gammelBehandling.id) } returns gammelBehandling
-        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
+        every { integrasjonKlient.hentJournalpost("journalpostId") } returns journalpost
         every { journalføringRepository.save(any()) } returns mockk()
         every { behandlingSøknadsinfoService.lagreNedSøknadsinfo(any(), any()) } just runs
-        every { integrasjonClient.ferdigstillOppgave(any()) } just runs
+        every { integrasjonKlient.ferdigstillOppgave(any()) } just runs
 
         // Act
         val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo(fagsak.id.toString())
-        verify(exactly = 1) { integrasjonClient.ferdigstillOppgave(any()) }
+        verify(exactly = 1) { integrasjonKlient.ferdigstillOppgave(any()) }
         verify(exactly = 1) { opprettBehandlingService.opprettBehandling(any()) }
         verify(exactly = 2) { journalføringRepository.save(any()) }
     }
@@ -188,17 +188,17 @@ class InnkommendeJournalføringServiceTest {
         every { fagsakService.hentEllerOpprettFagsak(any()) } returns minimalFagsakResponsDto
         every { opprettBehandlingService.opprettBehandling(any()) } returns mockk()
         every { behandlingService.hentBehandling(gammelBehandling.id) } returns gammelBehandling
-        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
+        every { integrasjonKlient.hentJournalpost("journalpostId") } returns journalpost
         every { journalføringRepository.save(any()) } returns mockk()
         every { behandlingSøknadsinfoService.lagreNedSøknadsinfo(any(), any()) } just runs
-        every { integrasjonClient.ferdigstillOppgave(any()) } just runs
+        every { integrasjonKlient.ferdigstillOppgave(any()) } just runs
 
         // Act
         val faktiskFagsakId = innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)
 
         // Assert
         assertThat(faktiskFagsakId).isEqualTo(fagsak.id.toString())
-        verify(exactly = 1) { integrasjonClient.ferdigstillOppgave(any()) }
+        verify(exactly = 1) { integrasjonKlient.ferdigstillOppgave(any()) }
         verify(exactly = 0) { opprettBehandlingService.opprettBehandling(any()) }
         verify(exactly = 1) { journalføringRepository.save(any()) }
     }
@@ -241,9 +241,9 @@ class InnkommendeJournalføringServiceTest {
             )
 
         every { fagsakService.hentEllerOpprettFagsak(any()) } returns minimalFagsakResponsDto
-        every { integrasjonClient.hentJournalpost("journalpostId") } returns journalpost
+        every { integrasjonKlient.hentJournalpost("journalpostId") } returns journalpost
         every { klageService.opprettKlage(fagsak.id, capture(klageDatoMottattSlot)) } returns mockk()
-        every { integrasjonClient.ferdigstillOppgave(any()) } just runs
+        every { integrasjonKlient.ferdigstillOppgave(any()) } just runs
 
         // Act
         innkommendeJournalføringService.knyttJournalpostTilFagsakOgFerdigstillOppgave(request = request, oppgaveId = oppgaveId)

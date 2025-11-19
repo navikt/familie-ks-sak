@@ -15,7 +15,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
@@ -28,11 +28,11 @@ import java.time.LocalDate
 import kotlin.collections.emptySet
 
 class FakePersonopplysningerService(
-    pdlClient: PdlClient,
+    pdlKlient: PdlKlient,
     integrasjonService: IntegrasjonService,
     personidentService: PersonidentService,
 ) : PersonopplysningerService(
-        pdlClient,
+        pdlKlient,
         integrasjonService,
         personidentService,
     ) {

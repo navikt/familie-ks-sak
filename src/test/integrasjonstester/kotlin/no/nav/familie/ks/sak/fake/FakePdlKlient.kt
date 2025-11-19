@@ -2,15 +2,15 @@ package no.nav.familie.ks.sak.fake
 
 import no.nav.familie.ks.sak.config.PdlConfig
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import org.springframework.web.client.RestOperations
 import java.lang.Integer.min
 import java.net.URI
 
-class FakePdlClient(
+class FakePdlKlient(
     restOperations: RestOperations,
-) : PdlClient(PdlConfig(URI("dummy_uri")), restOperations) {
+) : PdlKlient(PdlConfig(URI("dummy_uri")), restOperations) {
     private val identMap = mutableMapOf<String, List<PdlIdent>>()
 
     override fun hentIdenter(

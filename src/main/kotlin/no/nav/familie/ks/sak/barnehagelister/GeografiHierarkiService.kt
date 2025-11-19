@@ -1,14 +1,14 @@
 package no.nav.familie.ks.sak.barnehagelister
 
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import org.springframework.stereotype.Service
 
 @Service
 class GeografiHierarkiService(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
 ) {
     fun hentBydelEllerKommuneKodeTilNavnFraFylkeNr(fylkeNr: String): Map<String, String> =
-        integrasjonClient
+        integrasjonKlient
             .hentFylkerOgKommuner()
             .fylker
             .first { it.kode == fylkeNr }

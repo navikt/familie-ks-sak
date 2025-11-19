@@ -14,7 +14,7 @@ import java.net.URI
 import java.time.YearMonth
 
 @Component
-class InfotrygdReplikaClient(
+class InfotrygdReplikaKlient(
     @Value("\${FAMILIE_KS_INFOTRYGD_API_URL}") private val familieKsInfotrygdUri: URI,
     @Qualifier("jwtBearer") restOperations: RestOperations,
 ) : AbstractRestClient(restOperations, "familie-ks-infotrygd") {

@@ -8,7 +8,7 @@ import no.nav.familie.kontrakter.felles.klage.Stønadstype
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.TilpassArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
@@ -21,8 +21,8 @@ import java.util.UUID
 @Component
 class KlagebehandlingOppretter(
     private val fagsakService: FagsakService,
-    private val klageClient: KlageClient,
-    private val integrasjonClient: IntegrasjonClient,
+    private val klageKlient: KlageKlient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val clockProvider: ClockProvider,
 ) {
@@ -48,7 +48,7 @@ class KlagebehandlingOppretter(
         val fødselsnummer = fagsak.aktør.aktivFødselsnummer()
         val navIdent = NavIdent(SikkerhetContext.hentSaksbehandler())
 
-        val arbeidsfordelingsenheter = integrasjonClient.hentBehandlendeEnheter(fødselsnummer)
+        val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(fødselsnummer)
 
         if (arbeidsfordelingsenheter.isEmpty()) {
             logger.error("Fant ingen arbeidsfordelingsenheter for aktør. Se SecureLogs for detaljer.")
@@ -68,7 +68,7 @@ class KlagebehandlingOppretter(
                 navIdent,
             )
 
-        return klageClient.opprettKlage(
+        return klageKlient.opprettKlage(
             OpprettKlagebehandlingRequest(
                 ident = fødselsnummer,
                 stønadstype = Stønadstype.KONTANTSTØTTE,

@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.data.tilPersonEnkel
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlFødselsDato
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
@@ -41,7 +41,7 @@ internal class HåndterNyIdentServiceTest {
     private val fagsakService: FagsakService = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val behandlingRepository: BehandlingRepository = mockk()
-    private val pdlClient: PdlClient = mockk()
+    private val pdlKlient: PdlKlient = mockk()
     private val behandlingService: BehandlingService = mockk()
 
     @Nested
@@ -52,7 +52,7 @@ internal class HåndterNyIdentServiceTest {
                 aktørIdRepository = aktørRepository,
                 fagsakService = fagsakService,
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-                pdlClient = pdlClient,
+                pdlKlient = pdlKlient,
                 personIdentService = personIdentService,
                 behandlingService = behandlingService,
             )
@@ -127,7 +127,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent kaster ikke Feil når fødselsdato er endret innenfor samme måned`() {
             // arrange
-            every { pdlClient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(gammelFødselsdato.sisteDagIMåned().toString())),
@@ -145,7 +145,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent kaster ikke Feil når fødselsdato er endret for søker`() {
             // arrange
-            every { pdlClient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(nyFødselsdato.toString())),
@@ -167,7 +167,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent kaster Feil når fødselsdato er endret for identer`() {
             // arrange
-            every { pdlClient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(nyFødselsdato.toString())),
@@ -186,7 +186,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent lager en PatchMergetIdent task ved endret fødselsdato, hvis det ikke er en vedtatt behandling`() {
             // arrange
-            every { pdlClient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(nyttFnr, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(nyFødselsdato.toString())),
@@ -206,7 +206,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent lager en PatchMergetIdent task ved endret fødselsdato, hvis aktør ikke er med i forrige vedtatte behandling`() {
             // arrange
-            every { pdlClient.hentPerson(any<String>(), PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(any<String>(), PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(nyFødselsdato.toString())),
@@ -226,7 +226,7 @@ internal class HåndterNyIdentServiceTest {
         @Test
         fun `håndterNyIdent lager en PatchMergetIdent task hvis fødselsdato er uendret`() {
             // arrange
-            every { pdlClient.hentPerson(any<String>(), PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(any<String>(), PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(gammelFødselsdato.toString())),
@@ -245,7 +245,7 @@ internal class HåndterNyIdentServiceTest {
 
     @Nested
     inner class HåndterNyIdentTest {
-        private val pdlClient: PdlClient = mockk(relaxed = true)
+        private val pdlKlient: PdlKlient = mockk(relaxed = true)
         private val personidentRepository: PersonidentRepository = mockk()
 
         private val personidentAktiv = randomFnr()
@@ -259,7 +259,7 @@ internal class HåndterNyIdentServiceTest {
             PersonidentService(
                 personidentRepository = personidentRepository,
                 aktørRepository = aktørRepository,
-                pdlClient = pdlClient,
+                pdlKlient = pdlKlient,
                 taskService = mockTaskService(),
             )
 
@@ -268,7 +268,7 @@ internal class HåndterNyIdentServiceTest {
                 aktørIdRepository = aktørRepository,
                 fagsakService = fagsakService,
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-                pdlClient = pdlClient,
+                pdlKlient = pdlKlient,
                 personIdentService = personidentService,
                 behandlingService = behandlingService,
             )
@@ -288,13 +288,13 @@ internal class HåndterNyIdentServiceTest {
                 aktørSlot.captured
             }
 
-            every { pdlClient.hentIdenter(personidentAktiv, false) } answers {
+            every { pdlKlient.hentIdenter(personidentAktiv, false) } answers {
                 listOf(
                     PdlIdent(aktørAktiv.aktørId, false, "AKTORID"),
                     PdlIdent(personidentAktiv, false, "FOLKEREGISTERIDENT"),
                 )
             }
-            every { pdlClient.hentIdenter(personidentHistorisk, false) } answers {
+            every { pdlKlient.hentIdenter(personidentHistorisk, false) } answers {
                 listOf(
                     PdlIdent(aktørAktiv.aktørId, false, "AKTORID"),
                     PdlIdent(personidentAktiv, false, "FOLKEREGISTERIDENT"),
@@ -311,7 +311,7 @@ internal class HåndterNyIdentServiceTest {
             val aktørIdSomFinnes = randomAktør(personIdentSomFinnes)
             val fødselsdato = LocalDate.now().minusYears(4)
 
-            every { pdlClient.hentPerson(personIdentSomSkalLeggesTil, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(personIdentSomSkalLeggesTil, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(fødselsdato.toString())),
@@ -332,14 +332,14 @@ internal class HåndterNyIdentServiceTest {
                         ),
                 )
 
-            every { pdlClient.hentIdenter(personIdentSomFinnes, false) } answers {
+            every { pdlKlient.hentIdenter(personIdentSomFinnes, false) } answers {
                 listOf(
                     PdlIdent(aktørIdSomFinnes.aktørId, false, "AKTORID"),
                     PdlIdent(personIdentSomFinnes, false, "FOLKEREGISTERIDENT"),
                 )
             }
 
-            every { pdlClient.hentIdenter(personIdentSomSkalLeggesTil, true) } answers {
+            every { pdlKlient.hentIdenter(personIdentSomSkalLeggesTil, true) } answers {
                 listOf(
                     PdlIdent(aktørIdSomFinnes.aktørId, false, "AKTORID"),
                     PdlIdent(personIdentSomSkalLeggesTil, false, "FOLKEREGISTERIDENT"),
@@ -392,14 +392,14 @@ internal class HåndterNyIdentServiceTest {
             val aktørIdSomFinnes = randomAktør(personIdentSomFinnes)
             val fødselsdato = LocalDate.now().minusYears(4)
 
-            every { pdlClient.hentPerson(personIdentSomSkalLeggesTil, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(personIdentSomSkalLeggesTil, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(fødselsdato.minusMonths(2).toString())),
                     bostedsadresse = emptyList(),
                 )
 
-            every { pdlClient.hentPerson(personIdentSomFinnes, PersonInfoQuery.ENKEL) } returns
+            every { pdlKlient.hentPerson(personIdentSomFinnes, PersonInfoQuery.ENKEL) } returns
                 PdlPersonData(
                     folkeregisteridentifikator = emptyList(),
                     foedselsdato = listOf(PdlFødselsDato(fødselsdato.minusMonths(2).toString())),
@@ -420,7 +420,7 @@ internal class HåndterNyIdentServiceTest {
                         ),
                 )
 
-            every { pdlClient.hentIdenter(personIdentSomSkalLeggesTil, true) } answers {
+            every { pdlKlient.hentIdenter(personIdentSomSkalLeggesTil, true) } answers {
                 listOf(
                     PdlIdent(aktørIdSomFinnes.aktørId, false, "AKTORID"),
                     PdlIdent(personIdentSomSkalLeggesTil, false, "FOLKEREGISTERIDENT"),
@@ -450,7 +450,7 @@ internal class HåndterNyIdentServiceTest {
             val personIdentSomFinnes = randomFnr()
             val aktørIdSomFinnes = randomAktør(personIdentSomFinnes)
 
-            every { pdlClient.hentIdenter(personIdentSomFinnes, true) } answers {
+            every { pdlKlient.hentIdenter(personIdentSomFinnes, true) } answers {
                 listOf(
                     PdlIdent(aktørIdSomFinnes.aktørId, false, "AKTORID"),
                     PdlIdent(personIdentSomFinnes, false, "FOLKEREGISTERIDENT"),
@@ -480,7 +480,7 @@ internal class HåndterNyIdentServiceTest {
             val aktivFnrIdent2 = randomFnr()
             val aktivAktørIdent2 = randomAktør(aktivFnrIdent2)
 
-            every { pdlClient.hentIdenter(aktivFnrIdent2, true) } answers {
+            every { pdlKlient.hentIdenter(aktivFnrIdent2, true) } answers {
                 listOf(
                     PdlIdent(aktivAktørIdent2.aktørId, false, "AKTORID"),
                     PdlIdent(aktivFnrIdent2, false, "FOLKEREGISTERIDENT"),
