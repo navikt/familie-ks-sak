@@ -227,7 +227,7 @@ class ArbeidsfordelingService(
             arbeidsfordelingPåBehandlingRepository.save(
                 aktivArbeidsfordelingPåBehandling.copy(
                     behandlendeEnhetId = nyEnhetId,
-                    behandlendeEnhetNavn = KontantstøtteEnhet.hentEnhet(nyEnhetId).enhetsnavn,
+                    behandlendeEnhetNavn = KontantstøtteEnhet.fraEnhetsnummer(nyEnhetId).enhetsnavn,
                 ),
             )
 
