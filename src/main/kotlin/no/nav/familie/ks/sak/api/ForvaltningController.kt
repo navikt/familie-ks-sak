@@ -26,6 +26,8 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
@@ -92,6 +94,7 @@ class ForvaltningController(
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
     private val porteføljejusteringService: PorteføljejusteringService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -440,6 +443,10 @@ class ForvaltningController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Opprett tasker for flytting av vadsø oppgaver",
         )
+
+        if (!featureToggleService.isEnabled(FeatureToggle.PORTEFØLJEJUSTERING)) {
+            return ResponseEntity.ok("Toggle for porteføljejustering er skrudd av")
+        }
 
         val (antallOppgaverTotalt, antallFlytteTasksOpprettet) = porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(antallFlytteTasks, dryRun)
 

@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import kotlin.toString
 
 @Service
 class PorteføljejusteringService(
@@ -46,7 +47,11 @@ class PorteføljejusteringService(
                 .take(antallTasks ?: oppgaverSomSkalFlyttes.size)
                 .forEach { oppgave ->
                     oppgave.id?.let {
-                        taskService.save(PorteføljejusteringFlyttOppgaveTask.opprettTask(it))
+                        PorteføljejusteringFlyttOppgaveTask.opprettTask(
+                            oppgaveId = it,
+                            enhetId = oppgave.tildeltEnhetsnr,
+                            mappeId = oppgave.mappeId?.toString(),
+                        )
                         opprettedeTasks++
                     }
                 }

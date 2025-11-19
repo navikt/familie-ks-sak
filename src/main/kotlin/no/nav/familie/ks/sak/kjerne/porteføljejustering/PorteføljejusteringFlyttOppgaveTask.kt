@@ -165,11 +165,20 @@ class PorteføljejusteringFlyttOppgaveTask(
         const val TASK_STEP_TYPE = "porteføljejusteringFlyttOppgaveTask"
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-        fun opprettTask(oppgaveId: Long): Task =
+        fun opprettTask(
+            oppgaveId: Long,
+            enhetId: String?,
+            mappeId: String?,
+        ): Task =
             Task(
                 type = TASK_STEP_TYPE,
                 payload = oppgaveId.toString(),
-                properties = Properties().apply { this["oppgaveId"] = oppgaveId.toString() },
+                properties =
+                    Properties().apply {
+                        this["oppgaveId"] = oppgaveId.toString()
+                        enhetId?.let { this["enhetId"] = it }
+                        mappeId?.let { this["mappeId"] = it }
+                    },
             )
     }
 }
