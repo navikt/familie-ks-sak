@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.porteføljejustering
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.LoggerFactory
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class PorteføljejusteringService(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val taskService: TaskService,
 ) {
     fun lagTaskForOverføringAvOppgaverFraVadsø(
@@ -19,7 +19,7 @@ class PorteføljejusteringService(
         dryRun: Boolean = true,
     ): Pair<Int, Int> {
         val oppgaverIVadsø =
-            integrasjonClient
+            integrasjonKlient
                 .hentOppgaver(
                     finnOppgaveRequest =
                         FinnOppgaveRequest(

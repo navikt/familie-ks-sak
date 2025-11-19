@@ -9,16 +9,16 @@ import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Test
 
 class PorteføljejusteringServiceTest {
-    private val integrasjonClient: IntegrasjonClient = mockk()
+    private val integrasjonKlient: IntegrasjonKlient = mockk()
     private val taskService: TaskService = mockk()
 
-    private val porteføljejusteringService = PorteføljejusteringService(integrasjonClient, taskService)
+    private val porteføljejusteringService = PorteføljejusteringService(integrasjonKlient, taskService)
 
     @Test
     fun `Skal hente kontantstøtte oppgaver hos enhet Vadsø og opprette task på flytting av enhet`() {
@@ -28,7 +28,7 @@ class PorteføljejusteringServiceTest {
                 tema = Tema.KON,
                 enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
             )
-        every { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
+        every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
                 antallTreffTotalt = 2,
                 oppgaver =
@@ -44,7 +44,7 @@ class PorteføljejusteringServiceTest {
         porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(dryRun = false)
 
         // Assert
-        verify(exactly = 1) { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
+        verify(exactly = 1) { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
         verify(exactly = 1) {
             taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "1" })
         }
@@ -61,7 +61,7 @@ class PorteføljejusteringServiceTest {
                 tema = Tema.KON,
                 enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
             )
-        every { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
+        every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
                 antallTreffTotalt = 2,
                 oppgaver =
@@ -77,7 +77,7 @@ class PorteføljejusteringServiceTest {
         porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(dryRun = true)
 
         // Assert
-        verify(exactly = 1) { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
+        verify(exactly = 1) { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
         verify(exactly = 0) {
             taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "1" })
         }
@@ -94,7 +94,7 @@ class PorteføljejusteringServiceTest {
                 tema = Tema.KON,
                 enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
             )
-        every { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
+        every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
                 antallTreffTotalt = 2,
                 oppgaver =
@@ -116,7 +116,7 @@ class PorteføljejusteringServiceTest {
         porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(dryRun = false)
 
         // Assert
-        verify(exactly = 1) { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
+        verify(exactly = 1) { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
         verify(exactly = 0) { taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "1" }) }
         verify(exactly = 1) { taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "2" }) }
     }
@@ -129,7 +129,7 @@ class PorteføljejusteringServiceTest {
                 tema = Tema.KON,
                 enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
             )
-        every { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
+        every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
                 antallTreffTotalt = 1,
                 oppgaver =
@@ -149,7 +149,7 @@ class PorteføljejusteringServiceTest {
         porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(dryRun = false)
 
         // Assert
-        verify(exactly = 1) { integrasjonClient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
+        verify(exactly = 1) { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
         verify { taskService wasNot Called }
     }
 }

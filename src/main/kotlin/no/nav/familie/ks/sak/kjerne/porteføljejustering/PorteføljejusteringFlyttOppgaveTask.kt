@@ -5,14 +5,14 @@ import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.klage.KlageClient
+import no.nav.familie.ks.sak.kjerne.klage.KlageKlient
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -38,9 +38,9 @@ import kotlin.toString
     settTilManuellOppfølgning = true,
 )
 class PorteføljejusteringFlyttOppgaveTask(
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val tilbakekrevingKlient: TilbakekrevingKlient,
-    private val klageClient: KlageClient,
+    private val klageKlient: KlageKlient,
     private val behandlingRepository: BehandlingRepository,
     private val personidentService: PersonidentService,
     private val fagsakService: FagsakService,
@@ -49,7 +49,7 @@ class PorteføljejusteringFlyttOppgaveTask(
     @WithSpan
     override fun doTask(task: Task) {
         val oppgaveId = task.payload.toLong()
-        val oppgave = integrasjonClient.finnOppgaveMedId(oppgaveId)
+        val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
 
         val ident = oppgave.identer?.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident ?: throw Feil("Oppgave med id $oppgaveId er ikke tilknyttet en ident.")
         val nyEnhetId = validerOgHentNyEnhetForOppgave(ident, oppgaveId) ?: return
@@ -63,7 +63,7 @@ class PorteføljejusteringFlyttOppgaveTask(
         val skalOppdatereEnhetEllerMappe = nyMappeId != oppgave.mappeId?.toInt() || nyEnhetId != oppgave.tildeltEnhetsnr
 
         if (skalOppdatereEnhetEllerMappe) { // Vi oppdaterer bare hvis det er forskjell på enhet eller mappe. Kaster ikke feil grunnet ønsket om idempotens.
-            integrasjonClient.tilordneEnhetOgMappeForOppgave(
+            integrasjonKlient.tilordneEnhetOgMappeForOppgave(
                 oppgaveId = oppgaveId,
                 nyEnhet = nyEnhetId,
                 nyMappe = nyMappeId.toString(),
@@ -106,7 +106,7 @@ class PorteføljejusteringFlyttOppgaveTask(
         ident: String,
         oppgaveId: Long,
     ): String? {
-        val arbeidsfordelingsenheter = integrasjonClient.hentBehandlendeEnheter(ident)
+        val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(ident)
 
         if (arbeidsfordelingsenheter.isEmpty()) {
             logger.error("Fant ingen arbeidsfordelingsenheter for ident. Se SecureLogs for detaljer.")
@@ -158,7 +158,7 @@ class PorteføljejusteringFlyttOppgaveTask(
         fagsakId: Long,
         nyEnhetId: String,
     ) {
-        klageClient.oppdaterEnhetPåÅpenBehandling(fagsakId, nyEnhetId)
+        klageKlient.oppdaterEnhetPåÅpenBehandling(fagsakId, nyEnhetId)
     }
 
     companion object {
