@@ -9,10 +9,13 @@ import no.nav.familie.ks.sak.data.lagRelatertBehandling
 import no.nav.familie.ks.sak.data.lagToTrinnskontroll
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService.Companion.TIMEZONE
 import org.assertj.core.api.Assertions.assertThat
@@ -24,9 +27,9 @@ class SakStatistikkServiceTest {
     private val fagsakRepository = mockk<FagsakRepository>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val totrinnskontrollService = mockk<TotrinnskontrollService>()
-    private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
+    private val arbeidsfordelingPåBehandlingRepository = mockk<ArbeidsfordelingPåBehandlingRepository>()
     private val fagsakService = mockk<FagsakService>()
-    private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
+    private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
     private val personopplysningService = mockk<PersonopplysningerService>()
     private val relatertBehandlingUtleder = mockk<RelatertBehandlingUtleder>()
     private val sakStatistikkService =
@@ -35,9 +38,9 @@ class SakStatistikkServiceTest {
             fagsakRepository = fagsakRepository,
             taskService = taskService,
             totrinnskontrollService = totrinnskontrollService,
-            arbeidsfordelingService = arbeidsfordelingService,
+            arbeidsfordelingPåBehandlingRepository = arbeidsfordelingPåBehandlingRepository,
             fagsakService = fagsakService,
-            personopplysningGrunnlagService = personopplysningGrunnlagService,
+            personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
             personopplysningService = personopplysningService,
             relatertBehandlingUtleder = relatertBehandlingUtleder,
         )
@@ -55,7 +58,7 @@ class SakStatistikkServiceTest {
             val relatertBehandling = lagRelatertBehandling()
 
             every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
-            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
+            every { arbeidsfordelingPåBehandlingRepository.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
             every { totrinnskontrollService.finnAktivForBehandling(behandlingId) } returns totrinnskontroll
             every { relatertBehandlingUtleder.utledRelatertBehandling(behandling) } returns relatertBehandling
 
@@ -97,7 +100,7 @@ class SakStatistikkServiceTest {
             val totrinnskontroll = lagToTrinnskontroll(behandling = behandling)
 
             every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
-            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
+            every { arbeidsfordelingPåBehandlingRepository.hentArbeidsfordelingPåBehandling(behandlingId) } returns arbeidsfordelingPåBehandling
             every { totrinnskontrollService.finnAktivForBehandling(behandlingId) } returns totrinnskontroll
             every { relatertBehandlingUtleder.utledRelatertBehandling(behandling) } returns null
 

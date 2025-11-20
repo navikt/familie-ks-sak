@@ -111,6 +111,11 @@ class TilbakekrevingKlient(
             formål = "Henter tilbakekrevingsvedtak på fagsak",
         ) { getForEntity(uri) }
     }
+
+    fun oppdaterEnhetPåÅpenBehandling(
+        fagsakId: Long,
+        nyEnhetId: String,
+    ): String = "TODO I NAV-26753"
 }
 
 fun encodePath(path: String) = UriUtils.encodePath(path, "UTF-8")

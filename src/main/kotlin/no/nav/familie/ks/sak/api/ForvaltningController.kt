@@ -26,6 +26,8 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
@@ -40,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.porteføljejustering.PorteføljejusteringService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -90,6 +93,8 @@ class ForvaltningController(
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
+    private val porteføljejusteringService: PorteføljejusteringService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -425,5 +430,27 @@ class ForvaltningController(
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet(dryRun = true, dryRunEpost = dryRunEpost)
 
         return ResponseEntity.ok(Ressurs.success("OK"))
+    }
+
+    @PostMapping("/opprett-tasker-for-flytting-av-vadso-oppgaver")
+    @Operation(
+        summary = "Oppretter tasker flytting av vadsø oppgaver",
+    )
+    fun opprettTaskerForFlyttingAvVadsøOppgaver(
+        @RequestParam("antallFlytteTasks") antallFlytteTasks: Int? = null,
+        @RequestParam("dryRun") dryRun: Boolean = true,
+    ): ResponseEntity<String> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Opprett tasker for flytting av vadsø oppgaver",
+        )
+
+        if (!featureToggleService.isEnabled(FeatureToggle.PORTEFØLJEJUSTERING)) {
+            return ResponseEntity.ok("Toggle for porteføljejustering er skrudd av")
+        }
+
+        val (antallOppgaverTotalt, antallFlytteTasksOpprettet) = porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(antallFlytteTasks, dryRun)
+
+        return ResponseEntity.ok("Antall oppgaver totalt:$antallOppgaverTotalt, Antall tasks opprettet for flytting:$antallFlytteTasksOpprettet")
     }
 }

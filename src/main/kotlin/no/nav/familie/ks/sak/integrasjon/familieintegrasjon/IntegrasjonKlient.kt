@@ -587,6 +587,32 @@ class IntegrasjonKlient(
             )
         }
 
+    fun tilordneEnhetOgMappeForOppgave(
+        oppgaveId: Long,
+        nyEnhet: String,
+        nyMappe: String?,
+    ): OppgaveResponse {
+        val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
+        val uri =
+            UriComponentsBuilder
+                .fromUri(baseUri)
+                .queryParam("nullstillTilordnetRessurs", true)
+                .queryParam("mappeId", nyMappe)
+                .build()
+                .toUri()
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Bytt enhet og mappe",
+        ) {
+            patchForEntity(
+                uri,
+                HttpHeaders().medContentTypeJsonUTF8(),
+            )
+        }
+    }
+
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
