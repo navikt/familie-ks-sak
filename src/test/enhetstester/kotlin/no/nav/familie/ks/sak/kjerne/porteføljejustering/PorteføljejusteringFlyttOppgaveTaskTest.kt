@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import java.util.UUID
 
 class PorteføljejusteringFlyttOppgaveTaskTest {
     private val integrasjonKlient: IntegrasjonKlient = mockk()
@@ -305,9 +306,11 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     ) {
         // Arrange
         val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val oppgaveId = 1L
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
+                id = oppgaveId,
                 identer =
                     listOf(
                         OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT),
@@ -326,14 +329,14 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             )
 
         every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, KontantstøtteEnhet.BERGEN.enhetsnummer, "100012790") } returns mockk()
-        every { klageKlient.oppdaterEnhetPåÅpenBehandling(183421813, "4812") } returns "TODO"
+        every { klageKlient.oppdaterEnhetPåÅpenBehandling(oppgaveId, "4812") } returns "TODO"
 
         // Act
         porteføljejusteringFlyttOppgaveTask.doTask(task)
 
         // Assert
         verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, KontantstøtteEnhet.BERGEN.enhetsnummer, "100012790") }
-        verify(exactly = 1) { klageKlient.oppdaterEnhetPåÅpenBehandling(183421813, KontantstøtteEnhet.BERGEN.enhetsnummer) }
+        verify(exactly = 1) { klageKlient.oppdaterEnhetPåÅpenBehandling(oppgaveId, KontantstøtteEnhet.BERGEN.enhetsnummer) }
     }
 
     @ParameterizedTest
@@ -343,6 +346,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     ) {
         // Arrange
         val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val behandlingEksternBrukId = UUID.randomUUID()
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -351,7 +355,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
                         OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT),
                     ),
                 tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer,
-                saksreferanse = "183421813",
+                saksreferanse = behandlingEksternBrukId.toString(),
                 oppgavetype = oppgavetype.value,
                 mappeId = 100012692,
                 behandlesAvApplikasjon = "familie-tilbake",
@@ -364,13 +368,13 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             )
 
         every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, KontantstøtteEnhet.BERGEN.enhetsnummer, "100012790") } returns mockk()
-        every { tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(183421813, "4812") } returns "TODO"
+        every { tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(behandlingEksternBrukId, "4812") } returns "TODO"
 
         // Act
         porteføljejusteringFlyttOppgaveTask.doTask(task)
 
         // Assert
         verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, KontantstøtteEnhet.BERGEN.enhetsnummer, "100012790") }
-        verify(exactly = 1) { tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(183421813, KontantstøtteEnhet.BERGEN.enhetsnummer) }
+        verify(exactly = 1) { tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(behandlingEksternBrukId, KontantstøtteEnhet.BERGEN.enhetsnummer) }
     }
 }
