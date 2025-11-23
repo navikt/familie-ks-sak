@@ -370,6 +370,10 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetSelvstendigRettTilleggstekstSekundarInfoOmMuligRefusjon"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆRLAND_STANDARD_BOSMANN {
+        override val sanityApiNavn = "innvilgetNasjonalRettsekundarlandStandardBosmann"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
 
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"
