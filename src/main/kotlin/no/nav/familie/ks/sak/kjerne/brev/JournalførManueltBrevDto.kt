@@ -11,4 +11,5 @@ data class JournalførManueltBrevDto(
     val avsenderMottaker: AvsenderMottaker?,
     val manuellAdresseInfo: ManuellAdresseInfo?,
     val eksternReferanseId: String,
+    val saksbehandlerSignaturTilBrev: String,
 )
