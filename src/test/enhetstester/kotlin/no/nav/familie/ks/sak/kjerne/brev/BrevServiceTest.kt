@@ -44,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.prosessering.domene.Task
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -76,6 +77,7 @@ class BrevServiceTest {
             ),
         )
     private val featureToggleService = mockk<FeatureToggleService>()
+    private val saksbehandlerContext = mockk<SaksbehandlerContext>(relaxed = true)
 
     private val brevService =
         BrevService(
@@ -93,6 +95,7 @@ class BrevServiceTest {
             brevmottakerService = brevmottakerService,
             validerBrevmottakerService = validerBrevmottakerService,
             featureToggleService = featureToggleService,
+            saksbehandlerContext = saksbehandlerContext,
         )
 
     private val søker = randomAktør()

@@ -74,9 +74,10 @@ class GenererBrevService(
     fun genererManueltBrev(
         manueltBrevRequest: ManueltBrevDto,
         erForhåndsvisning: Boolean = false,
+        saksbehandlerSignaturTilBrev: String? = null, // Gjøres til non-nullable når man fjerner feature toggle
     ): ByteArray {
         try {
-            val brev = manueltBrevRequest.tilBrev(saksbehandlerContext.hentSaksbehandlerSignaturTilBrev())
+            val brev = manueltBrevRequest.tilBrev(saksbehandlerSignaturTilBrev ?: saksbehandlerContext.hentSaksbehandlerSignaturTilBrev())
             return brevKlient.genererBrev(
                 målform = manueltBrevRequest.mottakerMålform.tilSanityFormat(),
                 brev = brev,
