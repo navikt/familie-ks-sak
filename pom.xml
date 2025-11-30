@@ -643,7 +643,7 @@
             <id>enhetstest</id>
             <properties>
                 <excludedGroups>integration</excludedGroups>
-                <jacocoTestDirectory>coverage</jacocoTestDirectory>
+                <jacocoTestDirectory>coverage/enhetstest</jacocoTestDirectory>
                 <jacocoFileName>enhetstest.exec</jacocoFileName>
             </properties>
         </profile>
@@ -651,7 +651,7 @@
             <id>integrasjonstest</id>
             <properties>
                 <groups>integration</groups>
-                <jacocoTestDirectory>coverage</jacocoTestDirectory>
+                <jacocoTestDirectory>coverage/integrasjonstest</jacocoTestDirectory>
                 <jacocoFileName>integrasjonstest.exec</jacocoFileName>
             </properties>
         </profile>
