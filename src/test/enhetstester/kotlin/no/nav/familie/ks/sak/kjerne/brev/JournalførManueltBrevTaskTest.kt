@@ -68,7 +68,12 @@ class JournalførManueltBrevTaskTest {
 
             every { fagsakService.hentFagsak(fagsak.id) } returns fagsak
             every { behandlingService.hentBehandling(behandling.id) } returns behandling
-            every { genererBrevService.genererManueltBrev(manueltBrevDto, false) } returns brev
+            every {
+                genererBrevService.genererManueltBrev(
+                    manueltBrevRequest = manueltBrevDto,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
+                )
+            } returns brev
             every {
                 utgåendeJournalføringService.journalførDokument(
                     any(),
@@ -91,6 +96,7 @@ class JournalførManueltBrevTaskTest {
                     fagsakId = fagsak.id,
                     manueltBrevDto = manueltBrevDto,
                     mottakerInfo = mottakerInfo,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
                 )
 
             // Act
@@ -98,7 +104,12 @@ class JournalførManueltBrevTaskTest {
 
             // Assert
             verify(exactly = 1) { fagsakService.hentFagsak(fagsak.id) }
-            verify(exactly = 1) { genererBrevService.genererManueltBrev(manueltBrevDto, false) }
+            verify(exactly = 1) {
+                genererBrevService.genererManueltBrev(
+                    manueltBrevRequest = manueltBrevDto,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
+                )
+            }
             verify(exactly = 1) {
                 utgåendeJournalføringService.journalførDokument(
                     fnr = eq(fagsak.aktør.aktivFødselsnummer()),
@@ -155,7 +166,12 @@ class JournalførManueltBrevTaskTest {
 
             every { fagsakService.hentFagsak(fagsakId) } returns fagsak
             every { behandlingService.hentBehandling(behandlingId) } returns behandling
-            every { genererBrevService.genererManueltBrev(manueltBrevDto, false) } returns brev
+            every {
+                genererBrevService.genererManueltBrev(
+                    manueltBrevRequest = manueltBrevDto,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
+                )
+            } returns brev
             every {
                 utgåendeJournalføringService.journalførDokument(
                     any(),
@@ -178,6 +194,7 @@ class JournalførManueltBrevTaskTest {
                     fagsakId = fagsakId,
                     manueltBrevDto = manueltBrevDto,
                     mottakerInfo = mottakerInfo,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
                 )
 
             // Act
@@ -185,7 +202,12 @@ class JournalførManueltBrevTaskTest {
 
             // Assert
             verify(exactly = 1) { fagsakService.hentFagsak(fagsakId) }
-            verify(exactly = 1) { genererBrevService.genererManueltBrev(manueltBrevDto, false) }
+            verify(exactly = 1) {
+                genererBrevService.genererManueltBrev(
+                    manueltBrevRequest = manueltBrevDto,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
+                )
+            }
             verify(exactly = 1) {
                 utgåendeJournalføringService.journalførDokument(
                     fnr = eq(fagsak.aktør.aktivFødselsnummer()),
@@ -241,7 +263,7 @@ class JournalførManueltBrevTaskTest {
 
             val taskSlot = slot<Task>()
             every { fagsakService.hentFagsak(fagsak.id) } returns fagsak
-            every { genererBrevService.genererManueltBrev(manueltBrevDto, false) } returns brev
+            every { genererBrevService.genererManueltBrev(manueltBrevDto, false, "Olaf Test") } returns brev
             every {
                 utgåendeJournalføringService.journalførDokument(
                     any(),
@@ -263,6 +285,7 @@ class JournalførManueltBrevTaskTest {
                     fagsakId = fagsak.id,
                     manueltBrevDto = manueltBrevDto,
                     mottakerInfo = mottakerInfo,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
                 )
 
             // Act
@@ -270,7 +293,7 @@ class JournalførManueltBrevTaskTest {
 
             // Assert
             verify(exactly = 1) { fagsakService.hentFagsak(fagsak.id) }
-            verify(exactly = 1) { genererBrevService.genererManueltBrev(manueltBrevDto, false) }
+            verify(exactly = 1) { genererBrevService.genererManueltBrev(manueltBrevDto, false, "Olaf Test") }
             verify(exactly = 1) {
                 utgåendeJournalføringService.journalførDokument(
                     fnr = eq(fagsak.aktør.aktivFødselsnummer()),
@@ -324,6 +347,7 @@ class JournalførManueltBrevTaskTest {
                     fagsakId = fagsakId,
                     manueltBrevDto = manueltBrevDto,
                     mottakerInfo = mottakerInfo,
+                    saksbehandlerSignaturTilBrev = "Olaf Test",
                 )
 
             // Assert

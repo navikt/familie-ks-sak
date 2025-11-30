@@ -47,7 +47,14 @@ class JournalførManueltBrevTask(
 
         val fagsak = fagsakService.hentFagsak(dto.fagsakId)
         val behandling = dto.behandlingId?.let { behandlingId -> behandlingService.hentBehandling(behandlingId) }
-        val generertBrev = genererBrevService.genererManueltBrev(dto.manueltBrevDto, false)
+        val saksbehandlerSignaturTilBrev = dto.saksbehandlerSignaturTilBrev
+
+        val generertBrev =
+            genererBrevService.genererManueltBrev(
+                manueltBrevRequest = dto.manueltBrevDto,
+                erForhåndsvisning = false,
+                saksbehandlerSignaturTilBrev = saksbehandlerSignaturTilBrev,
+            )
 
         val førsteside =
             if (dto.manueltBrevDto.brevmal.skalGenerereForside()) {
@@ -124,6 +131,7 @@ class JournalførManueltBrevTask(
             fagsakId: Long,
             manueltBrevDto: ManueltBrevDto,
             mottakerInfo: MottakerInfo,
+            saksbehandlerSignaturTilBrev: String,
         ): Task {
             val dto =
                 JournalførManueltBrevDto(
@@ -138,6 +146,7 @@ class JournalførManueltBrevTask(
                             behandlingId,
                             mottakerInfo is FullmektigEllerVerge,
                         ),
+                    saksbehandlerSignaturTilBrev = saksbehandlerSignaturTilBrev,
                 )
 
             val properties =

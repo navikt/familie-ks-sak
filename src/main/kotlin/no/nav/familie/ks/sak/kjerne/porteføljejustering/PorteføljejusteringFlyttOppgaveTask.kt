@@ -21,6 +21,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Properties
+import java.util.UUID
 import kotlin.apply
 import kotlin.collections.firstOrNull
 import kotlin.collections.set
@@ -92,12 +93,11 @@ class PorteføljejusteringFlyttOppgaveTask(
                 oppdaterÅpenBehandlingIKsSak(oppgave, nyEnhetId)
             }
 
-            // TODO I NAV-26753
             oppgave.behandlesAvApplikasjon == "familie-klage" -> {
-                oppdaterEnhetPåÅpenBehandlingIKlage(saksreferanse.toLong(), nyEnhetId)
+                oppdaterEnhetPåÅpenBehandlingIKlage(oppgaveId, nyEnhetId)
             }
             oppgave.behandlesAvApplikasjon == "familie-tilbake" -> {
-                oppdaterEnhetPåÅpenBehandlingITilbakekreving(saksreferanse.toLong(), nyEnhetId)
+                oppdaterEnhetPåÅpenBehandlingITilbakekreving(UUID.fromString(saksreferanse), nyEnhetId)
             }
         }
     }
@@ -148,17 +148,17 @@ class PorteføljejusteringFlyttOppgaveTask(
     }
 
     private fun oppdaterEnhetPåÅpenBehandlingITilbakekreving(
-        fagsakId: Long,
+        behandlingEksternBrukId: UUID,
         nyEnhetId: String,
     ) {
-        tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(fagsakId, nyEnhetId)
+        tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(behandlingEksternBrukId, nyEnhetId)
     }
 
     private fun oppdaterEnhetPåÅpenBehandlingIKlage(
-        fagsakId: Long,
+        oppgaveId: Long,
         nyEnhetId: String,
     ) {
-        klageKlient.oppdaterEnhetPåÅpenBehandling(fagsakId, nyEnhetId)
+        klageKlient.oppdaterEnhetPåÅpenBehandling(oppgaveId, nyEnhetId)
     }
 
     companion object {
