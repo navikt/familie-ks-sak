@@ -46,7 +46,7 @@ jobs:
     if: github.actor != 'dependabot[bot]' && github.event_name != 'merge_group'
     name: Sonar
     needs: [ enhetstest, integrasjonstest ]
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: 'ubuntu-latest'
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
         with:
@@ -55,7 +55,7 @@ jobs:
         uses: navikt/familie-baks-gha-workflows/.github/actions/setup-java-maven@main # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          java-version: ${{ inputs.java-version }}
+          java-version: '21'
       - name: Download unit test report artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
         with:
