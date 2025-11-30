@@ -51,22 +51,22 @@ jobs:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup java and maven
+      - name: Setup java maven
         uses: navikt/familie-baks-gha-workflows/.github/actions/setup-java-maven@main # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: '21'
-      - name: Download unit test report artifact
+      - name: Last ned enhetstest rapport
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
         with:
           name: 'enhetstest'
           path: 'coverage/enhetstest'
-      - name: Download integration test report artifact
+      - name: Last ned integrasjonstest rapport
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
         with:
           name: 'integrasjonstest'
           path: 'coverage/integrasjonstest'
-      - name: Cache Sonar packages
+      - name: Cache Sonar
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # ratchet:actions/cache@v4
         with:
           path: ~/.sonar/cache
