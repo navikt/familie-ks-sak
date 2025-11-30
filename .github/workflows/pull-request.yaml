@@ -27,7 +27,7 @@ jobs:
       profile: 'enhetstest'
       with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
       coverage-artifact-name: 'enhetstest'
-      coverage-artifact-path: 'target/coverage/enhetstest.exec'
+      coverage-artifact-path: 'target/coverage/enhetstest/jacoco.xml'
     secrets: inherit
 
   integrasjonstest:
@@ -39,7 +39,7 @@ jobs:
       profile: 'integrasjonstest'
       with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
       coverage-artifact-name: 'integrasjonstest'
-      coverage-artifact-path: 'target/coverage/integrasjonstest.exec'
+      coverage-artifact-path: 'target/coverage/integrasjonstest/jacoco.xml'
     secrets: inherit
 
   sonar:
