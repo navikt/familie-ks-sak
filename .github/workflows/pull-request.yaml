@@ -27,7 +27,7 @@ jobs:
       profile: 'enhetstest'
       with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
       coverage-artifact-name: 'enhetstest'
-      coverage-artifact-path: 'target/coverage/enhetstest.exec'
+      coverage-artifact-path: 'target/coverage/enhetstest/jacoco.xml'
     secrets: inherit
 
   integrasjonstest:
@@ -39,18 +39,43 @@ jobs:
       profile: 'integrasjonstest'
       with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
       coverage-artifact-name: 'integrasjonstest'
-      coverage-artifact-path: 'target/coverage/integrasjonstest.exec'
+      coverage-artifact-path: 'target/coverage/integrasjonstest/jacoco.xml'
     secrets: inherit
 
   sonar:
     if: github.actor != 'dependabot[bot]' && github.event_name != 'merge_group'
     name: Sonar
     needs: [ enhetstest, integrasjonstest ]
-    uses: navikt/familie-baks-gha-workflows/.github/workflows/sonar.yaml@main # ratchet:exclude
-    with:
-      unit-test-artifact-name: 'enhetstest'
-      unit-test-artifact-path: 'coverage/enhetstest'
-      integration-test-artifact-name: 'integrasjonstest'
-      integration-test-artifact-path: 'coverage/integrasjonstest'
-    secrets: inherit
-
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup java maven
+        uses: navikt/familie-baks-gha-workflows/.github/actions/setup-java-maven@main # ratchet:exclude
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          java-version: '21'
+      - name: Last ned enhetstest rapport
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
+        with:
+          name: 'enhetstest'
+          path: 'coverage/enhetstest'
+      - name: Last ned integrasjonstest rapport
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
+        with:
+          name: 'integrasjonstest'
+          path: 'coverage/integrasjonstest'
+      - name: Cache Sonar
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # ratchet:actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Sonar
+        env:
+          MAVEN_OPTS: "-Xmx4g -Dmaven.artifact.threads=10"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths="coverage/enhetstest/jacoco.xml,coverage/integrasjonstest/jacoco.xml"
