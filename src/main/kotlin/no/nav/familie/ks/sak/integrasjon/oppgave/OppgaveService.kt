@@ -232,9 +232,21 @@ class OppgaveService(
 
     fun oppdaterBehandlingstypePåOppgaverFraBehandling(
         behandling: Behandling,
-    ) = hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
-        val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
-        integrasjonKlient.oppdaterOppgave(oppgave.copy(behandlingstype = behandling.kategori.tilOppgavebehandlingType().value))
+    ) {
+        val endretAvEnhetsnr =
+            SikkerhetContext.hentSaksbehandler().takeIf { it != SYSTEM_FORKORTELSE }?.let {
+                integrasjonKlient.hentSaksbehandler(it).enhet
+            }
+
+        hentOppgaverSomIkkeErFerdigstilt(behandling).forEach { dbOppgave ->
+            val oppgave = hentOppgave(dbOppgave.gsakId.toLong())
+            integrasjonKlient.oppdaterOppgave(
+                oppgave.copy(
+                    behandlingstype = behandling.kategori.tilOppgavebehandlingType().value,
+                    endretAvEnhetsnr = endretAvEnhetsnr ?: oppgave.endretAvEnhetsnr,
+                ),
+            )
+        }
     }
 
     private fun lagOppgaveTekst(
