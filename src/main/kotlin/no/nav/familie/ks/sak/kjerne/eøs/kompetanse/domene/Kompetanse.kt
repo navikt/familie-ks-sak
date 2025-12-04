@@ -120,7 +120,6 @@ enum class KompetanseAktivitet(
 
     MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN(true, true),
     MOTTAR_PENSJON(true, true),
-    NASJONAL_RETT_DIFFERANSEBEREGNING(true, true),
     INAKTIV(true, true),
 
     I_ARBEID(false, true),
@@ -133,6 +132,9 @@ enum class KompetanseResultat {
     NORGE_ER_PRIMÆRLAND,
     NORGE_ER_SEKUNDÆRLAND,
     TO_PRIMÆRLAND,
+
+    // Dette defineres også som at Norge er sekundærland
+    NASJONAL_RETT_DIFFERANSEBEREGNING,
 }
 
 sealed interface IKompetanse {
@@ -190,3 +192,5 @@ fun List<UtfyltKompetanse>.tilTidslinje() =
                 verdi = it,
             )
         }.tilTidslinje()
+
+fun Kompetanse.erNorgeSekundærLand() = this.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND || this.resultat == KompetanseResultat.NASJONAL_RETT_DIFFERANSEBEREGNING
