@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.medBehandlingId
 import no.nav.familie.ks.sak.kjerne.eøs.felles.endringsabonnent.EøsSkjemaEndringAbonnent
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseResultat
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.erNorgeSekundærLand
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.tidslinje.Tidslinje
@@ -80,9 +81,14 @@ internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
                 kompetanse == null -> null
                 upb == null || upb.utbetalingsland != kompetanse.annenForeldersAktivitetsland ->
                     UtenlandskPeriodebeløp.NULL.copy(utbetalingsland = kompetanse.annenForeldersAktivitetsland)
+
                 else -> upb
             }
         }.tilSkjemaer()
 }
 
-fun Map<Aktør, Tidslinje<Kompetanse>>.filtrerSekundærland() = this.mapValues { (_, tidslinje) -> tidslinje.filtrer { it?.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND } }
+fun Map<Aktør, Tidslinje<Kompetanse>>.filtrerSekundærland() = this.mapValues { (_, tidslinje) ->
+    tidslinje.filtrer {
+        it?.erNorgeSekundærLand() == true
+    }
+}
