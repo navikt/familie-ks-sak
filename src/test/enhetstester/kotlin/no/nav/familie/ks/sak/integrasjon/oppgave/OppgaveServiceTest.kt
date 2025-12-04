@@ -253,6 +253,8 @@ class OppgaveServiceTest {
         @Test
         fun `skal oppdatere behandlingstype for alle oppgaver som ikke er ferdigstilt for behandling`() {
             // Arrange
+            mockkObject(SikkerhetContext)
+
             val behandling = lagBehandling()
 
             val dbOppgave1 = mockk<DbOppgave>().apply { every { gsakId } returns "1" }
@@ -260,6 +262,18 @@ class OppgaveServiceTest {
             val oppgave1 = Oppgave(id = 1, behandlingstype = "NASJONAL")
             val oppgave2 = Oppgave(id = 2, behandlingstype = "NASJONAL")
             val oppdaterteOppgaveList = mutableListOf<Oppgave>()
+
+            val saksbehandlerIdent = "Z999999"
+            val saksbehandlerEnhet = "4820"
+
+            every { mockedIntegrasjonKlient.hentSaksbehandler(saksbehandlerIdent) } returns
+                mockk {
+                    every { enhet } returns saksbehandlerEnhet
+                }
+
+            val oppdaterOppgaveSlot = slot<Oppgave>()
+            every { mockedIntegrasjonKlient.oppdaterOppgave(capture(oppdaterOppgaveSlot)) } just runs
+            every { SikkerhetContext.hentSaksbehandler() } returns saksbehandlerIdent
 
             every { mockedOppgaveRepository.findByBehandlingAndIkkeFerdigstilt(behandling) } returns listOf(dbOppgave1, dbOppgave2)
             every { mockedIntegrasjonKlient.finnOppgaveMedId(1) } returns oppgave1
@@ -276,6 +290,7 @@ class OppgaveServiceTest {
             verify(exactly = 2) { mockedIntegrasjonKlient.oppdaterOppgave(any()) }
 
             assertThat(oppdaterteOppgaveList.all { it.behandlingstype == "EØS" })
+            assertThat(oppdaterteOppgaveList.all { it.endretAvEnhetsnr == "4820" })
         }
     }
 
