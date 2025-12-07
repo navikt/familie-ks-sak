@@ -97,6 +97,10 @@ data class Kompetanse(
             this.resultat != null &&
             this.barnAktører.isNotEmpty()
 
+    fun erNorgeSekundærland() =
+        this.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND || this.resultat == KompetanseResultat.NASJONAL_RETT_DIFFERANSEBEREGNING
+
+
     companion object {
         val blankKompetanse = Kompetanse(fom = null, tom = null, barnAktører = emptySet())
     }
@@ -192,5 +196,3 @@ fun List<UtfyltKompetanse>.tilTidslinje() =
                 verdi = it,
             )
         }.tilTidslinje()
-
-fun Kompetanse.erNorgeSekundærLand() = this.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND || this.resultat == KompetanseResultat.NASJONAL_RETT_DIFFERANSEBEREGNING
