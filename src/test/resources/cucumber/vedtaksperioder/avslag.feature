@@ -218,3 +218,58 @@ Egenskap: Avslag perioder
     Så forvent følgende brevbegrunnelser for behandling 2 i periode - til -
       | Begrunnelse                                      | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Måned og år før vedtaksperiode |
       | AVSLAG_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR | STANDARD |               | 18.07.24             | 1           |                                      | 0     |                  | 0                           | Ja                     |         |                                |
+
+
+  Scenario: Hvis man tidligere bare har fått rent avslag på søknader, så skal man ikke utlede endringsresultat da det er ingen endringer på eksisterende ytelse
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus | Behandlingsresultat |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | AVSLUTTET         | AVSLÅTT             |
+      | 2            | 1        | 1                   | SØKNAD           | NASJONAL            | UTREDES           |                     |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 04.03.1995  |
+      | 1            | 2       | BARN       | 18.11.2023  |
+      | 2            | 1       | SØKER      | 04.03.1995  |
+      | 2            | 2       | BARN       | 18.11.2023  |
+    Og følgende dagens dato 08.12.2025
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser                     | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | MEDLEMSKAP                   |                  |            |            | IKKE_OPPFYLT | Ja                   | AVSLAG_IKKE_MEDLEM_FOLKETRYGDEN_I_FEM_ÅR | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | BOSATT_I_RIKET               |                  | 11.01.2021 |            | OPPFYLT      | Nei                  |                                          | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_AKTUELT | Nei                  |                                          | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 18.11.2023 |            | OPPFYLT      | Nei                  |                                          | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 18.11.2023 |            | OPPFYLT      | Nei                  |                                          |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 18.12.2024 | 18.06.2025 | OPPFYLT      | Nei                  |                                          |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser         | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | MEDLEMSKAP                   |                  | 04.03.2000 |            | OPPFYLT      | Nei                  |                              | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | BOSATT_I_RIKET               |                  | 11.01.2021 |            | OPPFYLT      | Nei                  |                              | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_AKTUELT | Nei                  |                              | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 18.11.2023 |            | OPPFYLT      | Nei                  |                              | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 18.11.2023 |            | OPPFYLT      | Nei                  |                              |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 18.12.2024 | 18.06.2025 | OPPFYLT      | Nei                  |                              |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 19.06.2025 |            | IKKE_OPPFYLT | Ja                   | AVSLAG_BARN_OVER_19_MND_0824 |                  | Nei                                   |              |
+
+    Og følgende endrede utbetalinger
+      | AktørId | BehandlingId | Fra dato   | Til dato   | Årsak              | Prosent | Søknadstidspunkt |
+      | 2       | 2            | 01.12.2024 | 30.06.2025 | ETTERBETALING_3MND | 0       | 20.11.2025       |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 2
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+      | 2       | 01.12.2024 | 30.06.2025 | 0     | ORDINÆR_KONTANTSTØTTE | 0       | 7500 | 0                      |                          |
+    Og når behandlingsresultatet er utledet for behandling 2
+
+    Så forvent at behandlingsresultatet er AVSLÅTT på behandling 2
