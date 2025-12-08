@@ -41,7 +41,7 @@ class BehandlingsresultatService(
             behandlingService
                 .hentBehandlingerPåFagsak(behandlingId)
                 .filter { it.erAvsluttet() }
-                .all { it.resultat != Behandlingsresultat.AVSLÅTT }
+                .all { it.resultat == Behandlingsresultat.AVSLÅTT }
 
         val søknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)
         val søknadDto = søknadGrunnlag?.tilSøknadDto()
@@ -86,7 +86,7 @@ class BehandlingsresultatService(
 
         // 2 ENDRINGER
         val endringsresultat =
-            if (forrigeBehandling != null && harTidligereBareBehandlingerSomErAvslått) {
+            if (forrigeBehandling != null && !harTidligereBareBehandlingerSomErAvslått) {
                 val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
 
