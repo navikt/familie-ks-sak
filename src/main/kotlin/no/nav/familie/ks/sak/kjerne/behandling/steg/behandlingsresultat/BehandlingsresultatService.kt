@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatUtils.skalUtledeSøknadsresultatForBehandling
@@ -36,6 +37,11 @@ class BehandlingsresultatService(
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id)
+        val harTidligereBareBehandlingerSomErAvslått =
+            behandlingService
+                .hentBehandlingerPåFagsak(behandlingId)
+                .filter { it.erAvsluttet() }
+                .all { it.resultat != Behandlingsresultat.AVSLÅTT }
 
         val søknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)
         val søknadDto = søknadGrunnlag?.tilSøknadDto()
@@ -80,7 +86,7 @@ class BehandlingsresultatService(
 
         // 2 ENDRINGER
         val endringsresultat =
-            if (forrigeBehandling != null) {
+            if (forrigeBehandling != null && harTidligereBareBehandlingerSomErAvslått) {
                 val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
 
@@ -128,6 +134,7 @@ class BehandlingsresultatService(
                     // alle barna som er krysset av på søknad
                     søknadDto?.barnaMedOpplysninger?.filter { it.erFolkeregistrert && it.inkludertISøknaden }?.map { personidentService.hentAktør(it.ident) } ?: emptyList()
                 }
+
                 BehandlingÅrsak.KLAGE -> personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
                 else -> emptyList()
             }

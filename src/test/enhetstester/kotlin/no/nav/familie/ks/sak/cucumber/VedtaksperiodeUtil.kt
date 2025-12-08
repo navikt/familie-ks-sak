@@ -92,13 +92,16 @@ fun lagbehandlinger(
         val behandlingKategori =
             parseValgfriEnum<BehandlingKategori>(Domenebegrep.BEHANDLINGSKATEGORI, rad)
                 ?: BehandlingKategori.NASJONAL
+        val behandlingsresultat =
+            parseValgfriEnum<Behandlingsresultat>(Domenebegrep.BEHANDLINGSRESULTAT, rad)
+                ?: Behandlingsresultat.IKKE_VURDERT
         val status = parseValgfriEnum<BehandlingStatus>(Domenebegrep.BEHANDLINGSSTATUS, rad)
 
         val behandling =
             lagBehandling(
                 fagsak = fagsak,
                 opprettetÅrsak = behandlingÅrsak ?: BehandlingÅrsak.SØKNAD,
-                resultat = Behandlingsresultat.IKKE_VURDERT,
+                resultat = behandlingsresultat,
                 kategori = behandlingKategori,
             ).copy(id = behandlingId)
         behandling.apply {

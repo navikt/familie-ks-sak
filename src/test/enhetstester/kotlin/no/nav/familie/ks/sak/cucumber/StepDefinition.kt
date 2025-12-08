@@ -113,7 +113,7 @@ class StepDefinition {
 
     /**
      * Mulige felter:
-     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingsstatus |
+     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingsstatus | Behandlingsresultat |
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
@@ -579,6 +579,8 @@ class StepDefinition {
                 .filter { behandling -> behandling.fagsak.id == fagsakId && behandling.status == BehandlingStatus.AVSLUTTET }
                 .maxByOrNull { it.id }
         }
+
+        every { behandlingService.hentBehandlingerPåFagsak(any()) } returns behandlinger.values.toList()
 
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
 
