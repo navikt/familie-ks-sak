@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.Bruker
@@ -146,7 +147,8 @@ class BrevServiceTest {
                 resultat = Resultat.IKKE_VURDERT,
             )
 
-        every { taskService.save(any()) } returns mockk()
+        val taskSlot = slot<Task>()
+        every { taskService.save(capture(taskSlot)) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -175,6 +177,9 @@ class BrevServiceTest {
                 barnasFødselsdager = emptyList(),
             ),
         )
+
+        verify(exactly = 1) { taskService.save(any()) }
+        assertThat(taskSlot.captured.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
 
         verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) }
     }
@@ -206,7 +211,8 @@ class BrevServiceTest {
                 behandlendeEnhetId = "1234",
             )
 
-        every { taskService.save(any()) } returns mockk()
+        val taskSlot = slot<Task>()
+        every { taskService.save(capture(taskSlot)) } returns mockk()
 
         every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
 
@@ -244,6 +250,9 @@ class BrevServiceTest {
                 antallUkerSvarfrist = 5,
             ),
         )
+
+        verify(exactly = 1) { taskService.save(any()) }
+        assertThat(taskSlot.captured.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
 
         verify(exactly = 1) {
             settBehandlingPåVentService.settBehandlingPåVent(
