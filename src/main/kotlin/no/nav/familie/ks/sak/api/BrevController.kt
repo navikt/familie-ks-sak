@@ -101,7 +101,7 @@ class BrevController(
 
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
-        brevService.sendBrevNy(
+        brevService.sendBrev(
             manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
             fagsak = fagsak,
         )

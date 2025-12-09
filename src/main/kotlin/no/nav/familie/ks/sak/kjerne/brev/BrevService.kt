@@ -57,7 +57,7 @@ class BrevService(
 
         val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
 
-        sendBrevNy(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
+        sendBrev(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
     }
 
     private fun utvidManueltBrevDtoMedEnhetOgMottaker(
@@ -79,7 +79,7 @@ class BrevService(
     }
 
     @Transactional
-    fun sendBrevNy(
+    fun sendBrev(
         fagsak: Fagsak,
         behandlingId: Long? = null,
         manueltBrevDto: ManueltBrevDto,

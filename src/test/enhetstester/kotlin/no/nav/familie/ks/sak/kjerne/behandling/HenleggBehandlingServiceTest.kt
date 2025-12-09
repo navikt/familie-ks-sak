@@ -191,7 +191,7 @@ internal class HenleggBehandlingServiceTest {
                 "",
             )
         }
-        verify(exactly = 0) { brevService.sendBrevNy(any(), any(), any()) }
+        verify(exactly = 0) { brevService.sendBrev(any(), any(), any()) }
         verify(exactly = 1) { fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET) }
         verify(exactly = 1) { stegService.settAlleStegTilAvbrutt(behandling) }
         verify(exactly = 1) { sakStatistikkService.opprettSendingAvBehandlingensTilstand(any(), any()) }

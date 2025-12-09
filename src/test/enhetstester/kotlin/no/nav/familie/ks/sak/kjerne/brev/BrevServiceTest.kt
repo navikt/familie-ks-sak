@@ -255,7 +255,7 @@ class BrevServiceTest {
     }
 
     @Nested
-    inner class SendBrevNy {
+    inner class SendBrev {
         @Test
         fun `skal lage journalfør manuelt brev task for bruker og manuelt registrert fullmektig på behandling`() {
             // Arrange
@@ -270,7 +270,7 @@ class BrevServiceTest {
             every { taskService.save(capture(tasks)) } returnsArgument 0
 
             // Act
-            brevService.sendBrevNy(behandling.fagsak, behandling.id, manueltBrevDto)
+            brevService.sendBrev(behandling.fagsak, behandling.id, manueltBrevDto)
 
             // Assert
             verify(exactly = 2) { taskService.save(any()) }
@@ -309,7 +309,7 @@ class BrevServiceTest {
             // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
-                    brevService.sendBrevNy(fagsak, behandlingId = null, manueltBrevDto)
+                    brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
                 }
             assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
         }
