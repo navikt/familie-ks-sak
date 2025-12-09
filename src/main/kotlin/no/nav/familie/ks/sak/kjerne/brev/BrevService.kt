@@ -2,28 +2,13 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
-import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
-import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
-import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
-import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
-import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
-import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
-import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerBrevTask
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
-import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
-import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.DEFAULT_JOURNALFØRENDE_ENHET
-import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.genererEksternReferanseIdForJournalpost
-import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
-import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
-import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
@@ -43,7 +28,6 @@ import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.util.Properties
 
 @Service
 class BrevService(
@@ -52,15 +36,12 @@ class BrevService(
     private val taskService: TaskRepositoryWrapper,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
-    private val utgåendeJournalføringService: UtgåendeJournalføringService,
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val behandlingRepository: BehandlingRepository,
-    private val journalføringRepository: JournalføringRepository,
     private val settBehandlingPåVentService: SettBehandlingPåVentService,
     private val genererBrevService: GenererBrevService,
     private val brevmottakerService: BrevmottakerService,
     private val validerBrevmottakerService: ValiderBrevmottakerService,
-    private val featureToggleService: FeatureToggleService,
     private val saksbehandlerContext: SaksbehandlerContext,
 ) {
     fun hentForhåndsvisningAvBrev(
@@ -76,11 +57,7 @@ class BrevService(
 
         val manueltBrevDtoMedMottakerData = utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto)
 
-        if (featureToggleService.isEnabled(FeatureToggle.JOURNALFOER_MANUELT_BREV_I_TASK)) {
-            sendBrevNy(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
-        } else {
-            sendBrev(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
-        }
+        sendBrevNy(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
     }
 
     private fun utvidManueltBrevDtoMedEnhetOgMottaker(
@@ -99,130 +76,6 @@ class BrevService(
             mottakerMålform = mottakerPerson?.målform ?: manueltBrevDto.mottakerMålform,
             mottakerNavn = mottakerPerson?.navn ?: manueltBrevDto.mottakerNavn,
         )
-    }
-
-    @Transactional
-    fun sendBrev(
-        fagsak: Fagsak,
-        behandlingId: Long? = null,
-        manueltBrevDto: ManueltBrevDto,
-    ) {
-        validerManuelleBrevmottakere(behandlingId, fagsak, manueltBrevDto)
-
-        val behandling = behandlingId?.let { behandlingRepository.hentBehandling(behandlingId) }
-        val generertBrev = genererBrevService.genererManueltBrev(manueltBrevDto)
-
-        val førsteside =
-            if (manueltBrevDto.brevmal.skalGenerereForside()) {
-                Førsteside(
-                    språkkode = manueltBrevDto.mottakerMålform.tilSpråkkode(),
-                    navSkjemaId = "NAV 34-00.07",
-                    overskriftstittel = "Ettersendelse til søknad om kontantstøtte til småbarnsforeldre NAV 34-00.07",
-                )
-            } else {
-                null
-            }
-
-        val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
-        val brevmottakerDtoListe = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling
-        val mottakere =
-            brevmottakerService.lagMottakereFraBrevMottakere(
-                manueltRegistrerteMottakere = brevmottakerDtoListe,
-            )
-
-        if (!BrevmottakerAdresseValidering.harBrevmottakereGyldigAddresse(brevmottakerDtoListe)) {
-            throw FunksjonellFeil(
-                melding = "Det finnes ugyldige brevmottakere i utsending av manuelt brev",
-                frontendFeilmelding = "Adressen som er lagt til manuelt har ugyldig format, og brevet kan ikke sendes. Du må legge til manuell adresse på nytt.",
-            )
-        }
-
-        val journalposterTilDistribusjon =
-            mottakere.map { mottaker ->
-                val journalpostId =
-                    utgåendeJournalføringService.journalførDokument(
-                        fnr = fagsak.aktør.aktivFødselsnummer(),
-                        fagsakId = fagsak.id,
-                        journalførendeEnhet =
-                            manueltBrevDto.enhet?.enhetId
-                                ?: DEFAULT_JOURNALFØRENDE_ENHET,
-                        brev =
-                            listOf(
-                                Dokument(
-                                    dokument = generertBrev,
-                                    filtype = Filtype.PDFA,
-                                    dokumenttype = manueltBrevDto.brevmal.tilFamilieKontrakterDokumentType(),
-                                ),
-                            ),
-                        førsteside = førsteside,
-                        avsenderMottaker = mottaker.tilAvsenderMottaker(),
-                        eksternReferanseId = genererEksternReferanseIdForJournalpost(fagsak.id, behandlingId, mottaker is FullmektigEllerVerge),
-                    )
-
-                if (behandling != null) {
-                    journalføringRepository.save(
-                        DbJournalpost(
-                            behandling = behandling,
-                            journalpostId = journalpostId,
-                            type = DbJournalpostType.U,
-                        ),
-                    )
-                }
-
-                journalpostId to mottaker
-            }
-
-        behandling?.let {
-            val skalLeggeTilOpplysningspliktPåVilkårsvurdering =
-                manueltBrevDto.brevmal == Brevmal.INNHENTE_OPPLYSNINGER || manueltBrevDto.brevmal == Brevmal.VARSEL_OM_REVURDERING
-
-            if (skalLeggeTilOpplysningspliktPåVilkårsvurdering) {
-                leggTilOpplysningspliktIVilkårsvurdering(behandling)
-            }
-
-            if (
-                manueltBrevDto.brevmal.setterBehandlingPåVent()
-            ) {
-                settBehandlingPåVentService.settBehandlingPåVent(
-                    behandlingId = behandlingId,
-                    frist =
-                        LocalDate
-                            .now()
-                            .plusDays(
-                                manueltBrevDto.brevmal.ventefristDager(
-                                    manuellFrist = manueltBrevDto.antallUkerSvarfrist?.toLong(),
-                                    behandlingKategori = behandling.kategori,
-                                ),
-                            ),
-                    årsak = manueltBrevDto.brevmal.hentVenteÅrsak(),
-                )
-            }
-        }
-
-        journalposterTilDistribusjon.forEach { (journalpostId, mottaker) ->
-            DistribuerBrevTask
-                .opprettDistribuerBrevTask(
-                    distribuerBrevDTO =
-                        DistribuerBrevDto(
-                            behandlingId = behandling?.id,
-                            journalpostId = journalpostId,
-                            brevmal = manueltBrevDto.brevmal,
-                            erManueltSendt = true,
-                            manuellAdresseInfo = mottaker.manuellAdresseInfo,
-                        ),
-                    properties =
-                        Properties().apply {
-                            this["fagsakIdent"] = fagsak.aktør.aktivFødselsnummer()
-                            this["mottakerIdent"] = manueltBrevDto.mottakerIdent
-                            this["journalpostId"] = journalpostId
-                            this["behandlingId"] = behandling?.id.toString()
-                            this["fagsakId"] = fagsak.id.toString()
-                            this["mottakerType"] = mottaker.javaClass.simpleName
-                        },
-                ).also {
-                    taskService.save(it)
-                }
-        }
     }
 
     @Transactional
