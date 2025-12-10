@@ -374,6 +374,10 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetNasjonalRettsekundarlandStandardBosmann"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆRLAND_TO_ARBEIDSLAND {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarlandToArbeidsland"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
 
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"
