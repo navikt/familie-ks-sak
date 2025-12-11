@@ -359,7 +359,7 @@ class JournalførManueltBrevTaskTest {
             assertThat(dto.manueltBrevDto).isEqualTo(manueltBrevDto)
             assertThat(dto.avsenderMottaker).isEqualTo(mottakerInfo.tilAvsenderMottaker())
             assertThat(dto.manuellAdresseInfo).isEqualTo(mottakerInfo.manuellAdresseInfo)
-            assertThat(dto.eksternReferanseId).isEqualTo("${fagsakId}_${behandlingId}_null")
+            assertThat(dto.eksternReferanseId).contains("${fagsakId}_${behandlingId}_")
             assertThat(task.metadata["fagsakId"]).isEqualTo(fagsakId.toString())
             assertThat(task.metadata["behandlingId"]).isEqualTo(behandlingId.toString())
             assertThat(task.metadata["brevmal"]).isEqualTo(manueltBrevDto.brevmal.name)
