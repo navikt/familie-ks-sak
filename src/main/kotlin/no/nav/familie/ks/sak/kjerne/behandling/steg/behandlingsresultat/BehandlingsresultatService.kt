@@ -36,11 +36,15 @@ class BehandlingsresultatService(
         val behandling = behandlingService.hentBehandling(behandlingId)
 
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id)
-        val harTidligereBareBehandlingerSomErAvslått =
+
+        val tidligereAvsluttetBehandlingerIFagsak =
             behandlingService
-                .hentBehandlingerPåFagsak(behandlingId)
+                .hentBehandlingerPåFagsak(behandling.fagsak.id)
                 .filter { it.erAvsluttet() }
-                .all { it.resultat == Behandlingsresultat.AVSLÅTT }
+
+        val harTidligereBareBehandlingerSomErAvslått =
+            tidligereAvsluttetBehandlingerIFagsak.isNotEmpty() &&
+                tidligereAvsluttetBehandlingerIFagsak.all { it.resultat.erAvslått() }
 
         val søknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)
         val søknadDto = søknadGrunnlag?.tilSøknadDto()
