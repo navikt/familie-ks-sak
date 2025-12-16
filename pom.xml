@@ -53,17 +53,17 @@
 
         <!-- Kafka -->
         <avro.version>1.12.1</avro.version>
-        <confluent.version>8.1.0</confluent.version>
+        <confluent.version>8.1.1</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>11.1.1</unleash.version>
-        <microsoft-graph.version>6.55.0</microsoft-graph.version>
+        <unleash.version>11.2.0</unleash.version>
+        <microsoft-graph.version>6.58.0</microsoft-graph.version>
         <azure-identity.version>1.18.1</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.31.0</cucumber.version>
+        <cucumber.version>7.33.0</cucumber.version>
         <rest-assured.version>5.5.6</rest-assured.version>
         <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
@@ -74,7 +74,7 @@
 
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
-        <ktlint-cli.version>1.7.1</ktlint-cli.version>
+        <ktlint-cli.version>1.8.0</ktlint-cli.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
@@ -82,7 +82,7 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
         <!-- Sonar -->
-        <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <sonar.organization>navikt</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.sources>src/main</sonar.sources>
@@ -96,7 +96,7 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <!-- Denne inkluderer junit-platform 1.13.3 som kreves av cucumber 7.26, kan muligens fjernes når spring bumper til junit versjon 1.13.3 -->
-                <version>5.13.4</version>
+                <version>6.0.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
