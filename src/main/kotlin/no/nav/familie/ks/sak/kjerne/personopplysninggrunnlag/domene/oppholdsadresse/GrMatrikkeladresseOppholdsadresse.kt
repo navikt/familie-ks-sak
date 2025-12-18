@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.Matrikkeladresse
 import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted.PAA_SVALBARD
 import no.nav.familie.kontrakter.felles.svalbard.erKommunePåSvalbard
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 import java.util.Objects
 
 @Entity(name = "GrMatrikkeladresseOppholdsadresse")
@@ -43,6 +44,21 @@ data class GrMatrikkeladresseOppholdsadresse(
         val oppholdAnnetSted = oppholdAnnetSted.takeIf { it == PAA_SVALBARD }?.let { ", $it" } ?: ""
         return postnummer?.let { "$postnummer$poststed$oppholdAnnetSted" } ?: "Ukjent adresse$oppholdAnnetSted"
     }
+
+    override fun tilAdresse(): Adresse =
+        Adresse(
+            gyldigFraOgMed = periode?.fom,
+            gyldigTilOgMed = periode?.tom,
+            oppholdAnnetSted = oppholdAnnetSted,
+            matrikkeladresse =
+                Matrikkeladresse(
+                    matrikkelId = matrikkelId,
+                    bruksenhetsnummer = bruksenhetsnummer,
+                    tilleggsnavn = tilleggsnavn,
+                    postnummer = postnummer,
+                    kommunenummer = kommunenummer,
+                ),
+        )
 
     override fun erPåSvalbard(): Boolean = (kommunenummer != null && erKommunePåSvalbard(kommunenummer)) || oppholdAnnetSted == PAA_SVALBARD
 
