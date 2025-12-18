@@ -34,36 +34,40 @@ class BarnetsAlderVilkårValidator(
             }
 
         return when (vilkårLovverkInformasjonForBarn.vilkårLovverk) {
-            VilkårLovverk.LOVVERK_2021_OG_2024 ->
+            VilkårLovverk.LOVVERK_2021_OG_2024 -> {
                 barnetsAlderVilkårValidator2021og2024.validerBarnetsAlderVilkår(
                     perioder = perioder,
                     barn = barn,
                     vilkårLovverkInformasjonForBarn = vilkårLovverkInformasjonForBarn,
                 )
+            }
 
-            VilkårLovverk.LOVVERK_2021 ->
+            VilkårLovverk.LOVVERK_2021 -> {
                 barnetsAlderVilkårValidator2021.validerBarnetsAlderVilkår(
                     perioder = perioder,
                     barn = barn,
                     periodeFomBarnetsAlderLov2021 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2021,
                     periodeTomBarnetsAlderLov2021 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2021,
                 )
+            }
 
-            VilkårLovverk.LOVVERK_2024 ->
+            VilkårLovverk.LOVVERK_2024 -> {
                 barnetsAlderVilkårValidator2024.validerBarnetsAlderVilkår(
                     perioder = perioder,
                     barn = barn,
                     periodeFomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2024,
                     periodeTomBarnetsAlderLov2024 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2024,
                 )
+            }
 
-            VilkårLovverk.LOVVERK_2025 ->
+            VilkårLovverk.LOVVERK_2025 -> {
                 barnetsAlderVilkårValidator2025.validerBarnetsAlderVilkår(
                     perioder = perioder,
                     barn = barn,
                     periodeFomBarnetsAlderLov2025 = vilkårLovverkInformasjonForBarn.periodeFomBarnetsAlderLov2025,
                     periodeTomBarnetsAlderLov2025 = vilkårLovverkInformasjonForBarn.periodeTomBarnetsAlderLov2025,
                 )
+            }
         }
     }
 }

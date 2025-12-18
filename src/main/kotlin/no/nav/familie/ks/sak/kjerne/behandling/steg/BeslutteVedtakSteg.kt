@@ -129,14 +129,16 @@ class BeslutteVedtakSteg(
 
     private fun validerAtBehandlingKanBesluttes(behandling: Behandling) {
         when {
-            behandling.status == BehandlingStatus.IVERKSETTER_VEDTAK ->
+            behandling.status == BehandlingStatus.IVERKSETTER_VEDTAK -> {
                 throw FunksjonellFeil("Behandlingen er allerede sendt til oppdrag og venter på kvittering")
+            }
 
-            behandling.status == BehandlingStatus.AVSLUTTET ->
+            behandling.status == BehandlingStatus.AVSLUTTET -> {
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
+            }
 
             behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) ->
+                !featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) -> {
                 throw FunksjonellFeil(
                     melding =
                         "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
@@ -145,6 +147,7 @@ class BeslutteVedtakSteg(
                         "Du har ikke tilgang til å beslutte for denne behandlingen. " +
                             "Ta kontakt med teamet dersom dette ikke stemmer.",
                 )
+            }
         }
     }
 

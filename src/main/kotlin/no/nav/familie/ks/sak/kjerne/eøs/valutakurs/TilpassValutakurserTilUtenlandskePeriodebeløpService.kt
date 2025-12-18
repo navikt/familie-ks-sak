@@ -68,10 +68,17 @@ internal fun tilpassValutakurserTilUtenlandskePeriodebeløp(
         .tilSeparateTidslinjerForBarna()
         .outerJoin(barnasUtenlandskePeriodebeløpTidslinjer) { valutakurs, utenlandskPeriodebeløp ->
             when {
-                utenlandskPeriodebeløp == null -> null
-                valutakurs == null || valutakurs.valutakode != utenlandskPeriodebeløp.valutakode ->
+                utenlandskPeriodebeløp == null -> {
+                    null
+                }
+
+                valutakurs == null || valutakurs.valutakode != utenlandskPeriodebeløp.valutakode -> {
                     Valutakurs.NULL.copy(valutakode = utenlandskPeriodebeløp.valutakode)
-                else -> valutakurs
+                }
+
+                else -> {
+                    valutakurs
+                }
             }
         }.tilSkjemaer()
 }

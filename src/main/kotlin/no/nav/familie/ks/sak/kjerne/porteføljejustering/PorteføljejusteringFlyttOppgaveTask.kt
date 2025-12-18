@@ -81,14 +81,20 @@ class PorteføljejusteringFlyttOppgaveTask(
 
         val saksreferanse = oppgave.saksreferanse
         when {
-            saksreferanse == null -> return
+            saksreferanse == null -> {
+                return
+            }
+
             oppgave.oppgavetype !in (
                 listOf(
                     Oppgavetype.BehandleSak.value,
                     Oppgavetype.GodkjenneVedtak.value,
                     Oppgavetype.BehandleUnderkjentVedtak.value,
                 )
-            ) -> return
+            ) -> {
+                return
+            }
+
             oppgave.behandlesAvApplikasjon == "familie-ks-sak" -> {
                 oppdaterÅpenBehandlingIKsSak(oppgave, nyEnhetId)
             }
@@ -96,6 +102,7 @@ class PorteføljejusteringFlyttOppgaveTask(
             oppgave.behandlesAvApplikasjon == "familie-klage" -> {
                 oppdaterEnhetPåÅpenBehandlingIKlage(oppgaveId, nyEnhetId)
             }
+
             oppgave.behandlesAvApplikasjon == "familie-tilbake" -> {
                 oppdaterEnhetPåÅpenBehandlingITilbakekreving(UUID.fromString(saksreferanse), nyEnhetId)
             }
@@ -123,12 +130,18 @@ class PorteføljejusteringFlyttOppgaveTask(
         val nyEnhetId = arbeidsfordelingsenheter.single().enhetId
 
         return when (nyEnhetId) {
-            KontantstøtteEnhet.VADSØ.enhetsnummer -> throw Feil("Oppgave med id $oppgaveId tildeles fortsatt Vadsø som enhet")
+            KontantstøtteEnhet.VADSØ.enhetsnummer -> {
+                throw Feil("Oppgave med id $oppgaveId tildeles fortsatt Vadsø som enhet")
+            }
+
             KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer -> {
                 logger.warn("Oppgave med id $oppgaveId tilhører midlertidig enhet")
                 null
             }
-            else -> nyEnhetId
+
+            else -> {
+                nyEnhetId
+            }
         }
     }
 

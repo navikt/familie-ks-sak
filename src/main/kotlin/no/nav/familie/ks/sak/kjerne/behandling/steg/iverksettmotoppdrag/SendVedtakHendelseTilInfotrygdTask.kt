@@ -54,6 +54,7 @@ class SendVedtakHendelseTilInfotrygdTask(
                         .first()
                 checkNotNull(førsteUtbetalingsperiode.fom)
             }
+
             else -> {
                 throw Feil("Finner ikke utbetalingsperiode")
             }

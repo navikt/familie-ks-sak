@@ -125,7 +125,6 @@ class BrevPeriodeContext(
         val barnIPeriode: List<Person> =
             when (utvidetVedtaksperiodeMedBegrunnelser.type) {
                 Vedtaksperiodetype.UTBETALING -> finnBarnIUtbetalingPeriode(identerIBegrunnelene)
-
                 Vedtaksperiodetype.OPPHØR -> emptyList()
                 Vedtaksperiodetype.AVSLAG -> emptyList()
                 Vedtaksperiodetype.FORTSATT_INNVILGET -> barnMedUtbetaling + barnMedNullutbetaling
@@ -169,16 +168,25 @@ class BrevPeriodeContext(
         barnMedUtbetaling: List<Person>,
         utbetalingsbeløp: Int,
     ) = when (utvidetVedtaksperiodeMedBegrunnelser.type) {
-        Vedtaksperiodetype.FORTSATT_INNVILGET -> BrevPeriodeType.FORTSATT_INNVILGET
-        Vedtaksperiodetype.UTBETALING ->
+        Vedtaksperiodetype.FORTSATT_INNVILGET -> {
+            BrevPeriodeType.FORTSATT_INNVILGET
+        }
+
+        Vedtaksperiodetype.UTBETALING -> {
             when {
                 utbetalingsbeløp == 0 -> BrevPeriodeType.INNVILGELSE_INGEN_UTBETALING
                 barnMedUtbetaling.isEmpty() -> BrevPeriodeType.INNVILGELSE_KUN_UTBETALING_PÅ_SØKER
                 else -> BrevPeriodeType.INNVILGELSE
             }
+        }
 
-        Vedtaksperiodetype.AVSLAG -> if (fom != null) BrevPeriodeType.AVSLAG else BrevPeriodeType.AVSLAG_UTEN_PERIODE
-        Vedtaksperiodetype.OPPHØR -> BrevPeriodeType.OPPHOR
+        Vedtaksperiodetype.AVSLAG -> {
+            if (fom != null) BrevPeriodeType.AVSLAG else BrevPeriodeType.AVSLAG_UTEN_PERIODE
+        }
+
+        Vedtaksperiodetype.OPPHØR -> {
+            BrevPeriodeType.OPPHOR
+        }
     }
 
     fun finnBarnIUtbetalingPeriode(identerIBegrunnelene: List<String>): List<Person> {
@@ -201,10 +209,13 @@ class BrevPeriodeContext(
         begrunnelse: IBegrunnelse,
     ): List<LocalDate> =
         when {
-            begrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN ->
+            begrunnelse == NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN -> {
                 uregistrerteBarn.mapNotNull { it.fødselsdato }
+            }
 
-            else -> hentBarnSomSkalIBegrunnelse(gjelderSøker, personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse, begrunnelse).map { it.fødselsdato }
+            else -> {
+                hentBarnSomSkalIBegrunnelse(gjelderSøker, personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse, begrunnelse).map { it.fødselsdato }
+            }
         }
 
     fun hentBarnSomSkalIBegrunnelse(
@@ -226,9 +237,10 @@ class BrevPeriodeContext(
                 }
             }
 
-            else ->
+            else -> {
                 personerMedVilkårEllerOvergangsordningSomPasserBegrunnelse
                     .filter { it.type == PersonType.BARN }
+            }
         }
 
     fun hentAntallBarnForBegrunnelse(
@@ -384,34 +396,40 @@ class BrevPeriodeContext(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ) = when (begrunnelse.begrunnelseType) {
-        BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
+        BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
+            begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
+        }
 
         BegrunnelseType.FORTSATT_INNVILGET -> {
             hentRelevantePersonerForFortsattInnvilget()
         }
 
-        else ->
+        else -> {
             begrunnelserForPeriodeContext.hentPersonerSomPasserMedBegrunnelseOgPeriode(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
+        }
     }
 
     private fun hentRelevantePersonerForEøsBegrunnelse(
         begrunnelse: IBegrunnelse,
         sanityBegrunnelse: SanityBegrunnelse,
     ) = when (begrunnelse.begrunnelseType) {
-        BegrunnelseType.ETTER_ENDRET_UTBETALING -> begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
+        BegrunnelseType.ETTER_ENDRET_UTBETALING -> {
+            begrunnelserForPeriodeContext.hentPersonerMedEndretUtbetalingerSomPasserMedVedtaksperiode(sanityBegrunnelse)
+        }
 
         BegrunnelseType.FORTSATT_INNVILGET -> {
             hentRelevantePersonerForFortsattInnvilget()
         }
 
-        else ->
+        else -> {
             begrunnelserForPeriodeContext.hentPersonerSomPasserForKompetanseIPeriode(
                 begrunnelse = begrunnelse,
                 sanityBegrunnelse = sanityBegrunnelse,
             )
+        }
     }
 
     private fun hentRelevantePersonerForFortsattInnvilget(): Set<Person> {
@@ -595,9 +613,12 @@ class BrevPeriodeContext(
         val månedenFørFom = vedtaksperiodeFom.minusMonths(1).tilMånedÅr()
 
         return when (vedtaksperiodeType) {
-            Vedtaksperiodetype.AVSLAG ->
+            Vedtaksperiodetype.AVSLAG -> {
                 when {
-                    vedtaksperiodeFom == TIDENES_MORGEN && vedtaksperiodeTom == TIDENES_ENDE -> ""
+                    vedtaksperiodeFom == TIDENES_MORGEN && vedtaksperiodeTom == TIDENES_ENDE -> {
+                        ""
+                    }
+
                     vedtaksperiodeTom == TIDENES_ENDE -> {
                         val vilkårMedEksplisitteAvslag = vilkårResultaterForRelevantePersoner.filter { it.erEksplisittAvslagPåSøknad == true }
                         val avslagsperiodeStarterMånedEtterVilkår =
@@ -612,8 +633,11 @@ class BrevPeriodeContext(
                         }
                     }
 
-                    else -> "${vedtaksperiodeFom.tilMånedÅr()} til ${vedtaksperiodeTom.tilMånedÅr()}"
+                    else -> {
+                        "${vedtaksperiodeFom.tilMånedÅr()} til ${vedtaksperiodeTom.tilMånedÅr()}"
+                    }
                 }
+            }
 
             Vedtaksperiodetype.OPPHØR -> {
                 val opphørGrunnetFulltidsBarnehageplassAugust2024 =
@@ -778,5 +802,7 @@ private fun NasjonalEllerFellesBegrunnelse.hentRelevanteEndringsperioderForBegru
             }
         }
 
-        else -> emptyList()
+        else -> {
+            emptyList()
+        }
     }

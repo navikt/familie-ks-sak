@@ -126,13 +126,8 @@ fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateT
     }
 
 fun LocalDate.erHelligdag() =
-    this.dayOfMonth == 1 &&
-        this.month == Month.JANUARY ||
-        this.dayOfMonth == 1 &&
-        this.month == Month.MAY ||
-        this.dayOfMonth == 17 &&
-        this.month == Month.MAY ||
-        this.dayOfMonth == 25 &&
-        this.month == Month.DECEMBER ||
-        this.dayOfMonth == 26 &&
-        this.month == Month.DECEMBER
+    (this.dayOfMonth == 1 && this.month == Month.JANUARY) ||
+        (this.dayOfMonth == 1 && this.month == Month.MAY) ||
+        (this.dayOfMonth == 17 && this.month == Month.MAY) ||
+        (this.dayOfMonth == 25 && this.month == Month.DECEMBER) ||
+        (this.dayOfMonth == 26 && this.month == Month.DECEMBER)

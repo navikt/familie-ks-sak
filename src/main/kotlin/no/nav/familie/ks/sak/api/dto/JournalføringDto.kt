@@ -136,12 +136,16 @@ class Dødsbo(
 
 fun MottakerInfo.tilAvsenderMottaker(): AvsenderMottaker? =
     when (this) {
-        is FullmektigEllerVerge, is Dødsbo ->
+        is FullmektigEllerVerge, is Dødsbo -> {
             AvsenderMottaker(
                 navn = navn,
                 id = null,
                 idType = null,
             )
+        }
+
         // Trenger ikke overstyres når mottaker er bruker
-        is Bruker, is BrukerMedUtenlandskAdresse -> null
+        is Bruker, is BrukerMedUtenlandskAdresse -> {
+            null
+        }
     }

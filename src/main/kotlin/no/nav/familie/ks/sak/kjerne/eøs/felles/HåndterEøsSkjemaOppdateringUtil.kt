@@ -45,17 +45,27 @@ fun <T : EøsSkjemaEntitet<T>> T.lagBlankSkjemaEllerNull(skjemaer: List<T>): T? 
         // oppretter et nytt blank skjema
         // 1. med fjernet barn
         // 2. med perioden som starter måneden etter ny tom dato og frem til eksisterende tom dato(kan være null)
-        skjemaetDerTomForkortesOgBarnFjernes != null ->
+        skjemaetDerTomForkortesOgBarnFjernes != null -> {
             oppdatering
                 .medFjernetBarn(skjemaetDerTomForkortesOgBarnFjernes)
                 .utenInnholdTom(skjemaetDerTomForkortesOgBarnFjernes.tom)
+        }
+
         // oppretter et nytt blank skjema
         // med fjernet barn
-        skjemaetDerBarnFjernes != null -> oppdatering.medFjernetBarn(skjemaetDerBarnFjernes).utenInnhold()
+        skjemaetDerBarnFjernes != null -> {
+            oppdatering.medFjernetBarn(skjemaetDerBarnFjernes).utenInnhold()
+        }
+
         // oppretter et nytt blank skjema
         // med perioden som starter måneden etter ny tom dato og frem til eksisterende tom dato(kan være null)
-        skjemaetDerTomForkortes != null -> oppdatering.utenInnholdTom(skjemaetDerTomForkortes.tom)
-        else -> null
+        skjemaetDerTomForkortes != null -> {
+            oppdatering.utenInnholdTom(skjemaetDerTomForkortes.tom)
+        }
+
+        else -> {
+            null
+        }
     }
 }
 

@@ -8,27 +8,37 @@ sealed class BegrunnelseDto(
 ) : Comparable<BegrunnelseDto> {
     override fun compareTo(other: BegrunnelseDto): Int =
         when (this) {
-            is FritekstBegrunnelseDto -> Int.MAX_VALUE
-            is BegrunnelseDtoMedData ->
+            is FritekstBegrunnelseDto -> {
+                Int.MAX_VALUE
+            }
+
+            is BegrunnelseDtoMedData -> {
                 when (other) {
-                    is FritekstBegrunnelseDto -> this.vedtakBegrunnelseType.sorteringsrekkefølge
-                    is BegrunnelseDtoMedData ->
+                    is FritekstBegrunnelseDto -> {
+                        this.vedtakBegrunnelseType.sorteringsrekkefølge
+                    }
+
+                    is BegrunnelseDtoMedData -> {
                         when (this.sanityBegrunnelseType) {
-                            SanityBegrunnelseType.STANDARD ->
+                            SanityBegrunnelseType.STANDARD -> {
                                 if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
                                     this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
                                 } else {
                                     -Int.MAX_VALUE
                                 }
+                            }
 
-                            else ->
+                            else -> {
                                 if (other.sanityBegrunnelseType == SanityBegrunnelseType.STANDARD) {
                                     Int.MAX_VALUE
                                 } else {
                                     this.vedtakBegrunnelseType.sorteringsrekkefølge - other.vedtakBegrunnelseType.sorteringsrekkefølge
                                 }
+                            }
                         }
+                    }
                 }
+            }
         }
 }
 

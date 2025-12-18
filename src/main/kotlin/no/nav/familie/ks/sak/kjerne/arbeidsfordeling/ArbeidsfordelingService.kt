@@ -64,7 +64,7 @@ class ArbeidsfordelingService(
                     )
 
                 when (aktivArbeidsfordelingPåBehandling) {
-                    null ->
+                    null -> {
                         arbeidsfordelingPåBehandlingRepository.save(
                             ArbeidsfordelingPåBehandling(
                                 behandlingId = behandling.id,
@@ -72,6 +72,7 @@ class ArbeidsfordelingService(
                                 behandlendeEnhetNavn = arbeidsfordelingsenhet.enhetNavn,
                             ),
                         )
+                    }
 
                     else -> {
                         if (!aktivArbeidsfordelingPåBehandling.manueltOverstyrt &&
