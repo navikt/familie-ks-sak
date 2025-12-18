@@ -48,7 +48,7 @@ jobs:
     needs: [ enhetstest, integrasjonstest ]
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup java maven
@@ -57,17 +57,17 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: '21'
       - name: Last ned enhetstest rapport
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # ratchet:actions/download-artifact@v4
         with:
           name: 'enhetstest'
           path: 'coverage/enhetstest'
       - name: Last ned integrasjonstest rapport
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # ratchet:actions/download-artifact@v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # ratchet:actions/download-artifact@v4
         with:
           name: 'integrasjonstest'
           path: 'coverage/integrasjonstest'
       - name: Cache Sonar
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # ratchet:actions/cache@v4
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
