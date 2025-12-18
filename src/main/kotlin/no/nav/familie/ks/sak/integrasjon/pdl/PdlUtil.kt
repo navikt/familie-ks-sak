@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.pdl
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
+import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
 import no.nav.familie.ks.sak.common.exception.PdlRequestException
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.Doedsfall
@@ -11,7 +12,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMask
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBolkRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -72,11 +73,11 @@ fun tilPersonInfo(
     forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet(),
     maskertForelderBarnRelasjoner: Set<ForelderBarnRelasjonInfoMaskert> = emptySet(),
     erEgenAnsatt: Boolean? = null,
-): PdlPersonInfo =
-    PdlPersonInfo(
+): PersonInfo =
+    PersonInfo(
         fødselsdato = LocalDate.parse(pdlPersonData.foedselsdato.first().foedselsdato),
         navn = pdlPersonData.navn.firstOrNull()?.fulltNavn(),
-        kjønn = pdlPersonData.kjoenn.firstOrNull()?.kjoenn,
+        kjønn = pdlPersonData.kjoenn.firstOrNull()?.kjoenn ?: KJOENN.UKJENT,
         forelderBarnRelasjoner = forelderBarnRelasjoner,
         forelderBarnRelasjonerMaskert = maskertForelderBarnRelasjoner,
         adressebeskyttelseGradering = pdlPersonData.adressebeskyttelse.firstOrNull()?.gradering,

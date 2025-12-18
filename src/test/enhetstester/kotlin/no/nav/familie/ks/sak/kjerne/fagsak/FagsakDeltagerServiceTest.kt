@@ -15,7 +15,7 @@ import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -76,7 +76,7 @@ class FagsakDeltagerServiceTest {
         every { personidentService.hentAktør(any()) } returns søkerAktør
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
         every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
-            PdlPersonInfo(
+            PersonInfo(
                 søkersFødselsdato,
                 forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
             )
@@ -120,7 +120,7 @@ class FagsakDeltagerServiceTest {
         every { personidentService.hentAktør(any()) } returns barnAktør
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
         every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
-            PdlPersonInfo(
+            PersonInfo(
                 barnFødselsdato,
                 forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
             )
@@ -141,7 +141,7 @@ class FagsakDeltagerServiceTest {
                 opprettetÅrsak = BehandlingÅrsak.SØKNAD,
             )
         every { personopplysningerService.hentPersoninfoEnkel(any()) } returns
-            PdlPersonInfo(
+            PersonInfo(
                 søkersFødselsdato,
                 forelderBarnRelasjoner =
                     setOf(

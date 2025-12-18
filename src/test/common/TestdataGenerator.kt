@@ -47,7 +47,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.KafkaConfig.Companion.BARNEHAGELISTE_TOPIC
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
@@ -378,7 +378,7 @@ fun lagRegistrerSøknadDto() =
 fun lagPdlPersonInfo(
     enkelPersonInfo: Boolean = false,
     erBarn: Boolean = false,
-) = PdlPersonInfo(
+) = PersonInfo(
     fødselsdato = if (erBarn) LocalDate.now().minusYears(1) else LocalDate.of(1987, 5, 1),
     navn = "John Doe",
     kjønn = KJOENN.MANN,
@@ -655,7 +655,7 @@ fun lagVilkårResultaterForBarn(
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
         when (it) {
-            Vilkår.BARNETS_ALDER ->
+            Vilkår.BARNETS_ALDER -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -666,6 +666,7 @@ fun lagVilkårResultaterForBarn(
                         regelverk = regelverk,
                     ),
                 )
+            }
 
             Vilkår.BARNEHAGEPLASS -> {
                 vilkårResultaterForBarn.addAll(
@@ -690,7 +691,7 @@ fun lagVilkårResultaterForBarn(
                 )
             }
 
-            else ->
+            else -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -701,6 +702,7 @@ fun lagVilkårResultaterForBarn(
                         regelverk = regelverk,
                     ),
                 )
+            }
         }
     }
     return vilkårResultaterForBarn
@@ -742,7 +744,7 @@ fun lagVilkårResultaterForDeltBosted(
                 }
             }
 
-            else ->
+            else -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -752,6 +754,7 @@ fun lagVilkårResultaterForDeltBosted(
                         behandlingId = behandlingId,
                     ),
                 )
+            }
         }
     }
     return vilkårResultaterForBarn

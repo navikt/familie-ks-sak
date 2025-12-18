@@ -5,7 +5,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import java.time.LocalDate
 
 data class PersonInfoDto(
@@ -42,7 +42,7 @@ data class BostedsadresseDto(
     val postnummer: String,
 )
 
-fun PdlPersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
+fun PersonInfo.tilPersonInfoDto(personIdent: String): PersonInfoDto {
     val bostedsadresse =
         this.bostedsadresser.filter { it.angittFlyttedato != null }.maxByOrNull { it.angittFlyttedato!! }
 
