@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
@@ -20,6 +21,7 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -83,58 +85,93 @@ internal class ArbeidsfordelingServiceTest {
         assertThat(finnArbeidsfordelingPåBehandling).isEqualTo(mockedArbeidsfordelingPåBehandling)
     }
 
-    @Test
-    fun `manueltOppdaterBehandlendeEnhet skal kaste exception dersom behandling ikke har tilknyttet arbeidsfordeling`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL)
-        val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("testId", "testBegrunnelse")
+    @Nested
+    inner class ManueltOppdaterBehandlendeEnhet {
+        @Test
+        fun `Skal kaste exception dersom behandling ikke har tilknyttet arbeidsfordeling`() {
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL)
+            val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("testId", "testBegrunnelse")
 
-        every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns null
+            every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns null
 
-        val feil =
-            assertThrows<Feil> {
-                arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
-                    behandling,
-                    endreBehandlendeEnhetDto,
+            val feil =
+                assertThrows<Feil> {
+                    arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
+                        behandling,
+                        endreBehandlendeEnhetDto,
+                    )
+                }
+
+            assertThat(feil.message).isEqualTo("Finner ikke tilknyttet arbeidsfordeling på behandling med id ${behandling.id}")
+        }
+
+        @Test
+        fun `Skal kaste funksjonell feil dersom nasjonal behandling forsøkes å settes over til Vadsø`() {
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER, kategori = BehandlingKategori.NASJONAL)
+            val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto(KontantstøtteEnhet.VADSØ.enhetsnummer, "testBegrunnelse")
+
+            val feil =
+                assertThrows<FunksjonellFeil> {
+                    arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
+                        behandling,
+                        endreBehandlendeEnhetDto,
+                    )
+                }
+
+            assertThat(feil.message).isEqualTo("Fra og med 5 Januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Vadsø dersom det er en Nasjonal sak.")
+        }
+
+        @Test
+        fun `Skal kaste funksjonell feil dersom eøs behandling forsøkes å settes over til Steinkjer`() {
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.NYE_OPPLYSNINGER, kategori = BehandlingKategori.EØS)
+            val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto(KontantstøtteEnhet.STEINKJER.enhetsnummer, "testBegrunnelse")
+
+            val feil =
+                assertThrows<FunksjonellFeil> {
+                    arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(
+                        behandling,
+                        endreBehandlendeEnhetDto,
+                    )
+                }
+
+            assertThat(feil.message).isEqualTo("Fra og med 5 Januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Steinkjer dersom det er en EØS sak.")
+        }
+
+        @Test
+        fun `Skal kaste lagre ned ny arbeidsfordelingPåBehandling med nye detaljer`() {
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL)
+            val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("testId", "testBegrunnelse")
+            val mockedArbeidsfordelingPåBehandling = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
+            val mockedArbeidsfordelingPåBehandlingEtterEndring = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
+
+            every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns mockedArbeidsfordelingPåBehandling
+            every { integrasjonKlient.hentNavKontorEnhet("testId") } returns
+                NavKontorEnhet(
+                    0,
+                    "testNavn",
+                    "testEnhet",
+                    "testStatus",
                 )
-            }
+            every {
+                mockedArbeidsfordelingPåBehandling.copy(
+                    0,
+                    0,
+                    "testId",
+                    "testNavn",
+                    true,
+                )
+            } returns mockedArbeidsfordelingPåBehandlingEtterEndring
+            every {
+                arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring)
+            } returns mockedArbeidsfordelingPåBehandlingEtterEndring
 
-        assertThat(feil.message).isEqualTo("Finner ikke tilknyttet arbeidsfordeling på behandling med id ${behandling.id}")
-    }
+            arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(behandling, endreBehandlendeEnhetDto)
 
-    @Test
-    fun `manueltOppdaterBehandlendeEnhet skal kaste lagre ned ny arbeidsfordelingPåBehandling med nye detaljer`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL)
-        val endreBehandlendeEnhetDto = EndreBehandlendeEnhetDto("testId", "testBegrunnelse")
-        val mockedArbeidsfordelingPåBehandling = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
-        val mockedArbeidsfordelingPåBehandlingEtterEndring = mockk<ArbeidsfordelingPåBehandling>(relaxed = true)
-
-        every { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) } returns mockedArbeidsfordelingPåBehandling
-        every { integrasjonKlient.hentNavKontorEnhet("testId") } returns
-            NavKontorEnhet(
-                0,
-                "testNavn",
-                "testEnhet",
-                "testStatus",
-            )
-        every {
-            mockedArbeidsfordelingPåBehandling.copy(
-                0,
-                0,
-                "testId",
-                "testNavn",
-                true,
-            )
-        } returns mockedArbeidsfordelingPåBehandlingEtterEndring
-        every {
-            arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring)
-        } returns mockedArbeidsfordelingPåBehandlingEtterEndring
-
-        arbeidsfordelingService.manueltOppdaterBehandlendeEnhet(behandling, endreBehandlendeEnhetDto)
-
-        verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) }
-        verify(exactly = 1) { integrasjonKlient.hentNavKontorEnhet("testId") }
-        verify(exactly = 1) { mockedArbeidsfordelingPåBehandling.copy(0, 0, "testId", "testNavn", true) }
-        verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) }
+            verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.finnArbeidsfordelingPåBehandling(behandling.id) }
+            verify(exactly = 1) { integrasjonKlient.hentNavKontorEnhet("testId") }
+            verify(exactly = 1) { mockedArbeidsfordelingPåBehandling.copy(0, 0, "testId", "testNavn", true) }
+            verify(exactly = 1) { arbeidsfordelingPåBehandlingRepository.save(mockedArbeidsfordelingPåBehandlingEtterEndring) }
+        }
     }
 
     @Nested
