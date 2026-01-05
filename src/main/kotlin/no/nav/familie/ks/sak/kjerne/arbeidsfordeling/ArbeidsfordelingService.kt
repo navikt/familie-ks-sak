@@ -136,11 +136,11 @@ class ArbeidsfordelingService(
         when {
             behandling.kategori == BehandlingKategori.EØS &&
                 endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.STEINKJER.enhetsnummer ->
-                throw FunksjonellFeil("Fra og med 5 Januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Steinkjer dersom det er en EØS sak.")
+                throw FunksjonellFeil("Fra og med 5. januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Steinkjer dersom det er en EØS sak.")
 
             behandling.kategori == BehandlingKategori.NASJONAL &&
                 endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.VADSØ.enhetsnummer ->
-                throw FunksjonellFeil("Fra og med 5 Januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Vadsø dersom det er en Nasjonal sak.")
+                throw FunksjonellFeil("Fra og med 5. januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Vadsø dersom det er en Nasjonal sak.")
         }
     }
 
