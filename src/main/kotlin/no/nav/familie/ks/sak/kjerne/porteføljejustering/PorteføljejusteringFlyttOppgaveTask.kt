@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.porteføljejustering
 
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype.NASJONAL
 import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
@@ -54,6 +55,11 @@ class PorteføljejusteringFlyttOppgaveTask(
         val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
         if (oppgave.tildeltEnhetsnr != VADSØ.enhetsnummer) {
             logger.info("Oppgave med id $oppgaveId er ikke tildelt Vadsø. Avbryter flytting av oppgave.")
+            return
+        }
+
+        if (oppgave.behandlingstype != NASJONAL.toString()) {
+            logger.info("Oppgave med id $oppgaveId har ikke behandlingstype NASJONAL. Avbryter flytting av oppgave.")
             return
         }
 
