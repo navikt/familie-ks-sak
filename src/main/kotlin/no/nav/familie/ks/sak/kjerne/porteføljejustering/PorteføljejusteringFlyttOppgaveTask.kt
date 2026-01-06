@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.BERGEN
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.VADSØ
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -63,7 +63,12 @@ class PorteføljejusteringFlyttOppgaveTask(
             return
         }
 
-        val nyEnhetId = validerOgHentNyEnhetForOppgave(oppgave) ?: return
+        val nyEnhetId = validerOgHentNyEnhetForOppgave(oppgave)
+        if (nyEnhetId != BERGEN.enhetsnummer) {
+            logger.info("Oppgave med id $oppgaveId skal flyttes til enhet $nyEnhetId. Avbryter flytting av oppgave.")
+            return
+        }
+
         val nyMappeId =
             oppgave.mappeId?.let {
                 hentMappeIdHosBergenSomTilsvarerMappeIVadsø(
@@ -114,13 +119,12 @@ class PorteføljejusteringFlyttOppgaveTask(
 
     private fun validerOgHentNyEnhetForOppgave(
         oppgave: Oppgave,
-    ): String? {
+    ): String {
         val ident =
             oppgave.identer?.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident
                 ?: throw Feil("Oppgave med id ${oppgave.id} er ikke tilknyttet en ident.")
 
         val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(ident)
-
         if (arbeidsfordelingsenheter.isEmpty()) {
             logger.error("Fant ingen arbeidsfordelingsenheter for ident. Se SecureLogs for detaljer.")
             secureLogger.error("Fant ingen arbeidsfordelingsenheter for ident $ident.")
@@ -134,15 +138,11 @@ class PorteføljejusteringFlyttOppgaveTask(
         }
 
         val nyEnhetId = arbeidsfordelingsenheter.single().enhetId
-
-        return when (nyEnhetId) {
-            KontantstøtteEnhet.VADSØ.enhetsnummer -> throw Feil("Oppgave med id $oppgaveId tildeles fortsatt Vadsø som enhet")
-            KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer -> {
-                logger.warn("Oppgave med id $oppgaveId tilhører midlertidig enhet")
-                null
-            }
-            else -> nyEnhetId
+        if (nyEnhetId == VADSØ.enhetsnummer) {
+            throw Feil("Oppgave med id ${oppgave.id} tildeles fortsatt Vadsø som enhet")
         }
+
+        return nyEnhetId
     }
 
     private fun oppdaterÅpenBehandlingIKsSak(
