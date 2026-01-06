@@ -52,8 +52,7 @@ class PorteføljejusteringFlyttOppgaveTask(
         val oppgaveId = task.payload.toLong()
         val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
 
-        val ident = oppgave.identer?.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident ?: throw Feil("Oppgave med id $oppgaveId er ikke tilknyttet en ident.")
-        val nyEnhetId = validerOgHentNyEnhetForOppgave(ident, oppgaveId) ?: return
+        val nyEnhetId = validerOgHentNyEnhetForOppgave(oppgave) ?: return
         val nyMappeId =
             oppgave.mappeId?.let {
                 hentMappeIdHosBergenSomTilsvarerMappeIVadsø(
@@ -103,9 +102,12 @@ class PorteføljejusteringFlyttOppgaveTask(
     }
 
     private fun validerOgHentNyEnhetForOppgave(
-        ident: String,
-        oppgaveId: Long,
+        oppgave: Oppgave,
     ): String? {
+        val ident =
+            oppgave.identer?.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident
+                ?: throw Feil("Oppgave med id ${oppgave.id} er ikke tilknyttet en ident.")
+
         val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(ident)
 
         if (arbeidsfordelingsenheter.isEmpty()) {
