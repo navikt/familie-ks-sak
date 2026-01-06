@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -14,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåB
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.tilArbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -99,6 +101,8 @@ class ArbeidsfordelingService(
         behandling: Behandling,
         endreBehandlendeEnhet: EndreBehandlendeEnhetDto,
     ) {
+        validerEndringAvBehandlendeEnhet(behandling, endreBehandlendeEnhet)
+
         val aktivArbeidsfordelingPåBehandling = hentArbeidsfordelingPåBehandling(behandling.id)
 
         val aktivArbeidsfordelingsenhet =
@@ -123,6 +127,21 @@ class ArbeidsfordelingService(
             manuellOppdatering = true,
             begrunnelse = endreBehandlendeEnhet.begrunnelse,
         )
+    }
+
+    private fun validerEndringAvBehandlendeEnhet(
+        behandling: Behandling,
+        endreBehandlendeEnhet: EndreBehandlendeEnhetDto,
+    ) {
+        when {
+            behandling.kategori == BehandlingKategori.EØS &&
+                endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.STEINKJER.enhetsnummer ->
+                throw FunksjonellFeil("Fra og med 5. januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Steinkjer dersom det er en EØS sak.")
+
+            behandling.kategori == BehandlingKategori.NASJONAL &&
+                endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.VADSØ.enhetsnummer ->
+                throw FunksjonellFeil("Fra og med 5. januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Vadsø dersom det er en Nasjonal sak.")
+        }
     }
 
     fun hentArbeidsfordelingsenhet(behandling: Behandling): Arbeidsfordelingsenhet {
