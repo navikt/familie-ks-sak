@@ -18,7 +18,7 @@ class MappeIdMappingTest {
     )
     fun `skal returnere korrekt mappe id for Bergen når mappe id fra Vadsø finnes i mapping`(
         mappeIdVadsø: Long,
-        forventetMappeIdBergen: String,
+        forventetMappeIdBergen: Long,
     ) {
         // Act
         val result = hentMappeIdHosBergenSomTilsvarerMappeIVadsø(mappeIdVadsø)
