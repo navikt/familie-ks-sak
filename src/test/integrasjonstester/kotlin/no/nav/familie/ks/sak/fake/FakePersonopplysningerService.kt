@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
+import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.http.HttpStatus
@@ -31,10 +32,12 @@ class FakePersonopplysningerService(
     pdlKlient: PdlKlient,
     integrasjonService: IntegrasjonService,
     personidentService: PersonidentService,
+    falskIdentitetService: FalskIdentitetService,
 ) : PersonopplysningerService(
         pdlKlient,
         integrasjonService,
         personidentService,
+        falskIdentitetService,
     ) {
     init {
         settPersoninfoMedRelasjonerForPredefinerteTestpersoner()

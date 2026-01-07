@@ -7,8 +7,6 @@ import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
 import no.nav.familie.ks.sak.common.exception.PdlRequestException
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.Doedsfall
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.DødsfallData
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBolkRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
@@ -70,16 +68,11 @@ inline fun <reified T : Any> feilsjekkOgReturnerData(pdlRespons: PdlBolkRespons<
 
 fun tilPersonInfo(
     pdlPersonData: PdlPersonData,
-    forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet(),
-    maskertForelderBarnRelasjoner: Set<ForelderBarnRelasjonInfoMaskert> = emptySet(),
-    erEgenAnsatt: Boolean? = null,
 ): PersonInfo =
     PersonInfo(
         fødselsdato = LocalDate.parse(pdlPersonData.foedselsdato.first().foedselsdato),
         navn = pdlPersonData.navn.firstOrNull()?.fulltNavn(),
         kjønn = pdlPersonData.kjoenn.firstOrNull()?.kjoenn ?: KJOENN.UKJENT,
-        forelderBarnRelasjoner = forelderBarnRelasjoner,
-        forelderBarnRelasjonerMaskert = maskertForelderBarnRelasjoner,
         adressebeskyttelseGradering = pdlPersonData.adressebeskyttelse.firstOrNull()?.gradering,
         bostedsadresser = pdlPersonData.bostedsadresse,
         oppholdsadresser = pdlPersonData.oppholdsadresse,
@@ -88,7 +81,6 @@ fun tilPersonInfo(
         sivilstander = pdlPersonData.sivilstand,
         dødsfall = hentDødsfallDataFraListeMedDødsfall(pdlPersonData.doedsfall),
         kontaktinformasjonForDoedsbo = pdlPersonData.kontaktinformasjonForDoedsbo.firstOrNull(),
-        erEgenAnsatt = erEgenAnsatt,
     )
 
 fun List<Adressebeskyttelse>.tilAdressebeskyttelse() =
