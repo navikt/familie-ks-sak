@@ -161,6 +161,7 @@ data class UtfyltKompetanse(
     val søkersAktivitetsland: String,
     val barnetsBostedsland: String,
     val resultat: KompetanseResultat,
+    val erAnnenForelderOmfattetAvNorskLovgivning: Boolean,
 ) : IKompetanse
 
 fun Kompetanse.tilIKompetanse(): IKompetanse =
@@ -177,6 +178,7 @@ fun Kompetanse.tilIKompetanse(): IKompetanse =
             søkersAktivitetsland = this.søkersAktivitetsland!!,
             barnetsBostedsland = this.barnetsBostedsland!!,
             resultat = this.resultat!!,
+            erAnnenForelderOmfattetAvNorskLovgivning = this.erAnnenForelderOmfattetAvNorskLovgivning!!,
         )
     } else {
         TomKompetanse(
