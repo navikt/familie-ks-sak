@@ -1,24 +1,42 @@
 package no.nav.familie.ks.sak.kjerne.porteføljejustering
 
+import com.fasterxml.jackson.module.kotlin.readValue
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.familie.kontrakter.felles.Tema
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
+import no.nav.familie.prosessering.AsyncTaskStep
+import no.nav.familie.prosessering.TaskStepBeskrivelse
+import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.internal.TaskService
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import kotlin.toString
+import kotlin.collections.filterNot
+import kotlin.collections.forEach
+import kotlin.collections.take
+import kotlin.jvm.java
+import kotlin.let
+import kotlin.text.matches
+import kotlin.text.toRegex
 
 @Service
-class PorteføljejusteringService(
+@TaskStepBeskrivelse(
+    taskStepType = StartPorteføljejusteringTask.TASK_STEP_TYPE,
+    beskrivelse = "Finne oppgaver som skal flyttes og opprette tasks for flytting",
+    maxAntallFeil = 3,
+    settTilManuellOppfølgning = true,
+)
+class StartPorteføljejusteringTask(
     private val integrasjonKlient: IntegrasjonKlient,
     private val taskService: TaskService,
-) {
-    fun lagTaskForOverføringAvOppgaverFraVadsø(
-        antallTasks: Int? = null,
-        dryRun: Boolean = true,
-    ): Pair<Int, Int> {
+) : AsyncTaskStep {
+    @WithSpan
+    override fun doTask(task: Task) {
+        val startPorteføljejusteringTaskDto: StartPorteføljejusteringTaskDto = objectMapper.readValue(task.payload)
         val oppgaverIVadsø =
             integrasjonKlient
                 .hentOppgaver(
@@ -42,9 +60,9 @@ class PorteføljejusteringService(
         val totalAntallOppgaverSomSkalFlyttes = oppgaverSomSkalFlyttes.size
         var opprettedeTasks = 0
 
-        if (!dryRun) {
+        if (!startPorteføljejusteringTaskDto.dryRun) {
             oppgaverSomSkalFlyttes
-                .take(antallTasks ?: oppgaverSomSkalFlyttes.size)
+                .take(startPorteføljejusteringTaskDto.antallTasks ?: oppgaverSomSkalFlyttes.size)
                 .forEach { oppgave ->
                     oppgave.id?.let {
                         taskService.save(
@@ -59,10 +77,20 @@ class PorteføljejusteringService(
                 }
         }
 
-        return totalAntallOppgaverSomSkalFlyttes to opprettedeTasks
+        logger.info("Antall oppgaver totalt:$totalAntallOppgaverSomSkalFlyttes, Antall tasks opprettet for flytting:$opprettedeTasks")
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(PorteføljejusteringService::class.java)
+        const val TASK_STEP_TYPE = "startPorteføljejusteringTask"
+        private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
+        fun opprettTask(
+            antallTasks: Int? = null,
+            dryRun: Boolean = true,
+        ): Task =
+            Task(
+                type = TASK_STEP_TYPE,
+                payload = objectMapper.writeValueAsString(StartPorteføljejusteringTaskDto(antallTasks, dryRun)),
+            )
     }
 }
