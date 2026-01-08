@@ -3,20 +3,19 @@ package no.nav.familie.ks.sak.integrasjon.ecb
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCacheRepository
 import no.nav.familie.valutakurs.ECBValutakursRestKlient
 import no.nav.familie.valutakurs.domene.ecb.ECBValutakursData
-import no.nav.familie.valutakurs.domene.ecb.toExchangeRates
 import no.nav.familie.valutakurs.domene.ecb.Frequency
+import no.nav.familie.valutakurs.domene.ecb.toExchangeRates
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateDate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateValue
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesForCurrency
-import no.nav.familie.ks.sak.OppslagSpringRunnerTest
-
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
