@@ -230,13 +230,13 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             )
 
         every { integrasjonKlient.hentBehandlendeEnheter("1234") } returns listOf(Arbeidsfordelingsenhet(BERGEN.enhetsnummer, BERGEN.enhetsnavn))
-        every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, "100012790") } returns mockk()
+        every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, 100012790) } returns mockk()
 
         // Act
         porteføljejusteringFlyttOppgaveTask.doTask(task)
 
         // Assert
-        verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, "100012790") }
+        verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, 100012790) }
         verify { arbeidsfordelingService wasNot Called }
     }
 
@@ -261,13 +261,13 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             )
 
         every { integrasjonKlient.hentBehandlendeEnheter("1234") } returns listOf(Arbeidsfordelingsenhet(BERGEN.enhetsnummer, BERGEN.enhetsnavn))
-        every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, "100012790") } returns mockk()
+        every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, 100012790) } returns mockk()
 
         // Act
         porteføljejusteringFlyttOppgaveTask.doTask(task)
 
         // Assert
-        verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, "100012790") }
+        verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, 100012790) }
         verify { arbeidsfordelingService wasNot Called }
     }
 
@@ -295,7 +295,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             )
 
         every { integrasjonKlient.hentBehandlendeEnheter("1234") } returns listOf(Arbeidsfordelingsenhet(BERGEN.enhetsnummer, BERGEN.enhetsnavn))
-        every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, "100012790") } returns mockk()
+        every { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, 100012790) } returns mockk()
         every { personidentService.hentAktør("1") } returns aktørPåOppgave
         every { fagsakService.hentFagsakForPerson(aktørPåOppgave) } returns lagFagsak()
         every { behandlingRepository.findByFagsakAndAktivAndOpen(any()) } returns behandling
@@ -305,7 +305,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
         porteføljejusteringFlyttOppgaveTask.doTask(task)
 
         // Assert
-        verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, "100012790") }
+        verify(exactly = 1) { integrasjonKlient.tilordneEnhetOgMappeForOppgave(1, BERGEN.enhetsnummer, 100012790) }
         verify(exactly = 1) { personidentService.hentAktør("1") }
         verify(exactly = 1) { fagsakService.hentFagsakForPerson(aktørPåOppgave) }
         verify(exactly = 1) { behandlingRepository.findByFagsakAndAktivAndOpen(any()) }
