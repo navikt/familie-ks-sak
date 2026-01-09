@@ -28,6 +28,7 @@ jobs:
       with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
       coverage-artifact-name: 'enhetstest'
       coverage-artifact-path: 'target/coverage/enhetstest/jacoco.xml'
+      java-version: 25
     secrets: inherit
 
   integrasjonstest:
@@ -40,6 +41,7 @@ jobs:
       with-coverage: ${{ github.actor != 'dependabot[bot]' && github.event_name != 'merge_group' && true || false }}
       coverage-artifact-name: 'integrasjonstest'
       coverage-artifact-path: 'target/coverage/integrasjonstest/jacoco.xml'
+      java-version: 25
     secrets: inherit
 
   sonar:
@@ -55,7 +57,7 @@ jobs:
         uses: navikt/familie-baks-gha-workflows/.github/actions/setup-java-maven@main # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          java-version: '21'
+          java-version: '25'
       - name: Last ned enhetstest rapport
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # ratchet:actions/download-artifact@v4
         with:
