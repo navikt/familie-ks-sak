@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlFødselsDato
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlNavn
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
+import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -23,7 +24,14 @@ class PersonopplysningerServiceTest {
     private val pdlKlient = mockk<PdlKlient>()
     private val integrasjonService = mockk<IntegrasjonService>(relaxed = true)
     private val personidentService = mockk<PersonidentService>()
-    private val personopplysningerService = PersonopplysningerService(pdlKlient, integrasjonService, personidentService)
+    private val falskIdentitetService = mockk<FalskIdentitetService>()
+    private val personopplysningerService =
+        PersonopplysningerService(
+            pdlKlient = pdlKlient,
+            integrasjonService = integrasjonService,
+            personidentService = personidentService,
+            falskIdentitetService = falskIdentitetService,
+        )
 
     @Nested
     inner class HentPersonInfoMedRelasjonerOgRegisterinformasjon {

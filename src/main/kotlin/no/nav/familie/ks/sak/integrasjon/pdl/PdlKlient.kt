@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.config.PdlConfig
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentAdressebeskyttelseBolkQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentAdressebeskyttelseQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentBostedsadresseUtenlandskQuery
+import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentFalskIdentitetQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentIdenterQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.hentStatsborgerskapUtenHistorikkQuery
 import no.nav.familie.ks.sak.config.PdlConfig.Companion.httpHeaders
@@ -17,6 +18,8 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlAdressebeskyttelsePerson
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlAdressebeskyttelseResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBolkRespons
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlFalskIdentitet
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlFalskIdentitetResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlHentIdenterResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlHentPersonResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
@@ -183,6 +186,29 @@ class PdlKlient(
                 it.person!!.bostedsadresse
             }
         return bostedsadresser.firstOrNull { bostedsadresse -> bostedsadresse.utenlandskAdresse != null }?.utenlandskAdresse
+    }
+
+    fun hentFalskIdentitet(ident: String): PdlFalskIdentitet? {
+        val pdlPersonRequest =
+            PdlPersonRequest(
+                variables = PdlPersonRequestVariables(ident),
+                query = hentFalskIdentitetQuery,
+            )
+        val pdlResponse: PdlBaseRespons<PdlFalskIdentitetResponse> =
+            kallEksternTjeneste(
+                tjeneste = "pdl",
+                uri = pdlUri,
+                formål = "Hent falsk identitet",
+            ) {
+                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+            }
+
+        return feilsjekkOgReturnerData(
+            ident = ident,
+            pdlRespons = pdlResponse,
+        ) {
+            it.person.falskIdentitet
+        }
     }
 
     private fun lagPdlPersonRequest(

@@ -21,6 +21,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Oppholdsadresse
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrMatrikkeladresseOppholdsadresse.Companion.fraMatrikkeladresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrUtenlandskAdresseOppholdsadresse.Companion.fraUtenlandskAdresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrVegadresseOppholdsadresse.Companion.fraVegadresse
@@ -52,6 +53,8 @@ abstract class GrOppholdsadresse(
     abstract fun toSecureString(): String
 
     abstract fun tilFrontendString(): String
+
+    abstract fun tilAdresse(): Adresse
 
     abstract fun erPåSvalbard(): Boolean
 

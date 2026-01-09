@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted.PAA_SVALBARD
 import no.nav.familie.kontrakter.felles.personopplysning.UtenlandskAdresse
 import no.nav.familie.ks.sak.common.util.storForbokstav
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 
 @Entity(name = "GrUtenlandskAdresseOppholdsadresse")
 @DiscriminatorValue("UtenlandskAdresse")
@@ -23,7 +24,7 @@ data class GrUtenlandskAdresseOppholdsadresse(
     @Column(name = "region")
     val regionDistriktOmraade: String?,
     @Column(name = "landkode")
-    val landkode: String?,
+    val landkode: String,
 ) : GrOppholdsadresse() {
     override fun toSecureString(): String =
         "GrUtenlandskAdresseOppholdsadresse(" +
@@ -49,6 +50,23 @@ data class GrUtenlandskAdresseOppholdsadresse(
             "$adressenavnNummer$bygningEtasjeLeilighet$postboks$postkode$bySted$regionDistriktOmraade$landkode"
         } ?: "Ukjent utenlandsk adresse$landkode"
     }
+
+    override fun tilAdresse(): Adresse =
+        Adresse(
+            gyldigFraOgMed = periode?.fom,
+            gyldigTilOgMed = periode?.tom,
+            oppholdAnnetSted = oppholdAnnetSted,
+            utenlandskAdresse =
+                UtenlandskAdresse(
+                    adressenavnNummer = adressenavnNummer,
+                    bygningEtasjeLeilighet = bygningEtasjeLeilighet,
+                    postboksNummerNavn = postboksNummerNavn,
+                    postkode = postkode,
+                    bySted = bySted,
+                    regionDistriktOmraade = regionDistriktOmraade,
+                    landkode = landkode,
+                ),
+        )
 
     override fun toString(): String = "GrUtenlandskAdresseOppholdsadresse(detaljer skjult)"
 

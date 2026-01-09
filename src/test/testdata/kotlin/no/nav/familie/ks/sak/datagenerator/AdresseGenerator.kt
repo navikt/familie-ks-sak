@@ -54,7 +54,7 @@ fun lagGrUtenlandskOppholdsadresse(
     postkode: String? = null,
     bySted: String? = null,
     regionDistriktOmraade: String? = null,
-    landkode: String? = null,
+    landkode: String = "",
     periode: DatoIntervallEntitet? = null,
     oppholdAnnetSted: OppholdAnnetSted? = null,
 ) = GrUtenlandskAdresseOppholdsadresse(

@@ -7,7 +7,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 
 object FagsakMapper {
     fun lagFagsakDeltagerResponsDto(
-        personInfo: PdlPersonInfo? = null,
+        personInfo: PersonInfo? = null,
         ident: String = "",
         rolle: FagsakDeltagerRolle,
         fagsak: Fagsak? = null,

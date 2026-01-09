@@ -5,7 +5,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.api.mapper.FagsakMapper.lagFagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -65,7 +65,7 @@ class FagsakDeltagerService(
 
     private fun hentForelderdeltagereFraBehandling(
         aktør: Aktør,
-        personInfoMedRelasjoner: PdlPersonInfo,
+        personInfoMedRelasjoner: PersonInfo,
     ): List<FagsakDeltagerResponsDto> {
         val assosierteFagsakDeltagerMap = mutableMapOf<Long, FagsakDeltagerResponsDto>()
         personRepository.findByAktør(aktør).filter { it.personopplysningGrunnlag.aktiv }.forEach { person ->
@@ -75,7 +75,7 @@ class FagsakDeltagerService(
             val fagsakDeltagerRespons: FagsakDeltagerResponsDto =
                 when {
                     // når søkparam er samme som aktør til behandlingen
-                    fagsak.aktør == aktør ->
+                    fagsak.aktør == aktør -> {
                         lagFagsakDeltagerResponsDto(
                             personInfo = personInfoMedRelasjoner,
                             ident = fagsak.aktør.aktivFødselsnummer(),
@@ -83,6 +83,7 @@ class FagsakDeltagerService(
                             fagsak = behandling.fagsak,
                             adressebeskyttelseGradering = personInfoMedRelasjoner.adressebeskyttelseGradering,
                         )
+                    }
 
                     else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
                         val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
@@ -105,14 +106,17 @@ class FagsakDeltagerService(
     }
 
     private fun leggTilForeldreDeltagerSomIkkeHarBehandling(
-        personInfoMedRelasjoner: PdlPersonInfo,
+        personInfoMedRelasjoner: PersonInfo,
         assosierteFagsakDeltagere: MutableList<FagsakDeltagerResponsDto>,
     ) {
         personInfoMedRelasjoner.forelderBarnRelasjoner.filter { it.harForelderRelasjon() }.forEach { relasjon ->
             if (assosierteFagsakDeltagere.none { it.ident == relasjon.aktør.aktivFødselsnummer() }) {
                 val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(relasjon.aktør)
                 when {
-                    maskertForelder != null -> assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
+                    maskertForelder != null -> {
+                        assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
+                    }
+
                     else -> {
                         val forelderInfo = personopplysningerService.hentPersoninfoEnkel(relasjon.aktør)
                         val fagsak = fagsakRepository.finnFagsakForAktør(relasjon.aktør)
