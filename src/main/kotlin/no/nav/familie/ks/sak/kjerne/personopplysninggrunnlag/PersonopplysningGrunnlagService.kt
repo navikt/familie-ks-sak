@@ -41,7 +41,10 @@ class PersonopplysningGrunnlagService(
         val søkersAktør = behandling.fagsak.aktør
         val barnasAktørFraSisteVedtattBehandling =
             when (behandling.type) {
-                BehandlingType.FØRSTEGANGSBEHANDLING -> emptyList()
+                BehandlingType.FØRSTEGANGSBEHANDLING -> {
+                    emptyList()
+                }
+
                 BehandlingType.REVURDERING, BehandlingType.TEKNISK_ENDRING -> {
                     if (sisteVedtattBehandling == null) {
                         throw Feil("Kan ikke behandle ${behandling.type} uten minst en vedtatt behandling")
@@ -82,7 +85,9 @@ class PersonopplysningGrunnlagService(
                     barnAktørerMedTilkjentYtelse.union(valgteBarnAktører).toList()
                 }
 
-                else -> valgteBarnAktører
+                else -> {
+                    valgteBarnAktører
+                }
             }
 
         return lagreSøkerOgBarnINyttGrunnlag(
@@ -157,7 +162,7 @@ class PersonopplysningGrunnlagService(
         personopplysningGrunnlag.personer.addAll(barna)
 
         return personopplysningGrunnlagRepository.save(personopplysningGrunnlag).also {
-            /**
+            /*
              * For sikkerhetsskyld fastsetter vi alltid behandlende enhet når nytt personopplysningsgrunnlag opprettes.
              * Dette gjør vi fordi det kan ha blitt introdusert personer med fortrolig adresse.
              */

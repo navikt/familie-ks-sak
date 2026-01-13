@@ -69,12 +69,16 @@ fun PersonResultat.tilPeriodeResultater(): List<PeriodeResultat> {
 
 fun utledFomFraVilkårResultat(vilkårResultat: VilkårResultat) =
     when (vilkårResultat.resultat) {
-        Resultat.IKKE_AKTUELT -> null // setter fom null slik at det ikke påvirker beregning
+        Resultat.IKKE_AKTUELT -> null
+
+        // setter fom null slik at det ikke påvirker beregning
         else -> vilkårResultat.periodeFom?.withDayOfMonth(1)
     }
 
 fun utledTomFraVilkårResultat(vilkårResultat: VilkårResultat) =
     when (vilkårResultat.resultat) {
-        Resultat.IKKE_AKTUELT -> null // setter tom null slik at det ikke påvirker beregning v
+        Resultat.IKKE_AKTUELT -> null
+
+        // setter tom null slik at det ikke påvirker beregning v
         else -> vilkårResultat.periodeTom?.sisteDagIMåned()
     }

@@ -29,13 +29,18 @@ fun EndretUtbetalingAndelRequestDto.mapTilBegrunnelser(): List<NasjonalEllerFell
     }
     return when (this.årsak) {
         Årsak.ETTERBETALING_3MND,
-        -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+        -> {
+            listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE)
+        }
 
         Årsak.ALLEREDE_UTBETALT,
-        ->
+        -> {
             this.vedtaksbegrunnelser
+        }
 
         Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
-        -> listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
+        -> {
+            listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024)
+        }
     }
 }

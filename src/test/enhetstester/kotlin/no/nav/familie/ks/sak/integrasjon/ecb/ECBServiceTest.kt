@@ -6,16 +6,16 @@ import io.mockk.unmockkAll
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCache
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCacheRepository
-import no.nav.familie.valutakurs.Frequency
-import no.nav.familie.valutakurs.ValutakursRestClient
-import no.nav.familie.valutakurs.domene.ECBExchangeRate
-import no.nav.familie.valutakurs.domene.ECBExchangeRateDate
-import no.nav.familie.valutakurs.domene.ECBExchangeRateKey
-import no.nav.familie.valutakurs.domene.ECBExchangeRateValue
-import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
-import no.nav.familie.valutakurs.domene.ECBExchangeRatesDataSet
-import no.nav.familie.valutakurs.domene.ECBExchangeRatesForCurrency
-import no.nav.familie.valutakurs.domene.toExchangeRates
+import no.nav.familie.valutakurs.ECBValutakursRestKlient
+import no.nav.familie.valutakurs.domene.ecb.ECBValutakursData
+import no.nav.familie.valutakurs.domene.ecb.Frequency
+import no.nav.familie.valutakurs.domene.ecb.toExchangeRates
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateDate
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateValue
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesForCurrency
 import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.ValutakursException
 import org.assertj.core.api.Assertions.assertThat
@@ -29,7 +29,7 @@ import java.time.LocalDate
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ECBServiceTest {
-    private val ecbClient = mockk<ValutakursRestClient>()
+    private val ecbClient = mockk<ECBValutakursRestKlient>()
     private val evbValutakursCacheRepository = mockk<ECBValutakursCacheRepository>()
 
     private val ecbService = ECBService(ecbClient, evbValutakursCacheRepository)
@@ -48,6 +48,7 @@ class ECBServiceTest {
                 listOf(Pair("NOK", BigDecimal.valueOf(10.337)), Pair("SEK", BigDecimal.valueOf(10.6543))),
                 valutakursDato.toString(),
             )
+
         every { evbValutakursCacheRepository.findByValutakodeAndValutakursdato(any(), any()) } returns null
         every { evbValutakursCacheRepository.save(any()) } returns ECBValutakursCache(kurs = BigDecimal.valueOf(10.6543), valutakode = "SEK", valutakursdato = valutakursDato)
         every {
@@ -147,19 +148,20 @@ class ECBServiceTest {
         frequency: Frequency,
         exchangeRates: List<Pair<String, BigDecimal>>,
         exchangeRateDate: String,
-    ): ECBExchangeRatesData =
-        ECBExchangeRatesData(
-            ECBExchangeRatesDataSet(
+    ): ECBValutakursData =
+        ECBValutakursData(
+            SDMXExchangeRatesDataSet(
                 exchangeRates.map {
-                    ECBExchangeRatesForCurrency(
+                    SDMXExchangeRatesForCurrency(
                         listOf(
-                            ECBExchangeRateKey("CURRENCY", it.first),
-                            ECBExchangeRateKey("FREQ", frequency.toFrequencyParam()),
+                            SDMXExchangeRateKey("CURRENCY", it.first),
+                            SDMXExchangeRateKey("FREQ", frequency.toFrequencyParam()),
                         ),
+                        listOf(),
                         listOf(
-                            ECBExchangeRate(
-                                ECBExchangeRateDate(exchangeRateDate),
-                                ECBExchangeRateValue((it.second)),
+                            SDMXExchangeRate(
+                                SDMXExchangeRateDate(exchangeRateDate),
+                                SDMXExchangeRateValue((it.second)),
                             ),
                         ),
                     )

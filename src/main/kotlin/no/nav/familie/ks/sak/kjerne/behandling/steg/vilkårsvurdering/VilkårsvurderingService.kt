@@ -252,8 +252,13 @@ class VilkårsvurderingService(
                 vilkårResultater + opprettNyttVilkårResultat(personResultat, Vilkår.LOVLIG_OPPHOLD)
             }
 
-            lovligOppholdVilkårFinnesAllerede && !finnesBosattIRiketVilkårVurdertEtterEøs -> vilkårResultater.filter { it.vilkårType != Vilkår.LOVLIG_OPPHOLD }
-            else -> return vilkårResultater
+            lovligOppholdVilkårFinnesAllerede && !finnesBosattIRiketVilkårVurdertEtterEøs -> {
+                vilkårResultater.filter { it.vilkårType != Vilkår.LOVLIG_OPPHOLD }
+            }
+
+            else -> {
+                return vilkårResultater
+            }
         }
     }
 

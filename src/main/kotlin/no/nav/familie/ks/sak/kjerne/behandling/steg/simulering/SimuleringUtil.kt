@@ -83,15 +83,17 @@ fun hentEtterbetalingIPeriode(
             .filter { it.posteringType == PosteringType.YTELSE && it.forfallsdato <= tidSimuleringHentet }
             .sumOf { it.beløp }
     return when {
-        periodeHarPositivFeilutbetaling ->
+        periodeHarPositivFeilutbetaling -> {
             BigDecimal.ZERO
+        }
 
-        else ->
+        else -> {
             if (sumYtelser < BigDecimal.ZERO) {
                 BigDecimal.ZERO
             } else {
                 sumYtelser
             }
+        }
     }
 }
 

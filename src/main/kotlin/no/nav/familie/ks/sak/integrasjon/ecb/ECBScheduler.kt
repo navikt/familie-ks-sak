@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.integrasjon.ecb
 
 import no.nav.familie.leader.LeaderClient
-import no.nav.familie.valutakurs.Frequency
-import no.nav.familie.valutakurs.ValutakursRestClient
+import no.nav.familie.valutakurs.ECBValutakursRestKlient
+import no.nav.familie.valutakurs.domene.ecb.Frequency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
@@ -13,7 +13,7 @@ import java.time.temporal.TemporalAdjusters
 
 @Component
 class ECBScheduler(
-    private val ecbClient: ValutakursRestClient,
+    private val ecbClient: ECBValutakursRestKlient,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(ECBScheduler::class.java)
 

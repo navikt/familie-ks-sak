@@ -116,6 +116,12 @@ fun parseEøsBegrunnelse(rad: Tabellrad): EØSBegrunnelseDto {
             rad,
         )
 
+    val erAnnenForelderOmfattetAvNorskLovgivning =
+        parseValgfriBoolean(
+            VedtaksperiodeMedBegrunnelserParser.DomenebegrepKompetanse.ER_ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING,
+            rad,
+        ) ?: false
+
     val begrunnelse =
         parseEnum<EØSBegrunnelse>(
             BrevPeriodeParser.DomenebegrepBrevBegrunnelse.BEGRUNNELSE,
@@ -155,6 +161,7 @@ fun parseEøsBegrunnelse(rad: Tabellrad): EØSBegrunnelseDto {
             sokersAktivitetsland = søkersAktivitetsland,
             sanityBegrunnelseType = SanityBegrunnelseType.STANDARD,
             antallTimerBarnehageplass = antallTimerBarnehageplass,
+            erAnnenForelderOmfattetAvNorskLovgivning = erAnnenForelderOmfattetAvNorskLovgivning,
         )
     } else {
         EØSBegrunnelseUtenKompetanseDto(

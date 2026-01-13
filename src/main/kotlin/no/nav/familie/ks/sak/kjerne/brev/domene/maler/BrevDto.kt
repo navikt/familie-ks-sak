@@ -161,24 +161,43 @@ enum class Brevmal(
     fun tilFamilieKontrakterDokumentType(): Dokumenttype =
         when (this) {
             INNHENTE_OPPLYSNINGER -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER
+
             VARSEL_OM_REVURDERING -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING
+
             INFORMASJONSBREV_DELT_BOSTED -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_DELT_BOSTED
+
             HENLEGGE_TRUKKET_SØKNAD -> Dokumenttype.KONTANTSTØTTE_HENLEGGE_TRUKKET_SØKNAD
+
             SVARTIDSBREV -> Dokumenttype.KONTANTSTØTTE_SVARTIDSBREV
+
             FORLENGET_SVARTIDSBREV -> Dokumenttype.KONTANTSTØTTE_FORLENGET_SVARTIDSBREV
+
             INFORMASJONSBREV_KAN_SØKE -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE
+
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED
+
             INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT -> Dokumenttype.KONTANTSTØTTE_INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT
+
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER
+
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER
+
             INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER
+
             INFORMASJONSBREV_KAN_HA_RETT_TIL_PENGESTØTTE_FRA_NAV -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_HA_RETT_TIL_PENGESTØTTE_FRA_NAV
+
             INFORMASJONSBREV_INNHENTE_OPPLYSNINGER_KLAGE -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_INNHENTE_OPPLYSNINGER_KLAGE
+
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED
+
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> Dokumenttype.KONTANTSTØTTE_VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS
+
             INFORMASJONSBREV_KAN_SØKE_EØS -> Dokumenttype.KONTANTSTØTTE_INFORMASJONSBREV_KAN_SØKE_EØS
+
             VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> Dokumenttype.KONTANTSTØTTE_VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT
+
             ENDRING_AV_FRAMTIDIG_OPPHØR -> Dokumenttype.KONTANTSTØTTE_ENDRING_AV_FRAMTIDIG_OPPHØR
+
             UTBETALING_ETTER_KA_VEDTAK -> Dokumenttype.KONTANTSTØTTE_UTBETALING_ETTER_KA_VEDTAK
 
             VEDTAK_ENDRING,
@@ -250,7 +269,6 @@ enum class Brevmal(
     fun hentVenteÅrsak() =
         when (this) {
             SVARTIDSBREV, FORLENGET_SVARTIDSBREV -> VenteÅrsak.AVVENTER_BEHANDLING
-
             else -> VenteÅrsak.AVVENTER_DOKUMENTASJON
         }
 
@@ -264,18 +282,25 @@ enum class Brevmal(
             INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
             VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
             VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
-            -> 3 * 7
+            -> {
+                3 * 7
+            }
 
-            SVARTIDSBREV ->
+            SVARTIDSBREV -> {
                 when (behandlingKategori) {
                     BehandlingKategori.EØS -> 30 * 3
                     BehandlingKategori.NASJONAL -> 3 * 7
                     else -> throw Feil("Behandlingskategori er ikke satt fot $this")
                 }
+            }
 
-            FORLENGET_SVARTIDSBREV -> manuellFrist?.times(7) ?: throw Feil("Ventefrist var ikke satt for $this")
+            FORLENGET_SVARTIDSBREV -> {
+                manuellFrist?.times(7) ?: throw Feil("Ventefrist var ikke satt for $this")
+            }
 
-            else -> throw Feil("Ventefrist ikke definert for brevtype $this")
+            else -> {
+                throw Feil("Ventefrist ikke definert for brevtype $this")
+            }
         }
 }
 

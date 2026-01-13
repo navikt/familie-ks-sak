@@ -15,7 +15,9 @@ fun utledMaksAntallMånederMedUtbetaling(
         VilkårLovverk.LOVVERK_2025,
         VilkårLovverk.LOVVERK_2024,
         VilkårLovverk.LOVVERK_2021_OG_2024,
-        -> 7L
+        -> {
+            7L
+        }
 
         VilkårLovverk.LOVVERK_2021 -> {
             val førsteBarnetsAlderVilkårResultatFom = barnetsAlderVilkårResultater.sortedBy { it.periodeFom }.first().periodeFom!!
