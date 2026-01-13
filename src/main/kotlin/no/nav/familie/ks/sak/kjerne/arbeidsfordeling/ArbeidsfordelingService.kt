@@ -210,7 +210,7 @@ class ArbeidsfordelingService(
                 "$oppdatertArbeidsfordelingPåBehandling",
         )
         secureLogger.info(
-            "Fastsatt behandlende enhet oppdateringstype på behandling ${behandling.id}: " +
+            "Fastsatt behandlende enhet $oppdateringstype på behandling ${behandling.id}: " +
                 oppdatertArbeidsfordelingPåBehandling.toSecureString(),
         )
 
