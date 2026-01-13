@@ -5,12 +5,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.kontrakter.felles.Tema
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.VADSØ
 import no.nav.familie.prosessering.internal.TaskService
 import org.junit.jupiter.api.Test
 
@@ -26,15 +27,15 @@ class StartPorteføljejusteringTaskTest {
         val finnOppgaveRequestForKonVadsø =
             FinnOppgaveRequest(
                 tema = Tema.KON,
-                enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                enhet = VADSØ.enhetsnummer,
             )
         every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
                 antallTreffTotalt = 2,
                 oppgaver =
                     listOf(
-                        Oppgave(id = 1, tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
-                        Oppgave(id = 2, tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
+                        Oppgave(id = 1, tildeltEnhetsnr = VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
+                        Oppgave(id = 2, tildeltEnhetsnr = VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
                     ),
             )
 
@@ -48,10 +49,20 @@ class StartPorteføljejusteringTaskTest {
         // Assert
         verify(exactly = 1) { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
         verify(exactly = 1) {
-            taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "1" })
+            taskService.save(
+                match { task ->
+                    task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE &&
+                        task.payload == objectMapper.writeValueAsString(PorteføljejusteringFlyttOppgaveDto(1, VADSØ.enhetsnummer, 50))
+                },
+            )
         }
         verify(exactly = 1) {
-            taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "2" })
+            taskService.save(
+                match { task ->
+                    task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE &&
+                        task.payload == objectMapper.writeValueAsString(PorteføljejusteringFlyttOppgaveDto(2, VADSØ.enhetsnummer, 50))
+                },
+            )
         }
     }
 
@@ -61,15 +72,15 @@ class StartPorteføljejusteringTaskTest {
         val finnOppgaveRequestForKonVadsø =
             FinnOppgaveRequest(
                 tema = Tema.KON,
-                enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                enhet = VADSØ.enhetsnummer,
             )
         every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
                 antallTreffTotalt = 2,
                 oppgaver =
                     listOf(
-                        Oppgave(id = 1, tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
-                        Oppgave(id = 2, tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
+                        Oppgave(id = 1, tildeltEnhetsnr = VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
+                        Oppgave(id = 2, tildeltEnhetsnr = VADSØ.enhetsnummer, mappeId = 50, behandlingstype = Behandlingstype.NASJONAL.value),
                     ),
             )
 
@@ -96,7 +107,7 @@ class StartPorteføljejusteringTaskTest {
         val finnOppgaveRequestForKonVadsø =
             FinnOppgaveRequest(
                 tema = Tema.KON,
-                enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                enhet = VADSØ.enhetsnummer,
             )
         every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
@@ -105,12 +116,12 @@ class StartPorteføljejusteringTaskTest {
                     listOf(
                         Oppgave(
                             id = 1,
-                            tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                            tildeltEnhetsnr = VADSØ.enhetsnummer,
                             mappeId = 50,
                             saksreferanse = "12B34",
                             behandlingstype = Behandlingstype.NASJONAL.value,
                         ),
-                        Oppgave(id = 2, tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer, mappeId = 50, saksreferanse = "IT01", behandlingstype = Behandlingstype.NASJONAL.value),
+                        Oppgave(id = 2, tildeltEnhetsnr = VADSØ.enhetsnummer, mappeId = 50, saksreferanse = "IT01", behandlingstype = Behandlingstype.NASJONAL.value),
                     ),
             )
 
@@ -123,8 +134,22 @@ class StartPorteføljejusteringTaskTest {
 
         // Assert
         verify(exactly = 1) { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) }
-        verify(exactly = 0) { taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "1" }) }
-        verify(exactly = 1) { taskService.save(match { task -> task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE && task.payload == "2" }) }
+        verify(exactly = 0) {
+            taskService.save(
+                match { task ->
+                    task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE &&
+                        task.payload == objectMapper.writeValueAsString(PorteføljejusteringFlyttOppgaveDto(1, VADSØ.enhetsnummer, 50))
+                },
+            )
+        }
+        verify(exactly = 1) {
+            taskService.save(
+                match { task ->
+                    task.type == PorteføljejusteringFlyttOppgaveTask.TASK_STEP_TYPE &&
+                        task.payload == objectMapper.writeValueAsString(PorteføljejusteringFlyttOppgaveDto(2, VADSØ.enhetsnummer, 50))
+                },
+            )
+        }
     }
 
     @Test
@@ -133,7 +158,7 @@ class StartPorteføljejusteringTaskTest {
         val finnOppgaveRequestForKonVadsø =
             FinnOppgaveRequest(
                 tema = Tema.KON,
-                enhet = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                enhet = VADSØ.enhetsnummer,
             )
         every { integrasjonKlient.hentOppgaver(finnOppgaveRequestForKonVadsø) } returns
             FinnOppgaveResponseDto(
@@ -142,7 +167,7 @@ class StartPorteføljejusteringTaskTest {
                     listOf(
                         Oppgave(
                             id = 1,
-                            tildeltEnhetsnr = KontantstøtteEnhet.VADSØ.enhetsnummer,
+                            tildeltEnhetsnr = VADSØ.enhetsnummer,
                             mappeId = null,
                             saksreferanse = "12345",
                         ),
