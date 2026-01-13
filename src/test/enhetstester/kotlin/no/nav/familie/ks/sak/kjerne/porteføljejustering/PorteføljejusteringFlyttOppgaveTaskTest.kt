@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.BERGEN
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.DRAMMEN
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.STORD
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.VADSØ
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
@@ -50,14 +51,14 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
         )
 
     @Test
-    fun `Skal ikke flytte dersom oppgave ikke er tildelt Vadsø`() {
+    fun `Skal ikke flytte dersom oppgave ikke er tildelt Vadsø eller Bergen`() {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
                 id = 1,
-                tildeltEnhetsnr = BERGEN.enhetsnummer,
+                tildeltEnhetsnr = STORD.enhetsnummer,
                 behandlingstype = NASJONAL.toString(),
             )
 
@@ -75,7 +76,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
         behandlingstype: Behandlingstype,
     ) {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -95,7 +96,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     @Test
     fun `Skal kaste feil dersom oppgave ikke er tilknyttet en folkeregistrert ident`() {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -117,7 +118,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     @Test
     fun `Skal kaste feil dersom vi ikke får tilbake noen enheter på ident fra norg`() {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -141,7 +142,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     @Test
     fun `Skal kaste feil dersom vi får tilbake flere enheter på ident fra norg`() {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -169,7 +170,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     @Test
     fun `Skal kaste feil dersom vi får tilbake Vadsø som enhet på ident fra norg`() {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -196,7 +197,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
         enhet: KontantstøtteEnhet,
     ) {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -218,7 +219,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
     @Test
     fun `Skal oppdatere oppgaven med ny enhet og mappe, men ikke behandlingen, dersom saksreferansen ikke er fylt ut`() {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -246,7 +247,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
         oppgavetype: Oppgavetype,
     ) {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
 
         every { integrasjonKlient.finnOppgaveMedId(1) } returns
             Oppgave(
@@ -277,7 +278,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
         oppgavetype: Oppgavetype,
     ) {
         // Arrange
-        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", "1")
+        val task = PorteføljejusteringFlyttOppgaveTask.opprettTask(1, "1", 1)
         val aktørPåOppgave = randomAktør()
         val behandling = lagBehandling()
 
