@@ -285,19 +285,21 @@ private fun Opphørsperiode.settOvergangsordningOpphørBegrunnelser(
     val behandlingKategori = vedtaksperiodeMedBegrunnelser.vedtak.behandling.kategori
 
     when (behandlingKategori) {
-        BehandlingKategori.NASJONAL ->
+        BehandlingKategori.NASJONAL -> {
             vedtaksperiodeMedBegrunnelser.settBegrunnelser(
                 listOf(
                     NasjonalEllerFellesBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
                 ),
             )
+        }
 
-        BehandlingKategori.EØS ->
+        BehandlingKategori.EØS -> {
             vedtaksperiodeMedBegrunnelser.settEøsBegrunnelser(
                 listOf(
                     EØSBegrunnelse.OPPHØR_OVERGANGSORDNING_OPPHØR_EØS.tilVedtaksbegrunnelse(vedtaksperiodeMedBegrunnelser),
                 ),
             )
+        }
     }
 }
 

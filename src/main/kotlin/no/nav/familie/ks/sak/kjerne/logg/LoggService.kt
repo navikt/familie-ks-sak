@@ -89,7 +89,7 @@ class LoggService(
                     "Behandlende enhet ${if (manuellOppdatering) "manuelt" else "automatisk"} endret " +
                         "fra ${fraEnhet.enhetId} ${fraEnhet.enhetNavn} " +
                         "til ${tilEnhet.behandlendeEnhetId} ${tilEnhet.behandlendeEnhetNavn}." +
-                        if (begrunnelse.isNotBlank()) "\n\n$begrunnelse" else "",
+                        if (begrunnelse.isNotBlank()) "\n\nBegrunnelse: $begrunnelse" else "",
             ),
         )
     }
@@ -188,9 +188,18 @@ class LoggService(
     ) {
         val tekst =
             when {
-                endretFrist != null && endretÅrsak != null -> "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
-                endretÅrsak != null -> "Årsak er endret til $endretÅrsak"
-                endretFrist != null -> "Frist er endret til ${endretFrist.tilKortString()}"
+                endretFrist != null && endretÅrsak != null -> {
+                    "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
+                }
+
+                endretÅrsak != null -> {
+                    "Årsak er endret til $endretÅrsak"
+                }
+
+                endretFrist != null -> {
+                    "Frist er endret til ${endretFrist.tilKortString()}"
+                }
+
                 else -> {
                     logger.info("Ingen endringer tilknyttet frist eller årsak på ventende behandling. Oppretter ikke logginnslag.")
                     return

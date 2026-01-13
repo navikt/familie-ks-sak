@@ -259,6 +259,7 @@ class BehandlingService(
         )
     }
 
+    @Transactional
     fun oppdaterBehandlendeEnhet(
         behandlingId: Long,
         endreBehandlendeEnhet: EndreBehandlendeEnhetDto,

@@ -121,6 +121,11 @@ class IntegrasjonKlient(
         }
     }
 
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_1000MS),
+    )
     fun tilordneEnhetOgRessursForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
@@ -616,6 +621,7 @@ class IntegrasjonKlient(
 
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
+        const val RETRY_BACKOFF_1000MS = "\${retry.backoff.delay:1000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"
         private val HEADER_NAV_TEMA_KON = Tema.KON.name

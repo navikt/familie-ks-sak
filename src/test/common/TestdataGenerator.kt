@@ -655,7 +655,7 @@ fun lagVilkårResultaterForBarn(
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
         when (it) {
-            Vilkår.BARNETS_ALDER ->
+            Vilkår.BARNETS_ALDER -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -666,6 +666,7 @@ fun lagVilkårResultaterForBarn(
                         regelverk = regelverk,
                     ),
                 )
+            }
 
             Vilkår.BARNEHAGEPLASS -> {
                 vilkårResultaterForBarn.addAll(
@@ -690,7 +691,7 @@ fun lagVilkårResultaterForBarn(
                 )
             }
 
-            else ->
+            else -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -701,6 +702,7 @@ fun lagVilkårResultaterForBarn(
                         regelverk = regelverk,
                     ),
                 )
+            }
         }
     }
     return vilkårResultaterForBarn
@@ -742,7 +744,7 @@ fun lagVilkårResultaterForDeltBosted(
                 }
             }
 
-            else ->
+            else -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -752,6 +754,7 @@ fun lagVilkårResultaterForDeltBosted(
                         behandlingId = behandlingId,
                     ),
                 )
+            }
         }
     }
     return vilkårResultaterForBarn

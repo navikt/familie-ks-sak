@@ -73,10 +73,18 @@ object BehandlingsresultatOpphørUtils {
         return when {
             // Rekkefølgen av sjekkene er viktig for å komme fram til riktig opphørsresultat.
             nåværendeBehandlingOpphørsdato == null && forrigeBehandlingOpphørsdato == null -> Opphørsresultat.FORTSATT_OPPHØRT
-            nåværendeBehandlingOpphørsdato == null -> Opphørsresultat.IKKE_OPPHØRT // Både forrige og nåværende behandling har ingen andeler
-            nåværendeBehandlingOpphørsdato <= cutOffDato && tidligereOpphørsDatoHarPassertEllerFinnesIkke && nåværendeBehandlingOpphørsdato != forrigeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige opphørsdato har passert
-            nåværendeBehandlingOpphørsdato <= cutOffDato && harTidligereOpphørsDatoEnnForrigeBehandling -> Opphørsresultat.OPPHØRT // Nåværende behandling er opphørt og forrige har senere opphørsdato
+
+            nåværendeBehandlingOpphørsdato == null -> Opphørsresultat.IKKE_OPPHØRT
+
+            // Både forrige og nåværende behandling har ingen andeler
+            nåværendeBehandlingOpphørsdato <= cutOffDato && tidligereOpphørsDatoHarPassertEllerFinnesIkke && nåværendeBehandlingOpphørsdato != forrigeBehandlingOpphørsdato -> Opphørsresultat.OPPHØRT
+
+            // Nåværende behandling er opphørt og forrige opphørsdato har passert
+            nåværendeBehandlingOpphørsdato <= cutOffDato && harTidligereOpphørsDatoEnnForrigeBehandling -> Opphørsresultat.OPPHØRT
+
+            // Nåværende behandling er opphørt og forrige har senere opphørsdato
             nåværendeBehandlingOpphørsdato <= cutOffDato && nåværendeBehandlingOpphørsdato == forrigeBehandlingOpphørsdato -> Opphørsresultat.FORTSATT_OPPHØRT
+
             else -> Opphørsresultat.IKKE_OPPHØRT
         }
     }
@@ -172,9 +180,10 @@ object BehandlingsresultatOpphørUtils {
                     Årsak.ALLEREDE_UTBETALT,
                     Årsak.ETTERBETALING_3MND,
                     Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
-                    ->
+                    -> {
                         // Vi ønsker å filtrere bort andeler som har 0 i kalkulertUtbetalingsbeløp
                         if (kalkulertUtbetalingsbeløp == 0) null else andelTilkjentYtelse
+                    }
                 }
             }.tilAndelerTilkjentYtelse()
     }

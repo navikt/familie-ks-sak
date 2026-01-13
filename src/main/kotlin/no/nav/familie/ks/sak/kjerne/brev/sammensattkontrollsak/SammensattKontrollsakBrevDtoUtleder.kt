@@ -24,23 +24,26 @@ class SammensattKontrollsakBrevDtoUtleder(
     ): BrevDto {
         logger.debug("Utleder sammensatt kontrollsak ${BrevDto::class.simpleName} for vedtak ${vedtak.id}")
         return when (val brevmal = brevmalService.hentVedtaksbrevmal(behandling = vedtak.behandling)) {
-            Brevmal.VEDTAK_OPPHØRT ->
+            Brevmal.VEDTAK_OPPHØRT -> {
                 opphørtSammensattKontrollsakDtoUtleder.utled(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
+            }
 
-            Brevmal.VEDTAK_OPPHØR_MED_ENDRING ->
+            Brevmal.VEDTAK_OPPHØR_MED_ENDRING -> {
                 opphørMedEndringSammensattKontrollsakDtoUtleder.utled(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
+            }
 
-            Brevmal.VEDTAK_ENDRING ->
+            Brevmal.VEDTAK_ENDRING -> {
                 vedtakEndringSammensattKontrollsakDtoUtleder.utled(
                     vedtak = vedtak,
                     sammensattKontrollsak = sammensattKontrollsak,
                 )
+            }
 
             Brevmal.INFORMASJONSBREV_DELT_BOSTED,
             Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
@@ -71,7 +74,9 @@ class SammensattKontrollsakBrevDtoUtleder(
             Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
             Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
             Brevmal.UTBETALING_ETTER_KA_VEDTAK,
-            -> throw Feil("Brevmalen $brevmal er ikke støttet for sammensatte kontrollsaker")
+            -> {
+                throw Feil("Brevmalen $brevmal er ikke støttet for sammensatte kontrollsaker")
+            }
         }
     }
 }

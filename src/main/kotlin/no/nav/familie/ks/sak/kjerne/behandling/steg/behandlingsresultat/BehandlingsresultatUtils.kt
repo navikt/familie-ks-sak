@@ -47,38 +47,63 @@ object BehandlingsresultatUtils {
         return when {
             // Søknad/fødselshendelse/manuell migrering
             sjekkResultat(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER, Endringsresultat.ENDRING, Opphørsresultat.OPPHØRT) -> throw ugyldigBehandlingsresultatFeil("Endret og opphørt")
+
             sjekkResultat(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER, Endringsresultat.ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> throw ugyldigBehandlingsresultatFeil("Endret og fortsatt opphørt")
+
             sjekkResultat(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER, Endringsresultat.INGEN_ENDRING, Opphørsresultat.OPPHØRT) -> throw ugyldigBehandlingsresultatFeil("Opphørt")
-            sjekkResultat(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER, Endringsresultat.INGEN_ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> FORTSATT_INNVILGET // Ved søknad og opphørsresultat fortsatt opphørt skal vi gi fortsatt innvilget pga ingen hjemmel for å avslå
+
+            sjekkResultat(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER, Endringsresultat.INGEN_ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> FORTSATT_INNVILGET
+
+            // Ved søknad og opphørsresultat fortsatt opphørt skal vi gi fortsatt innvilget pga ingen hjemmel for å avslå
             sjekkResultat(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER, Endringsresultat.INGEN_ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> FORTSATT_INNVILGET
 
             sjekkResultat(Søknadsresultat.INNVILGET, Endringsresultat.ENDRING, Opphørsresultat.OPPHØRT) -> INNVILGET_ENDRET_OG_OPPHØRT
+
             sjekkResultat(Søknadsresultat.INNVILGET, Endringsresultat.ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> INNVILGET_OG_ENDRET
+
             sjekkResultat(Søknadsresultat.INNVILGET, Endringsresultat.ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> INNVILGET_OG_ENDRET
+
             sjekkResultat(Søknadsresultat.INNVILGET, Endringsresultat.INGEN_ENDRING, Opphørsresultat.OPPHØRT) -> INNVILGET_OG_OPPHØRT
+
             sjekkResultat(Søknadsresultat.INNVILGET, Endringsresultat.INGEN_ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> INNVILGET
+
             sjekkResultat(Søknadsresultat.INNVILGET, Endringsresultat.INGEN_ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> INNVILGET
 
             sjekkResultat(Søknadsresultat.AVSLÅTT, Endringsresultat.ENDRING, Opphørsresultat.OPPHØRT) -> AVSLÅTT_ENDRET_OG_OPPHØRT
+
             sjekkResultat(Søknadsresultat.AVSLÅTT, Endringsresultat.ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> AVSLÅTT_OG_ENDRET
+
             sjekkResultat(Søknadsresultat.AVSLÅTT, Endringsresultat.ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> AVSLÅTT_OG_ENDRET
+
             sjekkResultat(Søknadsresultat.AVSLÅTT, Endringsresultat.INGEN_ENDRING, Opphørsresultat.OPPHØRT) -> AVSLÅTT_OG_OPPHØRT
+
             sjekkResultat(Søknadsresultat.AVSLÅTT, Endringsresultat.INGEN_ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> AVSLÅTT
+
             sjekkResultat(Søknadsresultat.AVSLÅTT, Endringsresultat.INGEN_ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> AVSLÅTT
 
             sjekkResultat(Søknadsresultat.DELVIS_INNVILGET, Endringsresultat.ENDRING, Opphørsresultat.OPPHØRT) -> DELVIS_INNVILGET_ENDRET_OG_OPPHØRT
+
             sjekkResultat(Søknadsresultat.DELVIS_INNVILGET, Endringsresultat.ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> DELVIS_INNVILGET_OG_ENDRET
+
             sjekkResultat(Søknadsresultat.DELVIS_INNVILGET, Endringsresultat.ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> DELVIS_INNVILGET_OG_ENDRET
+
             sjekkResultat(Søknadsresultat.DELVIS_INNVILGET, Endringsresultat.INGEN_ENDRING, Opphørsresultat.OPPHØRT) -> DELVIS_INNVILGET_OG_OPPHØRT
+
             sjekkResultat(Søknadsresultat.DELVIS_INNVILGET, Endringsresultat.INGEN_ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> DELVIS_INNVILGET
+
             sjekkResultat(Søknadsresultat.DELVIS_INNVILGET, Endringsresultat.INGEN_ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> DELVIS_INNVILGET
 
             // Ikke søknad/fødselshendelse/manuell migrering
             sjekkResultat(null, Endringsresultat.ENDRING, Opphørsresultat.OPPHØRT) -> ENDRET_OG_OPPHØRT
+
             sjekkResultat(null, Endringsresultat.ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> ENDRET_UTBETALING
+
             sjekkResultat(null, Endringsresultat.ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> ENDRET_UTBETALING
+
             sjekkResultat(null, Endringsresultat.INGEN_ENDRING, Opphørsresultat.OPPHØRT) -> OPPHØRT
+
             sjekkResultat(null, Endringsresultat.INGEN_ENDRING, Opphørsresultat.FORTSATT_OPPHØRT) -> FORTSATT_OPPHØRT
+
             sjekkResultat(null, Endringsresultat.INGEN_ENDRING, Opphørsresultat.IKKE_OPPHØRT) -> FORTSATT_INNVILGET
 
             // Skal egentlig aldri kunne komme hit, alle kombinasjoner skal være skrevet ut

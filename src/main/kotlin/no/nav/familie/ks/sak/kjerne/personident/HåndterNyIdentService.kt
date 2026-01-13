@@ -40,7 +40,9 @@ class HåndterNyIdentService(
 
         return when {
             // Personen er ikke i noen fagsaker
-            aktuelleFagsakerForIdenter.isNullOrEmpty() -> aktør
+            aktuelleFagsakerForIdenter.isNullOrEmpty() -> {
+                aktør
+            }
 
             // Ny aktørId, nytt fødselsnummer -> begge håndteres i PatchMergetIdentTask
             aktør == null -> {
@@ -63,7 +65,9 @@ class HåndterNyIdentService(
             }
 
             // Samme aktørId, samme fødselsnummer -> ignorer hendelse
-            else -> aktør
+            else -> {
+                aktør
+            }
         }
     }
 

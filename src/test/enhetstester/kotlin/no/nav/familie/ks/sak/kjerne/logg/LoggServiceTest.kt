@@ -113,7 +113,7 @@ class LoggServiceTest {
         assertThat(lagretLoggManuellOppdatering.type, Is(LoggType.BEHANDLENDE_ENHET_ENDRET))
         assertThat(
             lagretLoggManuellOppdatering.tekst,
-            Is("Behandlende enhet manuelt endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse"),
+            Is("Behandlende enhet manuelt endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\nBegrunnelse: testbegrunnelse"),
         )
 
         loggService.opprettBehandlendeEnhetEndret(
@@ -132,7 +132,7 @@ class LoggServiceTest {
         assertThat(lagretLoggIkkeManuellOppdatering.type, Is(LoggType.BEHANDLENDE_ENHET_ENDRET))
         assertThat(
             lagretLoggIkkeManuellOppdatering.tekst,
-            Is("Behandlende enhet automatisk endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\ntestbegrunnelse"),
+            Is("Behandlende enhet automatisk endret fra fraEnhetId fraEnhetNavn til fraEnhetId fraEnhetNavn.\n\nBegrunnelse: testbegrunnelse"),
         )
     }
 

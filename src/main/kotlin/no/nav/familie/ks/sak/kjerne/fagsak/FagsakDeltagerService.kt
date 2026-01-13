@@ -75,7 +75,7 @@ class FagsakDeltagerService(
             val fagsakDeltagerRespons: FagsakDeltagerResponsDto =
                 when {
                     // når søkparam er samme som aktør til behandlingen
-                    fagsak.aktør == aktør ->
+                    fagsak.aktør == aktør -> {
                         lagFagsakDeltagerResponsDto(
                             personInfo = personInfoMedRelasjoner,
                             ident = fagsak.aktør.aktivFødselsnummer(),
@@ -83,6 +83,7 @@ class FagsakDeltagerService(
                             fagsak = behandling.fagsak,
                             adressebeskyttelseGradering = personInfoMedRelasjoner.adressebeskyttelseGradering,
                         )
+                    }
 
                     else -> { // søkparam(aktør) er ikke søkers aktør, da hentes her forelder til søkparam(aktør)
                         val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(fagsak.aktør)
@@ -112,7 +113,10 @@ class FagsakDeltagerService(
             if (assosierteFagsakDeltagere.none { it.ident == relasjon.aktør.aktivFødselsnummer() }) {
                 val maskertForelder = hentMaskertFagsakdeltakerVedManglendeTilgang(relasjon.aktør)
                 when {
-                    maskertForelder != null -> assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
+                    maskertForelder != null -> {
+                        assosierteFagsakDeltagere.add(maskertForelder.copy(rolle = FagsakDeltagerRolle.FORELDER))
+                    }
+
                     else -> {
                         val forelderInfo = personopplysningerService.hentPersoninfoEnkel(relasjon.aktør)
                         val fagsak = fagsakRepository.finnFagsakForAktør(relasjon.aktør)

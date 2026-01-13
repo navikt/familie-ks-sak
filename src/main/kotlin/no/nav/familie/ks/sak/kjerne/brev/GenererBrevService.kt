@@ -117,9 +117,14 @@ class GenererBrevService(
             val vedtaksbrev =
                 when {
                     sammensattKontrollsak != null -> sammensattKontrollsakBrevDtoUtleder.utled(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
+
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
-                    vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO() // brevService.hentKorreksjonbrevData(vedtak)
+
+                    vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO()
+
+                    // brevService.hentKorreksjonbrevData(vedtak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
+
                     else -> hentVedtaksbrevData(vedtak)
                 }
 
@@ -161,9 +166,11 @@ class GenererBrevService(
                 )
             }
 
-            Brevmal.VEDTAK_AVSLAG -> Avslag(fellesdataForVedtaksbrev = fellesdataForVedtaksbrev)
+            Brevmal.VEDTAK_AVSLAG -> {
+                Avslag(fellesdataForVedtaksbrev = fellesdataForVedtaksbrev)
+            }
 
-            Brevmal.VEDTAK_ENDRING ->
+            Brevmal.VEDTAK_ENDRING -> {
                 VedtakEndring(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
@@ -182,6 +189,7 @@ class GenererBrevService(
                     duMaaMeldeFraOmEndringer = søkerHarMeldtFraOmBarnehagePlass,
                     duMaaGiNavBeskjedHvisBarnetDittFaarTildeltBarnehageplass = !søkerHarMeldtFraOmBarnehagePlass,
                 )
+            }
 
             Brevmal.VEDTAK_OVERGANGSORDNING -> {
                 val sumAvOvergangsordningsAndeler = andeler.filter { it.type == YtelseType.OVERGANGSORDNING }.sumOf { it.totalKalkulertUtbetalingsbeløpForPeriode() }
@@ -193,13 +201,14 @@ class GenererBrevService(
                 )
             }
 
-            Brevmal.VEDTAK_OPPHØRT ->
+            Brevmal.VEDTAK_OPPHØRT -> {
                 Opphørt(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     erFeilutbetalingPåBehandling = simuleringService.erFeilutbetalingPåBehandling(behandlingId = behandling.id),
                 )
+            }
 
-            Brevmal.VEDTAK_OPPHØR_MED_ENDRING ->
+            Brevmal.VEDTAK_OPPHØR_MED_ENDRING -> {
                 OpphørMedEndring(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
@@ -208,8 +217,9 @@ class GenererBrevService(
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     erKlage = behandling.erKlage(),
                 )
+            }
 
-            Brevmal.VEDTAK_FORTSATT_INNVILGET ->
+            Brevmal.VEDTAK_FORTSATT_INNVILGET -> {
                 FortsattInnvilget(
                     fellesdataForVedtaksbrev = fellesdataForVedtaksbrev,
                     etterbetaling = etterbetaling,
@@ -218,8 +228,11 @@ class GenererBrevService(
                     refusjonEosUavklart = brevPeriodeService.beskrivPerioderMedUavklartRefusjonEøs(vedtak),
                     duMåMeldeFraOmEndringerEøsSelvstendigRett = søkersMeldepliktService.skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(vedtak),
                 )
+            }
 
-            else -> throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${vedtaksbrevmal.visningsTekst}")
+            else -> {
+                throw Feil("Forsøker å hente vedtaksbrevdata for brevmal ${vedtaksbrevmal.visningsTekst}")
+            }
         }
     }
 
