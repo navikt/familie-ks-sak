@@ -52,7 +52,7 @@ class PorteføljejusteringFlyttOppgaveTask(
             return
         }
 
-        if (oppgave.behandlingstype != NASJONAL.toString()) {
+        if (oppgave.behandlingstype != NASJONAL.value) {
             logger.info("Oppgave med id $oppgaveId har ikke behandlingstype NASJONAL. Avbryter flytting av oppgave.")
             task.metadata["status"] = "Oppgave har ikke behandlingstype ${oppgave.behandlingstype}"
             return
