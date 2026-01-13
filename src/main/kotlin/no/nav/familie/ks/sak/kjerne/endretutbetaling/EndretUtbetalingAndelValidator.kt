@@ -65,7 +65,9 @@ object EndretUtbetalingAndelValidator {
                 )
             }
 
-            Årsak.ALLEREDE_UTBETALT -> validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel)
+            Årsak.ALLEREDE_UTBETALT -> {
+                validerAlleredeUtbetalt(endretUtbetalingAndel = endretUtbetalingAndel)
+            }
         }
     }
 

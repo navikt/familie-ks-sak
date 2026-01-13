@@ -28,9 +28,11 @@ data class KompetanseDto(
             this.fom == null -> {
                 throw FunksjonellFeil("Manglende fom", httpStatus = HttpStatus.BAD_REQUEST)
             }
+
             this.tom != null && this.fom > this.tom -> {
                 throw FunksjonellFeil("fom er etter tom", httpStatus = HttpStatus.BAD_REQUEST)
             }
+
             this.barnIdenter.isEmpty() -> {
                 throw FunksjonellFeil("Mangler barn", httpStatus = HttpStatus.BAD_REQUEST)
             }

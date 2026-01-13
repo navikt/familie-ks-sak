@@ -35,24 +35,33 @@ enum class RegelverkResultat(
 
 fun VilkårResultat.tilRegelverkResultat() =
     when (this.resultat) {
-        Resultat.OPPFYLT, Resultat.IKKE_AKTUELT ->
+        Resultat.OPPFYLT, Resultat.IKKE_AKTUELT -> {
             when (this.vurderesEtter) {
                 Regelverk.EØS_FORORDNINGEN -> OPPFYLT_EØS_FORORDNINGEN
                 Regelverk.NASJONALE_REGLER -> OPPFYLT_NASJONALE_REGLER
                 null -> OPPFYLT_REGELVERK_IKKE_SATT
             }
-        Resultat.IKKE_OPPFYLT -> IKKE_OPPFYLT
-        Resultat.IKKE_VURDERT -> IKKE_FULLT_VURDERT
+        }
+
+        Resultat.IKKE_OPPFYLT -> {
+            IKKE_OPPFYLT
+        }
+
+        Resultat.IKKE_VURDERT -> {
+            IKKE_FULLT_VURDERT
+        }
     }
 
 fun RegelverkResultat?.kombinerMed(resultat: RegelverkResultat?) =
     when (this) {
-        null ->
+        null -> {
             when (resultat) {
                 null -> null
                 else -> IKKE_FULLT_VURDERT
             }
-        OPPFYLT_EØS_FORORDNINGEN ->
+        }
+
+        OPPFYLT_EØS_FORORDNINGEN -> {
             when (resultat) {
                 null -> IKKE_FULLT_VURDERT
                 OPPFYLT_EØS_FORORDNINGEN -> OPPFYLT_EØS_FORORDNINGEN
@@ -62,7 +71,9 @@ fun RegelverkResultat?.kombinerMed(resultat: RegelverkResultat?) =
                 IKKE_FULLT_VURDERT -> IKKE_FULLT_VURDERT
                 IKKE_OPPFYLT -> IKKE_OPPFYLT
             }
-        OPPFYLT_NASJONALE_REGLER ->
+        }
+
+        OPPFYLT_NASJONALE_REGLER -> {
             when (resultat) {
                 null -> IKKE_FULLT_VURDERT
                 OPPFYLT_EØS_FORORDNINGEN -> OPPFYLT_BLANDET_REGELVERK
@@ -72,7 +83,9 @@ fun RegelverkResultat?.kombinerMed(resultat: RegelverkResultat?) =
                 IKKE_FULLT_VURDERT -> IKKE_FULLT_VURDERT
                 IKKE_OPPFYLT -> IKKE_OPPFYLT
             }
-        OPPFYLT_BLANDET_REGELVERK ->
+        }
+
+        OPPFYLT_BLANDET_REGELVERK -> {
             when (resultat) {
                 null -> IKKE_FULLT_VURDERT
                 OPPFYLT_EØS_FORORDNINGEN -> OPPFYLT_BLANDET_REGELVERK
@@ -82,7 +95,9 @@ fun RegelverkResultat?.kombinerMed(resultat: RegelverkResultat?) =
                 IKKE_FULLT_VURDERT -> IKKE_FULLT_VURDERT
                 IKKE_OPPFYLT -> IKKE_OPPFYLT
             }
-        OPPFYLT_REGELVERK_IKKE_SATT ->
+        }
+
+        OPPFYLT_REGELVERK_IKKE_SATT -> {
             when (resultat) {
                 null -> IKKE_FULLT_VURDERT
                 OPPFYLT_EØS_FORORDNINGEN -> OPPFYLT_BLANDET_REGELVERK
@@ -92,6 +107,13 @@ fun RegelverkResultat?.kombinerMed(resultat: RegelverkResultat?) =
                 IKKE_FULLT_VURDERT -> IKKE_FULLT_VURDERT
                 IKKE_OPPFYLT -> IKKE_OPPFYLT
             }
-        IKKE_OPPFYLT -> IKKE_OPPFYLT
-        IKKE_FULLT_VURDERT -> IKKE_FULLT_VURDERT
+        }
+
+        IKKE_OPPFYLT -> {
+            IKKE_OPPFYLT
+        }
+
+        IKKE_FULLT_VURDERT -> {
+            IKKE_FULLT_VURDERT
+        }
     }

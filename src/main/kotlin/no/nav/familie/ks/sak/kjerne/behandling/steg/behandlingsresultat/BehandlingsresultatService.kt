@@ -138,8 +138,13 @@ class BehandlingsresultatService(
                     søknadDto?.barnaMedOpplysninger?.filter { it.erFolkeregistrert && it.inkludertISøknaden }?.map { personidentService.hentAktør(it.ident) } ?: emptyList()
                 }
 
-                BehandlingÅrsak.KLAGE -> personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
-                else -> emptyList()
+                BehandlingÅrsak.KLAGE -> {
+                    personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
+                }
+
+                else -> {
+                    emptyList()
+                }
             }
 
         return personerFremstiltKravFor.distinct()

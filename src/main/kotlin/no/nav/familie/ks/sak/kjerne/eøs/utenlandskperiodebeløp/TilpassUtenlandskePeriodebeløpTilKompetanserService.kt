@@ -76,11 +76,17 @@ internal fun tilpassUtenlandskePeriodebeløpTilKompetanser(
         .tilSeparateTidslinjerForBarna()
         .outerJoin(barnasKompetanseTidslinjer) { upb, kompetanse ->
             when {
-                kompetanse == null -> null
-                upb == null || upb.utbetalingsland != kompetanse.annenForeldersAktivitetsland ->
-                    UtenlandskPeriodebeløp.NULL.copy(utbetalingsland = kompetanse.annenForeldersAktivitetsland)
+                kompetanse == null -> {
+                    null
+                }
 
-                else -> upb
+                upb == null || upb.utbetalingsland != kompetanse.annenForeldersAktivitetsland -> {
+                    UtenlandskPeriodebeløp.NULL.copy(utbetalingsland = kompetanse.annenForeldersAktivitetsland)
+                }
+
+                else -> {
+                    upb
+                }
             }
         }.tilSkjemaer()
 }

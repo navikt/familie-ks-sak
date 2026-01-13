@@ -20,7 +20,7 @@ class DatabaseCleanupService(
     private val logger = LoggerFactory.getLogger(DatabaseCleanupService::class.java)
 
     private var tableNames: List<String>? = null
-        /**
+        /*
          * Uses the JPA metamodel to find all managed types then try to get the [Table] annotation's from each (if present) to discover the table name.
          * If the [Table] annotation is not defined then we skip that entity (oops :p)
          * JDBC tables must be found out in another way

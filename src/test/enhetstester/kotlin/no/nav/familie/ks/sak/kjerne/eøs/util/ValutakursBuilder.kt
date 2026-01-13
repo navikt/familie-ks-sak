@@ -15,8 +15,14 @@ class ValutakursBuilder(
         vararg barn: Person,
     ) = medSkjema(k, barn.toList()) {
         when {
-            it == '-' -> Valutakurs.NULL
-            it == '$' -> Valutakurs.NULL.copy(valutakode = valutakode)
+            it == '-' -> {
+                Valutakurs.NULL
+            }
+
+            it == '$' -> {
+                Valutakurs.NULL.copy(valutakode = valutakode)
+            }
+
             it?.isDigit() ?: false -> {
                 Valutakurs.NULL.copy(
                     kurs = it?.digitToInt()?.toBigDecimal(),
@@ -24,7 +30,10 @@ class ValutakursBuilder(
                     valutakursdato = null,
                 )
             }
-            else -> null
+
+            else -> {
+                null
+            }
         }
     }
 }

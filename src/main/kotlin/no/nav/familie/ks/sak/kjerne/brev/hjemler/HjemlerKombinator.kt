@@ -76,5 +76,6 @@ fun hjemlerTilHjemmeltekst(
         )
 
         1 -> "§ ${hjemler[0]}"
+
         else -> "§§ ${slåSammen(hjemler)}"
     }
