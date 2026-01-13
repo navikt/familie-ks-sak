@@ -48,19 +48,24 @@ class PorteføljejusteringFlyttOppgaveTask(
         val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
         if (oppgave.tildeltEnhetsnr !in setOf(VADSØ.enhetsnummer, BERGEN.enhetsnummer)) {
             logger.info("Oppgave med id $oppgaveId er ikke tildelt Vadsø. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Ny enhet for oppgave er ikke Vadsø eller Bergen"
             return
         }
 
         if (oppgave.behandlingstype != NASJONAL.toString()) {
             logger.info("Oppgave med id $oppgaveId har ikke behandlingstype NASJONAL. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Oppgave har ikke behandlingstype ${oppgave.behandlingstype}"
             return
         }
 
         val nyEnhetId = validerOgHentNyEnhetForOppgave(oppgave)
         if (nyEnhetId != BERGEN.enhetsnummer) {
             logger.info("Oppgave med id $oppgaveId skal flyttes til enhet $nyEnhetId. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Ny enhet for oppgave er ikke Bergen"
             return
         }
+
+        oppgave.saksreferanse?.let { task.metadata["saksreferanse"] = it }
 
         val nyMappeId = hentMappeIdHosBergenSomTilsvarerMappeIVadsø(oppgave.mappeId)
 
@@ -102,6 +107,8 @@ class PorteføljejusteringFlyttOppgaveTask(
                 throw e
             }
         }
+        task.metadata["status"] = "Flytting av oppgave fullført"
+        task.metadata["nyEnhetId"] = nyEnhetId
     }
 
     private fun validerOgHentNyEnhetForOppgave(
@@ -169,8 +176,8 @@ class PorteføljejusteringFlyttOppgaveTask(
                 properties =
                     Properties().apply {
                         this["oppgaveId"] = oppgaveId.toString()
-                        enhetId?.let { this["enhetId"] = it }
-                        mappeId?.let { this["mappeId"] = it }
+                        this["enhetId"] = enhetId
+                        mappeId?.let { this["mappeId"] = it.toString() }
                     },
             )
     }
