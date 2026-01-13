@@ -112,7 +112,6 @@ class BegrunnelserForPeriodeContext(
             sanityApiNavn == NasjonalEllerFellesBegrunnelse.REDUKSJON_FRAMTIDIG_OPPHØR_BARNEHAGEPLASS.sanityApiNavn -> false
             sanityBegrunnelse.skalAlltidVises -> true
             sanityBegrunnelse.endretUtbetalingsperiode.isNotEmpty() -> erEtterEndretPeriodeAvSammeÅrsak(sanityBegrunnelse)
-
             else -> personerSomMatcherBegrunnelseIPeriode.isNotEmpty()
         }
     }
@@ -345,10 +344,13 @@ class BegrunnelserForPeriodeContext(
         BegrunnelseType.EØS_INNVILGET,
         BegrunnelseType.ENDRET_UTBETALING,
         BegrunnelseType.INNVILGET,
-        -> finnPersonerMedVilkårResultaterSomGjelderIPeriode()
+        -> {
+            finnPersonerMedVilkårResultaterSomGjelderIPeriode()
+        }
 
-        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG ->
+        BegrunnelseType.AVSLAG, BegrunnelseType.EØS_AVSLAG -> {
             finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomEllerRettFørPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse)
+        }
 
         BegrunnelseType.REDUKSJON,
         BegrunnelseType.EØS_REDUKSJON,
@@ -372,7 +374,9 @@ class BegrunnelserForPeriodeContext(
             }
         }
 
-        BegrunnelseType.FORTSATT_INNVILGET -> throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
+        BegrunnelseType.FORTSATT_INNVILGET -> {
+            throw Feil("FORTSATT_INNVILGET skal være filtrert bort.")
+        }
     }
 
     private fun finnPersonerMedIkkeOppfylteVilkårResultaterSomStarterSamtidigSomEllerRettFørPeriodeOgHarGjeldendeAvslagsbegrunnelse(standardBegrunnelse: IBegrunnelse): Map<Person, List<VilkårResultat>> =

@@ -144,7 +144,9 @@ data class VedtaksperiodeMedBegrunnelser(
 
             Vedtaksperiodetype.OPPHØR,
             Vedtaksperiodetype.AVSLAG,
-            -> emptyList()
+            -> {
+                emptyList()
+            }
         }
 
     fun støtterFritekst(

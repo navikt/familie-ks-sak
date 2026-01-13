@@ -106,10 +106,14 @@ object BehandlingsresultatSøknadUtils {
                 val nåværendeBeløp = nåværende?.kalkulertUtbetalingsbeløp
 
                 when {
-                    nåværendeBeløp == null -> Søknadsresultat.INGEN_RELEVANTE_ENDRINGER // Finnes ikke andel i denne behandlingen
+                    nåværendeBeløp == null -> {
+                        Søknadsresultat.INGEN_RELEVANTE_ENDRINGER
+                    }
+
+                    // Finnes ikke andel i denne behandlingen
                     forrigeBeløp == null && nåværendeBeløp == 0 -> { // Lagt til ny andel, men den er overstyrt til 0 kr. Må se på årsak for å finne resultat
                         when (endretUtbetalingAndel?.årsak) {
-                            null ->
+                            null -> {
                                 if (nåværende.differanseberegnetPeriodebeløp != null) {
                                     Søknadsresultat.INNVILGET
                                 } else {
@@ -120,16 +124,25 @@ object BehandlingsresultatSøknadUtils {
                                     )
                                     throw Feil("Andel er satt til 0 kr, men det skyldes verken differanseberegning eller endret utbetaling andel")
                                 }
+                            }
 
                             Årsak.ALLEREDE_UTBETALT,
                             Årsak.ETTERBETALING_3MND,
                             Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024,
-                            -> Søknadsresultat.AVSLÅTT
+                            -> {
+                                Søknadsresultat.AVSLÅTT
+                            }
                         }
                     }
 
-                    forrigeBeløp != nåværendeBeløp && nåværendeBeløp > 0 -> Søknadsresultat.INNVILGET // Innvilget beløp som er annerledes enn forrige
-                    else -> Søknadsresultat.INGEN_RELEVANTE_ENDRINGER
+                    forrigeBeløp != nåværendeBeløp && nåværendeBeløp > 0 -> {
+                        Søknadsresultat.INNVILGET
+                    }
+
+                    // Innvilget beløp som er annerledes enn forrige
+                    else -> {
+                        Søknadsresultat.INGEN_RELEVANTE_ENDRINGER
+                    }
                 }
             }
 
@@ -172,8 +185,11 @@ object BehandlingsresultatSøknadUtils {
 
         return when {
             this.isEmpty() -> throw ingenSøknadsresultatFeil
+
             this.size == 1 -> this.single()
+
             resultaterUtenIngenEndringer.size == 1 -> resultaterUtenIngenEndringer.single()
+
             resultaterUtenIngenEndringer.size == 2 &&
                 resultaterUtenIngenEndringer.containsAll(
                     listOf(

@@ -188,9 +188,18 @@ class LoggService(
     ) {
         val tekst =
             when {
-                endretFrist != null && endretÅrsak != null -> "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
-                endretÅrsak != null -> "Årsak er endret til $endretÅrsak"
-                endretFrist != null -> "Frist er endret til ${endretFrist.tilKortString()}"
+                endretFrist != null && endretÅrsak != null -> {
+                    "Frist og årsak er endret til $endretÅrsak og ${endretFrist.tilKortString()}"
+                }
+
+                endretÅrsak != null -> {
+                    "Årsak er endret til $endretÅrsak"
+                }
+
+                endretFrist != null -> {
+                    "Frist er endret til ${endretFrist.tilKortString()}"
+                }
+
                 else -> {
                     logger.info("Ingen endringer tilknyttet frist eller årsak på ventende behandling. Oppretter ikke logginnslag.")
                     return

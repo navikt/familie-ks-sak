@@ -149,19 +149,24 @@ class BrevService(
         logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${ressursException.httpStatus}")
 
         when {
-            mottakerErIkkeDigitalOgHarUkjentAdresse(ressursException) && behandlingId != null ->
+            mottakerErIkkeDigitalOgHarUkjentAdresse(ressursException) && behandlingId != null -> {
                 loggBrevIkkeDistribuertUkjentAdresse(journalpostId, behandlingId, brevmal)
+            }
 
-            mottakerErDødUtenDødsboadresse(ressursException) && behandlingId != null ->
+            mottakerErDødUtenDødsboadresse(ressursException) && behandlingId != null -> {
                 håndterMottakerDødIngenAdressePåBehandling(journalpostId, brevmal, behandlingId)
+            }
 
-            dokumentetErAlleredeDistribuert(ressursException) ->
+            dokumentetErAlleredeDistribuert(ressursException) -> {
                 logger.warn(
                     "Journalpost med Id=$journalpostId er allerede distribuert. Hopper over distribuering." +
                         if (behandlingId != null) " BehandlingId=$behandlingId." else "",
                 )
+            }
 
-            else -> throw ressursException
+            else -> {
+                throw ressursException
+            }
         }
     }
 

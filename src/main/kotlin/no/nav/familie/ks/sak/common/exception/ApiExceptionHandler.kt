@@ -100,10 +100,12 @@ class ApiExceptionHandler {
                     val invalidFormatException = httpMessageNotReadableException.cause as InvalidFormatException
                     "Ugyldig verdi ${invalidFormatException.value} for felt ${invalidFormatException.path.joinToString(".")}"
                 }
+
                 is MismatchedInputException -> {
                     val mismatchedInputException = httpMessageNotReadableException.cause as MismatchedInputException
                     "Mangler verdi for felt ${mismatchedInputException.path.joinToString(".")}"
                 }
+
                 else -> {
                     logger.error("Ukjent feil ved lesing av request. Se securelogger for mer informasjon")
                     secureLogger.error("Ukjent feil ved lesing av request", httpMessageNotReadableException)
