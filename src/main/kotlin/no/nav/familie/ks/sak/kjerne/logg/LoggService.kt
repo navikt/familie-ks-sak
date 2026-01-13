@@ -89,7 +89,7 @@ class LoggService(
                     "Behandlende enhet ${if (manuellOppdatering) "manuelt" else "automatisk"} endret " +
                         "fra ${fraEnhet.enhetId} ${fraEnhet.enhetNavn} " +
                         "til ${tilEnhet.behandlendeEnhetId} ${tilEnhet.behandlendeEnhetNavn}." +
-                        if (begrunnelse.isNotBlank()) "\n\nBegrunelse: $begrunnelse" else "",
+                        if (begrunnelse.isNotBlank()) "\n\nBegrunnelse: $begrunnelse" else "",
             ),
         )
     }
