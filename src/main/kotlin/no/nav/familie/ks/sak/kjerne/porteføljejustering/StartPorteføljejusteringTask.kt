@@ -47,7 +47,6 @@ class StartPorteføljejusteringTask(
                 .filterNot { it.saksreferanse?.matches("\\d+[A-Z]\\d+".toRegex()) == true } // Filtrere bort infotrygd-oppgaver
                 .filterNot { it.mappeId == null } // Vi skal ikke flytte oppgaver som ikke har mappe id
                 .filter { it.behandlingstype == Behandlingstype.NASJONAL.value }
-                .filter { oppgave -> startPorteføljejusteringTaskDto.behandlesAvApplikasjon?.let { it == oppgave.behandlesAvApplikasjon } ?: true }
 
         logger.info("Fant ${oppgaverSomSkalFlyttes.size} kontantstøtte oppgaver som skal flyttes")
 

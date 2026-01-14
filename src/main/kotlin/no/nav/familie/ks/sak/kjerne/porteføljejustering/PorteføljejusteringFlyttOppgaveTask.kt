@@ -88,7 +88,6 @@ class PorteføljejusteringFlyttOppgaveTask(
         // av BehandleSak, GodkjenndeVedtak eller BehandleUnderkjentVedtak
         if (
             oppgave.saksreferanse != null &&
-            oppgave.behandlesAvApplikasjon == "familie-ks-sak" &&
             oppgave.oppgavetype in setOf(BehandleSak.value, GodkjenneVedtak.value, BehandleUnderkjentVedtak.value)
         ) {
             try {
