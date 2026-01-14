@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBaseRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlBolkRespons
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonData
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -72,7 +73,11 @@ fun tilPersonInfo(
     PersonInfo(
         fødselsdato = LocalDate.parse(pdlPersonData.foedselsdato.first().foedselsdato),
         navn = pdlPersonData.navn.firstOrNull()?.fulltNavn(),
-        kjønn = pdlPersonData.kjoenn.firstOrNull()?.kjoenn ?: KJOENN.UKJENT,
+        kjønn =
+            pdlPersonData.kjoenn
+                .firstOrNull()
+                ?.kjoenn
+                ?.let { Kjønn.valueOf(it.name) } ?: Kjønn.UKJENT,
         adressebeskyttelseGradering = pdlPersonData.adressebeskyttelse.firstOrNull()?.gradering,
         bostedsadresser = pdlPersonData.bostedsadresse,
         oppholdsadresser = pdlPersonData.oppholdsadresse,

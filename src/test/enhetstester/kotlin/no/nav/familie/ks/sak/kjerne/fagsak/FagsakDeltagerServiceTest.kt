@@ -7,14 +7,19 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
+import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagSystemÅrsak
+import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -36,7 +41,7 @@ class FagsakDeltagerServiceTest {
     private val personRepository = mockk<PersonRepository>()
     private val behandlingRepository = mockk<BehandlingRepository>()
 
-    private val fagsakService =
+    private val fagsakDeltagerService =
         FagsakDeltagerService(
             personidentService = personidentService,
             integrasjonService = integrasjonService,
@@ -54,7 +59,7 @@ class FagsakDeltagerServiceTest {
         every { personopplysningerService.hentAdressebeskyttelseSomSystembruker(any()) } returns ADRESSEBESKYTTELSEGRADERING.FORTROLIG
 
         // Act
-        val fagsakdeltakere = fagsakService.hentFagsakDeltagere(randomFnr())
+        val fagsakdeltakere = fagsakDeltagerService.hentFagsakDeltagere(randomFnr())
 
         // Assert
         assertThat(1).isEqualTo(fagsakdeltakere.size)
@@ -75,10 +80,13 @@ class FagsakDeltagerServiceTest {
 
         every { personidentService.hentAktør(any()) } returns søkerAktør
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
-        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
-            PersonInfo(
-                søkersFødselsdato,
-                forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
+        every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
+            PdlPersonInfo.Person(
+                personInfo =
+                    PersonInfo(
+                        søkersFødselsdato,
+                        forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
+                    ),
             )
         every { personRepository.findByAktør(any()) } returns
             listOf(
@@ -99,7 +107,7 @@ class FagsakDeltagerServiceTest {
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
         // Act
-        val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
+        val fagsakdeltakere = fagsakDeltagerService.hentFagsakDeltagere(søkerPersonident)
 
         // Assert
         assertThat(1).isEqualTo(fagsakdeltakere.size)
@@ -119,10 +127,13 @@ class FagsakDeltagerServiceTest {
 
         every { personidentService.hentAktør(any()) } returns barnAktør
         every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
-        every { personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
-            PersonInfo(
-                barnFødselsdato,
-                forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
+        every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
+            PdlPersonInfo.Person(
+                personInfo =
+                    PersonInfo(
+                        barnFødselsdato,
+                        forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
+                    ),
             )
         every { personRepository.findByAktør(any()) } returns
             listOf(
@@ -151,7 +162,7 @@ class FagsakDeltagerServiceTest {
         every { fagsakRepository.finnFagsakForAktør(any()) } returns fagsak
 
         // Act
-        val fagsakdeltakere = fagsakService.hentFagsakDeltagere(søkerPersonident)
+        val fagsakdeltakere = fagsakDeltagerService.hentFagsakDeltagere(søkerPersonident)
 
         // Assert
         assertThat(2).isEqualTo(fagsakdeltakere.size)
@@ -197,7 +208,7 @@ class FagsakDeltagerServiceTest {
         }
 
         // Act
-        val fagsakDeltagereMedEgenAnsattStatus = fagsakService.settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere)
+        val fagsakDeltagereMedEgenAnsattStatus = fagsakDeltagerService.settEgenAnsattStatusPåFagsakDeltagere(fagsakDeltagere)
 
         // Assert
         assertThat(fagsakDeltagereMedEgenAnsattStatus.map { it.ident to it.erEgenAnsatt })
@@ -206,5 +217,96 @@ class FagsakDeltagerServiceTest {
                 erIkkeEgenAnsattIdent to false,
                 manglerDataIdent to null,
             )
+    }
+
+    @Test
+    fun `Dersom feilen PdlPersonKanIkkeBehandlesIFagSystemÅrsak kastes ved henting av forelder uten direkte relasjon skal det logges og ikke feile søket dersom forelder ikke har falsk identitet`() {
+        // Arrange
+        val personInfo = PersonInfo(LocalDate.now())
+        val person = lagPerson()
+        val behandling = lagBehandling()
+
+        every {
+            personidentService.hentAktør(person.aktør.aktivFødselsnummer())
+        } returns person.aktør
+        every {
+            integrasjonService.sjekkTilgangTilPerson(person.aktør.aktivFødselsnummer())
+        } returns Tilgang("test", true)
+        every {
+            integrasjonService.sjekkTilgangTilPerson(behandling.fagsak.aktør.aktivFødselsnummer())
+        } returns Tilgang("test", true)
+        every {
+            personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
+        } returns PdlPersonInfo.Person(personInfo = personInfo)
+        every {
+            personRepository.findByAktør(person.aktør)
+        } returns listOf(person)
+        every {
+            behandlingRepository.hentBehandling(behandlingId = person.personopplysningGrunnlag.behandlingId)
+        } returns behandling
+
+        every { fagsakRepository.finnFagsakForAktør(person.aktør) } returns null
+        every { integrasjonService.sjekkErEgenAnsattBulk(any()) } returns emptyMap()
+        every {
+            personopplysningerService.hentPdlPersonInfoEnkel(behandling.fagsak.aktør)
+        } throws PdlPersonKanIkkeBehandlesIFagsystem(årsak = PdlPersonKanIkkeBehandlesIFagSystemÅrsak.MANGLER_FØDSELSDATO)
+
+        // Act og Assert
+        val fagsakDeltagere = fagsakDeltagerService.hentFagsakDeltagere(person.aktør.aktivFødselsnummer())
+        assertThat(fagsakDeltagere).hasSize(1)
+    }
+
+    @Test
+    fun `Dersom feilen PdlPersonKanIkkeBehandlesIFagSystemÅrsak kastes ved henting av forelder uten direkte relasjon og forelder har falsk identitet skal person info om falsk identitet returneres`() {
+        // Arrange
+        val personInfo = PersonInfo(LocalDate.now())
+        val person = lagPerson()
+        val forelderUtenDirekteRelasjon = lagPerson()
+        val behandling = lagBehandling(fagsak = lagFagsak(aktør = forelderUtenDirekteRelasjon.aktør))
+
+        every {
+            personidentService.hentAktør(person.aktør.aktivFødselsnummer())
+        } returns person.aktør
+        every {
+            integrasjonService.sjekkTilgangTilPerson(person.aktør.aktivFødselsnummer())
+        } returns Tilgang("test", true)
+        every {
+            integrasjonService.sjekkTilgangTilPerson(behandling.fagsak.aktør.aktivFødselsnummer())
+        } returns Tilgang("test", true)
+        every {
+            personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
+        } returns PdlPersonInfo.Person(personInfo = personInfo)
+        every {
+            personRepository.findByAktør(person.aktør)
+        } returns listOf(person)
+        every {
+            behandlingRepository.hentBehandling(behandlingId = person.personopplysningGrunnlag.behandlingId)
+        } returns behandling
+
+        every { fagsakRepository.finnFagsakForAktør(person.aktør) } returns null
+        every { integrasjonService.sjekkErEgenAnsattBulk(any()) } returns emptyMap()
+        every {
+            personopplysningerService.hentPdlPersonInfoEnkel(behandling.fagsak.aktør)
+        } throws PdlPersonKanIkkeBehandlesIFagsystem(årsak = PdlPersonKanIkkeBehandlesIFagSystemÅrsak.MANGLER_FØDSELSDATO)
+        every {
+            personopplysningerService.hentPdlPersonInfoEnkel(any())
+        } returns
+            PdlPersonInfo.FalskPerson(
+                falskIdentitetPersonInfo =
+                    FalskIdentitetPersonInfo(
+                        navn = forelderUtenDirekteRelasjon.navn,
+                        fødselsdato = forelderUtenDirekteRelasjon.fødselsdato,
+                        kjønn = forelderUtenDirekteRelasjon.kjønn,
+                    ),
+            )
+
+        // Act og Assert
+        val fagsakDeltagere = fagsakDeltagerService.hentFagsakDeltagere(person.aktør.aktivFødselsnummer())
+        assertThat(fagsakDeltagere).hasSize(2)
+        val forelder = fagsakDeltagere.first { it.rolle == FagsakDeltagerRolle.FORELDER }
+        assertThat(forelder.navn).isEqualTo(forelderUtenDirekteRelasjon.navn)
+        assertThat(forelder.kjønn).isEqualTo(forelderUtenDirekteRelasjon.kjønn)
+        assertThat(forelder.fagsakId).isEqualTo(behandling.fagsak.id)
+        assertThat(forelder.harTilgang).isTrue
     }
 }

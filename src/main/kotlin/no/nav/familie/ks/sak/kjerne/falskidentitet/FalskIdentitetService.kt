@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresser
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -34,7 +35,7 @@ class FalskIdentitetService(
             return FalskIdentitetPersonInfo(
                 navn = person?.navn ?: "Ukjent navn",
                 fødselsdato = person?.fødselsdato,
-                kjønn = person?.kjønn?.let { KJOENN.valueOf(it.name) } ?: KJOENN.UKJENT,
+                kjønn = person?.kjønn ?: Kjønn.UKJENT,
                 adresser = person?.let { Adresser.opprettFra(it) },
             )
         } else {

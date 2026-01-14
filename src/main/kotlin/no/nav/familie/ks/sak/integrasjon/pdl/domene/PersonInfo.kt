@@ -15,8 +15,10 @@ import no.nav.familie.kontrakter.felles.personopplysning.Oppholdsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresser
 import java.time.LocalDate
+import java.time.Period
 
 sealed class PdlPersonInfo {
     data class Person(
@@ -37,17 +39,19 @@ sealed class PdlPersonInfo {
 interface PersonInfoBase {
     val fødselsdato: LocalDate?
     val navn: String?
-    val kjønn: KJOENN
+    val kjønn: Kjønn
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING?
     val erEgenAnsatt: Boolean?
     val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo>
+
+    fun erBarn(): Boolean = Period.between(fødselsdato, LocalDate.now()).years < 18
 }
 
 data class PersonInfo(
     override val fødselsdato: LocalDate,
     override val navn: String? = null,
     @JsonDeserialize(using = KjoennDeserializer::class)
-    override val kjønn: KJOENN = KJOENN.UKJENT,
+    override val kjønn: Kjønn = Kjønn.UKJENT,
     // Observer at ForelderBarnRelasjon og ForelderBarnRelasjonMaskert ikke er en PDL-objekt.
     override val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet(),
     val forelderBarnRelasjonerMaskert: Set<ForelderBarnRelasjonInfoMaskert> = emptySet(),
@@ -65,7 +69,7 @@ data class PersonInfo(
 data class FalskIdentitetPersonInfo(
     override val navn: String? = "Ukjent navn",
     override val fødselsdato: LocalDate? = null,
-    override val kjønn: KJOENN = KJOENN.UKJENT,
+    override val kjønn: Kjønn = Kjønn.UKJENT,
     val adresser: Adresser? = null,
 ) : PersonInfoBase {
     override val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null
@@ -78,11 +82,14 @@ fun List<Bostedsadresse>.filtrerUtKunNorskeBostedsadresser() = this.filter { it.
 data class ForelderBarnRelasjonInfo(
     val aktør: Aktør,
     val relasjonsrolle: FORELDERBARNRELASJONROLLE,
-    val navn: String? = null,
-    val fødselsdato: LocalDate? = null,
-    val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
-    val erEgenAnsatt: Boolean? = null,
-) {
+    override val navn: String? = null,
+    override val fødselsdato: LocalDate? = null,
+    override val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
+    override val erEgenAnsatt: Boolean? = null,
+    override val kjønn: Kjønn = Kjønn.UKJENT,
+) : PersonInfoBase {
+    override val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo> = emptySet()
+
     override fun toString(): String = "ForelderBarnRelasjon(personIdent=XXX, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"
 
     fun toSecureString(): String = "ForelderBarnRelasjon(personIdent=${aktør.aktivFødselsnummer()}, relasjonsrolle=$relasjonsrolle, navn=XXX, fødselsdato=$fødselsdato)"

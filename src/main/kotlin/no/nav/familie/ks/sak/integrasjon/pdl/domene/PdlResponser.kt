@@ -10,6 +10,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Oppholdsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagSystemÅrsak
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.person.pdl.aktor.v2.Type
 
@@ -128,9 +129,9 @@ data class PdlPersonData(
     val kontaktinformasjonForDoedsbo: List<PdlKontaktinformasjonForDødsbo> = emptyList(),
 ) {
     fun validerOmPersonKanBehandlesIFagsystem() {
-        if (foedselsdato.isEmpty()) throw PdlPersonKanIkkeBehandlesIFagsystem("mangler fødselsdato")
+        if (foedselsdato.isEmpty()) throw PdlPersonKanIkkeBehandlesIFagsystem(PdlPersonKanIkkeBehandlesIFagSystemÅrsak.MANGLER_FØDSELSDATO)
         if (folkeregisteridentifikator.firstOrNull()?.status == FolkeregisteridentifikatorStatus.OPPHOERT) {
-            throw PdlPersonKanIkkeBehandlesIFagsystem("er opphørt")
+            throw PdlPersonKanIkkeBehandlesIFagsystem(PdlPersonKanIkkeBehandlesIFagSystemÅrsak.OPPHØRT)
         }
     }
 }

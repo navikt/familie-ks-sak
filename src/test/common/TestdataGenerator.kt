@@ -17,7 +17,6 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
@@ -381,7 +380,7 @@ fun lagPdlPersonInfo(
 ) = PersonInfo(
     fødselsdato = if (erBarn) LocalDate.now().minusYears(1) else LocalDate.of(1987, 5, 1),
     navn = "John Doe",
-    kjønn = KJOENN.MANN,
+    kjønn = Kjønn.MANN,
     forelderBarnRelasjoner = if (enkelPersonInfo) emptySet() else setOf(lagForelderBarnRelasjon()),
     bostedsadresser = listOf(lagBostedsadresse()),
     sivilstander = listOf(lagSivilstand()),
@@ -496,7 +495,7 @@ fun lagPerson(
 }
 
 fun lagPerson(
-    personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
+    personopplysningGrunnlag: PersonopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
     aktør: Aktør = randomAktør(),
     personType: PersonType = PersonType.SØKER,
     fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),

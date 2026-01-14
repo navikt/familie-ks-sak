@@ -7,7 +7,6 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE.BARN
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE.FAR
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE.MEDMOR
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.Matrikkeladresse
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
@@ -23,6 +22,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import java.time.LocalDate
@@ -78,7 +78,7 @@ class FakePersonopplysningerService(
             PersonInfo(
                 fødselsdato = LocalDate.now(),
                 navn = "ARTIG MIDTPUNKT",
-                kjønn = KJOENN.KVINNE,
+                kjønn = Kjønn.KVINNE,
                 adressebeskyttelseGradering = null,
                 bostedsadresser = emptyList(),
                 sivilstander = emptyList(),
@@ -90,7 +90,7 @@ class FakePersonopplysningerService(
             PersonInfo(
                 fødselsdato = LocalDate.parse("1962-08-04"),
                 navn = "LEALAUS GYNGEHEST",
-                kjønn = KJOENN.KVINNE,
+                kjønn = Kjønn.KVINNE,
                 forelderBarnRelasjoner =
                     setOf(
                         ForelderBarnRelasjonInfo(
@@ -262,7 +262,7 @@ private val sivilstandHistorisk =
 private val personInfoSøker1 =
     PersonInfo(
         fødselsdato = LocalDate.of(1990, 2, 19),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Mor Moresen",
         bostedsadresser = bostedsadresseHistorikk,
         sivilstander = sivilstandHistorisk,
@@ -288,7 +288,7 @@ private val personInfoBarn1 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.MANN,
+        kjønn = Kjønn.MANN,
         navn = "Gutten Barnesen",
     )
 
@@ -303,7 +303,7 @@ private val personInfoBarn2 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Jenta Barnesen",
         adressebeskyttelseGradering = ADRESSEBESKYTTELSEGRADERING.FORTROLIG,
     )
@@ -319,7 +319,7 @@ private val personInfoSøker2 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.MANN,
+        kjønn = Kjønn.MANN,
         navn = "Far Faresen",
     )
 
@@ -334,7 +334,7 @@ private val personInfoSøker3 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Moder Jord",
         adressebeskyttelseGradering = ADRESSEBESKYTTELSEGRADERING.UGRADERT,
     )
@@ -343,7 +343,7 @@ private val personInfoIntegrasjonerFnr =
     PersonInfo(
         fødselsdato = LocalDate.of(1965, 2, 19),
         bostedsadresser = mutableListOf(bostedsadresse),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Mor Integrasjon person",
         sivilstander = sivilstandHistorisk,
     )

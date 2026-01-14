@@ -5,6 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.ForelderBarnRelasjon
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
+import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagSystemÅrsak
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
 import no.nav.familie.ks.sak.config.PersonInfoQuery
 import no.nav.familie.ks.sak.data.randomAktør
@@ -114,7 +115,7 @@ class PersonopplysningerServiceTest {
                 )
 
             every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
-            every { personidentService.hentAktør(barnIdent.fødselsnummer) } throws PdlPersonKanIkkeBehandlesIFagsystem("test")
+            every { personidentService.hentAktør(barnIdent.fødselsnummer) } throws PdlPersonKanIkkeBehandlesIFagsystem(PdlPersonKanIkkeBehandlesIFagSystemÅrsak.MANGLER_FØDSELSDATO)
             every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnIdent.fødselsnummer, true)
             every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
             every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
