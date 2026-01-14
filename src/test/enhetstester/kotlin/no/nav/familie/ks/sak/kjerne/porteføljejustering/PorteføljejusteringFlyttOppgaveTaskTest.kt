@@ -59,7 +59,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             Oppgave(
                 id = 1,
                 tildeltEnhetsnr = STORD.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
             )
 
         // Act
@@ -102,7 +102,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             Oppgave(
                 id = 1,
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.SAMHANDLERNR)),
             )
 
@@ -124,7 +124,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             Oppgave(
                 id = 1,
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
             )
 
@@ -148,7 +148,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             Oppgave(
                 id = 1,
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
             )
 
@@ -176,7 +176,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             Oppgave(
                 id = 1,
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
             )
 
@@ -203,7 +203,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
             Oppgave(
                 id = 1,
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
             )
 
@@ -226,7 +226,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
                 id = 1,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 mappeId = 100012692,
             )
 
@@ -254,7 +254,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
                 id = 1,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 saksreferanse = "183421813",
                 oppgavetype = oppgavetype.value,
                 mappeId = 100012692,
@@ -287,7 +287,7 @@ class PorteføljejusteringFlyttOppgaveTaskTest {
                 id = 1,
                 identer = listOf(OppgaveIdentV2("1234", IdentGruppe.FOLKEREGISTERIDENT)),
                 tildeltEnhetsnr = VADSØ.enhetsnummer,
-                behandlingstype = NASJONAL.toString(),
+                behandlingstype = NASJONAL.value,
                 saksreferanse = "183421813",
                 oppgavetype = oppgavetype.value,
                 mappeId = 100012692,
