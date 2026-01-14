@@ -42,7 +42,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.porteføljejustering.PorteføljejusteringService
+import no.nav.familie.ks.sak.kjerne.porteføljejustering.RelevanteApplikasjonerForPorteføljejustering
+import no.nav.familie.ks.sak.kjerne.porteføljejustering.StartPorteføljejusteringTask
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -93,7 +94,6 @@ class ForvaltningController(
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
-    private val porteføljejusteringService: PorteføljejusteringService,
     private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -439,6 +439,7 @@ class ForvaltningController(
     fun opprettTaskerForFlyttingAvVadsøOppgaver(
         @RequestParam("antallFlytteTasks") antallFlytteTasks: Int? = null,
         @RequestParam("dryRun") dryRun: Boolean = true,
+        @RequestParam("behandlesAvApplikasjon") behandlesAvApplikasjon: RelevanteApplikasjonerForPorteføljejustering? = null,
     ): ResponseEntity<String> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
@@ -449,8 +450,8 @@ class ForvaltningController(
             return ResponseEntity.ok("Toggle for porteføljejustering er skrudd av")
         }
 
-        val (antallOppgaverTotalt, antallFlytteTasksOpprettet) = porteføljejusteringService.lagTaskForOverføringAvOppgaverFraVadsø(antallFlytteTasks, dryRun)
+        taskService.save(StartPorteføljejusteringTask.opprettTask(antallFlytteTasks, behandlesAvApplikasjon, dryRun = dryRun))
 
-        return ResponseEntity.ok("Antall oppgaver totalt:$antallOppgaverTotalt, Antall tasks opprettet for flytting:$antallFlytteTasksOpprettet")
+        return ResponseEntity.ok("Opprettet task for flytting av Steinkjer oppgaver")
     }
 }

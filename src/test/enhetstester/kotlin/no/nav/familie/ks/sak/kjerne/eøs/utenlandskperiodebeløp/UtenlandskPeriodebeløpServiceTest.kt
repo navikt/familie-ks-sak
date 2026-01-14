@@ -3,12 +3,14 @@ package no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.eøs.differanseberegning.domene.Intervall
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.KompetanseRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.mockEøsSkjemaRepository
+import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPeriodebeløpService.Companion.BULGARSK_LEV
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.util.KompetanseBuilder
 import no.nav.familie.ks.sak.kjerne.eøs.util.UtenlandskPeriodebeløpBuilder
@@ -19,6 +21,8 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.time.YearMonth
 
 internal class UtenlandskPeriodebeløpServiceTest {
     private val utenlandskPeriodebeløpRepository: EøsSkjemaRepository<UtenlandskPeriodebeløp> =
@@ -136,5 +140,59 @@ internal class UtenlandskPeriodebeløpServiceTest {
         assertNull(faktiskUtenlandskPeriodebeløp.elementAt(1).intervall)
         assertNull(faktiskUtenlandskPeriodebeløp.elementAt(1).kalkulertMånedligBeløp)
         assertEquals("SE", faktiskUtenlandskPeriodebeløp.elementAt(1).utbetalingsland)
+    }
+
+    @Test
+    fun `Skal kaste funksjonell feil dersom fom ikke er satt`() {
+        val feilmelding =
+            assertThrows<FunksjonellFeil> {
+                utenlandskPeriodebeløpService.oppdaterUtenlandskPeriodebeløp(
+                    BehandlingId(1),
+                    UtenlandskPeriodebeløp(
+                        fom = null,
+                        tom = null,
+                        beløp = 1.0.toBigDecimal(),
+                        valutakode = BULGARSK_LEV,
+                    ),
+                )
+            }
+
+        assertThat(feilmelding.message).isEqualTo("Fra og med dato på utenlandskperiode beløp må være satt")
+    }
+
+    @Test
+    fun `Skal kaste funksjonell feil dersom det forsøkes å settes fom fra og med 1 januar 2026 med valutakode BGN`() {
+        val feilmelding =
+            assertThrows<FunksjonellFeil> {
+                utenlandskPeriodebeløpService.oppdaterUtenlandskPeriodebeløp(
+                    BehandlingId(1),
+                    UtenlandskPeriodebeløp(
+                        fom = YearMonth.of(2026, 1),
+                        tom = null,
+                        beløp = 1.0.toBigDecimal(),
+                        valutakode = BULGARSK_LEV,
+                    ),
+                )
+            }
+
+        assertThat(feilmelding.message).isEqualTo("Bulgarske lev er ikke lenger gyldig valuta fra 01.01.26")
+    }
+
+    @Test
+    fun `Skal kaste funksjonell feil dersom det forsøkes å settes tom fra og med 1 januar 2026 med valutakode BGN`() {
+        val feilmelding =
+            assertThrows<FunksjonellFeil> {
+                utenlandskPeriodebeløpService.oppdaterUtenlandskPeriodebeløp(
+                    BehandlingId(1),
+                    UtenlandskPeriodebeløp(
+                        fom = YearMonth.of(2025, 1),
+                        tom = YearMonth.of(2026, 1),
+                        beløp = 1.0.toBigDecimal(),
+                        valutakode = BULGARSK_LEV,
+                    ),
+                )
+            }
+
+        assertThat(feilmelding.message).isEqualTo("Bulgarske lev er ikke lenger gyldig valuta fra 01.01.26")
     }
 }

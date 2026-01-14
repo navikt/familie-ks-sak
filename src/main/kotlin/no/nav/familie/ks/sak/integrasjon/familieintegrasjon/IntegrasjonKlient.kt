@@ -121,6 +121,11 @@ class IntegrasjonKlient(
         }
     }
 
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_1000MS),
+    )
     fun tilordneEnhetOgRessursForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
@@ -590,7 +595,7 @@ class IntegrasjonKlient(
     fun tilordneEnhetOgMappeForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
-        nyMappe: String?,
+        nyMappe: Long?,
     ): OppgaveResponse {
         val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
         val uri =
@@ -598,6 +603,7 @@ class IntegrasjonKlient(
                 .fromUri(baseUri)
                 .queryParam("nullstillTilordnetRessurs", true)
                 .queryParam("mappeId", nyMappe)
+                .queryParam("fjernMappeFraOppgave", false)
                 .build()
                 .toUri()
 
@@ -615,6 +621,7 @@ class IntegrasjonKlient(
 
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
+        const val RETRY_BACKOFF_1000MS = "\${retry.backoff.delay:1000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"
         private val HEADER_NAV_TEMA_KON = Tema.KON.name

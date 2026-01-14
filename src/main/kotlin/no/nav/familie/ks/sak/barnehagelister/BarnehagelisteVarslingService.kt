@@ -87,8 +87,14 @@ data class KommuneEllerBydel(
 
 private fun finnKontaktEpostForEnhet(enhetsNr: String): String =
     when (enhetsNr) {
-        "4820" -> BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`
-        "4812" -> BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`
+        "4820" -> {
+            BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`
+        }
+
+        "4812" -> {
+            BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`
+        }
+
         else -> {
             throw Feil("Det er ikke lagret noen epost for å kontakte enhet $enhetsNr.")
         }

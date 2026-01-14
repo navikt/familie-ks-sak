@@ -1,18 +1,22 @@
 package no.nav.familie.ks.sak.kjerne.porteføljejustering
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype.NASJONAL
 import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
-import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
+import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype.BehandleSak
+import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype.BehandleUnderkjentVedtak
+import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype.GodkjenneVedtak
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.secureLogger
-import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.BERGEN
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.VADSØ
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.klage.KlageKlient
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -21,15 +25,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Properties
-import java.util.UUID
-import kotlin.apply
-import kotlin.collections.firstOrNull
-import kotlin.collections.set
-import kotlin.collections.single
-import kotlin.jvm.java
-import kotlin.let
-import kotlin.text.toLong
-import kotlin.toString
 
 @Service
 @TaskStepBeskrivelse(
@@ -40,8 +35,6 @@ import kotlin.toString
 )
 class PorteføljejusteringFlyttOppgaveTask(
     private val integrasjonKlient: IntegrasjonKlient,
-    private val tilbakekrevingKlient: TilbakekrevingKlient,
-    private val klageKlient: KlageKlient,
     private val behandlingRepository: BehandlingRepository,
     private val personidentService: PersonidentService,
     private val fagsakService: FagsakService,
@@ -49,65 +42,83 @@ class PorteføljejusteringFlyttOppgaveTask(
 ) : AsyncTaskStep {
     @WithSpan
     override fun doTask(task: Task) {
-        val oppgaveId = task.payload.toLong()
+        val porteføljejusteringFlyttOppgaveDto = objectMapper.readValue<PorteføljejusteringFlyttOppgaveDto>(task.payload)
+        val oppgaveId = porteføljejusteringFlyttOppgaveDto.oppgaveId
+
         val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
+        if (oppgave.tildeltEnhetsnr !in setOf(VADSØ.enhetsnummer, BERGEN.enhetsnummer)) {
+            logger.info("Oppgave med id $oppgaveId er ikke tildelt Vadsø. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Ny enhet for oppgave er ikke Vadsø eller Bergen"
+            return
+        }
 
-        val ident = oppgave.identer?.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident ?: throw Feil("Oppgave med id $oppgaveId er ikke tilknyttet en ident.")
-        val nyEnhetId = validerOgHentNyEnhetForOppgave(ident, oppgaveId) ?: return
-        val nyMappeId =
-            oppgave.mappeId?.let {
-                hentMappeIdHosBergenSomTilsvarerMappeIVadsø(
-                    it,
-                )
-            }
+        if (oppgave.behandlingstype != NASJONAL.value) {
+            logger.info("Oppgave med id $oppgaveId har ikke behandlingstype NASJONAL. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Oppgave har ikke behandlingstype ${oppgave.behandlingstype}"
+            return
+        }
 
-        val skalOppdatereEnhetEllerMappe = nyMappeId != oppgave.mappeId?.toString() || nyEnhetId != oppgave.tildeltEnhetsnr
+        val nyEnhetId = validerOgHentNyEnhetForOppgave(oppgave)
+        if (nyEnhetId != BERGEN.enhetsnummer) {
+            logger.info("Oppgave med id $oppgaveId skal flyttes til enhet $nyEnhetId. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Ny enhet for oppgave er ikke Bergen"
+            return
+        }
 
-        if (skalOppdatereEnhetEllerMappe) { // Vi oppdaterer bare hvis det er forskjell på enhet eller mappe. Kaster ikke feil grunnet ønsket om idempotens.
+        oppgave.saksreferanse?.let { task.metadata["saksreferanse"] = it }
+
+        val nyMappeId = hentMappeIdHosBergenSomTilsvarerMappeIVadsø(oppgave.mappeId)
+
+        // Vi oppdaterer bare hvis det er forskjell på enhet eller mappe. Kaster ikke feil grunnet ønske om idempotens.
+        val skalOppdatereEnhetEllerMappe = nyMappeId != oppgave.mappeId || nyEnhetId != oppgave.tildeltEnhetsnr
+        if (skalOppdatereEnhetEllerMappe) {
             integrasjonKlient.tilordneEnhetOgMappeForOppgave(
                 oppgaveId = oppgaveId,
                 nyEnhet = nyEnhetId,
-                nyMappe = nyMappeId.toString(),
+                nyMappe = nyMappeId,
             )
             logger.info(
-                "Oppdatert oppgave med id $oppgaveId." +
-                    "Fra enhet ${oppgave.tildeltEnhetsnr} til ny enhet $nyEnhetId." +
-                    "Fra mappe ${oppgave.mappeId} til ny mappe $nyMappeId ",
+                "Oppdatert oppgave med id $oppgaveId.\n" +
+                    "Fra enhet ${oppgave.tildeltEnhetsnr} til ny enhet $nyEnhetId.\n" +
+                    "Fra mappe ${oppgave.mappeId} til ny mappe $nyMappeId.",
             )
         }
 
-        // Vi går bare videre med oppdatering i fagsystemer hvis typen er av BehandleSak, GodkjenndeVedtak eller BehandleUnderkjentVedtak
-        // og oppgaven har en tilknyttet saksreferanse
-
-        val saksreferanse = oppgave.saksreferanse
-        when {
-            saksreferanse == null -> return
-            oppgave.oppgavetype !in (
-                listOf(
-                    Oppgavetype.BehandleSak.value,
-                    Oppgavetype.GodkjenneVedtak.value,
-                    Oppgavetype.BehandleUnderkjentVedtak.value,
-                )
-            ) -> return
-            oppgave.behandlesAvApplikasjon == "familie-ks-sak" -> {
+        // Vi oppdaterer bare behandlingen i ks-sak hvis typen er
+        // av BehandleSak, GodkjenndeVedtak eller BehandleUnderkjentVedtak
+        if (
+            oppgave.saksreferanse != null &&
+            oppgave.behandlesAvApplikasjon == "familie-ks-sak" &&
+            oppgave.oppgavetype in setOf(BehandleSak.value, GodkjenneVedtak.value, BehandleUnderkjentVedtak.value)
+        ) {
+            try {
                 oppdaterÅpenBehandlingIKsSak(oppgave, nyEnhetId)
-            }
-
-            oppgave.behandlesAvApplikasjon == "familie-klage" -> {
-                oppdaterEnhetPåÅpenBehandlingIKlage(oppgaveId, nyEnhetId)
-            }
-            oppgave.behandlesAvApplikasjon == "familie-tilbake" -> {
-                oppdaterEnhetPåÅpenBehandlingITilbakekreving(UUID.fromString(saksreferanse), nyEnhetId)
+            } catch (e: Exception) {
+                integrasjonKlient.tilordneEnhetOgMappeForOppgave(
+                    oppgaveId = oppgaveId,
+                    nyEnhet = porteføljejusteringFlyttOppgaveDto.originalEnhet,
+                    nyMappe = porteføljejusteringFlyttOppgaveDto.originalMappeId,
+                )
+                logger.info(
+                    "Ruller oppdatert oppgave tilbake med id ${porteføljejusteringFlyttOppgaveDto.oppgaveId}.\n" +
+                        "Fra enhet $nyEnhetId til original enhet ${porteføljejusteringFlyttOppgaveDto.originalEnhet}.\n" +
+                        "Fra mappe $nyMappeId til original mappe ${porteføljejusteringFlyttOppgaveDto.originalMappeId}.",
+                )
+                throw e
             }
         }
+        task.metadata["status"] = "Flytting av oppgave fullført"
+        task.metadata["nyEnhetId"] = nyEnhetId
     }
 
     private fun validerOgHentNyEnhetForOppgave(
-        ident: String,
-        oppgaveId: Long,
-    ): String? {
-        val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(ident)
+        oppgave: Oppgave,
+    ): String {
+        val ident =
+            oppgave.identer?.firstOrNull { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }?.ident
+                ?: throw Feil("Oppgave med id ${oppgave.id} er ikke tilknyttet en ident.")
 
+        val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(ident)
         if (arbeidsfordelingsenheter.isEmpty()) {
             logger.error("Fant ingen arbeidsfordelingsenheter for ident. Se SecureLogs for detaljer.")
             secureLogger.error("Fant ingen arbeidsfordelingsenheter for ident $ident.")
@@ -121,15 +132,11 @@ class PorteføljejusteringFlyttOppgaveTask(
         }
 
         val nyEnhetId = arbeidsfordelingsenheter.single().enhetId
-
-        return when (nyEnhetId) {
-            KontantstøtteEnhet.VADSØ.enhetsnummer -> throw Feil("Oppgave med id $oppgaveId tildeles fortsatt Vadsø som enhet")
-            KontantstøtteEnhet.MIDLERTIDIG_ENHET.enhetsnummer -> {
-                logger.warn("Oppgave med id $oppgaveId tilhører midlertidig enhet")
-                null
-            }
-            else -> nyEnhetId
+        if (nyEnhetId == VADSØ.enhetsnummer) {
+            throw Feil("Oppgave med id ${oppgave.id} tildeles fortsatt Vadsø som enhet")
         }
+
+        return nyEnhetId
     }
 
     private fun oppdaterÅpenBehandlingIKsSak(
@@ -147,37 +154,30 @@ class PorteføljejusteringFlyttOppgaveTask(
         arbeidsfordelingService.oppdaterBehandlendeEnhetPåBehandlingIForbindelseMedPorteføljejustering(åpenBehandlingPåAktør, nyEnhet)
     }
 
-    private fun oppdaterEnhetPåÅpenBehandlingITilbakekreving(
-        behandlingEksternBrukId: UUID,
-        nyEnhetId: String,
-    ) {
-        tilbakekrevingKlient.oppdaterEnhetPåÅpenBehandling(behandlingEksternBrukId, nyEnhetId)
-    }
-
-    private fun oppdaterEnhetPåÅpenBehandlingIKlage(
-        oppgaveId: Long,
-        nyEnhetId: String,
-    ) {
-        klageKlient.oppdaterEnhetPåÅpenBehandling(oppgaveId, nyEnhetId)
-    }
-
     companion object {
         const val TASK_STEP_TYPE = "porteføljejusteringFlyttOppgaveTask"
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
         fun opprettTask(
             oppgaveId: Long,
-            enhetId: String?,
-            mappeId: String?,
+            enhetId: String,
+            mappeId: Long?,
         ): Task =
             Task(
                 type = TASK_STEP_TYPE,
-                payload = oppgaveId.toString(),
+                payload =
+                    objectMapper.writeValueAsString(
+                        PorteføljejusteringFlyttOppgaveDto(
+                            oppgaveId = oppgaveId,
+                            originalEnhet = enhetId,
+                            originalMappeId = mappeId,
+                        ),
+                    ),
                 properties =
                     Properties().apply {
                         this["oppgaveId"] = oppgaveId.toString()
-                        enhetId?.let { this["enhetId"] = it }
-                        mappeId?.let { this["mappeId"] = it }
+                        this["enhetId"] = enhetId
+                        mappeId?.let { this["mappeId"] = it.toString() }
                     },
             )
     }

@@ -79,6 +79,7 @@ class HenleggBehandlingService(
             1 -> {
                 fagsakService.oppdaterStatus(behandling.fagsak, FagsakStatus.AVSLUTTET)
             }
+
             else -> {
                 // aktiverer siste vedtatt behandling på nytt
                 alleBehandlinger
@@ -110,9 +111,11 @@ class HenleggBehandlingService(
                         "${SikkerhetContext.hentSaksbehandlerNavn()}. Kan ikke henlegge behandling $behandlingId.",
                 )
             }
+
             behandling.erAvsluttet() -> {
                 throw Feil("Behandling $behandlingId er allerede avsluttet. Kan ikke henlegge behandling.")
             }
+
             // Hvis behandling kan behandles, kan den henlegges
             henleggÅrsak != HenleggÅrsak.TEKNISK_VEDLIKEHOLD && !behandling.steg.kanStegBehandles() -> {
                 throw FunksjonellFeil(

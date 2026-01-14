@@ -34,17 +34,32 @@ fun kombinerVilkårResultaterTilRegelverkResultat(
     val erAlleVilkårOppfyltEllerIkkeAktuelt = alleVilkårResultater.map { it.vilkår }.distinct().containsAll(vilkårer)
 
     return when {
-        erAlleVilkårUtenResultat -> null
-        erAlleVilkårOppfyltEllerIkkeAktuelt ->
+        erAlleVilkårUtenResultat -> {
+            null
+        }
+
+        erAlleVilkårOppfyltEllerIkkeAktuelt -> {
             when {
-                alleEøsVilkårResultater.containsAll(regelverkVilkår) ->
+                alleEøsVilkårResultater.containsAll(regelverkVilkår) -> {
                     OPPFYLT_EØS_FORORDNINGEN
-                alleNasjonaleVilkårResultater.containsAll(regelverkVilkår) ->
+                }
+
+                alleNasjonaleVilkårResultater.containsAll(regelverkVilkår) -> {
                     OPPFYLT_NASJONALE_REGLER
-                (alleEøsVilkårResultater + alleNasjonaleVilkårResultater).isNotEmpty() ->
+                }
+
+                (alleEøsVilkårResultater + alleNasjonaleVilkårResultater).isNotEmpty() -> {
                     OPPFYLT_BLANDET_REGELVERK
-                else -> OPPFYLT_REGELVERK_IKKE_SATT
+                }
+
+                else -> {
+                    OPPFYLT_REGELVERK_IKKE_SATT
+                }
             }
-        else -> IKKE_FULLT_VURDERT
+        }
+
+        else -> {
+            IKKE_FULLT_VURDERT
+        }
     }
 }

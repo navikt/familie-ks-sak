@@ -41,14 +41,21 @@ class BisysConfig(
                             "Bisys applikasjon kan ikke kalle andre tjenester",
                         )
                     }
+
                     erBisysRequest && (!harForvalterRolle && !erKallerBisys) -> {
                         response.sendError(
                             HttpServletResponse.SC_UNAUTHORIZED,
                             "Bisys tjeneste kan kun kalles av bisys eller innlogget bruker med FORVALTER rolle",
                         )
                     }
-                    erBisysRequest && (harForvalterRolle || erKallerBisys) -> filterChain.doFilter(request, response)
-                    !erBisysRequest && !erKallerBisys -> filterChain.doFilter(request, response)
+
+                    erBisysRequest && (harForvalterRolle || erKallerBisys) -> {
+                        filterChain.doFilter(request, response)
+                    }
+
+                    !erBisysRequest && !erKallerBisys -> {
+                        filterChain.doFilter(request, response)
+                    }
                 }
             }
 

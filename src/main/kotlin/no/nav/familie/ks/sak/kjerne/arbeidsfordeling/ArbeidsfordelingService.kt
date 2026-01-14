@@ -66,7 +66,7 @@ class ArbeidsfordelingService(
                     )
 
                 when (aktivArbeidsfordelingPåBehandling) {
-                    null ->
+                    null -> {
                         arbeidsfordelingPåBehandlingRepository.save(
                             ArbeidsfordelingPåBehandling(
                                 behandlingId = behandling.id,
@@ -74,6 +74,7 @@ class ArbeidsfordelingService(
                                 behandlendeEnhetNavn = arbeidsfordelingsenhet.enhetNavn,
                             ),
                         )
+                    }
 
                     else -> {
                         if (!aktivArbeidsfordelingPåBehandling.manueltOverstyrt &&
@@ -135,12 +136,14 @@ class ArbeidsfordelingService(
     ) {
         when {
             behandling.kategori == BehandlingKategori.EØS &&
-                endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.STEINKJER.enhetsnummer ->
+                endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.STEINKJER.enhetsnummer -> {
                 throw FunksjonellFeil("Fra og med 5. januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Steinkjer dersom det er en EØS sak.")
+            }
 
             behandling.kategori == BehandlingKategori.NASJONAL &&
-                endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.VADSØ.enhetsnummer ->
+                endreBehandlendeEnhet.enhetId == KontantstøtteEnhet.VADSØ.enhetsnummer -> {
                 throw FunksjonellFeil("Fra og med 5. januar 2026 er det ikke lenger å mulig å endre behandlende enhet til Vadsø dersom det er en Nasjonal sak.")
+            }
         }
     }
 
@@ -207,7 +210,7 @@ class ArbeidsfordelingService(
                 "$oppdatertArbeidsfordelingPåBehandling",
         )
         secureLogger.info(
-            "Fastsatt behandlende enhet oppdateringstype på behandling ${behandling.id}: " +
+            "Fastsatt behandlende enhet $oppdateringstype på behandling ${behandling.id}: " +
                 oppdatertArbeidsfordelingPåBehandling.toSecureString(),
         )
 
