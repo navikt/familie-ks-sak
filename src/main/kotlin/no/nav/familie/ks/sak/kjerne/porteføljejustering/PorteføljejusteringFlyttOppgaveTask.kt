@@ -1,6 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.porteføljejustering
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype.NASJONAL
 import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -40,23 +42,30 @@ class PorteføljejusteringFlyttOppgaveTask(
 ) : AsyncTaskStep {
     @WithSpan
     override fun doTask(task: Task) {
-        val oppgaveId = task.payload.toLong()
+        val porteføljejusteringFlyttOppgaveDto = objectMapper.readValue<PorteføljejusteringFlyttOppgaveDto>(task.payload)
+        val oppgaveId = porteføljejusteringFlyttOppgaveDto.oppgaveId
+
         val oppgave = integrasjonKlient.finnOppgaveMedId(oppgaveId)
-        if (oppgave.tildeltEnhetsnr != VADSØ.enhetsnummer) {
+        if (oppgave.tildeltEnhetsnr !in setOf(VADSØ.enhetsnummer, BERGEN.enhetsnummer)) {
             logger.info("Oppgave med id $oppgaveId er ikke tildelt Vadsø. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Ny enhet for oppgave er ikke Vadsø eller Bergen"
             return
         }
 
-        if (oppgave.behandlingstype != NASJONAL.toString()) {
+        if (oppgave.behandlingstype != NASJONAL.value) {
             logger.info("Oppgave med id $oppgaveId har ikke behandlingstype NASJONAL. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Oppgave har ikke behandlingstype ${oppgave.behandlingstype}"
             return
         }
 
         val nyEnhetId = validerOgHentNyEnhetForOppgave(oppgave)
         if (nyEnhetId != BERGEN.enhetsnummer) {
             logger.info("Oppgave med id $oppgaveId skal flyttes til enhet $nyEnhetId. Avbryter flytting av oppgave.")
+            task.metadata["status"] = "Ny enhet for oppgave er ikke Bergen"
             return
         }
+
+        oppgave.saksreferanse?.let { task.metadata["saksreferanse"] = it }
 
         val nyMappeId = hentMappeIdHosBergenSomTilsvarerMappeIVadsø(oppgave.mappeId)
 
@@ -66,7 +75,7 @@ class PorteføljejusteringFlyttOppgaveTask(
             integrasjonKlient.tilordneEnhetOgMappeForOppgave(
                 oppgaveId = oppgaveId,
                 nyEnhet = nyEnhetId,
-                nyMappe = nyMappeId.toString(),
+                nyMappe = nyMappeId,
             )
             logger.info(
                 "Oppdatert oppgave med id $oppgaveId.\n" +
@@ -82,8 +91,24 @@ class PorteføljejusteringFlyttOppgaveTask(
             oppgave.behandlesAvApplikasjon == "familie-ks-sak" &&
             oppgave.oppgavetype in setOf(BehandleSak.value, GodkjenneVedtak.value, BehandleUnderkjentVedtak.value)
         ) {
-            oppdaterÅpenBehandlingIKsSak(oppgave, nyEnhetId)
+            try {
+                oppdaterÅpenBehandlingIKsSak(oppgave, nyEnhetId)
+            } catch (e: Exception) {
+                integrasjonKlient.tilordneEnhetOgMappeForOppgave(
+                    oppgaveId = oppgaveId,
+                    nyEnhet = porteføljejusteringFlyttOppgaveDto.originalEnhet,
+                    nyMappe = porteføljejusteringFlyttOppgaveDto.originalMappeId,
+                )
+                logger.info(
+                    "Ruller oppdatert oppgave tilbake med id ${porteføljejusteringFlyttOppgaveDto.oppgaveId}.\n" +
+                        "Fra enhet $nyEnhetId til original enhet ${porteføljejusteringFlyttOppgaveDto.originalEnhet}.\n" +
+                        "Fra mappe $nyMappeId til original mappe ${porteføljejusteringFlyttOppgaveDto.originalMappeId}.",
+                )
+                throw e
+            }
         }
+        task.metadata["status"] = "Flytting av oppgave fullført"
+        task.metadata["nyEnhetId"] = nyEnhetId
     }
 
     private fun validerOgHentNyEnhetForOppgave(
@@ -135,17 +160,24 @@ class PorteføljejusteringFlyttOppgaveTask(
 
         fun opprettTask(
             oppgaveId: Long,
-            enhetId: String?,
-            mappeId: String?,
+            enhetId: String,
+            mappeId: Long?,
         ): Task =
             Task(
                 type = TASK_STEP_TYPE,
-                payload = oppgaveId.toString(),
+                payload =
+                    objectMapper.writeValueAsString(
+                        PorteføljejusteringFlyttOppgaveDto(
+                            oppgaveId = oppgaveId,
+                            originalEnhet = enhetId,
+                            originalMappeId = mappeId,
+                        ),
+                    ),
                 properties =
                     Properties().apply {
                         this["oppgaveId"] = oppgaveId.toString()
-                        enhetId?.let { this["enhetId"] = it }
-                        mappeId?.let { this["mappeId"] = it }
+                        this["enhetId"] = enhetId
+                        mappeId?.let { this["mappeId"] = it.toString() }
                     },
             )
     }

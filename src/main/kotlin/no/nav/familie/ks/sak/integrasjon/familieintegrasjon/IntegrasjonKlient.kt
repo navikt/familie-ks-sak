@@ -595,7 +595,7 @@ class IntegrasjonKlient(
     fun tilordneEnhetOgMappeForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
-        nyMappe: String?,
+        nyMappe: Long?,
     ): OppgaveResponse {
         val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
         val uri =

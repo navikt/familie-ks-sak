@@ -15,13 +15,6 @@ import no.nav.familie.prosessering.internal.TaskService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import kotlin.collections.filterNot
-import kotlin.collections.forEach
-import kotlin.collections.take
-import kotlin.jvm.java
-import kotlin.let
-import kotlin.text.matches
-import kotlin.text.toRegex
 
 @Service
 @TaskStepBeskrivelse(
@@ -54,6 +47,7 @@ class StartPorteføljejusteringTask(
                 .filterNot { it.saksreferanse?.matches("\\d+[A-Z]\\d+".toRegex()) == true } // Filtrere bort infotrygd-oppgaver
                 .filterNot { it.mappeId == null } // Vi skal ikke flytte oppgaver som ikke har mappe id
                 .filter { it.behandlingstype == Behandlingstype.NASJONAL.value }
+                .filter { oppgave -> startPorteføljejusteringTaskDto.behandlesAvApplikasjon?.let { it == oppgave.behandlesAvApplikasjon } ?: true }
 
         logger.info("Fant ${oppgaverSomSkalFlyttes.size} kontantstøtte oppgaver som skal flyttes")
 
@@ -68,8 +62,8 @@ class StartPorteføljejusteringTask(
                         taskService.save(
                             PorteføljejusteringFlyttOppgaveTask.opprettTask(
                                 oppgaveId = it,
-                                enhetId = oppgave.tildeltEnhetsnr,
-                                mappeId = oppgave.mappeId?.toString(),
+                                enhetId = oppgave.tildeltEnhetsnr!!,
+                                mappeId = oppgave.mappeId,
                             ),
                         )
                         opprettedeTasks++
@@ -86,11 +80,20 @@ class StartPorteføljejusteringTask(
 
         fun opprettTask(
             antallTasks: Int? = null,
+            behandlesAvApplikasjon: RelevanteApplikasjonerForPorteføljejustering? = null,
             dryRun: Boolean = true,
         ): Task =
             Task(
                 type = TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(StartPorteføljejusteringTaskDto(antallTasks, dryRun)),
+                payload = objectMapper.writeValueAsString(StartPorteføljejusteringTaskDto(antallTasks, behandlesAvApplikasjon?.applikasjonsnavn, dryRun)),
             )
     }
+}
+
+enum class RelevanteApplikasjonerForPorteføljejustering(
+    val applikasjonsnavn: String,
+) {
+    FAMILIE_KS_SAK("familie-ks-sak"),
+    FAMILIE_KLAGE("familie-klage"),
+    FAMILIE_TILBAKE("familie-tilbake"),
 }
