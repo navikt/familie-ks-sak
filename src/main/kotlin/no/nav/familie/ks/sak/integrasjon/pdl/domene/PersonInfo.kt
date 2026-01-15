@@ -44,7 +44,7 @@ interface PersonInfoBase {
     val erEgenAnsatt: Boolean?
     val forelderBarnRelasjoner: Set<ForelderBarnRelasjonInfo>
 
-    fun erBarn(): Boolean = Period.between(fødselsdato, LocalDate.now()).years < 18
+    fun erBarn(): Boolean = fødselsdato?.let { Period.between(fødselsdato, LocalDate.now()).years < 18 } ?: false
 }
 
 data class PersonInfo(
