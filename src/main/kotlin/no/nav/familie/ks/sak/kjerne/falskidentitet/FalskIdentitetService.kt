@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.falskidentitet
 
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
