@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.api.mapper
 
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.api.dto.ArbeidsfordelingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
@@ -139,7 +138,7 @@ object BehandlingMapper {
         fødselsdato = person.fødselsdato,
         personIdent = person.aktør.aktivFødselsnummer(),
         navn = person.navn,
-        kjønn = KJOENN.valueOf(person.kjønn.name),
+        kjønn = person.kjønn,
         målform = person.målform,
         dødsfallDato = person.dødsfall?.dødsfallDato,
         registerhistorikk = lagRegisterHistorikkResponsDto(person, landKodeOgLandNavn),

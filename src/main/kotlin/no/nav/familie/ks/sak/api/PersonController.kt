@@ -45,7 +45,7 @@ class PersonController(
         val personinfo =
             integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
                 ?: personOpplysningerService
-                    .hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
+                    .hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
                     .tilPersonInfoDto(personIdent)
         return ResponseEntity.ok(Ressurs.success(personinfo))
     }

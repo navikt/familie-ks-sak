@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.prosessering.internal.TaskService
 import no.nav.familie.unleash.UnleashService
@@ -44,11 +45,13 @@ class FakeConfig {
         pdlKlient: PdlKlient,
         integrasjonService: IntegrasjonService,
         personidentService: PersonidentService,
+        falskIdentitetService: FalskIdentitetService,
     ): FakePersonopplysningerService =
         FakePersonopplysningerService(
             pdlKlient = pdlKlient,
             integrasjonService = integrasjonService,
             personidentService = personidentService,
+            falskIdentitetService = falskIdentitetService,
         )
 
     @Bean

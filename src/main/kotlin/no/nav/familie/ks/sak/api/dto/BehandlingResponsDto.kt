@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.api.dto
 
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -11,6 +10,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.VenteÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import java.time.LocalDate
@@ -73,7 +73,7 @@ data class PersonResponsDto(
     val fødselsdato: LocalDate?,
     val personIdent: String,
     val navn: String,
-    val kjønn: KJOENN,
+    val kjønn: Kjønn,
     val registerhistorikk: RegisterHistorikkResponsDto? = null,
     val målform: Målform,
     val dødsfallDato: LocalDate? = null,

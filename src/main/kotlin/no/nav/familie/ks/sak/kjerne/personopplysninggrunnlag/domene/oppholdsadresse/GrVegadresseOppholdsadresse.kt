@@ -8,6 +8,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
 import no.nav.familie.kontrakter.felles.svalbard.erKommunePåSvalbard
 import no.nav.familie.ks.sak.common.util.nullableTilString
 import no.nav.familie.ks.sak.common.util.storForbokstav
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 import java.util.Objects
 
 @Entity(name = "GrVegadresseOppholdsadresse")
@@ -60,6 +61,24 @@ data class GrVegadresseOppholdsadresse(
             else -> "$adressenavn $husnummer$husbokstav$postnummer$poststed$oppholdAnnetSted"
         }
     }
+
+    override fun tilAdresse(): Adresse =
+        Adresse(
+            gyldigFraOgMed = periode?.fom,
+            gyldigTilOgMed = periode?.tom,
+            oppholdAnnetSted = oppholdAnnetSted,
+            vegadresse =
+                Vegadresse(
+                    matrikkelId = matrikkelId,
+                    husnummer = husnummer,
+                    husbokstav = husbokstav,
+                    bruksenhetsnummer = bruksenhetsnummer,
+                    adressenavn = adressenavn,
+                    kommunenummer = kommunenummer,
+                    tilleggsnavn = tilleggsnavn,
+                    postnummer = postnummer,
+                ),
+        )
 
     override fun erPåSvalbard(): Boolean = (kommunenummer != null && erKommunePåSvalbard(kommunenummer)) || oppholdAnnetSted == PAA_SVALBARD
 
