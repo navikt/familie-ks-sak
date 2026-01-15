@@ -61,7 +61,7 @@ jobs:
         # queries: security-extended,security-and-quality
 
         with:
-          java-version: "21"
+          java-version: "25"
           distribution: 'temurin'
 
           cache: 'maven'
