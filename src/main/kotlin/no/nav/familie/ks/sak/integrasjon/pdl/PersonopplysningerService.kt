@@ -68,6 +68,7 @@ class PersonopplysningerService(
                                 relasjonsrolle = forelderBarnRelasjon.relasjonsrolle,
                                 fødselsdato = relasjonData.fødselsdato,
                                 navn = relasjonData.navn,
+                                kjønn = relasjonData.kjønn,
                                 adressebeskyttelseGradering = relasjonData.adressebeskyttelseGradering,
                                 erEgenAnsatt = egenAnsattPerIdent.getOrDefault(forelderBarnRelasjon.aktør.aktivFødselsnummer(), null),
                             )

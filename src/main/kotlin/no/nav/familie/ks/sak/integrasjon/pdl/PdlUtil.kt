@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.integrasjon.pdl
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
 import no.nav.familie.ks.sak.common.exception.PdlRequestException
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.Doedsfall

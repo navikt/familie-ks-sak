@@ -500,12 +500,15 @@ fun lagPerson(
     personType: PersonType = PersonType.SØKER,
     fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
     dødsfall: Dødsfall? = null,
+    navn: String? = null,
+    kjønn: Kjønn = Kjønn.KVINNE,
 ): Person {
     val person =
         Person(
+            navn = navn ?: "Kari Nordmann",
             type = personType,
             fødselsdato = fødselsdato,
-            kjønn = Kjønn.KVINNE,
+            kjønn = kjønn,
             personopplysningGrunnlag = personopplysningGrunnlag,
             aktør = aktør,
             dødsfall = dødsfall,
