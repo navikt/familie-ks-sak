@@ -2,10 +2,41 @@ package no.nav.familie.ks.sak.datagenerator
 
 import no.nav.familie.kontrakter.felles.personopplysning.OppholdAnnetSted
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrMatrikkeladresseBostedsadresse
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrUkjentBostedBostedsadresse
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrVegadresseBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrMatrikkeladresseOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrUkjentAdresseOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrUtenlandskAdresseOppholdsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.oppholdsadresse.GrVegadresseOppholdsadresse
+
+fun lagGrVegadresseBostedsadresse(): GrVegadresseBostedsadresse =
+    GrVegadresseBostedsadresse(
+        matrikkelId = 123L,
+        husnummer = "12",
+        husbokstav = "A",
+        bruksenhetsnummer = "1",
+        adressenavn = "Testveien",
+        kommunenummer = null,
+        tilleggsnavn = null,
+        postnummer = null,
+        poststed = null,
+    )
+
+fun lagGrMatrikkeladresseBostedsadresse(): GrMatrikkeladresseBostedsadresse =
+    GrMatrikkeladresseBostedsadresse(
+        matrikkelId = 123L,
+        bruksenhetsnummer = "1",
+        kommunenummer = null,
+        tilleggsnavn = null,
+        postnummer = null,
+        poststed = null,
+    )
+
+fun lagGrUkjentBostedBostedsadresse(): GrUkjentBostedBostedsadresse =
+    GrUkjentBostedBostedsadresse(
+        bostedskommune = "1234",
+    )
 
 fun lagGrVegadresseOppholdsadresse(
     matrikkelId: Long? = null,
