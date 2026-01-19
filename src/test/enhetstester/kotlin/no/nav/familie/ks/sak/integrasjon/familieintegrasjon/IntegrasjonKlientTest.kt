@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.okJson
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import no.nav.familie.kontrakter.felles.BrukerIdType
@@ -21,9 +22,12 @@ import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.lagAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
@@ -41,19 +45,20 @@ internal class IntegrasjonKlientTest {
     private val restOperations: RestOperations = RestTemplateBuilder().build()
     private lateinit var integrasjonKlient: IntegrasjonKlient
     private lateinit var wiremockServerItem: WireMockServer
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     @BeforeEach
     fun initClass() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations, featureToggleService)
     }
 
     @AfterEach
     fun tearDown() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations, featureToggleService)
         unmockkObject(SikkerhetContext)
     }
 
@@ -76,8 +81,9 @@ internal class IntegrasjonKlientTest {
     }
 
     @Test
-    fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon`() {
+    fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon uten behandlingstype`() {
         // Arrange
+        every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns false
         wiremockServerItem.stubFor(
             WireMock
                 .post(urlEqualTo("/arbeidsfordeling/enhet/KON"))
@@ -86,6 +92,25 @@ internal class IntegrasjonKlientTest {
 
         // Act
         val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident")
+
+        // Assert
+        assertThat(behandlendeEnheter).hasSize(2)
+        assertThat(behandlendeEnheter.map { it.enhetId }).containsExactlyInAnyOrder("enhetId1", "enhetId2")
+        assertThat(behandlendeEnheter.map { it.enhetNavn }).containsExactlyInAnyOrder("enhetNavn1", "enhetNavn2")
+    }
+
+    @Test
+    fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon med behandlingstype`() {
+        // Arrange
+        every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns true
+        wiremockServerItem.stubFor(
+            WireMock
+                .post(urlEqualTo("/arbeidsfordeling/enhet/KON?behandlingstype=NASJONAL"))
+                .willReturn(okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
+        )
+
+        // Act
+        val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident", Behandlingstype.NASJONAL)
 
         // Assert
         assertThat(behandlendeEnheter).hasSize(2)
