@@ -10,9 +10,9 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.Bruker
 import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
-import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -65,6 +66,8 @@ class BrevServiceTest {
             ),
         )
     private val saksbehandlerContext = mockk<SaksbehandlerContext>(relaxed = true)
+    private val featureToggleService = mockk<FeatureToggleService>()
+    private val behandlingService = mockk<BehandlingService>()
 
     private val brevService =
         BrevService(
@@ -80,6 +83,8 @@ class BrevServiceTest {
             brevmottakerService = brevmottakerService,
             validerBrevmottakerService = validerBrevmottakerService,
             saksbehandlerContext = saksbehandlerContext,
+            featureToggleService = featureToggleService,
+            behandlingService = behandlingService,
         )
 
     private val søker = randomAktør()
@@ -124,10 +129,9 @@ class BrevServiceTest {
             val forhåndsvisning =
                 brevService
                     .hentForhåndsvisningAvBrev(
-                        manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
+                        brevService.utvidManueltBrevDtoMedEnhetOgMottaker(
                             behandling.id,
-                            personopplysningGrunnlagService,
-                            arbeidsfordelingService,
+                            manueltBrevDto,
                         ),
                     )
 

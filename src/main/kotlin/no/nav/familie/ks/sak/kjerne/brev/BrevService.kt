@@ -60,7 +60,7 @@ class BrevService(
         sendBrev(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
     }
 
-    private fun utvidManueltBrevDtoMedEnhetOgMottaker(
+    fun utvidManueltBrevDtoMedEnhetOgMottaker(
         behandlingId: Long,
         manueltBrevDto: ManueltBrevDto,
     ): ManueltBrevDto {
@@ -75,6 +75,22 @@ class BrevService(
                 ),
             mottakerMålform = mottakerPerson?.målform ?: manueltBrevDto.mottakerMålform,
             mottakerNavn = mottakerPerson?.navn ?: manueltBrevDto.mottakerNavn,
+        )
+    }
+
+    fun leggTilEnhet(manueltBrevDto: ManueltBrevDto): ManueltBrevDto {
+        val arbeidsfordelingsenhet =
+            arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                søkerIdent = manueltBrevDto.mottakerIdent,
+                barnIdenter = manueltBrevDto.barnIBrev,
+                behandlingstype = null,
+            )
+        return manueltBrevDto.copy(
+            enhet =
+                Enhet(
+                    enhetNavn = arbeidsfordelingsenhet.enhetNavn,
+                    enhetId = arbeidsfordelingsenhet.enhetId,
+                ),
         )
     }
 
