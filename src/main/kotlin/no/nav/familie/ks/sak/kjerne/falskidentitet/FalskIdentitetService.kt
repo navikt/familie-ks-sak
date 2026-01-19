@@ -4,13 +4,12 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
+import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresser
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -40,10 +39,5 @@ class FalskIdentitetService(
         } else {
             return null
         }
-    }
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(FalskIdentitetService::class.java)
-        private val secureLogger = LoggerFactory.getLogger("secureLogger")
     }
 }
