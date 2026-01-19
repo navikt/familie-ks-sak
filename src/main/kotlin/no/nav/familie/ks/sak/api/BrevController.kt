@@ -78,7 +78,7 @@ class BrevController(
 
         return brevService
             .hentForhåndsvisningAvBrev(
-                manueltBrevDto = brevService.leggTilEnhet(manueltBrevDto),
+                manueltBrevDto = brevService.leggTilEnhet(fagsakId, manueltBrevDto),
             ).let { Ressurs.success(it) }
     }
 
@@ -96,7 +96,7 @@ class BrevController(
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
         brevService.sendBrev(
-            manueltBrevDto = brevService.leggTilEnhet(manueltBrevDto),
+            manueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto),
             fagsak = fagsak,
         )
 

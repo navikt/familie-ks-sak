@@ -12,6 +12,7 @@ import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -22,7 +23,11 @@ import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.BERGEN
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.DRAMMEN
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.OSLO
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -40,6 +45,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.prosessering.domene.Task
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -332,6 +338,118 @@ class BrevServiceTest {
                     brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
                 }
             assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
+        }
+    }
+
+    @Nested
+    inner class LeggTilEnhet {
+        @BeforeEach
+        fun setup() {
+            every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns true
+        }
+
+        @Test
+        fun `skal hente arbeidsfordeling uten behandlingstype når feature toggle er av`() {
+            // Arrange
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = OSLO.enhetsnummer,
+                    enhetNavn = OSLO.enhetsnavn,
+                )
+
+            every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns false
+            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 1) {
+                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                    søkerIdent = søker.aktivFødselsnummer(),
+                    barnIdenter = any(),
+                    behandlingstype = null,
+                )
+            }
+        }
+
+        @Test
+        fun `skal legge til saksbehandlers enhet når feature toggle er på og NavIdent har tilgang til kun én enhet`() {
+            // Arrange
+            every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(OSLO)
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 0) { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) }
+            verify(exactly = 0) { behandlingService.hentSisteBehandlingSomErVedtatt(any()) }
+        }
+
+        @Test
+        fun `skal hente arbeidsfordeling med behandlingstype når feature toggle er på og NavIdent har tilgang til flere enheter`() {
+            // Arrange
+            val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = OSLO.enhetsnummer,
+                    enhetNavn = OSLO.enhetsnavn,
+                )
+
+            every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(OSLO, DRAMMEN)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns behandling
+            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 1) { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) }
+            verify(exactly = 1) {
+                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                    søkerIdent = søker.aktivFødselsnummer(),
+                    barnIdenter = emptyList(),
+                    behandlingstype = behandling.kategori.tilOppgavebehandlingType(),
+                )
+            }
+        }
+
+        @Test
+        fun `skal håndtere ingen siste vedtatte behandling når feature toggle er på og NavIdent har tilgang til flere enheter`() {
+            // Arrange
+            val barn1Ident = "12345678910"
+            val barn2Ident = "10987654321"
+            val manueltBrevDtoMedBarn = manueltBrevDto.copy(barnIBrev = listOf(barn1Ident, barn2Ident))
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = OSLO.enhetsnummer,
+                    enhetNavn = OSLO.enhetsnavn,
+                )
+
+            every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(DRAMMEN, BERGEN)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns null
+            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDtoMedBarn)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 1) { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) }
+            verify(exactly = 1) {
+                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                    søkerIdent = søker.aktivFødselsnummer(),
+                    barnIdenter = listOf(barn1Ident, barn2Ident),
+                    behandlingstype = null,
+                )
+            }
         }
     }
 }
