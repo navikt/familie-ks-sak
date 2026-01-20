@@ -26,7 +26,6 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
@@ -42,8 +41,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.porteføljejustering.RelevanteApplikasjonerForPorteføljejustering
-import no.nav.familie.ks.sak.kjerne.porteføljejustering.StartPorteføljejusteringTask
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -430,28 +427,5 @@ class ForvaltningController(
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet(dryRun = true, dryRunEpost = dryRunEpost)
 
         return ResponseEntity.ok(Ressurs.success("OK"))
-    }
-
-    @PostMapping("/opprett-tasker-for-flytting-av-vadso-oppgaver")
-    @Operation(
-        summary = "Oppretter tasker flytting av vadsø oppgaver",
-    )
-    fun opprettTaskerForFlyttingAvVadsøOppgaver(
-        @RequestParam("antallFlytteTasks") antallFlytteTasks: Int? = null,
-        @RequestParam("dryRun") dryRun: Boolean = true,
-        @RequestParam("behandlesAvApplikasjon") behandlesAvApplikasjon: RelevanteApplikasjonerForPorteføljejustering? = null,
-    ): ResponseEntity<String> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Opprett tasker for flytting av vadsø oppgaver",
-        )
-
-        if (!featureToggleService.isEnabled(FeatureToggle.PORTEFØLJEJUSTERING)) {
-            return ResponseEntity.ok("Toggle for porteføljejustering er skrudd av")
-        }
-
-        taskService.save(StartPorteføljejusteringTask.opprettTask(antallFlytteTasks, behandlesAvApplikasjon, dryRun = dryRun))
-
-        return ResponseEntity.ok("Opprettet task for flytting av Steinkjer oppgaver")
     }
 }

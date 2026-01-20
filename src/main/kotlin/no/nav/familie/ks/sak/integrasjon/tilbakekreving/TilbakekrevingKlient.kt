@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
 import org.springframework.web.util.UriUtils
 import java.net.URI
-import java.util.UUID
 
 @Service
 class TilbakekrevingKlient(
@@ -112,32 +111,6 @@ class TilbakekrevingKlient(
             formål = "Henter tilbakekrevingsvedtak på fagsak",
         ) { getForEntity(uri) }
     }
-
-    fun oppdaterEnhetPåÅpenBehandling(
-        behandlingEksternBrukId: UUID,
-        nyEnhetId: String,
-    ): String {
-        val uri = URI.create("$familieTilbakeUri/baks/portefoljejustering/oppdater-behandlende-enhet")
-
-        val request =
-            OppdaterBehandlendeEnhetRequest(
-                behandlingEksternBrukId = behandlingEksternBrukId,
-                nyEnhet = nyEnhetId,
-            )
-
-        return kallEksternTjenesteRessurs(
-            tjeneste = "familie-tilbake",
-            uri = uri,
-            formål = "Oppdater enhet på åpen tilbakekrevingsbehandling",
-        ) {
-            putForEntity(uri, request)
-        }
-    }
-
-    data class OppdaterBehandlendeEnhetRequest(
-        val behandlingEksternBrukId: UUID,
-        val nyEnhet: String,
-    )
 }
 
 fun encodePath(path: String) = UriUtils.encodePath(path, "UTF-8")
