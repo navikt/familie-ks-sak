@@ -3,6 +3,10 @@ name: Deploy kafka topics
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,62 +17,53 @@ jobs:
       - name: Deploy dvh-vedtak-topic til dev
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka/dvh-vedtak-topic-dev.yaml
       - name: Deploy dvh-vedtak-topic til prod
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/kafka/dvh-vedtak-topic-prod.yaml
 
       - name: Deploy dvh-sakstatistikk-behandling-topic til dev
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka/dvh-sakstatistikk-behandling-topic-dev.yaml
       - name: Deploy dvh-sakstatistikk-behandling-topic til prod
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/kafka/dvh-sakstatistikk-behandling-topic-prod.yaml
+
       - name: Deploy dvh-sakstatistikk-siste-tilstand-behandling-topic til dev
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka/dvh-sakstatistikk-siste-tilstand-behandling-topic-dev.yaml
       - name: Deploy dvh-sakstatistikk-siste-tilstand-behandling-topic til prod
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/kafka/dvh-sakstatistikk-siste-tilstand-behandling-topic-prod.yaml
 
       - name: Deploy dvh-sakstatistikk-sak-topic til dev
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka/dvh-sakstatistikk-sak-topic-dev.yaml
       - name: Deploy dvh-sakstatistikk-sak-topic til prod
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/kafka/dvh-sakstatistikk-sak-topic-prod.yaml
       - name: Deploy barnehagelister topic til dev
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka/barnehagelister-topic-dev.yaml
       - name: Deploy barnehagelister topic til prod
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/kafka/barnehagelister-topic-prod.yaml

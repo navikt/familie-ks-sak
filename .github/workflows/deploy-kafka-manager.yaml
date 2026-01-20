@@ -3,6 +3,10 @@ name: Deploy familie-baks-kafka-manager
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,12 +16,10 @@ jobs:
       - name: Deploy familie-baks-kafka-manager til dev
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-dev.yaml
       - name: Deploy familie-baks-kafka-manager til prod
         uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # ratchet:nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-prod.yaml
