@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.TilpassArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -25,6 +26,7 @@ class KlagebehandlingOppretter(
     private val integrasjonKlient: IntegrasjonKlient,
     private val tilpassArbeidsfordelingService: TilpassArbeidsfordelingService,
     private val clockProvider: ClockProvider,
+    private val behandlingService: BehandlingService,
 ) {
     private val logger = LoggerFactory.getLogger(KlagebehandlingOppretter::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
@@ -48,7 +50,13 @@ class KlagebehandlingOppretter(
         val fødselsnummer = fagsak.aktør.aktivFødselsnummer()
         val navIdent = NavIdent(SikkerhetContext.hentSaksbehandler())
 
-        val arbeidsfordelingsenheter = integrasjonKlient.hentBehandlendeEnheter(fødselsnummer)
+        val sisteVedtatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id)
+
+        val arbeidsfordelingsenheter =
+            integrasjonKlient.hentBehandlendeEnheter(
+                ident = fødselsnummer,
+                behandlingstype = sisteVedtatteBehandling?.kategori?.tilOppgavebehandlingType(),
+            )
 
         if (arbeidsfordelingsenheter.isEmpty()) {
             logger.error("Fant ingen arbeidsfordelingsenheter for aktør. Se SecureLogs for detaljer.")

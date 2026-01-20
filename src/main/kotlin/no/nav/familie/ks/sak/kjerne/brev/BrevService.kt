@@ -1,16 +1,21 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.http.client.RessursException
+import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.distribuering.DistribuerDødsfallBrevPåFagsakTask
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.logger
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -25,6 +30,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
+import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -36,13 +42,15 @@ class BrevService(
     private val taskService: TaskRepositoryWrapper,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val arbeidsfordelingService: ArbeidsfordelingService,
-    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val `vilkårsvurderingService`: VilkårsvurderingService,
     private val behandlingRepository: BehandlingRepository,
-    private val settBehandlingPåVentService: SettBehandlingPåVentService,
+    private val `settBehandlingPåVentService`: SettBehandlingPåVentService,
     private val genererBrevService: GenererBrevService,
     private val brevmottakerService: BrevmottakerService,
     private val validerBrevmottakerService: ValiderBrevmottakerService,
     private val saksbehandlerContext: SaksbehandlerContext,
+    private val featureToggleService: FeatureToggleService,
+    private val behandlingService: BehandlingService,
 ) {
     fun hentForhåndsvisningAvBrev(
         manueltBrevDto: ManueltBrevDto,
@@ -60,7 +68,7 @@ class BrevService(
         sendBrev(behandling.fagsak, behandlingId, manueltBrevDtoMedMottakerData)
     }
 
-    private fun utvidManueltBrevDtoMedEnhetOgMottaker(
+    fun utvidManueltBrevDtoMedEnhetOgMottaker(
         behandlingId: Long,
         manueltBrevDto: ManueltBrevDto,
     ): ManueltBrevDto {
@@ -75,6 +83,45 @@ class BrevService(
                 ),
             mottakerMålform = mottakerPerson?.målform ?: manueltBrevDto.mottakerMålform,
             mottakerNavn = mottakerPerson?.navn ?: manueltBrevDto.mottakerNavn,
+        )
+    }
+
+    fun leggTilEnhet(
+        fagsakId: Long,
+        manueltBrevDto: ManueltBrevDto,
+    ): ManueltBrevDto {
+        val arbeidsfordelingsenhet =
+            if (featureToggleService.isEnabled(FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE)) {
+                val enheterSomNavIdentHarTilgangTil = integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(NavIdent(SikkerhetContext.hentSaksbehandler()))
+                if (enheterSomNavIdentHarTilgangTil.size == 1) {
+                    Arbeidsfordelingsenhet(
+                        enhetId = enheterSomNavIdentHarTilgangTil.first().enhetsnummer,
+                        enhetNavn = enheterSomNavIdentHarTilgangTil.first().enhetsnavn,
+                    )
+                } else {
+                    val sisteVedtatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId)
+
+                    arbeidsfordelingService
+                        .hentArbeidsfordelingsenhetPåIdenter(
+                            søkerIdent = manueltBrevDto.mottakerIdent,
+                            barnIdenter = manueltBrevDto.barnIBrev,
+                            behandlingstype = sisteVedtatteBehandling?.kategori?.tilOppgavebehandlingType(),
+                        )
+                }
+            } else {
+                arbeidsfordelingService
+                    .hentArbeidsfordelingsenhetPåIdenter(
+                        søkerIdent = manueltBrevDto.mottakerIdent,
+                        barnIdenter = manueltBrevDto.barnIBrev,
+                        behandlingstype = null,
+                    )
+            }
+        return manueltBrevDto.copy(
+            enhet =
+                Enhet(
+                    enhetNavn = arbeidsfordelingsenhet.enhetNavn,
+                    enhetId = arbeidsfordelingsenhet.enhetId,
+                ),
         )
     }
 

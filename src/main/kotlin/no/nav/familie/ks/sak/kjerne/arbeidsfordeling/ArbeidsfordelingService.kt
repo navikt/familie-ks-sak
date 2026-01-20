@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.arbeidsfordeling
 
 import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -157,13 +158,14 @@ class ArbeidsfordelingService(
 
         val identMedStrengeste = finnPersonMedStrengesteAdressebeskyttelse(personer)
 
-        return integrasjonKlient.hentBehandlendeEnheter(identMedStrengeste ?: søker.first).singleOrNull()
+        return integrasjonKlient.hentBehandlendeEnheter(identMedStrengeste ?: søker.first, behandling.kategori.tilOppgavebehandlingType()).singleOrNull()
             ?: throw Feil(message = "Fant flere eller ingen enheter på behandling.")
     }
 
     fun hentArbeidsfordelingsenhetPåIdenter(
         søkerIdent: String,
         barnIdenter: List<String>,
+        behandlingstype: Behandlingstype?,
     ): Arbeidsfordelingsenhet {
         val identerLagtSammen = barnIdenter + søkerIdent
 
@@ -174,7 +176,7 @@ class ArbeidsfordelingService(
 
         val identMedStrengeste = finnPersonMedStrengesteAdressebeskyttelse(identTilAdresseBeskyttelseGraderingMap)
 
-        return integrasjonKlient.hentBehandlendeEnheter(identMedStrengeste ?: søkerIdent).singleOrNull()
+        return integrasjonKlient.hentBehandlendeEnheter(identMedStrengeste ?: søkerIdent, behandlingstype).singleOrNull()
             ?: throw Feil(message = "Fant flere eller ingen enheter på behandling.")
     }
 

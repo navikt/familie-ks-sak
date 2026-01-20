@@ -198,7 +198,7 @@ internal class ArbeidsfordelingServiceTest {
                     .findByBehandlingAndAktiv(behandling.id)
             } returns lagPersonopplysningGrunnlag(søkerPersonIdent = søker.aktør.aktivFødselsnummer())
 
-            every { integrasjonKlient.hentBehandlendeEnheter(søker.aktør.aktivFødselsnummer()) } returns
+            every { integrasjonKlient.hentBehandlendeEnheter(søker.aktør.aktivFødselsnummer(), any()) } returns
                 listOf(
                     arbeidsfordelingsenhet,
                 )
