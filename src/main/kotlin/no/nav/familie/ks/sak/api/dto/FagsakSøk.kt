@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.api.dto
 
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 
 data class SøkParamDto(
     val personIdent: String,
@@ -19,7 +19,7 @@ data class FagsakDeltagerResponsDto(
     val navn: String? = null,
     val ident: String = "",
     val rolle: FagsakDeltagerRolle,
-    val kjønn: KJOENN = KJOENN.UKJENT,
+    val kjønn: Kjønn = Kjønn.UKJENT,
     val fagsakId: Long? = null,
     val fagsakStatus: FagsakStatus? = null,
     val adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,

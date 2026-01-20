@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.Vegadresse
 import no.nav.familie.ks.sak.common.util.nullableTilString
 import no.nav.familie.ks.sak.common.util.storForbokstav
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 import java.util.Objects
 
 @Entity(name = "GrVegadresseBostedsadresse")
@@ -42,6 +43,23 @@ data class GrVegadresseBostedsadresse(
         """${adressenavn.nullableTilString().storForbokstav()} 
     |${husnummer.nullableTilString()}${husbokstav.nullableTilString()}${postnummer.let { ", $it" }}${poststed?.let { ", $it" } ?: ""}
         """.trimMargin()
+
+    override fun tilAdresse(): Adresse =
+        Adresse(
+            gyldigFraOgMed = periode?.fom,
+            gyldigTilOgMed = periode?.tom,
+            vegadresse =
+                Vegadresse(
+                    matrikkelId = matrikkelId,
+                    husnummer = husnummer,
+                    husbokstav = husbokstav,
+                    bruksenhetsnummer = bruksenhetsnummer,
+                    adressenavn = adressenavn,
+                    kommunenummer = kommunenummer,
+                    tilleggsnavn = tilleggsnavn,
+                    postnummer = postnummer,
+                ),
+        )
 
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {

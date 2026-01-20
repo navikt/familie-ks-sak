@@ -17,7 +17,6 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
@@ -47,7 +46,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.KafkaConfig.Companion.BARNEHAGELISTE_TOPIC
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
@@ -378,10 +377,10 @@ fun lagRegistrerSøknadDto() =
 fun lagPdlPersonInfo(
     enkelPersonInfo: Boolean = false,
     erBarn: Boolean = false,
-) = PdlPersonInfo(
+) = PersonInfo(
     fødselsdato = if (erBarn) LocalDate.now().minusYears(1) else LocalDate.of(1987, 5, 1),
     navn = "John Doe",
-    kjønn = KJOENN.MANN,
+    kjønn = Kjønn.MANN,
     forelderBarnRelasjoner = if (enkelPersonInfo) emptySet() else setOf(lagForelderBarnRelasjon()),
     bostedsadresser = listOf(lagBostedsadresse()),
     sivilstander = listOf(lagSivilstand()),
@@ -496,17 +495,20 @@ fun lagPerson(
 }
 
 fun lagPerson(
-    personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
+    personopplysningGrunnlag: PersonopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
     aktør: Aktør = randomAktør(),
     personType: PersonType = PersonType.SØKER,
     fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
     dødsfall: Dødsfall? = null,
+    navn: String? = null,
+    kjønn: Kjønn = Kjønn.KVINNE,
 ): Person {
     val person =
         Person(
+            navn = navn ?: "Kari Nordmann",
             type = personType,
             fødselsdato = fødselsdato,
-            kjønn = Kjønn.KVINNE,
+            kjønn = kjønn,
             personopplysningGrunnlag = personopplysningGrunnlag,
             aktør = aktør,
             dødsfall = dødsfall,
