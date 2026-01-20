@@ -287,9 +287,6 @@ class FagsakDeltagerServiceTest {
         every { integrasjonService.sjekkErEgenAnsattBulk(any()) } returns emptyMap()
         every {
             personopplysningerService.hentPdlPersonInfoEnkel(behandling.fagsak.aktør)
-        } throws PdlPersonKanIkkeBehandlesIFagsystem(årsak = PdlPersonKanIkkeBehandlesIFagSystemÅrsak.MANGLER_FØDSELSDATO)
-        every {
-            personopplysningerService.hentPdlPersonInfoEnkel(any())
         } returns
             PdlPersonInfo.FalskPerson(
                 falskIdentitetPersonInfo =
