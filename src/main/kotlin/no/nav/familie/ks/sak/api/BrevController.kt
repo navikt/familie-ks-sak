@@ -5,17 +5,13 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
-import no.nav.familie.ks.sak.api.dto.leggTilEnhet
-import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
 import no.nav.familie.ks.sak.kjerne.brev.GenererBrevService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -40,8 +36,6 @@ class BrevController(
     private val tilgangService: TilgangService,
     private val behandlingService: BehandlingService,
     private val vedtakService: VedtakService,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    private val arbeidsfordelingService: ArbeidsfordelingService,
     private val fagsakService: FagsakService,
 ) {
     @PostMapping(path = ["/forhaandsvis-brev/{behandlingId}"])
@@ -62,7 +56,7 @@ class BrevController(
 
         return brevService
             .hentForhåndsvisningAvBrev(
-                manueltBrevDto = manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, personopplysningGrunnlagService, arbeidsfordelingService),
+                manueltBrevDto = brevService.utvidManueltBrevDtoMedEnhetOgMottaker(behandlingId, manueltBrevDto),
             ).let { Ressurs.success(it) }
     }
 
@@ -84,7 +78,7 @@ class BrevController(
 
         return brevService
             .hentForhåndsvisningAvBrev(
-                manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+                manueltBrevDto = brevService.leggTilEnhet(fagsakId, manueltBrevDto),
             ).let { Ressurs.success(it) }
     }
 
@@ -102,7 +96,7 @@ class BrevController(
         val fagsak = fagsakService.hentFagsak(fagsakId)
 
         brevService.sendBrev(
-            manueltBrevDto = manueltBrevDto.leggTilEnhet(arbeidsfordelingService),
+            manueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto),
             fagsak = fagsak,
         )
 

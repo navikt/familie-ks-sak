@@ -12,4 +12,5 @@ enum class FeatureToggle(
     // Ikke operasjonelle
     KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
     PORTEFØLJEJUSTERING("familie-ks-sak.portefoljejustering"),
+    HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE("familie-ks-sak.hent-arbeidsfordeling-med-behandlingstype"),
 }

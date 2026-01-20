@@ -22,6 +22,7 @@ import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
 import no.nav.familie.kontrakter.felles.kodeverk.LandDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -32,6 +33,8 @@ import no.nav.familie.kontrakter.felles.saksbehandler.SaksbehandlerGrupper
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
@@ -53,6 +56,7 @@ import java.net.URI
 class IntegrasjonKlient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("jwtBearer") restOperations: RestOperations,
+    private val featureToggleService: FeatureToggleService,
 ) : AbstractRestClient(restOperations, "integrasjon") {
     val tilgangPersonUri =
         UriComponentsBuilder
@@ -269,12 +273,21 @@ class IntegrasjonKlient(
     }
 
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
-    fun hentBehandlendeEnheter(ident: String): List<Arbeidsfordelingsenhet> {
+    fun hentBehandlendeEnheter(
+        ident: String,
+        behandlingstype: Behandlingstype? = null,
+    ): List<Arbeidsfordelingsenhet> {
         val uri =
             UriComponentsBuilder
                 .fromUri(integrasjonUri)
                 .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
-                .build()
+                .let {
+                    if (featureToggleService.isEnabled(FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE)) {
+                        it.queryParam("behandlingstype", behandlingstype)
+                    } else {
+                        it
+                    }
+                }.build()
                 .toUri()
 
         return kallEksternTjenesteRessurs(
