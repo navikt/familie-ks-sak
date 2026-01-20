@@ -105,12 +105,12 @@ internal class IntegrasjonKlientTest {
         every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns true
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/arbeidsfordeling/enhet/KON?behandlingstype=NASJONAL"))
+                .post(urlEqualTo("/arbeidsfordeling/enhet/KON?behandlingstype=E%C3%98S"))
                 .willReturn(okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
         )
 
         // Act
-        val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident", Behandlingstype.NASJONAL)
+        val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident", Behandlingstype.EØS)
 
         // Assert
         assertThat(behandlendeEnheter).hasSize(2)
