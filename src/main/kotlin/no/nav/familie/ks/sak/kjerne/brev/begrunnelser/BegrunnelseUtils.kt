@@ -14,7 +14,7 @@ private val logger = LoggerFactory.getLogger(NasjonalEllerFellesBegrunnelse::cla
 fun IBegrunnelse.tilSanityBegrunnelse(sanityBegrunnelser: List<SanityBegrunnelse>): SanityBegrunnelse? {
     val sanityBegrunnelse = sanityBegrunnelser.find { it.apiNavn == this.sanityApiNavn }
     if (sanityBegrunnelse == null) {
-        logger.warn("Finner ikke begrunnelse med apinavn '${this.sanityApiNavn}' på '${this.sanityApiNavn}' i Sanity")
+        logger.warn("Finner ikke begrunnelse med apinavn '${this.sanityApiNavn}' i Sanity")
     }
     return sanityBegrunnelse
 }
