@@ -116,8 +116,6 @@ spec:
   ingresses:
     - https://familie-ks-sak.intern.dev.nav.no
     - https://familie-kontantstotte-sak.intern.dev.nav.no
-  secureLogs:
-    enabled: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: preprod
