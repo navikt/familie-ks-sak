@@ -97,13 +97,7 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
         verify(exactly = 1) {
             epostService.sendEpostVarslingBarnehagelister(
                 BarnehagelisteVarslingService.`KONTAKT_E-POST_BERGEN`,
-                setOf("Grünerløkka", "Sagene"),
-            )
-        }
-        verify(exactly = 1) {
-            epostService.sendEpostVarslingBarnehagelister(
-                BarnehagelisteVarslingService.`KONTAKT_E-POST_VADSØ`,
-                setOf("Moss"),
+                setOf("Grünerløkka", "Sagene", "Moss"),
             )
         }
     }
