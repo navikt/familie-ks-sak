@@ -390,7 +390,14 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetNasjonalRettSekundarlandToArbeidsland"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
-
+    INNVILGET_NASJONAL_RETT_SEKUNDÆRLAND_SØKER_FÅR_PENGER_SOM_ERSTATTER_LØNN {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarSokerFarPengerSomErstatterLonn"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆRLAND_SØKER_FÅR_PENSJON_FRA_ANNET_LAND {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarSokerFarPensjonFraAnnetLand"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
