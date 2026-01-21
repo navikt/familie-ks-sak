@@ -27,24 +27,13 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
             vilkårsvurderingService = mockk(),
         )
     private val epostService = mockk<EpostService>()
-    private val geografiHierarkiService = mockk<GeografiHierarkiService>()
     private val barnehagelisteVarslingService =
-        BarnehagelisteVarslingService(barnehageBarnService, epostService, geografiHierarkiService)
+        BarnehagelisteVarslingService(barnehageBarnService, epostService)
 
     @BeforeEach
     fun setup() {
-        clearMocks(epostService, geografiHierarkiService)
+        clearMocks(epostService)
         every { epostService.sendEpostVarslingBarnehagelister(any(), any()) } just runs
-
-        every { geografiHierarkiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("03") } returns
-            mapOf(
-                "0302" to "Grünerløkka",
-                "0303" to "Sagene",
-            )
-        every { geografiHierarkiService.hentBydelEllerKommuneKodeTilNavnFraFylkeNr("31") } returns
-            mapOf(
-                "3103" to "Moss",
-            )
     }
 
     @Test

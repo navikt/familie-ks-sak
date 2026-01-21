@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 class BarnehagelisteVarslingService(
     val barnehageBarnService: BarnehagebarnService,
     val epostService: EpostService,
-    val geografiService: GeografiHierarkiService,
 ) {
     @Scheduled(cron = "0 0 6 * * ?")
     fun sendVarslingOmBarnehagelisteHverMorgenKl6() {
