@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.okJson
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import no.nav.familie.kontrakter.felles.BrukerIdType
@@ -21,9 +22,12 @@ import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.lagAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
@@ -37,23 +41,24 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.web.client.RestOperations
 import java.net.URI
 
-internal class IntegrasjonClientTest {
+internal class IntegrasjonKlientTest {
     private val restOperations: RestOperations = RestTemplateBuilder().build()
-    private lateinit var integrasjonClient: IntegrasjonClient
+    private lateinit var integrasjonKlient: IntegrasjonKlient
     private lateinit var wiremockServerItem: WireMockServer
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     @BeforeEach
     fun initClass() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonClient = IntegrasjonClient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations, featureToggleService)
     }
 
     @AfterEach
     fun tearDown() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonClient = IntegrasjonClient(URI.create(wiremockServerItem.baseUrl()), restOperations)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations, featureToggleService)
         unmockkObject(SikkerhetContext)
     }
 
@@ -67,7 +72,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val oppgaver = integrasjonClient.hentOppgaver(FinnOppgaveRequest(Tema.KON))
+        val oppgaver = integrasjonKlient.hentOppgaver(FinnOppgaveRequest(Tema.KON))
 
         // Assert
         assertThat(oppgaver.antallTreffTotalt).isEqualTo(1)
@@ -76,8 +81,9 @@ internal class IntegrasjonClientTest {
     }
 
     @Test
-    fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon`() {
+    fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon uten behandlingstype`() {
         // Arrange
+        every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns false
         wiremockServerItem.stubFor(
             WireMock
                 .post(urlEqualTo("/arbeidsfordeling/enhet/KON"))
@@ -85,7 +91,26 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val behandlendeEnheter = integrasjonClient.hentBehandlendeEnheter("testident")
+        val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident")
+
+        // Assert
+        assertThat(behandlendeEnheter).hasSize(2)
+        assertThat(behandlendeEnheter.map { it.enhetId }).containsExactlyInAnyOrder("enhetId1", "enhetId2")
+        assertThat(behandlendeEnheter.map { it.enhetNavn }).containsExactlyInAnyOrder("enhetNavn1", "enhetNavn2")
+    }
+
+    @Test
+    fun `hentBehandlendeEnhet skal hente enhet fra familie-integrasjon med behandlingstype`() {
+        // Arrange
+        every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns true
+        wiremockServerItem.stubFor(
+            WireMock
+                .post(urlEqualTo("/arbeidsfordeling/enhet/KON?behandlingstype=E%C3%98S"))
+                .willReturn(okJson(readFile("hentBehandlendeEnhetEnkelResponse.json"))),
+        )
+
+        // Act
+        val behandlendeEnheter = integrasjonKlient.hentBehandlendeEnheter("testident", Behandlingstype.EØS)
 
         // Assert
         assertThat(behandlendeEnheter).hasSize(2)
@@ -103,7 +128,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val navKontorEnhet = integrasjonClient.hentNavKontorEnhet("200")
+        val navKontorEnhet = integrasjonKlient.hentNavKontorEnhet("200")
 
         // Assert
         assertThat(navKontorEnhet.enhetId).isEqualTo(200)
@@ -122,7 +147,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val oppgave = integrasjonClient.finnOppgaveMedId(200)
+        val oppgave = integrasjonKlient.finnOppgaveMedId(200)
 
         // Assert
         assertThat(oppgave.id).isEqualTo(200)
@@ -145,7 +170,7 @@ internal class IntegrasjonClientTest {
         every { SikkerhetContext.erSystemKontekst() } returns false
 
         // Act
-        val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
+        val tilgangTilPersonIdent = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
         // Assert
         assertThat(tilgangTilPersonIdent.all { it.harTilgang }).isTrue()
@@ -165,7 +190,7 @@ internal class IntegrasjonClientTest {
         every { SikkerhetContext.erSystemKontekst() } returns false
 
         // Act
-        val tilgangTilPersonIdent = integrasjonClient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
+        val tilgangTilPersonIdent = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
 
         assertThat(tilgangTilPersonIdent.all { it.harTilgang }).isFalse()
         assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har ikke tilgang" }).isTrue()
@@ -184,7 +209,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.fordelOppgave(200, saksbehandler)
+        val fordeltOppgave = integrasjonKlient.fordelOppgave(200, saksbehandler)
 
         // Assert
         assertThat(fordeltOppgave.oppgaveId).isEqualTo(200)
@@ -202,7 +227,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.tilordneEnhetOgRessursForOppgave(200, nyEnhet)
+        val fordeltOppgave = integrasjonKlient.tilordneEnhetOgRessursForOppgave(200, nyEnhet)
 
         // Assert
         assertThat(fordeltOppgave.oppgaveId).isEqualTo(200)
@@ -220,7 +245,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.leggTilLogiskVedlegg(request, "testid")
+        val fordeltOppgave = integrasjonKlient.leggTilLogiskVedlegg(request, "testid")
 
         // Assert
         assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
@@ -236,7 +261,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.slettLogiskVedlegg("testId", "testDokumentId")
+        val fordeltOppgave = integrasjonKlient.slettLogiskVedlegg("testId", "testDokumentId")
 
         // Assert
         assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
@@ -254,7 +279,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val fordeltOppgave = integrasjonClient.oppdaterJournalpost(request, "testJournalpostId")
+        val fordeltOppgave = integrasjonKlient.oppdaterJournalpost(request, "testJournalpostId")
 
         // Assert
         assertThat(fordeltOppgave.journalpostId).isEqualTo("oppdatertJournalpostId")
@@ -270,7 +295,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        integrasjonClient.ferdigstillJournalpost("testJournalPost", "testEnhet")
+        integrasjonKlient.ferdigstillJournalpost("testJournalPost", "testEnhet")
     }
 
     @Test
@@ -285,7 +310,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val arkiverDokumentResponse = integrasjonClient.journalførDokument(request)
+        val arkiverDokumentResponse = integrasjonKlient.journalførDokument(request)
 
         assertThat(arkiverDokumentResponse.ferdigstilt).isTrue()
         assertThat(arkiverDokumentResponse.journalpostId).isEqualTo("12345678")
@@ -303,7 +328,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val hentLandKodeRespons = integrasjonClient.hentLand(landKode)
+        val hentLandKodeRespons = integrasjonKlient.hentLand(landKode)
 
         // Assert
         assertThat(hentLandKodeRespons).isEqualTo("Norge")
@@ -319,7 +344,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val bestillingId = integrasjonClient.distribuerBrev("testId", Distribusjonstype.VEDTAK)
+        val bestillingId = integrasjonKlient.distribuerBrev("testId", Distribusjonstype.VEDTAK)
 
         // Assert
         assertThat(bestillingId).isEqualTo("testBestillingId")
@@ -336,7 +361,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val enheter = integrasjonClient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent)
+        val enheter = integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(navIdent)
 
         // Assert
         assertThat(enheter).hasSize(2)
@@ -360,7 +385,7 @@ internal class IntegrasjonClientTest {
         )
 
         // Act
-        val tilgangsstyrteJournalposter = integrasjonClient.hentTilgangsstyrteJournalposterForBruker(JournalposterForBrukerRequest(brukerId = Bruker(id = "12345678910", type = BrukerIdType.FNR), antall = 100, tema = listOf(Tema.KON)))
+        val tilgangsstyrteJournalposter = integrasjonKlient.hentTilgangsstyrteJournalposterForBruker(JournalposterForBrukerRequest(brukerId = Bruker(id = "12345678910", type = BrukerIdType.FNR), antall = 100, tema = listOf(Tema.KON)))
 
         // Assert
         assertThat(tilgangsstyrteJournalposter).hasSize(1)
@@ -396,7 +421,7 @@ internal class IntegrasjonClientTest {
             ),
         )
 
-        val journalpost = integrasjonClient.hentJournalpost(journalpostId)
+        val journalpost = integrasjonKlient.hentJournalpost(journalpostId)
         assertThat(journalpost).isNotNull
         assertThat(journalpost.journalpostId).isEqualTo(journalpostId)
         assertThat(journalpost.bruker?.id).isEqualTo(fnr)
@@ -421,7 +446,7 @@ internal class IntegrasjonClientTest {
             ),
         )
 
-        val dokument = integrasjonClient.hentDokumentIJournalpost(journalpostId = journalpostId, dokumentId = dokumentId)
+        val dokument = integrasjonKlient.hentDokumentIJournalpost(journalpostId = journalpostId, dokumentId = dokumentId)
         assertThat(dokument).isNotNull
         assertThat(dokument.decodeToString()).isEqualTo("Test")
 

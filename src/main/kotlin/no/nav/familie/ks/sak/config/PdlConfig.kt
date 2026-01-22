@@ -31,6 +31,7 @@ class PdlConfig(
             graphqlQuery("/pdl/hentperson-med-relasjoner-og-registerinformasjon.graphql")
         val hentStatsborgerskapUtenHistorikkQuery = graphqlQuery("/pdl/statsborgerskap-uten-historikk.graphql")
         val hentBostedsadresseUtenlandskQuery = graphqlQuery("/pdl/bostedsadresse-utenlandsk.graphql")
+        val hentFalskIdentitetQuery = graphqlQuery("/pdl/hent-falsk-identitet.graphql")
 
         private fun graphqlQuery(path: String) =
             PdlConfig::class.java

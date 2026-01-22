@@ -37,6 +37,15 @@ class BehandlingsresultatService(
 
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id)
 
+        val tidligereAvsluttetBehandlingerIFagsak =
+            behandlingService
+                .hentBehandlingerPåFagsak(behandling.fagsak.id)
+                .filter { it.erAvsluttet() }
+
+        val harTidligereBareBehandlingerSomErAvslått =
+            tidligereAvsluttetBehandlingerIFagsak.isNotEmpty() &&
+                tidligereAvsluttetBehandlingerIFagsak.all { it.resultat.erAvslått() }
+
         val søknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)
         val søknadDto = søknadGrunnlag?.tilSøknadDto()
 
@@ -80,7 +89,7 @@ class BehandlingsresultatService(
 
         // 2 ENDRINGER
         val endringsresultat =
-            if (forrigeBehandling != null) {
+            if (forrigeBehandling != null && !harTidligereBareBehandlingerSomErAvslått) {
                 val kompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(behandlingId))
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
 
@@ -128,8 +137,14 @@ class BehandlingsresultatService(
                     // alle barna som er krysset av på søknad
                     søknadDto?.barnaMedOpplysninger?.filter { it.erFolkeregistrert && it.inkludertISøknaden }?.map { personidentService.hentAktør(it.ident) } ?: emptyList()
                 }
-                BehandlingÅrsak.KLAGE -> personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
-                else -> emptyList()
+
+                BehandlingÅrsak.KLAGE -> {
+                    personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
+                }
+
+                else -> {
+                    emptyList()
+                }
             }
 
         return personerFremstiltKravFor.distinct()

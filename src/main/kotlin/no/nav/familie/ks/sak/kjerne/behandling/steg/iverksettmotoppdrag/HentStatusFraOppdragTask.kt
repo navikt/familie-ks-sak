@@ -53,13 +53,17 @@ class HentStatusFraOppdragTask(
         logger.info("Mottok status '$statusFraOppdrag' fra oppdrag")
 
         when (statusFraOppdrag) {
-            OppdragStatus.LAGT_PÅ_KØ -> throw RekjørSenereException(
-                årsak = "Mottok ${statusFraOppdrag.name} fra oppdrag.",
-                triggerTid = utledNesteTriggerTidIHverdagerForTask(minimumForsinkelse = Duration.ofMinutes(15)),
-            )
+            OppdragStatus.LAGT_PÅ_KØ -> {
+                throw RekjørSenereException(
+                    årsak = "Mottok ${statusFraOppdrag.name} fra oppdrag.",
+                    triggerTid = utledNesteTriggerTidIHverdagerForTask(minimumForsinkelse = Duration.ofMinutes(15)),
+                )
+            }
+
             OppdragStatus.KVITTERT_OK -> {
                 stegService.utførStegEtterIverksettelseAutomatisk(statusFraOppdragDto.behandlingsId)
             }
+
             else -> { // For andre feilene setter tasken til MANUELL_OPPFØLGING slik at det kan analyseres manuelt
                 taskService.save(task.copy(status = Status.MANUELL_OPPFØLGING))
             }

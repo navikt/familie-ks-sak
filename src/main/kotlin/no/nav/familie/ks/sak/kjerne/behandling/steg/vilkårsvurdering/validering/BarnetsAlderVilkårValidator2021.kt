@@ -31,12 +31,18 @@ class BarnetsAlderVilkårValidator2021 {
                                 .plusYears(6)
                                 .withMonth(Month.AUGUST.value)
                                 .sisteDagIMåned(),
-                        ) ->
+                        ) -> {
                             "Du kan ikke sette en t.o.m dato på barnets alder vilkåret som er etter august året barnet fyller 6 år."
+                        }
+
                         // Ved adopsjon skal det være lov å ha en differanse på 1 år slik at man får 11 måned med kontantstøtte.
-                        it.fom.plusYears(1) < it.tom ->
+                        it.fom.plusYears(1) < it.tom -> {
                             "Differansen mellom f.o.m datoen og t.o.m datoen på barnets alder vilkåret kan ikke være mer enn 1 år."
-                        else -> null
+                        }
+
+                        else -> {
+                            null
+                        }
                     }
                 }
 
@@ -50,13 +56,17 @@ class BarnetsAlderVilkårValidator2021 {
                             DATO_LOVENDRING_2024.minusMonths(1).sisteDagIMåned(),
                         )
                     when {
-                        !it.fom.isEqual(periodeFomBarnetsAlderLov2021) ->
+                        !it.fom.isEqual(periodeFomBarnetsAlderLov2021) -> {
                             "F.o.m datoen på barnets alder vilkåret må være lik barnets 1 års dag."
+                        }
 
-                        !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato ->
+                        !it.tom.isEqual(periodeTomEllerDatoFørLovendring) && it.tom != barn.dødsfall?.dødsfallDato -> {
                             "T.o.m datoen på barnets alder vilkåret må være lik barnets 2 års dag eller 31.07.24 på grunn av lovendring fra og med 01.08.24. Dersom barnet ikke lever må t.o.m datoen være lik dato for dødsfall."
+                        }
 
-                        else -> null
+                        else -> {
+                            null
+                        }
                     }
                 }
 

@@ -6,7 +6,7 @@ import no.nav.familie.ks.sak.api.dto.InfotrygdPeriode
 import no.nav.familie.ks.sak.api.dto.KsSakPeriode
 import no.nav.familie.ks.sak.common.util.erSammeEllerFør
 import no.nav.familie.ks.sak.common.util.toLocalDate
-import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaClient
+import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaKlient
 import no.nav.familie.ks.sak.integrasjon.infotrygd.InnsynResponse
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -24,7 +24,7 @@ class BisysService(
     private val behandlingService: BehandlingService,
     private val personidentService: PersonidentService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val infotrygdReplikaClient: InfotrygdReplikaClient,
+    private val infotrygdReplikaKlient: InfotrygdReplikaKlient,
 ) {
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
@@ -71,7 +71,7 @@ class BisysService(
         val respons =
             identerMedFnr
                 .takeIf { it.isNotEmpty() }
-                ?.let { infotrygdReplikaClient.hentKontantstøttePerioderFraInfotrygd(identerMedFnr) } ?: InnsynResponse(emptyList())
+                ?.let { infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(identerMedFnr) } ?: InnsynResponse(emptyList())
         logger.info("Hentet ${respons.data.size} data fra infotrygd")
         val utbetalingsinfoFraInfotrygd =
             respons.data

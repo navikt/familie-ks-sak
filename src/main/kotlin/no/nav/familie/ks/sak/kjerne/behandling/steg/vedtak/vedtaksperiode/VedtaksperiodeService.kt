@@ -12,7 +12,7 @@ import no.nav.familie.ks.sak.common.util.storForbokstav
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toLocalDate
 import no.nav.familie.ks.sak.common.util.toYearMonth
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -63,7 +63,7 @@ class VedtaksperiodeService(
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val sanityService: SanityService,
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val refusjonEøsRepository: RefusjonEøsRepository,
     private val kompetanseService: KompetanseService,
     private val adopsjonService: AdopsjonService,
@@ -442,7 +442,7 @@ class VedtaksperiodeService(
         avklart: Boolean,
     ): Set<String>? {
         val målform = personopplysningGrunnlagService.hentSøkersMålform(behandlingId = behandling.id)
-        val landkoderISO2 = integrasjonClient.hentLandkoderISO2()
+        val landkoderISO2 = integrasjonKlient.hentLandkoderISO2()
 
         return refusjonEøsRepository
             .finnRefusjonEøsForBehandling(behandling.id)

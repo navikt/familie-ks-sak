@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.kodeverk.KodeverkSpråk
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.Oppholdsadresse
 import no.nav.familie.ks.sak.common.util.storForbokstav
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.filtrerUtKunNorskeBostedsadresser
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
@@ -24,14 +24,14 @@ import org.springframework.stereotype.Service
 class PersonService(
     private val personOpplysningerService: PersonopplysningerService,
     private val statsborgerskapService: StatsborgerskapService,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
 ) {
     private fun Bostedsadresse.poststed(): String? = poststed(vegadresse?.postnummer ?: matrikkeladresse?.postnummer)
 
     private fun Oppholdsadresse.poststed(): String? = poststed(vegadresse?.postnummer ?: matrikkeladresse?.postnummer)
 
     private fun poststed(postnummer: String?): String? =
-        integrasjonClient
+        integrasjonKlient
             .hentPoststeder()
             .betydninger[postnummer]
             ?.firstOrNull()

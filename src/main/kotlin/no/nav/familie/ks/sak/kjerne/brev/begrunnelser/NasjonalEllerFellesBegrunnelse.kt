@@ -115,10 +115,6 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetErklaringOmMotregning"
     },
-    INNVILGET_13_MND_SAMME_MÅNED_SOM_BARNEHAGEPLASS_0824 {
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-        override val sanityApiNavn = "innvilget13MndSammeMaanedSomBarnehageplass0824"
-    },
     INNVILGET_PÅ_GRUNN_AV_LOVENDRING_2024 {
         override val begrunnelseType = BegrunnelseType.INNVILGET
         override val sanityApiNavn = "innvilgetInnvilgetPaaGrunnAvLovendring"
@@ -692,11 +688,6 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
 
     INNVILGET_MÅNEDEN_BARNET_ER_13_MÅNEDER_0824 {
         override val sanityApiNavn = "innvilgetMaanedenBarneter13Maaneder0824"
-        override val begrunnelseType = BegrunnelseType.INNVILGET
-    },
-
-    INNVILGET_MÅNEDEN_BARNET_SLUTTET_I_BARNEHAGE_0824 {
-        override val sanityApiNavn = "innvilgetMaanedenBarnetSluttetIBarnehage0824"
         override val begrunnelseType = BegrunnelseType.INNVILGET
     },
 

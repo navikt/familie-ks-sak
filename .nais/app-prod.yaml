@@ -159,8 +159,6 @@ spec:
       cpu: 250m
   ingresses:
     - https://familie-ks-sak.intern.nav.no
-  secureLogs:
-    enabled: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: prod

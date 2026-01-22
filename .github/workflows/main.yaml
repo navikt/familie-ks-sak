@@ -25,6 +25,7 @@ jobs:
       build-image: true
       push-image: true
       byosbom: target/classes/META-INF/sbom/application.cdx.json
+      java-version: 25
     secrets: inherit
   deploy-dev:
     name: Deploy dev
@@ -47,4 +48,10 @@ jobs:
       image: ${{ needs.build.outputs.image }}
       cluster: prod-gcp
       resource: .nais/app-prod.yaml
+    secrets: inherit
+  varsle-slack:
+    name: Slack-melding ved feil
+    if: failure()
+    needs: [ build, deploy-dev, deploy-prod ]
+    uses: navikt/familie-baks-gha-workflows/.github/workflows/notify-slack.yaml@main # ratchet:exclude
     secrets: inherit

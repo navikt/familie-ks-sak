@@ -14,7 +14,7 @@ import java.net.URI
 import java.util.UUID
 
 @Component
-class KlageClient(
+class KlageKlient(
     @Qualifier("jwtBearer") restOperations: RestOperations,
     @Value("\${FAMILIE_KLAGE_URL}") private val familieKlageUri: URI,
 ) : AbstractRestClient(restOperations, "integrasjon") {
@@ -52,4 +52,37 @@ class KlageClient(
             getForEntity(uri)
         }
     }
+
+    fun oppdaterEnhetPåÅpenBehandling(
+        oppgaveId: Long,
+        nyEnhetId: String,
+    ): String {
+        val uri =
+            UriComponentsBuilder
+                .fromUri(familieKlageUri)
+                .pathSegment("api/portefoljejustering/oppdater-behandlende-enhet")
+                .build()
+                .toUri()
+
+        val request =
+            OppdaterBehandlendeEnhetIKlageRequest(
+                oppgaveId = oppgaveId,
+                nyEnhet = nyEnhetId,
+                fagsystem = Fagsystem.KS,
+            )
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "klage",
+            uri = uri,
+            formål = "Oppdater enhet på åpen klagebehandling",
+        ) {
+            putForEntity(uri, request)
+        }
+    }
+
+    data class OppdaterBehandlendeEnhetIKlageRequest(
+        val oppgaveId: Long,
+        val nyEnhet: String,
+        val fagsystem: Fagsystem,
+    )
 }

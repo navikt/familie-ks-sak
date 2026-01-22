@@ -4,7 +4,7 @@ import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.PersonInfoQuery
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivFødselsnummer
@@ -24,7 +24,7 @@ class HåndterNyIdentService(
     private val aktørIdRepository: AktørRepository,
     private val fagsakService: FagsakService,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val pdlClient: PdlClient,
+    private val pdlKlient: PdlKlient,
     private val personIdentService: PersonidentService,
     private val behandlingService: BehandlingService,
 ) {
@@ -40,7 +40,9 @@ class HåndterNyIdentService(
 
         return when {
             // Personen er ikke i noen fagsaker
-            aktuelleFagsakerForIdenter.isNullOrEmpty() -> aktør
+            aktuelleFagsakerForIdenter.isNullOrEmpty() -> {
+                aktør
+            }
 
             // Ny aktørId, nytt fødselsnummer -> begge håndteres i PatchMergetIdentTask
             aktør == null -> {
@@ -63,7 +65,9 @@ class HåndterNyIdentService(
             }
 
             // Samme aktørId, samme fødselsnummer -> ignorer hendelse
-            else -> aktør
+            else -> {
+                aktør
+            }
         }
     }
 
@@ -112,7 +116,7 @@ class HåndterNyIdentService(
         if (søkersAktørId in alleIdenterFraPdl.hentAktørIder()) return
 
         val aktivFødselsnummer = alleIdenterFraPdl.hentAktivFødselsnummer()
-        val fødselsdatoFraPdl = tilPersonInfo(pdlClient.hentPerson(aktivFødselsnummer, PersonInfoQuery.ENKEL)).fødselsdato
+        val fødselsdatoFraPdl = tilPersonInfo(pdlKlient.hentPerson(aktivFødselsnummer, PersonInfoQuery.ENKEL)).fødselsdato
 
         val forrigeBehandling =
             behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id)

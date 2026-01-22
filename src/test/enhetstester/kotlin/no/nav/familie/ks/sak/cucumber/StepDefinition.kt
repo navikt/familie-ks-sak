@@ -113,7 +113,7 @@ class StepDefinition {
 
     /**
      * Mulige felter:
-     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingsstatus |
+     * | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingsstatus | Behandlingsresultat |
      */
     @Og("følgende behandlinger")
     fun `følgende behandling`(dataTable: DataTable) {
@@ -580,6 +580,8 @@ class StepDefinition {
                 .maxByOrNull { it.id }
         }
 
+        every { behandlingService.hentBehandlingerPåFagsak(any()) } returns behandlinger.values.toList()
+
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
 
         every { søknadGrunnlagService.hentAktiv(any()) } answers {
@@ -769,7 +771,7 @@ class StepDefinition {
             sanityService = mockk(),
             overgangsordningAndelService = mockk(),
             andelerTilkjentYtelseOgEndreteUtbetalingerService = mockAndelerTilkjentYtelseOgEndreteUtbetalingerService(),
-            integrasjonClient = mockk(),
+            integrasjonKlient = mockk(),
             refusjonEøsRepository = mockk(),
             kompetanseService = kompetanseService,
             adopsjonService = mockAdopsjonService(),

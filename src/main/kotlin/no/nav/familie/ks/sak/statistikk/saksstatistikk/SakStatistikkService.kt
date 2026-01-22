@@ -6,6 +6,8 @@ import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
@@ -15,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.domene.Task
 import org.springframework.stereotype.Service
@@ -30,10 +33,10 @@ class SakStatistikkService(
     private val fagsakRepository: FagsakRepository,
     private val taskService: TaskRepositoryWrapper,
     private val totrinnskontrollService: TotrinnskontrollService,
-    private val arbeidsfordelingService: ArbeidsfordelingService,
+    private val arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository,
     private val fagsakService: FagsakService,
     private val personopplysningService: PersonopplysningerService,
-    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val relatertBehandlingUtleder: RelatertBehandlingUtleder,
 ) {
     fun opprettSendingAvBehandlingensTilstand(
@@ -94,7 +97,7 @@ class SakStatistikkService(
         brukEndretTidspunktSomFunksjonellTidspunkt: Boolean,
     ): BehandlingStatistikkV2Dto {
         val behandling = behandlingRepository.hentBehandling(behandlingId)
-        val ansvarligEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
+        val ansvarligEnhet = arbeidsfordelingPåBehandlingRepository.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId)
         val behandlingPåVent =
             behandling.behandlingStegTilstand
@@ -159,8 +162,8 @@ class SakStatistikkService(
 
         val aktørDVHer =
             if (aktivBehandling != null) {
-                personopplysningGrunnlagService
-                    .finnAktivPersonopplysningGrunnlag(behandlingId = aktivBehandling.id)
+                personopplysningGrunnlagRepository
+                    .findByBehandlingAndAktiv(behandlingId = aktivBehandling.id)
                     ?.personer
                     ?.map {
                         AktørDVH(

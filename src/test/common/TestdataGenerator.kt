@@ -17,7 +17,6 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
@@ -31,6 +30,7 @@ import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
@@ -46,7 +46,7 @@ import no.nav.familie.ks.sak.common.util.tilMånedÅrKort
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.KafkaConfig.Companion.BARNEHAGELISTE_TOPIC
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
@@ -94,6 +94,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VedtakFellesfelterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
@@ -376,10 +377,10 @@ fun lagRegistrerSøknadDto() =
 fun lagPdlPersonInfo(
     enkelPersonInfo: Boolean = false,
     erBarn: Boolean = false,
-) = PdlPersonInfo(
+) = PersonInfo(
     fødselsdato = if (erBarn) LocalDate.now().minusYears(1) else LocalDate.of(1987, 5, 1),
     navn = "John Doe",
-    kjønn = KJOENN.MANN,
+    kjønn = Kjønn.MANN,
     forelderBarnRelasjoner = if (enkelPersonInfo) emptySet() else setOf(lagForelderBarnRelasjon()),
     bostedsadresser = listOf(lagBostedsadresse()),
     sivilstander = listOf(lagSivilstand()),
@@ -494,17 +495,20 @@ fun lagPerson(
 }
 
 fun lagPerson(
-    personopplysningGrunnlag: PersonopplysningGrunnlag = mockk(relaxed = true),
+    personopplysningGrunnlag: PersonopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = 0),
     aktør: Aktør = randomAktør(),
     personType: PersonType = PersonType.SØKER,
     fødselsdato: LocalDate = fnrTilFødselsdato(aktør.aktivFødselsnummer()),
     dødsfall: Dødsfall? = null,
+    navn: String? = null,
+    kjønn: Kjønn = Kjønn.KVINNE,
 ): Person {
     val person =
         Person(
+            navn = navn ?: "Kari Nordmann",
             type = personType,
             fødselsdato = fødselsdato,
-            kjønn = Kjønn.KVINNE,
+            kjønn = kjønn,
             personopplysningGrunnlag = personopplysningGrunnlag,
             aktør = aktør,
             dødsfall = dødsfall,
@@ -653,7 +657,7 @@ fun lagVilkårResultaterForBarn(
     val vilkårResultaterForBarn = mutableSetOf<VilkårResultat>()
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
         when (it) {
-            Vilkår.BARNETS_ALDER ->
+            Vilkår.BARNETS_ALDER -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -664,6 +668,7 @@ fun lagVilkårResultaterForBarn(
                         regelverk = regelverk,
                     ),
                 )
+            }
 
             Vilkår.BARNEHAGEPLASS -> {
                 vilkårResultaterForBarn.addAll(
@@ -688,7 +693,7 @@ fun lagVilkårResultaterForBarn(
                 )
             }
 
-            else ->
+            else -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -699,6 +704,7 @@ fun lagVilkårResultaterForBarn(
                         regelverk = regelverk,
                     ),
                 )
+            }
         }
     }
     return vilkårResultaterForBarn
@@ -740,7 +746,7 @@ fun lagVilkårResultaterForDeltBosted(
                 }
             }
 
-            else ->
+            else -> {
                 vilkårResultaterForBarn.add(
                     lagVilkårResultat(
                         personResultat = personResultat,
@@ -750,6 +756,7 @@ fun lagVilkårResultaterForDeltBosted(
                         behandlingId = behandlingId,
                     ),
                 )
+            }
         }
     }
     return vilkårResultaterForBarn
@@ -1555,7 +1562,7 @@ fun lagNasjonalOgFellesBegrunnelseDataDto(
     )
 
 fun lagBrevmottakerDto(
-    id: Long,
+    id: Long = 1L,
     type: no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType = no.nav.familie.ks.sak.kjerne.brev.mottaker.MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
     navn: String = "Test Testesen",
     adresselinje1: String = "En adresse her",
@@ -1752,4 +1759,35 @@ fun lagOpphørsperiode(
         periodeTom = periodeTom,
         vedtaksperiodetype = vedtaksperiodetype,
         begrunnelser = begrunnelser,
+    )
+
+fun lagManueltBrevDto(
+    brevmal: Brevmal = Brevmal.SVARTIDSBREV,
+    multiselectVerdier: List<String> = emptyList(),
+    mottakerIdent: String = "1",
+    barnIBrev: List<String> = emptyList(),
+    datoAvtale: String? = null,
+    mottakerMålform: Målform = Målform.NB,
+    mottakerNavn: String = "",
+    enhet: no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet? = null,
+    antallUkerSvarfrist: Int? = null,
+    barnasFødselsdager: List<LocalDate>? = null,
+    behandlingKategori: BehandlingKategori? = null,
+    manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
+    fritekstAvsnitt: String? = null,
+): ManueltBrevDto =
+    ManueltBrevDto(
+        brevmal = brevmal,
+        multiselectVerdier = multiselectVerdier,
+        mottakerIdent = mottakerIdent,
+        barnIBrev = barnIBrev,
+        datoAvtale = datoAvtale,
+        mottakerMålform = mottakerMålform,
+        mottakerNavn = mottakerNavn,
+        enhet = enhet,
+        antallUkerSvarfrist = antallUkerSvarfrist,
+        barnasFødselsdager = barnasFødselsdager,
+        behandlingKategori = behandlingKategori,
+        manuelleBrevmottakere = manuelleBrevmottakere,
+        fritekstAvsnitt = fritekstAvsnitt,
     )

@@ -81,17 +81,26 @@ enum class Trigger {
         person: Person,
         erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger: Boolean,
     ) = when (this) {
-        DELTID_BARNEHAGEPLASS ->
+        DELTID_BARNEHAGEPLASS -> {
             vilkårResultater.mapNotNull { it.antallTimer }.maxByOrNull { it }?.let {
                 @Suppress("ktlint:standard:multiline-expression-wrapping")
                 it in BigDecimal.valueOf(0.01)..BigDecimal.valueOf(
                     32.99,
                 )
             } ?: false
+        }
 
-        SATSENDRING -> false
-        GJELDER_FØRSTE_PERIODE -> vilkårResultater.isNotEmpty() && erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
-        BARN_DØD -> person.erDød() && person.type == PersonType.BARN
+        SATSENDRING -> {
+            false
+        }
+
+        GJELDER_FØRSTE_PERIODE -> {
+            vilkårResultater.isNotEmpty() && erFørsteVedtaksperiodeOgBegrunnelseInneholderGjelderFørstePeriodeTrigger
+        }
+
+        BARN_DØD -> {
+            person.erDød() && person.type == PersonType.BARN
+        }
     }
 }
 

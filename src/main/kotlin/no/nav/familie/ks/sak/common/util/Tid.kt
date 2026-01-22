@@ -60,6 +60,8 @@ fun YearMonth.forrigeMåned(): YearMonth = this.minusMonths(1)
 
 fun YearMonth.nesteMåned(): YearMonth = this.plusMonths(1)
 
+fun YearMonth.isSameOrAfter(toCompare: YearMonth): Boolean = this.isAfter(toCompare) || this == toCompare
+
 fun LocalDate.erDagenFør(other: LocalDate?) = other != null && this.plusDays(1).equals(other)
 
 data class Periode(
@@ -126,13 +128,8 @@ fun kl06IdagEllerNesteDag(date: LocalDateTime = LocalDateTime.now()): LocalDateT
     }
 
 fun LocalDate.erHelligdag() =
-    this.dayOfMonth == 1 &&
-        this.month == Month.JANUARY ||
-        this.dayOfMonth == 1 &&
-        this.month == Month.MAY ||
-        this.dayOfMonth == 17 &&
-        this.month == Month.MAY ||
-        this.dayOfMonth == 25 &&
-        this.month == Month.DECEMBER ||
-        this.dayOfMonth == 26 &&
-        this.month == Month.DECEMBER
+    (this.dayOfMonth == 1 && this.month == Month.JANUARY) ||
+        (this.dayOfMonth == 1 && this.month == Month.MAY) ||
+        (this.dayOfMonth == 17 && this.month == Month.MAY) ||
+        (this.dayOfMonth == 25 && this.month == Month.DECEMBER) ||
+        (this.dayOfMonth == 26 && this.month == Month.DECEMBER)

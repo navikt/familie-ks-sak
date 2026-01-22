@@ -18,6 +18,7 @@ fun forskyvFomBasertPåGraderingsforskjell2024(
 
         Graderingsforskjell.REDUKSJON,
         -> fomDato.plusMonths(1).førsteDagIInneværendeMåned()
+
         Graderingsforskjell.ØKNING_FRA_FULL_BARNEHAGEPLASS,
         -> fomDato.minusDays(1).plusMonths(1).førsteDagIInneværendeMåned()
     }

@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import no.nav.familie.kontrakter.felles.personopplysning.Matrikkeladresse
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 import java.util.Objects
 
 @Entity(name = "GrMatrikkeladresseBostedsadresse")
@@ -31,15 +32,31 @@ data class GrMatrikkeladresseBostedsadresse(
 
     override fun tilFrontendString() = """Matrikkel $matrikkelId, bruksenhet $bruksenhetsnummer, postnummer $postnummer${poststed?.let { ", $it" }}""".trimMargin()
 
+    override fun tilAdresse(): Adresse =
+        Adresse(
+            gyldigFraOgMed = periode?.fom,
+            gyldigTilOgMed = periode?.tom,
+            matrikkeladresse =
+                Matrikkeladresse(
+                    matrikkelId = matrikkelId,
+                    bruksenhetsnummer = bruksenhetsnummer,
+                    tilleggsnavn = tilleggsnavn,
+                    postnummer = postnummer,
+                    kommunenummer = kommunenummer,
+                ),
+        )
+
     override fun equals(other: Any?): Boolean {
         if (other == null || javaClass != other.javaClass) {
             return false
         }
         val otherMatrikkeladresse = other as GrMatrikkeladresseBostedsadresse
         return this === other ||
-            matrikkelId != null &&
-            matrikkelId == otherMatrikkeladresse.matrikkelId &&
-            bruksenhetsnummer == otherMatrikkeladresse.bruksenhetsnummer
+            (
+                matrikkelId != null &&
+                    matrikkelId == otherMatrikkeladresse.matrikkelId &&
+                    bruksenhetsnummer == otherMatrikkeladresse.bruksenhetsnummer
+            )
     }
 
     override fun hashCode(): Int = Objects.hash(matrikkelId)

@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.personident
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -24,7 +24,7 @@ import java.time.LocalDateTime
 class PatchMergetIdentTask(
     private val personidentService: PersonidentService,
     private val persongrunnlagService: PersonopplysningGrunnlagService,
-    private val pdlIdentRestClient: PdlClient,
+    private val pdlIdentRestClient: PdlKlient,
     private val aktørIdRepository: AktørRepository,
     private val personidentRepository: PersonidentRepository,
     private val aktørMergeLoggRepository: AktørMergeLoggRepository,
@@ -45,7 +45,7 @@ class PatchMergetIdentTask(
                     ?.map { it.aktør.aktørId } ?: emptyList()
             ).toSet()
 
-        if (aktørerForIdentSomSkalPatches.size > 1)throw Feil("Fant flere aktører for ident som skal patches. fagsak=${dto.fagsakId} aktører=$aktørerForIdentSomSkalPatches")
+        if (aktørerForIdentSomSkalPatches.size > 1) throw Feil("Fant flere aktører for ident som skal patches. fagsak=${dto.fagsakId} aktører=$aktørerForIdentSomSkalPatches")
         val aktørSomSkalPatches = aktørerForIdentSomSkalPatches.firstOrNull() ?: throw Feil("Fant ikke ident som skal patches på fagsak=${dto.fagsakId} aktører=$aktørerForIdentSomSkalPatches")
 
         val identer = pdlIdentRestClient.hentIdenter(personIdent = dto.nyIdent.ident, historikk = true)
@@ -56,7 +56,7 @@ class PatchMergetIdentTask(
         }
 
         val personidentNyttFødselsnummer = personidentRepository.findByFødselsnummerOrNull(dto.nyIdent.ident)
-        if (personidentNyttFødselsnummer != null)throw Feil("Fant allerede en personident for nytt fødselsnummer")
+        if (personidentNyttFødselsnummer != null) throw Feil("Fant allerede en personident for nytt fødselsnummer")
 
         // Denne patcher med å bruke on cascade update på aktørid
         aktørIdRepository.patchAktørMedNyAktørId(

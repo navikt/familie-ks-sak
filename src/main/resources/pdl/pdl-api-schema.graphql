@@ -127,16 +127,6 @@ type Foedested {
     metadata: Metadata!
 }
 
-type Foedsel {
-    foedekommune: String
-    foedeland: String
-    foedested: String
-    foedselsaar: Int
-    foedselsdato: Date
-    folkeregistermetadata: Folkeregistermetadata
-    metadata: Metadata!
-}
-
 type Foedselsdato {
     foedselsaar: Int
     foedselsdato: Date
@@ -435,6 +425,9 @@ type Navn {
 }
 
 type Navspersonidentifikator {
+    gyldigFraOgMed: Date
+    "TODO Sett som required etter oppdatering i databasen"
+    gyldigTilOgMed: Date
     identifikasjonsnummer: String!
     metadata: Metadata!
 }
@@ -473,7 +466,6 @@ type Person {
     doedsfall: [Doedsfall!]!
     falskIdentitet: FalskIdentitet
     foedested: [Foedested!]!
-    foedsel: [Foedsel!]! @deprecated(reason: "Erstattet av foedselsdato & foedested")
     foedselsdato: [Foedselsdato!]!
     folkeregisteridentifikator(historikk: Boolean = false): [Folkeregisteridentifikator!]!
     folkeregisterpersonstatus(historikk: Boolean = false): [Folkeregisterpersonstatus!]!

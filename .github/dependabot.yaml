@@ -11,6 +11,10 @@ updates:
     directory: "/"
     schedule:
       interval: daily
+    cooldown:
+      default-days: 4
+      exclude:
+        - "no.nav.familie*"
     open-pull-requests-limit: 10
     registries:
       - familie-felles
@@ -39,6 +43,10 @@ updates:
     directory: "/"
     schedule:
       interval: daily
+    cooldown:
+      default-days: 4
+      exclude:
+        - "no.nav.familie*"
     open-pull-requests-limit: 10
     groups:
       workflows:

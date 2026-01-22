@@ -2,15 +2,15 @@ package no.nav.familie.ks.sak.fake
 
 import no.nav.familie.ks.sak.config.PdlConfig
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import org.springframework.web.client.RestOperations
 import java.lang.Integer.min
 import java.net.URI
 
-class FakePdlClient(
+class FakePdlKlient(
     restOperations: RestOperations,
-) : PdlClient(PdlConfig(URI("dummy_uri")), restOperations) {
+) : PdlKlient(PdlConfig(URI("dummy_uri")), restOperations) {
     private val identMap = mutableMapOf<String, List<PdlIdent>>()
 
     override fun hentIdenter(
@@ -21,13 +21,14 @@ class FakePdlClient(
         identMap[personIdent]?.let { return it }
 
         return when {
-            historikk ->
+            historikk -> {
                 listOf(
                     PdlIdent(personIdent, historisk = false, gruppe = "FOLKEREGISTERIDENT"),
                     PdlIdent(randomFnr(), historisk = true, gruppe = "FOLKEREGISTERIDENT"),
                 )
+            }
 
-            else ->
+            else -> {
                 listOf(
                     PdlIdent(
                         ident = personIdent.substring(0, min(11, personIdent.length)),
@@ -40,6 +41,7 @@ class FakePdlClient(
                         gruppe = "AKTORID",
                     ),
                 )
+            }
         }
     }
 

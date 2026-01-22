@@ -7,7 +7,6 @@ import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROL
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE.BARN
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE.FAR
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE.MEDMOR
-import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
 import no.nav.familie.kontrakter.felles.personopplysning.Matrikkeladresse
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.kontrakter.felles.personopplysning.Sivilstand
@@ -15,39 +14,43 @@ import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.ForelderBarnRelasjonInfoMaskert
-import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
+import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import java.time.LocalDate
 import kotlin.collections.emptySet
 
 class FakePersonopplysningerService(
-    pdlClient: PdlClient,
+    pdlKlient: PdlKlient,
     integrasjonService: IntegrasjonService,
     personidentService: PersonidentService,
+    falskIdentitetService: FalskIdentitetService,
 ) : PersonopplysningerService(
-        pdlClient,
+        pdlKlient,
         integrasjonService,
         personidentService,
+        falskIdentitetService,
     ) {
     init {
         settPersoninfoMedRelasjonerForPredefinerteTestpersoner()
     }
 
-    override fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PdlPersonInfo {
+    override fun hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør: Aktør): PersonInfo {
         validerFødselsnummer(aktør.aktivFødselsnummer())
         sjekkPersonIkkeFunnet(aktør.aktivFødselsnummer())
 
         return personInfo[aktør.aktivFødselsnummer()] ?: personInfo.getValue(INTEGRASJONER_FNR)
     }
 
-    override fun hentPersoninfoEnkel(aktør: Aktør): PdlPersonInfo =
+    override fun hentPersoninfoEnkel(aktør: Aktør): PersonInfo =
         personInfo[aktør.aktivFødselsnummer()]
             ?: personInfo.getValue(INTEGRASJONER_FNR)
 
@@ -72,10 +75,10 @@ class FakePersonopplysningerService(
     companion object {
         val mockBarnBehandlingFnr = "21131777001"
         val mockBarnBehandling =
-            PdlPersonInfo(
+            PersonInfo(
                 fødselsdato = LocalDate.now(),
                 navn = "ARTIG MIDTPUNKT",
-                kjønn = KJOENN.KVINNE,
+                kjønn = Kjønn.KVINNE,
                 adressebeskyttelseGradering = null,
                 bostedsadresser = emptyList(),
                 sivilstander = emptyList(),
@@ -84,10 +87,10 @@ class FakePersonopplysningerService(
             )
 
         val mockSøkerBehandling =
-            PdlPersonInfo(
+            PersonInfo(
                 fødselsdato = LocalDate.parse("1962-08-04"),
                 navn = "LEALAUS GYNGEHEST",
-                kjønn = KJOENN.KVINNE,
+                kjønn = Kjønn.KVINNE,
                 forelderBarnRelasjoner =
                     setOf(
                         ForelderBarnRelasjonInfo(
@@ -109,7 +112,7 @@ class FakePersonopplysningerService(
 
         val mockSøkerBehandlingFnr = "04136226623"
 
-        val personInfo: MutableMap<String, PdlPersonInfo> =
+        val personInfo: MutableMap<String, PersonInfo> =
             mutableMapOf(
                 mockBarnBehandlingFnr to mockBarnBehandling,
                 mockSøkerBehandlingFnr to mockSøkerBehandling,
@@ -257,9 +260,9 @@ private val sivilstandHistorisk =
     )
 
 private val personInfoSøker1 =
-    PdlPersonInfo(
+    PersonInfo(
         fødselsdato = LocalDate.of(1990, 2, 19),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Mor Moresen",
         bostedsadresser = bostedsadresseHistorikk,
         sivilstander = sivilstandHistorisk,
@@ -275,7 +278,7 @@ private val personInfoSøker1 =
     )
 
 private val personInfoBarn1 =
-    PdlPersonInfo(
+    PersonInfo(
         fødselsdato = LocalDate.now().withDayOfMonth(10).minusYears(6),
         bostedsadresser = mutableListOf(bostedsadresse),
         sivilstander =
@@ -285,12 +288,12 @@ private val personInfoBarn1 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.MANN,
+        kjønn = Kjønn.MANN,
         navn = "Gutten Barnesen",
     )
 
 private val personInfoBarn2 =
-    PdlPersonInfo(
+    PersonInfo(
         fødselsdato = LocalDate.now().withDayOfMonth(18).minusYears(2),
         bostedsadresser = mutableListOf(bostedsadresse),
         sivilstander =
@@ -300,13 +303,13 @@ private val personInfoBarn2 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Jenta Barnesen",
         adressebeskyttelseGradering = ADRESSEBESKYTTELSEGRADERING.FORTROLIG,
     )
 
 private val personInfoSøker2 =
-    PdlPersonInfo(
+    PersonInfo(
         fødselsdato = LocalDate.of(1995, 2, 19),
         bostedsadresser = mutableListOf(),
         sivilstander =
@@ -316,12 +319,12 @@ private val personInfoSøker2 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.MANN,
+        kjønn = Kjønn.MANN,
         navn = "Far Faresen",
     )
 
 private val personInfoSøker3 =
-    PdlPersonInfo(
+    PersonInfo(
         fødselsdato = LocalDate.of(1985, 7, 10),
         bostedsadresser = mutableListOf(),
         sivilstander =
@@ -331,16 +334,16 @@ private val personInfoSøker3 =
                     gyldigFraOgMed = LocalDate.now().minusMonths(8),
                 ),
             ),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Moder Jord",
         adressebeskyttelseGradering = ADRESSEBESKYTTELSEGRADERING.UGRADERT,
     )
 
 private val personInfoIntegrasjonerFnr =
-    PdlPersonInfo(
+    PersonInfo(
         fødselsdato = LocalDate.of(1965, 2, 19),
         bostedsadresser = mutableListOf(bostedsadresse),
-        kjønn = KJOENN.KVINNE,
+        kjønn = Kjønn.KVINNE,
         navn = "Mor Integrasjon person",
         sivilstander = sivilstandHistorisk,
     )

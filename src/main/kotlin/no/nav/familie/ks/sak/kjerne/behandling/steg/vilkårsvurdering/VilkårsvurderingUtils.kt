@@ -186,19 +186,23 @@ private fun validerAvslagUtenPeriodeMedLøpende(
 
     when {
         // For bor med søker-vilkåret kan avslag og innvilgelse være overlappende, da man kan f.eks. avslå full kontantstøtte, men innvilge delt
-        endretVilkårResultat.vilkårType == Vilkår.BOR_MED_SØKER -> return
+        endretVilkårResultat.vilkårType == Vilkår.BOR_MED_SØKER -> {
+            return
+        }
 
-        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT } ->
+        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT } -> {
             throw FunksjonellFeil(
                 "Finnes oppfylte perioder ved forsøk på å legge til avslag uten periode.",
                 "Du kan ikke legge til avslagperiode uten datoer fordi det finnes oppfylte perioder på vilkåret. Disse må fjernes først.",
             )
+        }
 
-        endretVilkårResultat.resultat == Resultat.OPPFYLT && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } ->
+        endretVilkårResultat.resultat == Resultat.OPPFYLT && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } -> {
             throw FunksjonellFeil(
                 "Finnes avslag uten periode ved forsøk på å legge til oppfylt periode.",
                 "Du kan ikke legge til perioden fordi det er vurdert avslag uten datoer på vilkåret. Denne må fjernes først.",
             )
+        }
     }
 }
 
@@ -279,7 +283,7 @@ fun genererInitiellVilkårsvurdering(
                                         )
                                     }
 
-                                    Vilkår.MEDLEMSKAP ->
+                                    Vilkår.MEDLEMSKAP -> {
                                         listOf(
                                             VilkårResultat(
                                                 personResultat = personResultat,
@@ -291,6 +295,7 @@ fun genererInitiellVilkårsvurdering(
                                                 behandlingId = behandling.id,
                                             ),
                                         )
+                                    }
 
                                     Vilkår.BARNEHAGEPLASS -> {
                                         listOf(
@@ -306,7 +311,7 @@ fun genererInitiellVilkårsvurdering(
                                         )
                                     }
 
-                                    else ->
+                                    else -> {
                                         listOf(
                                             VilkårResultat(
                                                 personResultat = personResultat,
@@ -318,6 +323,7 @@ fun genererInitiellVilkårsvurdering(
                                                 behandlingId = behandling.id,
                                             ),
                                         )
+                                    }
                                 }
                             }.toSortedSet(VilkårResultat.VilkårResultatComparator)
 
@@ -346,7 +352,9 @@ fun Vilkårsvurdering.oppdaterMedDødsdatoer(personopplysningGrunnlag: Personopp
                             // Ønsker ikke å fjerne vilkår resultater,
                             // så lar saksbehandleren avgjøre hva som skjer når vilkået saterter før person dør
                             erDødsfallFørVilkårStarter -> it
+
                             erDødsfallFørVilkårSlutter -> it.kopier(periodeTom = dødsDato, begrunnelse = "Dødsfall")
+
                             else -> it
                         }
                     }
@@ -423,9 +431,10 @@ private fun PersonResultat.overskrivMedVilkårResultaterFraForrigeBehandling(
                         .splittOppOmKrysserRegelverksendring()
                 }
 
-                else ->
+                else -> {
                     vilkårResultaterAvSammeTypeIForrigeBehandling
                         .filter { it.resultat in listOf(Resultat.IKKE_AKTUELT, Resultat.OPPFYLT) }
+                }
             }
 
         if (vilkårResultaterForrigeBehandlingSomViØnskerÅTaMed.isNotEmpty()) {
@@ -464,9 +473,11 @@ fun Collection<VilkårResultat>.forkortTomTilGyldigLengde(): List<VilkårResulta
             fomTilLovendringsDato < 7 && lengdePåPeriode > 7 && it.periodeTom!! >= DATO_LOVENDRING_2024 -> {
                 listOf(it.kopier(periodeTom = it.periodeFom!!.plusMonths(7)))
             }
+
             fomTilLovendringsDato > 7 && it.periodeTom!! >= DATO_LOVENDRING_2024 -> {
                 listOf(it.kopier(periodeTom = DATO_LOVENDRING_2024.minusDays(1)))
             }
+
             else -> {
                 listOf(it)
             }

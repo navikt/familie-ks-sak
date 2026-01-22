@@ -26,8 +26,10 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
@@ -40,6 +42,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.Vilkårsvu
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.porteføljejustering.RelevanteApplikasjonerForPorteføljejustering
+import no.nav.familie.ks.sak.kjerne.porteføljejustering.StartPorteføljejusteringTask
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -73,7 +77,7 @@ import java.util.UUID
 @Validated
 class ForvaltningController(
     private val tilgangService: TilgangService,
-    private val integrasjonClient: IntegrasjonClient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val sakStatistikkService: SakStatistikkService,
     private val stønadsstatistikkService: StønadsstatistikkService,
     private val taskService: TaskRepositoryWrapper,
@@ -90,6 +94,7 @@ class ForvaltningController(
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -114,7 +119,7 @@ class ForvaltningController(
                         ),
                     ),
             )
-        val journalførDokumentResponse = integrasjonClient.journalførDokument(arkiverDokumentRequest)
+        val journalførDokumentResponse = integrasjonKlient.journalførDokument(arkiverDokumentRequest)
         return ResponseEntity.ok(Ressurs.success(journalførDokumentResponse.journalpostId, "Dokument er Journalført"))
     }
 
@@ -141,7 +146,7 @@ class ForvaltningController(
                 behandlingstype = opprettOppgaveDto.behandlingstype,
                 tilordnetRessurs = opprettOppgaveDto.tilordnetRessurs,
             )
-        integrasjonClient.opprettOppgave(opprettOppgaveRequest)
+        integrasjonKlient.opprettOppgave(opprettOppgaveRequest)
         return ResponseEntity.ok(Ressurs.success("Oppgave opprettet"))
     }
 
@@ -425,5 +430,28 @@ class ForvaltningController(
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet(dryRun = true, dryRunEpost = dryRunEpost)
 
         return ResponseEntity.ok(Ressurs.success("OK"))
+    }
+
+    @PostMapping("/opprett-tasker-for-flytting-av-vadso-oppgaver")
+    @Operation(
+        summary = "Oppretter tasker flytting av vadsø oppgaver",
+    )
+    fun opprettTaskerForFlyttingAvVadsøOppgaver(
+        @RequestParam("antallFlytteTasks") antallFlytteTasks: Int? = null,
+        @RequestParam("dryRun") dryRun: Boolean = true,
+        @RequestParam("behandlesAvApplikasjon") behandlesAvApplikasjon: RelevanteApplikasjonerForPorteføljejustering? = null,
+    ): ResponseEntity<String> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Opprett tasker for flytting av vadsø oppgaver",
+        )
+
+        if (!featureToggleService.isEnabled(FeatureToggle.PORTEFØLJEJUSTERING)) {
+            return ResponseEntity.ok("Toggle for porteføljejustering er skrudd av")
+        }
+
+        taskService.save(StartPorteføljejusteringTask.opprettTask(antallFlytteTasks, behandlesAvApplikasjon, dryRun = dryRun))
+
+        return ResponseEntity.ok("Opprettet task for flytting av Steinkjer oppgaver")
     }
 }

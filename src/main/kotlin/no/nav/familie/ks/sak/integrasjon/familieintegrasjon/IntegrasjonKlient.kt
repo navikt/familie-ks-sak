@@ -20,8 +20,8 @@ import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.TilgangsstyrtJournalpost
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
-import no.nav.familie.kontrakter.felles.kodeverk.LandDto
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -32,6 +32,8 @@ import no.nav.familie.kontrakter.felles.saksbehandler.SaksbehandlerGrupper
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
@@ -50,9 +52,10 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 @Component
-class IntegrasjonClient(
+class IntegrasjonKlient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("jwtBearer") restOperations: RestOperations,
+    private val featureToggleService: FeatureToggleService,
 ) : AbstractRestClient(restOperations, "integrasjon") {
     val tilgangPersonUri =
         UriComponentsBuilder
@@ -121,6 +124,11 @@ class IntegrasjonClient(
         }
     }
 
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delayExpression = RETRY_BACKOFF_1000MS),
+    )
     fun tilordneEnhetOgRessursForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
@@ -264,12 +272,22 @@ class IntegrasjonClient(
     }
 
     @Cacheable("behandlendeEnhet", cacheManager = "shortCache")
-    fun hentBehandlendeEnheter(ident: String): List<Arbeidsfordelingsenhet> {
+    fun hentBehandlendeEnheter(
+        ident: String,
+        behandlingstype: Behandlingstype? = null,
+    ): List<Arbeidsfordelingsenhet> {
         val uri =
             UriComponentsBuilder
                 .fromUri(integrasjonUri)
                 .pathSegment("arbeidsfordeling", "enhet", Tema.KON.name)
-                .build()
+                .let {
+                    if (featureToggleService.isEnabled(FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE)) {
+                        it.queryParam("behandlingstype", behandlingstype)
+                    } else {
+                        it
+                    }
+                }.build()
+                .encode()
                 .toUri()
 
         return kallEksternTjenesteRessurs(
@@ -558,19 +576,6 @@ class IntegrasjonClient(
         }
     }
 
-    @Cacheable("fylker-og-kommuner", cacheManager = "kodeverkCache")
-    fun hentFylkerOgKommuner(): LandDto {
-        val uri = URI.create("$integrasjonUri/kodeverk/fylkerOgKommuner")
-
-        return kallEksternTjenesteRessurs(
-            tjeneste = "kodeverk",
-            uri = uri,
-            formål = "Hent fylker og kommuner",
-        ) {
-            getForEntity(uri)
-        }
-    }
-
     private fun lagManuellAdresse(manuellAdresseInfo: ManuellAdresseInfo?) =
         manuellAdresseInfo?.let {
             ManuellAdresse(
@@ -587,8 +592,36 @@ class IntegrasjonClient(
             )
         }
 
+    fun tilordneEnhetOgMappeForOppgave(
+        oppgaveId: Long,
+        nyEnhet: String,
+        nyMappe: Long?,
+    ): OppgaveResponse {
+        val baseUri = URI.create("$integrasjonUri/oppgave/$oppgaveId/enhet/$nyEnhet")
+        val uri =
+            UriComponentsBuilder
+                .fromUri(baseUri)
+                .queryParam("nullstillTilordnetRessurs", true)
+                .queryParam("mappeId", nyMappe)
+                .queryParam("fjernMappeFraOppgave", false)
+                .build()
+                .toUri()
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = "oppgave",
+            uri = uri,
+            formål = "Bytt enhet og mappe",
+        ) {
+            patchForEntity(
+                uri,
+                HttpHeaders().medContentTypeJsonUTF8(),
+            )
+        }
+    }
+
     companion object {
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
+        const val RETRY_BACKOFF_1000MS = "\${retry.backoff.delay:1000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
         private const val HEADER_NAV_TEMA = "Nav-Tema"
         private val HEADER_NAV_TEMA_KON = Tema.KON.name

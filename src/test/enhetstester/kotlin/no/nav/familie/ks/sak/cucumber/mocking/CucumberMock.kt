@@ -2,12 +2,9 @@ package no.nav.familie.ks.sak.cucumber.mocking
 
 import io.mockk.mockk
 import mockAdopsjonService
-import mockIntegrasjonClient
 import no.nav.familie.ks.sak.common.TestClockProvider
 import no.nav.familie.ks.sak.cucumber.StepDefinition
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
-import no.nav.familie.ks.sak.integrasjon.pdl.PdlClient
-import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -47,17 +44,14 @@ class CucumberMock(
     val loggServiceMock = mockLoggService()
 
     val personService = mockk<PersonService>()
-    val personopplysningerServiceMock = mockk<PersonopplysningerService>()
     val aktørRepositoryMock = mockk<AktørRepository>()
-    val pdlClientMock = mockk<PdlClient>()
+    val pdlKlientMock = mockk<PdlKlient>()
     val personidentRepositoryMock = mockk<PersonidentRepository>()
     val behandlingRepositoryMock = mockk<BehandlingRepository>()
-    val integrasjonServiceMock = mockk<IntegrasjonService>()
     val personRepository = mockk<PersonRepository>()
     val arbeidsfordelingServiceMock = mockk<ArbeidsfordelingService>()
     val praksisendring2024Service = mockPraksisendring2024Service()
     val adopsjonServiceMock = mockAdopsjonService()
-    val integrasjonClientMock = mockIntegrasjonClient()
 
     val beregnAndelTilkjentYtelseService =
         BeregnAndelTilkjentYtelseService(
@@ -85,7 +79,7 @@ class CucumberMock(
         PersonidentService(
             personidentRepository = personidentRepositoryMock,
             aktørRepository = aktørRepositoryMock,
-            pdlClient = pdlClientMock,
+            pdlKlient = pdlKlientMock,
             taskService = taskServiceMock,
         )
 

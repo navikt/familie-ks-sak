@@ -7,13 +7,14 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
-import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
-import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
-import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
+import no.nav.familie.ks.sak.api.dto.Bruker
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
-import no.nav.familie.ks.sak.api.dto.utvidManueltBrevDtoMedEnhetOgMottaker
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -21,12 +22,13 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.data.shouldNotBeNull
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
-import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService
-import no.nav.familie.ks.sak.integrasjon.journalføring.domene.JournalføringRepository
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.BERGEN
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.DRAMMEN
+import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet.OSLO
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
@@ -40,8 +42,11 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.ValiderBrevmottakerService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
+import no.nav.familie.prosessering.domene.Task
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -51,11 +56,9 @@ class BrevServiceTest {
     private val genererBrevService = mockk<GenererBrevService>()
     private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
     private val arbeidsfordelingService = mockk<ArbeidsfordelingService>()
-    private val utgåendeJournalføringService = mockk<UtgåendeJournalføringService>()
     private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
     private val behandlingRepository = mockk<BehandlingRepository>()
-    private val journalføringRepository = mockk<JournalføringRepository>()
-    private val integrasjonClient = mockk<IntegrasjonClient>()
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
     private val loggService = mockk<LoggService>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val settBehandlingPåVentService = mockk<SettBehandlingPåVentService>(relaxed = true)
@@ -68,22 +71,26 @@ class BrevServiceTest {
                 validerBrevmottakerService = mockk(),
             ),
         )
+    private val saksbehandlerContext = mockk<SaksbehandlerContext>(relaxed = true)
+    private val featureToggleService = mockk<FeatureToggleService>()
+    private val behandlingService = mockk<BehandlingService>()
 
     private val brevService =
         BrevService(
-            integrasjonClient = integrasjonClient,
+            integrasjonKlient = integrasjonKlient,
             loggService = loggService,
             taskService = taskService,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             arbeidsfordelingService = arbeidsfordelingService,
-            utgåendeJournalføringService = utgåendeJournalføringService,
             vilkårsvurderingService = vilkårsvurderingService,
             behandlingRepository = behandlingRepository,
-            journalføringRepository = journalføringRepository,
             settBehandlingPåVentService = settBehandlingPåVentService,
             genererBrevService = genererBrevService,
             brevmottakerService = brevmottakerService,
             validerBrevmottakerService = validerBrevmottakerService,
+            saksbehandlerContext = saksbehandlerContext,
+            featureToggleService = featureToggleService,
+            behandlingService = behandlingService,
         )
 
     private val søker = randomAktør()
@@ -96,505 +103,353 @@ class BrevServiceTest {
             multiselectVerdier = listOf("Dokumentasjon som viser når barna kom til Norge."),
         )
 
-    @Test
-    fun `hentForhåndsvisningAvBrev - skal hente pdf i form av en ByteArray fra genererBrevService`() {
-        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-            lagPerson(
-                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                søker,
-            )
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetNavn = "Behandlende enhet",
-                behandlendeEnhetId = "1234",
-            )
+    @Nested
+    inner class HentForhåndsvisningAvBrev {
+        @Test
+        fun `skal hente pdf i form av en ByteArray fra genererBrevService`() {
+            // Arrange
+            val person =
+                lagPerson(
+                    personopplysningGrunnlag =
+                        lagPersonopplysningGrunnlag(
+                            behandlingId = behandling.id,
+                            søkerPersonIdent = søker.aktivFødselsnummer(),
+                        ),
+                    aktør = søker,
+                )
 
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
+            val arbeidsfordelingPåBehandling =
+                lagArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetNavn = "Behandlende enhet",
+                    behandlendeEnhetId = "1234",
+                )
 
-        brevService
-            .hentForhåndsvisningAvBrev(
-                manueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
-                    behandling.id,
-                    personopplysningGrunnlagService,
-                    arbeidsfordelingService,
-                ),
-            ).shouldNotBeNull()
-    }
+            val brev = ByteArray(10)
 
-    @ParameterizedTest
-    @EnumSource(
-        value = Brevmal::class,
-        names = ["INNHENTE_OPPLYSNINGER", "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED", "VARSEL_OM_REVURDERING", "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED", "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS"],
-        mode = EnumSource.Mode.INCLUDE,
-    )
-    fun `genererOgSendBrev - skal journalføre brev med forside for brevmaler som tilsier det`(brevmal: Brevmal) {
-        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-            lagPerson(
-                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                søker,
-            )
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetNavn = "Behandlende enhet",
-                behandlendeEnhetId = "1234",
-            )
+            every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns person
+            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns arbeidsfordelingPåBehandling
+            every { genererBrevService.genererManueltBrev(any(), any()) } returns brev
 
-        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
+            // Act
+            val forhåndsvisning =
+                brevService
+                    .hentForhåndsvisningAvBrev(
+                        brevService.utvidManueltBrevDtoMedEnhetOgMottaker(
+                            behandling.id,
+                            manueltBrevDto,
+                        ),
+                    )
 
-        every { taskService.save(any()) } returns mockk()
-
-        every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
-
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-
-        val førstesideSlot = slot<Førsteside>()
-
-        every {
-            utgåendeJournalføringService.journalførDokument(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                capture(førstesideSlot),
-                any(),
-                any(),
-            )
-        } returns "0"
-
-        every { journalføringRepository.save(any()) } returns mockk()
-
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
-
-        every {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                any(),
-                any(),
-                any(),
-            )
-        } just runs
-
-        brevService.genererOgSendBrev(
-            behandling.id,
-            ManueltBrevDto(
-                brevmal = brevmal,
-                mottakerIdent = søker.aktivFødselsnummer(),
-                barnasFødselsdager = emptyList(),
-            ),
-        )
-
-        førstesideSlot.captured.shouldNotBeNull()
-    }
-
-    @ParameterizedTest
-    @EnumSource(
-        value = Brevmal::class,
-        names = ["INFORMASJONSBREV_DELT_BOSTED", "HENLEGGE_TRUKKET_SØKNAD", "SVARTIDSBREV", "FORLENGET_SVARTIDSBREV", "INFORMASJONSBREV_KAN_SØKE", "INFORMASJONSBREV_KAN_SØKE_EØS"],
-        mode = EnumSource.Mode.INCLUDE,
-    )
-    fun `genererOgSendBrev - skal journalføre brev uten forside for brevmaler som tilsier det`(brevmal: Brevmal) {
-        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-            lagPerson(
-                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                søker,
-            )
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetNavn = "Behandlende enhet",
-                behandlendeEnhetId = "1234",
-            )
-
-        every { taskService.save(any()) } returns mockk()
-
-        every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
-
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-
-        every {
-            utgåendeJournalføringService.journalførDokument(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                null,
-                any(),
-                any(),
-            )
-        } returns "0"
-
-        every { journalføringRepository.save(any()) } returns mockk()
-
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
-
-        every {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                any(),
-                any(),
-                any(),
-            )
-        } just runs
-
-        brevService.genererOgSendBrev(
-            behandling.id,
-            ManueltBrevDto(
-                brevmal = brevmal,
-                mottakerIdent = søker.aktivFødselsnummer(),
-                barnasFødselsdager = emptyList(),
-                behandlingKategori = BehandlingKategori.NASJONAL,
-                antallUkerSvarfrist = 5,
-            ),
-        )
-    }
-
-    @ParameterizedTest
-    @EnumSource(
-        value = Brevmal::class,
-        names = ["INNHENTE_OPPLYSNINGER", "VARSEL_OM_REVURDERING"],
-        mode = EnumSource.Mode.INCLUDE,
-    )
-    fun `genererOgSendBrev - skal journalføre brev og legge til AnnenVurdering for søker i vilkårsvurderingen for INNHENTE_OPPLYSNINGER og VARSEL_OM_REVURDERING`(
-        brevmal: Brevmal,
-    ) {
-        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-            lagPerson(
-                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                søker,
-            )
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetNavn = "Behandlende enhet",
-                behandlendeEnhetId = "1234",
-            )
-
-        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
-
-        every { taskService.save(any()) } returns mockk()
-
-        every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
-
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-
-        every {
-            utgåendeJournalføringService.journalførDokument(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns "0"
-
-        every { journalføringRepository.save(any()) } returns mockk()
-
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
-
-        every {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                any(),
-                any(),
-                any(),
-            )
-        } just runs
-
-        brevService.genererOgSendBrev(
-            behandling.id,
-            ManueltBrevDto(
-                brevmal = brevmal,
-                mottakerIdent = søker.aktivFødselsnummer(),
-                barnasFødselsdager = emptyList(),
-            ),
-        )
-
-        verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) }
-    }
-
-    @ParameterizedTest
-    @EnumSource(
-        value = Brevmal::class,
-        names = [
-            "FORLENGET_SVARTIDSBREV",
-            "INNHENTE_OPPLYSNINGER",
-            "VARSEL_OM_REVURDERING",
-            "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED",
-            "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS",
-            "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED",
-            "SVARTIDSBREV",
-        ],
-        mode = EnumSource.Mode.INCLUDE,
-    )
-    fun `genererOgSendBrev - skal journalføre brev og sette behandling på vent`(brevmal: Brevmal) {
-        every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
-            lagPerson(
-                lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
-                søker,
-            )
-        every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns
-            ArbeidsfordelingPåBehandling(
-                behandlingId = behandling.id,
-                behandlendeEnhetNavn = "Behandlende enhet",
-                behandlendeEnhetId = "1234",
-            )
-
-        every { taskService.save(any()) } returns mockk()
-
-        every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
-
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-
-        every {
-            utgåendeJournalføringService.journalførDokument(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns "0"
-
-        every { journalføringRepository.save(any()) } returns mockk()
-
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
-
-        every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns
-            lagVilkårsvurderingMedSøkersVilkår(
-                søkerAktør = søker,
-                behandling = behandling,
-                resultat = Resultat.IKKE_VURDERT,
-            )
-
-        every {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                any(),
-                any(),
-                any(),
-            )
-        } just runs
-
-        brevService.genererOgSendBrev(
-            behandling.id,
-            ManueltBrevDto(
-                brevmal = brevmal,
-                mottakerIdent = søker.aktivFødselsnummer(),
-                barnasFødselsdager = emptyList(),
-                behandlingKategori = BehandlingKategori.NASJONAL,
-                antallUkerSvarfrist = 5,
-            ),
-        )
-
-        verify(exactly = 1) {
-            settBehandlingPåVentService.settBehandlingPåVent(
-                any(),
-                any(),
-                any(),
-            )
+            // Assert
+            assertThat(forhåndsvisning).isEqualTo(brev)
         }
     }
 
-    @Test
-    fun `sendBrev skal sende brev til bruker og manuelt registrert FULLMEKTIG på behandling`() {
-        val behandling = lagBehandling()
-        val søkersident = behandling.fagsak.aktør.aktivFødselsnummer()
-        val manueltBrevRequest = ManueltBrevDto(mottakerIdent = søkersident, brevmal = Brevmal.SVARTIDSBREV)
-        val avsenderMottaker = slot<AvsenderMottaker>()
+    @Nested
+    inner class GenererOgSendBrev {
+        @ParameterizedTest
+        @EnumSource(
+            value = Brevmal::class,
+            names = ["INNHENTE_OPPLYSNINGER", "VARSEL_OM_REVURDERING"],
+            mode = EnumSource.Mode.INCLUDE,
+        )
+        fun `skal journalføre brev og legge til AnnenVurdering for søker i vilkårsvurderingen for INNHENTE_OPPLYSNINGER og VARSEL_OM_REVURDERING`(brevmal: Brevmal) {
+            // Arrange
+            val person =
+                lagPerson(
+                    personopplysningGrunnlag =
+                        lagPersonopplysningGrunnlag(
+                            behandlingId = behandling.id,
+                            søkerPersonIdent = søker.aktivFødselsnummer(),
+                        ),
+                    aktør = søker,
+                )
 
-        every { behandlingRepository.hentBehandling(any()) } returns behandling
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-        every { brevmottakerService.hentBrevmottakere(behandling.id) } returns
-            listOf(
-                BrevmottakerDto(
-                    id = 1L,
-                    type = MottakerType.FULLMEKTIG,
-                    navn = "Fullmektig navn",
-                    adresselinje1 = "Test adresse",
-                    postnummer = "0000",
-                    poststed = "Oslo",
-                    landkode = "NO",
+            val arbeidsfordelingPåBehandling =
+                lagArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetNavn = "Behandlende enhet",
+                    behandlendeEnhetId = "1234",
+                )
+
+            val vilkårsvurderingMedSøkersVilkår =
+                lagVilkårsvurderingMedSøkersVilkår(
+                    søkerAktør = søker,
+                    behandling = behandling,
+                    resultat = Resultat.IKKE_VURDERT,
+                )
+
+            val brev = ByteArray(10)
+
+            every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns person
+            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns arbeidsfordelingPåBehandling
+            every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns vilkårsvurderingMedSøkersVilkår
+            val taskSlot = slot<Task>()
+            every { taskService.save(capture(taskSlot)) } returns mockk()
+            every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
+            every { genererBrevService.genererManueltBrev(any(), any()) } returns brev
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsvurderingMedSøkersVilkår
+            every { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) } just runs
+
+            // Act
+            brevService.genererOgSendBrev(
+                behandling.id,
+                ManueltBrevDto(
+                    brevmal = brevmal,
+                    mottakerIdent = søker.aktivFødselsnummer(),
+                    barnasFødselsdager = emptyList(),
                 ),
             )
-        every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
-        every {
-            utgåendeJournalføringService.journalførDokument(
-                fnr = any(),
-                fagsakId = any(),
-                behandlingId = any(),
-                journalførendeEnhet = any(),
-                brev = any(),
-                førsteside = any(),
-                avsenderMottaker = any(),
-                tilVergeEllerFullmektig = any(),
-            )
-        } returns "mockJournalPostId" andThen "mockJournalPostId1"
 
-        every { journalføringRepository.save(any()) } returns mockk()
-        every { taskService.save(any()) } returns mockk()
+            // Assert
+            verify(exactly = 1) { taskService.save(any()) }
+            assertThat(taskSlot.captured.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
 
-        brevService.sendBrev(behandling.fagsak, behandling.id, manueltBrevRequest)
-
-        verify(exactly = 2) { journalføringRepository.save(any()) }
-        verify(exactly = 2) { taskService.save(any()) }
-        verify(exactly = 1) {
-            utgåendeJournalføringService.journalførDokument(
-                fnr = any(),
-                fagsakId = any(),
-                behandlingId = any(),
-                journalførendeEnhet = any(),
-                brev = any(),
-                førsteside = any(),
-                avsenderMottaker = null,
-                tilVergeEllerFullmektig = false,
-            )
+            verify(exactly = 1) { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) }
         }
-        verify(exactly = 1) {
-            utgåendeJournalføringService.journalførDokument(
-                fnr = any(),
-                fagsakId = any(),
-                behandlingId = any(),
-                journalførendeEnhet = any(),
-                brev = any(),
-                førsteside = any(),
-                avsenderMottaker = capture(avsenderMottaker),
-                tilVergeEllerFullmektig = true,
-            )
-        }
-        assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
-    }
 
-    @Test
-    fun `sendBrev skal sende brev til FULLMEKTIG og bruker ved manuell brevmottaker på fagsak`() {
-        val aktør = randomAktør()
-        val fagsak = Fagsak(aktør = aktør)
-        val søkersident = aktør.aktivFødselsnummer()
-        val brevmottakere =
-            listOf(
-                BrevmottakerDto(
-                    id = null,
-                    type = MottakerType.FULLMEKTIG,
-                    navn = "Fullmektig navn",
-                    adresselinje1 = "Test adresse",
-                    postnummer = "0000",
-                    poststed = "Oslo",
-                    landkode = "NO",
+        @ParameterizedTest
+        @EnumSource(
+            value = Brevmal::class,
+            names = [
+                "FORLENGET_SVARTIDSBREV",
+                "INNHENTE_OPPLYSNINGER",
+                "VARSEL_OM_REVURDERING",
+                "INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED",
+                "VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS",
+                "VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED",
+                "SVARTIDSBREV",
+            ],
+            mode = EnumSource.Mode.INCLUDE,
+        )
+        fun `skal journalføre brev og sette behandling på vent`(brevmal: Brevmal) {
+            // Arrange
+            val person =
+                lagPerson(
+                    personopplysningGrunnlag =
+                        lagPersonopplysningGrunnlag(
+                            behandlingId = behandling.id,
+                            søkerPersonIdent = søker.aktivFødselsnummer(),
+                        ),
+                    aktør = søker,
+                )
+
+            val arbeidsfordelingPåBehandling =
+                lagArbeidsfordelingPåBehandling(
+                    behandlingId = behandling.id,
+                    behandlendeEnhetNavn = "Behandlende enhet",
+                    behandlendeEnhetId = "1234",
+                )
+
+            val vilkårsvurderingMedSøkersVilkår =
+                lagVilkårsvurderingMedSøkersVilkår(
+                    søkerAktør = søker,
+                    behandling = behandling,
+                    resultat = Resultat.IKKE_VURDERT,
+                )
+
+            val brev = ByteArray(10)
+
+            every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns person
+            every { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns arbeidsfordelingPåBehandling
+            val taskSlot = slot<Task>()
+            every { taskService.save(capture(taskSlot)) } returns mockk()
+            every { behandlingRepository.hentBehandling(behandlingId = behandling.id) } returns behandling
+            every { genererBrevService.genererManueltBrev(any(), any()) } returns brev
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns vilkårsvurderingMedSøkersVilkår
+            every { vilkårsvurderingService.finnAktivVilkårsvurdering(any()) } returns vilkårsvurderingMedSøkersVilkår
+            every { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) } just runs
+
+            // Act
+            brevService.genererOgSendBrev(
+                behandling.id,
+                ManueltBrevDto(
+                    brevmal = brevmal,
+                    mottakerIdent = søker.aktivFødselsnummer(),
+                    barnasFødselsdager = emptyList(),
+                    behandlingKategori = BehandlingKategori.NASJONAL,
+                    antallUkerSvarfrist = 5,
                 ),
             )
-        val manueltBrevDto =
-            ManueltBrevDto(
-                mottakerIdent = søkersident,
-                brevmal = Brevmal.SVARTIDSBREV,
-                manuelleBrevmottakere = brevmottakere,
-            )
-        val avsenderMottaker = slot<AvsenderMottaker>()
 
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
-        every {
-            utgåendeJournalføringService.journalførDokument(
-                fnr = any(),
-                fagsakId = any(),
-                journalførendeEnhet = any(),
-                brev = any(),
-                førsteside = any(),
-                avsenderMottaker = any(),
-                tilVergeEllerFullmektig = any(),
-            )
-        } returns "mockJournalPostId" andThen "mockJournalPostId1"
-
-        every { journalføringRepository.save(any()) } returns mockk()
-        every { taskService.save(any()) } returns mockk()
-
-        brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
-
-        verify(exactly = 2) { taskService.save(any()) }
-        verify(exactly = 1) {
-            utgåendeJournalføringService.journalførDokument(
-                fnr = any(),
-                fagsakId = any(),
-                journalførendeEnhet = any(),
-                brev = any(),
-                førsteside = any(),
-                avsenderMottaker = capture(avsenderMottaker),
-                tilVergeEllerFullmektig = true,
-            )
+            // Assert
+            verify(exactly = 1) { taskService.save(any()) }
+            assertThat(taskSlot.captured.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
+            verify(exactly = 1) { settBehandlingPåVentService.settBehandlingPåVent(any(), any(), any()) }
         }
-        verify(exactly = 1) {
-            utgåendeJournalføringService.journalførDokument(
-                fnr = any(),
-                fagsakId = any(),
-                journalførendeEnhet = any(),
-                brev = any(),
-                førsteside = any(),
-                avsenderMottaker = null,
-                tilVergeEllerFullmektig = false,
-            )
-        }
-
-        assertEquals("Fullmektig navn", avsenderMottaker.captured.navn)
     }
 
-    @Test
-    fun `sendBrev skal kaste feil dersom manuelle brevmottakere er ugyldige`() {
-        // Arrange
-        val aktør = randomAktør()
-        val fagsak = Fagsak(aktør = aktør)
-        val søkersident = aktør.aktivFødselsnummer()
-        val brevmottakere =
-            listOf(
-                lagBrevmottakerDto(id = 1234, postnummer = "0661", poststed = "Stockholm", landkode = "SE"),
-            )
-        val manueltBrevDto =
-            ManueltBrevDto(
-                mottakerIdent = søkersident,
-                brevmal = Brevmal.SVARTIDSBREV,
-                manuelleBrevmottakere = brevmottakere,
-            )
+    @Nested
+    inner class SendBrev {
+        @Test
+        fun `skal lage journalfør manuelt brev task for bruker og manuelt registrert fullmektig på behandling`() {
+            // Arrange
+            val behandling = lagBehandling()
+            val manueltBrevDto = ManueltBrevDto(mottakerIdent = behandling.fagsak.aktør.aktivFødselsnummer(), brevmal = Brevmal.SVARTIDSBREV)
+            val brevmottakerDto = lagBrevmottakerDto(type = MottakerType.FULLMEKTIG)
 
-        every { genererBrevService.genererManueltBrev(any(), any()) } returns ByteArray(10)
+            val tasks = mutableListOf<Task>()
+            every { behandlingRepository.hentBehandling(any()) } returns behandling
+            every { brevmottakerService.hentBrevmottakere(behandling.id) } returns listOf(brevmottakerDto)
+            every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
+            every { taskService.save(capture(tasks)) } returnsArgument 0
 
-        // Act & assert
-        val exception =
-            assertThrows<FunksjonellFeil> {
-                brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
+            // Act
+            brevService.sendBrev(behandling.fagsak, behandling.id, manueltBrevDto)
+
+            // Assert
+            verify(exactly = 2) { taskService.save(any()) }
+            assertThat(tasks).hasSize(2)
+            assertThat(tasks).anySatisfy {
+                assertThat(it.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
+                assertThat(it.metadata["fagsakId"]).isEqualTo(behandling.fagsak.id.toString())
+                assertThat(it.metadata["behandlingId"]).isEqualTo(behandling.id.toString())
+                assertThat(it.metadata["mottakerType"]).isEqualTo(Bruker::class.simpleName)
             }
+            assertThat(tasks).anySatisfy {
+                assertThat(it.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
+                assertThat(it.metadata["fagsakId"]).isEqualTo(behandling.fagsak.id.toString())
+                assertThat(it.metadata["behandlingId"]).isEqualTo(behandling.id.toString())
+                assertThat(it.metadata["mottakerType"]).isEqualTo(FullmektigEllerVerge::class.simpleName)
+            }
+        }
 
-        assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
+        @Test
+        fun `skal kaste feil dersom manuelle brevmottakere er ugyldige`() {
+            // Arrange
+            val aktør = randomAktør()
+            val fagsak = Fagsak(aktør = aktør)
+            val søkersident = aktør.aktivFødselsnummer()
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(id = 1234, postnummer = "0661", poststed = "Stockholm", landkode = "SE"),
+                )
+            val manueltBrevDto =
+                ManueltBrevDto(
+                    mottakerIdent = søkersident,
+                    brevmal = Brevmal.SVARTIDSBREV,
+                    manuelleBrevmottakere = brevmottakere,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)
+                }
+            assertThat(exception.message).isEqualTo("Det finnes ugyldige brevmottakere i utsending av manuelt brev")
+        }
+    }
+
+    @Nested
+    inner class LeggTilEnhet {
+        @BeforeEach
+        fun setup() {
+            every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns true
+        }
+
+        @Test
+        fun `skal hente arbeidsfordeling uten behandlingstype når feature toggle er av`() {
+            // Arrange
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = OSLO.enhetsnummer,
+                    enhetNavn = OSLO.enhetsnavn,
+                )
+
+            every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns false
+            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 1) {
+                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                    søkerIdent = søker.aktivFødselsnummer(),
+                    barnIdenter = any(),
+                    behandlingstype = null,
+                )
+            }
+        }
+
+        @Test
+        fun `skal legge til saksbehandlers enhet når feature toggle er på og NavIdent har tilgang til kun én enhet`() {
+            // Arrange
+            every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(OSLO)
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 0) { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) }
+            verify(exactly = 0) { behandlingService.hentSisteBehandlingSomErVedtatt(any()) }
+        }
+
+        @Test
+        fun `skal hente arbeidsfordeling med behandlingstype når feature toggle er på og NavIdent har tilgang til flere enheter`() {
+            // Arrange
+            val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = OSLO.enhetsnummer,
+                    enhetNavn = OSLO.enhetsnavn,
+                )
+
+            every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(OSLO, DRAMMEN)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns behandling
+            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 1) { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) }
+            verify(exactly = 1) {
+                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                    søkerIdent = søker.aktivFødselsnummer(),
+                    barnIdenter = emptyList(),
+                    behandlingstype = behandling.kategori.tilOppgavebehandlingType(),
+                )
+            }
+        }
+
+        @Test
+        fun `skal håndtere ingen siste vedtatte behandling når feature toggle er på og NavIdent har tilgang til flere enheter`() {
+            // Arrange
+            val barn1Ident = "12345678910"
+            val barn2Ident = "10987654321"
+            val manueltBrevDtoMedBarn = manueltBrevDto.copy(barnIBrev = listOf(barn1Ident, barn2Ident))
+            val arbeidsfordelingsenhet =
+                Arbeidsfordelingsenhet(
+                    enhetId = OSLO.enhetsnummer,
+                    enhetNavn = OSLO.enhetsnavn,
+                )
+
+            every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(DRAMMEN, BERGEN)
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns null
+            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
+
+            // Act
+            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDtoMedBarn)
+
+            // Assert
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
+            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
+            verify(exactly = 1) { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) }
+            verify(exactly = 1) {
+                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
+                    søkerIdent = søker.aktivFødselsnummer(),
+                    barnIdenter = listOf(barn1Ident, barn2Ident),
+                    behandlingstype = null,
+                )
+            }
+        }
     }
 }

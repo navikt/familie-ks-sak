@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilKortString
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -28,7 +27,6 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.UtbetalingEtterKAVedtakBre
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import java.time.LocalDate
 
@@ -58,7 +56,7 @@ data class ManueltBrevDto(
 
 fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
     when (this.brevmal) {
-        Brevmal.INFORMASJONSBREV_DELT_BOSTED ->
+        Brevmal.INFORMASJONSBREV_DELT_BOSTED -> {
             InformasjonsbrevDeltBostedBrevDto(
                 data =
                     InformasjonsbrevDeltBostedDataDto(
@@ -80,12 +78,13 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                             ),
                     ),
             )
+        }
 
         Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HAR_FÅTT_EN_SØKNAD_FRA_ANNEN_FORELDER,
         Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_VARSEL_OM_REVURDERING,
         Brevmal.INFORMASJONSBREV_TIL_FORELDER_OMFATTET_NORSK_LOVGIVNING_HENTER_IKKE_REGISTEROPPLYSNINGER,
         Brevmal.INFORMASJONSBREV_KAN_HA_RETT_TIL_PENGESTØTTE_FRA_NAV,
-        ->
+        -> {
             InformasjonsbrevTilForelderBrev(
                 mal = this.brevmal,
                 data =
@@ -108,8 +107,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                             ),
                     ),
             )
+        }
 
-        Brevmal.INNHENTE_OPPLYSNINGER ->
+        Brevmal.INNHENTE_OPPLYSNINGER -> {
             InnhenteOpplysningerBrevDto(
                 data =
                     InnhenteOpplysningerDataDto(
@@ -122,8 +122,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                             ),
                     ),
             )
+        }
 
-        Brevmal.HENLEGGE_TRUKKET_SØKNAD ->
+        Brevmal.HENLEGGE_TRUKKET_SØKNAD -> {
             HenleggeTrukketSøknadBrevDto(
                 data =
                     HenleggeTrukketSøknadDataDto(
@@ -135,8 +136,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                             ),
                     ),
             )
+        }
 
-        Brevmal.VARSEL_OM_REVURDERING ->
+        Brevmal.VARSEL_OM_REVURDERING -> {
             VarselbrevMedÅrsakerDto(
                 mal = Brevmal.VARSEL_OM_REVURDERING,
                 navn = this.mottakerNavn,
@@ -145,8 +147,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 enhet = this.enhetNavn(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.SVARTIDSBREV ->
+        Brevmal.SVARTIDSBREV -> {
             SvartidsbrevDto(
                 navn = this.mottakerNavn,
                 fodselsnummer = this.mottakerIdent,
@@ -160,8 +163,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                     },
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.FORLENGET_SVARTIDSBREV ->
+        Brevmal.FORLENGET_SVARTIDSBREV -> {
             ForlengetSvartidsbrevDto(
                 navn = this.mottakerNavn,
                 fodselsnummer = this.mottakerIdent,
@@ -170,8 +174,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 antallUkerSvarfrist = this.antallUkerSvarfrist ?: throw Feil("Antall uker svarfrist er ikke satt"),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.INFORMASJONSBREV_KAN_SØKE ->
+        Brevmal.INFORMASJONSBREV_KAN_SØKE -> {
             InformasjonsbrevKanSøkeDto(
                 navn = this.mottakerNavn,
                 fodselsnummer = this.mottakerIdent,
@@ -179,8 +184,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 dokumentliste = this.multiselectVerdier,
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT ->
+        Brevmal.INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT -> {
             InnhenteOpplysningerOmBarnDto(
                 mal = Brevmal.INNHENTE_OPPLYSNINGER_OG_INFORMASJON_OM_AT_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_HAR_SØKT,
                 navn = this.mottakerNavn,
@@ -190,8 +196,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED ->
+        Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED -> {
             VarselbrevMedÅrsakerOgBarnDto(
                 mal = Brevmal.VARSEL_OM_VEDTAK_ETTER_SØKNAD_I_SED,
                 navn = this.mottakerNavn,
@@ -201,8 +208,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT ->
+        Brevmal.VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT -> {
             VarselbrevMedÅrsakerOgBarnDto(
                 mal = Brevmal.VARSEL_ANNEN_FORELDER_MED_SELVSTENDIG_RETT_SØKT,
                 navn = this.mottakerNavn,
@@ -212,8 +220,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 enhet = this.enhetNavn(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS ->
+        Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS -> {
             VarselbrevMedÅrsakerDto(
                 mal = Brevmal.VARSEL_OM_REVURDERING_FRA_NASJONAL_TIL_EØS,
                 navn = this.mottakerNavn,
@@ -222,8 +231,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 enhet = this.enhetNavn(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED ->
+        Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED -> {
             InnhenteOpplysningerOmBarnDto(
                 mal = Brevmal.INNHENTE_OPPLYSNINGER_ETTER_SØKNAD_I_SED,
                 navn = this.mottakerNavn,
@@ -233,8 +243,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 barnasFødselsdager = this.barnasFødselsdager.tilFormaterteFødselsdager(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS ->
+        Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS -> {
             EnkeltInformasjonsbrevDto(
                 navn = this.mottakerNavn,
                 fodselsnummer = this.mottakerIdent,
@@ -242,8 +253,9 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 mal = Brevmal.INFORMASJONSBREV_KAN_SØKE_EØS,
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
 
-        Brevmal.UTBETALING_ETTER_KA_VEDTAK ->
+        Brevmal.UTBETALING_ETTER_KA_VEDTAK -> {
             UtbetalingEtterKAVedtakBrevDto(
                 navn = this.mottakerNavn,
                 fodselsnummer = this.mottakerIdent,
@@ -251,6 +263,8 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                 enhet = this.enhetNavn(),
                 saksbehandlerNavn = saksbehandlerNavn,
             )
+        }
+
         Brevmal.INFORMASJONSBREV_INNHENTE_OPPLYSNINGER_KLAGE -> {
             if (this.fritekstAvsnitt.isNullOrEmpty()) {
                 throw FunksjonellFeil("Du må legge til fritekst for å forklare hvilke opplysninger du ønsker å innhente.")
@@ -277,42 +291,10 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
         Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
         Brevmal.AUTOVEDTAK_NYFØDT_BARN_FRA_FØR,
         Brevmal.VEDTAK_OVERGANGSORDNING,
-        -> throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
+        -> {
+            throw Feil("Kan ikke mappe fra manuel brevrequest til ${this.brevmal}.")
+        }
     }
-
-fun ManueltBrevDto.utvidManueltBrevDtoMedEnhetOgMottaker(
-    behandlingId: Long,
-    personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    arbeidsfordelingService: ArbeidsfordelingService,
-): ManueltBrevDto {
-    val mottakerPerson = personopplysningGrunnlagService.hentSøker(behandlingId)
-    val arbeidsfordelingPåBehandling = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId)
-
-    return this.copy(
-        enhet =
-            Enhet(
-                enhetNavn = arbeidsfordelingPåBehandling.behandlendeEnhetNavn,
-                enhetId = arbeidsfordelingPåBehandling.behandlendeEnhetId,
-            ),
-        mottakerMålform = mottakerPerson?.målform ?: mottakerMålform,
-        mottakerNavn = mottakerPerson?.navn ?: mottakerNavn,
-    )
-}
-
-fun ManueltBrevDto.leggTilEnhet(arbeidsfordelingService: ArbeidsfordelingService): ManueltBrevDto {
-    val arbeidsfordelingsenhet =
-        arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
-            søkerIdent = mottakerIdent,
-            barnIdenter = barnIBrev,
-        )
-    return this.copy(
-        enhet =
-            Enhet(
-                enhetNavn = arbeidsfordelingsenhet.enhetNavn,
-                enhetId = arbeidsfordelingsenhet.enhetId,
-            ),
-    )
-}
 
 private fun List<LocalDate>?.tilFormaterteFødselsdager() =
     slåSammen(

@@ -97,6 +97,8 @@ data class Kompetanse(
             this.resultat != null &&
             this.barnAktører.isNotEmpty()
 
+    fun erNorgeSekundærland() = this.resultat == KompetanseResultat.NORGE_ER_SEKUNDÆRLAND || this.resultat == KompetanseResultat.NASJONAL_RETT_DIFFERANSEBEREGNING
+
     companion object {
         val blankKompetanse = Kompetanse(fom = null, tom = null, barnAktører = emptySet())
     }
@@ -132,6 +134,9 @@ enum class KompetanseResultat {
     NORGE_ER_PRIMÆRLAND,
     NORGE_ER_SEKUNDÆRLAND,
     TO_PRIMÆRLAND,
+
+    // Dette defineres også som at Norge er sekundærland
+    NASJONAL_RETT_DIFFERANSEBEREGNING,
 }
 
 sealed interface IKompetanse {
@@ -156,6 +161,7 @@ data class UtfyltKompetanse(
     val søkersAktivitetsland: String,
     val barnetsBostedsland: String,
     val resultat: KompetanseResultat,
+    val erAnnenForelderOmfattetAvNorskLovgivning: Boolean,
 ) : IKompetanse
 
 fun Kompetanse.tilIKompetanse(): IKompetanse =
@@ -172,6 +178,7 @@ fun Kompetanse.tilIKompetanse(): IKompetanse =
             søkersAktivitetsland = this.søkersAktivitetsland!!,
             barnetsBostedsland = this.barnetsBostedsland!!,
             resultat = this.resultat!!,
+            erAnnenForelderOmfattetAvNorskLovgivning = this.erAnnenForelderOmfattetAvNorskLovgivning!!,
         )
     } else {
         TomKompetanse(

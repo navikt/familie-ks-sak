@@ -111,13 +111,15 @@ class StegService(
                 behandlingStegTilstand.årsak = null
                 behandlingRepository.saveAndFlush(oppdaterBehandlingStatus(behandling))
             }
+
             // AVBRUTT kan brukes kun for henleggelse
             // TILBAKEFØRT steg blir oppdatert til KLAR når det forrige steget er behandlet
-            BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.TILBAKEFØRT ->
+            BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.TILBAKEFØRT -> {
                 throw Feil(
                     "Kan ikke behandle behandling $behandlingId " +
                         "med steg $behandlingSteg med status ${behandlingStegTilstand.behandlingStegStatus}",
                 )
+            }
         }
         // statistikk til datavarehus
         sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingSteg)
@@ -181,7 +183,9 @@ class StegService(
     ): BehandlingSteg {
         val nesteGyldigeSteg = behandletSteg.nesteGyldigeSteg(behandling)
         return when (behandletSteg) {
-            AVSLUTT_BEHANDLING -> throw Feil("Behandling ${behandling.id} er allerede avsluttet")
+            AVSLUTT_BEHANDLING -> {
+                throw Feil("Behandling ${behandling.id} er allerede avsluttet")
+            }
 
             BESLUTTE_VEDTAK -> {
                 val beslutteVedtakDto = behandlingStegDto as BesluttVedtakDto
@@ -191,21 +195,25 @@ class StegService(
                 }
             }
 
-            BEHANDLINGSRESULTAT ->
+            BEHANDLINGSRESULTAT -> {
                 if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)) {
                     IVERKSETT_MOT_OPPDRAG
                 } else {
                     nesteGyldigeSteg
                 }
+            }
 
-            IVERKSETT_MOT_OPPDRAG ->
+            IVERKSETT_MOT_OPPDRAG -> {
                 if (behandling.skalBehandlesAutomatisk() && !behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling)) {
                     AVSLUTT_BEHANDLING
                 } else {
                     nesteGyldigeSteg
                 }
+            }
 
-            else -> nesteGyldigeSteg
+            else -> {
+                nesteGyldigeSteg
+            }
         }
     }
 
@@ -288,7 +296,9 @@ class StegService(
                     )
                 }
 
-                else -> taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
+                else -> {
+                    taskService.save(SendOpprettTilbakekrevingsbehandlingRequestTask.opprettTask(behandlingId))
+                }
             }
         }
         when (behandling.steg) {
@@ -296,8 +306,11 @@ class StegService(
                 // JournalførVedtaksbrevTask -> DistribuerBrevTask -> AvsluttBehandlingTask for å avslutte behandling automatisk
                 opprettJournalførVedtaksbrevTaskPåBehandling(behandling)
             }
+
             // Behandling med årsak SATSENDRING eller TEKNISK_ENDRING sender ikke vedtaksbrev. Da avslutter behandling her
-            AVSLUTT_BEHANDLING -> utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
+            AVSLUTT_BEHANDLING -> {
+                utførSteg(behandlingId = behandling.id, AVSLUTT_BEHANDLING)
+            }
 
             else -> {} // Gjør ingenting
         }
@@ -388,7 +401,9 @@ class StegService(
             }
         }
 
-        else -> BehandlingStegStatus.UTFØRT
+        else -> {
+            BehandlingStegStatus.UTFØRT
+        }
     }
 
     companion object {

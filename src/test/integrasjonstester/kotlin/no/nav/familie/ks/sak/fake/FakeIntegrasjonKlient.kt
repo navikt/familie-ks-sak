@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.fake
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
@@ -17,6 +18,7 @@ import no.nav.familie.kontrakter.felles.kodeverk.KodeverkDto
 import no.nav.familie.kontrakter.felles.kodeverk.KodeverkSpråk
 import no.nav.familie.kontrakter.felles.navkontor.NavKontorEnhet
 import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.kontrakter.felles.oppgave.Oppgave
@@ -29,7 +31,7 @@ import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.datagenerator.lagKodeverkLand
 import no.nav.familie.ks.sak.datagenerator.lagTestJournalpost
 import no.nav.familie.ks.sak.datagenerator.lagTestOppgaveDTO
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonClient
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import org.springframework.core.io.ClassPathResource
@@ -41,7 +43,7 @@ import java.util.UUID
 
 class FakeIntegrasjonKlient(
     restOperations: RestOperations,
-) : IntegrasjonClient(URI("integrasjoner-url"), restOperations) {
+) : IntegrasjonKlient(URI("integrasjoner-url"), restOperations, mockk(relaxed = true)) {
     private val egenansatt = mutableSetOf<String>()
     private val behandlendeEnhetForIdent = mutableMapOf<String, List<Arbeidsfordelingsenhet>>()
     private val journalførteDokumenter = mutableListOf<ArkiverDokumentRequest>()
@@ -121,7 +123,10 @@ class FakeIntegrasjonKlient(
         )
     }
 
-    override fun hentBehandlendeEnheter(ident: String): List<Arbeidsfordelingsenhet> =
+    override fun hentBehandlendeEnheter(
+        ident: String,
+        behandlingstype: Behandlingstype?,
+    ): List<Arbeidsfordelingsenhet> =
         behandlendeEnhetForIdent[ident] ?: listOf(
             Arbeidsfordelingsenhet.opprettFra(KontantstøtteEnhet.OSLO),
         )

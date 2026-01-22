@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresse
 
 @Entity(name = "GrBostedsadresse")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -43,6 +44,8 @@ abstract class GrBostedsadresse(
     abstract fun toSecureString(): String
 
     abstract fun tilFrontendString(): String
+
+    abstract fun tilAdresse(): Adresse
 
     companion object {
         fun fraBostedsadresse(

@@ -5,9 +5,9 @@ import no.nav.familie.ks.sak.common.util.del
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCache
 import no.nav.familie.ks.sak.integrasjon.ecb.domene.ECBValutakursCacheRepository
-import no.nav.familie.valutakurs.Frequency
-import no.nav.familie.valutakurs.ValutakursRestClient
-import no.nav.familie.valutakurs.domene.ExchangeRate
+import no.nav.familie.valutakurs.ECBValutakursRestKlient
+import no.nav.familie.valutakurs.domene.Valutakurs
+import no.nav.familie.valutakurs.domene.ecb.Frequency
 import no.nav.familie.valutakurs.domene.exchangeRateForCurrency
 import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.ValutakursException
@@ -18,10 +18,10 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
 
-@Import(ValutakursRestClient::class)
+@Import(ECBValutakursRestKlient::class)
 @Service
 class ECBService(
-    private val ecbClient: ValutakursRestClient,
+    private val ecbClient: ECBValutakursRestKlient,
     private val ecbValutakursCacheRepository: ECBValutakursCacheRepository,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(ECBService::class.java)
@@ -45,22 +45,22 @@ class ECBService(
                 validateExchangeRates(utenlandskValuta, kursDato, exchangeRates)
                 val valutakursNOK = exchangeRates.exchangeRateForCurrency(ECBConstants.NOK)!!
                 if (utenlandskValuta == ECBConstants.EUR) {
-                    ecbValutakursCacheRepository.save(ECBValutakursCache(kurs = valutakursNOK.exchangeRate, valutakode = utenlandskValuta, valutakursdato = kursDato))
-                    return valutakursNOK.exchangeRate
+                    ecbValutakursCacheRepository.save(ECBValutakursCache(kurs = valutakursNOK.kurs, valutakode = utenlandskValuta, valutakursdato = kursDato))
+                    return valutakursNOK.kurs
                 }
                 val valutakursUtenlandskValuta = exchangeRates.exchangeRateForCurrency(utenlandskValuta)!!
                 ecbValutakursCacheRepository.save(
                     ECBValutakursCache(
                         kurs =
                             beregnValutakurs(
-                                valutakursUtenlandskValuta.exchangeRate,
-                                valutakursNOK.exchangeRate,
+                                valutakursUtenlandskValuta.kurs,
+                                valutakursNOK.kurs,
                             ),
                         valutakode = utenlandskValuta,
                         valutakursdato = kursDato,
                     ),
                 )
-                return beregnValutakurs(valutakursUtenlandskValuta.exchangeRate, valutakursNOK.exchangeRate)
+                return beregnValutakurs(valutakursUtenlandskValuta.kurs, valutakursNOK.kurs)
             } catch (e: ValutakursException) {
                 throw ECBServiceException(e.message, e)
             } catch (e: IngenValutakursException) {
@@ -79,7 +79,7 @@ class ECBService(
     private fun validateExchangeRates(
         currency: String,
         exchangeRateDate: LocalDate,
-        exchangeRates: List<ExchangeRate>,
+        exchangeRates: List<Valutakurs>,
     ) {
         val expectedSize = if (currency != ECBConstants.EUR) 2 else 1
         val currencies =
@@ -91,13 +91,13 @@ class ECBService(
     }
 
     private fun isValid(
-        exchangeRates: List<ExchangeRate>,
+        exchangeRates: List<Valutakurs>,
         currencies: List<String>,
         exchangeRateDate: LocalDate,
         expectedSize: Int,
     ) = exchangeRates.size == expectedSize &&
-        exchangeRates.all { it.date == exchangeRateDate } &&
-        exchangeRates.map { it.currency }.containsAll(currencies)
+        exchangeRates.all { it.kursDato == exchangeRateDate } &&
+        exchangeRates.map { it.valuta }.containsAll(currencies)
 
     private fun throwValidationException(
         currency: String,
