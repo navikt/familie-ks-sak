@@ -10,7 +10,6 @@ enum class FeatureToggle(
     KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER("familie-ks-sak.kan-opprette-og-endre-sammensatte-kontrollsaker"),
 
     // Ikke operasjonelle
-    KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK("familie-ks-sak.kan-opprette-revurdering-med-aarsak-iverksette-ka-vedtak"),
     SKAL_HÅNDTERE_FALSK_IDENTITET("familie-ks-sak.skal-handtere-falsk-identitet"),
     HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE("familie-ks-sak.hent-arbeidsfordeling-med-behandlingstype"),
 }
