@@ -56,8 +56,8 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>11.2.1</unleash.version>
-        <microsoft-graph.version>6.59.0</microsoft-graph.version>
+        <unleash.version>12.0.1</unleash.version>
+        <microsoft-graph.version>6.60.0</microsoft-graph.version>
         <azure-identity.version>1.18.1</azure-identity.version>
 
         <!-- Test -->
@@ -94,7 +94,7 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <!-- Denne inkluderer junit-platform 1.13.3 som kreves av cucumber 7.26, kan muligens fjernes når spring bumper til junit versjon 1.13.3 -->
-                <version>6.0.1</version>
+                <version>6.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
