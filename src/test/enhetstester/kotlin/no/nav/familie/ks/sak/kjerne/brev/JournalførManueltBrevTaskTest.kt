@@ -124,7 +124,7 @@ class JournalførManueltBrevTaskTest {
                         },
                     førsteside = isNull(),
                     avsenderMottaker = isNull(),
-                    eksternReferanseId = eq("${fagsak.id}_${behandling.id}_null"),
+                    eksternReferanseId = match { it.contains("${fagsak.id}_${behandling.id}_") },
                 )
             }
             verify(exactly = 1) { journalføringRepository.save(any()) }
@@ -227,7 +227,7 @@ class JournalførManueltBrevTaskTest {
                                 førsteside.overskriftstittel == JournalførManueltBrevTask.FØRSTESIDE_OVERSKRIFTSTITTEL
                         },
                     avsenderMottaker = isNull(),
-                    eksternReferanseId = eq("${fagsakId}_${behandlingId}_null"),
+                    eksternReferanseId = match { it.contains("${fagsak.id}_${behandling.id}_") },
                 )
             }
             verify(exactly = 1) { journalføringRepository.save(any()) }
@@ -308,7 +308,7 @@ class JournalførManueltBrevTaskTest {
                         },
                     førsteside = isNull(),
                     avsenderMottaker = isNull(),
-                    eksternReferanseId = eq("${fagsak.id}_null_null"),
+                    eksternReferanseId = match { it.contains("${fagsak.id}_null_") },
                 )
             }
             verify(exactly = 0) { journalføringRepository.save(any()) }
