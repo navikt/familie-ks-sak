@@ -56,7 +56,7 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>12.1.0</unleash.version>
+        <unleash.version>12.1.1</unleash.version>
         <microsoft-graph.version>6.60.0</microsoft-graph.version>
         <azure-identity.version>1.18.2</azure-identity.version>
 
