@@ -1118,6 +1118,7 @@ fun lagVilkårsvurderingOppfylt(
     skalOppretteEøsSpesifikkeVilkår: Boolean = false,
     periodeFom: LocalDate? = null,
     periodeTom: LocalDate? = null,
+    begrunnelse: String = "",
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -1152,7 +1153,7 @@ fun lagVilkårsvurderingOppfylt(
                                     },
                                 vilkårType = it,
                                 resultat = Resultat.OPPFYLT,
-                                begrunnelse = "",
+                                begrunnelse = begrunnelse,
                                 behandlingId = vilkårsvurdering.behandling.id,
                                 utdypendeVilkårsvurderinger = emptyList(),
                                 erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
@@ -1327,6 +1328,7 @@ fun lagVilkårsvurdering(
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
     medAndreVurderinger: Boolean = true,
+    begrunnelse: String = "",
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -1346,7 +1348,7 @@ fun lagVilkårsvurdering(
                 resultat = resultat,
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
-                begrunnelse = "",
+                begrunnelse = begrunnelse,
             ),
             VilkårResultat(
                 behandlingId = behandling.id,
@@ -1355,7 +1357,7 @@ fun lagVilkårsvurdering(
                 resultat = resultat,
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
-                begrunnelse = "",
+                begrunnelse = begrunnelse,
             ),
         ),
     )

@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
@@ -46,8 +47,7 @@ class VilkårsvurderingService(
         val aktivVilkårsvurdering = finnAktivVilkårsvurdering(behandling.id)
         val vilkårsvurderingFraForrigeBehandling = forrigeBehandlingSomErVedtatt?.let { hentAktivVilkårsvurderingForBehandling(forrigeBehandlingSomErVedtatt.id) }
 
-        val personopplysningGrunnlag =
-            personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
 
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandling.id))
 
@@ -69,6 +69,10 @@ class VilkårsvurderingService(
             initiellVilkårsvurdering.personResultater
                 .single { it.erSøkersResultater() }
                 .leggTilBlankAnnenVurdering(AnnenVurderingType.OPPLYSNINGSPLIKT)
+        }
+
+        if (behandling.opprettetÅrsak == BehandlingÅrsak.SØKNAD && aktivVilkårsvurdering != null) {
+            initiellVilkårsvurdering.kopierVilkårResultaterFraForrigeVilkårsvurdering(aktivVilkårsvurdering)
         }
 
         initiellVilkårsvurdering.oppdaterMedDødsdatoer(
