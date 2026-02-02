@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.api.dto.IverksettMotOppdragDto
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -24,7 +24,7 @@ class IverksettMotOppdragTask(
     private val behandlingRepository: BehandlingRepository,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val iverksettingData = objectMapper.readValue(task.payload, IverksettMotOppdragDto::class.java)
+        val iverksettingData = jsonMapper.readValue(task.payload, IverksettMotOppdragDto::class.java)
         stegService.utførSteg(
             behandlingId = iverksettingData.behandlingId,
             behandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG,
@@ -33,7 +33,7 @@ class IverksettMotOppdragTask(
     }
 
     override fun onCompletion(task: Task) {
-        val iverksettingData = objectMapper.readValue(task.payload, IverksettMotOppdragDto::class.java)
+        val iverksettingData = jsonMapper.readValue(task.payload, IverksettMotOppdragDto::class.java)
         val behandling = behandlingRepository.hentAktivBehandling(iverksettingData.behandlingId)
         val vedtak = vedtakService.hentAktivVedtakForBehandling(behandling.id)
 
@@ -49,7 +49,7 @@ class IverksettMotOppdragTask(
             saksbehandlerId: String,
         ) = Task(
             type = TASK_STEP_TYPE,
-            payload = objectMapper.writeValueAsString(IverksettMotOppdragDto(behandling.id, saksbehandlerId)),
+            payload = jsonMapper.writeValueAsString(IverksettMotOppdragDto(behandling.id, saksbehandlerId)),
             properties =
                 Properties().apply {
                     this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()

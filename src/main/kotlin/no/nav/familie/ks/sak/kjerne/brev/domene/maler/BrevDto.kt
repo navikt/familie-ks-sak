@@ -2,7 +2,7 @@ package no.nav.familie.ks.sak.kjerne.brev.domene.maler
 
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -18,7 +18,7 @@ interface BrevDataDto {
     val delmalData: Any?
     val flettefelter: FlettefelterForDokumentDto
 
-    fun toBrevString(): String = objectMapper.writeValueAsString(this)
+    fun toBrevString(): String = jsonMapper.writeValueAsString(this)
 }
 
 interface FlettefelterForDokumentDto {

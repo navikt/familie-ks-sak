@@ -1,11 +1,9 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
 import no.nav.familie.eksterne.kontrakter.saksstatistikk.AktørDVH
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BehandlingPåVentDto
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
-import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.hentArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -15,11 +13,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
 import no.nav.familie.prosessering.domene.Task
+import no.nav.familie.restklient.config.jsonMapper
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.ZoneId
@@ -73,7 +71,7 @@ class SakStatistikkService(
         val task =
             Task(
                 type = type,
-                payload = objectMapper.writeValueAsString(behandlingTilstand),
+                payload = jsonMapper.writeValueAsString(behandlingTilstand),
                 Properties().apply {
                     setProperty("behandlingId", behandlingId.toString())
                     setProperty("beskrivelse", hendelsesbeskrivelse)

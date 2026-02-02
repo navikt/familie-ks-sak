@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.internkonsistensavstemming
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.log.IdUtils
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -10,6 +9,7 @@ import no.nav.familie.prosessering.domene.PropertiesWrapper
 import no.nav.familie.prosessering.domene.Task
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDateTime
 import java.util.Properties
 
@@ -23,7 +23,7 @@ class OpprettInternKonsistensavstemmingTaskerTask(
     val internKonsistensavstemmingService: InternKonsistensavstemmingService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val maksAntallTasker: Int = objectMapper.readValue(task.payload)
+        val maksAntallTasker = jsonMapper.readValue(task.payload, Int::class.java)
         internKonsistensavstemmingService
             .validerLikUtbetalingIAndeleneOgUtbetalingsoppdragetPåAlleFagsaker(maksAntallTasker)
     }

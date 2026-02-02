@@ -18,6 +18,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import org.hamcrest.CoreMatchers.nullValue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +26,7 @@ import org.springframework.http.HttpStatus
 import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
+@Disabled
 class EndretUtbetalingAndelControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository

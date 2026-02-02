@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.integrasjon.oppgave.dto.OpprettOppgaveTaskDTO
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -19,7 +19,7 @@ class OpprettOppgaveTask(
     private val oppgaveService: OppgaveService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val opprettOppgaveTaskDTO = objectMapper.readValue(task.payload, OpprettOppgaveTaskDTO::class.java)
+        val opprettOppgaveTaskDTO = jsonMapper.readValue(task.payload, OpprettOppgaveTaskDTO::class.java)
         task.metadata["oppgaveId"] =
             oppgaveService.opprettOppgave(
                 behandlingId = opprettOppgaveTaskDTO.behandlingId,
@@ -43,7 +43,7 @@ class OpprettOppgaveTask(
             Task(
                 type = TASK_STEP_TYPE,
                 payload =
-                    objectMapper.writeValueAsString(
+                    jsonMapper.writeValueAsString(
                         OpprettOppgaveTaskDTO(
                             behandlingId,
                             oppgavetype,

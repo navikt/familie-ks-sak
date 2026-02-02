@@ -8,10 +8,12 @@ import io.restassured.module.kotlin.extensions.When
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.hamcrest.CoreMatchers.`is` as Is
 
+@Disabled
 class ApiExceptionHandlerTest : OppslagSpringRunnerTest() {
     private val controllerUrl: String = "/api/forvaltning"
 

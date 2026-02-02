@@ -5,13 +5,13 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
 import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.klage.BehandlingEventType
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.KlageinstansResultatDto
 import no.nav.familie.kontrakter.felles.klage.KlageinstansUtfall
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
@@ -978,7 +978,7 @@ fun lagTilkjentYtelse(
     utbetalingsoppdrag: Utbetalingsoppdrag,
     behandling: Behandling,
 ) = TilkjentYtelse(
-    utbetalingsoppdrag = objectMapper.writeValueAsString(utbetalingsoppdrag),
+    utbetalingsoppdrag = jsonMapper.writeValueAsString(utbetalingsoppdrag),
     behandling = behandling,
     opprettetDato = LocalDate.now(),
     endretDato = LocalDate.now(),

@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -31,7 +31,7 @@ class PubliserSaksstatistikkTask(
     }
 
     companion object {
-        fun lagTask(fagsakId: Long) = Task(type = TASK_STEP_TYPE, payload = objectMapper.writeValueAsString(fagsakId))
+        fun lagTask(fagsakId: Long) = Task(type = TASK_STEP_TYPE, payload = jsonMapper.writeValueAsString(fagsakId))
 
         const val TASK_STEP_TYPE = "publiserSaksstatistikk"
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)

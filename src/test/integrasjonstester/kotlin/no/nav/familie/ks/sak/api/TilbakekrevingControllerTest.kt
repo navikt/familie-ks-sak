@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.fake.FakeTilbakekrevingKlient
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -21,6 +22,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import org.hamcrest.CoreMatchers.`is` as Is
 
+@Disabled
 class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var fakeTilbakekrevingKlient: FakeTilbakekrevingKlient

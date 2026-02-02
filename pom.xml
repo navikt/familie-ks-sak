@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.8</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>4.0.2</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -30,20 +30,20 @@
         <kotlinx.version>1.10.2</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>3.5.8</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
-        <springdoc.version>2.8.14</springdoc.version>
+        <spring-boot-dependencies.version>4.0.2</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <springdoc.version>3.0.1</springdoc.version>
 
         <!-- Nav felles -->
-        <nav-token-client.version>5.0.39</nav-token-client.version>
+        <nav-token-client.version>6.0.1</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
         <prosessering.version>2.20251103090009_f7d38c7</prosessering.version>
-        <felles-kontrakter.version>3.0_20251106145307_0419786</felles-kontrakter.version>
-        <felles.version>3.20251209142024_1cdfbdb</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20251207221645_82d9e1d</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20251207221645_82d9e1d</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20251207221645_82d9e1d</familie.kontrakter.saksstatistikk>
+        <felles-kontrakter.version>4.0_20260127095609_7f1d60a</felles-kontrakter.version>
+        <felles.version>4.20260128165036_0708695</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20260123183438_42a3cb1</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20260123183438_42a3cb1</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20260123183438_42a3cb1</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20250922101633_e4c1c4d</utbetalingsgenerator.version>
 
         <!-- Database -->
@@ -187,10 +187,27 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
+            <version>2.0.12</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
         <!-- Doc/Swagger -->
         <dependency>
@@ -245,7 +262,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
-            <artifactId>http-client</artifactId>
+            <artifactId>rest-klient</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
@@ -331,10 +348,6 @@
         </dependency>
 
         <!-- Annet -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-        </dependency>
         <dependency>
             <!-- Kryptisk navn, men gir oss ISO koder som CountryCode, LanguageCode etc.-->
             <groupId>com.neovisionaries</groupId>
@@ -437,6 +450,17 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

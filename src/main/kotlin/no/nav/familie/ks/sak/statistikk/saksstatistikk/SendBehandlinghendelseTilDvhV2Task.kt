@@ -1,8 +1,8 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -25,9 +25,10 @@ class SendBehandlinghendelseTilDvhV2Task(
     override fun doTask(task: Task) {
         log.info("SendBehandlinghendelseTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
         val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto =
-            objectMapper
+            jsonMapper()
                 .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
-                .readValue(task.payload)
+                .readValue<BehandlingStatistikkV2Dto>(task.payload)
+
         val tekniskTidspunkt = ZonedDateTime.now()
         // Logger om teknisk tidspunkt er tidligere enn funksjonell tidspunkt, da dette ikke skal forekomme. Men datavarehus har rapportert om det
         if (tekniskTidspunkt.isBefore(behandlingStatistikkV1Dto.funksjoneltTidspunkt)) {
