@@ -15,11 +15,9 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.core.StringContains
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-@Disabled
 class AInntektControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient

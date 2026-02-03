@@ -30,14 +30,12 @@ import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@Disabled
 class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
@@ -242,7 +240,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             {
               "personIdent": "${søker.aktivFødselsnummer()}",
               "vilkårType": "BOSATT_I_RIKET"
-              }
+              
             }
             """.trimIndent()
 
@@ -269,7 +267,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             {
               "personIdent": "${søker.aktivFødselsnummer()}",
                "vilkårType": "BOR_MED_SØKER"
-              }
+              
             }
             """.trimIndent()
 
@@ -326,7 +324,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             {
               "personIdent": "${søker.aktivFødselsnummer()}",
                "vilkårType": "BOR_MED_SØKER"
-              }
+              
             }
             """.trimIndent()
 
@@ -425,7 +423,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                 "resultat": "OPPFYLT",
                 "type": "OPPLYSNINGSPLIKT",
                 "begrunnelse": "Begrunnelse"
-              }
+              
             }
             """.trimIndent()
         Given {
@@ -458,11 +456,11 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         val request =
             """
             {
+            
                 "id": ${annenVurdering.id},
                 "resultat": "OPPFYLT",
                 "type": "OPPLYSNINGSPLIKT",
                 "begrunnelse": "Begrunnelse"
-              }
             }
             """.trimIndent()
         Given {

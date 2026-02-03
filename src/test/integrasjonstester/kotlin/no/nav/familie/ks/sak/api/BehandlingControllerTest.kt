@@ -18,13 +18,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.hamcrest.CoreMatchers.hasItem
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@Disabled
 class BehandlingControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository

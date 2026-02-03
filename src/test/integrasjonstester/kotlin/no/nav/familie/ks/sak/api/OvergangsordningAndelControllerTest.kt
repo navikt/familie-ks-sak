@@ -24,7 +24,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.core.IsNull
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,7 +33,6 @@ import java.time.YearMonth
 import org.hamcrest.CoreMatchers.containsString as Contains
 import org.hamcrest.CoreMatchers.`is` as Is
 
-@Disabled
 class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
     @Autowired
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
