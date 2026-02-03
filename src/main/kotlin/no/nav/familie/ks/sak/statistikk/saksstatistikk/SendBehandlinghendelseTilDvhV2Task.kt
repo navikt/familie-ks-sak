@@ -1,8 +1,6 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jsonMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -10,6 +8,11 @@ import no.nav.familie.prosessering.domene.Task
 import org.slf4j.LoggerFactory
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.stereotype.Service
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.KotlinModule
+import tools.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
 
 @Service
@@ -24,10 +27,7 @@ class SendBehandlinghendelseTilDvhV2Task(
 
     override fun doTask(task: Task) {
         log.info("SendBehandlinghendelseTilDvhTask prosesserer med id=${task.id} og metadata ${task.metadata}")
-        val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto =
-            jsonMapper()
-                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
-                .readValue<BehandlingStatistikkV2Dto>(task.payload)
+        val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto = sakstatistikkJsonMapper.readValue<BehandlingStatistikkV2Dto>(task.payload)
 
         val tekniskTidspunkt = ZonedDateTime.now()
         // Logger om teknisk tidspunkt er tidligere enn funksjonell tidspunkt, da dette ikke skal forekomme. Men datavarehus har rapportert om det
@@ -42,5 +42,16 @@ class SendBehandlinghendelseTilDvhV2Task(
 
     companion object {
         const val TASK_TYPE = "dvh.send.behandlinghendelse.v2"
+
+        val sakstatistikkJsonMapper =
+            JsonMapper
+                .builder()
+                .addModule(KotlinModule.Builder().build())
+                .configure(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false)
+                .disable(tools.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .changeDefaultPropertyInclusion {
+                    JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL)
+                }.build()
     }
 }
