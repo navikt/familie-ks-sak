@@ -1,11 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.pdl.domene
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.Bostedsadresse
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
@@ -17,6 +12,10 @@ import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.adresser.Adresser
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.deser.std.StdDeserializer
 import java.time.LocalDate
 import java.time.Period
 
@@ -128,11 +127,13 @@ data class PdlKontaktinformasjonForDødsboAdresse(
 
 class KjoennDeserializer : StdDeserializer<KJOENN>(KJOENN::class.java) {
     override fun deserialize(
-        jp: JsonParser?,
-        p1: DeserializationContext?,
+        jp: JsonParser,
+        deserializationContext: DeserializationContext,
     ): KJOENN {
-        val node: JsonNode = jp!!.codec.readTree(jp)
-        return when (val kjønn = node.asText()) {
+        val node = deserializationContext.readTree(jp)
+        val kjønn = node.asText()
+
+        return when (kjønn) {
             "M" -> KJOENN.MANN
             "K" -> KJOENN.KVINNE
             else -> KJOENN.valueOf(kjønn)

@@ -1,13 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.brev.begrunnelser
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import com.fasterxml.jackson.databind.node.ArrayNode
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.deser.std.StdDeserializer
+import tools.jackson.databind.node.ArrayNode
 
 sealed interface IBegrunnelse {
     val sanityApiNavn: String
@@ -38,7 +38,8 @@ class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class
         jsonParser: JsonParser?,
         p1: DeserializationContext?,
     ): List<IBegrunnelse> {
-        val node: ArrayNode = jsonParser!!.codec.readTree(jsonParser)
+        val node = p1?.readTree(jsonParser) as ArrayNode
+
         return node
             .map { it.asText() }
             .map { IBegrunnelse.konverterTilEnumVerdi(it) }

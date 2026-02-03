@@ -42,16 +42,5 @@ class SendBehandlinghendelseTilDvhV2Task(
 
     companion object {
         const val TASK_TYPE = "dvh.send.behandlinghendelse.v2"
-
-        val sakstatistikkJsonMapper =
-            JsonMapper
-                .builder()
-                .addModule(KotlinModule.Builder().build())
-                .configure(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false)
-                .disable(tools.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .changeDefaultPropertyInclusion {
-                    JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL)
-                }.build()
     }
 }
