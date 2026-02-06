@@ -14,11 +14,14 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import kotlin.collections.maxByOrNull
 
 @Service
 class BeregningService(
@@ -66,10 +69,10 @@ class BeregningService(
     }
 
     /**
-     For at endret utbetaling andeler skal fungere så må man generere andeler før man kobler endringene på andelene.
-     Dette er fordi en endring regnes som gyldig når den overlapper med en andel og har gyldig årsak.
-     Hvis man ikke genererer andeler før man kobler på endringene så vil ingen av endringene ses på som gyldige, altså ikke oppdatere noen andeler.
-     Dette gjøres spesifikt fra vilkårsvurdering steget da på dette tidspunktet så har man ikke generert andeler.
+    For at endret utbetaling andeler skal fungere så må man generere andeler før man kobler endringene på andelene.
+    Dette er fordi en endring regnes som gyldig når den overlapper med en andel og har gyldig årsak.
+    Hvis man ikke genererer andeler før man kobler på endringene så vil ingen av endringene ses på som gyldige, altså ikke oppdatere noen andeler.
+    Dette gjøres spesifikt fra vilkårsvurdering steget da på dette tidspunktet så har man ikke generert andeler.
      */
     fun oppdaterTilkjentYtelsePåBehandlingFraVilkårsvurdering(
         behandling: Behandling,
@@ -203,8 +206,8 @@ class BeregningService(
             barnMedUtbetalingSomIkkeBlittEndretISisteBehandling.intersect(nyeBarnISisteBehandling)
 
         return behandling.resultat == Behandlingsresultat.INNVILGET_OG_OPPHØRT &&
-            behandling.erSøknad() &&
-            nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
+                behandling.erSøknad() &&
+                nyeBarnMedUtebtalingSomIkkeErEndret.isEmpty()
     }
 
     fun hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(
@@ -218,6 +221,28 @@ class BeregningService(
             ).filtrerAndelerSomSkalSendesTilOppdrag()
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
+
+    fun sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(behandling: Behandling): Boolean {
+        val nåværendeAndeler = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
+        val forrigeAndeler = hentAndelerFraForrigeIverksattebehandling(behandling)
+
+        if (nåværendeAndeler.isEmpty() && forrigeAndeler.isEmpty()) return false
+
+        return EndringIUtbetalingUtil.lagEndringIUtbetalingTidslinje(
+            nåværendeAndeler = nåværendeAndeler,
+            forrigeAndeler = forrigeAndeler,
+        ).tilPerioder().any { it.verdi == true }
+    }
+
+    fun hentAndelerFraForrigeIverksattebehandling(behandling: Behandling): List<AndelTilkjentYtelse> {
+        val forrigeIverksatteBehandling =
+            behandlingRepository.finnIverksatteBehandlinger(behandling.fagsak.id)
+                .filter { it.aktivertTidspunkt.isBefore(behandling.aktivertTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+                .maxByOrNull { it.aktivertTidspunkt }
+
+        return forrigeIverksatteBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
+            ?: emptyList()
+    }
 }
 
 interface TilkjentYtelseEndretAbonnent {
