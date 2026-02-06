@@ -157,7 +157,7 @@ class SimuleringServiceTest {
                     erSimulering = any(),
                 )
             } returns
-                    lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
+                lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
 
             simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
