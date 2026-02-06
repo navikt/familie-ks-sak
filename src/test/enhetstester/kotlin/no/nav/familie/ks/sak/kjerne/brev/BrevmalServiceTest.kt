@@ -3,10 +3,13 @@ package no.nav.familie.ks.sak.kjerne.brev
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -200,7 +203,7 @@ class BrevmalServiceTest {
             ],
             mode = EnumSource.Mode.EXCLUDE,
         )
-        fun `skal returnere korrekt brevmal for førstegagnsbehandlinger`(
+        fun `skal returnere korrekt brevmal for førstegangsbehandlinger`(
             behandlingsresultat: Behandlingsresultat,
         ) {
             // Arrange
@@ -209,6 +212,48 @@ class BrevmalServiceTest {
                     type = BehandlingType.FØRSTEGANGSBEHANDLING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = behandlingsresultat,
+                )
+
+            // Act
+            val brevmal =
+                brevmalService.hentVedtaksbrevmal(
+                    behandling = behandling,
+                )
+
+            // Assert
+            assertThat(brevmal).isEqualTo(forventetBrevmalForFørstegangsbehandlingBehandlingsresultat[behandlingsresultat])
+        }
+
+        @ParameterizedTest
+        @EnumSource(
+            value = Behandlingsresultat::class,
+            names = [
+                "AVSLÅTT_OG_OPPHØRT",
+                "AVSLÅTT_OG_ENDRET",
+                "AVSLÅTT_ENDRET_OG_OPPHØRT",
+                "ENDRET_UTBETALING",
+                "ENDRET_UTEN_UTBETALING",
+                "ENDRET_OG_OPPHØRT",
+                "OPPHØRT",
+                "FORTSATT_OPPHØRT",
+                "FORTSATT_INNVILGET",
+                "HENLAGT_FEILAKTIG_OPPRETTET",
+                "HENLAGT_SØKNAD_TRUKKET",
+                "HENLAGT_TEKNISK_VEDLIKEHOLD",
+                "IKKE_VURDERT",
+            ],
+            mode = EnumSource.Mode.EXCLUDE,
+        )
+        fun `skal returnere korrekt brevmal for revurderinger i fagsak som ikke er løpende`(
+            behandlingsresultat: Behandlingsresultat,
+        ) {
+            // Arrange
+            val behandling =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                    resultat = behandlingsresultat,
+                    fagsak = lagFagsak(status = FagsakStatus.AVSLUTTET),
                 )
 
             // Act
@@ -275,7 +320,7 @@ class BrevmalServiceTest {
             ],
             mode = EnumSource.Mode.EXCLUDE,
         )
-        fun `skal returnere korrekt brevmal for revurdering`(
+        fun `skal returnere korrekt brevmal ved løpende fagsak og revurdering`(
             behandlingsresultat: Behandlingsresultat,
         ) {
             // Arrange
@@ -284,6 +329,7 @@ class BrevmalServiceTest {
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = behandlingsresultat,
+                    fagsak = lagFagsak(status = FagsakStatus.LØPENDE),
                 )
 
             // Act
@@ -322,7 +368,7 @@ class BrevmalServiceTest {
             ],
             mode = EnumSource.Mode.EXCLUDE,
         )
-        fun `skal kaste exception for behandlingsresultat som ikke er støttet for revurdering`(
+        fun `skal kaste exception for behandlingsresultat som ikke er støttet for revurdering i løpende fagsak`(
             behandlingsresultat: Behandlingsresultat,
         ) {
             // Arrange
@@ -331,6 +377,7 @@ class BrevmalServiceTest {
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = behandlingsresultat,
+                    fagsak = lagFagsak(status = FagsakStatus.LØPENDE),
                 )
 
             // Act & assert
@@ -353,6 +400,7 @@ class BrevmalServiceTest {
                     type = BehandlingType.TEKNISK_ENDRING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = Behandlingsresultat.INNVILGET,
+                    fagsak = lagFagsak(status = FagsakStatus.LØPENDE),
                 )
 
             // Act & assert
