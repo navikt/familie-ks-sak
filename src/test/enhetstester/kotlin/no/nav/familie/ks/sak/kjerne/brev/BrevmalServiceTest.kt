@@ -122,6 +122,19 @@ class BrevmalServiceTest {
                 Behandlingsresultat.AVSLÅTT to Brevmal.VEDTAK_AVSLAG,
             )
 
+        val forventetBrevmalForIkkeLøpendeFagsakBehandlingsresultat =
+            mapOf(
+                Behandlingsresultat.INNVILGET to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.INNVILGET_OG_OPPHØRT to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.INNVILGET_OG_ENDRET to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.INNVILGET_ENDRET_OG_OPPHØRT to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.DELVIS_INNVILGET to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.DELVIS_INNVILGET_OG_OPPHØRT to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.DELVIS_INNVILGET_OG_ENDRET to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.DELVIS_INNVILGET_ENDRET_OG_OPPHØRT to Brevmal.VEDTAK_FØRSTEGANGSVEDTAK,
+                Behandlingsresultat.AVSLÅTT to Brevmal.VEDTAK_AVSLAG,
+            )
+
         val forventetBrevmalForRevurderingBehandlingsresultat =
             mapOf(
                 Behandlingsresultat.INNVILGET to Brevmal.VEDTAK_ENDRING,
@@ -263,7 +276,7 @@ class BrevmalServiceTest {
                 )
 
             // Assert
-            assertThat(brevmal).isEqualTo(forventetBrevmalForFørstegangsbehandlingBehandlingsresultat[behandlingsresultat])
+            assertThat(brevmal).isEqualTo(forventetBrevmalForIkkeLøpendeFagsakBehandlingsresultat[behandlingsresultat])
         }
 
         @ParameterizedTest
