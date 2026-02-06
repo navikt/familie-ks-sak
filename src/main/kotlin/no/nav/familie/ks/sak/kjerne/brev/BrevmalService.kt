@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -49,6 +50,7 @@ class BrevmalService {
 
         val behandlingType = behandling.type
         val behandlingÅrsak = behandling.opprettetÅrsak
+        val fagsakStatus = behandling.fagsak.status
 
         val brevmal =
             when {
@@ -60,8 +62,8 @@ class BrevmalService {
                     Brevmal.VEDTAK_OVERGANGSORDNING
                 }
 
-                behandlingType == BehandlingType.FØRSTEGANGSBEHANDLING -> {
-                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(behandlingsresultat = behandling.resultat)
+                behandlingType == BehandlingType.FØRSTEGANGSBEHANDLING || fagsakStatus != FagsakStatus.LØPENDE -> {
+                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandlingEllerIkkeLøpendeFagsak(behandlingsresultat = behandling.resultat)
                 }
 
                 behandlingType == BehandlingType.REVURDERING -> {
@@ -82,7 +84,7 @@ class BrevmalService {
         }
     }
 
-    private fun utledBrevmalFraBehandlingsresultatForFørstegangsbehandling(
+    private fun utledBrevmalFraBehandlingsresultatForFørstegangsbehandlingEllerIkkeLøpendeFagsak(
         behandlingsresultat: Behandlingsresultat,
     ) = when (behandlingsresultat) {
         Behandlingsresultat.INNVILGET,
