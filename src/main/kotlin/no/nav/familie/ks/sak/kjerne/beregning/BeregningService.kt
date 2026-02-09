@@ -14,11 +14,14 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringIUtbetalingUtil
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import kotlin.collections.maxByOrNull
 
 @Service
 class BeregningService(
@@ -218,6 +221,31 @@ class BeregningService(
             ).filtrerAndelerSomSkalSendesTilOppdrag()
 
     fun slettTilkjentYtelseForBehandling(behandling: Behandling) = tilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling)
+
+    fun sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(behandling: Behandling): Boolean {
+        val nåværendeAndeler = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
+        val forrigeAndeler = hentAndelerFraForrigeIverksattebehandling(behandling)
+
+        if (nåværendeAndeler.isEmpty() && forrigeAndeler.isEmpty()) return false
+
+        return EndringIUtbetalingUtil
+            .lagEndringIUtbetalingTidslinje(
+                nåværendeAndeler = nåværendeAndeler,
+                forrigeAndeler = forrigeAndeler,
+            ).tilPerioder()
+            .any { it.verdi == true }
+    }
+
+    fun hentAndelerFraForrigeIverksattebehandling(behandling: Behandling): List<AndelTilkjentYtelse> {
+        val forrigeIverksatteBehandling =
+            behandlingRepository
+                .finnIverksatteBehandlinger(behandling.fagsak.id)
+                .filter { it.aktivertTidspunkt.isBefore(behandling.aktivertTidspunkt) && it.steg == BehandlingSteg.AVSLUTT_BEHANDLING }
+                .maxByOrNull { it.aktivertTidspunkt }
+
+        return forrigeIverksatteBehandling?.let { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(it.id) }
+            ?: emptyList()
+    }
 }
 
 interface TilkjentYtelseEndretAbonnent {

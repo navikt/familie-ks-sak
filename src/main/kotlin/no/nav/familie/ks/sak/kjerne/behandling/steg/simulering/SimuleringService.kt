@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.tilRestUtbe
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.domene.ØkonomiSimuleringMottakerRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
@@ -83,10 +82,7 @@ class SimuleringService(
     }
 
     private fun hentSimuleringFraFamilieOppdrag(vedtak: Vedtak): DetaljertSimuleringResultat? {
-        if (vedtak.behandling.resultat == Behandlingsresultat.FORTSATT_INNVILGET ||
-            vedtak.behandling.resultat == Behandlingsresultat.AVSLÅTT ||
-            beregningService.innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling = vedtak.behandling)
-        ) {
+        if (!beregningService.sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(behandling = vedtak.behandling)) {
             return null
         }
 
@@ -115,9 +111,9 @@ class SimuleringService(
 
     private fun lagreSimuleringPåBehandling(
         simuleringMottakere: List<SimuleringMottaker>,
-        beahndling: Behandling,
+        behandling: Behandling,
     ): List<ØkonomiSimuleringMottaker> {
-        val vedtakSimuleringMottakere = simuleringMottakere.map { it.tilBehandlingSimuleringMottaker(beahndling) }
+        val vedtakSimuleringMottakere = simuleringMottakere.map { it.tilBehandlingSimuleringMottaker(behandling) }
         return øknomiSimuleringMottakerRepository.saveAll(vedtakSimuleringMottakere)
     }
 
