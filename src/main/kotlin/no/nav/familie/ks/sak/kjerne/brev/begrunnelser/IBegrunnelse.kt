@@ -35,10 +35,10 @@ sealed interface IBegrunnelse {
 
 class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class.java) {
     override fun deserialize(
-        jsonParser: JsonParser?,
-        p1: DeserializationContext?,
+        jsonParser: JsonParser,
+        p1: DeserializationContext,
     ): List<IBegrunnelse> {
-        val node = p1?.readTree(jsonParser) as ArrayNode
+        val node = jsonParser.readValueAsTree<ArrayNode>()
 
         return node
             .map { it.asText() }
