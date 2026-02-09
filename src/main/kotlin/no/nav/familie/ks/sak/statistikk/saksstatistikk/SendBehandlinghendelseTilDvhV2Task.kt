@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.statistikk.saksstatistikk
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.familie.ks.sak.integrasjon.datavarehus.KafkaProducer
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -8,10 +7,6 @@ import no.nav.familie.prosessering.domene.Task
 import org.slf4j.LoggerFactory
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.stereotype.Service
-import tools.jackson.databind.SerializationFeature
-import tools.jackson.databind.cfg.DateTimeFeature
-import tools.jackson.databind.json.JsonMapper
-import tools.jackson.module.kotlin.KotlinModule
 import tools.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
 

@@ -9,7 +9,6 @@ import no.nav.familie.prosessering.domene.PropertiesWrapper
 import no.nav.familie.prosessering.domene.Task
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
-import tools.jackson.module.kotlin.readValue
 import java.time.LocalDateTime
 import java.util.Properties
 
