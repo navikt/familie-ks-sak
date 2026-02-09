@@ -136,9 +136,45 @@ class SimuleringServiceTest {
             names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"],
             mode = EnumSource.Mode.EXCLUDE,
         )
-        fun `skal returnere hente ny simulering dersom behandlingstatus er ulik IVERKSETTER_VEDTAK og AVSLUTTET og simulering ikke er hentet fra før`(
+        fun `Ved ingen endringer i utbetaling siden sist iverskatte behandling skal det ikke forsøkes å hente simulering fra oppdrag`(
             behandlingStatus: BehandlingStatus,
         ) {
+            every { beregningService.sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(any()) } returns false
+
+            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
+
+            every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
+
+            every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns emptyList()
+            every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
+            every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()
+            every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns Vedtak(behandling = behandling)
+            every { beregningService.innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling = behandling) } returns false
+            every {
+                utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
+                    vedtak = any(),
+                    saksbehandlerId = any(),
+                    erSimulering = any(),
+                )
+            } returns
+                lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
+
+            simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
+
+            verify(exactly = 0) { oppdragKlient.hentSimulering(any()) }
+        }
+
+        @ParameterizedTest
+        @EnumSource(
+            value = BehandlingStatus::class,
+            names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"],
+            mode = EnumSource.Mode.EXCLUDE,
+        )
+        fun `skal hente ny simulering dersom det har vært endring i utbetaling og simulering ikke er hentet fra før`(
+            behandlingStatus: BehandlingStatus,
+        ) {
+            every { beregningService.sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(any()) } returns true
+
             val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
             val nySimulering =
                 listOf(
