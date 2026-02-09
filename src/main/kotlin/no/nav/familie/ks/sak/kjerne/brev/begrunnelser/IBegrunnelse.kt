@@ -41,7 +41,7 @@ class IBegrunnelseDeserializer : StdDeserializer<List<IBegrunnelse>>(List::class
         val node = jsonParser.readValueAsTree<ArrayNode>()
 
         return node
-            .map { it.asText() }
+            .map { it.asString() }
             .map { IBegrunnelse.konverterTilEnumVerdi(it) }
     }
 }

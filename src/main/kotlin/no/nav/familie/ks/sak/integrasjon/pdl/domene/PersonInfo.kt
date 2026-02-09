@@ -131,7 +131,7 @@ class KjoennDeserializer : StdDeserializer<KJOENN>(KJOENN::class.java) {
         deserializationContext: DeserializationContext,
     ): KJOENN {
         val node = deserializationContext.readTree(jp)
-        val kjønn = node.asText()
+        val kjønn = node.asString()
 
         return when (kjønn) {
             "M" -> KJOENN.MANN

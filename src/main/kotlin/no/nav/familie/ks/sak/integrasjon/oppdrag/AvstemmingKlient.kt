@@ -14,6 +14,8 @@ import java.net.URI
 import java.time.LocalDateTime
 import java.util.UUID
 
+private const val FAMILIE_OPPDRAG = "familie-oppdrag"
+
 @Service
 class AvstemmingKlient(
     @Value("\${FAMILIE_OPPDRAG_API_URL}")
@@ -27,7 +29,7 @@ class AvstemmingKlient(
     ): String {
         val uri = URI.create("$familieOppdragUri/grensesnittavstemming")
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag",
+            tjeneste = FAMILIE_OPPDRAG,
             uri = uri,
             formål = "Gjør grensesnittavstemming mot oppdrag",
         ) {
@@ -55,7 +57,7 @@ class AvstemmingKlient(
             )
 
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag",
+            tjeneste = FAMILIE_OPPDRAG,
             uri = uri,
             formål = "Start konsistensavstemming mot oppdrag i batch",
         ) {
@@ -82,7 +84,7 @@ class AvstemmingKlient(
             )
 
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag",
+            tjeneste = FAMILIE_OPPDRAG,
             uri = uri,
             formål = "Konsistenstavstemmer chunk mot oppdrag",
         ) {
@@ -107,7 +109,7 @@ class AvstemmingKlient(
                     "?sendStartmelding=false&sendAvsluttmelding=true&transaksjonsId=$transaksjonsId",
             )
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag",
+            tjeneste = FAMILIE_OPPDRAG,
             uri = uri,
             formål = "Avslutt konsistensavstemming mot oppdrag",
         ) {
@@ -130,7 +132,7 @@ class AvstemmingKlient(
                 "$familieOppdragUri/timeout-test?sekunder=$sovAntallSekunder",
             )
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag",
+            tjeneste = FAMILIE_OPPDRAG,
             uri = uri,
             formål = "sov",
         ) {
