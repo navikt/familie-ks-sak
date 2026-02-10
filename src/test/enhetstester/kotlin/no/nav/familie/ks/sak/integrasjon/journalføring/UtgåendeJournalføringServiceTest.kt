@@ -3,13 +3,13 @@ package no.nav.familie.ks.sak.integrasjon.journalføring
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.genererEksternReferanseIdForJournalpost
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
-import no.nav.familie.restklient.client.RessursException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

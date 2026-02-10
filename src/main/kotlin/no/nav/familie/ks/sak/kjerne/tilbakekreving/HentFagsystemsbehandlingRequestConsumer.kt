@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRespons
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
@@ -32,7 +32,7 @@ class HentFagsystemsbehandlingRequestConsumer(
         val key: String = consumerRecord.key()
         kjørMedCallId(key) {
             val data: String = consumerRecord.value()
-            val request = jsonMapper.readValue(data, HentFagsystemsbehandlingRequest::class.java)
+            val request = objectMapper.readValue(data, HentFagsystemsbehandlingRequest::class.java)
 
             if (request.ytelsestype == Ytelsestype.KONTANTSTØTTE) {
                 logger.info("HentFagsystemsbehandlingRequest er mottatt i kafka $consumerRecord med key $key")

@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
@@ -49,7 +49,7 @@ class GrensesnittavstemmingScheduler(
             val sisteFerdigTask = alleFerdigeGrensesnittavstemmingTasker.maxBy { it.opprettetTid }
             logger.info("Fant siste ferdig task med id=${sisteFerdigTask.id}")
             val sisteFerdigTaskData =
-                jsonMapper.readValue(sisteFerdigTask.payload, GrensesnittavstemmingTaskDto::class.java)
+                objectMapper.readValue(sisteFerdigTask.payload, GrensesnittavstemmingTaskDto::class.java)
             fom = sisteFerdigTaskData.tom.toLocalDate().atStartOfDay()
             tom =
                 utledNesteTriggerTidIHverdagerForTask(

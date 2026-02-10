@@ -5,7 +5,6 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
@@ -90,7 +89,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
-            body(jsonMapper.writeValueAsString(EndreBehandlendeEnhetDto("enhet", "")))
+            body(objectMapper.writeValueAsString(EndreBehandlendeEnhetDto("enhet", "")))
         } When {
             put("$behandlingControllerUrl/${behandling.id}/enhet")
         } Then {
@@ -107,7 +106,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
-            body(jsonMapper.writeValueAsString(EndreBehandlendeEnhetDto("50", "nybegrunnelse")))
+            body(objectMapper.writeValueAsString(EndreBehandlendeEnhetDto("50", "nybegrunnelse")))
         } When {
             put("$behandlingControllerUrl/${behandling.id}/enhet")
         } Then {
@@ -126,7 +125,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
             body(
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     OpprettBehandlingDto(
                         søkersIdent = fagsak.aktør.aktivFødselsnummer(),
                         behandlingType = BehandlingType.FØRSTEGANGSBEHANDLING,

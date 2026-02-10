@@ -6,7 +6,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
@@ -122,7 +122,7 @@ internal class HentStatusFraOppdragTaskTest {
         Task(
             type = HentStatusFraOppdragTask.TASK_STEP_TYPE,
             payload =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     HentStatusFraOppdragDto(
                         fagsystem = FAGSYSTEM,
                         personIdent = behandling.fagsak.aktør.aktivFødselsnummer(),

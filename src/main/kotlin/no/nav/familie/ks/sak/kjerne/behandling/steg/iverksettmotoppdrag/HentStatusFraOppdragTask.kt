@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.ks.sak.common.BehandlingId
@@ -45,7 +45,7 @@ class HentStatusFraOppdragTask(
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val statusFraOppdragDto = jsonMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
+        val statusFraOppdragDto = objectMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
         val oppdragId = statusFraOppdragDto.oppdragId
         logger.info("Henter status fra oppdrag for oppdragId=$oppdragId,behandlingId=${statusFraOppdragDto.behandlingsId}")
 
@@ -81,7 +81,7 @@ class HentStatusFraOppdragTask(
         }
 
     override fun onCompletion(task: Task) {
-        val statusFraOppdragDto = jsonMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
+        val statusFraOppdragDto = objectMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
         // lag task for sending av stønadsstatistikk
         taskService.save(PubliserVedtakTask.opprettTask(statusFraOppdragDto.personIdent, statusFraOppdragDto.behandlingsId))
     }
@@ -103,7 +103,7 @@ class HentStatusFraOppdragTask(
                 )
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = jsonMapper.writeValueAsString(statusFraOppdragDto),
+                payload = objectMapper.writeValueAsString(statusFraOppdragDto),
                 properties =
                     Properties().apply {
                         this["personIdent"] = behandling.fagsak.aktør.aktivFødselsnummer()

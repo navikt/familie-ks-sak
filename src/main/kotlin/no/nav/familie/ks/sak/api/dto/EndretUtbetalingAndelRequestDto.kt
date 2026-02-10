@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.api.dto
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseDeserializer
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import tools.jackson.databind.annotation.JsonDeserialize
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth

@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Førsteside
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
@@ -42,7 +42,7 @@ class JournalførManueltBrevTask(
     private val taskService: TaskService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val dto = jsonMapper.readValue(task.payload, JournalførManueltBrevDto::class.java)
+        val dto = objectMapper.readValue(task.payload, JournalførManueltBrevDto::class.java)
         logger.info("Journalfører manuelt brev for fagsak=${dto.fagsakId} og behandling=${dto.behandlingId}")
 
         val fagsak = fagsakService.hentFagsak(dto.fagsakId)
@@ -159,7 +159,7 @@ class JournalførManueltBrevTask(
 
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = jsonMapper.writeValueAsString(dto),
+                payload = objectMapper.writeValueAsString(dto),
                 properties = properties,
             )
         }

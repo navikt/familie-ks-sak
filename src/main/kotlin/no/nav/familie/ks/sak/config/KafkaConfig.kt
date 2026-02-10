@@ -52,7 +52,7 @@ class KafkaConfig(
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-            setConsumerFactory(consumerFactory())
+            consumerFactory = consumerFactory()
             setCommonErrorHandler(kafkaErrorHandler)
         }
 
@@ -63,7 +63,7 @@ class KafkaConfig(
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-            setConsumerFactory(earliestConsumerFactory())
+            consumerFactory = earliestConsumerFactory()
             setCommonErrorHandler(kafkaErrorHandler)
         }
 
@@ -71,7 +71,7 @@ class KafkaConfig(
     fun kafkaAivenHendelseListenerAvroLatestContainerFactory(kafkaErrorHandler: KafkaErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> =
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-            setConsumerFactory(DefaultKafkaConsumerFactory(consumerConfigsLatestAvro()))
+            consumerFactory = DefaultKafkaConsumerFactory(consumerConfigsLatestAvro())
             setCommonErrorHandler(kafkaErrorHandler)
         }
 
@@ -82,7 +82,7 @@ class KafkaConfig(
         ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             setConcurrency(1)
             containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-            setConsumerFactory(earliestConsumerFactoryAvro())
+            consumerFactory = earliestConsumerFactoryAvro()
             setCommonErrorHandler(kafkaErrorHandler)
         }
 

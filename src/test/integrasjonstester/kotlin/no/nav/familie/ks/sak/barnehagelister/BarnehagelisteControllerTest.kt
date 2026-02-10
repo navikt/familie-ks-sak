@@ -5,7 +5,6 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
@@ -44,7 +43,7 @@ class BarnehagelisteControllerTest(
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
-            body(jsonMapper.writeValueAsString(BarnehagebarnRequestParams(ident = "", kommuneNavn = "", kunLøpendeAndel = false)))
+            body(objectMapper.writeValueAsString(BarnehagebarnRequestParams(ident = "", kommuneNavn = "", kunLøpendeAndel = false)))
         } When {
             post("/api/barnehagebarn/barnehagebarnliste")
         } Then {

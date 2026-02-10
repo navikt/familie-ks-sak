@@ -1,11 +1,11 @@
 package no.nav.familie.ks.sak.integrasjon.oppdrag
 
+import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.oppdrag.GrensesnittavstemmingRequest
 import no.nav.familie.kontrakter.felles.oppdrag.KonsistensavstemmingRequestV2
 import no.nav.familie.kontrakter.felles.oppdrag.PerioderForBehandling
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
-import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -13,8 +13,6 @@ import org.springframework.web.client.RestOperations
 import java.net.URI
 import java.time.LocalDateTime
 import java.util.UUID
-
-private const val FAMILIE_OPPDRAG = "familie-oppdrag"
 
 @Service
 class AvstemmingKlient(
@@ -29,7 +27,7 @@ class AvstemmingKlient(
     ): String {
         val uri = URI.create("$familieOppdragUri/grensesnittavstemming")
         return kallEksternTjenesteRessurs(
-            tjeneste = FAMILIE_OPPDRAG,
+            tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "Gjør grensesnittavstemming mot oppdrag",
         ) {
@@ -57,7 +55,7 @@ class AvstemmingKlient(
             )
 
         return kallEksternTjenesteRessurs(
-            tjeneste = FAMILIE_OPPDRAG,
+            tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "Start konsistensavstemming mot oppdrag i batch",
         ) {
@@ -84,7 +82,7 @@ class AvstemmingKlient(
             )
 
         return kallEksternTjenesteRessurs(
-            tjeneste = FAMILIE_OPPDRAG,
+            tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "Konsistenstavstemmer chunk mot oppdrag",
         ) {
@@ -109,7 +107,7 @@ class AvstemmingKlient(
                     "?sendStartmelding=false&sendAvsluttmelding=true&transaksjonsId=$transaksjonsId",
             )
         return kallEksternTjenesteRessurs(
-            tjeneste = FAMILIE_OPPDRAG,
+            tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "Avslutt konsistensavstemming mot oppdrag",
         ) {
@@ -132,7 +130,7 @@ class AvstemmingKlient(
                 "$familieOppdragUri/timeout-test?sekunder=$sovAntallSekunder",
             )
         return kallEksternTjenesteRessurs(
-            tjeneste = FAMILIE_OPPDRAG,
+            tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "sov",
         ) {

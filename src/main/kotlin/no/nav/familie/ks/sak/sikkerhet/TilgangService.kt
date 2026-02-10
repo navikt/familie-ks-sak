@@ -196,16 +196,15 @@ class TilgangService(
      * @param cacheName navnet på cachen
      * @param verdi verdiet som man ønsket å hente cache for, eks behandlingId, eller personIdent
      */
-    private fun <T, RESULT : Any> hentCacheForSaksbehandler(
+    private fun <T, RESULT> hentCacheForSaksbehandler(
         cacheName: String,
         verdi: T,
         hentVerdi: () -> RESULT,
     ): RESULT {
         val cache = cacheManager.getCache(cacheName) ?: throw Feil("Finner ikke cache=$cacheName")
-        val key = Pair(verdi, SikkerhetContext.hentSaksbehandler())
-
-        return cache.get(key) { hentVerdi() }
-            ?: throw Feil("Finner ikke verdi fra cache=$cacheName")
+        return cache.get(Pair(verdi, SikkerhetContext.hentSaksbehandler())) {
+            hentVerdi()
+        } ?: throw Feil("Finner ikke verdi fra cache=$cacheName")
     }
 
     private fun harTilgangTilAllePersoner(tilganger: List<Tilgang>): Boolean = tilganger.all { it.harTilgang }

@@ -5,7 +5,6 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.OppdaterSammensattKontrollsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettSammensattKontrollsakDto
@@ -128,7 +127,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         fun `skal returnere UNAUTHORIZED om token ikke er satt`() {
             // Arrange
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     OpprettSammensattKontrollsakDto(
                         behandlingId = 123L,
                         fritekst = "blabla",
@@ -152,7 +151,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
             opprettSøkerFagsakOgBehandling()
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     OpprettSammensattKontrollsakDto(
                         behandlingId = behandling.id,
                         fritekst = "blabla",
@@ -184,7 +183,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
             opprettSøkerFagsakOgBehandling()
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     OpprettSammensattKontrollsakDto(
                         behandlingId = behandling.id,
                         fritekst = "blabla",
@@ -218,7 +217,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         fun `skal returnere UNAUTHORIZED om token ikke er satt`() {
             // Arrange
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     OppdaterSammensattKontrollsakDto(
                         id = 0L,
                         fritekst = "blabla",
@@ -248,7 +247,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     oppdaterSammensattKontrollsakDto,
                 )
 
@@ -283,7 +282,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     oppdaterSammensattKontrollsakDto,
                 )
 
@@ -329,7 +328,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     oppdaterSammensattKontrollsakDto,
                 )
 
@@ -360,7 +359,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         fun `skal returnere UNAUTHORIZED om token ikke er satt`() {
             // Arrange
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     SlettSammensattKontrollsakDto(
                         id = 0L,
                     ),
@@ -388,7 +387,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     slettSammensattKontrollsakDto,
                 )
 
@@ -434,7 +433,7 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
                 )
 
             val body =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     slettSammensattKontrollsakDto,
                 )
 

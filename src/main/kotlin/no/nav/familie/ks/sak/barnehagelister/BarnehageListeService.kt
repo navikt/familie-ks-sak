@@ -1,5 +1,11 @@
 package no.nav.familie.ks.sak.barnehagelister
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import jakarta.transaction.Transactional
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagelisteMottatt
@@ -10,10 +16,6 @@ import no.nav.familie.ks.sak.barnehagelister.domene.Melding
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import tools.jackson.databind.DeserializationFeature
-import tools.jackson.databind.MapperFeature
-import tools.jackson.dataformat.xml.XmlMapper
-import tools.jackson.module.kotlin.kotlinModule
 import java.util.UUID
 
 @Service
@@ -23,13 +25,15 @@ class BarnehageListeService(
     val taskService: TaskRepositoryWrapper,
     val barnehagelisteMottattArkivRepository: BarnehagelisteMottattArkivRepository,
 ) {
-    private val xmlDeserializer: XmlMapper =
-        XmlMapper
-            .builder()
-            .addModule(kotlinModule())
-            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .build()
+    private val xmlDeserializer =
+        XmlMapper(
+            JacksonXmlModule().apply {
+                setDefaultUseWrapper(false)
+            },
+        ).registerKotlinModule()
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(JavaTimeModule())
 
     fun erBarnehagelisteMottattTidligere(meldingId: String): Boolean = barnehagelisteMottattRepository.existsByMeldingId(meldingId) || barnehagelisteMottattArkivRepository.existsByMeldingId(meldingId)
 

@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.distribuering
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -27,7 +27,7 @@ class DistribuerBrevTask(
     private val taskRepositoryWrapper: TaskRepositoryWrapper,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val distribuerBrevDto = jsonMapper.readValue(task.payload, DistribuerBrevDto::class.java)
+        val distribuerBrevDto = objectMapper.readValue(task.payload, DistribuerBrevDto::class.java)
 
         if (distribuerBrevDto.erManueltSendt && !distribuerBrevDto.brevmal.erVedtaksbrev) {
             brevService.prøvDistribuerBrevOgLoggHendelse(
@@ -73,7 +73,7 @@ class DistribuerBrevTask(
         ): Task =
             Task(
                 type = TASK_STEP_TYPE,
-                payload = jsonMapper.writeValueAsString(distribuerBrevDTO),
+                payload = objectMapper.writeValueAsString(distribuerBrevDTO),
                 properties = properties,
             ).copy(
                 triggerTid = utledNesteTriggerTidIHverdagerForTask(),

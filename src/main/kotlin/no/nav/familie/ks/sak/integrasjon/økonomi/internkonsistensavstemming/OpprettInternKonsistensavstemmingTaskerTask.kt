@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.internkonsistensavstemming
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.log.IdUtils
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -22,7 +23,7 @@ class OpprettInternKonsistensavstemmingTaskerTask(
     val internKonsistensavstemmingService: InternKonsistensavstemmingService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val maksAntallTasker = jsonMapper.readValue(task.payload, Int::class.java)
+        val maksAntallTasker: Int = objectMapper.readValue(task.payload)
         internKonsistensavstemmingService
             .validerLikUtbetalingIAndeleneOgUtbetalingsoppdragetPåAlleFagsaker(maksAntallTasker)
     }

@@ -8,7 +8,7 @@ import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
 import mockAdopsjonService
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -77,7 +77,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.assertj.core.api.Assertions.assertThat
-import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 val sanityBegrunnelserMock = SanityBegrunnelseMock.hentSanityBegrunnelserMock()
@@ -640,7 +639,7 @@ class StepDefinition {
         }
 
         val søknadDtoString =
-            jsonMapper.writeValueAsString(
+            objectMapper.writeValueAsString(
                 SøknadDto(
                     barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
                     endringAvOpplysningerBegrunnelse = "",
@@ -668,7 +667,7 @@ class StepDefinition {
         every { søknadGrunnlagService.finnAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
             val søknadDtoString =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     SøknadDto(
                         barnaMedOpplysninger =
                             lagRegistrertebarn(behandlingId) + (
@@ -685,7 +684,7 @@ class StepDefinition {
         every { søknadGrunnlagService.hentAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
             val søknadDtoString =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     SøknadDto(
                         barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
                         endringAvOpplysningerBegrunnelse = "",
@@ -850,11 +849,14 @@ private object SanityBegrunnelseMock {
     // For å laste ned begrunnelsene kjør scriptet "src/test/resources/oppdater-sanity-mock.sh" eller
     // se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt.
     fun hentSanityBegrunnelserMock(): List<SanityBegrunnelse> {
-        val sanityDto: List<SanityBegrunnelseDto> =
-            requireNotNull(this::class.java.getResourceAsStream("/cucumber/restSanityBegrunnelser.json")) {
-                "Fant ikke resource /cucumber/restSanityBegrunnelser.json"
-            }.use(jsonMapper::readValue)
+        val restSanityBegrunnelserJson =
+            this::class.java.getResource("/cucumber/restSanityBegrunnelser")!!
 
-        return sanityDto.map { it.tilSanityBegrunnelse() }
+        val restSanityBegrunnelser =
+            objectMapper
+                .readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
+                .toList()
+
+        return restSanityBegrunnelser.map { it.tilSanityBegrunnelse() }
     }
 }

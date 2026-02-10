@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.journalføring
 
+import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsenderMottaker
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
@@ -10,7 +11,6 @@ import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerReques
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.log.mdc.MDCConstants
-import no.nav.familie.restklient.client.RessursException
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus

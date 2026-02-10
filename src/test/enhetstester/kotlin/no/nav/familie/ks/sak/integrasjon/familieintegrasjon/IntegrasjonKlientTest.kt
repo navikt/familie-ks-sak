@@ -21,7 +21,7 @@ import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
@@ -37,7 +37,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.restclient.RestTemplateBuilder
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.web.client.RestOperations
 import java.net.URI
 
@@ -403,7 +403,7 @@ internal class IntegrasjonKlientTest {
         wiremockServerItem.stubFor(
             get("/journalpost/tilgangsstyrt/baks?journalpostId=$journalpostId").willReturn(
                 okJson(
-                    jsonMapper.writeValueAsString(
+                    objectMapper.writeValueAsString(
                         success(
                             lagJournalpost(
                                 personIdent = fnr,
@@ -437,7 +437,7 @@ internal class IntegrasjonKlientTest {
         wiremockServerItem.stubFor(
             get("/journalpost/hentdokument/tilgangsstyrt/baks/$journalpostId/$dokumentId").willReturn(
                 okJson(
-                    jsonMapper.writeValueAsString(
+                    objectMapper.writeValueAsString(
                         success(
                             "Test".toByteArray(),
                         ),

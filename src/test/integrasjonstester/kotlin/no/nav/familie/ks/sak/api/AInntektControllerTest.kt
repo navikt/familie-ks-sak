@@ -6,7 +6,6 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import no.nav.familie.kontrakter.felles.PersonIdent
-import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -39,7 +38,7 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
-            body(jsonMapper.writeValueAsString(PersonIdent(ident)))
+            body(objectMapper.writeValueAsString(PersonIdent(ident)))
         } When {
             post(apiUrl)
         } Then {
@@ -64,7 +63,7 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
         Given {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
-            body(jsonMapper.writeValueAsString(PersonIdent(ident)))
+            body(objectMapper.writeValueAsString(PersonIdent(ident)))
         } When {
             post(apiUrl)
         } Then {

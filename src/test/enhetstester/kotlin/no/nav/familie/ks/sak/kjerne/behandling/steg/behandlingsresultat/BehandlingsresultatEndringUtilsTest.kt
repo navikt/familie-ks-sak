@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat
 
 import io.mockk.mockk
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel

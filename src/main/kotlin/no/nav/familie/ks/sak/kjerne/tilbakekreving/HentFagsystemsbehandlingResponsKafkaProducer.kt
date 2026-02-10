@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.tilbakekreving
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.tilbakekreving.HentFagsystemsbehandlingRespons
 import no.nav.familie.ks.sak.common.exception.Feil
 import org.slf4j.LoggerFactory
@@ -30,7 +30,7 @@ class HentFagsystemsbehandlingResponsKafkaProducer(
         key: String,
         behandlingId: String,
     ) {
-        val meldingIString: String = jsonMapper.writeValueAsString(melding)
+        val meldingIString: String = objectMapper.writeValueAsString(melding)
         kafkaTemplate
             .send(tilbakekrevingResponseTopic, key, meldingIString)
             .thenAccept {

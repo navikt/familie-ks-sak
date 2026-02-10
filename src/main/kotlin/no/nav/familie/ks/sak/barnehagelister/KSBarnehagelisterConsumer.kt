@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.barnehagelister
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.KSBarnehagebarnDTO
 import no.nav.familie.ks.sak.config.KafkaConfig
@@ -31,7 +31,7 @@ class KSBarnehagelisterConsumer(
         logger.info("Barnehagebarn mottatt fra familie-ks-barnehagelister med id ${consumerRecord.key()}")
 
         val barnehagebarn: Barnehagebarn =
-            jsonMapper
+            objectMapper
                 .readValue(consumerRecord.value(), KSBarnehagebarnDTO::class.java)
                 .tilBarnehagebarn()
 
