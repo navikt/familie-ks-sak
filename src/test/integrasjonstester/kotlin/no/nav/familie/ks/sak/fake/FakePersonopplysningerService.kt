@@ -26,6 +26,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import java.time.LocalDate
+import kotlin.collections.emptySet
 
 class FakePersonopplysningerService(
     pdlKlient: PdlKlient,

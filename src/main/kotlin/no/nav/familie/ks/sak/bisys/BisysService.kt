@@ -16,6 +16,7 @@ import no.nav.person.pdl.aktor.v2.Type
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import kotlin.collections.filter
 
 @Service
 class BisysService(

@@ -5,7 +5,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -72,7 +72,7 @@ internal class KonsistensavstemmingTaskTest {
         Task(
             type = KonsistensavstemmingTask.TASK_STEP_TYPE,
             payload =
-                jsonMapper.writeValueAsString(
+                objectMapper.writeValueAsString(
                     KonsistensavstemmingTaskDto(
                         kjøreplanId = 1,
                         initieltKjøreTidspunkt = LocalDateTime.now(),

@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.ks.infotrygd.feed.VedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.infotrygd.KafkaProducer
@@ -26,7 +26,7 @@ class SendVedtakHendelseTilInfotrygdTask(
     private val andelerTilkjentYtelseOgEndreteUtbetalingerService: AndelerTilkjentYtelseOgEndreteUtbetalingerService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val vedtakHendelseDto = jsonMapper.readValue(task.payload, VedtakHendelseDto::class.java)
+        val vedtakHendelseDto = objectMapper.readValue(task.payload, VedtakHendelseDto::class.java)
         logger.info("Sender Vedtak hendelse for behandling=${vedtakHendelseDto.behandlingId} via Kafka")
 
         val førsteUtbetalingsdato = finnFørsteUtbetalingsdato(vedtakHendelseDto.behandlingId)
@@ -72,7 +72,7 @@ class SendVedtakHendelseTilInfotrygdTask(
             logger.info("Oppretter task for å sende vedtak hendelse for behandling=$behandlingId til Infotrygd.")
             return Task(
                 type = TASK_STEP_TYPE,
-                payload = jsonMapper.writeValueAsString(VedtakHendelseDto(fnrStoenadsmottaker, behandlingId)),
+                payload = objectMapper.writeValueAsString(VedtakHendelseDto(fnrStoenadsmottaker, behandlingId)),
                 properties =
                     Properties().apply {
                         this["personIdent"] = fnrStoenadsmottaker

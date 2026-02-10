@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.GrensesnittavstemmingTaskDto
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -24,7 +24,7 @@ class GrensesnittavstemmingTask(
     private val avstemmingService: AvstemmingService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val taskData = jsonMapper.readValue(task.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = objectMapper.readValue(task.payload, GrensesnittavstemmingTaskDto::class.java)
         logger.info("Kjører $TASK_STEP_TYPE for fom=${taskData.fom}, tom=${taskData.tom}, avstemmingId=${taskData.avstemmingId}")
         try {
             avstemmingService.sendGrensesnittavstemming(fom = taskData.fom, tom = taskData.tom, avstemmingId = taskData.avstemmingId)
@@ -42,7 +42,7 @@ class GrensesnittavstemmingTask(
             avstemmingId: UUID = UUID.randomUUID(),
         ) = Task(
             type = TASK_STEP_TYPE,
-            payload = jsonMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom, avstemmingId)),
+            payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom, tom, avstemmingId)),
             properties =
                 Properties().apply {
                     // la til denne i properties slik at de kan vises i familie-prosessering

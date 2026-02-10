@@ -325,7 +325,7 @@ class BeregningServiceTest {
         every { mockBehandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
         every { mockTilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns
             lagTilkjentYtelse(
-                mockk(relaxed = true),
+                mockk(),
                 mockk(),
             ).also {
                 it.andelerTilkjentYtelse.add(
@@ -344,7 +344,7 @@ class BeregningServiceTest {
         every { mockBehandlingRepository.finnByFagsakAndAvsluttet(any()) } returns listOf(behandling)
         every { mockTilkjentYtelseRepository.finnByBehandlingAndHasUtbetalingsoppdrag(any()) } returns
             lagTilkjentYtelse(
-                mockk(relaxed = true),
+                mockk(),
                 mockk(),
             ).also {
                 it.andelerTilkjentYtelse.add(

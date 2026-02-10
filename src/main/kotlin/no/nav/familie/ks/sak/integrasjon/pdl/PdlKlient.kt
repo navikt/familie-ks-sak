@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.pdl
 
+import no.nav.familie.http.client.AbstractPingableRestClient
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
 import no.nav.familie.ks.sak.common.exception.PdlNotFoundException
@@ -31,7 +32,6 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlStatsborgerskapResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlUtenlandskAdresssePersonUtenlandskAdresse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlUtenlandskAdressseResponse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.restklient.client.AbstractPingableRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service

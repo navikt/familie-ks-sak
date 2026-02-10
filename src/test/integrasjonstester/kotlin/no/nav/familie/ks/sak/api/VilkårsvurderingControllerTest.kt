@@ -240,7 +240,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             {
               "personIdent": "${søker.aktivFødselsnummer()}",
               "vilkårType": "BOSATT_I_RIKET"
-              
+              }
             }
             """.trimIndent()
 
@@ -267,7 +267,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             {
               "personIdent": "${søker.aktivFødselsnummer()}",
                "vilkårType": "BOR_MED_SØKER"
-              
+              }
             }
             """.trimIndent()
 
@@ -324,7 +324,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             {
               "personIdent": "${søker.aktivFødselsnummer()}",
                "vilkårType": "BOR_MED_SØKER"
-              
+              }
             }
             """.trimIndent()
 
@@ -423,7 +423,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                 "resultat": "OPPFYLT",
                 "type": "OPPLYSNINGSPLIKT",
                 "begrunnelse": "Begrunnelse"
-              
+              }
             }
             """.trimIndent()
         Given {
@@ -456,11 +456,11 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         val request =
             """
             {
-            
                 "id": ${annenVurdering.id},
                 "resultat": "OPPFYLT",
                 "type": "OPPLYSNINGSPLIKT",
                 "begrunnelse": "Begrunnelse"
+              }
             }
             """.trimIndent()
         Given {

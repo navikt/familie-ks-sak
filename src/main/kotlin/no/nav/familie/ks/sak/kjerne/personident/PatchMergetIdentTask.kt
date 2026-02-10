@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.personident
 
 import no.nav.familie.kontrakter.felles.PersonIdent
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
@@ -30,7 +30,7 @@ class PatchMergetIdentTask(
     private val aktørMergeLoggRepository: AktørMergeLoggRepository,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val dto = jsonMapper.readValue(task.payload, PatchMergetIdentDto::class.java)
+        val dto = objectMapper.readValue(task.payload, PatchMergetIdentDto::class.java)
         secureLogger.info("Patcher ident på fagsak $dto")
 
         if (dto.gammelIdent == dto.nyIdent) {
@@ -87,7 +87,7 @@ class PatchMergetIdentTask(
         fun opprettTask(patchMergetIdentDto: PatchMergetIdentDto): Task =
             Task(
                 type = TASK_STEP_TYPE,
-                payload = jsonMapper.writeValueAsString(patchMergetIdentDto),
+                payload = objectMapper.writeValueAsString(patchMergetIdentDto),
             )
     }
 }

@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.internkonsistensavstemming
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -8,7 +9,6 @@ import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import tools.jackson.module.kotlin.readValue
 import java.time.YearMonth
 
 class InternKonsistensavstemmingUtilTest {
@@ -37,7 +37,7 @@ class InternKonsistensavstemmingUtilTest {
                     sats = 1083,
                 ),
             )
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(mockUtbetalingsoppdrag)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(mockUtbetalingsoppdrag)
 
         Assertions.assertFalse(
             erForskjellMellomAndelerOgOppdrag(
@@ -68,7 +68,7 @@ class InternKonsistensavstemmingUtilTest {
                     sats = 1723,
                 ),
             )
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(mockUtbetalingsoppdrag)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(mockUtbetalingsoppdrag)
 
         Assertions.assertTrue(erForskjellMellomAndelerOgOppdrag(andelerSisteVedtatteBehandling, utbetalingsoppdrag, 0L))
     }
@@ -98,7 +98,7 @@ class InternKonsistensavstemmingUtilTest {
                     sats = 9999,
                 ),
             )
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(mockUtbetalingsoppdrag)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(mockUtbetalingsoppdrag)
 
         Assertions.assertTrue(erForskjellMellomAndelerOgOppdrag(andelerSisteVedtatteBehandling, utbetalingsoppdrag, 0L))
     }
@@ -125,7 +125,7 @@ class InternKonsistensavstemmingUtilTest {
                 )
             }
 
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockMedUtvidet)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockMedUtvidet)
 
         Assertions.assertFalse(
             erForskjellMellomAndelerOgOppdrag(
@@ -162,7 +162,7 @@ class InternKonsistensavstemmingUtilTest {
                 )
             }
 
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockEndringKunEttBarn)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockEndringKunEttBarn)
 
         Assertions.assertFalse(
             erForskjellMellomAndelerOgOppdrag(
@@ -196,7 +196,7 @@ class InternKonsistensavstemmingUtilTest {
                 )
             }
 
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockOpphør)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockOpphør)
 
         Assertions.assertFalse(
             erForskjellMellomAndelerOgOppdrag(
@@ -229,7 +229,7 @@ class InternKonsistensavstemmingUtilTest {
                 )
             }
 
-        val utbetalingsoppdrag = jsonMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockEnPeriode)
+        val utbetalingsoppdrag = objectMapper.readValue<Utbetalingsoppdrag>(utbetalingsoppdragMockEnPeriode)
 
         Assertions.assertFalse(
             erForskjellMellomAndelerOgOppdrag(

@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.barnehagelister.domene
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import no.nav.familie.ks.sak.config.KafkaConfig
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty
-import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import java.time.LocalDate
 
 @JacksonXmlRootElement(namespace = "ns2", localName = "melding")

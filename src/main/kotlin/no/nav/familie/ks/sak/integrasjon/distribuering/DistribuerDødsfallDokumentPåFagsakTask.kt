@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.distribuering
 
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.http.client.RessursException
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.brev.BrevService
@@ -9,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.brev.mottakerErDødUtenDødsboadresse
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.restklient.client.RessursException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -32,7 +32,7 @@ class DistribuerDødsfallBrevPåFagsakTask(
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val distribuerDødsfallBrevPåFagsakTask =
-            jsonMapper.readValue(task.payload, DistribuerDødsfallBrevPåFagsakDTO::class.java)
+            objectMapper.readValue(task.payload, DistribuerDødsfallBrevPåFagsakDTO::class.java)
 
         val journalpostId = distribuerDødsfallBrevPåFagsakTask.journalpostId
         val brevmal = distribuerDødsfallBrevPåFagsakTask.brevmal
@@ -71,7 +71,7 @@ class DistribuerDødsfallBrevPåFagsakTask(
             Task(
                 type = TASK_STEP_TYPE,
                 payload =
-                    jsonMapper.writeValueAsString(
+                    objectMapper.writeValueAsString(
                         DistribuerDødsfallBrevPåFagsakDTO(
                             journalpostId,
                             brevmal,

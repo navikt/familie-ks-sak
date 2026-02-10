@@ -13,7 +13,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import no.nav.familie.kontrakter.felles.jsonMapper
+import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -78,6 +78,6 @@ fun TilkjentYtelse.tilTidslinjeMedAndeler(): Tidslinje<Collection<AndelTilkjentY
     return tidslinjer.slåSammen()
 }
 
-fun TilkjentYtelse.utbetalingsoppdrag(): Utbetalingsoppdrag? = jsonMapper.readValue(this.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
+fun TilkjentYtelse.utbetalingsoppdrag(): Utbetalingsoppdrag? = objectMapper.readValue(this.utbetalingsoppdrag, Utbetalingsoppdrag::class.java)
 
 fun TilkjentYtelse.skalIverksettesMotOppdrag(): Boolean = this.utbetalingsoppdrag()?.utbetalingsperiode?.isNotEmpty() ?: false
