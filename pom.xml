@@ -64,9 +64,9 @@
         <cucumber.version>7.33.0</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
         <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
-        <testcontainers.postgresql.version>1.21.3</testcontainers.postgresql.version>
-        <mockk.version>1.14.6</mockk.version>
-        <wiremock.version>3.13.1</wiremock.version>
+        <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
+        <mockk.version>1.14.9</mockk.version>
+        <wiremock.version>3.13.2</wiremock.version>
         <okhttp3.version>4.9.0</okhttp3.version> <!-- Må settes for å kjøre opp mock-oauth2-server i unit-tester -->
         <springmockk.version>4.0.2</springmockk.version>
 
