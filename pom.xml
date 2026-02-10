@@ -34,7 +34,7 @@
         <springdoc.version>3.0.1</springdoc.version>
 
         <!-- Nav felles -->
-        <nav-token-client.version>6.0.1</nav-token-client.version>
+        <nav-token-client.version>6.0.2</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
@@ -63,7 +63,7 @@
         <!-- Test -->
         <cucumber.version>7.34.2</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
+        <mock-oauth2-server.version>3.0.1</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.9</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
