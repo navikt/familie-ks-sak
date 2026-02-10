@@ -2,16 +2,20 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
-import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import org.springframework.stereotype.Service
 
 @Service
-class BrevmalService {
+class BrevmalService(
+    val behandlingService: BehandlingService,
+    val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+) {
     private val frontendFeilmelding =
         "Vi finner ikke vedtaksbrev som matcher med behandlingen og resultatet du har fått. " +
             "Ta kontakt med Team BAKS slik at vi kan se nærmere på saken."
@@ -50,7 +54,10 @@ class BrevmalService {
 
         val behandlingType = behandling.type
         val behandlingÅrsak = behandling.opprettetÅrsak
-        val fagsakStatus = behandling.fagsak.status
+
+        // Ønsker å benytte førstegangsbehandling-brevmaler dersom revurderingen skjer i en fagsak som ikke har noen tidligere vedtatte behandlinger, eller dersom forrige vedtatte behandling var et avslag. Dette for at vi ønsker teksten: 'Du har fått innvilget
+        // kontantstøtte' og ikke 'Vi har endret din kontantstøtte' i disse tilfellene.
+        val erRevurderingHvorForrigeVedtatteBehandlingVarEtAvslag = behandlingType == BehandlingType.REVURDERING && !forrigeVedtatteBehandlingHarAndeler(behandling)
 
         val brevmal =
             when {
@@ -62,8 +69,8 @@ class BrevmalService {
                     Brevmal.VEDTAK_OVERGANGSORDNING
                 }
 
-                behandlingType == BehandlingType.FØRSTEGANGSBEHANDLING || fagsakStatus != FagsakStatus.LØPENDE -> {
-                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandlingEllerIkkeLøpendeFagsak(behandlingsresultat = behandling.resultat)
+                behandlingType == BehandlingType.FØRSTEGANGSBEHANDLING || erRevurderingHvorForrigeVedtatteBehandlingVarEtAvslag -> {
+                    utledBrevmalFraBehandlingsresultatForFørstegangsbehandlingEllerFagsakHvorForrigeVedtatteBehandlingIkkeHarAndeler(behandlingsresultat = behandling.resultat)
                 }
 
                 behandlingType == BehandlingType.REVURDERING -> {
@@ -84,7 +91,13 @@ class BrevmalService {
         }
     }
 
-    private fun utledBrevmalFraBehandlingsresultatForFørstegangsbehandlingEllerIkkeLøpendeFagsak(
+    private fun forrigeVedtatteBehandlingHarAndeler(behandling: Behandling): Boolean {
+        val forrigeVedtatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) ?: return false
+        val andelerIForrigeVedtatteBehandling = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(forrigeVedtatteBehandling.id)
+        return andelerIForrigeVedtatteBehandling.isNotEmpty()
+    }
+
+    private fun utledBrevmalFraBehandlingsresultatForFørstegangsbehandlingEllerFagsakHvorForrigeVedtatteBehandlingIkkeHarAndeler(
         behandlingsresultat: Behandlingsresultat,
     ) = when (behandlingsresultat) {
         Behandlingsresultat.INNVILGET,

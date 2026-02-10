@@ -1,12 +1,16 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
@@ -18,7 +22,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
 class BrevmalServiceTest {
-    private val brevmalService = BrevmalService()
+    private val behandlingService = mockk<BehandlingService>()
+    private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val brevmalService = BrevmalService(behandlingService, andelTilkjentYtelseRepository)
 
     @Nested
     inner class HentBrevmalTest {
@@ -29,6 +35,8 @@ class BrevmalServiceTest {
                 lagBehandling(
                     opprettetÅrsak = BehandlingÅrsak.DØDSFALL,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
 
             // Act
             val brevmal =
@@ -48,6 +56,8 @@ class BrevmalServiceTest {
                     opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV,
                 )
 
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
+
             // Act
             val brevmal =
                 brevmalService.hentBrevmal(
@@ -66,6 +76,8 @@ class BrevmalServiceTest {
                     opprettetÅrsak = BehandlingÅrsak.LOVENDRING_2024,
                     resultat = Behandlingsresultat.INNVILGET,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
 
             // Act
             val brevmal =
@@ -95,6 +107,8 @@ class BrevmalServiceTest {
                     opprettetÅrsak = behandlingÅrsak,
                     resultat = Behandlingsresultat.INNVILGET,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
 
             // Act
             val brevmal =
@@ -165,6 +179,8 @@ class BrevmalServiceTest {
                     resultat = Behandlingsresultat.IKKE_VURDERT,
                 )
 
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
+
             // Act & assert
             val exception =
                 assertThrows<Feil> {
@@ -185,6 +201,8 @@ class BrevmalServiceTest {
                     opprettetÅrsak = BehandlingÅrsak.LOVENDRING_2024,
                     resultat = Behandlingsresultat.INNVILGET,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
 
             // Act
             val brevmal =
@@ -227,6 +245,8 @@ class BrevmalServiceTest {
                     resultat = behandlingsresultat,
                 )
 
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
+
             // Act
             val brevmal =
                 brevmalService.hentVedtaksbrevmal(
@@ -257,17 +277,21 @@ class BrevmalServiceTest {
             ],
             mode = EnumSource.Mode.EXCLUDE,
         )
-        fun `skal returnere korrekt brevmal for revurderinger i fagsak som ikke er løpende`(
+        fun `skal returnere korrekt brevmal for revurderinger i fagsak hvor forrige vedtak ikke har noen andeler`(
             behandlingsresultat: Behandlingsresultat,
         ) {
             // Arrange
+            val fagsak = lagFagsak(status = FagsakStatus.AVSLUTTET)
             val behandling =
                 lagBehandling(
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = behandlingsresultat,
-                    fagsak = lagFagsak(status = FagsakStatus.AVSLUTTET),
+                    fagsak = fagsak,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns lagBehandling(type = BehandlingType.FØRSTEGANGSBEHANDLING, fagsak = fagsak)
+            every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns emptyList()
 
             // Act
             val brevmal =
@@ -277,6 +301,102 @@ class BrevmalServiceTest {
 
             // Assert
             assertThat(brevmal).isEqualTo(forventetBrevmalForIkkeLøpendeFagsakBehandlingsresultat[behandlingsresultat])
+        }
+
+        @ParameterizedTest
+        @EnumSource(
+            value = Behandlingsresultat::class,
+            names = [
+                "AVSLÅTT_OG_OPPHØRT",
+                "AVSLÅTT_OG_ENDRET",
+                "AVSLÅTT_ENDRET_OG_OPPHØRT",
+                "ENDRET_UTBETALING",
+                "ENDRET_UTEN_UTBETALING",
+                "ENDRET_OG_OPPHØRT",
+                "OPPHØRT",
+                "FORTSATT_OPPHØRT",
+                "FORTSATT_INNVILGET",
+                "HENLAGT_FEILAKTIG_OPPRETTET",
+                "HENLAGT_SØKNAD_TRUKKET",
+                "HENLAGT_TEKNISK_VEDLIKEHOLD",
+                "IKKE_VURDERT",
+            ],
+            mode = EnumSource.Mode.EXCLUDE,
+        )
+        fun `skal returnere korrekt brevmal for revurderinger i fagsak hvor det ikke finnes noe tidligere vedtak`(
+            behandlingsresultat: Behandlingsresultat,
+        ) {
+            // Arrange
+            val fagsak = lagFagsak(status = FagsakStatus.AVSLUTTET)
+            val behandling =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                    resultat = behandlingsresultat,
+                    fagsak = fagsak,
+                )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
+
+            // Act
+            val brevmal =
+                brevmalService.hentVedtaksbrevmal(
+                    behandling = behandling,
+                )
+
+            // Assert
+            assertThat(brevmal).isEqualTo(forventetBrevmalForIkkeLøpendeFagsakBehandlingsresultat[behandlingsresultat])
+        }
+
+        @ParameterizedTest
+        @EnumSource(
+            value = Behandlingsresultat::class,
+            names = [
+                "INNVILGET",
+                "INNVILGET_OG_ENDRET",
+                "DELVIS_INNVILGET",
+                "DELVIS_INNVILGET_OG_ENDRET",
+                "AVSLÅTT_OG_ENDRET",
+                "ENDRET_UTBETALING",
+                "ENDRET_UTEN_UTBETALING",
+                "OPPHØRT",
+                "FORTSATT_OPPHØRT",
+                "INNVILGET_OG_OPPHØRT",
+                "INNVILGET_ENDRET_OG_OPPHØRT",
+                "DELVIS_INNVILGET_OG_OPPHØRT",
+                "DELVIS_INNVILGET_ENDRET_OG_OPPHØRT",
+                "AVSLÅTT_OG_OPPHØRT",
+                "AVSLÅTT_ENDRET_OG_OPPHØRT",
+                "ENDRET_OG_OPPHØRT",
+                "FORTSATT_INNVILGET",
+                "AVSLÅTT",
+            ],
+            mode = EnumSource.Mode.INCLUDE,
+        )
+        fun `skal returnere korrekt brevmal for revurderinger i fagsak hvor forrige vedtak har andeler`(
+            behandlingsresultat: Behandlingsresultat,
+        ) {
+            // Arrange
+            val fagsak = lagFagsak(status = FagsakStatus.AVSLUTTET)
+            val behandling =
+                lagBehandling(
+                    type = BehandlingType.REVURDERING,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                    resultat = behandlingsresultat,
+                    fagsak = fagsak,
+                )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns lagBehandling(type = BehandlingType.FØRSTEGANGSBEHANDLING, resultat = Behandlingsresultat.INNVILGET, fagsak = fagsak)
+            every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(mockk(), mockk())
+
+            // Act
+            val brevmal =
+                brevmalService.hentVedtaksbrevmal(
+                    behandling = behandling,
+                )
+
+            // Assert
+            assertThat(brevmal).isEqualTo(forventetBrevmalForRevurderingBehandlingsresultat[behandlingsresultat])
         }
 
         @ParameterizedTest
@@ -310,6 +430,8 @@ class BrevmalServiceTest {
                     resultat = behandlingsresultat,
                 )
 
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
+
             // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
@@ -336,14 +458,18 @@ class BrevmalServiceTest {
         fun `skal returnere korrekt brevmal ved løpende fagsak og revurdering`(
             behandlingsresultat: Behandlingsresultat,
         ) {
+            val fagsak = lagFagsak(status = FagsakStatus.LØPENDE)
             // Arrange
             val behandling =
                 lagBehandling(
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = behandlingsresultat,
-                    fagsak = lagFagsak(status = FagsakStatus.LØPENDE),
+                    fagsak = fagsak,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns lagBehandling(type = BehandlingType.FØRSTEGANGSBEHANDLING, fagsak = fagsak)
+            every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(mockk(), mockk())
 
             // Act
             val brevmal =
@@ -385,13 +511,17 @@ class BrevmalServiceTest {
             behandlingsresultat: Behandlingsresultat,
         ) {
             // Arrange
+            val fagsak = lagFagsak(status = FagsakStatus.LØPENDE)
             val behandling =
                 lagBehandling(
                     type = BehandlingType.REVURDERING,
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                     resultat = behandlingsresultat,
-                    fagsak = lagFagsak(status = FagsakStatus.LØPENDE),
+                    fagsak = fagsak,
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns lagBehandling(type = BehandlingType.FØRSTEGANGSBEHANDLING, resultat = Behandlingsresultat.INNVILGET, fagsak = fagsak)
+            every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(any()) } returns listOf(mockk(), mockk())
 
             // Act & assert
             val exception =
@@ -415,6 +545,8 @@ class BrevmalServiceTest {
                     resultat = Behandlingsresultat.INNVILGET,
                     fagsak = lagFagsak(status = FagsakStatus.LØPENDE),
                 )
+
+            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
 
             // Act & assert
             val exception =
