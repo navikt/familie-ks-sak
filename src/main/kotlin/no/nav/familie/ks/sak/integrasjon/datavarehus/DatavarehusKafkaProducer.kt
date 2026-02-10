@@ -1,7 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.datavarehus
 
 import no.nav.familie.eksterne.kontrakter.VedtakDVH
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.KafkaConfig
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.BehandlingStatistikkV2Dto
@@ -80,7 +80,7 @@ class DatavarehusKafkaProducer(
         behandlingId: String? = null,
         fagsakId: String? = null,
     ) {
-        val melding = objectMapper.writeValueAsString(request)
+        val melding = jsonMapper.writeValueAsString(request)
 
         val logMeldingMetadata =
             "Topicnavn: $topic \n" +

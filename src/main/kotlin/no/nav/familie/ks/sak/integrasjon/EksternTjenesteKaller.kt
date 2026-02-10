@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.integrasjon
 
-import no.nav.familie.http.client.RessursException
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.getDataOrThrow
 import no.nav.familie.ks.sak.common.exception.IntegrasjonException
+import no.nav.familie.restklient.client.RessursException
 import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpClientErrorException
 import java.net.URI

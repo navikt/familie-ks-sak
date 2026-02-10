@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.util.erHelligdag
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
@@ -45,7 +45,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         assertEquals(LocalDate.now().minusDays(1).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.now().atStartOfDay(), taskData.tom)
     }
@@ -64,7 +64,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         assertEquals(LocalDate.of(2022, 12, 2).atStartOfDay(), taskData.fom) // fredag
         assertEquals(LocalDate.of(2022, 12, 5).atStartOfDay(), taskData.tom) // mandag
     }
@@ -83,7 +83,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         // siden 26.11.2022, 27.11.2022 er helg
         assertEquals(LocalDate.of(2022, 11, 25).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.of(2022, 11, 28).atStartOfDay(), taskData.tom)
@@ -111,7 +111,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         // siden 1. Januar er en heligdag
         assertEquals(LocalDate.of(2022, 12, 31).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.of(2023, 1, 2).atStartOfDay(), taskData.tom)
@@ -131,7 +131,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         // siden 1. Mai er en heligdag
         assertEquals(LocalDate.of(2022, 4, 30).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.of(2022, 5, 2).atStartOfDay(), taskData.tom)
@@ -151,7 +151,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         // siden 17. Mai er en heligdag
         assertEquals(LocalDate.of(2022, 5, 16).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.of(2022, 5, 18).atStartOfDay(), taskData.tom)
@@ -171,7 +171,7 @@ internal class GrensesnittavstemmingSchedulerTest {
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
-        val taskData = objectMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
+        val taskData = jsonMapper.readValue(taskDataSlot.captured.payload, GrensesnittavstemmingTaskDto::class.java)
         // siden 25. desember og 26.desember er heligdager
         assertEquals(LocalDate.of(2022, 12, 24).atStartOfDay(), taskData.fom)
         assertEquals(LocalDate.of(2022, 12, 27).atStartOfDay(), taskData.tom)
@@ -182,6 +182,6 @@ internal class GrensesnittavstemmingSchedulerTest {
         tom: LocalDate,
     ) = Task(
         type = GrensesnittavstemmingTask.TASK_STEP_TYPE,
-        payload = objectMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay(), UUID.randomUUID())),
+        payload = jsonMapper.writeValueAsString(GrensesnittavstemmingTaskDto(fom.atStartOfDay(), tom.atStartOfDay(), UUID.randomUUID())),
     )
 }
