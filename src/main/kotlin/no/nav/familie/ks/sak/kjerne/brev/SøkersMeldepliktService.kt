@@ -1,15 +1,22 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.springframework.stereotype.Service
 
 @Service
 class SøkersMeldepliktService(
-    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val `vilkårsvurderingService`: VilkårsvurderingService,
+    private val behandlingService: BehandlingService,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     fun skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(
         vedtak: Vedtak,
@@ -40,10 +47,36 @@ class SøkersMeldepliktService(
 
     fun harSøkerMeldtFraOmBarnehagePlass(
         vedtak: Vedtak,
-    ): Boolean =
-        vilkårsvurderingService
-            .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
-            .personResultater
-            .flatMap { it.vilkårResultater }
-            .any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
+    ): Boolean {
+        if (featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT)) {
+            val behandling = vedtak.behandling
+            val forrigeBehandling = behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
+
+            val barnIBehandling = personopplysningGrunnlagService.hentBarnaThrows(behandling.id).map { it.aktør }
+
+            val barnIForrigeBehandling =
+                if (forrigeBehandling != null) {
+                    personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id).map { it.aktør }
+                } else {
+                    emptyList()
+                }
+
+            val relevanteBarn = barnIBehandling.minus(barnIForrigeBehandling)
+
+            // TODO : Hva skal man gjøre hvis man får en behandling hvor barn ikke endrer seg? Dvs. relevante barn er en tom liste
+
+            return vilkårsvurderingService
+                .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
+                .personResultater
+                .filter { relevanteBarn.contains(it.aktør) }
+                .flatMap { it.vilkårResultater }
+                .all { it.søkerHarMeldtFraOmBarnehageplass == true } // TODO : Skriv tester for dette
+        } else {
+            return vilkårsvurderingService
+                .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
+                .personResultater
+                .flatMap { it.vilkårResultater }
+                .any { it.søkerHarMeldtFraOmBarnehageplass ?: false }
+        }
+    }
 }

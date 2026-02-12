@@ -27,13 +27,16 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class PersonopplysningGrunnlagServiceTest {
@@ -367,5 +370,68 @@ internal class PersonopplysningGrunnlagServiceTest {
         verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
         verify(exactly = 3) { personService.lagPerson(any(), any(), any(), any(), any()) }
         verify(exactly = 1) { loggService.opprettBarnLagtTilLogg(any(), any()) }
+    }
+
+    @Nested
+    inner class HentBarnaThrows {
+        @Test
+        fun `skal hente barna`() {
+            // Arrange
+            val dagensDato = LocalDate.now()
+            val behandling = lagBehandling()
+
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(behandlingId = behandling.id)
+
+            val søker =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    id = 0L,
+                    type = PersonType.SØKER,
+                    fødselsdato = dagensDato.minusYears(35),
+                )
+
+            val barn1 =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    id = 1L,
+                    type = PersonType.BARN,
+                    fødselsdato = dagensDato.minusYears(1),
+                )
+
+            val barn2 =
+                lagPerson(
+                    personopplysningGrunnlag = personopplysningGrunnlag,
+                    id = 2L,
+                    type = PersonType.BARN,
+                    fødselsdato = dagensDato.minusYears(5),
+                )
+
+            personopplysningGrunnlag.personer.addAll(setOf(søker, barn1, barn2))
+
+            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns personopplysningGrunnlag
+
+            // Act
+            val barna = personopplysningGrunnlagService.hentBarnaThrows(behandling.id)
+
+            // Assert
+            assertThat(barna).hasSize(2)
+            assertThat(barna).anySatisfy { assertThat(it).isEqualTo(barn1) }
+            assertThat(barna).anySatisfy { assertThat(it).isEqualTo(barn2) }
+        }
+
+        @Test
+        fun `skal kaste exception hvis ingen personopplysningsgrunnlag finnes`() {
+            // Arrange
+            val behandling = lagBehandling()
+
+            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } throws Feil("Ops! Feil oppstod.")
+
+            // Act & assert
+            val exception =
+                assertThrows<Feil> {
+                    personopplysningGrunnlagService.hentBarnaThrows(behandling.id)
+                }
+            assertThat(exception.message).isEqualTo("Ops! Feil oppstod.")
+        }
     }
 }
