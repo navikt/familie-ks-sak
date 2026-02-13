@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.økonomi.internkonsistensavstemming
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
@@ -11,6 +10,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.stereotype.Service
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDateTime
 import java.util.Properties
 import kotlin.system.measureTimeMillis
@@ -26,7 +26,7 @@ class InternKonsistensavstemmingTask(
     val internKonsistensavstemmingService: InternKonsistensavstemmingService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val fagsakIder: Set<Long> = objectMapper.readValue(task.payload)
+        val fagsakIder: Set<Long> = jsonMapper.readValue(task.payload)
 
         val tidBrukt =
             measureTimeMillis {
@@ -52,7 +52,7 @@ class InternKonsistensavstemmingTask(
 
             return Task(
                 type = this.TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(fagsakIder),
+                payload = jsonMapper.writeValueAsString(fagsakIder),
                 triggerTid = startTid,
                 metadataWrapper = PropertiesWrapper(metadata),
             )

@@ -2,9 +2,9 @@ package no.nav.familie.ks.sak.integrasjon.infotrygd
 
 import com.fasterxml.jackson.annotation.JsonValue
 import no.nav.commons.foedselsnummer.Kjoenn
-import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
+import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.springframework.stereotype.Service
-import kotlin.collections.getOrDefault
 
 @Service
 class PersonopplysningerService(

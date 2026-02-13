@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.avstemming
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KjøreStatus
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -26,7 +26,7 @@ class KonsistensavstemmingTask(
     private val behandlingService: BehandlingService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val konsistensavstemmingTaskData = objectMapper.readValue(task.payload, KonsistensavstemmingTaskDto::class.java)
+        val konsistensavstemmingTaskData = jsonMapper.readValue(task.payload, KonsistensavstemmingTaskDto::class.java)
         val avstemmingstidspunkt = LocalDateTime.now()
         val kjøreplanId = konsistensavstemmingTaskData.kjøreplanId
         // Denne må genereres på tasken slik at tasken kan kjøres på nytt som sender ny transasksjonId til økonomi.
@@ -87,7 +87,7 @@ class KonsistensavstemmingTask(
         fun opprettTask(konsistensavstemmingTaskDto: KonsistensavstemmingTaskDto) =
             Task(
                 type = TASK_STEP_TYPE,
-                payload = objectMapper.writeValueAsString(konsistensavstemmingTaskDto),
+                payload = jsonMapper.writeValueAsString(konsistensavstemmingTaskDto),
             )
     }
 }

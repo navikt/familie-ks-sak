@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingKjøreplan
@@ -46,7 +46,7 @@ internal class KonsistensavstemmingSchedulerTest {
 
         val taskData = taskSlot.captured
         assertEquals(KonsistensavstemmingTask.TASK_STEP_TYPE, taskData.type)
-        val konsistensavstemmingTaskDto = objectMapper.readValue(taskData.payload, KonsistensavstemmingTaskDto::class.java)
+        val konsistensavstemmingTaskDto = jsonMapper.readValue(taskData.payload, KonsistensavstemmingTaskDto::class.java)
         assertEquals(0, konsistensavstemmingTaskDto.kjøreplanId)
         assertEquals(LocalDate.now(), konsistensavstemmingTaskDto.initieltKjøreTidspunkt.toLocalDate())
     }

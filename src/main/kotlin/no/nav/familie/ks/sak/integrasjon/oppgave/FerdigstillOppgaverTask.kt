@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.oppgave
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.api.dto.FerdigstillOppgaveDto
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -20,7 +20,7 @@ class FerdigstillOppgaverTask(
     private val behandlingService: BehandlingService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        val ferdigstillOppgave = objectMapper.readValue(task.payload, FerdigstillOppgaveDto::class.java)
+        val ferdigstillOppgave = jsonMapper.readValue(task.payload, FerdigstillOppgaveDto::class.java)
         val behandling = behandlingService.hentBehandling(ferdigstillOppgave.behandlingId)
 
         oppgaveService.ferdigstillOppgaver(
@@ -39,7 +39,7 @@ class FerdigstillOppgaverTask(
             Task(
                 type = TASK_STEP_TYPE,
                 payload =
-                    objectMapper.writeValueAsString(
+                    jsonMapper.writeValueAsString(
                         FerdigstillOppgaveDto(
                             behandlingId = behandlingId,
                             oppgavetype = oppgavetype,

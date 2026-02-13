@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.nimbusds.jose.JOSEObjectType
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
@@ -98,9 +97,6 @@ abstract class OppslagSpringRunnerTest {
 
     @Autowired
     private lateinit var rolleConfig: RolleConfig
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
 
     @Autowired
     private lateinit var aktørRepository: AktørRepository
