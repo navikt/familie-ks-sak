@@ -381,7 +381,7 @@ class BeregningServiceTest {
             every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
             every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
             every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse
-            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
+            every { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
 
             // Act
             beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
@@ -390,7 +390,7 @@ class BeregningServiceTest {
             verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
             verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
             verify(exactly = 1) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) }
-            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse) }
 
             val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
 
@@ -421,7 +421,7 @@ class BeregningServiceTest {
             every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
             every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
             every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse
-            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
+            every { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
 
             // Act
             beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering)
@@ -430,7 +430,7 @@ class BeregningServiceTest {
             verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
             verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
             verify(exactly = 1) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) }
-            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse) }
 
             val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
 
@@ -460,7 +460,7 @@ class BeregningServiceTest {
             every { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) } returns endretUtbetalingAndelerMedAndeler
             every { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) } just runs
             every { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) } returns opprettetTilkjentYtelse
-            every { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
+            every { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse) } returns opprettetTilkjentYtelse
 
             // Act
             beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, personopplysningGrunnlag, vilkårsvurdering, endretUtbetalingMedAndel1.endretUtbetalingAndel)
@@ -469,7 +469,7 @@ class BeregningServiceTest {
             verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
             verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
             verify(exactly = 1) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, capture(lagretEndretUtbetalingAndelerMedAndelerSlot)) }
-            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse) }
+            verify(exactly = 1) { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse) }
 
             val lagretEndretUtbetalingAndelerMedAndeler = lagretEndretUtbetalingAndelerMedAndelerSlot.captured
 
@@ -516,8 +516,7 @@ class BeregningServiceTest {
             verify(exactly = 1) { mockAndelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id) }
             verify(exactly = 1) { mockTilkjentYtelseRepository.slettTilkjentYtelseForBehandling(behandling) }
             verify(exactly = 2) { mockTilkjentYtelseService.beregnTilkjentYtelse(vilkårsvurdering, personopplysningGrunnlag, any()) }
-            verify(exactly = 1) { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse1) }
-            verify(exactly = 1) { mockTilkjentYtelseRepository.save(opprettetTilkjentYtelse2) }
+            verify(exactly = 2) { mockTilkjentYtelseRepository.saveAndFlush(opprettetTilkjentYtelse1) }
         }
     }
 }
