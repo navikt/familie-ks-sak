@@ -109,6 +109,8 @@ class PersonopplysningGrunnlagService(
 
     fun hentBarna(behandlingId: Long): List<Person>? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
 
+    fun hentBarnaThrows(behandlingId: Long): List<Person> = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna
+
     fun hentSøkerOgBarnPåFagsak(fagsakId: Long): Set<PersonEnkel>? =
         personopplysningGrunnlagRepository
             .finnSøkerOgBarnAktørerTilFagsak(fagsakId)
