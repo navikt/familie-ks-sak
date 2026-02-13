@@ -1206,6 +1206,7 @@ fun lagUtenlandskPeriodebeløp(
     valutakode: String? = null,
     intervall: Intervall? = null,
     utbetalingsland: String = "",
+    kalkulertUtbetalingsbeløp: BigDecimal? = null,
 ) = UtenlandskPeriodebeløp(
     fom = fom,
     tom = tom,
@@ -1214,6 +1215,7 @@ fun lagUtenlandskPeriodebeløp(
     beløp = beløp,
     intervall = intervall,
     utbetalingsland = utbetalingsland,
+    kalkulertMånedligBeløp = kalkulertUtbetalingsbeløp,
 ).also { it.behandlingId = behandlingId }
 
 fun lagValutakurs(

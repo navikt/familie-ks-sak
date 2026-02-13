@@ -549,6 +549,7 @@ fun lagVilkårResultater(
     person: Person,
     overstyrendeVilkårResultater: List<VilkårResultat> = emptyList(),
     personResultat: PersonResultat,
+    behandlingId: Long = 0L,
 ): List<VilkårResultat> {
     val vilkårResultaterForBarn =
         Vilkår
@@ -560,7 +561,7 @@ fun lagVilkårResultater(
                     vilkårType = it,
                     periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
                     periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
-                    behandlingId = 0L,
+                    behandlingId = behandlingId,
                     antallTimer = null,
                 )
             }
