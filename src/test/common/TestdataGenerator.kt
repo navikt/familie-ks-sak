@@ -162,6 +162,22 @@ fun fnrTilAktør(
 }
 
 fun lagPersonopplysningGrunnlag(
+    id: Long = 0L,
+    behandlingId: Long = 0L,
+    personer: (personopplysningGrunnlag: PersonopplysningGrunnlag) -> Set<Person> = { emptySet() },
+    aktiv: Boolean = true,
+): PersonopplysningGrunnlag {
+    val personopplysningGrunnlag =
+        PersonopplysningGrunnlag(
+            id = id,
+            behandlingId = behandlingId,
+            aktiv = aktiv,
+        )
+    personopplysningGrunnlag.personer.addAll(personer(personopplysningGrunnlag))
+    return personopplysningGrunnlag
+}
+
+fun lagPersonopplysningGrunnlag(
     behandlingId: Long = 0L,
     søkerPersonIdent: String = randomFnr(fødselsdato = LocalDate.of(1947, 1, 1)),
     // FGB med register søknad steg har ikke barnasidenter
