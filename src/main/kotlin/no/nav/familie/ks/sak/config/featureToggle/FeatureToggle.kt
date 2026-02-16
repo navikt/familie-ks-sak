@@ -12,4 +12,5 @@ enum class FeatureToggle(
     // Ikke operasjonelle
     SKAL_HÅNDTERE_FALSK_IDENTITET("familie-ks-sak.skal-handtere-falsk-identitet"),
     HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE("familie-ks-sak.hent-arbeidsfordeling-med-behandlingstype"),
+    BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT("familie-ks-sak.bruk-ny-meldepliktlogikk"),
 }
