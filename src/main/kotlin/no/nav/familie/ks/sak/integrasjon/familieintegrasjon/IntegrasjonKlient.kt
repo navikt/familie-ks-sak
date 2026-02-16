@@ -37,6 +37,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordel
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
+import no.nav.familie.ks.sak.integrasjon.retryVedException
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.restklient.client.AbstractRestClient
@@ -44,8 +45,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpHeaders
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
 import org.springframework.web.util.UriComponentsBuilder
@@ -56,6 +55,7 @@ class IntegrasjonKlient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("jwtBearer") restOperations: RestOperations,
     private val featureToggleService: FeatureToggleService,
+    @Value("$RETRY_BACKOFF_5000MS") private val retryBackoffDelay: Long,
 ) : AbstractRestClient(restOperations, "integrasjon") {
     val tilgangPersonUri =
         UriComponentsBuilder
@@ -124,11 +124,6 @@ class IntegrasjonKlient(
         }
     }
 
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_1000MS),
-    )
     fun tilordneEnhetOgRessursForOppgave(
         oppgaveId: Long,
         nyEnhet: String,
@@ -147,10 +142,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Bytt enhet",
         ) {
-            patchForEntity(
-                uri,
-                HttpHeaders().medContentTypeJsonUTF8(),
-            )
+            retryVedException(retryBackoffDelay).execute {
+                patchForEntity(
+                    uri,
+                    HttpHeaders().medContentTypeJsonUTF8(),
+                )
+            }
         }
     }
 
@@ -166,12 +163,6 @@ class IntegrasjonKlient(
         }
     }
 
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
-    )
-    @Cacheable("saksbehandler", cacheManager = "shortCache")
     fun hentSaksbehandler(id: String): Saksbehandler {
         val uri =
             UriComponentsBuilder
@@ -185,7 +176,9 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent saksbehandler",
         ) {
-            getForEntity(uri)
+            retryVedException(retryBackoffDelay).execute {
+                getForEntity(uri)
+            }
         }
     }
 
@@ -205,11 +198,6 @@ class IntegrasjonKlient(
         }
     }
 
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
-    )
     fun hentJournalposterForBruker(journalposterForBrukerRequest: JournalposterForBrukerRequest): List<Journalpost> {
         val uri = URI.create("$integrasjonUri/journalpost")
 
@@ -218,15 +206,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent journalposter for bruker",
         ) {
-            postForEntity(uri, journalposterForBrukerRequest)
+            retryVedException(retryBackoffDelay).execute {
+                postForEntity(uri, journalposterForBrukerRequest)
+            }
         }
     }
 
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
-    )
     fun hentTilgangsstyrteJournalposterForBruker(journalposterForBrukerRequest: JournalposterForBrukerRequest): List<TilgangsstyrtJournalpost> {
         val uri = URI.create("$integrasjonUri/journalpost/tilgangsstyrt/baks")
 
@@ -235,15 +220,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent tilgangsstyrte journalposter for bruker",
         ) {
-            postForEntity(uri, journalposterForBrukerRequest)
+            retryVedException(retryBackoffDelay).execute {
+                postForEntity(uri, journalposterForBrukerRequest)
+            }
         }
     }
 
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
-    )
     fun hentJournalpost(journalpostId: String): Journalpost {
         val uri = URI.create("$integrasjonUri/journalpost/tilgangsstyrt/baks?journalpostId=$journalpostId")
 
@@ -252,7 +234,9 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent journalpost id $journalpostId",
         ) {
-            getForEntity(uri)
+            retryVedException(retryBackoffDelay).execute {
+                getForEntity(uri)
+            }
         }
     }
 
@@ -558,11 +542,6 @@ class IntegrasjonKlient(
         }
     }
 
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
-    )
     @Cacheable("poststeder", cacheManager = "kodeverkCache")
     fun hentPoststeder(): KodeverkDto {
         val uri = URI.create("$integrasjonUri/kodeverk/poststed")
@@ -572,7 +551,9 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent postnumre",
         ) {
-            getForEntity(uri)
+            retryVedException(retryBackoffDelay).execute {
+                getForEntity(uri)
+            }
         }
     }
 

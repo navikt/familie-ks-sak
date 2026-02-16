@@ -26,7 +26,7 @@ internal class OppdragKlientTest {
     fun beforeEach() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        oppdragKlient = OppdragKlient(wiremockServerItem.baseUrl(), restOperations)
+        oppdragKlient = OppdragKlient(wiremockServerItem.baseUrl(), restOperations, 1)
     }
 
     @Test

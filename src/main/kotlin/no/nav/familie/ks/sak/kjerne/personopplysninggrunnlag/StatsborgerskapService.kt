@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -15,6 +16,7 @@ import java.time.LocalDate
 class StatsborgerskapService(
     val integrasjonKlient: IntegrasjonKlient,
 ) {
+    @Cacheable("land", cacheManager = "kodeverkCache")
     fun hentLand(landkode: String): String = integrasjonKlient.hentLand(landkode)
 
     fun hentStatsborgerskapMedMedlemskap(
