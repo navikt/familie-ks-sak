@@ -1,5 +1,4 @@
 name: Manual deploy to dev
-
 on:
   workflow_dispatch:
     inputs:
@@ -12,6 +11,9 @@ on:
 jobs:
   build:
     name: Build
+    permissions:
+      contents: read
+      id-token: write
     uses: navikt/familie-baks-gha-workflows/.github/workflows/build-maven-app.yaml@main # ratchet:exclude
     with:
       skip-tests: ${{ inputs.skip-tests }}
