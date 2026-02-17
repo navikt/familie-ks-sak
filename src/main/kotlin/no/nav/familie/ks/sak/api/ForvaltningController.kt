@@ -13,6 +13,7 @@ import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
+import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
@@ -37,6 +38,7 @@ import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanSer
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
@@ -425,6 +427,26 @@ class ForvaltningController(
             handling = "Kjør dry-run e-postvarsel nye barnehagelister",
         )
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet(dryRun = true, dryRunEpost = dryRunEpost)
+
+        return ResponseEntity.ok(Ressurs.success("OK"))
+    }
+
+    @PostMapping("/henlegg-behandling/{behandlingId}")
+    fun henleggBehandling(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Henlegg behandling",
+        )
+
+        taskService.save(
+            HenleggBehandlingTask.opprettTask(
+                behandlingId = behandlingId,
+                henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
+                begrunnelse = "Henlegger behandling via forvalterendepunkt. Behandling har gått i lås pga midlertidig teknisk feil i produksjon.",
+            ),
+        )
 
         return ResponseEntity.ok(Ressurs.success("OK"))
     }

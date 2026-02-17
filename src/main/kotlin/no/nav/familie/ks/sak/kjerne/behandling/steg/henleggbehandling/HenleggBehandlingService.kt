@@ -1,4 +1,4 @@
-package no.nav.familie.ks.sak.kjerne.behandling
+package no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling
 
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
