@@ -18,7 +18,7 @@ class HenleggBehandlingTask(
         val henleggBehandlingDto: HenleggBehandlingTaskDto =
             jsonMapper.readValue<HenleggBehandlingTaskDto>(task.payload)
 
-        logger.info("Henlegger behandling med id ${henleggBehandlingDto.behandlingId} og årsak ${henleggBehandlingDto.henleggÅrsak} og begrunnelse ${henleggBehandlingDto.begrunnelse}")
+        logger.info("Henlegger behandling med id ${henleggBehandlingDto.behandlingId} med årsak ${henleggBehandlingDto.henleggÅrsak} og begrunnelse ${henleggBehandlingDto.begrunnelse}")
 
         henleggBehandlingService.henleggBehandling(
             behandlingId = henleggBehandlingDto.behandlingId,
@@ -29,7 +29,7 @@ class HenleggBehandlingTask(
 
     companion object {
         const val TASK_STEP_TYPE = "henleggBehandlingTask"
-        val logger: Logger = LoggerFactory.getLogger(HenleggBehandlingTask::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(HenleggBehandlingTask::class.java)
 
         fun opprettTask(
             behandlingId: Long,
