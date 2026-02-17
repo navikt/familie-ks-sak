@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.integrasjon.infotrygd
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.ks.infotrygd.feed.StartBehandlingDto
 import no.nav.familie.kontrakter.ks.infotrygd.feed.VedtakDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -47,7 +47,7 @@ class InfotrygdFeedKafkaProducer(
         request: Any,
     ) {
         val topic = KafkaConfig.KONTANTSTØTTE_FEED_TOPIC
-        val melding = objectMapper.writeValueAsString(request)
+        val melding = jsonMapper.writeValueAsString(request)
         val producerRecord = ProducerRecord(topic, key, melding)
 
         kafkaTemplate

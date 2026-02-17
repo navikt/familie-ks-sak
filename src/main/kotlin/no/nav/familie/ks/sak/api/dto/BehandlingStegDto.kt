@@ -1,6 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
@@ -39,12 +39,12 @@ data class SøknadDto(
     val endringAvOpplysningerBegrunnelse: String,
 )
 
-fun SøknadDto.writeValueAsString(): String = objectMapper.writeValueAsString(this)
+fun SøknadDto.writeValueAsString(): String = jsonMapper.writeValueAsString(this)
 
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
         behandlingId = behandlingId,
-        søknad = objectMapper.writeValueAsString(this),
+        søknad = jsonMapper.writeValueAsString(this),
     )
 
 data class SøkerMedOpplysningerDto(
