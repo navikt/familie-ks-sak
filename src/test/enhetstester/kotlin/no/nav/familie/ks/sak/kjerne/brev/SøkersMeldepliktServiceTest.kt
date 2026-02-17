@@ -2,42 +2,40 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.randomAktør
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import java.time.YearMonth
 
 class SøkersMeldepliktServiceTest {
-    private val mockedVilkårsvurderingService: VilkårsvurderingService = mockk()
-    private val behandlingService: BehandlingService = mockk()
+    private val vilkårsvurderingService: VilkårsvurderingService = mockk()
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
     private val featureToggleService: FeatureToggleService = mockk()
     private val søkersMeldepliktService: SøkersMeldepliktService =
         SøkersMeldepliktService(
-            vilkårsvurderingService = mockedVilkårsvurderingService,
-            behandlingService = behandlingService,
+            vilkårsvurderingService = vilkårsvurderingService,
+            andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             featureToggleService = featureToggleService,
         )
@@ -99,7 +97,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
@@ -150,7 +148,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
@@ -204,7 +202,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
@@ -269,7 +267,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
@@ -288,543 +286,36 @@ class SøkersMeldepliktServiceTest {
     @Nested
     inner class HarSøkerMeldtFraOmBarnehagePlassTest {
         @Test
-        fun `skal returnere true om søker har meldt fra om barnehageplass på barnet som ikke var i forrige behandling`() {
+        fun `skal returnere true om søker har meldt fra om barnehageplass på barn med andel i inneværende måned`() {
             // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak)
-            val forrigeBehandling = lagBehandling(id = 2, fagsak = fagsak, status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn1 = lagPerson()
-            val barn2 = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn1.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn2.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = false,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns forrigeBehandling
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn1, barn2)
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id)
-            } returns listOf(barn2)
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
-        }
-
-        @Test
-        fun `skal returnere false om søker kun har meldt fra om barnehageplass på barnet som også var i forrige behandling`() {
-            // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak)
-            val forrigeBehandling = lagBehandling(id = 2, fagsak = fagsak, status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn1 = lagPerson()
-            val barn2 = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn1.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = false,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn2.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns forrigeBehandling
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn1, barn2)
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id)
-            } returns listOf(barn2)
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
-        }
-
-        @Test
-        fun `skal returnere true om søker har meldt fra om barnehageplass på både barnet som er ny i nåværende behandling og barnet i forrige behandling`() {
-            // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak)
-            val forrigeBehandling = lagBehandling(id = 2, fagsak = fagsak, status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn1 = lagPerson()
-            val barn2 = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn1.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn2.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns forrigeBehandling
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn1, barn2)
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id)
-            } returns listOf(barn2)
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
-        }
-
-        @Test
-        fun `skal returnere false om søker ikke har meldt fra om barnehageplass på et av de relevante barna`() {
-            // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn1 = lagPerson()
-            val barn2 = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn1.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn2.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = false,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns null
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn1, barn2)
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
-        }
-
-        @Test
-        fun `skal returnere true kun hvis søker har meldt fra om barnehageplass på alle barna i en revurdering`() {
-            // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak, type = BehandlingType.REVURDERING)
-            val forrigeBehandling = lagBehandling(id = 2, fagsak = fagsak, status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn1 = lagPerson()
-            val barn2 = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn1.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn2.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns forrigeBehandling
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn1, barn2)
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id)
-            } returns listOf(barn1, barn2)
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
-        }
-
-        @Test
-        fun `skal returnere false hvis søker ikke har meldt fra om barnehageplass på alle barna i en revurdering`() {
-            // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak, type = BehandlingType.REVURDERING)
-            val forrigeBehandling = lagBehandling(id = 2, fagsak = fagsak, status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn1 = lagPerson()
-            val barn2 = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn1.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = false,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn2.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns forrigeBehandling
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn1, barn2)
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id)
-            } returns listOf(barn1, barn2)
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
-        }
-
-        @Test
-        fun `skal kaste exception om ingen relevante barn finnes`() {
-            // Arrange
-            val fagsak = lagFagsak()
-            val behandling = lagBehandling(id = 1, fagsak = fagsak)
-            val forrigeBehandling = lagBehandling(id = 2, fagsak = fagsak, status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
-
-            val vedtak = lagVedtak(behandling)
-
-            val barn = lagPerson()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                aktør = barn.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                            lagPersonResultat(
-                                aktør = barn.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = false,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns forrigeBehandling
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
-            } returns listOf(barn)
-
-            every {
-                personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id)
-            } returns listOf(barn)
-
-            // Act & assert
-            val exception =
-                assertThrows<Feil> {
-                    søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                        vedtak = vedtak,
-                    )
-                }
-            assertThat(exception.message).isEqualTo("Forventer minst et relevant barn ment fant ingen for behandlingId=${behandling.id}")
-        }
-
-        @Test
-        fun `skal returnere true om søker har meldt fra om barnehageplass`() {
-            // Arrange
+            val inneværendeMåned = YearMonth.now()
             val vedtak = lagVedtak()
             val barn = lagPerson()
 
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn.aktør,
+                        stønadFom = inneværendeMåned.minusMonths(1),
+                        stønadTom = inneværendeMåned,
+                    ),
+                )
+
             val vilkårsvurdering =
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
-                    lagPersonResultat = {
+                    lagPersonResultat = { vilkårsvurdering ->
                         setOf(
                             lagPersonResultat(
                                 aktør = barn.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
                                     setOf(
                                         lagVilkårResultat(
                                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
+                                            personResultat = personResultat,
                                             søkerHarMeldtFraOmBarnehageplass = true,
                                         ),
                                     )
@@ -835,48 +326,57 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns null
 
             every {
                 personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
             } returns listOf(barn)
 
             // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
 
             // Assert
             assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
         }
 
         @Test
-        fun `skal returnere false om søker ikke har meldt fra om barnehageplass`() {
+        fun `skal returnere false om søker ikke har meldt fra om barnehageplass på barn med andel i inneværende måned`() {
             // Arrange
+            val inneværendeMåned = YearMonth.now()
             val vedtak = lagVedtak()
             val barn = lagPerson()
+
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn.aktør,
+                        stønadFom = inneværendeMåned.minusMonths(1),
+                        stønadTom = inneværendeMåned,
+                    ),
+                )
 
             val vilkårsvurdering =
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
-                    lagPersonResultat = {
+                    lagPersonResultat = { vilkårsvurdering ->
                         setOf(
                             lagPersonResultat(
                                 aktør = barn.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
                                     setOf(
                                         lagVilkårResultat(
                                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
+                                            personResultat = personResultat,
                                             søkerHarMeldtFraOmBarnehageplass = false,
                                         ),
                                     )
@@ -887,49 +387,58 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns null
 
             every {
                 personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
             } returns listOf(barn)
 
             // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
 
             // Assert
             assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
         }
 
         @Test
-        fun `skal returnere false om søker har meldt fra om barnehageplass ikke er oppgitt`() {
+        fun `skal returnere true om søker har meldt fra om barnehageplass på barn med framtidig andel`() {
             // Arrange
+            val inneværendeMåned = YearMonth.now()
             val vedtak = lagVedtak()
             val barn = lagPerson()
+
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn.aktør,
+                        stønadFom = inneværendeMåned.plusMonths(1),
+                        stønadTom = inneværendeMåned.plusMonths(2),
+                    ),
+                )
 
             val vilkårsvurdering =
                 lagVilkårsvurdering(
                     behandling = vedtak.behandling,
-                    lagPersonResultat = {
+                    lagPersonResultat = { vilkårsvurdering ->
                         setOf(
                             lagPersonResultat(
                                 aktør = barn.aktør,
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
                                     setOf(
                                         lagVilkårResultat(
                                             vilkårType = Vilkår.BARNEHAGEPLASS,
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = null,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = true,
                                         ),
                                     )
                                 },
@@ -939,24 +448,345 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
-
-            every {
-                behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
-            } returns null
 
             every {
                 personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
             } returns listOf(barn)
 
             // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
+
+            // Assert
+            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
+        }
+
+        @Test
+        fun `skal returnere false om søker ikke har meldt fra om barnehageplass på barn med framtidig andel`() {
+            // Arrange
+            val inneværendeMåned = YearMonth.now()
+            val vedtak = lagVedtak()
+            val barn = lagPerson()
+
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn.aktør,
+                        stønadFom = inneværendeMåned.plusMonths(1),
+                        stønadTom = inneværendeMåned.plusMonths(2),
+                    ),
                 )
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = vedtak.behandling,
+                    lagPersonResultat = { vilkårsvurdering ->
+                        setOf(
+                            lagPersonResultat(
+                                aktør = barn.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = false,
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            every {
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                    behandlingId = vedtak.behandling.id,
+                )
+            } returns vilkårsvurdering
+
+            every {
+                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
+            } returns listOf(barn)
+
+            // Act
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
+
+            // Assert
+            assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
+        }
+
+        @Test
+        fun `skal returnere true om det ikke finnes barn som har relevant andel`() {
+            // Arrange
+            val inneværendeMåned = YearMonth.now()
+            val vedtak = lagVedtak()
+            val barn = lagPerson()
+
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn.aktør,
+                        stønadFom = inneværendeMåned.minusMonths(2),
+                        stønadTom = inneværendeMåned.minusMonths(1),
+                    ),
+                )
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = vedtak.behandling,
+                    lagPersonResultat = { vilkårsvurdering ->
+                        setOf(
+                            lagPersonResultat(
+                                aktør = barn.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = true,
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            every {
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                    behandlingId = vedtak.behandling.id,
+                )
+            } returns vilkårsvurdering
+
+            every {
+                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
+            } returns listOf(barn)
+
+            // Act
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
+
+            // Assert
+            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
+        }
+
+        @Test
+        fun `skal returnere true om søker har meldt fra om barnehageplass på alle barna med relevant andel selv om ikke alle barna er relevant`() {
+            // Arrange
+            val inneværendeMåned = YearMonth.now()
+            val vedtak = lagVedtak()
+            val barn1 = lagPerson()
+            val barn2 = lagPerson()
+            val barn3 = lagPerson()
+
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn1.aktør,
+                        stønadFom = inneværendeMåned.minusMonths(2),
+                        stønadTom = inneværendeMåned.minusMonths(1),
+                    ),
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn2.aktør,
+                        stønadFom = inneværendeMåned,
+                        stønadTom = inneværendeMåned.plusMonths(1),
+                    ),
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn3.aktør,
+                        stønadFom = inneværendeMåned.plusMonths(2),
+                        stønadTom = inneværendeMåned.plusMonths(3),
+                    ),
+                )
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = vedtak.behandling,
+                    lagPersonResultat = { vilkårsvurdering ->
+                        setOf(
+                            lagPersonResultat(
+                                aktør = barn1.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = false,
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                aktør = barn2.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = true,
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                aktør = barn3.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = true,
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            every {
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                    behandlingId = vedtak.behandling.id,
+                )
+            } returns vilkårsvurdering
+
+            every {
+                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
+            } returns listOf(barn1, barn2, barn3)
+
+            // Act
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
+
+            // Assert
+            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
+        }
+
+        @Test
+        fun `skal returnere false om søker ikke har meldt fra om barnehageplass på alle barna med relevant andel selv om ikke alle barna er relevant`() {
+            // Arrange
+            val inneværendeMåned = YearMonth.now()
+            val vedtak = lagVedtak()
+            val barn1 = lagPerson()
+            val barn2 = lagPerson()
+            val barn3 = lagPerson()
+
+            val tilkjentYtelse = lagInitieltTilkjentYtelse(vedtak.behandling)
+            val andelTilkjentYtelse =
+                listOf(
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn1.aktør,
+                        stønadFom = inneværendeMåned.minusMonths(2),
+                        stønadTom = inneværendeMåned.minusMonths(1),
+                    ),
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn2.aktør,
+                        stønadFom = inneværendeMåned,
+                        stønadTom = inneværendeMåned.plusMonths(1),
+                    ),
+                    lagAndelTilkjentYtelse(
+                        tilkjentYtelse = tilkjentYtelse,
+                        aktør = barn3.aktør,
+                        stønadFom = inneværendeMåned.plusMonths(2),
+                        stønadTom = inneværendeMåned.plusMonths(3),
+                    ),
+                )
+
+            val vilkårsvurdering =
+                lagVilkårsvurdering(
+                    behandling = vedtak.behandling,
+                    lagPersonResultat = { vilkårsvurdering ->
+                        setOf(
+                            lagPersonResultat(
+                                aktør = barn1.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = false,
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                aktør = barn2.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = true,
+                                        ),
+                                    )
+                                },
+                            ),
+                            lagPersonResultat(
+                                aktør = barn3.aktør,
+                                vilkårsvurdering = vilkårsvurdering,
+                                lagVilkårResultater = { personResultat ->
+                                    setOf(
+                                        lagVilkårResultat(
+                                            vilkårType = Vilkår.BARNEHAGEPLASS,
+                                            personResultat = personResultat,
+                                            søkerHarMeldtFraOmBarnehageplass = false,
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                )
+
+            every {
+                andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+            } returns andelTilkjentYtelse
+
+            every {
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                    behandlingId = vedtak.behandling.id,
+                )
+            } returns vilkårsvurdering
+
+            every {
+                personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id)
+            } returns listOf(barn1, barn2, barn3)
+
+            // Act
+            val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
 
             // Assert
             assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
@@ -988,7 +818,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
@@ -1031,7 +861,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
@@ -1074,7 +904,7 @@ class SøkersMeldepliktServiceTest {
                 )
 
             every {
-                mockedVilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
+                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
                     behandlingId = vedtak.behandling.id,
                 )
             } returns vilkårsvurdering
