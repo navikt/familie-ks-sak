@@ -1,7 +1,7 @@
 # language: no
 # encoding: UTF-8
 
-Egenskap: Fulltidsplass barnehage august 2024 med eksplisitt avslag
+Egenskap: Fulltidsplass barnehage august 2024 med eksplisitt avslag - flere barn
 
   Bakgrunn:
     Gitt følgende fagsaker
@@ -21,7 +21,13 @@ Egenskap: Fulltidsplass barnehage august 2024 med eksplisitt avslag
       | 2            | 2       | BARN       | 09.05.2023  |
       | 2            | 3       | BARN       | 20.08.2024  |
 
-  Scenario: Endret utbetaling med fulltidsplass barnehage og eksplisitt avslag filtrerer vekk tidligere barn for begrunnelser og behandlingsresultat
+    Og følgende søknadgrunnlag
+      | BehandlingId | AktørId | Er inkludert i søknaden |
+      | 1            | 2       | Ja                      |
+      | 2            | 2       | Nei                     |
+      | 2            | 3       | Ja                      |
+
+  Scenario: Avslag som følge av endret utbetaling skal ekskludere barn det ikke er søkt for
     Og følgende dagens dato 31.10.2025
 
     Og følgende vilkårresultater for behandling 1
