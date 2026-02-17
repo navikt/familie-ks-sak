@@ -8,8 +8,10 @@ import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 import tools.jackson.module.kotlin.readValue
 
+@Service
 @TaskStepBeskrivelse(taskStepType = TASK_STEP_TYPE, beskrivelse = "Henlegg behandling", maxAntallFeil = 3)
 class HenleggBehandlingTask(
     private val henleggBehandlingService: HenleggBehandlingService,
