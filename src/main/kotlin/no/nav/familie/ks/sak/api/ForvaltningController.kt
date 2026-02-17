@@ -444,7 +444,7 @@ class ForvaltningController(
             HenleggBehandlingTask.opprettTask(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
-                begrunnelse = "Henlegger behandling via forvalterendepunkt da behandling har gått i lås pga midlertidig teknisk feil i produksjon.",
+                begrunnelse = "Henlegger behandling via forvalterendepunkt. Behandling har gått i lås pga midlertidig teknisk feil i produksjon.",
             ),
         )
 

@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling
 
-import com.fasterxml.jackson.module.kotlin.jsonMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingTask.Companion.TASK_STEP_TYPE
 import no.nav.familie.prosessering.AsyncTaskStep
@@ -9,6 +8,7 @@ import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import tools.jackson.module.kotlin.readValue
 
 @TaskStepBeskrivelse(taskStepType = TASK_STEP_TYPE, beskrivelse = "Henlegg behandling", maxAntallFeil = 3)
 class HenleggBehandlingTask(
@@ -42,8 +42,8 @@ class HenleggBehandlingTask(
                     jsonMapper.writeValueAsString(
                         HenleggBehandlingTaskDto(
                             behandlingId = behandlingId,
-                            henleggÅrsak = henleggBehandlingDto.årsak,
-                            begrunnelse = henleggBehandlingDto.begrunnelse,
+                            henleggÅrsak = henleggÅrsak,
+                            begrunnelse = begrunnelse,
                         ),
                     ),
             )
