@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.no.nav.familie.ks.sak.statistikk.saksstatistikk
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.fake.FakeTaskRepositoryWrapper
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -57,7 +57,7 @@ class SakStatistikkServiceTest : OppslagSpringRunnerTest() {
         stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
         taskService.findAll().filter { it.type == SendBehandlinghendelseTilDvhV2Task.TASK_TYPE }.first().let {
             val behandlingStatistikkV1Dto: BehandlingStatistikkV2Dto =
-                no.nav.familie.kontrakter.felles.objectMapper
+                no.nav.familie.kontrakter.felles.jsonMapper
                     .readValue(it.payload)
             val tekniskTid =
                 ZonedDateTime.of(

@@ -6,6 +6,7 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -144,7 +145,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             Given {
                 header("Authorization", "Bearer $token")
                 contentType(ContentType.JSON)
-                body(objectMapper.writeValueAsString(overgangsordningAndelDto))
+                body(jsonMapper.writeValueAsString(overgangsordningAndelDto))
             } When {
                 put("$overgangsordningAndelControllerUrl/${behandling.id}/${gamleOvergangsordningAndeler.first().id}")
             } Then {
@@ -157,7 +158,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             } Extract {
                 val overgangsordningAndeler =
                     path<List<Map<String, Any>>>("data.overgangsordningAndeler")
-                        .map { objectMapper.convertValue(it, OvergangsordningAndelDto::class.java) }
+                        .map { jsonMapper.convertValue(it, OvergangsordningAndelDto::class.java) }
                 assertThat(overgangsordningAndeler)
                     .hasSize(1)
                     .anySatisfy {
