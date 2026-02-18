@@ -29,6 +29,7 @@ data class BehandlingResponsDto(
     val opprettetTidspunkt: LocalDateTime,
     val aktivertTidspunkt: LocalDateTime,
     val endretAv: String,
+    val aktiv: Boolean,
     val arbeidsfordelingPåBehandling: ArbeidsfordelingResponsDto,
     val søknadsgrunnlag: SøknadDto?,
     val behandlingPåVent: BehandlingPåVentDto?,
