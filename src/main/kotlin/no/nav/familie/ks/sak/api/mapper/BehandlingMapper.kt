@@ -90,6 +90,7 @@ object BehandlingMapper {
         opprettetTidspunkt = behandling.opprettetTidspunkt,
         aktivertTidspunkt = behandling.aktivertTidspunkt,
         endretAv = behandling.endretAv,
+        aktiv = behandling.aktiv,
         arbeidsfordelingPåBehandling = lagArbeidsfordelingRespons(arbeidsfordelingPåBehandling),
         søknadsgrunnlag = søknadsgrunnlag,
         personer = personer,
