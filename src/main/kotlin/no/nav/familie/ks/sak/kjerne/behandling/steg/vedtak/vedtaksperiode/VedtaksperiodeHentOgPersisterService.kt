@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -14,9 +15,9 @@ class VedtaksperiodeHentOgPersisterService(
 ) {
     fun hentVedtaksperiodeThrows(vedtaksperiodeId: Long): VedtaksperiodeMedBegrunnelser =
         vedtaksperiodeRepository.finnVedtaksperiode(vedtaksperiodeId)
-            ?: throw Feil(
-                message = "Fant ingen vedtaksperiode med id $vedtaksperiodeId",
-                frontendFeilmelding = "Fant ikke vedtaksperiode",
+            ?: throw FunksjonellFeil(
+                melding = "Fant ingen vedtaksperiode med id $vedtaksperiodeId",
+                frontendFeilmelding = "Fant ikke vedtaksperioden. Oppdater siden og forsøk å legge til begrunnelser på nytt.",
             )
 
     fun lagre(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): VedtaksperiodeMedBegrunnelser {
