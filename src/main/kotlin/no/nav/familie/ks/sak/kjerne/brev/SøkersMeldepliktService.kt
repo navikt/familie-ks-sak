@@ -1,28 +1,24 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.YearMonth
 
 @Service
 class SøkersMeldepliktService(
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val behandlingService: BehandlingService,
+    private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val featureToggleService: FeatureToggleService,
 ) {
-    private val logger = LoggerFactory.getLogger(SøkersMeldepliktService::class.java)
-
     fun skalSøkerMeldeFraOmEndringerEøsSelvstendigRett(
         vedtak: Vedtak,
     ): Boolean {
@@ -52,37 +48,28 @@ class SøkersMeldepliktService(
 
     fun harSøkerMeldtFraOmBarnehagePlass(
         vedtak: Vedtak,
+        inneværendeMåned: YearMonth = YearMonth.now(),
     ): Boolean {
         if (featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT)) {
-            val behandling = vedtak.behandling
-            val forrigeBehandling = behandlingService.hentForrigeBehandlingSomErVedtatt(vedtak.behandling)
+            val barn = personopplysningGrunnlagService.hentBarnaThrows(vedtak.behandling.id).map { it.aktør }
 
-            val barnIBehandling = personopplysningGrunnlagService.hentBarnaThrows(behandling.id).map { it.aktør }
+            val barnMedRelevanteAndeler =
+                andelTilkjentYtelseRepository
+                    .finnAndelerTilkjentYtelseForBehandling(vedtak.behandling.id)
+                    .filter { it.aktør in barn }
+                    .filter { it.stønadTom >= inneværendeMåned }
+                    .map { it.aktør }
+                    .distinct()
 
-            val barnIForrigeBehandling =
-                if (forrigeBehandling != null) {
-                    personopplysningGrunnlagService.hentBarnaThrows(forrigeBehandling.id).map { it.aktør }
-                } else {
-                    emptyList()
-                }
-
-            val relevanteBarn =
-                // Det er mulig å ha flere førstegangsbehandlinger på en fagsak
-                if (behandling.type == BehandlingType.FØRSTEGANGSBEHANDLING) {
-                    barnIBehandling.minus(barnIForrigeBehandling)
-                } else {
-                    barnIBehandling
-                }
-
-            if (relevanteBarn.isEmpty()) {
-                logger.error("Forventer minst et relevant barn ment fant ingen for behandlingId=${behandling.id}")
-                throw Feil("Forventer minst et relevant barn ment fant ingen for behandlingId=${behandling.id}")
+            if (barnMedRelevanteAndeler.isEmpty()) {
+                // Om det ikke finnes barn med relevante andeler anser vi det som om søker har meldt fra om barnehageplass
+                return true
             }
 
             return vilkårsvurderingService
                 .hentAktivVilkårsvurderingForBehandling(behandlingId = vedtak.behandling.id)
                 .personResultater
-                .filter { relevanteBarn.contains(it.aktør) }
+                .filter { it.aktør in barnMedRelevanteAndeler }
                 .flatMap { it.vilkårResultater }
                 .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
                 .all { it.søkerHarMeldtFraOmBarnehageplass == true }

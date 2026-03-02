@@ -101,6 +101,7 @@ class StepDefinition {
     var målform: Målform = Målform.NB
     var søknadstidspunkt: LocalDate? = null
     var vedtakslister = mutableListOf<Vedtak>()
+    var søknadGrunnlag = mutableMapOf<Long, SøknadGrunnlag>()
 
     var dagensDato: LocalDate = LocalDate.now()
 
@@ -139,6 +140,15 @@ class StepDefinition {
     fun `følgende persongrunnlag`(dataTable: DataTable) {
         val nyePersongrunnlag = lagPersonGrunnlag(dataTable)
         personopplysningGrunnlagMap.putAll(nyePersongrunnlag)
+    }
+
+    /**
+     * Mulige verdier: | BehandlingId |  AktørId | Er inkludert i søknaden |
+     */
+    @Og("følgende søknadgrunnlag")
+    fun `følgende søknadgrunnlag`(dataTable: DataTable) {
+        val nyeSøknadGrunnlag = lagSøknadGrunnlag(dataTable, this)
+        søknadGrunnlag.putAll(nyeSøknadGrunnlag)
     }
 
     /**
@@ -587,18 +597,20 @@ class StepDefinition {
 
         every { søknadGrunnlagService.hentAktiv(any()) } answers {
             val behandlingId = firstArg<Long>()
-            lagSøknadGrunnlag(behandlingId) ?: throw Feil("Kunne ikke lage søknadGrunnlag")
+            søknadGrunnlag[behandlingId]
+                ?: lagSøknadGrunnlag(behandlingId)
+                ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
         }
 
         every { søknadGrunnlagService.finnAktiv(any()) } answers {
             val behandlingId = firstArg<Long>()
-            lagSøknadGrunnlag(behandlingId)
+            søknadGrunnlag[behandlingId] ?: lagSøknadGrunnlag(behandlingId)
         }
 
         val personidentService = mockk<PersonidentService>()
         every { personidentService.hentAktør(any()) } answers {
             val personId = firstArg<String>()
-            personopplysningGrunnlagMap.flatMap { it.value.personer }.first { it.id.toString() == personId }.aktør
+            personopplysningGrunnlagMap.flatMap { it.value.personer }.first { it.aktør.aktivFødselsnummer() == personId || it.aktør.aktørId == personId }.aktør
         }
 
         val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
@@ -667,32 +679,12 @@ class StepDefinition {
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
         every { søknadGrunnlagService.finnAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            val søknadDtoString =
-                jsonMapper.writeValueAsString(
-                    SøknadDto(
-                        barnaMedOpplysninger =
-                            lagRegistrertebarn(behandlingId) + (
-                                uregistrerteBarn[behandlingId]
-                                    ?: emptyList()
-                            ),
-                        endringAvOpplysningerBegrunnelse = "",
-                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
-                    ),
-                )
-            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+            søknadGrunnlag[behandlingId] ?: lagSøknadGrunnlag(behandlingId)
         }
 
         every { søknadGrunnlagService.hentAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            val søknadDtoString =
-                jsonMapper.writeValueAsString(
-                    SøknadDto(
-                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
-                        endringAvOpplysningerBegrunnelse = "",
-                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
-                    ),
-                )
-            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+            søknadGrunnlag[behandlingId] ?: lagSøknadGrunnlag(behandlingId) ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
         }
 
         val kompetanseService = mockk<KompetanseService>()
@@ -789,7 +781,7 @@ class StepDefinition {
             ?.filter { it.type == PersonType.BARN }
             ?.map { person ->
                 BarnMedOpplysningerDto(
-                    ident = person.id.toString(),
+                    ident = person.aktør.aktivFødselsnummer(),
                     fødselsdato = person.fødselsdato,
                 )
             } ?: emptyList()

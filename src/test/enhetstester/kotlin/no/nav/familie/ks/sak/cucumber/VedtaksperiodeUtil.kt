@@ -1,11 +1,18 @@
 package no.nav.familie.ks.sak.cucumber
 
 import io.cucumber.datatable.DataTable
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
+import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.tilKalkulertMånedligBeløp
+import no.nav.familie.ks.sak.common.domeneparser.BrevPeriodeParser.DomenebegrepBrevBegrunnelse.MÅLFORM
 import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.DomenebegrepAndelTilkjentYtelse
 import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser
+import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.ER_FOLKEREGISTRERT
+import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.ER_INKLUDERT_I_SØKNADEN
+import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserParser.parseAktørId
 import no.nav.familie.ks.sak.common.domeneparser.parseBigDecimal
 import no.nav.familie.ks.sak.common.domeneparser.parseBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
@@ -37,6 +44,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.EØSBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.NasjonalEllerFellesBegrunnelseDB
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
@@ -61,6 +69,7 @@ import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.Utenland
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.apache.commons.lang3.RandomStringUtils
 import java.math.BigDecimal
@@ -135,7 +144,7 @@ fun lagVilkårsvurdering(
         )
 
     val vilkårResultaterPerPerson =
-        dataTable.asMaps().groupBy { VedtaksperiodeMedBegrunnelserParser.parseAktørId(it) }
+        dataTable.asMaps().groupBy { parseAktørId(it) }
 
     val personresultater =
         vilkårResultaterPerPerson
@@ -418,7 +427,7 @@ fun lagPersonGrunnlag(dataTable: DataTable): Map<Long, PersonopplysningGrunnlag>
                                 VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.FØDSELSDATO,
                                 rad,
                             ),
-                        aktør = randomAktør().copy(aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)),
+                        aktør = randomAktør().copy(aktørId = parseAktørId(rad)),
                     ).also { person ->
                         parseValgfriDato(
                             VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.DØDSFALLDATO,
@@ -435,13 +444,73 @@ fun lagPersonGrunnlag(dataTable: DataTable): Map<Long, PersonopplysningGrunnlag>
             )
         }.associateBy { it.behandlingId }
 
+fun lagSøknadGrunnlag(
+    dataTable: DataTable,
+    stepDefinition: StepDefinition,
+): Map<Long, SøknadGrunnlag> =
+    dataTable
+        .asMaps()
+        .groupBy { parseLong(Domenebegrep.BEHANDLING_ID, it) }
+        .map { (behandlingId, rader) ->
+            val behandling = stepDefinition.behandlinger[behandlingId]
+            if (behandling == null || !behandling.erSøknad()) {
+                throw Feil("Behandling $behandlingId er ikke en søknadsbehandling")
+            }
+
+            val personopplysningGrunnlag =
+                stepDefinition.personopplysningGrunnlagMap[behandlingId]
+                    ?: throw Feil("Finner ikke personopplysninggrunnlag for behandling $behandlingId")
+
+            val søkersMålform =
+                rader
+                    .find { parseAktørId(it) == personopplysningGrunnlag.søker.aktør.aktørId }
+                    ?.let { parseValgfriEnum<Målform>(MÅLFORM, it) }
+                    ?: Målform.NB
+
+            val søkerMedOpplysningerDto =
+                SøkerMedOpplysningerDto(
+                    ident = personopplysningGrunnlag.søker.aktør.aktivFødselsnummer(),
+                    målform = søkersMålform,
+                )
+
+            val barnMedOpplysningerDtoer =
+                rader
+                    .filter { parseAktørId(it) != personopplysningGrunnlag.søker.aktør.aktørId }
+                    .map { rad ->
+                        val aktørId = parseAktørId(rad)
+                        val person = personopplysningGrunnlag.barna.find { aktørId == it.aktør.aktørId } ?: throw Feil("Finner ikke barn med aktørId $aktørId i personopplysninggrunnlag for behandling $behandlingId")
+                        BarnMedOpplysningerDto(
+                            ident = person.aktør.aktivFødselsnummer(),
+                            navn = person.navn,
+                            fødselsdato = person.fødselsdato,
+                            inkludertISøknaden = parseValgfriBoolean(ER_INKLUDERT_I_SØKNADEN, rad) ?: true,
+                            erFolkeregistrert = parseValgfriBoolean(ER_FOLKEREGISTRERT, rad) ?: true,
+                        )
+                    }
+
+            val søknad =
+                jsonMapper.writeValueAsString(
+                    SøknadDto(
+                        søkerMedOpplysninger = søkerMedOpplysningerDto,
+                        barnaMedOpplysninger = barnMedOpplysningerDtoer,
+                        endringAvOpplysningerBegrunnelse = "",
+                    ),
+                )
+
+            behandlingId to
+                SøknadGrunnlag(
+                    behandlingId = behandlingId,
+                    søknad = søknad,
+                )
+        }.toMap()
+
 fun lagOvergangsordningAndeler(
     dataTable: DataTable,
     behandlingId: Long,
     behandlinger: MutableMap<Long, Behandling>,
     personGrunnlag: Map<Long, PersonopplysningGrunnlag>,
 ) = dataTable.asMaps().map { rad ->
-    val aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)
+    val aktørId = parseAktørId(rad)
     OvergangsordningAndel(
         id = 0,
         fom = parseDato(Domenebegrep.FRA_DATO, rad).toYearMonth(),
@@ -467,7 +536,7 @@ fun lagAndelerTilkjentYtelse(
     behandlinger: MutableMap<Long, Behandling>,
     personGrunnlag: Map<Long, PersonopplysningGrunnlag>,
 ) = dataTable.asMaps().map { rad ->
-    val aktørId = VedtaksperiodeMedBegrunnelserParser.parseAktørId(rad)
+    val aktørId = parseAktørId(rad)
     val beløp = parseInt(VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.BELØP, rad)
     lagAndelTilkjentYtelse(
         stønadFom = parseDato(Domenebegrep.FRA_DATO, rad).toYearMonth(),
@@ -512,8 +581,8 @@ fun lagUregistrerteBarn(dataTable: DataTable) =
     dataTable.asMaps().map { rad ->
         val ident = parseValgfriString(VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.IDENT, rad) ?: RandomStringUtils.randomAlphanumeric(10)
         val fødselsDato = parseValgfriDato(VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.FØDSELSDATO, rad)
-        val erInkludertISøknaden = parseValgfriBoolean(VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.ER_INKLUDERT_I_SØKNADEN, rad) ?: false
-        val erFolkeregistrert = parseValgfriBoolean(VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.ER_FOLKEREGISTRERT, rad) ?: false
+        val erInkludertISøknaden = parseValgfriBoolean(ER_INKLUDERT_I_SØKNADEN, rad) ?: false
+        val erFolkeregistrert = parseValgfriBoolean(ER_FOLKEREGISTRERT, rad) ?: false
         BarnMedOpplysningerDto(
             ident = ident,
             fødselsdato = fødselsDato,
