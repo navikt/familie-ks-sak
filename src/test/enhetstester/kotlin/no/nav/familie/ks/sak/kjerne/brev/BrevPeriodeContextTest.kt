@@ -3,7 +3,7 @@ package no.nav.familie.ks.sak.kjerne.brev
 import io.mockk.every
 import io.mockk.mockk
 import mockAdopsjonService
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.førsteDagINesteMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
@@ -549,6 +549,7 @@ fun lagVilkårResultater(
     person: Person,
     overstyrendeVilkårResultater: List<VilkårResultat> = emptyList(),
     personResultat: PersonResultat,
+    behandlingId: Long = 0L,
 ): List<VilkårResultat> {
     val vilkårResultaterForBarn =
         Vilkår
@@ -560,7 +561,7 @@ fun lagVilkårResultater(
                     vilkårType = it,
                     periodeFom = if (person.type == PersonType.SØKER) person.fødselsdato else person.fødselsdato.plusYears(1),
                     periodeTom = if (person.type == PersonType.SØKER) null else person.fødselsdato.plusYears(2),
-                    behandlingId = 0L,
+                    behandlingId = behandlingId,
                     antallTimer = null,
                 )
             }
@@ -570,7 +571,7 @@ fun lagVilkårResultater(
 fun lagSanityBegrunnelserFraDump(): List<SanityBegrunnelse> {
     val fil = File("./src/test/resources/sanityDump/begrunnelser.json")
 
-    return objectMapper
+    return jsonMapper
         .readValue(
             fil.readText(),
             SanityBegrunnelserResponsDto::class.java,

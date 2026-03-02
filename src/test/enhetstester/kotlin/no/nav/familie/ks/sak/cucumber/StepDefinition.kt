@@ -8,7 +8,7 @@ import io.cucumber.java.no.Så
 import io.mockk.every
 import io.mockk.mockk
 import mockAdopsjonService
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøkerMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
@@ -77,6 +77,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import org.assertj.core.api.Assertions.assertThat
+import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate
 
 val sanityBegrunnelserMock = SanityBegrunnelseMock.hentSanityBegrunnelserMock()
@@ -100,6 +101,7 @@ class StepDefinition {
     var målform: Målform = Målform.NB
     var søknadstidspunkt: LocalDate? = null
     var vedtakslister = mutableListOf<Vedtak>()
+    var søknadGrunnlag = mutableMapOf<Long, SøknadGrunnlag>()
 
     var dagensDato: LocalDate = LocalDate.now()
 
@@ -138,6 +140,15 @@ class StepDefinition {
     fun `følgende persongrunnlag`(dataTable: DataTable) {
         val nyePersongrunnlag = lagPersonGrunnlag(dataTable)
         personopplysningGrunnlagMap.putAll(nyePersongrunnlag)
+    }
+
+    /**
+     * Mulige verdier: | BehandlingId |  AktørId | Er inkludert i søknaden |
+     */
+    @Og("følgende søknadgrunnlag")
+    fun `følgende søknadgrunnlag`(dataTable: DataTable) {
+        val nyeSøknadGrunnlag = lagSøknadGrunnlag(dataTable, this)
+        søknadGrunnlag.putAll(nyeSøknadGrunnlag)
     }
 
     /**
@@ -586,18 +597,20 @@ class StepDefinition {
 
         every { søknadGrunnlagService.hentAktiv(any()) } answers {
             val behandlingId = firstArg<Long>()
-            lagSøknadGrunnlag(behandlingId) ?: throw Feil("Kunne ikke lage søknadGrunnlag")
+            søknadGrunnlag[behandlingId]
+                ?: lagSøknadGrunnlag(behandlingId)
+                ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
         }
 
         every { søknadGrunnlagService.finnAktiv(any()) } answers {
             val behandlingId = firstArg<Long>()
-            lagSøknadGrunnlag(behandlingId)
+            søknadGrunnlag[behandlingId] ?: lagSøknadGrunnlag(behandlingId)
         }
 
         val personidentService = mockk<PersonidentService>()
         every { personidentService.hentAktør(any()) } answers {
             val personId = firstArg<String>()
-            personopplysningGrunnlagMap.flatMap { it.value.personer }.first { it.id.toString() == personId }.aktør
+            personopplysningGrunnlagMap.flatMap { it.value.personer }.first { it.aktør.aktivFødselsnummer() == personId || it.aktør.aktørId == personId }.aktør
         }
 
         val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
@@ -639,7 +652,7 @@ class StepDefinition {
         }
 
         val søknadDtoString =
-            objectMapper.writeValueAsString(
+            jsonMapper.writeValueAsString(
                 SøknadDto(
                     barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
                     endringAvOpplysningerBegrunnelse = "",
@@ -666,32 +679,12 @@ class StepDefinition {
         val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
         every { søknadGrunnlagService.finnAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            val søknadDtoString =
-                objectMapper.writeValueAsString(
-                    SøknadDto(
-                        barnaMedOpplysninger =
-                            lagRegistrertebarn(behandlingId) + (
-                                uregistrerteBarn[behandlingId]
-                                    ?: emptyList()
-                            ),
-                        endringAvOpplysningerBegrunnelse = "",
-                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
-                    ),
-                )
-            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+            søknadGrunnlag[behandlingId] ?: lagSøknadGrunnlag(behandlingId)
         }
 
         every { søknadGrunnlagService.hentAktiv(any<Long>()) } answers {
             val behandlingId = firstArg<Long>()
-            val søknadDtoString =
-                objectMapper.writeValueAsString(
-                    SøknadDto(
-                        barnaMedOpplysninger = lagRegistrertebarn(behandlingId) + (uregistrerteBarn[behandlingId] ?: emptyList()),
-                        endringAvOpplysningerBegrunnelse = "",
-                        søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = "", målform = målform),
-                    ),
-                )
-            SøknadGrunnlag(behandlingId = behandlingId, søknad = søknadDtoString)
+            søknadGrunnlag[behandlingId] ?: lagSøknadGrunnlag(behandlingId) ?: throw Feil("Fant ikke aktiv søknadsgrunnlag for behandling $behandlingId.")
         }
 
         val kompetanseService = mockk<KompetanseService>()
@@ -788,7 +781,7 @@ class StepDefinition {
             ?.filter { it.type == PersonType.BARN }
             ?.map { person ->
                 BarnMedOpplysningerDto(
-                    ident = person.id.toString(),
+                    ident = person.aktør.aktivFødselsnummer(),
                     fødselsdato = person.fødselsdato,
                 )
             } ?: emptyList()
@@ -849,14 +842,11 @@ private object SanityBegrunnelseMock {
     // For å laste ned begrunnelsene kjør scriptet "src/test/resources/oppdater-sanity-mock.sh" eller
     // se https://familie-brev.sanity.studio/ks-brev/vision med query fra SanityQueries.kt.
     fun hentSanityBegrunnelserMock(): List<SanityBegrunnelse> {
-        val restSanityBegrunnelserJson =
-            this::class.java.getResource("/cucumber/restSanityBegrunnelser")!!
+        val sanityDto: List<SanityBegrunnelseDto> =
+            requireNotNull(this::class.java.getResourceAsStream("/cucumber/restSanityBegrunnelser.json")) {
+                "Fant ikke resource /cucumber/restSanityBegrunnelser.json"
+            }.use(jsonMapper::readValue)
 
-        val restSanityBegrunnelser =
-            objectMapper
-                .readValue(restSanityBegrunnelserJson, Array<SanityBegrunnelseDto>::class.java)
-                .toList()
-
-        return restSanityBegrunnelser.map { it.tilSanityBegrunnelse() }
+        return sanityDto.map { it.tilSanityBegrunnelse() }
     }
 }

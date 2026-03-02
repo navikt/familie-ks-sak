@@ -11,8 +11,6 @@ import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagNyEksternBehandlingRelasjon
@@ -52,7 +50,6 @@ class OpprettBehandlingServiceTest {
     private val behandlingRepository = mockk<BehandlingRepository>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val behandlingMetrikker = mockk<BehandlingMetrikker>()
-    private val featureToggleService = mockk<FeatureToggleService>()
     private val eksternBehandlingRelasjonService = mockk<EksternBehandlingRelasjonService>()
 
     private val opprettBehandlingService =
@@ -66,7 +63,6 @@ class OpprettBehandlingServiceTest {
             taskService = taskService,
             stegService = stegService,
             behandlingMetrikker = behandlingMetrikker,
-            featureToggleService = featureToggleService,
             eksternBehandlingRelasjonService = eksternBehandlingRelasjonService,
         )
 
@@ -323,26 +319,6 @@ class OpprettBehandlingServiceTest {
                     opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
                 }
             assertThat(exception.message).isEqualTo("Kan ikke opprette revurdering på $fagsak uten noen andre behandlinger som er vedtatt.")
-        }
-
-        @Test
-        fun `skal kaste feil dersom behandlingsårsak er IVERKSETTE_KA_VEDTAK og toggle ikke er skrudd på`() {
-            // Arrange
-            val opprettBehandlingDto =
-                OpprettBehandlingDto(
-                    søkersIdent = søkersIdent,
-                    behandlingType = BehandlingType.REVURDERING,
-                    behandlingÅrsak = BehandlingÅrsak.IVERKSETTE_KA_VEDTAK,
-                )
-
-            every { featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_REVURDERING_MED_ÅRSAK_IVERKSETTE_KA_VEDTAK) } returns false
-
-            // Act & assert
-            val exception =
-                assertThrows<FunksjonellFeil> {
-                    opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
-                }
-            assertThat(exception.melding).isEqualTo("Kan ikke opprette behandling med årsak Iverksette KA-vedtak.")
         }
 
         @Test

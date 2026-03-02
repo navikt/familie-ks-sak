@@ -389,6 +389,23 @@ fun Vilkårsvurdering.kopierResultaterFraForrigeBehandling(
     }
 }
 
+fun Vilkårsvurdering.kopierVilkårResultaterFraForrigeVilkårsvurdering(
+    forrigeVilkårsvurdering: Vilkårsvurdering,
+) {
+    personResultater.forEach { initieltPersonResultat ->
+        val personResultatForrigeVilkårsvurdering =
+            forrigeVilkårsvurdering.personResultater.find {
+                it.aktør == initieltPersonResultat.aktør
+            }
+
+        if (personResultatForrigeVilkårsvurdering?.vilkårResultater.isNullOrEmpty()) return@forEach
+
+        val kopierteVilkårResultat = personResultatForrigeVilkårsvurdering.vilkårResultater.map { it.kopier(initieltPersonResultat) }
+
+        initieltPersonResultat.setSortedVilkårResultater(kopierteVilkårResultat.toSet())
+    }
+}
+
 private fun PersonResultat.overskrivMedVilkårResultaterFraForrigeBehandling(
     vilkårResultaterFraForrigeBehandling: Collection<VilkårResultat>,
 ): List<VilkårResultat> {

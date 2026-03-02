@@ -13,6 +13,7 @@ import no.nav.familie.kontrakter.felles.oppgave.IdentGruppe
 import no.nav.familie.kontrakter.felles.oppgave.OppgaveIdentV2
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
+import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
@@ -26,7 +27,6 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
@@ -38,12 +38,11 @@ import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanSer
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
-import no.nav.familie.ks.sak.kjerne.porteføljejustering.RelevanteApplikasjonerForPorteføljejustering
-import no.nav.familie.ks.sak.kjerne.porteføljejustering.StartPorteføljejusteringTask
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -432,26 +431,23 @@ class ForvaltningController(
         return ResponseEntity.ok(Ressurs.success("OK"))
     }
 
-    @PostMapping("/opprett-tasker-for-flytting-av-vadso-oppgaver")
-    @Operation(
-        summary = "Oppretter tasker flytting av vadsø oppgaver",
-    )
-    fun opprettTaskerForFlyttingAvVadsøOppgaver(
-        @RequestParam("antallFlytteTasks") antallFlytteTasks: Int? = null,
-        @RequestParam("dryRun") dryRun: Boolean = true,
-        @RequestParam("behandlesAvApplikasjon") behandlesAvApplikasjon: RelevanteApplikasjonerForPorteføljejustering? = null,
-    ): ResponseEntity<String> {
+    @PostMapping("/henlegg-behandling/{behandlingId}")
+    fun henleggBehandling(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "Opprett tasker for flytting av vadsø oppgaver",
+            handling = "Henlegg behandling",
         )
 
-        if (!featureToggleService.isEnabled(FeatureToggle.PORTEFØLJEJUSTERING)) {
-            return ResponseEntity.ok("Toggle for porteføljejustering er skrudd av")
-        }
+        taskService.save(
+            HenleggBehandlingTask.opprettTask(
+                behandlingId = behandlingId,
+                henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
+                begrunnelse = "Henlegger behandling via forvalterendepunkt. Behandling har gått i lås pga midlertidig teknisk feil i produksjon.",
+            ),
+        )
 
-        taskService.save(StartPorteføljejusteringTask.opprettTask(antallFlytteTasks, behandlesAvApplikasjon, dryRun = dryRun))
-
-        return ResponseEntity.ok("Opprettet task for flytting av Steinkjer oppgaver")
+        return ResponseEntity.ok(Ressurs.success("OK"))
     }
 }

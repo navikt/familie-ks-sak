@@ -30,6 +30,7 @@ jobs:
   deploy-dev:
     name: Deploy dev
     permissions:
+      contents: read
       id-token: write
     needs: [build]
     uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main # ratchet:exclude
@@ -41,6 +42,7 @@ jobs:
   deploy-prod:
     name: Deploy prod
     permissions:
+      contents: read
       id-token: write
     needs: [build, deploy-dev]
     uses: navikt/familie-baks-gha-workflows/.github/workflows/deploy.yaml@main # ratchet:exclude

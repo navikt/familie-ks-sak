@@ -5,13 +5,13 @@ import no.nav.commons.foedselsnummer.testutils.FoedselsnummerGenerator
 import no.nav.familie.felles.utbetalingsgenerator.domain.AndelMedPeriodeIdLongId
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
 import no.nav.familie.kontrakter.felles.enhet.Enhet
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.klage.BehandlingEventType
 import no.nav.familie.kontrakter.felles.klage.BehandlingResultat
 import no.nav.familie.kontrakter.felles.klage.HenlagtÅrsak
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.KlageinstansResultatDto
 import no.nav.familie.kontrakter.felles.klage.KlageinstansUtfall
-import no.nav.familie.kontrakter.felles.objectMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Opphør
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
@@ -159,6 +159,22 @@ fun fnrTilAktør(
     toSisteSiffrer: String = "00",
 ) = Aktør(fnr + toSisteSiffrer).also {
     it.personidenter.add(Personident(fnr, aktør = it))
+}
+
+fun lagPersonopplysningGrunnlag(
+    id: Long = 0L,
+    behandlingId: Long = 0L,
+    personer: (personopplysningGrunnlag: PersonopplysningGrunnlag) -> Set<Person> = { emptySet() },
+    aktiv: Boolean = true,
+): PersonopplysningGrunnlag {
+    val personopplysningGrunnlag =
+        PersonopplysningGrunnlag(
+            id = id,
+            behandlingId = behandlingId,
+            aktiv = aktiv,
+        )
+    personopplysningGrunnlag.personer.addAll(personer(personopplysningGrunnlag))
+    return personopplysningGrunnlag
 }
 
 fun lagPersonopplysningGrunnlag(
@@ -978,7 +994,7 @@ fun lagTilkjentYtelse(
     utbetalingsoppdrag: Utbetalingsoppdrag,
     behandling: Behandling,
 ) = TilkjentYtelse(
-    utbetalingsoppdrag = objectMapper.writeValueAsString(utbetalingsoppdrag),
+    utbetalingsoppdrag = jsonMapper.writeValueAsString(utbetalingsoppdrag),
     behandling = behandling,
     opprettetDato = LocalDate.now(),
     endretDato = LocalDate.now(),
@@ -1118,6 +1134,7 @@ fun lagVilkårsvurderingOppfylt(
     skalOppretteEøsSpesifikkeVilkår: Boolean = false,
     periodeFom: LocalDate? = null,
     periodeTom: LocalDate? = null,
+    begrunnelse: String = "",
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -1152,7 +1169,7 @@ fun lagVilkårsvurderingOppfylt(
                                     },
                                 vilkårType = it,
                                 resultat = Resultat.OPPFYLT,
-                                begrunnelse = "",
+                                begrunnelse = begrunnelse,
                                 behandlingId = vilkårsvurdering.behandling.id,
                                 utdypendeVilkårsvurderinger = emptyList(),
                                 erEksplisittAvslagPåSøknad = erEksplisittAvslagPåSøknad,
@@ -1205,6 +1222,7 @@ fun lagUtenlandskPeriodebeløp(
     valutakode: String? = null,
     intervall: Intervall? = null,
     utbetalingsland: String = "",
+    kalkulertUtbetalingsbeløp: BigDecimal? = null,
 ) = UtenlandskPeriodebeløp(
     fom = fom,
     tom = tom,
@@ -1213,6 +1231,7 @@ fun lagUtenlandskPeriodebeløp(
     beløp = beløp,
     intervall = intervall,
     utbetalingsland = utbetalingsland,
+    kalkulertMånedligBeløp = kalkulertUtbetalingsbeløp,
 ).also { it.behandlingId = behandlingId }
 
 fun lagValutakurs(
@@ -1327,6 +1346,7 @@ fun lagVilkårsvurdering(
     søkerPeriodeFom: LocalDate? = LocalDate.now().minusMonths(1),
     søkerPeriodeTom: LocalDate? = LocalDate.now().plusYears(2),
     medAndreVurderinger: Boolean = true,
+    begrunnelse: String = "",
 ): Vilkårsvurdering {
     val vilkårsvurdering =
         Vilkårsvurdering(
@@ -1346,7 +1366,7 @@ fun lagVilkårsvurdering(
                 resultat = resultat,
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
-                begrunnelse = "",
+                begrunnelse = begrunnelse,
             ),
             VilkårResultat(
                 behandlingId = behandling.id,
@@ -1355,7 +1375,7 @@ fun lagVilkårsvurdering(
                 resultat = resultat,
                 periodeFom = søkerPeriodeFom,
                 periodeTom = søkerPeriodeTom,
-                begrunnelse = "",
+                begrunnelse = begrunnelse,
             ),
         ),
     )

@@ -1,6 +1,5 @@
 package no.nav.familie.ks.sak.integrasjon.tilbakekreving
 
-import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.FagsystemVedtak
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
@@ -11,6 +10,7 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequ
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
+import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
 import org.springframework.web.util.UriUtils
 import java.net.URI
-import java.util.UUID
 
 @Service
 class TilbakekrevingKlient(
@@ -112,32 +111,6 @@ class TilbakekrevingKlient(
             formål = "Henter tilbakekrevingsvedtak på fagsak",
         ) { getForEntity(uri) }
     }
-
-    fun oppdaterEnhetPåÅpenBehandling(
-        behandlingEksternBrukId: UUID,
-        nyEnhetId: String,
-    ): String {
-        val uri = URI.create("$familieTilbakeUri/baks/portefoljejustering/oppdater-behandlende-enhet")
-
-        val request =
-            OppdaterBehandlendeEnhetRequest(
-                behandlingEksternBrukId = behandlingEksternBrukId,
-                nyEnhet = nyEnhetId,
-            )
-
-        return kallEksternTjenesteRessurs(
-            tjeneste = "familie-tilbake",
-            uri = uri,
-            formål = "Oppdater enhet på åpen tilbakekrevingsbehandling",
-        ) {
-            putForEntity(uri, request)
-        }
-    }
-
-    data class OppdaterBehandlendeEnhetRequest(
-        val behandlingEksternBrukId: UUID,
-        val nyEnhet: String,
-    )
 }
 
 fun encodePath(path: String) = UriUtils.encodePath(path, "UTF-8")

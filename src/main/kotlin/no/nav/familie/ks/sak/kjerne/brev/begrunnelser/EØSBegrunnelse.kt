@@ -398,6 +398,26 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val sanityApiNavn = "innvilgetNasjonalRettSekundarSokerFarPensjonFraAnnetLand"
         override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
     },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆR_TO_ARBEIDSLAND_SØKER_PENGER_SOM_ERSTATTER_LØNN {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarToArbeidslandSokerPengerSomErstatterLonn"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆR_TO_ARBEIDSLAND_SØKER_FÅR_PENSJON_FRA_ANNET_LAND {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarToArbeidslandSokerFarPensjonFraAnnetLand"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆRLAND_ALENEANSVAR_ARBEID_ANNET_LAND {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarlandAleneansvarArbeidAnnetLand"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆR_ALENEANSVAR_FÅR_PENGER_SOM_ERSTATTER_LØNN {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarAleneansvarFaarPengerSomErstatterLonn"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
+    INNVILGET_NASJONAL_RETT_SEKUNDÆR_ALENEANSVAR_FÅR_PENSJON_FRA_ANNET_LAND {
+        override val sanityApiNavn = "innvilgetNasjonalRettSekundarAleneansvarFaarPensjonFraAnnetLand"
+        override val begrunnelseType = BegrunnelseType.EØS_INNVILGET
+    },
     OPPHØR_EØS_STANDARD {
         override val sanityApiNavn = "opphorEosStandard"
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR

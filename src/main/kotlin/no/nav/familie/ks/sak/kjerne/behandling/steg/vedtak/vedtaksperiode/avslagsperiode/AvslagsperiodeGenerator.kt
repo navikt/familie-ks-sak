@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.avslagsperiode
 
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
+import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
@@ -21,7 +22,6 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse.AVSLAG_UREGISTRERT_BARN
-import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
 import org.springframework.stereotype.Component
 
 @Component
@@ -59,15 +59,27 @@ class AvslagsperiodeGenerator(
         behandlingId: Long,
         vedtak: Vedtak,
     ): List<VedtaksperiodeMedBegrunnelser> {
+        val barnInkludertISøknaden =
+            søknadGrunnlagService
+                .finnAktiv(behandlingId)
+                ?.let { søknadGrunnlag ->
+                    søknadGrunnlag
+                        .tilSøknadDto()
+                        .barnaMedOpplysninger
+                        .filter { it.inkludertISøknaden }
+                        .mapNotNull { it.personnummer }
+                }
+
         val endreteUtbetalinger =
-            andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(
-                behandlingId,
-            )
+            andelerTilkjentYtelseOgEndreteUtbetalingerService
+                .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
+                .filter { endretUtbetalingAndel ->
+                    barnInkludertISøknaden?.let { endretUtbetalingAndel.personer.any { person -> person.aktør.aktivFødselsnummer() in barnInkludertISøknaden } } ?: true
+                }
 
         val periodegrupperteAvslagEndreteUtbetalinger =
             endreteUtbetalinger
                 .filter { it.erEksplisittAvslagPåSøknad == true }
-                .filterNot { it.erEksplisittAvslagPåSøknad == true && it.årsak == Årsak.FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024 }
                 .groupBy { NullablePeriode(it.fom?.toLocalDate(), it.tom?.toLocalDate()) }
 
         val avslagsperioder =

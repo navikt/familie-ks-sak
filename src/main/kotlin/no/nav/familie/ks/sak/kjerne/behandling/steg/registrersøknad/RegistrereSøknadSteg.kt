@@ -5,7 +5,6 @@ import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
 import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.api.dto.writeValueAsString
 import no.nav.familie.ks.sak.api.mapper.SøknadGrunnlagMapper.tilSøknadDto
-import no.nav.familie.ks.sak.integrasjon.infotrygd.InfotrygdReplikaKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class RegistrereSøknadSteg(
     private val søknadGrunnlagService: SøknadGrunnlagService,
-    private val infotrygdReplikaKlient: InfotrygdReplikaKlient,
     private val loggService: LoggService,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val behandlingService: BehandlingService,
@@ -46,7 +44,7 @@ class RegistrereSøknadSteg(
         val aktivSøknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId)
         val aktivSøknadGrunnlagFinnes = aktivSøknadGrunnlag != null
 
-        if (aktivSøknadGrunnlagFinnes && aktivSøknadGrunnlag!!.søknad == registrerSøknadDto.søknad.writeValueAsString()) {
+        if (aktivSøknadGrunnlagFinnes && aktivSøknadGrunnlag.søknad == registrerSøknadDto.søknad.writeValueAsString()) {
             logger.info("Det finnes allerede en identisk søknad, ingen endringer blir utført.")
             return
         }

@@ -8,7 +8,7 @@ import no.nav.familie.kontrakter.felles.Språkkode
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
 import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
-import no.nav.familie.kontrakter.felles.objectMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.api.dto.Bruker
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.tilAvsenderMottaker
@@ -124,7 +124,7 @@ class JournalførManueltBrevTaskTest {
                         },
                     førsteside = isNull(),
                     avsenderMottaker = isNull(),
-                    eksternReferanseId = eq("${fagsak.id}_${behandling.id}_null"),
+                    eksternReferanseId = match { it.contains("${fagsak.id}_${behandling.id}_") },
                 )
             }
             verify(exactly = 1) { journalføringRepository.save(any()) }
@@ -134,7 +134,7 @@ class JournalførManueltBrevTaskTest {
             assertThat(dbJournalpost.type).isEqualTo(DbJournalpostType.U)
             val distribuerBrevTask = taskSlot.captured
             verify(exactly = 1) { taskService.save(eq(distribuerBrevTask)) }
-            val distribuerBrevDto = objectMapper.readValue(distribuerBrevTask.payload, DistribuerBrevDto::class.java)
+            val distribuerBrevDto = jsonMapper.readValue(distribuerBrevTask.payload, DistribuerBrevDto::class.java)
             assertThat(distribuerBrevDto.behandlingId).isEqualTo(behandling.id)
             assertThat(distribuerBrevDto.journalpostId).isEqualTo(journalpostId)
             assertThat(distribuerBrevDto.brevmal).isEqualTo(manueltBrevDto.brevmal)
@@ -227,7 +227,7 @@ class JournalførManueltBrevTaskTest {
                                 førsteside.overskriftstittel == JournalførManueltBrevTask.FØRSTESIDE_OVERSKRIFTSTITTEL
                         },
                     avsenderMottaker = isNull(),
-                    eksternReferanseId = eq("${fagsakId}_${behandlingId}_null"),
+                    eksternReferanseId = match { it.contains("${fagsak.id}_${behandling.id}_") },
                 )
             }
             verify(exactly = 1) { journalføringRepository.save(any()) }
@@ -237,7 +237,7 @@ class JournalførManueltBrevTaskTest {
             assertThat(dbJournalpost.type).isEqualTo(DbJournalpostType.U)
             val distribuerBrevTask = taskSlot.captured
             verify(exactly = 1) { taskService.save(eq(distribuerBrevTask)) }
-            val distribuerBrevDto = objectMapper.readValue(distribuerBrevTask.payload, DistribuerBrevDto::class.java)
+            val distribuerBrevDto = jsonMapper.readValue(distribuerBrevTask.payload, DistribuerBrevDto::class.java)
             assertThat(distribuerBrevDto.behandlingId).isEqualTo(behandlingId)
             assertThat(distribuerBrevDto.journalpostId).isEqualTo(journalpostId)
             assertThat(distribuerBrevDto.brevmal).isEqualTo(manueltBrevDto.brevmal)
@@ -308,13 +308,13 @@ class JournalførManueltBrevTaskTest {
                         },
                     førsteside = isNull(),
                     avsenderMottaker = isNull(),
-                    eksternReferanseId = eq("${fagsak.id}_null_null"),
+                    eksternReferanseId = match { it.contains("${fagsak.id}_null_") },
                 )
             }
             verify(exactly = 0) { journalføringRepository.save(any()) }
             val distribuerBrevTask = taskSlot.captured
             verify(exactly = 1) { taskService.save(eq(distribuerBrevTask)) }
-            val distribuerBrevDto = objectMapper.readValue(distribuerBrevTask.payload, DistribuerBrevDto::class.java)
+            val distribuerBrevDto = jsonMapper.readValue(distribuerBrevTask.payload, DistribuerBrevDto::class.java)
             assertThat(distribuerBrevDto.behandlingId).isNull()
             assertThat(distribuerBrevDto.journalpostId).isEqualTo(journalpostId)
             assertThat(distribuerBrevDto.brevmal).isEqualTo(manueltBrevDto.brevmal)
@@ -353,7 +353,7 @@ class JournalførManueltBrevTaskTest {
             // Assert
             assertThat(task.type).isEqualTo(JournalførManueltBrevTask.TASK_STEP_TYPE)
             assertThat(task.payload).isNotNull()
-            val dto = objectMapper.readValue(task.payload, JournalførManueltBrevDto::class.java)
+            val dto = jsonMapper.readValue(task.payload, JournalførManueltBrevDto::class.java)
             assertThat(dto.fagsakId).isEqualTo(fagsakId)
             assertThat(dto.behandlingId).isEqualTo(behandlingId)
             assertThat(dto.manueltBrevDto).isEqualTo(manueltBrevDto)

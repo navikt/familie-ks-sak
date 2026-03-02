@@ -1,10 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.klage
 
-import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.kontrakter.felles.klage.Fagsystem
 import no.nav.familie.kontrakter.felles.klage.KlagebehandlingDto
 import no.nav.familie.kontrakter.felles.klage.OpprettKlagebehandlingRequest
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
+import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -52,37 +52,4 @@ class KlageKlient(
             getForEntity(uri)
         }
     }
-
-    fun oppdaterEnhetPåÅpenBehandling(
-        oppgaveId: Long,
-        nyEnhetId: String,
-    ): String {
-        val uri =
-            UriComponentsBuilder
-                .fromUri(familieKlageUri)
-                .pathSegment("api/portefoljejustering/oppdater-behandlende-enhet")
-                .build()
-                .toUri()
-
-        val request =
-            OppdaterBehandlendeEnhetIKlageRequest(
-                oppgaveId = oppgaveId,
-                nyEnhet = nyEnhetId,
-                fagsystem = Fagsystem.KS,
-            )
-
-        return kallEksternTjenesteRessurs(
-            tjeneste = "klage",
-            uri = uri,
-            formål = "Oppdater enhet på åpen klagebehandling",
-        ) {
-            putForEntity(uri, request)
-        }
-    }
-
-    data class OppdaterBehandlendeEnhetIKlageRequest(
-        val oppgaveId: Long,
-        val nyEnhet: String,
-        val fagsystem: Fagsystem,
-    )
 }
