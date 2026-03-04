@@ -53,47 +53,48 @@ object TilkjentYtelseValidator {
 
         val andelerPerAktør = tilkjentYtelse.andelerTilkjentYtelse.groupBy { it.aktør }
 
-        andelerPerAktør.filter { it.value.isNotEmpty() }.forEach { (aktør, andeler) ->
-            val ordinæreAndeler = andeler.ordinæreOgPraksisendringAndeler()
+        andelerPerAktør
+            .mapValues { it.value.ordinæreOgPraksisendringAndeler() }
+            .filter { it.value.isNotEmpty() }
+            .forEach { (aktør, andeler) ->
+                val stønadFom = andeler.minOf { it.stønadFom }
+                val stønadTom = andeler.maxOf { it.stønadTom }
 
-            val stønadFom = ordinæreAndeler.minOf { it.stønadFom }
-            val stønadTom = ordinæreAndeler.maxOf { it.stønadTom }
+                val relevantBarn = barna.single { it.aktør == aktør }
+                val adopsjonsdatoForBarn = adopsjonerIBehandling.firstOrNull { it.aktør == aktør }?.adopsjonsdato
 
-            val relevantBarn = barna.single { it.aktør == aktør }
-            val adopsjonsdatoForBarn = adopsjonerIBehandling.firstOrNull { it.aktør == aktør }?.adopsjonsdato
+                val vilkårLovverkInformasjonForBarn =
+                    if (alleBarnetsAlderVilkårResultater.any { it.erAdopsjonOppfylt() }) {
+                        VilkårLovverkInformasjonForBarn(
+                            fødselsdato = relevantBarn.fødselsdato,
+                            adopsjonsdato = adopsjonsdatoForBarn,
+                            periodeFomForAdoptertBarn = stønadFom,
+                            periodeTomForAdoptertBarn = stønadTom,
+                        )
+                    } else {
+                        VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, adopsjonsdato = adopsjonsdatoForBarn)
+                    }
 
-            val vilkårLovverkInformasjonForBarn =
-                if (alleBarnetsAlderVilkårResultater.any { it.erAdopsjonOppfylt() }) {
-                    VilkårLovverkInformasjonForBarn(
-                        fødselsdato = relevantBarn.fødselsdato,
-                        adopsjonsdato = adopsjonsdatoForBarn,
-                        periodeFomForAdoptertBarn = stønadFom,
-                        periodeTomForAdoptertBarn = stønadTom,
-                    )
-                } else {
-                    VilkårLovverkInformasjonForBarn(fødselsdato = relevantBarn.fødselsdato, adopsjonsdato = adopsjonsdatoForBarn)
+                val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
+
+                val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
+
+                val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
+                val antallMånederUtbetalt = diff.toTotalMonths() + 1
+
+                if (antallMånederUtbetalt > maksAntallMånederMedUtbetaling) {
+                    val feilmelding =
+                        "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
+                            "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
+                    throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
                 }
 
-            val barnetsAlderVilkårResultater = alleBarnetsAlderVilkårResultater.filter { it.personResultat?.aktør == aktør }
-
-            val maksAntallMånederMedUtbetaling = utledMaksAntallMånederMedUtbetaling(vilkårLovverkInformasjonForBarn, barnetsAlderVilkårResultater)
-
-            val diff = Period.between(stønadFom.toLocalDate(), stønadTom.toLocalDate())
-            val antallMånederUtbetalt = diff.toTotalMonths() + 1
-
-            if (antallMånederUtbetalt > maksAntallMånederMedUtbetaling) {
-                val feilmelding =
-                    "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
-                        "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
-                throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
+                if (stønadFom > dagensDato.toYearMonth().plusMonths(1)) {
+                    throw FunksjonellFeil(
+                        melding = "Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 1 måned fram i tid. Dette gjelder barn født ${relevantBarn.fødselsdato}.",
+                    )
+                }
             }
-
-            if (stønadFom > dagensDato.toYearMonth().plusMonths(1)) {
-                throw FunksjonellFeil(
-                    melding = "Det er ikke mulig å innvilge kontantstøtte for perioder som er lengre enn 1 måned fram i tid. Dette gjelder barn født ${relevantBarn.fødselsdato}.",
-                )
-            }
-        }
 
         val tidslinjeMedAndeler = tilkjentYtelse.tilTidslinjeMedAndeler()
 
