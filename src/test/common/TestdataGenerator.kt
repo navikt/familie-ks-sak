@@ -85,6 +85,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -674,14 +675,12 @@ fun lagVilkårResultaterForBarn(
     Vilkår.hentVilkårFor(PersonType.BARN).forEach {
         when (it) {
             Vilkår.BARNETS_ALDER -> {
-                vilkårResultaterForBarn.add(
-                    lagVilkårResultat(
+                vilkårResultaterForBarn.addAll(
+                    lagAutomatiskGenererteVilkårForBarnetsAlder(
                         personResultat = personResultat,
-                        vilkårType = it,
-                        periodeFom = barnFødselsdato.plusYears(1),
-                        periodeTom = barnFødselsdato.plusYears(2),
                         behandlingId = behandlingId,
-                        regelverk = regelverk,
+                        fødselsdato = barnFødselsdato,
+                        adopsjonsdato = null,
                     ),
                 )
             }
