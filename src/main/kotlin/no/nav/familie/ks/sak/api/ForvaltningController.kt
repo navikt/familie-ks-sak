@@ -17,7 +17,6 @@ import no.nav.familie.ks.sak.api.dto.HenleggÅrsak
 import no.nav.familie.ks.sak.api.dto.ManuellStartKonsistensavstemmingDto
 import no.nav.familie.ks.sak.api.dto.OpprettAutovedtakBehandlingPåFagsakDto
 import no.nav.familie.ks.sak.api.dto.OpprettOppgaveDto
-import no.nav.familie.ks.sak.barnehagelister.BarnehageListeService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
@@ -27,7 +26,6 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
@@ -68,7 +66,6 @@ import org.springframework.web.bind.annotation.RestController
 import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
-import java.util.UUID
 
 @RestController
 @RequestMapping("/api/forvaltning/")
@@ -83,7 +80,6 @@ class ForvaltningController(
     private val konsistensavstemmingKjøreplanService: KonsistensavstemmingKjøreplanService,
     private val personidentService: PersonidentService,
     private val vilkårsvurderingService: VilkårsvurderingService,
-    private val barnehageListeService: BarnehageListeService,
     private val environment: Environment,
     private val ecbService: ECBService,
     private val behandlingRepository: BehandlingRepository,
@@ -93,7 +89,6 @@ class ForvaltningController(
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
-    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -249,28 +244,6 @@ class ForvaltningController(
         vilkårsvurderingService.fyllUtVilkårsvurdering(behandlingId)
 
         return ResponseEntity.ok(Ressurs.success("Oppdaterte vilkårsvurdering"))
-    }
-
-    @GetMapping("/barnehageliste/lesOgArkiver/{uuid}")
-    fun lesOgArkiverBarnehageliste(
-        @PathVariable uuid: String,
-    ): ResponseEntity<Ressurs<String>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "teste lesing og arkivering av barnehageliste",
-        )
-        barnehageListeService.lesOgArkiverBarnehageliste(UUID.fromString(uuid))
-        return ResponseEntity.ok(Ressurs.success(":)", "Barnehagliste lest og arkivert"))
-    }
-
-    @GetMapping("/barnehageliste/hentUarkvierteBarnehagelisteUuider")
-    fun hentUarkiverteBarnehagelisteUuider(): ResponseEntity<Ressurs<List<String>>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
-            handling = "hente ut liste av uarkiverte barnehageliste uuid",
-        )
-        val uuidList = barnehageListeService.hentUarkiverteBarnehagelisteUuider()
-        return ResponseEntity.ok(Ressurs.success(uuidList, "OK"))
     }
 
     @PostMapping(

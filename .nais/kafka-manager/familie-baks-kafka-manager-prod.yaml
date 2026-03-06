@@ -63,12 +63,6 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "alf.aapen-altinn-barnehageliste-mottatt",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
               "name": "teamfamilie.aapen-barnetrygd-vedtak-v2",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
