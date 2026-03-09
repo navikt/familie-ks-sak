@@ -7,6 +7,8 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.TIDENES_ENDE
 import no.nav.familie.ks.sak.common.util.erSenereEnnInneværendeMåned
 import no.nav.familie.ks.sak.common.util.erSenereEnnNesteMåned
+import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
+import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -27,9 +29,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
+import no.nav.familie.ks.sak.kjerne.overgangsordning.beregnGyldigFom
+import no.nav.familie.ks.sak.kjerne.overgangsordning.beregnGyldigTom
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.tidslinje.TidslinjePeriodeMedDato
+import no.nav.familie.tidslinje.isSameOrAfter
+import no.nav.familie.tidslinje.isSameOrBefore
 import no.nav.familie.tidslinje.utvidelser.klipp
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.validerIngenOverlapp
@@ -137,7 +144,7 @@ class VilkårsvurderingSteg(
         }
         validerAtAlleVilkårHarGyldigFomDato(vilkårsvurdering, personopplysningGrunnlag)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
-        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering)
+        validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering, personopplysningGrunnlag)
         validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
         barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering = vilkårsvurdering, barna = personopplysningGrunnlag.barna)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
@@ -251,6 +258,7 @@ class VilkårsvurderingSteg(
 
     private fun validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(
         vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
     ) {
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
 
@@ -273,8 +281,14 @@ class VilkårsvurderingSteg(
                 }
             }
 
+            val barn = personopplysningGrunnlag.personer.single { it.aktør == personResultat.aktør }
+
             val barnehageplassVilkårResultater =
-                personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+                personResultat.vilkårResultater
+                    .filter { it.vilkårType == Vilkår.BARNEHAGEPLASS }
+                    .filterNot {
+                        periodeErInnenforPeriodeForOvergangsordning(barn = barn, fom = it.periodeFom, tom = it.periodeTom)
+                    }
 
             val barnetsAlderVilkårResultater =
                 personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }
@@ -289,11 +303,24 @@ class VilkårsvurderingSteg(
             ) {
                 throw FunksjonellFeil(
                     "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
-                        " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
-                        "Du må fjerne denne perioden for å kunne fortsette",
+                        " som starter etter at 'Barnets alder'-vilkåret er avsluttet. " +
+                        "Du må fjerne denne perioden for å kunne fortsette.",
                 )
             }
         }
+    }
+
+    private fun periodeErInnenforPeriodeForOvergangsordning(
+        barn: Person,
+        fom: LocalDate?,
+        tom: LocalDate?,
+    ): Boolean {
+        val august2024 = LocalDate.of(2024, 8, 1)
+        val april2025 = LocalDate.of(2025, 4, 30)
+        val barn20Måneder = beregnGyldigFom(barn).førsteDagIInneværendeMåned()
+        val barn23Måneder = beregnGyldigTom(barn).sisteDagIInneværendeMåned()
+        return fom?.isSameOrAfter(barn20Måneder) == true && fom.isSameOrAfter(august2024) &&
+            tom?.isSameOrBefore(barn23Måneder) == true && tom.isSameOrBefore(april2025)
     }
 
     private fun validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering: Vilkårsvurdering) {

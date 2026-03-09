@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.common.util.NullablePeriode
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
@@ -49,6 +50,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -392,10 +394,62 @@ class VilkårsvurderingStegTest {
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
-                " som starter etter at barnet har fylt 2 år eller startet på skolen. " +
-                "Du må fjerne denne perioden for å kunne fortsette",
+                " som starter etter at 'Barnets alder'-vilkåret er avsluttet. " +
+                "Du må fjerne denne perioden for å kunne fortsette.",
             exception.message,
         )
+    }
+
+    @Test
+    fun `utførSteg - skal ikke kaste feil hvis barnehageplass perioder starter i periode for overgangsordning etter siste dato i barnets alder vilkår`() {
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 1, 1))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barn.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barn.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(
+                                            LocalDate.of(2023, 1, 1),
+                                            LocalDate.of(2024, 8, 31),
+                                        ) to null,
+                                        NullablePeriode(
+                                            // periode starter i barnets 20 månederes dato, som er innenfor overgangsordning
+                                            LocalDate.of(2024, 9, 1),
+                                            LocalDate.of(2024, 12, 31),
+                                        ) to BigDecimal(30),
+                                    ),
+                            )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
+
+        assertDoesNotThrow { vilkårsvurderingSteg.utførSteg(behandling.id) }
     }
 
     @Test
