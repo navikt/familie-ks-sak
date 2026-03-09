@@ -31,7 +31,7 @@
 
         <!-- Spring -->
         <spring-boot-dependencies.version>4.0.3</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
-        <springdoc.version>3.0.1</springdoc.version>
+        <springdoc.version>3.0.2</springdoc.version>
 
         <!-- Nav felles -->
         <nav-token-client.version>6.0.3</nav-token-client.version>
@@ -63,7 +63,7 @@
         <!-- Test -->
         <cucumber.version>7.34.2</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
+        <mock-oauth2-server.version>3.0.1</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.9</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
