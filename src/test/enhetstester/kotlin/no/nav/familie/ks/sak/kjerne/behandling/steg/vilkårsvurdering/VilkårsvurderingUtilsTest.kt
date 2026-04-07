@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Utd
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
@@ -365,99 +366,198 @@ class VilkårsvurderingUtilsTest {
         assertEquals(LocalDate.of(2024, 7, 31), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
 
-    @Test
-    fun `endreVilkårResultat - Skal kastes funksjonell feil hvis det forsøkes å lage en oppfylt periode mens det finnes en avslagsperiode uten periode`() {
-        val person = mockk<PersonResultat>(relaxed = true)
+    @Nested
+    inner class EndreVilkårResultatTest {
+        @Test
+        fun `Skal kastes funksjonell feil hvis det forsøkes å lage en oppfylt periode mens det finnes en avslagsperiode uten periode`() {
+            val person = mockk<PersonResultat>(relaxed = true)
 
-        val eksisterendeVilkårResultat =
-            listOf(
-                lagVilkårResultat(
-                    id = 1,
-                    personResultat = person,
-                    behandlingId = 1,
-                    periodeFom = null,
-                    periodeTom = null,
-                    resultat = Resultat.IKKE_OPPFYLT,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    erEksplisittAvslagPåSøknad = true,
-                ),
-                lagVilkårResultat(
+            val eksisterendeVilkårResultat =
+                listOf(
+                    lagVilkårResultat(
+                        id = 1,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = null,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_OPPFYLT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                        erEksplisittAvslagPåSøknad = true,
+                    ),
+                    lagVilkårResultat(
+                        id = 2,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = null,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_VURDERT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                    ),
+                )
+
+            val vilkårDto =
+                VilkårResultatDto(
                     id = 2,
-                    personResultat = person,
-                    behandlingId = 1,
-                    periodeFom = null,
-                    periodeTom = null,
-                    resultat = Resultat.IKKE_VURDERT,
                     vilkårType = Vilkår.BARNEHAGEPLASS,
-                ),
-            )
-
-        val vilkårDto =
-            VilkårResultatDto(
-                id = 2,
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = januar,
-                periodeTom = desember,
-                resultat = Resultat.OPPFYLT,
-                endretTidspunkt = LocalDateTime.now(),
-                behandlingId = 1,
-                begrunnelse = "test",
-                endretAv = "VL",
-            )
-
-        val frontendFeilmelding =
-            assertThrows<FunksjonellFeil> {
-                endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
-            }.frontendFeilmelding
-
-        assertThat(frontendFeilmelding).isEqualTo("Du kan ikke legge til perioden fordi det er vurdert avslag uten datoer på vilkåret. Denne må fjernes først.")
-    }
-
-    @Test
-    fun `endreVilkårResultat - Skal kastes funksjonell feil hvis det forsøkes å lage en avslagsperiode uten dato mens det finnes en oppfylt periode`() {
-        val person = mockk<PersonResultat>(relaxed = true)
-
-        val eksisterendeVilkårResultat =
-            listOf(
-                lagVilkårResultat(
-                    id = 1,
-                    personResultat = person,
-                    behandlingId = 1,
                     periodeFom = januar,
                     periodeTom = desember,
                     resultat = Resultat.OPPFYLT,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                ),
-                lagVilkårResultat(
-                    id = 2,
-                    personResultat = person,
+                    endretTidspunkt = LocalDateTime.now(),
                     behandlingId = 1,
+                    begrunnelse = "test",
+                    endretAv = "VL",
+                )
+
+            val frontendFeilmelding =
+                assertThrows<FunksjonellFeil> {
+                    endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
+                }.frontendFeilmelding
+
+            assertThat(frontendFeilmelding).isEqualTo("Du kan ikke legge til perioden fordi det finnes perioder med avslag uten datoer på vilkåret. Disse må fjernes først.")
+        }
+
+        @Test
+        fun `Skal kastes funksjonell feil hvis det forsøkes å lage en avslagsperiode uten dato mens det finnes en oppfylt periode`() {
+            val person = mockk<PersonResultat>(relaxed = true)
+
+            val eksisterendeVilkårResultat =
+                listOf(
+                    lagVilkårResultat(
+                        id = 1,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = januar,
+                        periodeTom = desember,
+                        resultat = Resultat.OPPFYLT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                    ),
+                    lagVilkårResultat(
+                        id = 2,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = null,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_VURDERT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                    ),
+                )
+
+            val vilkårDto =
+                VilkårResultatDto(
+                    id = 2,
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
                     periodeFom = null,
                     periodeTom = null,
-                    resultat = Resultat.IKKE_VURDERT,
+                    resultat = Resultat.IKKE_OPPFYLT,
+                    endretTidspunkt = LocalDateTime.now(),
+                    behandlingId = 1,
+                    begrunnelse = "test",
+                    endretAv = "VL",
+                    erEksplisittAvslagPåSøknad = true,
+                )
+
+            val frontendFeilmelding =
+                assertThrows<FunksjonellFeil> {
+                    endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
+                }.frontendFeilmelding
+
+            assertThat(frontendFeilmelding).isEqualTo("Du kan ikke legge til avslagperiode uten datoer fordi det allerede finnes perioder med datoer på vilkåret. Disse må fjernes først.")
+        }
+
+        @Test
+        fun `Skal kaste funksjonell feil hvis det forsøkes å lage en periode med datoer mens det finnes avslag uten periode`() {
+            val person = mockk<PersonResultat>(relaxed = true)
+
+            val eksisterendeVilkårResultat =
+                listOf(
+                    lagVilkårResultat(
+                        id = 1,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = null,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_OPPFYLT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                        erEksplisittAvslagPåSøknad = true,
+                    ),
+                    lagVilkårResultat(
+                        id = 2,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = null,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_VURDERT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                    ),
+                )
+
+            val vilkårDto =
+                VilkårResultatDto(
+                    id = 2,
                     vilkårType = Vilkår.BARNEHAGEPLASS,
-                ),
-            )
+                    periodeFom = januar,
+                    periodeTom = null,
+                    resultat = Resultat.IKKE_OPPFYLT,
+                    endretTidspunkt = LocalDateTime.now(),
+                    behandlingId = 1,
+                    begrunnelse = "test",
+                    endretAv = "VL",
+                )
 
-        val vilkårDto =
-            VilkårResultatDto(
-                id = 2,
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = null,
-                periodeTom = null,
-                resultat = Resultat.IKKE_OPPFYLT,
-                endretTidspunkt = LocalDateTime.now(),
-                behandlingId = 1,
-                begrunnelse = "test",
-                endretAv = "VL",
-                erEksplisittAvslagPåSøknad = true,
-            )
+            val frontendFeilmelding =
+                assertThrows<FunksjonellFeil> {
+                    endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
+                }.frontendFeilmelding
 
-        val frontendFeilmelding =
-            assertThrows<FunksjonellFeil> {
-                endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
-            }.frontendFeilmelding
+            assertThat(frontendFeilmelding).isEqualTo("Du kan ikke legge til perioden fordi det finnes perioder med avslag uten datoer på vilkåret. Disse må fjernes først.")
+        }
 
-        assertThat(frontendFeilmelding).isEqualTo("Du kan ikke legge til avslagperiode uten datoer fordi det finnes oppfylte perioder på vilkåret. Disse må fjernes først.")
+        @Test
+        fun `Skal kaste funksjonell feil hvis det forsøkes å lage avslag uten periode mens det allerede finnes periode med datoer`() {
+            val person = mockk<PersonResultat>(relaxed = true)
+
+            val eksisterendeVilkårResultat =
+                listOf(
+                    lagVilkårResultat(
+                        id = 1,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = januar,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_OPPFYLT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                    ),
+                    lagVilkårResultat(
+                        id = 2,
+                        personResultat = person,
+                        behandlingId = 1,
+                        periodeFom = null,
+                        periodeTom = null,
+                        resultat = Resultat.IKKE_VURDERT,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                    ),
+                )
+
+            val vilkårDto =
+                VilkårResultatDto(
+                    id = 2,
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = null,
+                    periodeTom = null,
+                    resultat = Resultat.IKKE_OPPFYLT,
+                    endretTidspunkt = LocalDateTime.now(),
+                    behandlingId = 1,
+                    begrunnelse = "test",
+                    endretAv = "VL",
+                    erEksplisittAvslagPåSøknad = true,
+                )
+
+            val frontendFeilmelding =
+                assertThrows<FunksjonellFeil> {
+                    endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
+                }.frontendFeilmelding
+
+            assertThat(frontendFeilmelding).isEqualTo("Du kan ikke legge til avslagperiode uten datoer fordi det allerede finnes perioder med datoer på vilkåret. Disse må fjernes først.")
+        }
     }
 }
