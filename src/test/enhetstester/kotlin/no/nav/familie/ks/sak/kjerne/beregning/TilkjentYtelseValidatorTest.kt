@@ -262,7 +262,7 @@ internal class TilkjentYtelseValidatorTest {
                 ),
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
                 adopsjonerIBehandling = emptyList(),
-                dagensDato = LocalDate.now()
+                dagensDato = LocalDate.now(),
             )
         }
     }
