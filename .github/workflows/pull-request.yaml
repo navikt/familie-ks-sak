@@ -71,7 +71,7 @@ jobs:
           name: 'integrasjonstest'
           path: 'coverage/integrasjonstest'
       - name: Cache Sonar
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # ratchet:actions/cache@v4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # ratchet:actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
