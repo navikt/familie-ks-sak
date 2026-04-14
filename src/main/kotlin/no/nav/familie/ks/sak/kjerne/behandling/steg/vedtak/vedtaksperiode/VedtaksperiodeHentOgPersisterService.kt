@@ -23,7 +23,7 @@ class VedtaksperiodeHentOgPersisterService(
     fun lagre(vedtaksperiodeMedBegrunnelser: VedtaksperiodeMedBegrunnelser): VedtaksperiodeMedBegrunnelser {
         validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser)
 
-        return vedtaksperiodeRepository.save(vedtaksperiodeMedBegrunnelser)
+        return vedtaksperiodeRepository.saveAndFlush(vedtaksperiodeMedBegrunnelser)
     }
 
     fun lagre(vedtaksperiodeMedBegrunnelser: List<VedtaksperiodeMedBegrunnelser>): List<VedtaksperiodeMedBegrunnelser> {
