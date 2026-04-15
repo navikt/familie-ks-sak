@@ -129,8 +129,7 @@ class VedtakServiceTest {
         every { behandling.steg } returns behandlingSteg
 
         every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns eksisterendeVedtak
-        every { vedtakRepository.saveAndFlush(eksisterendeVedtak) } returns eksisterendeVedtak
-        every { vedtakRepository.save(capture(slot)) } returns mockk(relaxed = true)
+        every { vedtakRepository.saveAndFlush(capture(slot)) } returns mockk(relaxed = true)
 
         vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, false)
 
@@ -138,7 +137,7 @@ class VedtakServiceTest {
 
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { eksisterendeVedtak setProperty "aktiv" value false }
-        verify(exactly = 1) { vedtakRepository.save(lagretVedtak) }
+        verify(exactly = 1) { vedtakRepository.saveAndFlush(lagretVedtak) }
 
         assertThat(lagretVedtak.behandling, Is(behandling))
     }
@@ -156,8 +155,7 @@ class VedtakServiceTest {
 
         every { vedtaksperiodeService.kopierOverVedtaksperioder(any(), any()) } returns mockk()
         every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns eksisterendeVedtak
-        every { vedtakRepository.saveAndFlush(eksisterendeVedtak) } returns eksisterendeVedtak
-        every { vedtakRepository.save(capture(slot)) } returns mockk(relaxed = true)
+        every { vedtakRepository.saveAndFlush(capture(slot)) } returns mockk(relaxed = true)
 
         vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, true)
 
@@ -166,7 +164,7 @@ class VedtakServiceTest {
         verify(exactly = 1) { vedtaksperiodeService.kopierOverVedtaksperioder(any(), any()) }
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { eksisterendeVedtak setProperty "aktiv" value false }
-        verify(exactly = 1) { vedtakRepository.save(lagretVedtak) }
+        verify(exactly = 1) { vedtakRepository.saveAndFlush(lagretVedtak) }
 
         assertThat(lagretVedtak.behandling, Is(behandling))
     }
