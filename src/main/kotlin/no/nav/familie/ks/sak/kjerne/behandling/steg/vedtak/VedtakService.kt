@@ -53,6 +53,7 @@ class VedtakService(
                 ?.let { vedtakRepository.saveAndFlush(it.also { it.aktiv = false }) }
 
         val nyttVedtak = Vedtak(behandling = behandling)
+        vedtakRepository.saveAndFlush(nyttVedtak)
 
         if (kopiervedtaksbegrunnelser && deaktivertVedtak != null) {
             vedtaksperiodeService.kopierOverVedtaksperioder(
@@ -60,7 +61,5 @@ class VedtakService(
                 aktivtVedtak = nyttVedtak,
             )
         }
-
-        vedtakRepository.save(nyttVedtak)
     }
 }
