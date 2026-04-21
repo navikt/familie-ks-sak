@@ -65,3 +65,53 @@ Egenskap: Innvilgelse og opphør av kontantstøtte
     Og når behandlingsresultatet er utledet for behandling 2
 
     Så forvent at behandlingsresultatet er INNVILGET_OG_OPPHØRT på behandling 2
+
+  Scenario: Ved bare tidligere avslåtte behandlinger skal søknadsresultaten utledes på nytt ved nye opplysninger
+    Gitt følgende fagsaker
+      | FagsakId |
+      | 1        |
+
+    Og følgende behandlinger
+      | BehandlingId | FagsakId | ForrigeBehandlingId | Behandlingsårsak | Behandlingskategori | Behandlingsstatus | Behandlingsresultat |
+      | 1            | 1        |                     | SØKNAD           | NASJONAL            | AVSLUTTET         | AVSLÅTT             |
+      | 2            | 1        | 1                   | NYE_OPPLYSNINGER | NASJONAL            | UTREDES           |                     |
+
+    Og følgende persongrunnlag
+      | BehandlingId | AktørId | Persontype | Fødselsdato |
+      | 1            | 1       | SØKER      | 10.01.1991  |
+      | 1            | 2       | BARN       | 04.04.2024  |
+      | 2            | 1       | SØKER      | 10.01.1991  |
+      | 2            | 2       | BARN       | 04.04.2024  |
+
+    Og følgende dagens dato 20.04.2026
+
+    Og følgende vilkårresultater for behandling 1
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser                                       | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 10.01.1991 |            | OPPFYLT      | Nei                  |                                                            | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 10.01.1996 |            | OPPFYLT      | Nei                  |                                                            | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  |            |            | IKKE_OPPFYLT | Ja                   | AVSLAG_VURDERING_DEN_ANDRE_FORELDEREN_IKKE_MEDLEM_I_FEM_ÅR | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 04.04.2024 |            | OPPFYLT      | Nei                  |                                                            | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 04.04.2024 |            | OPPFYLT      | Nei                  |                                                            |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 04.04.2025 | 04.12.2025 | OPPFYLT      | Nei                  |                                                            |                  | Nei                                   |              |
+
+    Og følgende vilkårresultater for behandling 2
+      | AktørId | Vilkår                       | Utdypende vilkår | Fra dato   | Til dato   | Resultat     | Er eksplisitt avslag | Standardbegrunnelser | Vurderes etter   | Søker har meldt fra om barnehageplass | Antall timer |
+      | 1       | BOSATT_I_RIKET               |                  | 10.01.1991 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 1       | MEDLEMSKAP                   |                  | 10.01.1996 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+
+      | 2       | MEDLEMSKAP_ANNEN_FORELDER    |                  | 25.11.1996 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BOSATT_I_RIKET,BOR_MED_SØKER |                  | 04.04.2024 |            | OPPFYLT      | Nei                  |                      | NASJONALE_REGLER | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 04.04.2024 | 31.07.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNETS_ALDER                |                  | 04.04.2025 | 04.12.2025 | OPPFYLT      | Nei                  |                      |                  | Nei                                   |              |
+      | 2       | BARNEHAGEPLASS               |                  | 01.08.2025 |            | IKKE_OPPFYLT | Nei                  |                      |                  | Nei                                   | 44           |
+
+    Og andeler er beregnet for behandling 1
+
+    Og andeler er beregnet for behandling 2
+
+    Så forvent følgende andeler tilkjent ytelse for behandling 2
+      | AktørId | Fra dato   | Til dato   | Beløp | Ytelse type           | Prosent | Sats | Nasjonalt periodebeløp | Differanseberegnet beløp |
+      | 2       | 01.05.2025 | 31.07.2025 | 7500  | ORDINÆR_KONTANTSTØTTE | 100     | 7500 | 7500                   |                          |
+    Og når behandlingsresultatet er utledet for behandling 2
+    Så forvent at behandlingsresultatet er INNVILGET_OG_OPPHØRT på behandling 2
