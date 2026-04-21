@@ -96,6 +96,7 @@ class CucumberMock(
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             clockProvider = clockProvider,
             adopsjonService = adopsjonServiceMock,
+            pdlKlient = pdlKlientMock,
         )
 
     val beregningService =

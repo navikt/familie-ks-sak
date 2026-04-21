@@ -2,6 +2,8 @@ package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
+import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -12,6 +14,8 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
+import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlAdressebeskyttelsePerson
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -20,13 +24,18 @@ import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbe
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonEnkel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 
 class FagsakServiceTest {
     private val personidentService = mockk<PersonidentService>()
@@ -40,6 +49,7 @@ class FagsakServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val clockProvider = mockk<ClockProvider>()
     private val adopsjonService = mockk<AdopsjonService>()
+    private val pdlKlient = mockk<PdlKlient>()
 
     private val fagsakService =
         FagsakService(
@@ -54,11 +64,13 @@ class FagsakServiceTest {
             andelerTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             clockProvider = clockProvider,
             adopsjonService = adopsjonService,
+            pdlKlient = pdlKlient,
         )
 
     @BeforeEach
     fun setup() {
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
+        every { pdlKlient.hentAdressebeskyttelseBolk(any()) } returns emptyMap()
     }
 
     @Nested
@@ -185,7 +197,9 @@ class FagsakServiceTest {
     inner class HentMinimalFagsak {
         @Test
         fun `Skal returnere fagsak med tilhørende behandlinger når forespurt fagsakId finnes i db`() {
-            val fagsak = lagFagsak(randomAktør())
+            val søker = randomAktør()
+            val fagsak = lagFagsak(søker)
+
             val barnehagelisteBehandling =
                 lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.BARNEHAGELISTE).apply { aktiv = true }
 
@@ -200,10 +214,13 @@ class FagsakServiceTest {
                 )
             every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns barnehagelisteBehandling
             every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
+            every { personopplysningGrunnlagRepository.finnSøkerOgBarnAktørerTilFagsak(any()) } returns setOf(PersonEnkel(PersonType.SØKER, søker, LocalDate.of(2000, 1, 1), null, Målform.NB))
+            every { pdlKlient.hentAdressebeskyttelseBolk(any()) } returns mapOf(Pair(søker.aktørId, PdlAdressebeskyttelsePerson(listOf(Adressebeskyttelse(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG)))))
             val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
 
             assertEquals(fagsak.id, fagsakResponse.id)
             assertEquals(2, fagsakResponse.behandlinger.size)
+            assertThat(fagsakResponse.finnesStrengtFortroligPersonIFagsak).isTrue()
         }
 
         @Test

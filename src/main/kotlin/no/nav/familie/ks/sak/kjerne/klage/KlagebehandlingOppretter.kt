@@ -47,6 +47,13 @@ class KlagebehandlingOppretter(
             throw FunksjonellFeil("Kan ikke opprette klage med krav mottatt frem i tid.")
         }
 
+        if (fagsakService.harFagsakPersonMedStrengtFortroligAdressebeskyttelse(fagsak)) {
+            throw FunksjonellFeil(
+                melding = "Kan ikke opprette klagebehandling på fagsak ${fagsak.id} fordi den inneholder personer med strengt fortrolig adressebeskyttelse.",
+                frontendFeilmelding = "Klagebehandling kan ikke opprettes når fagsaken inneholder personer med strengt fortrolig adressebeskyttelse. Slike klager må behandles manuelt.",
+            )
+        }
+
         val fødselsnummer = fagsak.aktør.aktivFødselsnummer()
         val navIdent = NavIdent(SikkerhetContext.hentSaksbehandler())
 
