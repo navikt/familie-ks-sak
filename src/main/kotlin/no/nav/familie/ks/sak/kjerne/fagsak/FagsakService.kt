@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.micrometer.core.instrument.Metrics
+import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
@@ -11,6 +12,7 @@ import no.nav.familie.ks.sak.common.ClockProvider
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -46,6 +48,7 @@ class FagsakService(
     private val andelerTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val clockProvider: ClockProvider,
     private val adopsjonService: AdopsjonService,
+    private val pdlKlient: PdlKlient,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -103,6 +106,7 @@ class FagsakService(
                     )
                 },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList(),
+            finnesStrengtFortroligPersonIFagsak = harFagsakPersonMedStrengtFortroligAdressebeskyttelse(fagsak),
         )
     }
 
@@ -144,6 +148,19 @@ class FagsakService(
             melding = "Finner ikke fagsak med id $fagsakId",
             frontendFeilmelding = "Finner ikke fagsak med id $fagsakId",
         )
+
+    fun harFagsakPersonMedStrengtFortroligAdressebeskyttelse(fagsak: Fagsak): Boolean {
+        val identerFraPersongrunnlag = personopplysningGrunnlagRepository.finnSøkerOgBarnAktørerTilFagsak(fagsak.id).map { it.aktør.aktivFødselsnummer() }
+
+        return pdlKlient
+            .hentAdressebeskyttelseBolk(identerFraPersongrunnlag)
+            .filter { (_, person) ->
+                person.adressebeskyttelse.any { adressebeskyttelse ->
+                    adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG ||
+                        adressebeskyttelse.gradering == ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND
+                }
+            }.isNotEmpty()
+    }
 
     fun finnFagsakForPerson(aktør: Aktør): Fagsak? = fagsakRepository.finnFagsakForAktør(aktør)
 

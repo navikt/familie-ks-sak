@@ -49,6 +49,7 @@ class KlagebehandlingOppretterTest {
     @BeforeEach
     fun setup() {
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns lagBehandling()
+        every { fagsakService.harFagsakPersonMedStrengtFortroligAdressebeskyttelse(any()) } returns false
     }
 
     @Nested
@@ -65,6 +66,24 @@ class KlagebehandlingOppretterTest {
                     klagebehandlingOppretter.opprettKlage(fagsak, klageMottattDato)
                 }
             assertThat(exception.message).isEqualTo("Kan ikke opprette klage med krav mottatt frem i tid.")
+        }
+
+        @Test
+        fun `skal kaste FunksjonellFeil hvis fagsak inneholder person med strengt fortrolig adressebeskyttelse ved opprettelse av klage behandling`() {
+            // Arrange
+            val fagsak = lagFagsak()
+            val klageMottattDato = dagensDato
+
+            every { fagsakService.harFagsakPersonMedStrengtFortroligAdressebeskyttelse(fagsak) } returns true
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    klagebehandlingOppretter.opprettKlage(fagsak, klageMottattDato)
+                }
+            assertThat(exception.frontendFeilmelding).isEqualTo(
+                "Klagebehandling kan ikke opprettes når fagsaken inneholder personer med strengt fortrolig adressebeskyttelse. Slike klager må behandles manuelt.",
+            )
         }
 
         @Test
