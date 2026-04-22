@@ -2,8 +2,6 @@ package no.nav.familie.ks.sak.kjerne.brev
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
@@ -20,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -31,19 +28,12 @@ class SøkersMeldepliktServiceTest {
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository = mockk()
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
-    private val featureToggleService: FeatureToggleService = mockk()
     private val søkersMeldepliktService: SøkersMeldepliktService =
         SøkersMeldepliktService(
             vilkårsvurderingService = vilkårsvurderingService,
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
-            featureToggleService = featureToggleService,
         )
-
-    @BeforeEach
-    fun setUp() {
-        every { featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT) } returns true
-    }
 
     @Nested
     inner class SkalMeldeFraOmEndringerEøsSelvstendigRettTest {
@@ -787,135 +777,6 @@ class SøkersMeldepliktServiceTest {
 
             // Act
             val harSøkerMeldtFraOmBarnehagePlass = søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(vedtak)
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
-        }
-
-        @Test
-        fun `skal returnere true om søker har meldt fra om barnehageplass når toggle er av`() {
-            // Arrange
-            val vedtak = lagVedtak()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = true,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every { featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT) } returns false
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isTrue()
-        }
-
-        @Test
-        fun `skal returnere false om søker ikke har meldt fra om barnehageplass når toggle er av`() {
-            // Arrange
-            val vedtak = lagVedtak()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = false,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every { featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT) } returns false
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
-
-            // Assert
-            assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
-        }
-
-        @Test
-        fun `skal returnere false om søker har meldt fra om barnehageplass ikke er oppgitt når toggle er av`() {
-            // Arrange
-            val vedtak = lagVedtak()
-
-            val vilkårsvurdering =
-                lagVilkårsvurdering(
-                    behandling = vedtak.behandling,
-                    lagPersonResultat = {
-                        setOf(
-                            lagPersonResultat(
-                                vilkårsvurdering = it,
-                                lagVilkårResultater = {
-                                    setOf(
-                                        lagVilkårResultat(
-                                            personResultat = it,
-                                            søkerHarMeldtFraOmBarnehageplass = null,
-                                        ),
-                                    )
-                                },
-                            ),
-                        )
-                    },
-                )
-
-            every {
-                vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(
-                    behandlingId = vedtak.behandling.id,
-                )
-            } returns vilkårsvurdering
-
-            every { featureToggleService.isEnabled(FeatureToggle.BRUK_NY_LOGIKK_FOR_SØKERS_MELDEPLIKT) } returns false
-
-            // Act
-            val harSøkerMeldtFraOmBarnehagePlass =
-                søkersMeldepliktService.harSøkerMeldtFraOmBarnehagePlass(
-                    vedtak = vedtak,
-                )
 
             // Assert
             assertThat(harSøkerMeldtFraOmBarnehagePlass).isFalse()
