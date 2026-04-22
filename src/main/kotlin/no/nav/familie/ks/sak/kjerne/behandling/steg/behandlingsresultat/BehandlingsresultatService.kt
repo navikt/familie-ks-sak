@@ -37,14 +37,9 @@ class BehandlingsresultatService(
 
         val forrigeBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId = behandling.fagsak.id)
 
-        val tidligereAvsluttetBehandlingerIFagsak =
-            behandlingService
-                .hentBehandlingerPåFagsak(behandling.fagsak.id)
-                .filter { it.erAvsluttet() }
+        val tidligereAvsluttetBehandlingerIFagsak = behandlingService.hentBehandlingerPåFagsak(behandling.fagsak.id).filter { it.erAvsluttet() }
 
-        val harTidligereBareBehandlingerSomErAvslått =
-            tidligereAvsluttetBehandlingerIFagsak.isNotEmpty() &&
-                tidligereAvsluttetBehandlingerIFagsak.all { it.resultat.erAvslått() }
+        val harTidligereBareBehandlingerSomErAvslått = tidligereAvsluttetBehandlingerIFagsak.isNotEmpty() && tidligereAvsluttetBehandlingerIFagsak.all { it.resultat.erAvslått() }
 
         val søknadGrunnlag = søknadGrunnlagService.finnAktiv(behandlingId = behandling.id)
         val søknadDto = søknadGrunnlag?.tilSøknadDto()
@@ -65,15 +60,18 @@ class BehandlingsresultatService(
         val personerFremstiltKravFor =
             finnPersonerFremstiltKravFor(
                 behandling = behandling,
+                forrigeBehandling = forrigeBehandling,
                 søknadDto = søknadDto,
+                harTidligereBareBehandlingerSomErAvslått = harTidligereBareBehandlingerSomErAvslått,
             )
 
         val nåværendePersonResultat = vilkårsvurdering.personResultater
+
         BehandlingsresultatValideringUtils.validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag(personerFremstiltKravFor = personerFremstiltKravFor, personResultater = nåværendePersonResultat)
 
         // 1 SØKNAD
         val søknadsresultat =
-            if (skalUtledeSøknadsresultatForBehandling(behandling)) {
+            if (skalUtledeSøknadsresultatForBehandling(behandling, harTidligereBareBehandlingerSomErAvslått)) {
                 BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                     nåværendeAndeler = andelerTilkjentYtelse,
                     forrigeAndeler = forrigeAndelerTilkjentYtelse,
@@ -129,17 +127,28 @@ class BehandlingsresultatService(
 
     internal fun finnPersonerFremstiltKravFor(
         behandling: Behandling,
+        forrigeBehandling: Behandling?,
         søknadDto: SøknadDto?,
+        harTidligereBareBehandlingerSomErAvslått: Boolean,
     ): List<Aktør> {
+        val behandlingÅrsak = behandling.opprettetÅrsak
+
         val personerFremstiltKravFor =
-            when (behandling.opprettetÅrsak) {
+            when (behandlingÅrsak) {
                 BehandlingÅrsak.SØKNAD -> {
-                    // alle barna som er krysset av på søknad
                     søknadDto?.barnaMedOpplysninger?.filter { it.erFolkeregistrert && it.inkludertISøknaden }?.map { personidentService.hentAktør(it.ident) } ?: emptyList()
                 }
 
                 BehandlingÅrsak.KLAGE -> {
                     personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id).personer.map { it.aktør }
+                }
+
+                BehandlingÅrsak.NYE_OPPLYSNINGER if harTidligereBareBehandlingerSomErAvslått -> {
+                    forrigeBehandling?.let {
+                        personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(forrigeBehandling.id).barna.map {
+                            it.aktør
+                        }
+                    } ?: emptyList()
                 }
 
                 else -> {
