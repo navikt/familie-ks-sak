@@ -38,9 +38,9 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20260331095424_89d92d2</prosessering.version>
-        <felles-kontrakter.version>4.0_20260326091316_bc0649b</felles-kontrakter.version>
-        <felles.version>4.20260405040345_7e10b4d</felles.version>
+        <prosessering.version>2.20260420122910_8bfca04</prosessering.version>
+        <felles-kontrakter.version>4.0_20260424102717_a34ce11</felles-kontrakter.version>
+        <felles.version>4.20260420125050_76c5fea</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20260323170751_4c02e3c</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.saksstatistikk>
