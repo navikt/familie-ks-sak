@@ -190,17 +190,17 @@ private fun validerAvslagUtenPeriodeMedLøpende(
             return
         }
 
-        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { it.resultat == Resultat.OPPFYLT } -> {
+        endretVilkårResultat.erAvslagUtenPeriode() && filtrerteVilkårResultater.any { !it.erAvslagUtenPeriode() && it.resultat != Resultat.IKKE_VURDERT } -> {
             throw FunksjonellFeil(
-                "Finnes oppfylte perioder ved forsøk på å legge til avslag uten periode.",
-                "Du kan ikke legge til avslagperiode uten datoer fordi det finnes oppfylte perioder på vilkåret. Disse må fjernes først.",
+                "Finnes perioder med datoer ved forsøk på å legge til avslag uten periode.",
+                "Du kan ikke legge til avslagperiode uten datoer fordi det allerede finnes perioder med datoer på vilkåret. Disse må fjernes først.",
             )
         }
 
-        endretVilkårResultat.resultat == Resultat.OPPFYLT && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } -> {
+        !endretVilkårResultat.erAvslagUtenPeriode() && endretVilkårResultat.resultat != Resultat.IKKE_VURDERT && filtrerteVilkårResultater.any { it.erAvslagUtenPeriode() } -> {
             throw FunksjonellFeil(
-                "Finnes avslag uten periode ved forsøk på å legge til oppfylt periode.",
-                "Du kan ikke legge til perioden fordi det er vurdert avslag uten datoer på vilkåret. Denne må fjernes først.",
+                "Finnes avslag uten periode ved forsøk på å legge til periode med datoer.",
+                "Du kan ikke legge til perioden fordi det finnes perioder med avslag uten datoer på vilkåret. Disse må fjernes først.",
             )
         }
     }

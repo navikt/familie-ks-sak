@@ -16,6 +16,8 @@ jobs:
     permissions:
       contents: read
     uses: navikt/familie-baks-gha-workflows/.github/workflows/ktlint.yaml@main # ratchet:exclude
+    with:
+      java-version: '25'
     secrets: inherit
 
   enhetstest:
@@ -59,17 +61,17 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: '25'
       - name: Last ned enhetstest rapport
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # ratchet:actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # ratchet:actions/download-artifact@v4
         with:
           name: 'enhetstest'
           path: 'coverage/enhetstest'
       - name: Last ned integrasjonstest rapport
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # ratchet:actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # ratchet:actions/download-artifact@v4
         with:
           name: 'integrasjonstest'
           path: 'coverage/integrasjonstest'
       - name: Cache Sonar
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # ratchet:actions/cache@v4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # ratchet:actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar

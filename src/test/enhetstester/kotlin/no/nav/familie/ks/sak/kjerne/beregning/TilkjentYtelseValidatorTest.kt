@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomat
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.finnAktørIderMedUgyldigEtterbetalingsperiode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtBarnIkkeFårFlereUtbetalingerSammePeriode
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValidator.validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
@@ -46,6 +47,46 @@ internal class TilkjentYtelseValidatorTest {
         )
     var vilkårsvurdering = lagVilkårsvurdering(søkerAktør = søker.aktør, behandling = behandling, resultat = Resultat.OPPFYLT, søkerPeriodeFom = LocalDate.of(2021, 1, 1))
     private val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
+
+    @Test
+    fun `kaster ikke feil på å validere andeler for barn som kun har overgangsandel`() {
+        val andelTilkjentYtelseOvergang =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                fom = YearMonth.of(2024, 8),
+                tom = YearMonth.of(2024, 10),
+                ytelseType = YtelseType.OVERGANGSORDNING,
+                beløp = 7500,
+                aktør = barn2.aktør,
+            )
+
+        val andelTilkjentYtelseOrdinær =
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                fom = YearMonth.of(2025, 10),
+                tom = YearMonth.of(2026, 4),
+                ytelseType = YtelseType.ORDINÆR_KONTANTSTØTTE,
+                beløp = 7500,
+                aktør = barn.aktør,
+            )
+
+        tilkjentYtelse.andelerTilkjentYtelse.addAll(setOf(andelTilkjentYtelseOvergang, andelTilkjentYtelseOrdinær))
+
+        val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
+        val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 1, 1).minusMonths(11), adopsjonsdato = null)
+
+        assertDoesNotThrow {
+            validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
+                tilkjentYtelse = tilkjentYtelse,
+                personopplysningGrunnlag = personopplysningGrunnlag,
+                alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
+                adopsjonerIBehandling = emptyList(),
+                dagensDato = LocalDate.of(2026, 3, 1),
+            )
+        }
+    }
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 11 måneder`() {
@@ -221,7 +262,7 @@ internal class TilkjentYtelseValidatorTest {
                 ),
                 alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultaterBarn1 + barnetsAlderVilkårResultaterBarn2,
                 adopsjonerIBehandling = emptyList(),
-                dagensDato = LocalDate.of(2025, 4, 1),
+                dagensDato = LocalDate.now(),
             )
         }
     }

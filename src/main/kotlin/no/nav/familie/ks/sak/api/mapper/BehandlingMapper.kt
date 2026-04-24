@@ -184,8 +184,8 @@ object BehandlingMapper {
         endringstidspunkt: LocalDate,
         behandling: Behandling,
     ) = when {
-        endringstidspunkt == TIDENES_MORGEN || endringstidspunkt == TIDENES_ENDE -> null
         behandling.overstyrtEndringstidspunkt != null -> behandling.overstyrtEndringstidspunkt
+        endringstidspunkt == TIDENES_MORGEN || endringstidspunkt == TIDENES_ENDE -> null
         else -> endringstidspunkt
     }
 

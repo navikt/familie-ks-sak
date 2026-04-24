@@ -57,6 +57,8 @@ class BehandlingsresultatServiceTest {
             behandlingsresultatService.finnPersonerFremstiltKravFor(
                 behandling = behandling,
                 søknadDto = null,
+                forrigeBehandling = null,
+                harTidligereBareBehandlingerSomErAvslått = false,
             )
 
         assertThat(personerFramstiltForKrav, Is(emptyList()))
@@ -110,6 +112,8 @@ class BehandlingsresultatServiceTest {
             behandlingsresultatService.finnPersonerFremstiltKravFor(
                 behandling = behandling,
                 søknadDto = søknadDto,
+                forrigeBehandling = null,
+                harTidligereBareBehandlingerSomErAvslått = false,
             )
 
         assertThat(personerFramstiltForKrav.single(), Is(mocketAktør))
@@ -152,6 +156,8 @@ class BehandlingsresultatServiceTest {
             behandlingsresultatService.finnPersonerFremstiltKravFor(
                 behandling = behandling,
                 søknadDto = søknadDto,
+                forrigeBehandling = null,
+                harTidligereBareBehandlingerSomErAvslått = false,
             )
 
         assertThat(personerFramstiltForKrav.size, Is(1))

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.2</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>4.0.3</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -30,21 +30,21 @@
         <kotlinx.version>1.10.2</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>4.0.2</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <spring-boot-dependencies.version>4.0.3</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>3.0.1</springdoc.version>
 
         <!-- Nav felles -->
-        <nav-token-client.version>6.0.1</nav-token-client.version>
+        <nav-token-client.version>6.0.3</nav-token-client.version>
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20251103090009_f7d38c7</prosessering.version>
-        <felles-kontrakter.version>4.0_20260204122732_558ee1d</felles-kontrakter.version>
-        <felles.version>4.20260205114838_3a4c3dc</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20260123183438_42a3cb1</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20260123183438_42a3cb1</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20260123183438_42a3cb1</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20250922101633_e4c1c4d</utbetalingsgenerator.version>
+        <prosessering.version>2.20260331095424_89d92d2</prosessering.version>
+        <felles-kontrakter.version>4.0_20260326091316_bc0649b</felles-kontrakter.version>
+        <felles.version>4.20260405040345_7e10b4d</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20260323170751_4c02e3c</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.saksstatistikk>
+        <utbetalingsgenerator.version>1.0_20251127080440_b935966</utbetalingsgenerator.version>
 
         <!-- Database -->
         <jsqlparser.version>5.3</jsqlparser.version>
@@ -61,7 +61,7 @@
         <azure-identity.version>1.18.2</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.34.2</cucumber.version>
+        <cucumber.version>7.34.3</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
         <mock-oauth2-server.version>2.3.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
