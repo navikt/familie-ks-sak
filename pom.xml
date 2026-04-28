@@ -368,11 +368,23 @@
             <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
             <version>${unleash.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.microsoft.graph</groupId>
             <artifactId>microsoft-graph</artifactId>
             <version>${microsoft-graph.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
