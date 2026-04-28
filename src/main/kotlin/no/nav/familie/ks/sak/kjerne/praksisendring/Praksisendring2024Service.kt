@@ -99,7 +99,9 @@ class Praksisendring2024Service(
 
         val harBarnehageplassSammeMånedSom13Måneder =
             vilkårResultater.any {
-                it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && it.antallTimer != null && it.antallTimer > BigDecimal.ZERO
+                val antallTimer = it.antallTimer
+
+                it.periodeFom?.toYearMonth() == barn13Måneder && it.vilkårType == Vilkår.BARNEHAGEPLASS && antallTimer != null && antallTimer > BigDecimal.ZERO
             }
 
         if (!harBarnehageplassSammeMånedSom13Måneder) {

@@ -88,6 +88,8 @@ class StønadsstatistikkService(
 
     fun List<Kompetanse>.tilEksernkontraktKompetanser(): List<no.nav.familie.eksterne.kontrakter.Kompetanse> =
         this.filter { it.resultat != null }.map { kompetanse ->
+            val søkersAktivitet = kompetanse.søkersAktivitet
+
             no.nav.familie.eksterne.kontrakter.Kompetanse(
                 barnsIdenter = kompetanse.barnAktører.map { aktør -> aktør.aktivFødselsnummer() },
                 annenForeldersAktivitet = kompetanse.annenForeldersAktivitet?.let { KompetanseAktivitet.valueOf(it.name) },
@@ -96,7 +98,7 @@ class StønadsstatistikkService(
                 fom = kompetanse.fom!!,
                 tom = kompetanse.tom,
                 resultat = KompetanseResultat.valueOf(kompetanse.resultat!!.name),
-                kompetanseAktivitet = if (kompetanse.søkersAktivitet != null) KompetanseAktivitet.valueOf(kompetanse.søkersAktivitet.name) else null,
+                kompetanseAktivitet = if (søkersAktivitet != null) KompetanseAktivitet.valueOf(søkersAktivitet.name) else null,
                 sokersAktivitetsland = kompetanse.søkersAktivitetsland,
             )
         }

@@ -237,9 +237,11 @@ class VilkårsvurderingSteg(
         vilkårsvurdering.personResultater.forEach {
             it.vilkårResultater
                 .filter { vilkårResultat ->
+                    val antallTimer = vilkårResultat.antallTimer
+
                     val gradertBarnehageplass =
-                        vilkårResultat.antallTimer != null &&
-                            vilkårResultat.antallTimer > BigDecimal(0) &&
+                        antallTimer != null &&
+                            antallTimer > BigDecimal(0) &&
                             vilkårResultat.vilkårType == Vilkår.BARNEHAGEPLASS
 
                     val deltBosted =
