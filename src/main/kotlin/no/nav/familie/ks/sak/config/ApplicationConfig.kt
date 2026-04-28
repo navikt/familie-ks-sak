@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.config
 
 import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.log.NavSystemtype
+import no.nav.familie.sikkerhet.context.FamilieFellesNavTokenSupportKonfigurasjon
 import no.nav.familie.log.filter.LogFilter
 import no.nav.familie.prosessering.config.ProsesseringInfoProvider
 import no.nav.familie.restklient.client.RetryOAuth2HttpClient
@@ -48,6 +49,7 @@ import java.time.temporal.ChronoUnit
     ConsumerIdClientInterceptor::class,
     BearerTokenClientInterceptor::class,
     BearerTokenClientCredentialsClientInterceptor::class,
+    FamilieFellesNavTokenSupportKonfigurasjon::class,
 )
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
