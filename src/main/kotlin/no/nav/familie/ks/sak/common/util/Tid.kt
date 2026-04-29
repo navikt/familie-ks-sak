@@ -108,13 +108,16 @@ fun erBack2BackIMånedsskifte(
     fraOgMed: LocalDate?,
 ): Boolean = tilOgMed?.erDagenFør(fraOgMed) == true && tilOgMed.toYearMonth() != fraOgMed?.toYearMonth()
 
-fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean =
-    when {
+fun DatoIntervallEntitet.erInnenfor(dato: LocalDate): Boolean {
+    val fom = this.fom
+    val tom = this.tom
+    return when {
         fom == null && tom == null -> true
         fom == null -> dato.erSammeEllerFør(tom!!)
         tom == null -> dato.erSammeEllerEtter(fom)
         else -> dato.erSammeEllerEtter(fom) && dato.erSammeEllerFør(tom)
     }
+}
 
 fun LocalDateTime.erHverdag(): Boolean = this.dayOfWeek != DayOfWeek.SATURDAY && this.dayOfWeek != DayOfWeek.SUNDAY
 
