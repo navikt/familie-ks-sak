@@ -9,6 +9,7 @@ import no.nav.familie.restklient.interceptor.BearerTokenClientCredentialsClientI
 import no.nav.familie.restklient.interceptor.BearerTokenClientInterceptor
 import no.nav.familie.restklient.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.restklient.interceptor.MdcValuesPropagatingClientInterceptor
+import no.nav.familie.sikkerhet.context.FamilieFellesNavTokenSupportKonfigurasjon
 import no.nav.security.token.support.client.core.http.OAuth2HttpClient
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
@@ -48,6 +49,7 @@ import java.time.temporal.ChronoUnit
     ConsumerIdClientInterceptor::class,
     BearerTokenClientInterceptor::class,
     BearerTokenClientCredentialsClientInterceptor::class,
+    FamilieFellesNavTokenSupportKonfigurasjon::class,
 )
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
