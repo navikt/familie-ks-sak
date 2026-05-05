@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>4.0.6</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -30,7 +30,7 @@
         <kotlinx.version>1.10.2</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>4.0.5</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <spring-boot-dependencies.version>4.0.6</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>3.0.3</springdoc.version>
 
         <!-- Nav felles -->
@@ -40,7 +40,7 @@
         <!-- Nav Familie-->
         <prosessering.version>2.20260420122910_8bfca04</prosessering.version>
         <felles-kontrakter.version>4.0_20260424102717_a34ce11</felles-kontrakter.version>
-        <felles.version>4.20260420125050_76c5fea</felles.version>
+        <felles.version>4.20260428145828_c16a1d8</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20260323170751_4c02e3c</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.saksstatistikk>
@@ -58,6 +58,7 @@
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>12.2.1</unleash.version>
         <microsoft-graph.version>6.63.0</microsoft-graph.version>
+        <okhttp-jvm.version>5.2.1</okhttp-jvm.version>
         <azure-identity.version>1.18.2</azure-identity.version>
 
         <!-- Test -->
@@ -67,7 +68,6 @@
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.9</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <okhttp3.version>4.9.0</okhttp3.version> <!-- Må settes for å kjøre opp mock-oauth2-server i unit-tester -->
         <springmockk.version>4.0.2</springmockk.version>
 
         <!-- Plugin -->
@@ -171,6 +171,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-health</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
@@ -242,6 +246,10 @@
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
             <artifactId>sikkerhet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>sikkerhet-token-support</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.familie</groupId>
@@ -385,6 +393,11 @@
                     <artifactId>okhttp</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-jvm</artifactId>
+            <version>${okhttp-jvm.version}</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>

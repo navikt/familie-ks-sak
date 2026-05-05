@@ -334,7 +334,7 @@ internal class TilkjentYtelseValidatorTest {
                         ),
                     alleBarnetsAlderVilkårResultater = barnetsAlderVilkårResultater,
                     adopsjonerIBehandling = emptyList(),
-                    dagensDato = LocalDate.of(2025, 4, 1),
+                    dagensDato = LocalDate.now().minusYears(1),
                 )
             }
 
