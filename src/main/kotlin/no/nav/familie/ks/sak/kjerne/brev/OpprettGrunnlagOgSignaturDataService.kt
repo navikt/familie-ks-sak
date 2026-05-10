@@ -23,32 +23,28 @@ class OpprettGrunnlagOgSignaturDataService(
     fun opprett(vedtak: Vedtak): GrunnlagOgSignaturData {
         val behandling = vedtak.behandling
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
-        val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId = behandling.id)
-        val innloggetSaksbehandlerNavn = saksbehandlerContext.hentSaksbehandlerSignaturTilBrev()
-
-        val (saksbehandler, beslutter) = utledSaksbehandlerOgBeslutterSignatur(totrinnskontroll, behandling, innloggetSaksbehandlerNavn)
+        val (saksbehandler, beslutter) = utledSaksbehandlerOgBeslutterSignatur(behandling)
 
         val enhetNavn = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id).behandlendeEnhetNavn
         return GrunnlagOgSignaturData(
             grunnlag = personopplysningGrunnlag,
-            saksbehandler = saksbehandler ?: innloggetSaksbehandlerNavn,
-            beslutter = beslutter ?: "Beslutter",
+            saksbehandler = saksbehandler,
+            beslutter = beslutter,
             enhet = enhetNavn,
         )
     }
 
-    private fun utledSaksbehandlerOgBeslutterSignatur(
-        totrinnskontroll: Totrinnskontroll?,
-        behandling: Behandling,
-        innloggetSaksbehandlerNavn: String,
-    ): Pair<String?, String?> =
-        when {
+    private fun utledSaksbehandlerOgBeslutterSignatur(behandling: Behandling): Pair<String, String> {
+        val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(behandlingId = behandling.id)
+        val innloggetSaksbehandlerNavn = saksbehandlerContext.hentSaksbehandlerSignaturTilBrev()
+
+        return when {
             behandling.skalBehandlesAutomatisk() -> {
                 Pair(SikkerhetContext.SYSTEM_NAVN, SikkerhetContext.SYSTEM_NAVN)
             }
 
             totrinnskontroll?.godkjent == true -> {
-                Pair(totrinnskontroll.saksbehandler, totrinnskontroll.beslutter)
+                Pair(totrinnskontroll.saksbehandler, totrinnskontroll.beslutter!!)
             }
 
             behandling.steg.sekvens > BehandlingSteg.BESLUTTE_VEDTAK.sekvens -> {
@@ -57,18 +53,20 @@ class OpprettGrunnlagOgSignaturDataService(
 
             behandling.steg == BehandlingSteg.BESLUTTE_VEDTAK -> {
                 val beslutter =
-                    if (totrinnskontroll?.saksbehandler == innloggetSaksbehandlerNavn) {
+                    if (totrinnskontroll!!.saksbehandler == innloggetSaksbehandlerNavn) {
                         "Beslutter"
                     } else {
                         innloggetSaksbehandlerNavn
                     }
-                Pair(totrinnskontroll?.saksbehandler, beslutter)
+
+                Pair(totrinnskontroll.saksbehandler, beslutter)
             }
 
             else -> {
                 throw Feil("Kunne ikke utlede signatur for behandling ${behandling.id}")
             }
         }
+    }
 }
 
 class GrunnlagOgSignaturData(
