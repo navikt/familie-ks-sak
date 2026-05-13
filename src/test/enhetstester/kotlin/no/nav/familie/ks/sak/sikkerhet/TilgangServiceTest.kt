@@ -7,7 +7,6 @@ import io.mockk.verify
 import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -48,22 +47,12 @@ class TilgangServiceTest {
 
     private val cacheManager = ConcurrentMapCacheManager()
 
-    private val rolleConfig =
-        RolleConfig(
-            BehandlerRolle.BESLUTTER.name,
-            BehandlerRolle.SAKSBEHANDLER.name,
-            BehandlerRolle.VEILEDER.name,
-            BehandlerRolle.FORVALTER.name,
-            KODE6 = "kode6",
-            KODE7 = "kode7",
-        )
     private val auditLogger = AuditLogger("familie-ks-sak")
     private val tilgangService =
         TilgangService(
             integrasjonService = mockIntegrasjonService,
             behandlingRepository = mockBehandlingRepository,
             personopplysningGrunnlagRepository = mockPersonopplysningGrunnlagRepository,
-            rolleConfig = rolleConfig,
             cacheManager = cacheManager,
             auditLogger = auditLogger,
             personidentService = personidentService,

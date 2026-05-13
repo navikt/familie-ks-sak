@@ -4,7 +4,6 @@ import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service
 class TilgangService(
     private val behandlingRepository: BehandlingRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val rolleConfig: RolleConfig,
     private val integrasjonService: IntegrasjonService,
     private val personidentService: PersonidentService,
     private val cacheManager: CacheManager,
@@ -37,7 +35,7 @@ class TilgangService(
     ) {
         // Hvis minimumBehandlerRolle er forvalter, må innlogget bruker ha FORVALTER rolle
         if (minimumBehandlerRolle == BehandlerRolle.FORVALTER &&
-            !SikkerhetContext.harInnloggetBrukerForvalterRolle(rolleConfig)
+            !SikkerhetContext.harInnloggetBrukerForvalterRolle()
         ) {
             throw RolleTilgangskontrollFeil(
                 melding =
@@ -46,7 +44,7 @@ class TilgangService(
                 frontendFeilmelding = "Du har ikke tilgang til å $handling.",
             )
         }
-        val høyesteRolletilgang = SikkerhetContext.hentHøyesteRolletilgangForInnloggetBruker(rolleConfig)
+        val høyesteRolletilgang = SikkerhetContext.hentHøyesteRolletilgangForInnloggetBruker()
         if (minimumBehandlerRolle.nivå > høyesteRolletilgang.nivå) {
             throw RolleTilgangskontrollFeil(
                 melding =

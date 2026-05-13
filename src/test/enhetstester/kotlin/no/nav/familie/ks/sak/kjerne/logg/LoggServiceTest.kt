@@ -6,7 +6,6 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
@@ -24,10 +23,9 @@ import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class LoggServiceTest {
-    private val rolleConfig = mockk<RolleConfig>()
     private val loggRepository = mockk<LoggRepository>()
 
-    private val loggService = LoggService(loggRepository, rolleConfig)
+    private val loggService = LoggService(loggRepository)
 
     @Test
     fun `opprettBehandlingLogg - skal lagre logg på at behandling er opprettet`() {
