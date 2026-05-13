@@ -291,6 +291,7 @@ abstract class OppslagSpringRunnerTest {
     }
 
     protected fun lokalTestToken(
+        claims: Map<String, Any> = emptyMap(),
         issuerId: String = "azuread",
         subject: String = "subject1",
         behandlerRolle: BehandlerRolle? = null,
@@ -300,6 +301,7 @@ abstract class OppslagSpringRunnerTest {
                 BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
                 BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
                 BehandlerRolle.BESLUTTER -> rolleConfig.BESLUTTER_ROLLE
+                BehandlerRolle.FORVALTER -> rolleConfig.FORVALTER_ROLLE
                 else -> ""
             }
 
@@ -312,7 +314,7 @@ abstract class OppslagSpringRunnerTest {
                     subject,
                     JOSEObjectType.JWT.type,
                     listOf("familie-ks-sak-test"),
-                    mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))),
+                    mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))) + claims,
                     3600,
                 ),
             ).serialize()
