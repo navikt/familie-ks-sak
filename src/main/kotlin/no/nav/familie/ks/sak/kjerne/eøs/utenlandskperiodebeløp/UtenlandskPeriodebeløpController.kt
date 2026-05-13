@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 // TODO slett /api/differanseberegning/utenlandskperidebeløp når frontend er oppdatert
 @RequestMapping("/api/differanseberegning/utenlandskperidebeløp", "/api/differanseberegning/utenlandskperiodebeløp")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class UtenlandskPeriodebeløpController(
     private val tilgangService: TilgangService,

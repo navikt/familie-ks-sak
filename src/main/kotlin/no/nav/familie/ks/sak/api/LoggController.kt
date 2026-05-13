@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/logg")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class LoggController(
     private val loggService: LoggService,

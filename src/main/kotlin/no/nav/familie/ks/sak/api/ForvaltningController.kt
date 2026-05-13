@@ -46,8 +46,6 @@ import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.PubliserVedtakTask
 import no.nav.familie.ks.sak.statistikk.stønadsstatistikk.StønadsstatistikkService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
-import no.nav.security.token.support.core.api.Unprotected
 import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
 import org.springframework.data.domain.Page
@@ -69,7 +67,6 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/forvaltning/")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class ForvaltningController(
     private val tilgangService: TilgangService,
@@ -366,7 +363,6 @@ class ForvaltningController(
     }
 
     @GetMapping("/redirect/behandling/{behandlingId}")
-    @Unprotected
     fun redirectTilKontantstøtte(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Any> {

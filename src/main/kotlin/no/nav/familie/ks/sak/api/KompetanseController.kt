@@ -9,7 +9,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/behandlinger")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class KompetanseController(
     private val kompetanseService: KompetanseService,

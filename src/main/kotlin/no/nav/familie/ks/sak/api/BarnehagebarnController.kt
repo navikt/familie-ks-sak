@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/barnehagebarn")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class BarnehagebarnController(
     private val barnehagebarnService: BarnehagebarnService,

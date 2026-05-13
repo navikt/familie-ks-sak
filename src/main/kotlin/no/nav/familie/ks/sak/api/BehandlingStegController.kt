@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/behandlinger/{behandlingId}/steg")
-@ProtectedWithClaims(issuer = "azuread")
 class BehandlingStegController(
     private val tilgangService: TilgangService,
     private val stegService: StegService,

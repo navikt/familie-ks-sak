@@ -5,7 +5,6 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingSøknadsinfoService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.SøknadsstatistikkForPeriode
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -18,7 +17,6 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/internstatistikk")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class InternStatistikkController(
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,

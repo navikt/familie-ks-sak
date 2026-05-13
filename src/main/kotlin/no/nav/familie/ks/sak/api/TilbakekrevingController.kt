@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingsbehandlingHentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/tilbakekreving")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class TilbakekrevingController(
     private val tilgangService: TilgangService,

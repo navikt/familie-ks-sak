@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/featuretoggles")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class FeatureToggleController(
     private val featureToggleService: FeatureToggleService,
