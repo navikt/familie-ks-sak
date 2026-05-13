@@ -3,12 +3,12 @@ package no.nav.familie.ks.sak.config
 import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
+import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
+import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
 import no.nav.familie.prosessering.config.ProsesseringInfoProvider
 import no.nav.familie.restklient.client.RetryOAuth2HttpClient
 import no.nav.familie.restklient.interceptor.BearerTokenClientCredentialsClientInterceptor
 import no.nav.familie.restklient.interceptor.BearerTokenClientInterceptor
-import no.nav.familie.restklient.interceptor.ConsumerIdClientInterceptor
-import no.nav.familie.restklient.interceptor.MdcValuesPropagatingClientInterceptor
 import no.nav.familie.sikkerhet.context.FamilieFellesNavTokenSupportKonfigurasjon
 import no.nav.security.token.support.client.core.http.OAuth2HttpClient
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
