@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.common.exception
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
 import no.nav.familie.restklient.client.RessursException
-import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.slf4j.LoggerFactory
 import org.springframework.core.NestedExceptionUtils
 import org.springframework.http.HttpStatus
@@ -23,9 +22,6 @@ import java.io.StringWriter
 class ApiExceptionHandler {
     private val logger = LoggerFactory.getLogger(ApiExceptionHandler::class.java)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
-
-    @ExceptionHandler(JwtTokenUnauthorizedException::class)
-    fun handleThrowable(jwtTokenUnauthorizedException: JwtTokenUnauthorizedException): ResponseEntity<Ressurs<Nothing>> = RessursUtils.unauthorized("Unauthorized")
 
     @ExceptionHandler(RolleTilgangskontrollFeil::class)
     fun handleRolleTilgangskontrollFeil(rolleTilgangskontrollFeil: RolleTilgangskontrollFeil): ResponseEntity<Ressurs<Nothing>> = RessursUtils.rolleTilgangResponse(rolleTilgangskontrollFeil)
