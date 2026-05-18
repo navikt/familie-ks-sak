@@ -47,7 +47,7 @@ class OpprettGrunnlagOgSignaturDataServiceTest {
 
             val totrinnskontroll =
                 lagToTrinnskontroll(
-                    behandling = vedtak.behandling,
+                    behandling = behandling,
                     saksbehandler = "Saksbehandler Navn",
                     beslutter = "Beslutter Navn",
                     godkjent = true,
@@ -55,7 +55,7 @@ class OpprettGrunnlagOgSignaturDataServiceTest {
 
             every { mockedPersonopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id) } returns lagPersonopplysningGrunnlag(behandlingId = behandling.id)
             every { mockedArbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId = behandling.id) } returns lagArbeidsfordelingPåBehandling(behandlingId = behandling.id)
-            every { mockedTotrinnskontrollService.finnAktivForBehandling(behandlingId = vedtak.behandling.id) } returns totrinnskontroll
+            every { mockedTotrinnskontrollService.finnAktivForBehandling(behandlingId = behandling.id) } returns totrinnskontroll
             every { mockedSaksbehandlerContext.hentSaksbehandlerSignaturTilBrev() } returns "Innlogget Saksbehandler"
 
             // Act
