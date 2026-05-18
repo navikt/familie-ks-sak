@@ -55,7 +55,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
             Given {
                 this
             } When {
-                get("/api/fagsak/1")
+                get("/api/fagsaker/minimal/1")
             } Then {
                 statusCode(401)
                 body("status", Is("FEILET"))
@@ -72,7 +72,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
             Given {
                 header("Authorization", "Bearer ${lokalTestToken(behandlerRolle = behandlerRolle)}")
             } When {
-                get("/api/fagsak/1")
+                get("/api/fagsaker/minimal/1")
             } Then {
                 statusCode(not(anyOf(equalTo(401), equalTo(403))))
             }
@@ -83,7 +83,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
             Given {
                 header("Authorization", "Bearer ${lokalTestToken(mapOf("azp_name" to "dev-gcp:teamfamilie:tilfeldig-applikasjon"))}")
             } When {
-                get("/api/fagsak/1")
+                get("/sok/fagsaker-hvor-person-er-deltaker")
             } Then {
                 statusCode(not(anyOf(equalTo(401), equalTo(403))))
             }
@@ -94,7 +94,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
             Given {
                 header("Authorization", "Bearer ${lokalTestToken(mapOf("azp_name" to "dev-gcp:ukjent-namespace:ukjent-applikasjon"))}")
             } When {
-                get("/api/fagsak/1")
+                get("/api/fagsaker/minimal/1")
             } Then {
                 statusCode(403)
             }
@@ -110,7 +110,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
             Given {
                 header("Authorization", "Bearer ${bisysToken("bidrag-grunnlag")}")
             } When {
-                get("/api/fagsak/1")
+                get("/api/fagsaker/minimal/1")
             } Then {
                 statusCode(403)
             }
