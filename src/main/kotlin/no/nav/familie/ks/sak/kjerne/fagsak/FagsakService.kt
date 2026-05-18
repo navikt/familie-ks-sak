@@ -150,7 +150,12 @@ class FagsakService(
         )
 
     fun harFagsakPersonMedStrengtFortroligAdressebeskyttelse(fagsak: Fagsak): Boolean {
-        val identerFraPersongrunnlag = personopplysningGrunnlagRepository.finnSøkerOgBarnAktørerTilFagsak(fagsak.id).map { it.aktør.aktivFødselsnummer() }
+        val identerFraPersongrunnlag =
+            personopplysningGrunnlagRepository
+                .finnSøkerOgBarnAktørerTilFagsak(fagsak.id)
+                .takeIf { it.isNotEmpty() }
+                ?.map { it.aktør.aktivFødselsnummer() }
+                ?: listOf(fagsak.aktør.aktivFødselsnummer())
 
         return pdlKlient
             .hentAdressebeskyttelseBolk(identerFraPersongrunnlag)
