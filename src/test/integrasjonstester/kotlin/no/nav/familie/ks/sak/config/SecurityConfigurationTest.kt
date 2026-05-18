@@ -43,7 +43,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
             } When {
                 get("/favicon.ico")
             } Then {
-                statusCode(not(401))
+                statusCode(200)
             }
         }
     }
