@@ -288,7 +288,7 @@ class StepDefinition {
     }
 
     @Og("når behandlingsresultatet er utledet for behandling {}")
-    fun `når behandlingsresultatet er utledet for behehandling`(
+    fun `når behandlingsresultatet er utledet for behandling`(
         behandlingId: Long,
     ) {
         val behandling = behandlinger[behandlingId]!!
