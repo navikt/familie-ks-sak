@@ -7,6 +7,7 @@ import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.ks.sak.sikkerhet.AzureAdAuthenticationManager
 import no.nav.familie.ks.sak.sikkerhet.Rolle.BISYS_APPLIKASJON
 import no.nav.familie.ks.sak.sikkerhet.Rolle.Companion.rollerMedInternTilgang
+import no.nav.familie.ks.sak.sikkerhet.Rolle.FORVALTER
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -56,7 +57,7 @@ class SecurityConfiguration(
         http {
             csrf { disable() }
             authorizeHttpRequests {
-                authorize("/api/bisys/**", hasRole(BISYS_APPLIKASJON.name))
+                authorize("/api/bisys/**", hasAnyRole(BISYS_APPLIKASJON.name, FORVALTER.name))
                 authorize(anyRequest, hasAnyRole(*rollerMedInternTilgang()))
             }
             oauth2ResourceServer {
