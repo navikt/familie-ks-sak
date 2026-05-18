@@ -52,6 +52,7 @@ class AzureAdAuthenticationManager(
     private fun convert(jwt: Jwt): JwtAuthenticationToken {
         val grupper = jwt.getClaimAsStringList("groups") ?: emptyList()
         val appNavn = jwt.getClaimAsString("azp_name") ?: ""
+        val roles = jwt.getClaimAsStringList("roles") ?: emptyList()
 
         val roller =
             buildSet {
@@ -61,9 +62,11 @@ class AzureAdAuthenticationManager(
                 if (grupper.contains(rolleConfig.FORVALTER_ROLLE)) add(Rolle.FORVALTER)
                 if (grupper.contains(prosesseringRolle)) add(Rolle.PROSESSERING)
 
-                if (appNavn.matches(teamfamilieRegex)) add(Rolle.TEAMFAMILIE_APPLIKASJON)
-                if (appNavn.matches(klageRegex)) add(Rolle.KLAGE_APPLIKASJON)
-                if (appNavn.matches(bisysRegex)) add(Rolle.BISYS_APPLIKASJON)
+                if (roles.contains("access_as_application")) {
+                    if (appNavn.matches(teamfamilieRegex)) add(Rolle.TEAMFAMILIE_APPLIKASJON)
+                    if (appNavn.matches(klageRegex)) add(Rolle.KLAGE_APPLIKASJON)
+                    if (appNavn.matches(bisysRegex)) add(Rolle.BISYS_APPLIKASJON)
+                }
             }
 
         if (roller.isEmpty()) {

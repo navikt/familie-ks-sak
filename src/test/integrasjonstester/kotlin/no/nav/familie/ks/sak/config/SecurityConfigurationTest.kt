@@ -81,7 +81,15 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
         @Test
         fun `m2m-token fra teamfamilie-app har tilgang til interne endepunkter`() {
             Given {
-                header("Authorization", "Bearer ${lokalTestToken(mapOf("azp_name" to "dev-gcp:teamfamilie:tilfeldig-applikasjon"))}")
+                header(
+                    "Authorization",
+                    "Bearer ${lokalTestToken(
+                        mapOf(
+                            "azp_name" to "dev-gcp:teamfamilie:tilfeldig-applikasjon",
+                            "roles" to "access_as_application",
+                        ),
+                    )}",
+                )
             } When {
                 get("/sok/fagsaker-hvor-person-er-deltaker")
             } Then {
@@ -103,7 +111,13 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
 
     @Nested
     inner class BisysTilgang {
-        private fun bisysToken(applikasjonNavn: String) = lokalTestToken(mapOf("azp_name" to "dev-gcp:bidrag:$applikasjonNavn"))
+        private fun bisysToken(applikasjonNavn: String) =
+            lokalTestToken(
+                mapOf(
+                    "azp_name" to "dev-gcp:bidrag:$applikasjonNavn",
+                    "roles" to "access_as_application",
+                ),
+            )
 
         @Test
         fun `bisys-token har ikke tilgang til generelt api-endepunkt`() {
