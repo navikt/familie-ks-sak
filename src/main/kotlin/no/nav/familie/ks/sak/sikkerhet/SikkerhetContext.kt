@@ -48,13 +48,11 @@ object SikkerhetContext {
 
     fun hentGrupper(): List<String> = hentClaimFraToken("groups") ?: emptyList()
 
-    fun harRolle(rolle: Rolle): Boolean =
-        hentJwtAuthenticationToken()?.authorities?.any { it.authority == rolle.authority() } == true
+    fun harRolle(rolle: Rolle): Boolean = hentJwtAuthenticationToken()?.authorities?.any { it.authority == rolle.authority() } == true
 
     fun <T> hentClaimFraToken(claim: String): T? = runCatching { hentJwt()?.getClaim<T>(claim) }.getOrNull()
 
     fun hentJwt(): Jwt? = hentJwtAuthenticationToken()?.token
 
-    private fun hentJwtAuthenticationToken(): JwtAuthenticationToken? =
-        SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken
+    private fun hentJwtAuthenticationToken(): JwtAuthenticationToken? = SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken
 }
