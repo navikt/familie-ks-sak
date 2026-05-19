@@ -6,6 +6,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
+import io.mockk.unmockkObject
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
@@ -60,6 +61,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -196,6 +198,11 @@ class BehandlingServiceTest {
         every { mockBrevmottakerService.hentBrevmottakere(any()) } returns emptyList()
         every { mockOvergangsordningAndelService.hentOvergangsordningAndeler(any()) } returns emptyList()
         every { mockAdopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        unmockkObject(SøknadGrunnlagMapper)
     }
 
     @Test
