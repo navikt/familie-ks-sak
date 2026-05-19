@@ -28,12 +28,20 @@ class BrevKlient(
 
         secureLogger.info("Kaller familie brev($uri) med data ${brev.data.toBrevString()}")
 
-        return kallEksternTjeneste(
-            FAMILIE_BREV_TJENESTENAVN,
-            uri,
-            "Hente pdf for vedtaksbrev",
-        ) {
-            postForEntity(uri, brev.data)
+        return try {
+            kallEksternTjeneste(
+                FAMILIE_BREV_TJENESTENAVN,
+                uri,
+                "Hente pdf for vedtaksbrev",
+            ) {
+                postForEntity(uri, brev.data)
+            }
+        } catch (exception: HttpClientErrorException.BadRequest) {
+            log.warn("En bad request oppstod ved generering av brev. Se SecureLogs for detaljer.")
+            secureLogger.warn("En bad request oppstod ved generering av brev.", exception)
+            throw FunksjonellFeil(
+                "Det oppsto en feil ved generering av brev. Sjekk at begrunnelsene som er valgt er riktige og kontakt brukerstøtte hvis problemet vedvarer.",
+            )
         }
     }
 
