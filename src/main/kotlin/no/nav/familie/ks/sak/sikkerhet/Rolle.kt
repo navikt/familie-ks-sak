@@ -8,7 +8,7 @@ enum class Rolle {
     TEAMFAMILIE_APPLIKASJON,
     KLAGE_APPLIKASJON,
     BISYS_APPLIKASJON,
-    EF_SAK_APPLIKASJON,
+    EF_APPLIKASJON,
     ;
 
     fun authority(): String = "ROLE_$name"

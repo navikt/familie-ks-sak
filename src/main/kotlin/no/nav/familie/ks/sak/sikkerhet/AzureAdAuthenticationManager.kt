@@ -29,6 +29,7 @@ class AzureAdAuthenticationManager(
     private val teamfamilieRegex = Regex(".*:teamfamilie:.*")
     private val klageRegex = Regex(".*:teamfamilie:familie-klage")
     private val bisysRegex = Regex(".*:bidrag:bidrag-grunnlag(-feature)?")
+    private val efSakRegex = Regex(".*:teamfamilie:familie-ef-sak")
 
     private val authenticationManager: AuthenticationManager =
         run {
@@ -64,6 +65,7 @@ class AzureAdAuthenticationManager(
                     if (appNavn.matches(teamfamilieRegex)) add(Rolle.TEAMFAMILIE_APPLIKASJON)
                     if (appNavn.matches(klageRegex)) add(Rolle.KLAGE_APPLIKASJON)
                     if (appNavn.matches(bisysRegex)) add(Rolle.BISYS_APPLIKASJON)
+                    if (appNavn.matches(efSakRegex)) add(Rolle.EF_APPLIKASJON)
                 }
             }
 
