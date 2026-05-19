@@ -22,7 +22,6 @@ class AzureAdAuthenticationManager(
     @Value("\${AZURE_OPENID_CONFIG_JWKS_URI}") jwksUri: String,
     @Value("\${AZURE_OPENID_CONFIG_ISSUER}") issuer: String,
     @Value("\${AZURE_APP_CLIENT_ID}") audience: String,
-    @param:Value("\${prosessering.rolle}") private val prosesseringRolle: String,
     private val rolleConfig: RolleConfig,
 ) : AuthenticationManager {
     private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
@@ -60,7 +59,6 @@ class AzureAdAuthenticationManager(
                 if (grupper.contains(rolleConfig.SAKSBEHANDLER_ROLLE)) add(Rolle.SAKSBEHANDLER)
                 if (grupper.contains(rolleConfig.BESLUTTER_ROLLE)) add(Rolle.BESLUTTER)
                 if (grupper.contains(rolleConfig.FORVALTER_ROLLE)) add(Rolle.FORVALTER)
-                if (grupper.contains(prosesseringRolle)) add(Rolle.PROSESSERING)
 
                 if (roles.contains("access_as_application")) {
                     if (appNavn.matches(teamfamilieRegex)) add(Rolle.TEAMFAMILIE_APPLIKASJON)
