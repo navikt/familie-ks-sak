@@ -5,6 +5,9 @@ import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagNasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDataDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
+import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,6 +31,77 @@ class BrevKlientTest {
             "dataset",
             mockedRestOperations,
         )
+
+    @Nested
+    inner class GenererBrevTest {
+        @Test
+        fun `skal kaste funksjonell feil ved bad request exception`() {
+            // Arrange
+            val brevDto = mockk<BrevDto>()
+            val brevMal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
+            val brevDataDto = mockk<BrevDataDto>()
+
+            every { brevDto.mal } returns brevMal
+            every { brevDto.data } returns brevDataDto
+            every { brevDataDto.toBrevString() } returns "test"
+
+            every {
+                mockedRestOperations.exchange<ByteArray>(
+                    eq(URI("$baseUri/api/dataset/dokument/NB/${brevMal.apiNavn}/pdf")),
+                    eq(HttpMethod.POST),
+                    any<HttpEntity<BrevDataDto>>(),
+                )
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.BAD_REQUEST,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    brevKlient.genererBrev("NB", brevDto)
+                }
+            assertThat(exception.message).isEqualTo(
+                "Det oppsto en feil ved generering av brev. Sjekk at begrunnelsene som er valgt er riktige og kontakt brukerstøtte hvis problemet vedvarer.",
+            )
+        }
+
+        @Test
+        fun `skal ikke konvertere andre exceptions enn bad request exception til funksjonell feil`() {
+            // Arrange
+            val brevDto = mockk<BrevDto>()
+            val brevMal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
+            val brevDataDto = mockk<BrevDataDto>()
+
+            every { brevDto.mal } returns brevMal
+            every { brevDto.data } returns brevDataDto
+            every { brevDataDto.toBrevString() } returns "test"
+
+            every {
+                mockedRestOperations.exchange<ByteArray>(
+                    eq(URI("$baseUri/api/dataset/dokument/NB/${brevMal.apiNavn}/pdf")),
+                    eq(HttpMethod.POST),
+                    any<HttpEntity<BrevDataDto>>(),
+                )
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.FORBIDDEN,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
+
+            // Act & assert
+            assertThrows<HttpClientErrorException.Forbidden> {
+                brevKlient.genererBrev("NB", brevDto)
+            }
+        }
+    }
 
     @Nested
     inner class HentBegrunnelsestekstTest {
