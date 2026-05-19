@@ -27,7 +27,7 @@
         <kotlin.compiler.languageVersion>2.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.3</kotlin.compiler.apiVersion>
       
-        <kotlinx.version>1.10.2</kotlinx.version>
+        <kotlinx.version>1.11.0</kotlinx.version>
 
         <!-- Spring -->
         <spring-boot-dependencies.version>4.0.6</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
@@ -40,7 +40,7 @@
         <!-- Nav Familie-->
         <prosessering.version>2.20260511102627_928cb38</prosessering.version>
         <felles-kontrakter.version>4.0_20260505124916_025d466</felles-kontrakter.version>
-        <felles.version>4.20260511103655_63a39c2</felles.version>
+        <felles.version>4.20260513094924_5cc59b4</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20260323170751_4c02e3c</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20260323170751_4c02e3c</familie.kontrakter.saksstatistikk>
@@ -51,20 +51,20 @@
 
         <!-- Kafka -->
         <avro.version>1.12.1</avro.version>
-        <confluent.version>8.2.0</confluent.version>
+        <confluent.version>8.2.1</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>12.2.1</unleash.version>
-        <microsoft-graph.version>6.63.0</microsoft-graph.version>
+        <microsoft-graph.version>6.64.0</microsoft-graph.version>
         <okhttp-jvm.version>5.3.2</okhttp-jvm.version>
         <azure-identity.version>1.18.3</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.34.3</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <mock-oauth2-server.version>3.0.1</mock-oauth2-server.version>
+        <mock-oauth2-server.version>3.0.3</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.9</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
@@ -75,7 +75,7 @@
         <ktlint-cli.version>1.8.0</ktlint-cli.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
-        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
