@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.MediaType
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -33,13 +32,11 @@ class EksternKlageController(
     private val klageService: KlageService,
 ) {
     @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering-klage")
-    @PreAuthorize("hasRole('KLAGE_APPLIKASJON')")
     fun kanOppretteRevurderingKlage(
         @PathVariable fagsakId: Long,
     ): Ressurs<KanOppretteRevurderingResponse> = Ressurs.success(opprettBehandlingService.kanOppretteRevurdering(fagsakId))
 
     @PostMapping("fagsak/{fagsakId}/klagebehandling/{klagebehandlingId}/opprett-revurdering-klage")
-    @PreAuthorize("hasRole('KLAGE_APPLIKASJON')")
     fun opprettRevurderingKlage(
         @PathVariable fagsakId: Long,
         @PathVariable klagebehandlingId: UUID,

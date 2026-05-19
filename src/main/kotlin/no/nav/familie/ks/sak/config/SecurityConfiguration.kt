@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.sikkerhet.Rolle.BISYS_APPLIKASJON
 import no.nav.familie.ks.sak.sikkerhet.Rolle.Companion.rollerMedInternTilgang
 import no.nav.familie.ks.sak.sikkerhet.Rolle.EF_APPLIKASJON
 import no.nav.familie.ks.sak.sikkerhet.Rolle.FORVALTER
+import no.nav.familie.ks.sak.sikkerhet.Rolle.KLAGE_APPLIKASJON
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -59,6 +60,7 @@ class SecurityConfiguration(
             csrf { disable() }
             authorizeHttpRequests {
                 authorize("/api/bisys/**", hasAnyRole(BISYS_APPLIKASJON.name, EF_APPLIKASJON.name, FORVALTER.name))
+                authorize("/api/ekstern/**", hasAnyRole(KLAGE_APPLIKASJON.name, FORVALTER.name))
                 authorize(anyRequest, hasAnyRole(*rollerMedInternTilgang()))
             }
             oauth2ResourceServer {
