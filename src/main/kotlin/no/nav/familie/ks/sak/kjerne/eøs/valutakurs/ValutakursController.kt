@@ -12,7 +12,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -26,7 +25,6 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/differanseberegning/valutakurs")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class ValutakursController(
     private val tilgangService: TilgangService,

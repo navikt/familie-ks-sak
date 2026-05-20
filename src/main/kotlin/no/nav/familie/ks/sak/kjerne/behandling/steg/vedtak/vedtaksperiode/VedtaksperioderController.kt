@@ -7,7 +7,6 @@ import no.nav.familie.ks.sak.kjerne.brev.BrevPeriodeService
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.FritekstBegrunnelseDto
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/vedtaksperioder")
-@ProtectedWithClaims(issuer = "azuread")
 @Validated
 class VedtaksperioderController(
     private val tilgangService: TilgangService,

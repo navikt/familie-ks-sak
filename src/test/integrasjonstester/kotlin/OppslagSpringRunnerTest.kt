@@ -49,7 +49,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.G
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.extension.ExtendWith
@@ -60,6 +59,8 @@ import org.springframework.cache.CacheManager
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -77,7 +78,6 @@ import java.time.LocalDate
     "mock-brev-klient",
     "fake-task-repository",
 )
-@EnableMockOAuth2Server
 @Tag("integration")
 abstract class OppslagSpringRunnerTest {
     private val listAppender = initLoggingEventListAppender()
@@ -91,9 +91,6 @@ abstract class OppslagSpringRunnerTest {
 
     @Autowired
     private lateinit var cacheManager: CacheManager
-
-    @Autowired
-    private lateinit var mockOAuth2Server: MockOAuth2Server
 
     @Autowired
     private lateinit var rolleConfig: RolleConfig
@@ -294,6 +291,7 @@ abstract class OppslagSpringRunnerTest {
     }
 
     protected fun lokalTestToken(
+        claims: Map<String, Any> = emptyMap(),
         issuerId: String = "azuread",
         subject: String = "subject1",
         behandlerRolle: BehandlerRolle? = null,
@@ -303,6 +301,7 @@ abstract class OppslagSpringRunnerTest {
                 BehandlerRolle.VEILEDER -> rolleConfig.VEILEDER_ROLLE
                 BehandlerRolle.SAKSBEHANDLER -> rolleConfig.SAKSBEHANDLER_ROLLE
                 BehandlerRolle.BESLUTTER -> rolleConfig.BESLUTTER_ROLLE
+                BehandlerRolle.FORVALTER -> rolleConfig.FORVALTER_ROLLE
                 else -> ""
             }
 
@@ -315,7 +314,7 @@ abstract class OppslagSpringRunnerTest {
                     subject,
                     JOSEObjectType.JWT.type,
                     listOf("familie-ks-sak-test"),
-                    mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))),
+                    mapOf(Pair("NAVident", "test"), Pair("groups", listOf(behandlerRolleId))) + claims,
                     3600,
                 ),
             ).serialize()
@@ -377,5 +376,21 @@ abstract class OppslagSpringRunnerTest {
 
     companion object {
         protected fun initLoggingEventListAppender(): ListAppender<ILoggingEvent> = ListAppender<ILoggingEvent>().apply { start() }
+
+        val mockOAuth2Server: MockOAuth2Server =
+            MockOAuth2Server().also { server ->
+                server.start()
+                Runtime.getRuntime().addShutdownHook(Thread { server.shutdown() })
+            }
+
+        @JvmStatic
+        @DynamicPropertySource
+        @Suppress("unused")
+        fun mockOAuth2ServerProperties(registry: DynamicPropertyRegistry) {
+            val port = mockOAuth2Server.config.httpServer.port()
+            registry.add("AZURE_OPENID_CONFIG_ISSUER") { "http://localhost:$port/azuread" }
+            registry.add("AZURE_OPENID_CONFIG_JWKS_URI") { "http://localhost:$port/azuread/jwks" }
+            registry.add("AZURE_APP_CLIENT_ID") { "familie-ks-sak-test" }
+        }
     }
 }

@@ -5,18 +5,14 @@ import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
 import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
-import no.nav.familie.prosessering.config.ProsesseringInfoProvider
 import no.nav.familie.restklient.client.RetryOAuth2HttpClient
 import no.nav.familie.restklient.interceptor.BearerTokenClientCredentialsClientInterceptor
 import no.nav.familie.restklient.interceptor.BearerTokenClientInterceptor
-import no.nav.familie.sikkerhet.context.FamilieFellesNavTokenSupportKonfigurasjon
+import no.nav.familie.sikkerhet.context.FamilieFellesSpringSecurityKonfigurasjon
 import no.nav.security.token.support.client.core.http.OAuth2HttpClient
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.persistence.autoconfigure.EntityScan
@@ -43,13 +39,12 @@ import java.time.temporal.ChronoUnit
 @ComponentScan("no.nav.familie.prosessering", "no.nav.familie.unleash", ApplicationConfig.PAKKENAVN)
 @EnableRetry
 @ConfigurationPropertiesScan
-@EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
 @EnableScheduling
 @Import(
     ConsumerIdClientInterceptor::class,
     BearerTokenClientInterceptor::class,
     BearerTokenClientCredentialsClientInterceptor::class,
-    FamilieFellesNavTokenSupportKonfigurasjon::class,
+    FamilieFellesSpringSecurityKonfigurasjon::class,
 )
 @EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
@@ -102,31 +97,6 @@ class ApplicationConfig {
                 JacksonJsonHttpMessageConverter(jsonMapper),
             ),
         )
-
-    @Bean
-    fun prosesseringInfoProvider(
-        @Value("\${prosessering.rolle}") prosesseringRolle: String,
-    ) = object : ProsesseringInfoProvider {
-        override fun hentBrukernavn(): String =
-            try {
-                SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread").getStringClaim("preferred_username")
-            } catch (e: Exception) {
-                "VL"
-            }
-
-        override fun harTilgang(): Boolean = grupper().contains(prosesseringRolle)
-
-        @Suppress("UNCHECKED_CAST")
-        private fun grupper(): List<String> =
-            try {
-                SpringTokenValidationContextHolder()
-                    .getTokenValidationContext()
-                    .getClaims("azuread")
-                    ?.get("groups") as List<String>? ?: emptyList()
-            } catch (e: Exception) {
-                emptyList()
-            }
-    }
 
     @Bean("jwtBearer")
     fun restTemplateJwtBearer(

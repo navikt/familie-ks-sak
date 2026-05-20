@@ -249,7 +249,11 @@
         </dependency>
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
-            <artifactId>sikkerhet-token-support</artifactId>
+            <artifactId>sikkerhet-spring-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.familie</groupId>
@@ -258,7 +262,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.familie</groupId>
-            <artifactId>prosessering-web-nav-token-support</artifactId>
+            <artifactId>prosessering-web-spring-security</artifactId>
             <version>${prosessering.version}</version>
         </dependency>
         <dependency>
@@ -418,12 +422,7 @@
             <version>${rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>no.nav.security</groupId>
-            <artifactId>token-validation-spring-test</artifactId>
-            <version>${nav-token-client.version}</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>mock-oauth2-server</artifactId>
