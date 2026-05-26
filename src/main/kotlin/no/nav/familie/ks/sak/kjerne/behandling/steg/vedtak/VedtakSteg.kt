@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak
 
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.oppgave.FerdigstillOppgaverTask
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -13,6 +14,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning.GODKJENT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.IBehandlingSteg
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.validerPerioderInneholderBegrunnelser
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
@@ -33,6 +35,7 @@ class VedtakSteg(
     private val oppgaveService: OppgaveService,
     private val vedtakService: VedtakService,
     private val vedtaksperiodeService: VedtaksperiodeService,
+    private val sammensattKontrollsakService: SammensattKontrollsakService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VEDTAK
 
@@ -103,6 +106,15 @@ class VedtakSteg(
                 behandlingId = behandling.id,
                 fagsakId = behandling.fagsak.id,
             )
+        }
+
+        sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(behandling.id)?.let {
+            if (it.fritekst.isBlank()) {
+                throw FunksjonellFeil(
+                    melding = "Fritekstfeltet i sammensatt kontrollsak kan ikke være tomt ved sending til beslutter.",
+                    frontendFeilmelding = "Fritekstfeltet i sammensatt kontrollsak kan ikke være tomt ved sending til beslutter.",
+                )
+            }
         }
     }
 

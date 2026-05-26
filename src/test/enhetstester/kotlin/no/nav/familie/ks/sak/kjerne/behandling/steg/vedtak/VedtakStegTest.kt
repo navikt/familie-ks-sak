@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
@@ -14,6 +15,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStegTilstand
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingStegStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.sammensattkontrollsak.SammensattKontrollsakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
@@ -32,6 +35,7 @@ class VedtakStegTest {
     private val oppgaveService = mockk<OppgaveService>()
     private val vedtakService = mockk<VedtakService>()
     private val vedtaksperiodeService = mockk<VedtaksperiodeService>()
+    private val sammensattKontrollsakService = mockk<SammensattKontrollsakService>()
 
     private val vedtakSteg =
         VedtakSteg(
@@ -42,6 +46,7 @@ class VedtakStegTest {
             oppgaveService = oppgaveService,
             vedtakService = vedtakService,
             vedtaksperiodeService = vedtaksperiodeService,
+            sammensattKontrollsakService = sammensattKontrollsakService,
         )
 
     @Test
@@ -93,6 +98,7 @@ class VedtakStegTest {
         every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
+        every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns null
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
 
         vedtakSteg.utførSteg(200)
@@ -105,5 +111,58 @@ class VedtakStegTest {
         verify(exactly = 1) { vedtakService.hentAktivVedtakForBehandling(behandling.id) }
         verify(exactly = 1) { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) }
         verify(exactly = 1) { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling) }
+    }
+
+    @Test
+    fun `utførSteg skal kaste FunksjonellFeil hvis sammensatt kontrollsak finnes med tom fritekst`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        every { behandlingService.hentBehandling(200) } returns behandling
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
+        every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns
+            SammensattKontrollsak(behandlingId = behandling.id, fritekst = "   ")
+
+        val feil =
+            assertThrows<FunksjonellFeil> {
+                vedtakSteg.utførSteg(200)
+            }
+
+        assertThat(feil.frontendFeilmelding, Is("Fritekstfeltet i sammensatt kontrollsak kan ikke være tomt ved sending til beslutter."))
+    }
+
+    @Test
+    fun `utførSteg skal ikke kaste feil hvis sammensatt kontrollsak finnes med utfylt fritekst`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        every { behandlingService.hentBehandling(200) } returns behandling
+        every { loggService.opprettSendTilBeslutterLogg(behandling.id) } just runs
+        every { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
+        every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
+        every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns
+            SammensattKontrollsak(behandlingId = behandling.id, fritekst = "En begrunnelse")
+
+        vedtakSteg.utførSteg(200)
+    }
+
+    @Test
+    fun `utførSteg skal ikke kaste feil hvis ingen sammensatt kontrollsak finnes`() {
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        every { behandlingService.hentBehandling(200) } returns behandling
+        every { loggService.opprettSendTilBeslutterLogg(behandling.id) } just runs
+        every { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) } returns mockk()
+        every { taskService.save(any()) } returns mockk()
+        every { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) } returns emptyList()
+        every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
+        every { vedtaksperiodeService.hentUtvidetVedtaksperioderMedBegrunnelser(any()) } returns mockk(relaxed = true)
+        every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
+        every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns null
+
+        vedtakSteg.utførSteg(200)
     }
 }
