@@ -25,12 +25,13 @@ spec:
     path: /internal/prometheus
   gcp: # Database
     sqlInstances:
-      - type: POSTGRES_14 # IF This is changed, all data will be lost. Read on nais.io how to upgrade
+      - type: POSTGRES_17 # IF This is changed, all data will be lost. Read on nais.io how to upgrade
         tier: db-custom-4-3840
-        name: familie-ks-sak
+        name: familie-ks-sak-17
         autoBackupHour: 2
         diskAutoresize: true
-        highAvailability: false
+        highAvailability: true
+        pointInTimeRecovery: true
         databases:
           - name: familie-ks-sak
             envVarPrefix: DB
