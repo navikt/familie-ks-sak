@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.integrasjon
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.getDataOrThrow
 import no.nav.familie.ks.sak.common.exception.IntegrasjonException
-import no.nav.familie.restklient.client.RessursException
 import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpClientErrorException
 import java.net.URI
@@ -82,27 +81,6 @@ fun handleException(
     formål: String,
 ): Exception =
     when (exception) {
-        is RessursException -> {
-            secureLogger.info(
-                "${
-                    lagEksternKallPreMelding(
-                        tjeneste,
-                        uri,
-                    )
-                } Kall mot $tjeneste feilet. Formål: $formål. Feilmelding: ${exception.ressurs.melding}",
-                exception.cause,
-            )
-            logger.warn(
-                "${
-                    lagEksternKallPreMelding(
-                        tjeneste,
-                        uri,
-                    )
-                } Kall mot $tjeneste feilet. Formål: $formål.",
-            )
-            exception
-        }
-
         is HttpClientErrorException -> {
             exception
         }
@@ -118,12 +96,7 @@ private fun opprettIntegrasjonsException(
     exception: Exception,
     formål: String,
 ): IntegrasjonException {
-    val melding =
-        if (exception is RessursException) {
-            exception.ressurs.melding
-        } else {
-            exception.message
-        }
+    val melding = exception.message
     return IntegrasjonException(
         msg = "${lagEksternKallPreMelding(tjeneste, uri)} Kall mot \"$tjeneste\" feilet. Formål: $formål. Feilmelding: $melding",
         uri = uri,

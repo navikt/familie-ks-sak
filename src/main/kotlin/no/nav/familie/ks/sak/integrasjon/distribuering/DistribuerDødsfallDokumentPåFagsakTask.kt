@@ -9,10 +9,10 @@ import no.nav.familie.ks.sak.kjerne.brev.mottakerErDødUtenDødsboadresse
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.restklient.client.RessursException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDateTime
 
 const val ANTALL_SEKUNDER_I_EN_UKE = 604800L
@@ -50,7 +50,7 @@ class DistribuerDødsfallBrevPåFagsakTask(
                     brevmal = brevmal,
                 )
             } catch (e: Exception) {
-                if (e is RessursException && mottakerErDødUtenDødsboadresse(e)) {
+                if (e is RestClientResponseException && mottakerErDødUtenDødsboadresse(e)) {
                     logger.info(
                         "Klarte ikke å distribuere \"${brevmal.visningsTekst}\" på journalpost $journalpostId. Prøver igjen om 7 dager.",
                     )

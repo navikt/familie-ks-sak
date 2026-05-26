@@ -4,20 +4,21 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient.Co
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelserResponsDto
-import no.nav.familie.restklient.client.AbstractRestClient
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import java.net.URI
 import java.net.URLEncoder
 
 @Service
 class SanityKlient(
     @Value("\${SANITY_BASE_URL}") private val sanityBaseUrl: String,
-    restOperations: RestOperations,
-) : AbstractRestClient(restOperations, "sanity") {
+    @Qualifier("utenAuthRestClient") private val restClient: RestClient,
+) {
     @Retryable(
         value = [Exception::class],
         maxAttempts = 3,
@@ -32,7 +33,11 @@ class SanityKlient(
                 uri = uri,
                 formål = "Henter begrunnelser fra sanity",
             ) {
-                getForEntity(uri)
+                restClient
+                    .get()
+                    .uri(uri)
+                    .retrieve()
+                    .body<SanityBegrunnelserResponsDto>()!!
             }
 
         return restSanityBegrunnelser.result.map { it.tilSanityBegrunnelse() }

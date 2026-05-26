@@ -30,7 +30,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.restklient.client.RessursException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -192,19 +191,19 @@ class BrevService(
         manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) = try {
         distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle, manuellAdresseInfo)
-    } catch (ressursException: RessursException) {
-        logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${ressursException.httpStatus}")
+    } catch (exception: org.springframework.web.client.RestClientResponseException) {
+        logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${exception.statusCode}")
 
         when {
-            mottakerErIkkeDigitalOgHarUkjentAdresse(ressursException) && behandlingId != null -> {
+            mottakerErIkkeDigitalOgHarUkjentAdresse(exception) && behandlingId != null -> {
                 loggBrevIkkeDistribuertUkjentAdresse(journalpostId, behandlingId, brevmal)
             }
 
-            mottakerErDødUtenDødsboadresse(ressursException) && behandlingId != null -> {
+            mottakerErDødUtenDødsboadresse(exception) && behandlingId != null -> {
                 håndterMottakerDødIngenAdressePåBehandling(journalpostId, brevmal, behandlingId)
             }
 
-            dokumentetErAlleredeDistribuert(ressursException) -> {
+            dokumentetErAlleredeDistribuert(exception) -> {
                 logger.warn(
                     "Journalpost med Id=$journalpostId er allerede distribuert. Hopper over distribuering." +
                         if (behandlingId != null) " BehandlingId=$behandlingId." else "",
@@ -212,7 +211,7 @@ class BrevService(
             }
 
             else -> {
-                throw ressursException
+                throw exception
             }
         }
     }

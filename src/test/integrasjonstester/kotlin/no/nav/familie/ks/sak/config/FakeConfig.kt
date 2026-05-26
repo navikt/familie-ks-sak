@@ -1,5 +1,8 @@
 package no.nav.familie.ks.sak.config
 
+import io.mockk.every
+import io.mockk.mockk
+import no.nav.familie.felles.tokenklient.entraid.EntraIDClient
 import no.nav.familie.ks.sak.fake.FakeBrevKlient
 import no.nav.familie.ks.sak.fake.FakeFeatureToggleService
 import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
@@ -19,24 +22,32 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
-import org.springframework.web.client.RestOperations
 
 @TestConfiguration
 class FakeConfig {
     @Bean
     @Primary
+    fun entraIDClientMock(): EntraIDClient {
+        val mock = mockk<EntraIDClient>(relaxed = true)
+        every { mock.hentMaskinTilMaskinToken(any()) } returns "mock-m2m-token"
+        every { mock.hentOboToken(any(), any()) } returns "mock-obo-token"
+        return mock
+    }
+
+    @Bean
+    @Primary
     @Profile("fake-integrasjon-klient")
-    fun fakeIntegrasjonKlient(restOperations: RestOperations): FakeIntegrasjonKlient = FakeIntegrasjonKlient(restOperations)
+    fun fakeIntegrasjonKlient(): FakeIntegrasjonKlient = FakeIntegrasjonKlient()
 
     @Bean
     @Primary
     @Profile("fake-tilbakekreving-klient")
-    fun fakeTilbakekrevingKlient(restOperations: RestOperations): FakeTilbakekrevingKlient = FakeTilbakekrevingKlient(restOperations)
+    fun fakeTilbakekrevingKlient(): FakeTilbakekrevingKlient = FakeTilbakekrevingKlient()
 
     @Bean
     @Primary
     @Profile("fake-pdl-klient")
-    fun fakePdlClient(restOperations: RestOperations): FakePdlKlient = FakePdlKlient(restOperations)
+    fun fakePdlClient(): FakePdlKlient = FakePdlKlient()
 
     @Bean
     @Primary

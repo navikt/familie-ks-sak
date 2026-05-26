@@ -31,21 +31,18 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlStatsborgerskapResponse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlUtenlandskAdresssePersonUtenlandskAdresse
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlUtenlandskAdressseResponse
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
-import no.nav.familie.restklient.client.AbstractPingableRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestOperations
-import java.net.URI
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 
 @Service
 class PdlKlient(
     pdlConfig: PdlConfig,
-    @Qualifier("jwtBearerClientCredential") val restTemplate: RestOperations,
-) : AbstractPingableRestClient(restTemplate, "pdl.personinfo") {
+    @Qualifier("pdlRestClient") private val restClient: RestClient,
+) {
     private val pdlUri = pdlConfig.pdlUri
-
-    override val pingUri: URI get() = pdlUri
 
     @Cacheable("identer", cacheManager = "shortCache")
     fun hentIdenter(
@@ -60,11 +57,13 @@ class PdlKlient(
                 uri = pdlUri,
                 formål = "Hent identer",
             ) {
-                postForEntity(
-                    pdlUri,
-                    pdlPersonRequest,
-                    httpHeaders(),
-                )
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBaseRespons<PdlHentIdenterResponse>>()!!
             }
 
         val pdlIdenter = feilsjekkOgReturnerData(ident = personIdent, pdlRespons = pdlRespons) { it.pdlIdenter }
@@ -80,7 +79,13 @@ class PdlKlient(
                 uri = pdlUri,
                 formål = "Hent adressebeskyttelse",
             ) {
-                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBaseRespons<PdlAdressebeskyttelseResponse>>()!!
             }
 
         return feilsjekkOgReturnerData(ident = aktør.aktivFødselsnummer(), pdlRespons = pdlRespons) {
@@ -102,7 +107,13 @@ class PdlKlient(
                 uri = pdlUri,
                 formål = "Hent adressebeskyttelse i bolk",
             ) {
-                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBolkRespons<PdlAdressebeskyttelsePerson>>()!!
             }
 
         return feilsjekkOgReturnerData(
@@ -129,11 +140,13 @@ class PdlKlient(
                 uri = pdlUri,
                 formål = "Hent person med query ${personInfoQuery.name}",
             ) {
-                postForEntity(
-                    pdlUri,
-                    pdlPersonRequest,
-                    httpHeaders(),
-                )
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBaseRespons<PdlHentPersonResponse>>()!!
             }
         return feilsjekkOgReturnerData(ident = fødselsnummer, pdlRespons = pdlRespons) { pdlPerson ->
             pdlPerson.person?.validerOmPersonKanBehandlesIFagsystem() ?: throw PdlNotFoundException()
@@ -153,7 +166,15 @@ class PdlKlient(
                 tjeneste = "pdl",
                 uri = pdlUri,
                 formål = "Hent statsborgerskap uten historikk",
-            ) { postForEntity(pdlUri, pdlPersonRequest, httpHeaders()) }
+            ) {
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBaseRespons<PdlStatsborgerskapResponse>>()!!
+            }
 
         return feilsjekkOgReturnerData(
             ident = aktør.aktivFødselsnummer(),
@@ -175,7 +196,13 @@ class PdlKlient(
                 uri = pdlUri,
                 formål = "Hent utenlandsk bostedsadresse",
             ) {
-                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBaseRespons<PdlUtenlandskAdressseResponse>>()!!
             }
 
         val bostedsadresser =
@@ -200,7 +227,13 @@ class PdlKlient(
                 uri = pdlUri,
                 formål = "Hent falsk identitet",
             ) {
-                postForEntity(pdlUri, pdlPersonRequest, httpHeaders())
+                restClient
+                    .post()
+                    .uri(pdlUri)
+                    .headers { it.addAll(httpHeaders()) }
+                    .body(pdlPersonRequest)
+                    .retrieve()
+                    .body<PdlBaseRespons<PdlFalskIdentitetResponse>>()!!
             }
 
         return feilsjekkOgReturnerData(

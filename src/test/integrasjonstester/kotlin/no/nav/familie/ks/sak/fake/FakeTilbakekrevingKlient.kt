@@ -1,14 +1,12 @@
 package no.nav.familie.ks.sak.fake
 
+import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandling
 import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequest
 import no.nav.familie.ks.sak.integrasjon.tilbakekreving.TilbakekrevingKlient
-import org.springframework.web.client.RestOperations
 import java.net.URI
 
-class FakeTilbakekrevingKlient(
-    restOperations: RestOperations,
-) : TilbakekrevingKlient(URI.create("http://tilbakekreving"), restOperations) {
+class FakeTilbakekrevingKlient : TilbakekrevingKlient(URI.create("http://tilbakekreving"), mockk(relaxed = true)) {
     var errorVedHentingAvBehandlinger = false
     var returnerteBehandlinger = emptyList<Behandling>()
 

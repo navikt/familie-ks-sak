@@ -3,13 +3,13 @@ import no.nav.familie.ks.sak.kjerne.brev.BrevKlient
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.testfiler.Testfil.TEST_PDF
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.RestClient
 
 class FakeBrevKlient :
     BrevKlient(
         familieBrevUri = "brev_uri_mock",
         sanityDataset = "",
-        restOperations = RestTemplate(),
+        restClient = RestClient.builder().build(),
     ) {
     val genererteBrev = mutableListOf<BrevDto>()
 

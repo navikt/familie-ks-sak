@@ -1,52 +1,35 @@
 package no.nav.familie.ks.sak.config
 
-import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
 import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
-import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
-import no.nav.familie.restklient.client.RetryOAuth2HttpClient
-import no.nav.familie.restklient.interceptor.BearerTokenClientCredentialsClientInterceptor
-import no.nav.familie.restklient.interceptor.BearerTokenClientInterceptor
 import no.nav.familie.sikkerhet.context.FamilieFellesSpringSecurityKonfigurasjon
-import no.nav.security.token.support.client.core.http.OAuth2HttpClient
-import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
-import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.persistence.autoconfigure.EntityScan
-import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Primary
-import org.springframework.http.converter.ByteArrayHttpMessageConverter
-import org.springframework.http.converter.StringHttpMessageConverter
-import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.RestOperations
-import org.springframework.web.client.RestTemplate
-import java.nio.charset.StandardCharsets
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 
 @SpringBootConfiguration
 @EntityScan("no.nav.familie.prosessering", ApplicationConfig.PAKKENAVN)
-@ComponentScan("no.nav.familie.prosessering", "no.nav.familie.unleash", ApplicationConfig.PAKKENAVN)
+@ComponentScan(
+    "no.nav.familie.prosessering",
+    "no.nav.familie.unleash",
+    "no.nav.familie.felles.tokenklient",
+    ApplicationConfig.PAKKENAVN,
+)
 @EnableRetry
 @ConfigurationPropertiesScan
 @EnableScheduling
 @Import(
     ConsumerIdClientInterceptor::class,
-    BearerTokenClientInterceptor::class,
-    BearerTokenClientCredentialsClientInterceptor::class,
     FamilieFellesSpringSecurityKonfigurasjon::class,
 )
-@EnableOAuth2Client(cacheEnabled = true)
 class ApplicationConfig {
     @Bean
     fun logFilter(): FilterRegistrationBean<LogFilter> {
@@ -57,97 +40,6 @@ class ApplicationConfig {
             order = 1
         }
     }
-
-    /**
-     * Overskriver felles sin som bruker proxy, som ikke skal brukes på gcp.
-     */
-    @Bean
-    @Primary
-    fun restTemplateBuilder(): RestTemplateBuilder {
-        val jacksonJsonHttpMessageConverter = JacksonJsonHttpMessageConverter(jsonMapper)
-        return RestTemplateBuilder()
-            .connectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-            .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .additionalMessageConverters(listOf(jacksonJsonHttpMessageConverter) + RestTemplate().messageConverters)
-    }
-
-    /**
-     * Overskriver OAuth2HttpClient som settes opp i token-support som ikke kan få med jsonMapper fra felles
-     * pga. .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
-     * og [OAuth2AccessTokenResponse] som burde settes med setters, då feltnavn heter noe annet enn feltet i json
-     */
-    @Bean
-    @Primary
-    fun oAuth2HttpClient(): OAuth2HttpClient =
-        RetryOAuth2HttpClient(
-            RestClient.create(
-                RestTemplateBuilder()
-                    .connectTimeout(Duration.of(2, ChronoUnit.SECONDS))
-                    .readTimeout(Duration.of(4, ChronoUnit.SECONDS))
-                    .build(),
-            ),
-        )
-
-    @Bean
-    fun restOperations(): RestOperations =
-        RestTemplate(
-            listOf(
-                StringHttpMessageConverter(StandardCharsets.UTF_8),
-                ByteArrayHttpMessageConverter(),
-                JacksonJsonHttpMessageConverter(jsonMapper),
-            ),
-        )
-
-    @Bean("jwtBearer")
-    fun restTemplateJwtBearer(
-        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-        bearerTokenClientInterceptor: BearerTokenClientInterceptor,
-    ): RestOperations =
-        RestTemplateBuilder()
-            .connectTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .additionalMessageConverters(
-                ByteArrayHttpMessageConverter(),
-                JacksonJsonHttpMessageConverter(jsonMapper),
-            ).additionalInterceptors(
-                consumerIdClientInterceptor,
-                bearerTokenClientInterceptor,
-                MdcValuesPropagatingClientInterceptor(),
-            ).build()
-
-    @Bean("jwtBearerClientCredential")
-    fun restTemplateClientCredentialBearer(
-        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-        bearerTokenClientCredentialsClientInterceptor: BearerTokenClientCredentialsClientInterceptor,
-    ): RestOperations =
-        RestTemplateBuilder()
-            .connectTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .readTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .additionalMessageConverters(
-                ByteArrayHttpMessageConverter(),
-                JacksonJsonHttpMessageConverter(jsonMapper),
-            ).additionalInterceptors(
-                consumerIdClientInterceptor,
-                bearerTokenClientCredentialsClientInterceptor,
-                MdcValuesPropagatingClientInterceptor(),
-            ).build()
-
-    @Bean("jwtBearerLongTimeout")
-    fun restTemplateJwtBearerLongTimeout(
-        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-        bearerTokenClientInterceptor: BearerTokenClientInterceptor,
-    ): RestOperations =
-        RestTemplateBuilder()
-            .connectTimeout(Duration.of(150, ChronoUnit.SECONDS))
-            .readTimeout(Duration.of(150, ChronoUnit.SECONDS))
-            .additionalMessageConverters(
-                ByteArrayHttpMessageConverter(),
-                JacksonJsonHttpMessageConverter(jsonMapper),
-            ).interceptors(
-                consumerIdClientInterceptor,
-                bearerTokenClientInterceptor,
-                MdcValuesPropagatingClientInterceptor(),
-            ).build()
 
     companion object {
         private val log = LoggerFactory.getLogger(ApplicationConfig::class.java)
