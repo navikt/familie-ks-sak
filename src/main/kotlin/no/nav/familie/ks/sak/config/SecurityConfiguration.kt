@@ -45,6 +45,7 @@ class SecurityConfiguration(
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/favicon.ico",
+                "/api/forvaltning/redirect/behandling/**",
             )
             authorizeHttpRequests {
                 authorize(anyRequest, permitAll)
