@@ -62,8 +62,8 @@ KAFKA_BROKERS: http://localhost:9092
 
 retry.backoff.delay: 5
 NAIS_APP_NAME: familie-ks-sak
-NAIS_TOKEN_ENDPOINT: http://localhost/token
-NAIS_TOKEN_EXCHANGE_ENDPOINT: https://token-exchange.dev.nav.no
+NAIS_TOKEN_EXCHANGE_ENDPOINT: http://localhost:7575/api/v1/token/exchange
+NAIS_TOKEN_ENDPOINT: http://localhost:7575/api/v1/token
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/10 * ? * *"
 
 

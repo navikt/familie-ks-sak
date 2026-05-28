@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak
 
+import no.nav.familie.felles.tokenklient.entraid.EntraIDClient
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.ApplicationConfig
 import no.nav.familie.ks.sak.config.DbContainerInitializer

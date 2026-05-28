@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Profile
 class FakeConfig {
     @Bean
     @Primary
+    @Profile("postgres", "integrasjonstest", "dev-postgres-preprod", "postgres")
     fun entraIDClientMock(): EntraIDClient {
         val mock = mockk<EntraIDClient>(relaxed = true)
         every { mock.hentMaskinTilMaskinToken(any()) } returns "mock-m2m-token"
