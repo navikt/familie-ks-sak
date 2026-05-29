@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
         settClientIdOgSecret()
     }
 
-    if (!args.contains("--standalone") && System.getProperty("NAIS_TOKEN_ENDPOINT") == null) {
+    if (!args.contains("--texasdocker") && System.getProperty("NAIS_TOKEN_ENDPOINT") == null) {
         startTexasContainer()
     }
 

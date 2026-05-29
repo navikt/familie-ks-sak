@@ -41,6 +41,11 @@ tillate kall fra frontend, se [Autentisering](#autentisering).
 Bruker du `DevLauncherPostgres`, kan du kjøre opp en embedded database. Da må du sette `--dbcontainer`
 under `Edit Configurations -> VM Options`
 
+### Texas
+`DevLauncherPostgres` starter opp texas i testcontainer, men man har også mulighet til å starte texas i docker. Da må du sette `--texasdocker` under `Edit Configurations -> VM Options`. 
+- Kjør først ./hentEnvh.sh. Denne lager en .env-fil med nødvendige miljøvariabler for å kjøre texas lokalt.
+- Kjør så `start-texas-lokalt.sh` for å starte texas i docker. Denne bruker docker-compose og .env-filen som ble laget i forrige steg.
+
 #### Database i egen container
 
 Postgres-databasen kan settes opp slik:
