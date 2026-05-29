@@ -32,6 +32,7 @@ import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDate
 
 @Service
@@ -191,7 +192,7 @@ class BrevService(
         manuellAdresseInfo: ManuellAdresseInfo? = null,
     ) = try {
         distribuerBrevOgLoggHendelse(journalpostId, behandlingId, brevmal, loggBehandlerRolle, manuellAdresseInfo)
-    } catch (exception: org.springframework.web.client.RestClientResponseException) {
+    } catch (exception: RestClientResponseException) {
         logger.info("Klarte ikke å distribuere brev til journalpost $journalpostId. Httpstatus ${exception.statusCode}")
 
         when {

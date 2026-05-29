@@ -1,8 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -11,39 +8,31 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
+import java.net.URI
 
 class BrevKlientTest {
-    private lateinit var wiremockServer: WireMockServer
-    private lateinit var brevKlient: BrevKlient
-
-    @BeforeEach
-    fun setUp() {
-        wiremockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
-        wiremockServer.start()
-        brevKlient =
-            BrevKlient(
-                wiremockServer.baseUrl(),
-                "dataset",
-                RestClient.builder().build(),
-            )
-    }
-
-    @AfterEach
-    fun tearDown() {
-        wiremockServer.stop()
-    }
+    private val mockedRestClient: RestClient = mockk()
+    private val baseUri = "http://localhost:8080"
+    private val brevKlient: BrevKlient =
+        BrevKlient(
+            baseUri,
+            "dataset",
+            mockedRestClient,
+        )
 
     @Nested
     inner class GenererBrevTest {
         @Test
         fun `skal kaste funksjonell feil ved bad request exception`() {
+            // Arrange
             val brevDto = mockk<BrevDto>()
             val brevMal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
             val brevDataDto = mockk<BrevDataDto>()
@@ -52,12 +41,18 @@ class BrevKlientTest {
             every { brevDto.data } returns brevDataDto
             every { brevDataDto.toBrevString() } returns "test"
 
-            wiremockServer.stubFor(
-                WireMock
-                    .post(WireMock.urlEqualTo("/api/dataset/dokument/NB/${brevMal.apiNavn}/pdf"))
-                    .willReturn(WireMock.aResponse().withStatus(400).withBody("msg")),
-            )
+            every {
+                mockedRestClient.post()
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.BAD_REQUEST,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
 
+            // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
                     brevKlient.genererBrev("NB", brevDto)
@@ -69,6 +64,7 @@ class BrevKlientTest {
 
         @Test
         fun `skal ikke konvertere andre exceptions enn bad request exception til funksjonell feil`() {
+            // Arrange
             val brevDto = mockk<BrevDto>()
             val brevMal = Brevmal.VEDTAK_FØRSTEGANGSVEDTAK
             val brevDataDto = mockk<BrevDataDto>()
@@ -77,12 +73,18 @@ class BrevKlientTest {
             every { brevDto.data } returns brevDataDto
             every { brevDataDto.toBrevString() } returns "test"
 
-            wiremockServer.stubFor(
-                WireMock
-                    .post(WireMock.urlEqualTo("/api/dataset/dokument/NB/${brevMal.apiNavn}/pdf"))
-                    .willReturn(WireMock.aResponse().withStatus(403).withBody("msg")),
-            )
+            every {
+                mockedRestClient.post()
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.FORBIDDEN,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
 
+            // Act & assert
             assertThrows<HttpClientErrorException.Forbidden> {
                 brevKlient.genererBrev("NB", brevDto)
             }
@@ -93,29 +95,43 @@ class BrevKlientTest {
     inner class HentBegrunnelsestekstTest {
         @Test
         fun `skal hente begrunnelsestekst`() {
+            // Arrange
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
-            wiremockServer.stubFor(
-                WireMock
-                    .post(WireMock.urlEqualTo("/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/"))
-                    .willReturn(WireMock.ok("bla bla bla")),
-            )
+            val requestBodyUriSpec = mockk<RestClient.RequestBodyUriSpec>()
+            val requestBodySpec = mockk<RestClient.RequestBodySpec>()
+            val responseSpec = mockk<RestClient.ResponseSpec>()
 
+            every { mockedRestClient.post() } returns requestBodyUriSpec
+            every { requestBodyUriSpec.uri(any<URI>()) } returns requestBodySpec
+            every { requestBodySpec.body(any<Any>()) } returns requestBodySpec
+            every { requestBodySpec.retrieve() } returns responseSpec
+            every { responseSpec.body<String>() } returns "bla bla bla"
+
+            // Act
             val begrunnelsestekst = brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
 
+            // Assert
             assertThat(begrunnelsestekst).isEqualTo("bla bla bla")
         }
 
         @Test
         fun `skal kaste funksjonell feil ved bad request exception`() {
+            // Arrange
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
-            wiremockServer.stubFor(
-                WireMock
-                    .post(WireMock.urlEqualTo("/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/"))
-                    .willReturn(WireMock.aResponse().withStatus(400).withBody("msg")),
-            )
+            every {
+                mockedRestClient.post()
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.BAD_REQUEST,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
 
+            // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
                     brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
@@ -127,17 +143,26 @@ class BrevKlientTest {
 
         @Test
         fun `skal ikke konvertere andre exceptions enn bad request exception til funksjonell feil`() {
+            // Arrange
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
-            wiremockServer.stubFor(
-                WireMock
-                    .post(WireMock.urlEqualTo("/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/"))
-                    .willReturn(WireMock.aResponse().withStatus(403).withBody("msg")),
-            )
+            every {
+                mockedRestClient.post()
+            } throws
+                HttpClientErrorException.create(
+                    HttpStatus.FORBIDDEN,
+                    "text",
+                    HttpHeaders.EMPTY,
+                    "msg".toByteArray(),
+                    null,
+                )
 
-            assertThrows<HttpClientErrorException.Forbidden> {
-                brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
-            }
+            // Act & assert
+            val exception =
+                assertThrows<HttpClientErrorException.Forbidden> {
+                    brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
+                }
+            assertThat(exception.message).isEqualTo("403 text")
         }
     }
 }
