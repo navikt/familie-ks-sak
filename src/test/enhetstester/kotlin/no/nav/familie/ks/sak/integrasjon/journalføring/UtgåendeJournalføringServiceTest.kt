@@ -9,7 +9,6 @@ import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.UtgåendeJournalføringService.Companion.genererEksternReferanseIdForJournalpost
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
-import no.nav.familie.restklient.client.RessursException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
+import org.springframework.web.client.RestClientResponseException
 import java.util.UUID
 
 class UtgåendeJournalføringServiceTest {
@@ -73,7 +73,15 @@ class UtgåendeJournalføringServiceTest {
             val eksternReferanseId = UUID.randomUUID().toString()
             val journalpost = lagJournalpost(personIdent = fnr, journalpostId = journalpostId, eksternReferanseId = eksternReferanseId)
 
-            every { integrasjonKlient.journalførDokument(any()) } throws RessursException(mockk(), mockk(), HttpStatus.CONFLICT)
+            every { integrasjonKlient.journalførDokument(any()) } throws
+                RestClientResponseException(
+                    "Feil",
+                    HttpStatus.CONFLICT.value(),
+                    "Bad Request",
+                    null,
+                    null,
+                    null,
+                )
             every { integrasjonKlient.hentJournalposterForBruker(any()) } returns listOf(journalpost)
 
             // Act
