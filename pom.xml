@@ -362,6 +362,10 @@
             <version>${nv-i18n.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.papertrailapp</groupId>
             <artifactId>logback-syslog4j</artifactId>
             <version>${logback-syslog4j.version}</version>
