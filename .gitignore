@@ -3,3 +3,6 @@
 target/
 .idea
 build/
+
+# Lokale secrets (generert av hentEnv.sh)
+.env

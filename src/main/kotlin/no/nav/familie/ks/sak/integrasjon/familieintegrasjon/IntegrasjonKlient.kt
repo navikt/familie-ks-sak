@@ -39,7 +39,6 @@ import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
@@ -47,16 +46,17 @@ import org.springframework.http.HttpHeaders
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 @Component
 class IntegrasjonKlient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
-    @Qualifier("jwtBearer") restOperations: RestOperations,
+    @Qualifier("integrasjonerRestClient") private val restClient: RestClient,
     private val featureToggleService: FeatureToggleService,
-) : AbstractRestClient(restOperations, "integrasjon") {
+) {
     val tilgangPersonUri =
         UriComponentsBuilder
             .fromUri(integrasjonUri)
@@ -74,13 +74,13 @@ class IntegrasjonKlient(
             uri = tilgangPersonUri,
             formål = "Sjekk tilgang til personer",
         ) {
-            postForEntity(
-                tilgangPersonUri,
-                personIdenter,
-                HttpHeaders().also {
-                    it.set(HEADER_NAV_TEMA, HEADER_NAV_TEMA_KON)
-                },
-            )
+            restClient
+                .post()
+                .uri(tilgangPersonUri)
+                .headers { it.addAll(HttpHeaders().also { h -> h.set(HEADER_NAV_TEMA, HEADER_NAV_TEMA_KON) }) }
+                .body(personIdenter)
+                .retrieve()
+                .body<List<Tilgang>>()!!
         }
     }
 
@@ -92,7 +92,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Ferdigstill oppgave",
         ) {
-            patchForEntity<Ressurs<OppgaveResponse>>(uri, "")
+            restClient
+                .patch()
+                .uri(uri)
+                .body("")
+                .retrieve()
+                .body<Ressurs<OppgaveResponse>>()!!
         }
     }
 
@@ -117,10 +122,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Fordel oppgave",
         ) {
-            postForEntity(
-                uri,
-                HttpHeaders().medContentTypeJsonUTF8(),
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .headers { it.addAll(HttpHeaders().medContentTypeJsonUTF8()) }
+                .retrieve()
+                .body<Ressurs<OppgaveResponse>>()!!
         }
     }
 
@@ -147,10 +154,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Bytt enhet",
         ) {
-            patchForEntity(
-                uri,
-                HttpHeaders().medContentTypeJsonUTF8(),
-            )
+            restClient
+                .patch()
+                .uri(uri)
+                .headers { it.addAll(HttpHeaders().medContentTypeJsonUTF8()) }
+                .retrieve()
+                .body<Ressurs<OppgaveResponse>>()!!
         }
     }
 
@@ -162,7 +171,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Finn oppgave med id $oppgaveId",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -185,7 +198,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent saksbehandler",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -197,11 +214,13 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent oppgaver",
         ) {
-            postForEntity(
-                uri,
-                finnOppgaveRequest,
-                HttpHeaders().medContentTypeJsonUTF8(),
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .headers { it.addAll(HttpHeaders().medContentTypeJsonUTF8()) }
+                .body(finnOppgaveRequest)
+                .retrieve()
+                .body<Ressurs<FinnOppgaveResponseDto>>()!!
         }
     }
 
@@ -218,7 +237,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent journalposter for bruker",
         ) {
-            postForEntity(uri, journalposterForBrukerRequest)
+            restClient
+                .post()
+                .uri(uri)
+                .body(journalposterForBrukerRequest)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -235,7 +259,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent tilgangsstyrte journalposter for bruker",
         ) {
-            postForEntity(uri, journalposterForBrukerRequest)
+            restClient
+                .post()
+                .uri(uri)
+                .body(journalposterForBrukerRequest)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -252,7 +281,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent journalpost id $journalpostId",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -267,7 +300,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent dokument $dokumentId i journalpost $journalpostId",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -295,7 +332,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent behandlende enhet",
         ) {
-            postForEntity(uri, mapOf("ident" to ident))
+            restClient
+                .post()
+                .uri(uri)
+                .body(mapOf("ident" to ident))
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -313,7 +355,11 @@ class IntegrasjonKlient(
                 uri = uri,
                 formål = "Henter gruppene til saksbehandler",
             ) {
-                getForEntity(uri)
+                restClient
+                    .get()
+                    .uri(uri)
+                    .retrieve()
+                    .body<Ressurs<SaksbehandlerGrupper>>()!!
             }
 
         return saksbehandlerSineGrupper.value.mapNotNull { navn ->
@@ -330,7 +376,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent nav kontor for enhet $enhetId",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -342,11 +392,13 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Opprett oppgave",
         ) {
-            postForEntity(
-                uri,
-                opprettOppgave,
-                HttpHeaders().medContentTypeJsonUTF8(),
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .headers { it.addAll(HttpHeaders().medContentTypeJsonUTF8()) }
+                .body(opprettOppgave)
+                .retrieve()
+                .body<Ressurs<OppgaveResponse>>()!!
         }
     }
 
@@ -360,7 +412,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Oppdater oppgave",
         ) {
-            patchForEntity<Ressurs<OppgaveResponse>>(uri, oppgaveOppdatering)
+            restClient
+                .patch()
+                .uri(uri)
+                .body(oppgaveOppdatering)
+                .retrieve()
+                .body<Ressurs<OppgaveResponse>>()!!
         }
     }
 
@@ -375,7 +432,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Legg til logisk vedlegg på dokument $dokumentinfoId",
         ) {
-            postForEntity(uri, request)
+            restClient
+                .post()
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -389,7 +451,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Slett logisk vedlegg på dokument $dokumentinfoId",
         ) {
-            deleteForEntity(uri)
+            restClient
+                .delete()
+                .uri(uri)
+                .retrieve()
+                .body<Ressurs<LogiskVedleggResponse>>()!!
         }
     }
 
@@ -404,7 +470,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Oppdater journalpost",
         ) {
-            putForEntity(uri, request)
+            restClient
+                .put()
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -420,7 +491,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent journalposter for bruker",
         ) {
-            putForEntity<Ressurs<Any>>(uri, "")
+            restClient
+                .put()
+                .uri(uri)
+                .body("")
+                .retrieve()
+                .body<Ressurs<Any>>()!!
         }
     }
 
@@ -438,7 +514,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Journalfør dokument på fagsak ${arkiverDokumentRequest.fagsakId}",
         ) {
-            postForEntity(uri, arkiverDokumentRequest)
+            restClient
+                .post()
+                .uri(uri)
+                .body(arkiverDokumentRequest)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -451,7 +532,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent landkoder for $landkode",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -464,7 +549,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent EØS land",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -491,7 +580,13 @@ class IntegrasjonKlient(
                 uri = uri,
                 formål = "Distribuer brev",
             ) {
-                postForEntity(uri, journalpostRequest, HttpHeaders().medContentTypeJsonUTF8())
+                restClient
+                    .post()
+                    .uri(uri)
+                    .headers { it.addAll(HttpHeaders().medContentTypeJsonUTF8()) }
+                    .body(journalpostRequest)
+                    .retrieve()
+                    .body<Ressurs<String>>()!!
             }
 
         return bestillingId
@@ -511,7 +606,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent strengeste behandlende enhet for person og alle relasjoner til personen",
         ) {
-            postForEntity(uri, PersonIdent(ident))
+            restClient
+                .post()
+                .uri(uri)
+                .body(PersonIdent(ident))
+                .retrieve()
+                .body<Ressurs<List<Arbeidsfordelingsenhet>>>()!!
         }.single()
     }
 
@@ -524,7 +624,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent landkoderISO2",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -536,10 +640,12 @@ class IntegrasjonKlient(
             uri = url,
             formål = "Hent URL for person til A-inntekt",
         ) {
-            postForEntity(
-                url,
-                personIdent,
-            )
+            restClient
+                .post()
+                .uri(url)
+                .body(personIdent)
+                .retrieve()
+                .body<Ressurs<String>>()!!
         }
     }
 
@@ -551,10 +657,12 @@ class IntegrasjonKlient(
             uri = url,
             formål = "Sjekk om personer er egen ansatt",
         ) {
-            postForEntity<Ressurs<Map<String, Boolean>>>(
-                url,
-                personIdenter,
-            )
+            restClient
+                .post()
+                .uri(url)
+                .body(personIdenter)
+                .retrieve()
+                .body<Ressurs<Map<String, Boolean>>>()!!
         }
     }
 
@@ -572,7 +680,11 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Hent postnumre",
         ) {
-            getForEntity(uri)
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -612,10 +724,12 @@ class IntegrasjonKlient(
             uri = uri,
             formål = "Bytt enhet og mappe",
         ) {
-            patchForEntity(
-                uri,
-                HttpHeaders().medContentTypeJsonUTF8(),
-            )
+            restClient
+                .patch()
+                .uri(uri)
+                .headers { it.addAll(HttpHeaders().medContentTypeJsonUTF8()) }
+                .retrieve()
+                .body<Ressurs<OppgaveResponse>>()!!
         }
     }
 

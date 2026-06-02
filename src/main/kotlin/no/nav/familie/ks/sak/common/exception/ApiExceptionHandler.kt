@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.common.exception
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
-import no.nav.familie.restklient.client.RessursException
 import org.slf4j.LoggerFactory
 import org.springframework.core.NestedExceptionUtils
 import org.springframework.http.HttpStatus
@@ -34,9 +33,6 @@ class ApiExceptionHandler {
 
         return RessursUtils.illegalState(mostSpecificCause.message.toString(), mostSpecificCause)
     }
-
-    @ExceptionHandler(RessursException::class)
-    fun handleRessursException(ressursException: RessursException): ResponseEntity<Ressurs<Any>> = ResponseEntity.status(ressursException.httpStatus).body(ressursException.ressurs)
 
     @ExceptionHandler(HttpClientErrorException.Forbidden::class)
     fun handleForbidden(foriddenException: HttpClientErrorException.Forbidden): ResponseEntity<Ressurs<Nothing>> {

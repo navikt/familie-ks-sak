@@ -10,21 +10,20 @@ import no.nav.familie.kontrakter.felles.tilbakekreving.OpprettTilbakekrevingRequ
 import no.nav.familie.kontrakter.felles.tilbakekreving.Ytelsestype
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
-import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import org.springframework.web.util.UriUtils
 import java.net.URI
 
 @Service
 class TilbakekrevingKlient(
     @Value("\${FAMILIE_TILBAKE_API_URL}") private val familieTilbakeUri: URI,
-    @Qualifier("jwtBearer") restOperations: RestOperations,
-) : AbstractRestClient(restOperations, "tilbakreving") {
+    @Qualifier("tilbakekrevingRestClient") private val restClient: RestClient,
+) {
     fun harÅpenTilbakekrevingsbehandling(fagsakId: Long): Boolean {
         val uri = URI.create("$familieTilbakeUri/fagsystem/${Fagsystem.KONT}/fagsak/$fagsakId/finnesApenBehandling/v1")
 
@@ -33,7 +32,13 @@ class TilbakekrevingKlient(
                 tjeneste = "familie-tilbake",
                 uri = uri,
                 formål = "Sjekker om en fagsak har åpen tilbakekrevingsbehandling",
-            ) { getForEntity(uri) }
+            ) {
+                restClient
+                    .get()
+                    .uri(uri)
+                    .retrieve()
+                    .body()!!
+            }
 
         return finnesTilbakekrevingBehandlingsresponsDto.finnesÅpenBehandling
     }
@@ -46,14 +51,13 @@ class TilbakekrevingKlient(
             uri = uri,
             formål = "Henter forhåndsvisning av varselbrev",
         ) {
-            postForEntity(
-                uri = uri,
-                payload = forhåndsvisVarselbrevRequest,
-                httpHeaders =
-                    HttpHeaders().apply {
-                        accept = listOf(MediaType.APPLICATION_PDF)
-                    },
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .headers { it.accept = listOf(MediaType.APPLICATION_PDF) }
+                .body(forhåndsvisVarselbrevRequest)
+                .retrieve()
+                .body<ByteArray>()!!
         }
     }
 
@@ -65,7 +69,12 @@ class TilbakekrevingKlient(
             uri = uri,
             formål = "Oppretter tilbakekrevingsbehandling",
         ) {
-            postForEntity(uri, opprettTilbakekrevingRequest)
+            restClient
+                .post()
+                .uri(uri)
+                .body(opprettTilbakekrevingRequest)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -76,7 +85,13 @@ class TilbakekrevingKlient(
             tjeneste = "familie-tilbake",
             uri = uri,
             formål = "Henter tilbakekrevingsbehandlinger på fagsak",
-        ) { getForEntity(uri) }
+        ) {
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
+        }
     }
 
     fun kanTilbakekrevingsbehandlingOpprettesManuelt(fagsakId: Long): KanBehandlingOpprettesManueltRespons {
@@ -89,7 +104,13 @@ class TilbakekrevingKlient(
             tjeneste = "familie-tilbake",
             uri = uri,
             formål = "Sjekker om tilbakekrevingsbehandling kan opprettes manuelt",
-        ) { getForEntity(uri) }
+        ) {
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
+        }
     }
 
     fun opprettTilbakekrevingsbehandlingManuelt(request: OpprettManueltTilbakekrevingRequest): String {
@@ -99,7 +120,14 @@ class TilbakekrevingKlient(
             tjeneste = "familie-tilbake",
             uri = uri,
             formål = "Oppretter tilbakekrevingsbehandling manuelt",
-        ) { postForEntity(uri, request) }
+        ) {
+            restClient
+                .post()
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body()!!
+        }
     }
 
     fun hentTilbakekrevingsvedtak(fagsakId: Long): List<FagsystemVedtak> {
@@ -109,7 +137,13 @@ class TilbakekrevingKlient(
             tjeneste = "familie-tilbake",
             uri = uri,
             formål = "Henter tilbakekrevingsvedtak på fagsak",
-        ) { getForEntity(uri) }
+        ) {
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
+        }
     }
 }
 

@@ -10,15 +10,14 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.restclient.RestTemplateBuilder
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class OppdragKlientTest {
-    private val restOperations: RestOperations = RestTemplateBuilder().build()
+    private val restClient: RestClient = RestClient.builder().build()
     private lateinit var oppdragKlient: OppdragKlient
     private lateinit var wiremockServerItem: WireMockServer
 
@@ -26,7 +25,7 @@ internal class OppdragKlientTest {
     fun beforeEach() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        oppdragKlient = OppdragKlient(wiremockServerItem.baseUrl(), restOperations)
+        oppdragKlient = OppdragKlient(wiremockServerItem.baseUrl(), restClient)
     }
 
     @Test

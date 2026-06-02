@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonValue
 import no.nav.commons.foedselsnummer.Kjoenn
 import no.nav.familie.ks.sak.api.dto.BarnMedOpplysningerDto
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
-import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.YearMonth
@@ -16,8 +16,8 @@ import java.time.YearMonth
 @Component
 class InfotrygdReplikaKlient(
     @Value("\${FAMILIE_KS_INFOTRYGD_API_URL}") private val familieKsInfotrygdUri: URI,
-    @Qualifier("jwtBearer") restOperations: RestOperations,
-) : AbstractRestClient(restOperations, "familie-ks-infotrygd") {
+    @Qualifier("infotrygdRestClient") private val restClient: RestClient,
+) {
     fun hentKontantstøttePerioderFraInfotrygd(identer: List<String>): InnsynResponse {
         val requestURI =
             UriComponentsBuilder
@@ -32,7 +32,12 @@ class InfotrygdReplikaKlient(
                 uri = requestURI,
                 formål = "Henting av kontantstøtte perioder fra infotrygd",
             ) {
-                postForEntity(uri = requestURI, InnsynRequest(barn = identer.map { it }))
+                restClient
+                    .post()
+                    .uri(requestURI)
+                    .body(InnsynRequest(barn = identer.map { it }))
+                    .retrieve()
+                    .body<InnsynResponse>()!!
             }
         return infotrygdPerioder
     }
@@ -51,7 +56,11 @@ class InfotrygdReplikaKlient(
                 uri = requestURI,
                 formål = "Henter alle barnas identer for løpende fagsaker",
             ) {
-                getForEntity(uri = requestURI)
+                restClient
+                    .get()
+                    .uri(requestURI)
+                    .retrieve()
+                    .body<List<String>>()!!
             }
         return barnMedLøpendeFagsak.toSet()
     }

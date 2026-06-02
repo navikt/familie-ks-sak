@@ -37,12 +37,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.restclient.RestTemplateBuilder
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
 import java.net.URI
 
 internal class IntegrasjonKlientTest {
-    private val restOperations: RestOperations = RestTemplateBuilder().build()
+    private val restClient: RestClient = RestClient.builder().build()
     private lateinit var integrasjonKlient: IntegrasjonKlient
     private lateinit var wiremockServerItem: WireMockServer
     private val featureToggleService = mockk<FeatureToggleService>()
@@ -51,14 +50,12 @@ internal class IntegrasjonKlientTest {
     fun initClass() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations, featureToggleService)
+        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restClient, featureToggleService)
     }
 
     @AfterEach
     fun tearDown() {
-        wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
-        wiremockServerItem.start()
-        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restOperations, featureToggleService)
+        wiremockServerItem.stop()
         unmockkObject(SikkerhetContext)
     }
 

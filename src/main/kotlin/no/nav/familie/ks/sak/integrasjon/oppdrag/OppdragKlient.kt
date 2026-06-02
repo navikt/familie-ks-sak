@@ -6,21 +6,21 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient.Companion.RETRY_BACKOFF_5000MS
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
-import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import java.net.URI
 
 @Service
 class OppdragKlient(
     @Value("\${FAMILIE_OPPDRAG_API_URL}")
     private val familieOppdragUri: String,
-    @Qualifier("jwtBearer") restOperations: RestOperations,
-) : AbstractRestClient(restOperations, "økonomi_kontantstøtte") {
+    @Qualifier("oppdragRestClient") private val restClient: RestClient,
+) {
     fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
         val uri = URI.create("$familieOppdragUri/oppdrag")
         return kallEksternTjenesteRessurs(
@@ -28,7 +28,12 @@ class OppdragKlient(
             uri = uri,
             formål = "Iverksetter mot oppdrag",
         ) {
-            postForEntity(uri = uri, utbetalingsoppdrag)
+            restClient
+                .post()
+                .uri(uri)
+                .body(utbetalingsoppdrag)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -45,7 +50,12 @@ class OppdragKlient(
             uri = uri,
             formål = "Henter simulering fra oppdrag",
         ) {
-            postForEntity(uri = uri, utbetalingsoppdrag)
+            restClient
+                .post()
+                .uri(uri)
+                .body(utbetalingsoppdrag)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -56,7 +66,12 @@ class OppdragKlient(
             uri = uri,
             formål = "Henter oppdragstatus fra oppdrag",
         ) {
-            postForEntity(uri = uri, oppdragId)
+            restClient
+                .post()
+                .uri(uri)
+                .body(oppdragId)
+                .retrieve()
+                .body()!!
         }
     }
 
@@ -67,7 +82,14 @@ class OppdragKlient(
             tjeneste = "familie-oppdrag",
             uri = uri,
             formål = "Hent utbetalingsoppdrag for fagsaker",
-        ) { postForEntity(uri = uri, payload = fagsakIder) }
+        ) {
+            restClient
+                .post()
+                .uri(uri)
+                .body(fagsakIder)
+                .retrieve()
+                .body()!!
+        }
     }
 
     companion object {

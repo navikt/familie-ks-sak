@@ -5,11 +5,11 @@ import no.nav.familie.kontrakter.felles.oppdrag.KonsistensavstemmingRequestV2
 import no.nav.familie.kontrakter.felles.oppdrag.PerioderForBehandling
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
-import no.nav.familie.restklient.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import java.net.URI
 import java.time.LocalDateTime
 import java.util.UUID
@@ -20,8 +20,8 @@ private const val FAMILIE_OPPDRAG = "familie-oppdrag"
 class AvstemmingKlient(
     @Value("\${FAMILIE_OPPDRAG_API_URL}")
     private val familieOppdragUri: String,
-    @Qualifier("jwtBearerLongTimeout") restOperations: RestOperations,
-) : AbstractRestClient(restOperations, "økonomi_kontantstøtte") {
+    @Qualifier("avstemmingRestClient") private val restClient: RestClient,
+) {
     fun sendGrensesnittavstemmingTilOppdrag(
         fom: LocalDateTime,
         tom: LocalDateTime,
@@ -33,16 +33,18 @@ class AvstemmingKlient(
             uri = uri,
             formål = "Gjør grensesnittavstemming mot oppdrag",
         ) {
-            postForEntity(
-                uri = uri,
-                payload =
+            restClient
+                .post()
+                .uri(uri)
+                .body(
                     GrensesnittavstemmingRequest(
                         fagsystem = FAGSYSTEM,
                         fra = fom,
                         til = tom,
                         avstemmingId = avstemmingId,
                     ),
-            )
+                ).retrieve()
+                .body()!!
         }
     }
 
@@ -61,14 +63,17 @@ class AvstemmingKlient(
             uri = uri,
             formål = "Start konsistensavstemming mot oppdrag i batch",
         ) {
-            postForEntity(
-                uri = uri,
-                KonsistensavstemmingRequestV2(
-                    fagsystem = FAGSYSTEM,
-                    avstemmingstidspunkt = avstemmingsdato,
-                    perioderForBehandlinger = emptyList(),
-                ),
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .body(
+                    KonsistensavstemmingRequestV2(
+                        fagsystem = FAGSYSTEM,
+                        avstemmingstidspunkt = avstemmingsdato,
+                        perioderForBehandlinger = emptyList(),
+                    ),
+                ).retrieve()
+                .body()!!
         }
     }
 
@@ -88,14 +93,17 @@ class AvstemmingKlient(
             uri = uri,
             formål = "Konsistenstavstemmer chunk mot oppdrag",
         ) {
-            postForEntity(
-                uri = uri,
-                KonsistensavstemmingRequestV2(
-                    fagsystem = FAGSYSTEM,
-                    avstemmingstidspunkt = avstemmingsdato,
-                    perioderForBehandlinger = perioderTilAvstemming,
-                ),
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .body(
+                    KonsistensavstemmingRequestV2(
+                        fagsystem = FAGSYSTEM,
+                        avstemmingstidspunkt = avstemmingsdato,
+                        perioderForBehandlinger = perioderTilAvstemming,
+                    ),
+                ).retrieve()
+                .body()!!
         }
     }
 
@@ -113,14 +121,17 @@ class AvstemmingKlient(
             uri = uri,
             formål = "Avslutt konsistensavstemming mot oppdrag",
         ) {
-            postForEntity(
-                uri = uri,
-                KonsistensavstemmingRequestV2(
-                    fagsystem = FAGSYSTEM,
-                    avstemmingstidspunkt = avstemmingsdato,
-                    perioderForBehandlinger = emptyList(),
-                ),
-            )
+            restClient
+                .post()
+                .uri(uri)
+                .body(
+                    KonsistensavstemmingRequestV2(
+                        fagsystem = FAGSYSTEM,
+                        avstemmingstidspunkt = avstemmingsdato,
+                        perioderForBehandlinger = emptyList(),
+                    ),
+                ).retrieve()
+                .body()!!
         }
     }
 
@@ -136,9 +147,11 @@ class AvstemmingKlient(
             uri = uri,
             formål = "sov",
         ) {
-            getForEntity(
-                uri = uri,
-            )
+            restClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body()!!
         }
     }
 }

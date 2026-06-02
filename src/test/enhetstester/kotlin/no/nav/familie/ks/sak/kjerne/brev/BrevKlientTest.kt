@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagNasjonalOgFellesBegrunnelseDataDto
-import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalOgFellesBegrunnelseDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDataDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.BrevDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -12,24 +11,21 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestOperations
-import org.springframework.web.client.exchange
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import java.net.URI
 
 class BrevKlientTest {
-    private val mockedRestOperations: RestOperations = mockk()
+    private val mockedRestClient: RestClient = mockk()
     private val baseUri = "http://localhost:8080"
     private val brevKlient: BrevKlient =
         BrevKlient(
             baseUri,
             "dataset",
-            mockedRestOperations,
+            mockedRestClient,
         )
 
     @Nested
@@ -46,11 +42,7 @@ class BrevKlientTest {
             every { brevDataDto.toBrevString() } returns "test"
 
             every {
-                mockedRestOperations.exchange<ByteArray>(
-                    eq(URI("$baseUri/api/dataset/dokument/NB/${brevMal.apiNavn}/pdf")),
-                    eq(HttpMethod.POST),
-                    any<HttpEntity<BrevDataDto>>(),
-                )
+                mockedRestClient.post()
             } throws
                 HttpClientErrorException.create(
                     HttpStatus.BAD_REQUEST,
@@ -82,11 +74,7 @@ class BrevKlientTest {
             every { brevDataDto.toBrevString() } returns "test"
 
             every {
-                mockedRestOperations.exchange<ByteArray>(
-                    eq(URI("$baseUri/api/dataset/dokument/NB/${brevMal.apiNavn}/pdf")),
-                    eq(HttpMethod.POST),
-                    any<HttpEntity<BrevDataDto>>(),
-                )
+                mockedRestClient.post()
             } throws
                 HttpClientErrorException.create(
                     HttpStatus.FORBIDDEN,
@@ -110,17 +98,15 @@ class BrevKlientTest {
             // Arrange
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
-            every {
-                mockedRestOperations.exchange<String>(
-                    eq(URI("$baseUri/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/")),
-                    eq(HttpMethod.POST),
-                    any<HttpEntity<NasjonalOgFellesBegrunnelseDataDto>>(),
-                )
-            } returns
-                ResponseEntity<String>(
-                    "bla bla bla",
-                    HttpStatus.OK,
-                )
+            val requestBodyUriSpec = mockk<RestClient.RequestBodyUriSpec>()
+            val requestBodySpec = mockk<RestClient.RequestBodySpec>()
+            val responseSpec = mockk<RestClient.ResponseSpec>()
+
+            every { mockedRestClient.post() } returns requestBodyUriSpec
+            every { requestBodyUriSpec.uri(any<URI>()) } returns requestBodySpec
+            every { requestBodySpec.body(any<Any>()) } returns requestBodySpec
+            every { requestBodySpec.retrieve() } returns responseSpec
+            every { responseSpec.body<String>() } returns "bla bla bla"
 
             // Act
             val begrunnelsestekst = brevKlient.hentBegrunnelsestekst(nasjonalOgFellesBegrunnelseDataDto)
@@ -135,11 +121,7 @@ class BrevKlientTest {
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
             every {
-                mockedRestOperations.exchange<String>(
-                    eq(URI("$baseUri/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/")),
-                    eq(HttpMethod.POST),
-                    any<HttpEntity<NasjonalOgFellesBegrunnelseDataDto>>(),
-                )
+                mockedRestClient.post()
             } throws
                 HttpClientErrorException.create(
                     HttpStatus.BAD_REQUEST,
@@ -165,11 +147,7 @@ class BrevKlientTest {
             val nasjonalOgFellesBegrunnelseDataDto = lagNasjonalOgFellesBegrunnelseDataDto()
 
             every {
-                mockedRestOperations.exchange<String>(
-                    eq(URI("$baseUri/ks-sak/begrunnelser/${nasjonalOgFellesBegrunnelseDataDto.apiNavn}/tekst/")),
-                    eq(HttpMethod.POST),
-                    any<HttpEntity<NasjonalOgFellesBegrunnelseDataDto>>(),
-                )
+                mockedRestClient.post()
             } throws
                 HttpClientErrorException.create(
                     HttpStatus.FORBIDDEN,

@@ -19,12 +19,12 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
-import no.nav.familie.restklient.client.RessursException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDate
 
 @Service
@@ -67,8 +67,8 @@ class UtbetalingsoppdragService(
         try {
             oppdragKlient.iverksettOppdrag(utbetalingsoppdrag)
         } catch (exception: Exception) {
-            if (exception is RessursException &&
-                exception.httpStatus == HttpStatus.CONFLICT
+            if (exception is RestClientResponseException &&
+                exception.statusCode == HttpStatus.CONFLICT
             ) {
                 sammeOppdragSendtKonflikt.increment()
                 logger.info("Bypasset feil med HttpKode 409 ved iverksetting mot økonomi for fagsak ${utbetalingsoppdrag.saksnummer}")

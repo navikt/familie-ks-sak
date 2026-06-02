@@ -34,16 +34,13 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import org.springframework.core.io.ClassPathResource
-import org.springframework.web.client.RestOperations
 import tools.jackson.module.kotlin.readValue
 import java.io.BufferedReader
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
-class FakeIntegrasjonKlient(
-    restOperations: RestOperations,
-) : IntegrasjonKlient(URI("integrasjoner-url"), restOperations, mockk(relaxed = true)) {
+class FakeIntegrasjonKlient : IntegrasjonKlient(URI("integrasjoner-url"), mockk(relaxed = true), mockk(relaxed = true)) {
     private val egenansatt = mutableSetOf<String>()
     private val behandlendeEnhetForIdent = mutableMapOf<String, List<Arbeidsfordelingsenhet>>()
     private val journalførteDokumenter = mutableListOf<ArkiverDokumentRequest>()
