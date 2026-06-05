@@ -1,5 +1,8 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
+import no.nav.familie.ks.sak.api.dto.UtvidetVedtaksperiodeMedBegrunnelserDto
+import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
+import no.nav.familie.ks.sak.api.dto.tilVedtakDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -103,8 +106,6 @@ class VedtaksperiodeService(
 
         val persongrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
 
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
         validerReduksjonFramtidigOpphørBarnehageplassIkkeFjernet(vedtaksperiodeMedBegrunnelser, begrunnelserFraFrontend)
 
         vedtaksperiodeMedBegrunnelser.settBegrunnelser(
@@ -123,12 +124,6 @@ class VedtaksperiodeService(
             val andelerTilkjentYtelse = andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
 
             validerEndretUtbetalingsbegrunnelse(vedtaksperiodeMedBegrunnelser, andelerTilkjentYtelse, persongrunnlag)
-        }
-
-        val alleBegrunnelserStøtterFritekst = behandling.erRevurderingKlage()
-
-        if (!vedtaksperiodeMedBegrunnelser.støtterFritekst(sanityBegrunnelser, alleBegrunnelserStøtterFritekst)) {
-            vedtaksperiodeMedBegrunnelser.fritekster.clear()
         }
 
         vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelser)
@@ -325,6 +320,37 @@ class VedtaksperiodeService(
     }
 
     fun hentPersisterteVedtaksperioder(vedtak: Vedtak): List<VedtaksperiodeMedBegrunnelser> = vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(vedtakId = vedtak.id)
+
+    fun hentUtvidetVedtaksperiodeMedBegrunnelserDto(behandlingId: Long): List<UtvidetVedtaksperiodeMedBegrunnelserDto> {
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
+        val vedtak = vedtakRepository.findByBehandlingAndAktiv(behandlingId)
+
+        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = BehandlingId(behandlingId))
+
+        // For revurderinger med årsak klage skal fritekst støttes på alle begrunnelser
+        val alleBegrunnelserSkalStøtteFritekst = behandling.erRevurderingKlage()
+
+        val vedtaksperioderMedBegrunnelser =
+            if (behandling.status != BehandlingStatus.AVSLUTTET) {
+                hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
+                    .map {
+                        it.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                            sanityBegrunnelser = sanityBegrunnelser,
+                            adopsjonerIBehandling = adopsjonerIBehandling,
+                            alleBegrunnelserSkalStøtteFritekst = alleBegrunnelserSkalStøtteFritekst,
+                        )
+                    }.sortedBy { it.fom }
+            } else {
+                emptyList()
+            }
+
+        return vedtak
+            .tilVedtakDto(
+                vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser,
+                skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
+            ).vedtaksperioderMedBegrunnelser
+    }
 
     fun hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId: Long): UtvidetVedtaksperiodeMedBegrunnelser {
         val vedtaksperiodeMedBegrunnelser = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId = vedtaksperiodeId)
