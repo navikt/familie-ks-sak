@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode
 
 import no.nav.familie.ks.sak.api.dto.UtvidetVedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.tilUtvidetVedtaksperiodeMedBegrunnelserDto
-import no.nav.familie.ks.sak.api.dto.tilVedtakDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
@@ -331,25 +330,29 @@ class VedtaksperiodeService(
         // For revurderinger med årsak klage skal fritekst støttes på alle begrunnelser
         val alleBegrunnelserSkalStøtteFritekst = behandling.erRevurderingKlage()
 
-        val vedtaksperioderMedBegrunnelser =
-            if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
-                    .map {
-                        it.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                            sanityBegrunnelser = sanityBegrunnelser,
-                            adopsjonerIBehandling = adopsjonerIBehandling,
-                            alleBegrunnelserSkalStøtteFritekst = alleBegrunnelserSkalStøtteFritekst,
-                        )
-                    }.sortedBy { it.fom }
-            } else {
-                emptyList()
-            }
+        if (behandling.status == BehandlingStatus.AVSLUTTET) {
+            return emptyList()
+        }
 
-        return vedtak
-            .tilVedtakDto(
-                vedtaksperioderMedBegrunnelser = vedtaksperioderMedBegrunnelser,
-                skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
-            ).vedtaksperioderMedBegrunnelser
+        val vedtaksperioderMedBegrunnelser =
+            hentUtvidetVedtaksperioderMedBegrunnelser(vedtak)
+                .map {
+                    it.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
+                        sanityBegrunnelser = sanityBegrunnelser,
+                        adopsjonerIBehandling = adopsjonerIBehandling,
+                        alleBegrunnelserSkalStøtteFritekst = alleBegrunnelserSkalStøtteFritekst,
+                    )
+                }.sortedBy { it.fom }
+
+        val skalMinimeres = behandling.status != BehandlingStatus.UTREDES
+
+        return if (skalMinimeres) {
+            vedtaksperioderMedBegrunnelser
+                .filter { it.begrunnelser.isNotEmpty() }
+                .map { it.copy(gyldigeBegrunnelser = emptyList()) }
+        } else {
+            vedtaksperioderMedBegrunnelser
+        }
     }
 
     fun hentUtvidetVedtaksperiodeMedBegrunnelser(vedtaksperiodeId: Long): UtvidetVedtaksperiodeMedBegrunnelser {
