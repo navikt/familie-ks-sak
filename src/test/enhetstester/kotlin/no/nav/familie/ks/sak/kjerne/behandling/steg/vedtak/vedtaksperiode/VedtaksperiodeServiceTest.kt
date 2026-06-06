@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -21,6 +22,7 @@ import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -104,7 +106,7 @@ internal class VedtaksperiodeServiceTest {
     }
 
     @Nested
-    inner class GenererVedtaksperioderMedBegrunnelser {
+    inner class GenererVedtaksperioderMedBegrunnelserTest {
         @Test
         fun `skal returnere fortsatt innvilget om behandlingsresultatet er fortsatt innvilget`() {
             // Arrange
@@ -216,86 +218,140 @@ internal class VedtaksperiodeServiceTest {
         }
     }
 
-    @Test
-    fun `oppdaterVedtaksperiodeMedFritekster skal sette fritekster på eksisterende vedtaksperiode`() {
-        val mocketVedtaksperiode = mockk<VedtaksperiodeMedBegrunnelser>()
+    @Nested
+    inner class OppdaterVedtaksperiodeMedFriteksterTest {
+        @Test
+        fun `skal sette fritekster på eksisterende vedtaksperiode`() {
+            val mocketVedtaksperiode = mockk<VedtaksperiodeMedBegrunnelser>()
 
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns mocketVedtaksperiode
-        every { vedtaksperiodeHentOgPersisterService.lagre(mocketVedtaksperiode) } returns mocketVedtaksperiode
-        every { mocketVedtaksperiode.settFritekster(any()) } returns mockk()
-        every { mocketVedtaksperiode.vedtak } returns mockk()
+            every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns mocketVedtaksperiode
+            every { vedtaksperiodeHentOgPersisterService.lagre(mocketVedtaksperiode) } returns mocketVedtaksperiode
+            every { mocketVedtaksperiode.settFritekster(any()) } returns mockk()
+            every { mocketVedtaksperiode.vedtak } returns mockk()
 
-        vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(0, listOf("test", "test2"))
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(0, listOf("test", "test2"))
 
-        verify(exactly = 1) { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
-        verify(exactly = 1) { vedtaksperiodeHentOgPersisterService.lagre(mocketVedtaksperiode) }
-        verify(exactly = 1) { mocketVedtaksperiode.settFritekster(any()) }
-    }
-
-    @ParameterizedTest
-    @EnumSource(
-        value = NasjonalEllerFellesBegrunnelse::class,
-        names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"],
-    )
-    fun `oppdaterVedtaksperiodeMedBegrunnelser skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
-        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
-    ) {
-        val vedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = Vedtak(id = 0, behandling = behandling),
-                type = Vedtaksperiodetype.UTBETALING,
-            )
-
-        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
-
-        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
-
-        val feil =
-            assertThrows<Feil> {
-                vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
-            }
-
-        assertThat(
-            feil.message,
-        ).isEqualTo("Begrunnelsestype ${nasjonalEllerFellesBegrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden.")
-    }
-
-    @ParameterizedTest
-    @EnumSource(
-        value = NasjonalEllerFellesBegrunnelse::class,
-        names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"],
-    )
-    fun `oppdaterVedtaksperiodeMedBegrunnelser skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
-        nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
-    ) {
-        val vedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = Vedtak(id = 0, behandling = behandling),
-                type = Vedtaksperiodetype.UTBETALING,
-            )
-
-        val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
-
-        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
-        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
-        every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse
-
-        vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
-
-        verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
-        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
-        verify { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) }
+            verify(exactly = 1) { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+            verify(exactly = 1) { vedtaksperiodeHentOgPersisterService.lagre(mocketVedtaksperiode) }
+            verify(exactly = 1) { mocketVedtaksperiode.settFritekster(any()) }
+        }
     }
 
     @Nested
-    inner class StøtterFritekst {
+    inner class OppdaterVedtaksperiodeMedBegrunnelserTest {
+        @ParameterizedTest
+        @EnumSource(
+            value = NasjonalEllerFellesBegrunnelse::class,
+            names = ["AVSLAG_UREGISTRERT_BARN", "OPPHØR_FULLTIDSPLASS_I_BARNEHAGE"],
+        )
+        fun `skal kaste feil dersom begrunnelse ikke er tillatt for vedtaksperiode type`(
+            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        ) {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = Vedtaksperiodetype.UTBETALING,
+                )
+
+            val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+            every { sanityService.hentSanityBegrunnelser() } returns emptyList()
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+            every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+
+            val feil =
+                assertThrows<Feil> {
+                    vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
+                }
+
+            assertThat(
+                feil.message,
+            ).isEqualTo("Begrunnelsestype ${nasjonalEllerFellesBegrunnelse.begrunnelseType} passer ikke med typen 'UTBETALING' som er satt på perioden.")
+        }
+
+        @ParameterizedTest
+        @EnumSource(
+            value = NasjonalEllerFellesBegrunnelse::class,
+            names = ["INNVILGET_IKKE_BARNEHAGE", "INNVILGET_IKKE_BARNEHAGE_ADOPSJON", "INNVILGET_DELTID_BARNEHAGE"],
+        )
+        fun `skal oppdatere vedtaksperioder dersom begrunnelse er tillatt for vedtakstype`(
+            nasjonalEllerFellesBegrunnelse: NasjonalEllerFellesBegrunnelse,
+        ) {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = Vedtaksperiodetype.UTBETALING,
+                )
+
+            val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+            every { sanityService.hentSanityBegrunnelser() } returns emptyList()
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+            every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+            every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse
+
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(1, listOf(nasjonalEllerFellesBegrunnelse))
+
+            verify { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
+            verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) }
+            verify { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) }
+        }
+
         @Test
-        fun `støtterFritekst skal gi false dersom vedtaksperioden har type UTBETALING og ingen av begrunnelsene støtter fritekst`() {
+        fun `skal ikke slette fritekster automatisk selv om begrunnelsene ikke støtter fritekst`() {
+            val vedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = Vedtak(id = 0, behandling = behandling),
+                    type = Vedtaksperiodetype.UTBETALING,
+                ).also {
+                    it.fritekster.add(
+                        VedtaksbegrunnelseFritekst(id = 0, vedtaksperiodeMedBegrunnelser = it, fritekst = "Dette er en fritekst"),
+                    )
+                }
+
+            val mocketPersonOpplysningGrunnlag = mockk<PersonopplysningGrunnlag>()
+
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mocketPersonOpplysningGrunnlag
+            every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(any()) } returns vedtaksperiodeMedBegrunnelse
+            every { vedtaksperiodeHentOgPersisterService.lagre(vedtaksperiodeMedBegrunnelse) } returns vedtaksperiodeMedBegrunnelse
+
+            vedtaksperiodeService.oppdaterVedtaksperiodeMedBegrunnelser(
+                1,
+                listOf(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE),
+            )
+
+            assertThat(vedtaksperiodeMedBegrunnelse.fritekster).hasSize(1)
+        }
+    }
+
+    @Nested
+    inner class HentUtvidetVedtaksperiodeMedBegrunnelserDtoTest {
+        @Test
+        fun `skal returnere tom liste og ikke hente vedtaksperioder for en avsluttet behandling`() {
+            val avsluttetBehandling = lagBehandling(status = BehandlingStatus.AVSLUTTET)
+            val vedtak = lagVedtak(behandling = avsluttetBehandling)
+
+            every { behandlingRepository.hentBehandling(avsluttetBehandling.id) } returns avsluttetBehandling
+            every { vedtakRepository.findByBehandlingAndAktiv(avsluttetBehandling.id) } returns vedtak
+            every { sanityService.hentSanityBegrunnelser() } returns emptyList()
+            every { adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(avsluttetBehandling.id)) } returns emptyList()
+
+            val resultat = vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelserDto(avsluttetBehandling.id)
+
+            assertThat(resultat).isEmpty()
+            verify(exactly = 0) {
+                andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any())
+            }
+        }
+    }
+
+    @Nested
+    inner class StøtterFritekstTest {
+        @Test
+        fun `skal gi false dersom vedtaksperioden har type UTBETALING og ingen av begrunnelsene støtter fritekst`() {
             val vedtaksperiodeMedBegrunnelse =
                 VedtaksperiodeMedBegrunnelser(
                     id = 0,
@@ -316,7 +372,7 @@ internal class VedtaksperiodeServiceTest {
         }
 
         @Test
-        fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og en av begrunnelsene er av typen REDUKSJON men ikke REDUKSJON_SATSENDRING`() {
+        fun `skal gi true dersom vedtaksperioden har type UTBETALING og en av begrunnelsene er av typen REDUKSJON men ikke REDUKSJON_SATSENDRING`() {
             val vedtaksperiodeMedBegrunnelse =
                 VedtaksperiodeMedBegrunnelser(
                     id = 0,
@@ -336,7 +392,7 @@ internal class VedtaksperiodeServiceTest {
         }
 
         @Test
-        fun `støtterFritekst skal gi true dersom vedtaksperioden har type UTBETALING og minst en av begrunnelsene støtter fritekst`() {
+        fun `skal gi true dersom vedtaksperioden har type UTBETALING og minst en av begrunnelsene støtter fritekst`() {
             val vedtaksperiodeMedBegrunnelse =
                 VedtaksperiodeMedBegrunnelser(
                     id = 0,
@@ -359,7 +415,7 @@ internal class VedtaksperiodeServiceTest {
 
         @ParameterizedTest
         @EnumSource(value = Vedtaksperiodetype::class, names = ["OPPHØR", "AVSLAG", "FORTSATT_INNVILGET"])
-        fun `støtterFritekst skal gi true dersom vedtaksperioden er ulik UTBETALING selv om ingen av begrunnelsene støtter fritekst`(vedtaksperiodetype: Vedtaksperiodetype) {
+        fun `skal gi true dersom vedtaksperioden er ulik UTBETALING selv om ingen av begrunnelsene støtter fritekst`(vedtaksperiodetype: Vedtaksperiodetype) {
             val vedtaksperiodeMedBegrunnelse =
                 VedtaksperiodeMedBegrunnelser(
                     id = 0,
@@ -390,321 +446,336 @@ internal class VedtaksperiodeServiceTest {
         }
     }
 
-    @Test
-    fun `oppdaterVedtakMedVedtaksperioder skal slette eksisterende vedtaksperioder for vedtak og lage ny`() {
-        behandling.resultat = Behandlingsresultat.FORTSATT_INNVILGET
+    @Nested
+    inner class OppdaterVedtakMedVedtaksperioderTest {
+        @Test
+        fun `skal slette eksisterende vedtaksperioder for vedtak og lage ny`() {
+            behandling.resultat = Behandlingsresultat.FORTSATT_INNVILGET
 
-        val mocketVedtak = mockk<Vedtak>()
-        val vedtaksperiodeMedBegrunnelseSlot = slot<List<VedtaksperiodeMedBegrunnelser>>()
+            val mocketVedtak = mockk<Vedtak>()
+            val vedtaksperiodeMedBegrunnelseSlot = slot<List<VedtaksperiodeMedBegrunnelser>>()
 
-        every { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) } just runs
-        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns mockk()
-        every { mocketVedtak.behandling } returns behandling
+            every { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) } just runs
+            every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returns mockk()
+            every { mocketVedtak.behandling } returns behandling
 
-        vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(mocketVedtak)
+            vedtaksperiodeService.oppdaterVedtakMedVedtaksperioder(mocketVedtak)
 
-        val lagretVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelseSlot.captured.single()
+            val lagretVedtaksperiodeMedBegrunnelser = vedtaksperiodeMedBegrunnelseSlot.captured.single()
 
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.fom).isNull()
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.tom).isNull()
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.vedtak).isEqualTo(mocketVedtak)
-        assertThat(lagretVedtaksperiodeMedBegrunnelser.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
+            assertThat(lagretVedtaksperiodeMedBegrunnelser.fom).isNull()
+            assertThat(lagretVedtaksperiodeMedBegrunnelser.tom).isNull()
+            assertThat(lagretVedtaksperiodeMedBegrunnelser.vedtak).isEqualTo(mocketVedtak)
+            assertThat(lagretVedtaksperiodeMedBegrunnelser.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
 
-        verify { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) }
-        verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
-        verify { mocketVedtak.behandling }
+            verify { vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(mocketVedtak) }
+            verify { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) }
+            verify { mocketVedtak.behandling }
+        }
     }
 
-    @Test
-    fun `kopierOverVedtaksperioder skal kopiere over vedtaksperioder fra gammel til nytt vedtak`() {
-        val gammelVedtak = Vedtak(id = 1, behandling = behandling, aktiv = false)
-        val nyttVedtak = Vedtak(id = 2, behandling = behandling, aktiv = true)
-        val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
+    @Nested
+    inner class KopierOverVedtaksperioderTest {
+        @Test
+        fun `skal kopiere over vedtaksperioder fra gammel til nytt vedtak`() {
+            val gammelVedtak = Vedtak(id = 1, behandling = behandling, aktiv = false)
+            val nyttVedtak = Vedtak(id = 2, behandling = behandling, aktiv = true)
+            val vedtaksperiodeMedBegrunnelseSlot = slot<VedtaksperiodeMedBegrunnelser>()
 
-        val gammelVedtaksperiodeMedBegrunnelse =
-            VedtaksperiodeMedBegrunnelser(
-                id = 0,
-                vedtak = gammelVedtak,
-                fom = LocalDate.of(2020, 12, 12),
-                tom = LocalDate.of(2022, 12, 12),
-                type = Vedtaksperiodetype.FORTSATT_INNVILGET,
-            )
+            val gammelVedtaksperiodeMedBegrunnelse =
+                VedtaksperiodeMedBegrunnelser(
+                    id = 0,
+                    vedtak = gammelVedtak,
+                    fom = LocalDate.of(2020, 12, 12),
+                    tom = LocalDate.of(2022, 12, 12),
+                    type = Vedtaksperiodetype.FORTSATT_INNVILGET,
+                )
 
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns
-            listOf(
-                gammelVedtaksperiodeMedBegrunnelse,
-            )
-        every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
+            every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns
+                listOf(
+                    gammelVedtaksperiodeMedBegrunnelse,
+                )
+            every { vedtaksperiodeHentOgPersisterService.lagre(capture(vedtaksperiodeMedBegrunnelseSlot)) } returnsArgument 0
 
-        every { sanityService.hentSanityBegrunnelser() } returns emptyList()
+            every { sanityService.hentSanityBegrunnelser() } returns emptyList()
 
-        vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
+            vedtaksperiodeService.kopierOverVedtaksperioder(gammelVedtak, nyttVedtak)
 
-        val nyVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
+            val nyVedtaksperiodeMedBegrunnelse = vedtaksperiodeMedBegrunnelseSlot.captured
 
-        assertThat(nyVedtaksperiodeMedBegrunnelse.vedtak).isEqualTo(nyttVedtak)
-        assertThat(nyVedtaksperiodeMedBegrunnelse.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
-        assertThat(nyVedtaksperiodeMedBegrunnelse.fom).isEqualTo(LocalDate.of(2020, 12, 12))
-        assertThat(nyVedtaksperiodeMedBegrunnelse.tom).isEqualTo(LocalDate.of(2022, 12, 12))
+            assertThat(nyVedtaksperiodeMedBegrunnelse.vedtak).isEqualTo(nyttVedtak)
+            assertThat(nyVedtaksperiodeMedBegrunnelse.type).isEqualTo(Vedtaksperiodetype.FORTSATT_INNVILGET)
+            assertThat(nyVedtaksperiodeMedBegrunnelse.fom).isEqualTo(LocalDate.of(2020, 12, 12))
+            assertThat(nyVedtaksperiodeMedBegrunnelse.tom).isEqualTo(LocalDate.of(2022, 12, 12))
 
-        verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) }
+            verify { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) }
+        }
     }
 
-    @Test
-    fun `hentPersisterteVedtaksperioder skal returnere vedtaksperioder fra vedtaksperiodeHentOgPersisterService`() {
-        val vedtak = Vedtak(1, behandling)
+    @Nested
+    inner class HentPersisterteVedtaksperioderTest {
+        @Test
+        fun `skal returnere vedtaksperioder fra vedtaksperiodeHentOgPersisterService`() {
+            val vedtak = Vedtak(1, behandling)
 
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns listOf(mockk(), mockk())
+            every { vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(1) } returns listOf(mockk(), mockk())
 
-        val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtak)
+            val vedtaksperioder = vedtaksperiodeService.hentPersisterteVedtaksperioder(vedtak)
 
-        assertThat(vedtaksperioder.size).isEqualTo(2)
+            assertThat(vedtaksperioder.size).isEqualTo(2)
+        }
     }
 
-    @Test
-    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal hente siste dato for visning av vedtaksperioder`() {
-        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
-        val barnAktør = randomAktør()
-        val barnAktør2 = randomAktør()
+    @Nested
+    inner class FinnSisteVedtaksperiodeVisningsdatoForBehandlingTest {
+        @Test
+        fun `skal hente siste dato for visning av vedtaksperioder`() {
+            val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+            val barnAktør = randomAktør()
+            val barnAktør2 = randomAktør()
 
-        val barnPersonResultat =
-            PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = barnAktør,
+            val barnPersonResultat =
+                PersonResultat(
+                    vilkårsvurdering = vilkårsvurdering,
+                    aktør = barnAktør,
+                )
+
+            val barnPersonResultat2 =
+                PersonResultat(
+                    vilkårsvurdering = vilkårsvurdering,
+                    aktør = barnAktør2,
+                )
+
+            barnPersonResultat.setSortedVilkårResultater(
+                setOf(
+                    VilkårResultat(
+                        personResultat = barnPersonResultat,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2020, 12, 12),
+                        periodeTom = LocalDate.of(2022, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
+                    VilkårResultat(
+                        personResultat = barnPersonResultat,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2025, 12, 12),
+                        periodeTom = LocalDate.of(2026, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
+                ),
             )
-
-        val barnPersonResultat2 =
-            PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = barnAktør2,
+            barnPersonResultat2.setSortedVilkårResultater(
+                setOf(
+                    VilkårResultat(
+                        personResultat = barnPersonResultat2,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2020, 12, 12),
+                        periodeTom = LocalDate.of(2022, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
+                    VilkårResultat(
+                        personResultat = barnPersonResultat2,
+                        vilkårType = Vilkår.BARNEHAGEPLASS,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2025, 12, 12),
+                        periodeTom = LocalDate.of(2027, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
+                ),
             )
+            vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
 
-        barnPersonResultat.setSortedVilkårResultater(
-            setOf(
-                VilkårResultat(
-                    personResultat = barnPersonResultat,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2020, 12, 12),
-                    periodeTom = LocalDate.of(2022, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
+            every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+            every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
+
+            val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+                vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+
+            assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isEqualTo(LocalDate.of(2027, 12, 12))
+
+            verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+        }
+
+        @Test
+        fun `skal returnere null hvis det ikke finnes vilkårsvurdering for behandling`() {
+            every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns null
+            every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
+
+            val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+                vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+
+            assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isNull()
+
+            verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+        }
+
+        @Test
+        fun `skal returnere null hvis vilkårsvurderingen ikke inneholder noe vilkår som alltid skal vises`() {
+            val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+            val barnAktør = randomAktør()
+
+            val personResultat =
+                PersonResultat(
+                    vilkårsvurdering = vilkårsvurdering,
+                    aktør = barnAktør,
+                )
+
+            personResultat.setSortedVilkårResultater(
+                setOf(
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = Vilkår.MEDLEMSKAP,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2020, 12, 12),
+                        periodeTom = LocalDate.of(2022, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2025, 12, 12),
+                        periodeTom = LocalDate.of(2026, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
                 ),
-                VilkårResultat(
-                    personResultat = barnPersonResultat,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2025, 12, 12),
-                    periodeTom = LocalDate.of(2026, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
+            )
+            vilkårsvurdering.personResultater = setOf(personResultat)
+
+            every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+            every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
+
+            val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+                vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+
+            assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isNull()
+
+            verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+        }
+
+        @Test
+        fun `skal returnere siste tom i overgangsordning andeler dersom det er senere enn vilkårsvurderingen`() {
+            val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
+            val barnAktør = randomAktør()
+
+            val personResultat =
+                PersonResultat(
+                    vilkårsvurdering = vilkårsvurdering,
+                    aktør = barnAktør,
+                )
+
+            personResultat.setSortedVilkårResultater(
+                setOf(
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = Vilkår.MEDLEMSKAP,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2020, 12, 12),
+                        periodeTom = LocalDate.of(2022, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
+                    VilkårResultat(
+                        personResultat = personResultat,
+                        vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
+                        resultat = Resultat.OPPFYLT,
+                        periodeFom = LocalDate.of(2025, 12, 12),
+                        periodeTom = LocalDate.of(2026, 12, 12),
+                        begrunnelse = "",
+                        behandlingId = behandling.id,
+                    ),
                 ),
-            ),
-        )
-        barnPersonResultat2.setSortedVilkårResultater(
-            setOf(
-                VilkårResultat(
-                    personResultat = barnPersonResultat2,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2020, 12, 12),
-                    periodeTom = LocalDate.of(2022, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
-                ),
-                VilkårResultat(
-                    personResultat = barnPersonResultat2,
-                    vilkårType = Vilkår.BARNEHAGEPLASS,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2025, 12, 12),
-                    periodeTom = LocalDate.of(2027, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
-                ),
-            ),
-        )
-        vilkårsvurdering.personResultater = setOf(barnPersonResultat, barnPersonResultat2)
+            )
+            vilkårsvurdering.personResultater = setOf(personResultat)
 
-        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
-        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
+            every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
+            val overgangsordningsAndeler = listOf(OvergangsordningAndel(behandlingId = 200, fom = YearMonth.of(2025, 3), tom = YearMonth.of(2025, 3)))
+            every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns overgangsordningsAndeler
 
-        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+            val finnSisteVedtaksperiodeVisningsdatoForBehandling =
+                vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isEqualTo(LocalDate.of(2027, 12, 12))
+            assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isEqualTo(LocalDate.of(2025, 3, 31))
 
-        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+            verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
+        }
     }
 
-    @Test
-    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere null hvis det ikke finnes vilkårsvurdering for behandling`() {
-        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns null
-        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
+    @Nested
+    inner class BeskrivPerioderMedRefusjonEøsTest {
+        @Test
+        fun `skal beskrive perioder med eøs refusjoner for behandlinger med avklarte refusjon eøs`() {
+            every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
+            every { integrasjonKlient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
+            every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
 
-        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+            val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isNull()
-
-        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
-    }
-
-    @Test
-    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere null hvis vilkårsvurderingen ikke inneholder noe vilkår som alltid skal vises`() {
-        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
-        val barnAktør = randomAktør()
-
-        val personResultat =
-            PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = barnAktør,
-            )
-
-        personResultat.setSortedVilkårResultater(
-            setOf(
-                VilkårResultat(
-                    personResultat = personResultat,
-                    vilkårType = Vilkår.MEDLEMSKAP,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2020, 12, 12),
-                    periodeTom = LocalDate.of(2022, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
+            assertThat(
+                vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(
+                    behandling = behandling,
+                    avklart = true,
                 ),
-                VilkårResultat(
-                    personResultat = personResultat,
-                    vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2025, 12, 12),
-                    periodeTom = LocalDate.of(2026, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
+            ).isNull()
+
+            every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
+                listOf(
+                    RefusjonEøs(
+                        behandlingId = 1L,
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2022, 1, 1),
+                        refusjonsbeløp = 200,
+                        land = "NO",
+                        refusjonAvklart = true,
+                    ),
+                )
+
+            val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = true)
+
+            assertThat(perioder?.size).isEqualTo(1)
+            assertThat(perioder?.single()).isEqualTo("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge.")
+        }
+
+        @Test
+        fun `skal beskrive perioder med eøs refusjoner for behandlinger med uavklarte refusjon eøs`() {
+            every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
+            every { integrasjonKlient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
+            every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
+
+            val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
+
+            assertThat(
+                vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(
+                    behandling = behandling,
+                    avklart = false,
                 ),
-            ),
-        )
-        vilkårsvurdering.personResultater = setOf(personResultat)
+            ).isNull()
 
-        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
-        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns emptyList()
+            every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
+                listOf(
+                    RefusjonEøs(
+                        behandlingId = 1L,
+                        fom = LocalDate.of(2020, 1, 1),
+                        tom = LocalDate.of(2022, 1, 1),
+                        refusjonsbeløp = 200,
+                        land = "NO",
+                        refusjonAvklart = false,
+                    ),
+                )
 
-        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
+            val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
 
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isNull()
-
-        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
-    }
-
-    @Test
-    fun `finnSisteVedtaksperiodeVisningsdatoForBehandling skal returnere siste tom i overgangsordning andeler dersom det er senere enn vilkårsvurderingen`() {
-        val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
-        val barnAktør = randomAktør()
-
-        val personResultat =
-            PersonResultat(
-                vilkårsvurdering = vilkårsvurdering,
-                aktør = barnAktør,
-            )
-
-        personResultat.setSortedVilkårResultater(
-            setOf(
-                VilkårResultat(
-                    personResultat = personResultat,
-                    vilkårType = Vilkår.MEDLEMSKAP,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2020, 12, 12),
-                    periodeTom = LocalDate.of(2022, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
-                ),
-                VilkårResultat(
-                    personResultat = personResultat,
-                    vilkårType = Vilkår.MEDLEMSKAP_ANNEN_FORELDER,
-                    resultat = Resultat.OPPFYLT,
-                    periodeFom = LocalDate.of(2025, 12, 12),
-                    periodeTom = LocalDate.of(2026, 12, 12),
-                    begrunnelse = "",
-                    behandlingId = behandling.id,
-                ),
-            ),
-        )
-        vilkårsvurdering.personResultater = setOf(personResultat)
-
-        every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
-        val overgangsordningsAndeler = listOf(OvergangsordningAndel(behandlingId = 200, fom = YearMonth.of(2025, 3), tom = YearMonth.of(2025, 3)))
-        every { overgangsordningAndelService.hentOvergangsordningAndeler(200) } returns overgangsordningsAndeler
-
-        val finnSisteVedtaksperiodeVisningsdatoForBehandling =
-            vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(200)
-
-        assertThat(finnSisteVedtaksperiodeVisningsdatoForBehandling).isEqualTo(LocalDate.of(2025, 3, 31))
-
-        verify(exactly = 1) { vilkårsvurderingRepository.finnAktivForBehandling(200) }
-    }
-
-    @Test
-    fun `skal beskrive perioder med eøs refusjoner for behandlinger med avklarte refusjon eøs`() {
-        every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
-        every { integrasjonKlient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
-        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
-
-        val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
-
-        assertThat(
-            vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(
-                behandling = behandling,
-                avklart = true,
-            ),
-        ).isNull()
-
-        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
-            listOf(
-                RefusjonEøs(
-                    behandlingId = 1L,
-                    fom = LocalDate.of(2020, 1, 1),
-                    tom = LocalDate.of(2022, 1, 1),
-                    refusjonsbeløp = 200,
-                    land = "NO",
-                    refusjonAvklart = true,
-                ),
-            )
-
-        val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = true)
-
-        assertThat(perioder?.size).isEqualTo(1)
-        assertThat(perioder?.single()).isEqualTo("Fra januar 2020 til januar 2022 blir etterbetaling på 200 kroner per måned utbetalt til myndighetene i Norge.")
-    }
-
-    @Test
-    fun `skal beskrive perioder med eøs refusjoner for behandlinger med uavklarte refusjon eøs`() {
-        every { personopplysningGrunnlagService.hentSøkersMålform(any()) } returns Målform.NB
-        every { integrasjonKlient.hentLandkoderISO2() } returns mapOf(Pair("NO", "NORGE"))
-        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns emptyList()
-
-        val behandling = lagBehandling(kategori = BehandlingKategori.EØS)
-
-        assertThat(
-            vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(
-                behandling = behandling,
-                avklart = false,
-            ),
-        ).isNull()
-
-        every { refusjonEøsRepository.finnRefusjonEøsForBehandling(any()) } returns
-            listOf(
-                RefusjonEøs(
-                    behandlingId = 1L,
-                    fom = LocalDate.of(2020, 1, 1),
-                    tom = LocalDate.of(2022, 1, 1),
-                    refusjonsbeløp = 200,
-                    land = "NO",
-                    refusjonAvklart = false,
-                ),
-            )
-
-        val perioder = vedtaksperiodeService.beskrivPerioderMedRefusjonEøs(behandling = behandling, avklart = false)
-
-        assertThat(perioder?.size).isEqualTo(1)
-        assertThat(perioder?.single()).isEqualTo("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i Norge.")
+            assertThat(perioder?.size).isEqualTo(1)
+            assertThat(perioder?.single()).isEqualTo("Fra januar 2020 til januar 2022 blir ikke etterbetaling på 200 kroner per måned utbetalt nå siden det er utbetalt kontantstøtte i Norge.")
+        }
     }
 }
