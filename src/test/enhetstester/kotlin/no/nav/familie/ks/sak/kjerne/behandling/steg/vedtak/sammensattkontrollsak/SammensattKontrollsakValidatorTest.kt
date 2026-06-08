@@ -39,51 +39,8 @@ class SammensattKontrollsakValidatorTest {
     @Nested
     inner class ValiderHentSammensattKontrollsakTilgangTest {
         @Test
-        fun `skal kaste exception om toggel ikke er skrudd på`() {
-            // Arrange
-            every {
-                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
-            } returns false
-
-            // Act & assert
-            val exception =
-                assertThrows<FunksjonellFeil> {
-                    sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
-                }
-            assertThat(exception.melding).isEqualTo("Mangler tilgang for å hente sammensatt kontrollsak.")
-            assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
-        }
-
-        @Test
-        fun `skal kaste exception om man mangler egnet rolle`() {
-            // Arrange
-            every {
-                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
-            } returns true
-
-            every {
-                tilgangService.validerTilgangTilHandling(
-                    minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-                    any(),
-                )
-            } throws RolleTilgangskontrollFeil("Mangler tilgang", httpStatus = HttpStatus.FORBIDDEN)
-
-            // Act & assert
-            val exception =
-                assertThrows<RolleTilgangskontrollFeil> {
-                    sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
-                }
-            assertThat(exception.melding).isEqualTo("Mangler tilgang")
-            assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
-        }
-
-        @Test
         fun `skal ikke kaste feil om valideringen er godkjent`() {
             // Arrange
-            every {
-                featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)
-            } returns true
-
             every {
                 tilgangService.validerTilgangTilHandling(
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
