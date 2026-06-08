@@ -17,13 +17,6 @@ class SammensattKontrollsakValidator(
     private val behandlingService: BehandlingService,
 ) {
     fun validerHentSammensattKontrollsakTilgang() {
-        if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
-            throw FunksjonellFeil(
-                melding = "Mangler tilgang for å hente sammensatt kontrollsak.",
-                httpStatus = HttpStatus.FORBIDDEN,
-            )
-        }
-
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Hent SammensattKontrollsak",
