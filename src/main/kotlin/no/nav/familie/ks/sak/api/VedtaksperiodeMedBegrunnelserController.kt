@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.GenererVedtaksperioderForOverstyrtEndringstidspunktDto
+import no.nav.familie.ks.sak.api.dto.UtvidetVedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedFriteksterDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -11,9 +12,11 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -32,7 +35,7 @@ class VedtaksperiodeMedBegrunnelserController(
     fun oppdaterVedtaksperiodeMedBegrunnelser(
         @PathVariable vedtaksperiodeId: Long,
         @RequestBody vedtaksperiodeMedBegrunnelserDto: VedtaksperiodeMedBegrunnelserDto,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<UtvidetVedtaksperiodeMedBegrunnelserDto>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdatere vedtaksperiode med begrunnelser",
@@ -54,14 +57,14 @@ class VedtaksperiodeMedBegrunnelserController(
                 eøsBegrunnelserFraFrontend = eøsBegrunnelser,
             )
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
+        return ResponseEntity.ok(Ressurs.success(vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelserDto(behandlingId = vedtak.behandling.id)))
     }
 
     @PutMapping("/fritekster/{vedtaksperiodeId}")
     fun oppdaterVedtaksperiodeMedFritekster(
         @PathVariable vedtaksperiodeId: Long,
         @RequestBody vedtaksperiodeMedFriteksterDto: VedtaksperiodeMedFriteksterDto,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<UtvidetVedtaksperiodeMedBegrunnelserDto>>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdatere vedtaksperiode med fritekster",
@@ -73,7 +76,21 @@ class VedtaksperiodeMedBegrunnelserController(
                 vedtaksperiodeMedFriteksterDto.fritekster,
             )
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = vedtak.behandling.id)))
+        return ResponseEntity.ok(Ressurs.success(vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelserDto(behandlingId = vedtak.behandling.id)))
+    }
+
+    @GetMapping("/behandling/{behandlingId}/hent-vedtaksperioder")
+    fun hentVedtaksperioder(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<List<UtvidetVedtaksperiodeMedBegrunnelserDto>>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "hente vedtaksperioder",
+        )
+
+        return ResponseEntity.ok(Ressurs.success(vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelserDto(behandlingId = behandlingId)))
     }
 
     @PutMapping("/endringstidspunkt")

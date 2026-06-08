@@ -171,31 +171,8 @@ class BehandlingService(
             personopplysningGrunnlag?.let { andelTilkjentYtelseMedEndreteUtbetalinger.tilUtbetalingsperiodeResponsDto(personopplysningGrunnlag = it, adopsjonerIBehandling = adopsjonerIBehandling) }
                 ?: emptyList()
 
-        val sanityBegrunnelser = sanityService.hentSanityBegrunnelser()
-
-        // For revurderinger med årsak klage skal fritekst støttes på alle begrunnelser
-        val alleBegrunnelserSkalStøtteFritekst = behandling.erRevurderingKlage()
-
         val vedtak =
-            vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.let {
-                it.tilVedtakDto(
-                    vedtaksperioderMedBegrunnelser =
-                        if (behandling.status != BehandlingStatus.AVSLUTTET) {
-                            vedtaksperiodeService
-                                .hentUtvidetVedtaksperioderMedBegrunnelser(vedtak = it)
-                                .map { utvidetVedtaksperiodeMedBegrunnelser ->
-                                    utvidetVedtaksperiodeMedBegrunnelser.tilUtvidetVedtaksperiodeMedBegrunnelserDto(
-                                        sanityBegrunnelser = sanityBegrunnelser,
-                                        adopsjonerIBehandling = adopsjonerIBehandling,
-                                        alleBegrunnelserSkalStøtteFritekst = alleBegrunnelserSkalStøtteFritekst,
-                                    )
-                                }.sortedBy { dto -> dto.fom }
-                        } else {
-                            emptyList()
-                        },
-                    skalMinimeres = behandling.status != BehandlingStatus.UTREDES,
-                )
-            }
+            vedtakRepository.findByBehandlingAndAktivOptional(behandlingId)?.tilVedtakDto()
 
         val endreteUtbetalingerMedAndeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService
