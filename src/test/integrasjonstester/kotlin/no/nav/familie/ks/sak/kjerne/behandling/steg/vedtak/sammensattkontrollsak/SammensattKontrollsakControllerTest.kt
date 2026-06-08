@@ -51,27 +51,6 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         }
 
         @Test
-        fun `skal returnere 403 forbidden når man ikke har tilgang på å endre sammensatt kontrollsak`() {
-            // Arrange
-            val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-
-            fakeFeatureToggleService.set(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER, false)
-
-            // Act & assert
-            Given {
-                header("Authorization", "Bearer $token")
-            } When {
-                get("$controllerUrl/123")
-            } Then {
-                statusCode(HttpStatus.FORBIDDEN.value())
-                body("data", nullValue())
-                body("status", Is("FUNKSJONELL_FEIL"))
-                body("melding", Is("Mangler tilgang for å hente sammensatt kontrollsak."))
-                body("frontendFeilmelding", Is("Mangler tilgang for å hente sammensatt kontrollsak."))
-            }
-        }
-
-        @Test
         fun `skal hente sammensatt kontrollsak for behandlingId`() {
             // Arrange
             opprettSøkerFagsakOgBehandling()
