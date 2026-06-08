@@ -18,7 +18,7 @@ class SammensattKontrollsakValidator(
 ) {
     fun validerHentSammensattKontrollsakTilgang() {
         tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "Hent SammensattKontrollsak",
         )
     }
