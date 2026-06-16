@@ -23,7 +23,7 @@
 
         <!-- Java/Kotlin -->
         <java.version>25</java.version>
-        <kotlin.version>2.3.21</kotlin.version>
+        <kotlin.version>2.4.0</kotlin.version>
         <kotlin.compiler.languageVersion>2.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.3</kotlin.compiler.apiVersion>
       
@@ -58,8 +58,8 @@
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>12.2.2</unleash.version>
         <microsoft-graph.version>6.65.0</microsoft-graph.version>
-        <okhttp-jvm.version>5.3.2</okhttp-jvm.version>
-        <azure-identity.version>1.18.3</azure-identity.version>
+        <okhttp-jvm.version>5.4.0</okhttp-jvm.version>
+        <azure-identity.version>1.18.4</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.34.3</cucumber.version>
