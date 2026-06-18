@@ -25,10 +25,10 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerService(
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
 ) {
-    @Transactional
+    @Transactional(readOnly = true)
     fun finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId: Long): List<AndelTilkjentYtelseMedEndreteUtbetalinger> = lagKombinator(behandlingId).lagAndelerMedEndringer()
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId: Long): List<EndretUtbetalingAndelMedAndelerTilkjentYtelse> =
         lagKombinator(behandlingId).lagEndreteUtbetalingMedAndeler().map { endretUtbetalingAndelMedAndelTilkjentYtelse ->
             endretUtbetalingAndelMedAndelTilkjentYtelse
