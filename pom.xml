@@ -51,15 +51,15 @@
 
         <!-- Kafka -->
         <avro.version>1.12.1</avro.version>
-        <confluent.version>8.2.1</confluent.version>
+        <confluent.version>8.3.0</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>12.2.2</unleash.version>
         <microsoft-graph.version>6.65.0</microsoft-graph.version>
-        <okhttp-jvm.version>5.3.2</okhttp-jvm.version>
-        <azure-identity.version>1.18.3</azure-identity.version>
+        <okhttp-jvm.version>5.4.0</okhttp-jvm.version>
+        <azure-identity.version>1.18.4</azure-identity.version>
 
         <!-- Test -->
         <cucumber.version>7.34.3</cucumber.version>
