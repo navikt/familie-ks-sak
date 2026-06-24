@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>4.1.0</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -30,7 +30,7 @@
         <kotlinx.version>1.11.0</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>4.0.6</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <spring-boot-dependencies.version>4.1.0</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>3.0.3</springdoc.version>
 
         <!-- Nav felles -->
@@ -64,7 +64,7 @@
         <!-- Test -->
         <cucumber.version>7.34.3</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <mock-oauth2-server.version>4.0.0</mock-oauth2-server.version>
+        <mock-oauth2-server.version>4.0.1</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.11</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
@@ -191,7 +191,7 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
-            <version>2.0.12</version>
+            <version>2.0.13</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>

@@ -43,7 +43,7 @@ class SammensattKontrollsakValidatorTest {
             // Arrange
             every {
                 tilgangService.validerTilgangTilHandling(
-                    minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+                    minimumBehandlerRolle = BehandlerRolle.VEILEDER,
                     any(),
                 )
             } just runs
