@@ -294,7 +294,6 @@ enum class BehandlingÅrsak(
         "Teknisk endring",
         listOf(BehandlingType.TEKNISK_ENDRING),
     ), // Brukes i tilfeller ved systemfeil og vi ønsker å iverksette mot OS på nytt
-    KORREKSJON_VEDTAKSBREV("Korrigere vedtak med egen brevmal", listOf(REVURDERING)),
     SATSENDRING("Satsendring", listOf(REVURDERING)),
     BARNEHAGELISTE("Barnehageliste", listOf(REVURDERING)),
     LOVENDRING_2024("Lovendring 2024", listOf(REVURDERING)),

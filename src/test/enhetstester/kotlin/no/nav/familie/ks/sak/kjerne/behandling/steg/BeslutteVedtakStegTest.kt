@@ -71,7 +71,6 @@ class BeslutteVedtakStegTest {
     @BeforeEach
     fun init() {
         every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
@@ -99,23 +98,6 @@ class BeslutteVedtakStegTest {
         val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
 
         assertThat(funksjonellFeil.message, Is("Behandlingen er allerede avsluttet"))
-    }
-
-    @Test
-    fun `utførSteg skal kaste FunksjonellFeil dersom behandling årsaken er satt til KORREKSJON_VEDTAKSBREV og SB ikke har feature togglet på `() {
-        every { behandlingService.hentBehandling(200) } returns lagBehandling(opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV)
-        every { featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) } returns false
-
-        val funksjonellFeil = assertThrows<FunksjonellFeil> { beslutteVedtakSteg.utførSteg(200, godkjentVedtakDto) }
-
-        assertThat(
-            funksjonellFeil.message,
-            Is("Årsak Korrigere vedtak med egen brevmal og toggle familie-ks-sak.behandling.korreksjon-vedtaksbrev false"),
-        )
-        assertThat(
-            funksjonellFeil.frontendFeilmelding,
-            Is("Du har ikke tilgang til å beslutte for denne behandlingen. Ta kontakt med teamet dersom dette ikke stemmer."),
-        )
     }
 
     @Test

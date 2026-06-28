@@ -48,26 +48,6 @@ class BrevmalServiceTest {
         }
 
         @Test
-        fun `skal utlede brevmal VEDTAK_OPPHØR_DØDSFALL for behandling med behandlingårsak KORREKSJON_VEDTAKSBREV`() {
-            // Arrange
-            val behandling =
-                lagBehandling(
-                    opprettetÅrsak = BehandlingÅrsak.KORREKSJON_VEDTAKSBREV,
-                )
-
-            every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.id) } returns null
-
-            // Act
-            val brevmal =
-                brevmalService.hentBrevmal(
-                    behandling = behandling,
-                )
-
-            // Assert
-            assertThat(brevmal).isEqualTo(Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV)
-        }
-
-        @Test
         fun `skal utlede brevmal ENDRING_AV_FRAMTIDIG_OPPHØR for behandling med behandlingårsak LOVENDRING_2024`() {
             // Arrange
             val behandling =
@@ -93,7 +73,6 @@ class BrevmalServiceTest {
             value = BehandlingÅrsak::class,
             names = [
                 "DØDSFALL",
-                "KORREKSJON_VEDTAKSBREV",
                 "LOVENDRING_2024",
                 "OVERGANGSORDNING_2024",
             ],

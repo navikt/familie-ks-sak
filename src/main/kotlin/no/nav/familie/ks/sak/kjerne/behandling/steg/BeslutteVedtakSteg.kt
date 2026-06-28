@@ -14,7 +14,6 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OpprettOppgaveTask
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
-import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -135,18 +134,6 @@ class BeslutteVedtakSteg(
 
             behandling.status == BehandlingStatus.AVSLUTTET -> {
                 throw FunksjonellFeil("Behandlingen er allerede avsluttet")
-            }
-
-            behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV &&
-                !featureToggleService.isEnabled(FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV) -> {
-                throw FunksjonellFeil(
-                    melding =
-                        "Årsak ${BehandlingÅrsak.KORREKSJON_VEDTAKSBREV.visningsnavn} og " +
-                            "toggle ${FeatureToggle.KAN_MANUELT_KORRIGERE_MED_VEDTAKSBREV.navn} false",
-                    frontendFeilmelding =
-                        "Du har ikke tilgang til å beslutte for denne behandlingen. " +
-                            "Ta kontakt med teamet dersom dette ikke stemmer.",
-                )
             }
         }
     }

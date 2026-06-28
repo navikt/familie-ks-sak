@@ -285,7 +285,6 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
         Brevmal.VEDTAK_OPPHØR_MED_ENDRING,
         Brevmal.VEDTAK_AVSLAG,
         Brevmal.VEDTAK_FORTSATT_INNVILGET,
-        Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV,
         Brevmal.VEDTAK_OPPHØR_DØDSFALL,
         Brevmal.AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
         Brevmal.AUTOVEDTAK_NYFØDT_FØRSTE_BARN,

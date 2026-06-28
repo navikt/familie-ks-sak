@@ -108,7 +108,6 @@ enum class Brevmal(
     VEDTAK_OPPHØR_MED_ENDRING(erVedtaksbrev = true, apiNavn = "opphorMedEndring", visningsTekst = "Opphør med endring"),
     VEDTAK_AVSLAG(erVedtaksbrev = true, apiNavn = "vedtakAvslag", visningsTekst = "Avslag"),
     VEDTAK_FORTSATT_INNVILGET(erVedtaksbrev = true, apiNavn = "vedtakFortsattInnvilget", visningsTekst = "Vedtak fortsatt innvilget"),
-    VEDTAK_KORREKSJON_VEDTAKSBREV(erVedtaksbrev = true, apiNavn = "korrigertVedtakEgenBrevmal", visningsTekst = "Korrigere vedtak med egen brevmal"),
     VEDTAK_OPPHØR_DØDSFALL(erVedtaksbrev = true, apiNavn = "dodsfall", visningsTekst = "Dødsfall"),
     VEDTAK_OVERGANGSORDNING(erVedtaksbrev = true, apiNavn = "vedtakOvergangsordning", visningsTekst = "Overgangsordning vedtak"),
 
@@ -149,7 +148,6 @@ enum class Brevmal(
             VEDTAK_OPPHØR_MED_ENDRING,
             VEDTAK_AVSLAG,
             VEDTAK_FORTSATT_INNVILGET,
-            VEDTAK_KORREKSJON_VEDTAKSBREV,
             VEDTAK_OPPHØR_DØDSFALL,
             VEDTAK_OVERGANGSORDNING,
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
@@ -206,7 +204,6 @@ enum class Brevmal(
             VEDTAK_FORTSATT_INNVILGET,
             VEDTAK_AVSLAG,
             VEDTAK_FØRSTEGANGSVEDTAK,
-            VEDTAK_KORREKSJON_VEDTAKSBREV,
             VEDTAK_OPPHØR_DØDSFALL,
             AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG,
             AUTOVEDTAK_NYFØDT_FØRSTE_BARN,
@@ -244,7 +241,6 @@ enum class Brevmal(
                 VEDTAK_OPPHØR_MED_ENDRING -> Distribusjonstype.VEDTAK
                 VEDTAK_AVSLAG -> Distribusjonstype.VEDTAK
                 VEDTAK_FORTSATT_INNVILGET -> Distribusjonstype.VEDTAK
-                VEDTAK_KORREKSJON_VEDTAKSBREV -> Distribusjonstype.VEDTAK
                 VEDTAK_OPPHØR_DØDSFALL -> Distribusjonstype.VEDTAK
                 VEDTAK_OVERGANGSORDNING -> Distribusjonstype.VEDTAK
                 AUTOVEDTAK_BARN_6_OG_18_ÅR_OG_SMÅBARNSTILLEGG -> Distribusjonstype.VEDTAK
