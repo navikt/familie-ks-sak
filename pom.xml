@@ -23,7 +23,7 @@
 
         <!-- Java/Kotlin -->
         <java.version>25</java.version>
-        <kotlin.version>2.3.21</kotlin.version>
+        <kotlin.version>2.4.0</kotlin.version>
         <kotlin.compiler.languageVersion>2.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.3</kotlin.compiler.apiVersion>
       
@@ -62,7 +62,7 @@
         <azure-identity.version>1.18.4</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.34.3</cucumber.version>
+        <cucumber.version>7.34.4</cucumber.version>
         <rest-assured.version>6.0.0</rest-assured.version>
         <mock-oauth2-server.version>4.0.1</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
