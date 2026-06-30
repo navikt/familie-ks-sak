@@ -235,7 +235,7 @@ class OpprettBehandlingServiceTest {
         @ParameterizedTest
         @EnumSource(
             value = BehandlingÅrsak::class,
-            names = ["ÅRLIG_KONTROLL", "DØDSFALL", "NYE_OPPLYSNINGER", "KLAGE", "KORREKSJON_VEDTAKSBREV", "SATSENDRING"],
+            names = ["ÅRLIG_KONTROLL", "DØDSFALL", "NYE_OPPLYSNINGER", "KLAGE", "SATSENDRING"],
         )
         fun `skal kaste feil dersom behandlingType er TEKNISK_ENDRING eller FØRSTEGANGSBEHANDLING og behandlingÅrsak ikke samsvarer`(
             behandlingÅrsak: BehandlingÅrsak,

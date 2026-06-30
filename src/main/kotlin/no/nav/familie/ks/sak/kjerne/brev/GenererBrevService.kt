@@ -117,14 +117,8 @@ class GenererBrevService(
             val vedtaksbrev =
                 when {
                     sammensattKontrollsak != null -> sammensattKontrollsakBrevDtoUtleder.utled(vedtak = vedtak, sammensattKontrollsak = sammensattKontrollsak)
-
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.DØDSFALL -> hentDødsfallbrevData(vedtak)
-
-                    vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.KORREKSJON_VEDTAKSBREV -> TODO()
-
-                    // brevService.hentKorreksjonbrevData(vedtak)
                     vedtak.behandling.opprettetÅrsak == BehandlingÅrsak.LOVENDRING_2024 -> hentEndringAvFramtidigOpphørData(vedtak)
-
                     else -> hentVedtaksbrevData(vedtak)
                 }
 

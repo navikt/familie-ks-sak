@@ -27,9 +27,6 @@ class BrevmalService(
             BehandlingÅrsak.DØDSFALL,
             -> Brevmal.VEDTAK_OPPHØR_DØDSFALL
 
-            BehandlingÅrsak.KORREKSJON_VEDTAKSBREV,
-            -> Brevmal.VEDTAK_KORREKSJON_VEDTAKSBREV
-
             BehandlingÅrsak.SØKNAD,
             BehandlingÅrsak.ÅRLIG_KONTROLL,
             BehandlingÅrsak.NYE_OPPLYSNINGER,
