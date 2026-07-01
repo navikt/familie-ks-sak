@@ -116,11 +116,6 @@ class OpprettBehandlingService(
         }
         // Utfør Registrer Persongrunnlag steg
         stegService.utførSteg(lagretBehandling.id, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG)
-
-        // opprett task for å sende start behandling hendelse til infotrygd for førstegangsbehandling
-        if (lagretBehandling.type == BehandlingType.FØRSTEGANGSBEHANDLING) {
-            taskService.save(SendStartBehandlingHendelseTilInfotrygdTask.opprettTask(aktør))
-        }
         return lagretBehandling
     }
 

@@ -184,7 +184,6 @@ class KafkaConfig(
         const val SISTE_TILSTAND_BEHANDLING_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-siste-tilstand-behandling-v1"
         const val SAK_TOPIC = "teamfamilie.aapen-kontantstotte-saksstatistikk-sak-v1"
         const val VEDTAK_TOPIC = "teamfamilie.aapen-kontantstotte-vedtak-v1"
-        const val KONTANTSTØTTE_FEED_TOPIC = "teamfamilie.aapen-feed-kontantstotte-v1"
         const val PDL_AKTOR_V2_TOPIC = "pdl.aktor-v2"
     }
 }

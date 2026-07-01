@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 
 @TestConfiguration
-class InfotrygdFeedKlientMock {
+class InfotrygdReplikaKlientMock {
     @Bean
     @Profile("mock-infotrygd-replika")
     @Primary
