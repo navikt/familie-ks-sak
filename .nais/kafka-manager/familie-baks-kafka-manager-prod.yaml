@@ -93,18 +93,6 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "teamfamilie.aapen-feed-barnetrygd-v1",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
-              "name": "teamfamilie.aapen-feed-kontantstotte-v1",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
               "name": "teamfamilie.privat-kontantstotte-barnehagelister",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
