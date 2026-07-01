@@ -25,7 +25,6 @@ class IverksettMotOppdragSteg(
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val vedtakService: VedtakService,
-    private val taskService: TaskRepositoryWrapper,
 ) : IBehandlingSteg {
     private val iverksattOppdrag = Metrics.counter("familie.ks.sak.oppdrag.iverksatt")
 
@@ -51,14 +50,6 @@ class IverksettMotOppdragSteg(
         )
 
         iverksattOppdrag.increment()
-
-        // Opprett task for å sende vedtak hendelse til infotrygd
-        val sisteBehandlingSomErVedtatt = behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id)
-        if (sisteBehandlingSomErVedtatt == null) {
-            taskService.save(
-                SendVedtakHendelseTilInfotrygdTask.opprettTask(behandling.fagsak.aktør.aktivFødselsnummer(), behandlingId),
-            )
-        }
     }
 
     fun validerTotrinnskontrollForBehandling(behandling: Behandling) =
