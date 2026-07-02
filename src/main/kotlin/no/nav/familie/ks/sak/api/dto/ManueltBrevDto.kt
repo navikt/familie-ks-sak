@@ -27,6 +27,7 @@ import no.nav.familie.ks.sak.kjerne.brev.domene.maler.UtbetalingEtterKAVedtakBre
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.VarselbrevMedÅrsakerOgBarnDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.flettefelt
+import no.nav.familie.ks.sak.kjerne.brev.tilLandNavn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import java.time.LocalDate
 
@@ -50,11 +51,25 @@ data class ManueltBrevDto(
     val behandlingKategori: BehandlingKategori? = null,
     val manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
     val fritekstAvsnitt: String? = null,
+    val mottakerlandSed: List<String> = emptyList(),
 ) {
     fun enhetNavn(): String = this.enhet?.enhetNavn ?: throw Feil("Finner ikke enhetsnavn på manuell brevrequest")
+
+    fun mottakerlandSedEllerNull(): List<String>? {
+        if (this.mottakerlandSed.contains("NO")) {
+            throw FunksjonellFeil(
+                melding = "Ugyldig mottakerland for SED på manuell brevrequest",
+                frontendFeilmelding = "Norge kan ikke velges som mottakerland.",
+            )
+        }
+        return this.mottakerlandSed.takeIf { it.isNotEmpty() }
+    }
 }
 
-fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
+fun ManueltBrevDto.tilBrev(
+    saksbehandlerNavn: String,
+    hentLandkoder: () -> Map<String, String>,
+): BrevDto =
     when (this.brevmal) {
         Brevmal.INFORMASJONSBREV_DELT_BOSTED -> {
             InformasjonsbrevDeltBostedBrevDto(
@@ -161,6 +176,11 @@ fun ManueltBrevDto.tilBrev(saksbehandlerNavn: String): BrevDto =
                     } else {
                         this.behandlingKategori == BehandlingKategori.EØS
                     },
+                mottakerlandSed =
+                    this
+                        .mottakerlandSedEllerNull()
+                        ?.map { it.tilLandNavn(hentLandkoder()).navn }
+                        ?.let { slåSammen(it) },
                 saksbehandlerNavn = saksbehandlerNavn,
             )
         }

@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -40,6 +41,7 @@ class GenererBrevServiceTest {
     val genererBrevService =
         GenererBrevService(
             brevKlient = brevKlient,
+            integrasjonKlient = mockk<IntegrasjonKlient>(),
             personopplysningGrunnlagService = personopplysningGrunnlagService,
             simuleringService = mockk<SimuleringService>(),
             vedtaksperiodeService = mockk<VedtaksperiodeService>(),
@@ -76,8 +78,10 @@ class GenererBrevServiceTest {
         mode = EnumSource.Mode.INCLUDE,
     )
     fun `genererManueltBrev - skal ikke journalføre brev for brevmaler som ikke kan sendes manuelt`(brevmal: Brevmal) {
+        // Arrange
         every { saksbehandlerContext.hentSaksbehandlerSignaturTilBrev() } returns "test"
 
+        // Act & Assert
         val feil =
             assertThrows<Feil> {
                 genererBrevService.genererManueltBrev(
@@ -92,6 +96,7 @@ class GenererBrevServiceTest {
 
     @Test
     fun `hentForhåndsvisningAvBrev - skal kaste feil dersom kall mot 'familie-brev' feiler`() {
+        // Arrange
         every { personopplysningGrunnlagService.hentSøker(behandlingId = behandling.id) } returns
             lagPerson(
                 lagPersonopplysningGrunnlag(behandlingId = behandling.id, søkerPersonIdent = søker.aktivFødselsnummer()),
@@ -110,6 +115,7 @@ class GenererBrevServiceTest {
             brevKlient.genererBrev(any(), any())
         } throws Exception("Kall mot familie-brev feilet")
 
+        // Act & Assert
         val feil =
             assertThrows<Feil> { genererBrevService.genererManueltBrev(manueltBrevDto, true) }
         assertEquals(

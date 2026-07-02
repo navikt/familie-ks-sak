@@ -332,7 +332,7 @@ class BrevServiceTest {
                     manuelleBrevmottakere = brevmottakere,
                 )
 
-            // Act & assert
+            // Act & Assert
             val exception =
                 assertThrows<FunksjonellFeil> {
                     brevService.sendBrev(fagsak, behandlingId = null, manueltBrevDto)

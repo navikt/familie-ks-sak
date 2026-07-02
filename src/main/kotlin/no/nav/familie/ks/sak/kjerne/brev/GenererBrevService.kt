@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.common.util.formaterBeløp
 import no.nav.familie.ks.sak.common.util.storForbokstavIAlleNavn
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.simulering.SimuleringService
@@ -54,6 +55,7 @@ import org.springframework.stereotype.Service
 @Service
 class GenererBrevService(
     private val brevKlient: BrevKlient,
+    private val integrasjonKlient: IntegrasjonKlient,
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val brevPeriodeService: BrevPeriodeService,
@@ -77,7 +79,10 @@ class GenererBrevService(
         saksbehandlerSignaturTilBrev: String? = null, // Gjøres til non-nullable når man fjerner feature toggle
     ): ByteArray {
         try {
-            val brev = manueltBrevRequest.tilBrev(saksbehandlerSignaturTilBrev ?: saksbehandlerContext.hentSaksbehandlerSignaturTilBrev())
+            val brev =
+                manueltBrevRequest.tilBrev(
+                    saksbehandlerNavn = saksbehandlerSignaturTilBrev ?: saksbehandlerContext.hentSaksbehandlerSignaturTilBrev(),
+                ) { integrasjonKlient.hentLandkoderISO2() }
             return brevKlient.genererBrev(
                 målform = manueltBrevRequest.mottakerMålform.tilSanityFormat(),
                 brev = brev,
