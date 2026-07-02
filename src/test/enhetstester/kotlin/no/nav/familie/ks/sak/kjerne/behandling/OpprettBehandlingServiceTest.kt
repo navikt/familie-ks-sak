@@ -126,7 +126,7 @@ class OpprettBehandlingServiceTest {
                 )
             }
             // Validerer at "BehandleSak"-oppgave blir opprettet
-            verify(exactly = 2) { taskService.save(any()) }
+            verify(exactly = 1) { taskService.save(any()) }
             assertThat(opprettetBehandling).isNotNull()
         }
 
