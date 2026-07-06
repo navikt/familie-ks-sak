@@ -1794,6 +1794,7 @@ fun lagManueltBrevDto(
     behandlingKategori: BehandlingKategori? = null,
     manuelleBrevmottakere: List<BrevmottakerDto> = emptyList(),
     fritekstAvsnitt: String? = null,
+    mottakerlandSed: List<String> = emptyList(),
 ): ManueltBrevDto =
     ManueltBrevDto(
         brevmal = brevmal,
@@ -1809,4 +1810,5 @@ fun lagManueltBrevDto(
         behandlingKategori = behandlingKategori,
         manuelleBrevmottakere = manuelleBrevmottakere,
         fritekstAvsnitt = fritekstAvsnitt,
+        mottakerlandSed = mottakerlandSed,
     )

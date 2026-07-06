@@ -13,6 +13,7 @@ data class SvartidsbrevDto(
         enhet: String,
         mal: Brevmal,
         erEøsBehandling: Boolean,
+        mottakerlandSed: String? = null,
         saksbehandlerNavn: String,
     ) : this(
         mal = mal,
@@ -31,6 +32,7 @@ data class SvartidsbrevDto(
                                 saksbehandlerNavn = saksbehandlerNavn,
                             ),
                         kontonummer = erEøsBehandling,
+                        sedErSendtTil = if (erEøsBehandling) mottakerlandSed?.let { SedErSendtTilDelmal(it) } else null,
                     ),
             ),
     )
@@ -57,5 +59,14 @@ data class SvartidsbrevDataDto(
     data class DelmalData(
         val signatur: SignaturDelmal,
         val kontonummer: Boolean,
+        val sedErSendtTil: SedErSendtTilDelmal? = null,
+    )
+}
+
+data class SedErSendtTilDelmal(
+    val mottakerlandSed: Flettefelt,
+) {
+    constructor(mottakerlandSed: String) : this(
+        mottakerlandSed = flettefelt(mottakerlandSed),
     )
 }
