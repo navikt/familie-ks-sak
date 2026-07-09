@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.common.exception
 
+import io.micrometer.core.instrument.Metrics
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.util.RessursUtils
+import no.nav.familie.ks.sak.common.util.RessursUtils.unauthorized
 import org.slf4j.LoggerFactory
 import org.springframework.core.NestedExceptionUtils
 import org.springframework.http.HttpStatus
@@ -12,10 +15,15 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import tools.jackson.databind.exc.InvalidFormatException
 import tools.jackson.databind.exc.MismatchedInputException
+import java.io.EOFException
+import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.net.SocketException
+import java.nio.channels.ClosedChannelException
 
 @ControllerAdvice
 class ApiExceptionHandler {
@@ -39,6 +47,12 @@ class ApiExceptionHandler {
         val mostSpecificCause = NestedExceptionUtils.getMostSpecificCause(foriddenException)
 
         return RessursUtils.forbidden(mostSpecificCause.message ?: "Ikke tilgang")
+    }
+
+    @ExceptionHandler(HttpClientErrorException.Unauthorized::class)
+    fun handleUnauhtorized(): ResponseEntity<Ressurs<Nothing>> {
+        logger.info("Fikk 401 Unauthorized")
+        return unauthorized("Unauthorized")
     }
 
     @ExceptionHandler(IntegrasjonException::class)
@@ -82,6 +96,17 @@ class ApiExceptionHandler {
         )
 
         return ResponseEntity.status(feil.eksternTjenesteFeil.status).body(feil.eksternTjenesteFeil)
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFoundException(exception: NoResourceFoundException): ResponseEntity<Ressurs<Nothing>> {
+        logger.info("Fant ikke ressurs for request=${exception.resourcePath}", exception.resourcePath)
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            Ressurs.failure(
+                frontendFeilmelding = "Fant ikke ressurs for request=${exception.resourcePath}",
+            ),
+        )
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -136,5 +161,50 @@ class ApiExceptionHandler {
     fun handlAsyncRequestNotUsableException(e: AsyncRequestNotUsableException): ResponseEntity<Any> {
         logger.info("En AsyncRequestNotUsableException har oppstått, som skjer når en async request blir avbrutt", e)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+    }
+
+    @ExceptionHandler(IOException::class, ClosedChannelException::class, EOFException::class)
+    fun handleNettverksfeil(
+        e: Exception,
+        request: HttpServletRequest,
+    ): ResponseEntity<Ressurs<Nothing>> {
+        val cause = NestedExceptionUtils.getMostSpecificCause(e)
+        val type = NettverksfeilType.fraException(cause)
+
+        nettverksfeilTeller[type]?.increment()
+        logger.info(
+            "Nettverksfeil av type=${type.metrikknavn} url=${request.method} ${request.requestURI} melding=${cause.message}",
+        )
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
+            Ressurs.failure(frontendFeilmelding = "Tilkoblingen ble brutt"),
+        )
+    }
+
+    private val nettverksfeilTeller =
+        NettverksfeilType.entries.associateWith {
+            Metrics.counter("nettverksfeil.klientavbrudd", "type", it.metrikknavn)
+        }
+}
+
+enum class NettverksfeilType(
+    val metrikknavn: String,
+) {
+    BROKEN_PIPE("broken_pipe"),
+    CLOSED_CHANNEL("closed_channel"),
+    CONNECTION_RESET("connection_reset"),
+    EOF("eof"),
+    UKJENT("ukjent"),
+    ;
+
+    companion object {
+        fun fraException(e: Throwable): NettverksfeilType =
+            when {
+                e is ClosedChannelException -> CLOSED_CHANNEL
+                e is EOFException -> EOF
+                e is IOException && e.message?.lowercase()?.contains("broken pipe") == true -> BROKEN_PIPE
+                e is SocketException && e.message?.lowercase()?.contains("connection reset") == true -> CONNECTION_RESET
+                else -> UKJENT
+            }
     }
 }
