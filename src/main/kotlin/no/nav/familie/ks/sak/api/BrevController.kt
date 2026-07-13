@@ -5,7 +5,6 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
@@ -137,8 +136,9 @@ class BrevController(
         )
 
         val vedtaksbrev =
-            vedtakService.hentAktivVedtakForBehandling(behandlingId).stønadBrevPdf
-                ?: throw Feil("Klarte ikke finne vedtaksbrev for behandling med id $behandlingId")
+            brevService.hentVedtaksbrevPdf(
+                vedtakService.hentAktivVedtakForBehandling(behandlingId),
+            )
 
         return Ressurs.success(vedtaksbrev)
     }
