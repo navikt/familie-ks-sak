@@ -11,4 +11,10 @@ enum class FeatureToggle(
     // Ikke operasjonelle
     SKAL_HÅNDTERE_FALSK_IDENTITET("familie-ks-sak.skal-handtere-falsk-identitet"),
     HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE("familie-ks-sak.hent-arbeidsfordeling-med-behandlingstype"),
+
+    // NAV-29382
+    HENT_VEDTAKSBREV_FRA_JOARK("familie-ks-sak.hent-vedtaksbrev-fra-joark"),
+
+    // NAV-29936
+    SKAL_SLETTE_GAMLE_VEDTAKSBREV_FRA_DB("familie-ks-sak.skal-slette-gamle-vedtaksbrev-fra-db"),
 }
