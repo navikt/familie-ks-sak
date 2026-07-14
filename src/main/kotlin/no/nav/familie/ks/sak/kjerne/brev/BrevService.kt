@@ -1,9 +1,18 @@
 package no.nav.familie.ks.sak.kjerne.brev
 
+import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.arbeidsfordeling.Enhet
+import no.nav.familie.kontrakter.felles.journalpost.Bruker
+import no.nav.familie.kontrakter.felles.journalpost.DokumentInfo
+import no.nav.familie.kontrakter.felles.journalpost.Journalpost
+import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
+import no.nav.familie.kontrakter.felles.journalpost.Journalposttype
+import no.nav.familie.kontrakter.felles.journalpost.Journalstatus
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
@@ -19,6 +28,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.Brevmal
@@ -289,6 +299,72 @@ class BrevService(
             .filter { !it.erHenlagt() && it.status == BehandlingStatus.AVSLUTTET }
             .maxByOrNull { it.aktivertTidspunkt }
 
+    fun hentVedtaksbrevPdf(vedtak: Vedtak): ByteArray {
+        val behandling = vedtak.behandling
+
+        val skalHenteVedtaksbrevFraJoark =
+            featureToggleService.isEnabled(FeatureToggle.HENT_VEDTAKSBREV_FRA_JOARK) &&
+                behandling.erAvsluttet() &&
+                !behandling.erHenlagt() &&
+                behandling.skalSendeVedtaksbrev(behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(behandling))
+
+        return if (skalHenteVedtaksbrevFraJoark) {
+            hentVedtaksbrevFraJoark(behandling)
+                ?: throw FunksjonellFeil(
+                    melding = "Fant ikke vedtaksbrev for behandling med id ${behandling.id} i Joark.",
+                    frontendFeilmelding = "Fant ikke vedtaksbrevet i arkivet. Du kan finne brevet i dokumentoversikten.",
+                )
+        } else {
+            vedtak.stønadBrevPdf ?: throw Feil("Klarte ikke finne vedtaksbrev for behandling med id ${behandling.id}")
+        }
+    }
+
+    private fun hentVedtaksbrevFraJoark(behandling: Behandling): ByteArray? {
+        val eksternReferanseIdPrefiks = "${behandling.fagsak.id}_${behandling.id}_"
+
+        val journalposterForVedtaksbrev =
+            integrasjonKlient
+                .hentJournalposterForBruker(
+                    JournalposterForBrukerRequest(
+                        brukerId =
+                            Bruker(
+                                id = behandling.fagsak.aktør.aktivFødselsnummer(),
+                                type = BrukerIdType.FNR,
+                            ),
+                        antall = 1000,
+                        tema = listOf(Tema.KON),
+                        journalposttype = listOf(Journalposttype.U),
+                    ),
+                ).filter { it.eksternReferanseId?.startsWith(eksternReferanseIdPrefiks) == true }
+                .filter { it.journalstatus == Journalstatus.FERDIGSTILT || it.journalstatus == Journalstatus.EKSPEDERT }
+                .filter { it.hoveddokumentErVedtaksbrev() }
+
+        if (journalposterForVedtaksbrev.isEmpty()) {
+            logger.warn("Fant ingen journalpost med vedtaksbrev i Joark for behandling ${behandling.id}")
+            return null
+        }
+
+        if (journalposterForVedtaksbrev.size > 1) {
+            logger.info(
+                "Fant flere journalposter med vedtaksbrev i Joark for behandling ${behandling.id}: " +
+                    "${journalposterForVedtaksbrev.map { it.journalpostId }}. Brevet er likt for alle mottakere, bruker den første.",
+            )
+        }
+
+        val journalpost = journalposterForVedtaksbrev.first()
+        val hoveddokument = checkNotNull(journalpost.hentHoveddokument())
+
+        return integrasjonKlient.hentDokumentIJournalpost(dokumentId = hoveddokument.dokumentInfoId, journalpostId = journalpost.journalpostId)
+    }
+
+    // Hoveddokumentet er det eneste dokumentet i journalposten med brevkode, vedlegg journalføres uten
+    private fun Journalpost.hentHoveddokument(): DokumentInfo? = dokumenter?.firstOrNull { it.brevkode != null }
+
+    private fun Journalpost.hoveddokumentErVedtaksbrev(): Boolean {
+        val brevkode = hentHoveddokument()?.brevkode ?: return false
+        return brevkode in BREVKODER_FOR_VEDTAKSBREV
+    }
+
     private fun validerManuelleBrevmottakere(
         behandlingId: Long?,
         fagsak: Fagsak,
@@ -306,5 +382,17 @@ class BrevService(
                 ekstraBarnLagtTilIBrev = manueltBrevDto.barnIBrev,
             )
         }
+    }
+
+    companion object {
+        // Brevkodene vedtaksbrev journalføres med i familie-integrasjoner
+        private val BREVKODER_FOR_VEDTAKSBREV =
+            setOf(
+                "vedtak-om-kontantstøtte",
+                "vedtak-om-innvilgelse-kontantstøtte",
+                "vedtak-om-endret-kontantstøtte",
+                "vedtak-om-avslag-kontantstøtte",
+                "opphor",
+            )
     }
 }
