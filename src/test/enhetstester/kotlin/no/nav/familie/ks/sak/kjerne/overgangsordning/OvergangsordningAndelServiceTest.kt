@@ -9,8 +9,11 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingOppfylt
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -21,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -307,6 +311,8 @@ class OvergangsordningAndelServiceTest {
         val gammelBehandling = lagBehandling()
         val nyBehandling = lagBehandling()
 
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns
+            lagPersonopplysningGrunnlag(behandlingId = nyBehandling.id)
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) } returns
             listOf(
                 OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id),
@@ -327,5 +333,49 @@ class OvergangsordningAndelServiceTest {
 
         verify(exactly = 1) { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) }
         verify(exactly = 3) { overgangsordningAndelRepository.save(any()) }
+    }
+
+    @Nested
+    inner class KopierOvergangsordningAndelFraForrigeBehandling {
+        @Test
+        fun `skal bruke personer fra inneværende behandling ved kopiering`() {
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
+            val aktør = randomAktør()
+
+            val gammelPerson = lagPerson(aktør = aktør, personType = PersonType.BARN).copy(id = 1L)
+            val nyPerson = lagPerson(aktør = aktør, personType = PersonType.BARN).copy(id = 2L)
+            val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, nyPerson)
+
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) } returns
+                listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, person = gammelPerson))
+            every { overgangsordningAndelRepository.save(any()) } returnsArgument 0
+
+            val nyeOvergangsordningAndeler = overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+
+            assertThat(nyeOvergangsordningAndeler).hasSize(1)
+            assertThat(nyeOvergangsordningAndeler.single().person?.id).isEqualTo(2L)
+        }
+
+        @Test
+        fun `skal ikke kopiere andel hvis personen ikke finnes i inneværende behandling`() {
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
+
+            val gammelPerson = lagPerson(personType = PersonType.BARN).copy(id = 1L)
+            // Nytt grunnlag inneholder en helt annen aktør enn den som var på forrige overgangsordningandel.
+            val personopplysningGrunnlag =
+                lagTestPersonopplysningGrunnlag(nyBehandling.id, lagPerson(personType = PersonType.BARN).copy(id = 2L))
+
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) } returns
+                listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, person = gammelPerson))
+
+            val nyeOvergangsordningAndeler = overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+
+            assertThat(nyeOvergangsordningAndeler).isEmpty()
+            verify(exactly = 0) { overgangsordningAndelRepository.save(any()) }
+        }
     }
 }

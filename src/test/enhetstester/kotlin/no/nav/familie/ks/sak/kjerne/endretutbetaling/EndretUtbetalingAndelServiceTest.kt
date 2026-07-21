@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagTestPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
@@ -32,6 +33,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -58,56 +60,155 @@ class EndretUtbetalingAndelServiceTest {
             sanityService = sanityService,
         )
 
-    @Test
-    fun `kopierEndretUtbetalingAndelFraForrigeBehandling - skal kopiere over endrete utbetaling i forrige behandling og lagre disse på ny`() {
-        val gammelBehandling = lagBehandling()
-        val nyBehandling = lagBehandling()
+    @Nested
+    inner class KopierEndretUtbetalingAndelFraForrigeBehandling {
+        @Test
+        fun `skal kopiere over endrete utbetaling i forrige behandling og lagre disse på ny`() {
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
 
-        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
-            listOf(
-                mockk(relaxed = true),
-                mockk(relaxed = true),
-                mockk(relaxed = true),
-            )
-        every { endretUtbetalingAndelRepository.save(any()) } returns mockk()
+            val aktør1 = randomAktør()
+            val aktør2 = randomAktør()
+            val aktør3 = randomAktør()
 
-        endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+            val personopplysningGrunnlag =
+                lagTestPersonopplysningGrunnlag(
+                    nyBehandling.id,
+                    lagPerson(aktør = aktør1, personType = PersonType.BARN),
+                    lagPerson(aktør = aktør2, personType = PersonType.BARN),
+                    lagPerson(aktør = aktør3, personType = PersonType.BARN),
+                )
 
-        verify(exactly = 1) { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) }
-        verify(exactly = 3) { endretUtbetalingAndelRepository.save(any()) }
-    }
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
+                listOf(
+                    lagEndretUtbetalingAndel(personer = setOf(lagPerson(aktør = aktør1, personType = PersonType.BARN))),
+                    lagEndretUtbetalingAndel(personer = setOf(lagPerson(aktør = aktør2, personType = PersonType.BARN))),
+                    lagEndretUtbetalingAndel(personer = setOf(lagPerson(aktør = aktør3, personType = PersonType.BARN))),
+                )
+            every { endretUtbetalingAndelRepository.save(any()) } returns mockk()
 
-    @Test
-    fun `kopierEndretUtbetalingAndelFraForrigeBehandling - skal sette avslag til false og tømme begrunnelser ved kopiering av endret utbetaling andel`() {
-        // Arrange
-        val gammelBehandling = lagBehandling()
-        val nyBehandling = lagBehandling()
-        val endretUtbetalingAndel =
-            lagEndretUtbetalingAndel(
-                årsak = Årsak.ETTERBETALING_3MND,
-                begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE),
-                erEksplisittAvslagPåSøknad = true,
-            )
-        val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
-        every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
-            listOf(
-                endretUtbetalingAndel,
-            )
-        every { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) } returnsArgument 0
+            verify(exactly = 1) { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) }
+            verify(exactly = 3) { endretUtbetalingAndelRepository.save(any()) }
+        }
 
-        // Act
-        endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+        @Test
+        fun `skal sette avslag til false og tømme begrunnelser ved kopiering av endret utbetaling andel`() {
+            // Arrange
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
+            val aktør = randomAktør()
+            val personopplysningGrunnlag =
+                lagTestPersonopplysningGrunnlag(nyBehandling.id, lagPerson(aktør = aktør, personType = PersonType.BARN))
+            val endretUtbetalingAndel =
+                lagEndretUtbetalingAndel(
+                    personer = setOf(lagPerson(aktør = aktør, personType = PersonType.BARN)),
+                    årsak = Årsak.ETTERBETALING_3MND,
+                    begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE),
+                    erEksplisittAvslagPåSøknad = true,
+                )
+            val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
 
-        // Assert
-        verify(exactly = 1) { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) }
-        verify(exactly = 1) { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) }
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
+                listOf(
+                    endretUtbetalingAndel,
+                )
+            every { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) } returnsArgument 0
 
-        val lagretEndretUtbetalingAndel = lagretEndretUtbetalingAndelSlot.captured
+            // Act
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
-        assertThat(lagretEndretUtbetalingAndel.vedtaksbegrunnelser, Is(emptyList()))
-        assertThat(lagretEndretUtbetalingAndel.erEksplisittAvslagPåSøknad, Is(false))
-        assertThat(lagretEndretUtbetalingAndel.årsak, Is(Årsak.ETTERBETALING_3MND))
+            // Assert
+            verify(exactly = 1) { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) }
+            verify(exactly = 1) { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) }
+
+            val lagretEndretUtbetalingAndel = lagretEndretUtbetalingAndelSlot.captured
+
+            assertThat(lagretEndretUtbetalingAndel.vedtaksbegrunnelser, Is(emptyList()))
+            assertThat(lagretEndretUtbetalingAndel.erEksplisittAvslagPåSøknad, Is(false))
+            assertThat(lagretEndretUtbetalingAndel.årsak, Is(Årsak.ETTERBETALING_3MND))
+        }
+
+        @Test
+        fun `skal bruke personer fra inneværende behandling ved kopiering`() {
+            // Arrange
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
+            val aktør = randomAktør()
+
+            val gammelPerson = lagPerson(aktør = aktør, personType = PersonType.BARN).copy(id = 1L)
+            val nyPerson = lagPerson(aktør = aktør, personType = PersonType.BARN).copy(id = 2L)
+            val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, nyPerson)
+
+            val endretUtbetalingAndel = lagEndretUtbetalingAndel(personer = setOf(gammelPerson))
+            val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
+
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns listOf(endretUtbetalingAndel)
+            every { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) } returnsArgument 0
+
+            // Act
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+
+            // Assert
+            val lagretPersoner = lagretEndretUtbetalingAndelSlot.captured.personer
+            assertThat(lagretPersoner.map { it.id }, Is(listOf(2L)))
+        }
+
+        @Test
+        fun `skal filtrere bort personer som ikke finnes i inneværende behandling`() {
+            // Arrange
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
+
+            val aktørSomBlirMed = randomAktør()
+            val aktørSomFallerUt = randomAktør()
+
+            val gammelPersonSomBlirMed = lagPerson(aktør = aktørSomBlirMed, personType = PersonType.BARN).copy(id = 1L)
+            val gammelPersonSomFallerUt = lagPerson(aktør = aktørSomFallerUt, personType = PersonType.BARN).copy(id = 2L)
+            val nyPersonSomBlirMed = lagPerson(aktør = aktørSomBlirMed, personType = PersonType.BARN).copy(id = 3L)
+            // Nytt grunnlag inneholder ikke aktørSomFallerUt, f.eks. fordi barnet har falt ut av saken.
+            val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, nyPersonSomBlirMed)
+
+            val endretUtbetalingAndel = lagEndretUtbetalingAndel(personer = setOf(gammelPersonSomBlirMed, gammelPersonSomFallerUt))
+            val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
+
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns listOf(endretUtbetalingAndel)
+            every { endretUtbetalingAndelRepository.save(capture(lagretEndretUtbetalingAndelSlot)) } returnsArgument 0
+
+            // Act
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+
+            // Assert
+            val lagretPersoner = lagretEndretUtbetalingAndelSlot.captured.personer
+            assertThat(lagretPersoner.map { it.id }, Is(listOf(3L)))
+        }
+
+        @Test
+        fun `skal ikke kopiere EndretUtbetalingAndel hvis ingen av personene finnes i inneværende behandling`() {
+            // Arrange
+            val gammelBehandling = lagBehandling()
+            val nyBehandling = lagBehandling()
+
+            val gammelPerson = lagPerson(personType = PersonType.BARN).copy(id = 1L)
+            // Nytt grunnlag inneholder en helt annen aktør enn den som var med i forrige EndretUtbetalingAndel.
+            val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, lagPerson(personType = PersonType.BARN).copy(id = 2L))
+
+            val endretUtbetalingAndel = lagEndretUtbetalingAndel(personer = setOf(gammelPerson))
+
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
+            every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns listOf(endretUtbetalingAndel)
+
+            // Act
+            endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
+
+            // Assert
+            verify(exactly = 0) { endretUtbetalingAndelRepository.save(any()) }
+        }
     }
 
     @Test

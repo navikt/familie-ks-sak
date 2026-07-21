@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -32,6 +33,8 @@ class OvergangsordningAndelService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val overgangsordningAndelOppdatertAbonnementer: List<OvergangsordningAndelerOppdatertAbonnent> = emptyList(),
 ) {
+    private val logger = LoggerFactory.getLogger(OvergangsordningAndelService::class.java)
+
     fun hentOvergangsordningAndeler(behandlingId: Long) = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId)
 
     fun hentUtfylteOvergangsordningAndeler(behandlingId: Long) = hentOvergangsordningAndeler(behandlingId).utfyltePerioder()
@@ -136,8 +139,26 @@ class OvergangsordningAndelService(
     fun kopierOvergangsordningAndelFraForrigeBehandling(
         behandling: Behandling,
         forrigeBehandling: Behandling,
-    ) = hentOvergangsordningAndeler(forrigeBehandling.id).map {
-        overgangsordningAndelRepository.save(it.copy(id = 0, behandlingId = behandling.id))
+    ): List<OvergangsordningAndel> {
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        val personPerAktør = personopplysningGrunnlag.personer.associateBy { it.aktør }
+
+        return hentOvergangsordningAndeler(forrigeBehandling.id).mapNotNull { forrige ->
+            val forrigeAktør = forrige.person?.aktør
+            val nyPerson = forrigeAktør?.let { personPerAktør[it] }
+
+            if (forrigeAktør != null && nyPerson == null) {
+                logger.warn(
+                    "Dropper OvergangsordningAndel ${forrige.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
+                        "til behandling ${behandling.id}: person med aktørId $forrigeAktør finnes ikke i det nye persongrunnlaget",
+                )
+                return@mapNotNull null
+            }
+
+            overgangsordningAndelRepository.save(
+                forrige.copy(id = 0, behandlingId = behandling.id, person = nyPerson),
+            )
+        }
     }
 
     private fun finnOvergangsordningAndel(overgangsordningAndelId: Long) =

@@ -23,7 +23,10 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValida
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -37,6 +40,8 @@ class EndretUtbetalingAndelService(
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
     private val sanityService: SanityService,
 ) {
+    private val logger = LoggerFactory.getLogger(EndretUtbetalingAndelService::class.java)
+
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
     @Transactional
@@ -130,16 +135,50 @@ class EndretUtbetalingAndelService(
     fun kopierEndretUtbetalingAndelFraForrigeBehandling(
         behandling: Behandling,
         forrigeBehandling: Behandling,
-    ) = hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach {
-        val kopiertOverEndretUtbetalingAndel =
-            it.copy(
+    ) {
+        val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
+        val personPerAktør = personopplysningGrunnlag.personer.associateBy { it.aktør }
+
+        hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach { forrigeEndretUtbetalingAndel ->
+            kopierEndretUtbetalingAndel(forrigeEndretUtbetalingAndel, behandling, forrigeBehandling, personPerAktør)
+        }
+    }
+
+    private fun kopierEndretUtbetalingAndel(
+        forrigeEndretUtbetalingAndel: EndretUtbetalingAndel,
+        behandling: Behandling,
+        forrigeBehandling: Behandling,
+        personPerAktør: Map<Aktør, Person>,
+    ) {
+        val nyePersoner = forrigeEndretUtbetalingAndel.personer.mapNotNull { personPerAktør[it.aktør] }
+        val droppedeAktørIder = forrigeEndretUtbetalingAndel.personer.map { it.aktør }.filterNot { it in personPerAktør }
+
+        if (droppedeAktørIder.isNotEmpty()) {
+            logger.warn(
+                "Dropper person(er) med aktørId ${droppedeAktørIder.joinToString(", ") { it.aktørId }} fra EndretUtbetalingAndel " +
+                    "${forrigeEndretUtbetalingAndel.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
+                    "til behandling ${behandling.id}: finnes ikke i det nye persongrunnlaget",
+            )
+        }
+
+        if (nyePersoner.isEmpty()) {
+            logger.warn(
+                "Dropper EndretUtbetalingAndel ${forrigeEndretUtbetalingAndel.id} ved " +
+                    "kopiering fra behandling ${forrigeBehandling.id} til behandling " +
+                    "${behandling.id}: ingen av personene finnes i det nye persongrunnlaget",
+            )
+            return
+        }
+
+        endretUtbetalingAndelRepository.save(
+            forrigeEndretUtbetalingAndel.copy(
                 id = 0,
                 behandlingId = behandling.id,
                 erEksplisittAvslagPåSøknad = false,
                 vedtaksbegrunnelser = emptyList(),
-                personer = it.personer.toMutableSet(),
-            )
-        endretUtbetalingAndelRepository.save(kopiertOverEndretUtbetalingAndel)
+                personer = nyePersoner.toMutableSet(),
+            ),
+        )
     }
 
     private fun sanityBegrunnelseTilRestFormat(
