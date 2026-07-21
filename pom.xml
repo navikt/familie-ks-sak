@@ -23,7 +23,7 @@
 
         <!-- Java/Kotlin -->
         <java.version>25</java.version>
-        <kotlin.version>2.3.21</kotlin.version>
+        <kotlin.version>2.4.10</kotlin.version>
         <kotlin.compiler.languageVersion>2.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.3</kotlin.compiler.apiVersion>
       
@@ -56,8 +56,8 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>12.2.2</unleash.version>
-        <microsoft-graph.version>6.65.0</microsoft-graph.version>
+        <unleash.version>12.2.3</unleash.version>
+        <microsoft-graph.version>6.66.1</microsoft-graph.version>
         <okhttp-jvm.version>5.4.0</okhttp-jvm.version>
         <azure-identity.version>1.18.4</azure-identity.version>
 
@@ -94,7 +94,7 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <!-- Denne inkluderer junit-platform 1.13.3 som kreves av cucumber 7.26, kan muligens fjernes når spring bumper til junit versjon 1.13.3 -->
-                <version>6.1.0</version>
+                <version>6.1.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
