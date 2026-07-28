@@ -403,6 +403,7 @@ class ForvaltningController(
     @PostMapping("/henlegg-behandling/{behandlingId}")
     fun henleggBehandling(
         @PathVariable behandlingId: Long,
+        @RequestBody begrunnelse: String = "Henlegger behandling via forvalterendepunkt.",
     ): ResponseEntity<Ressurs<String>> {
         tilgangService.validerTilgangTilHandling(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
@@ -413,7 +414,7 @@ class ForvaltningController(
             HenleggBehandlingTask.opprettTask(
                 behandlingId = behandlingId,
                 henleggÅrsak = HenleggÅrsak.TEKNISK_VEDLIKEHOLD,
-                begrunnelse = "Henlegger behandling via forvalterendepunkt. Behandling har gått i lås pga midlertidig teknisk feil i produksjon.",
+                begrunnelse = begrunnelse,
             ),
         )
 
