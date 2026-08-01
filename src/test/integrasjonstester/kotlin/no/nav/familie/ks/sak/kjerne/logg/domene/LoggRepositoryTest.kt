@@ -21,6 +21,7 @@ internal class LoggRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentLoggForBehandling - skal returnere logg som er lagret for behandling`() {
+        // Arrange
         val logg =
             Logg(
                 behandlingId = behandling.id,
@@ -31,8 +32,10 @@ internal class LoggRepositoryTest : OppslagSpringRunnerTest() {
 
         loggRepository.saveAndFlush(logg)
 
+        // Act
         val hentetLogg = loggRepository.hentLoggForBehandling(behandling.id)
 
+        // Assert
         assertThat(hentetLogg.size, Is(1))
         assertThat(hentetLogg.single().behandlingId, Is(behandling.id))
         assertThat(hentetLogg.single().type, Is(LoggType.BEHANDLING_OPPRETTET))

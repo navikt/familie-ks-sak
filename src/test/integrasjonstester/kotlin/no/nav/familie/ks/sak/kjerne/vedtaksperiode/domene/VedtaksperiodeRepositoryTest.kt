@@ -25,38 +25,49 @@ class VedtaksperiodeRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `finnVedtaksperiode skal returnere null dersom det ikke finnes noen vedtaksperiode med lik id`() {
+        // Act
         val vedtaksperiode = vedtaksperiodeRepository.finnVedtaksperiode(404)
 
+        // Assert
         assertThat(vedtaksperiode, Is(nullValue()))
     }
 
     @Test
     fun `finnVedtaksperiode skal returnere vedtaksperiode dersom det finnes vedtaksperiode med lik id`() {
+        // Arrange
         val lagretVedtaksperiode = opprettOgLagVedtaksperiode()
 
+        // Act
         val vedtaksperiode = vedtaksperiodeRepository.finnVedtaksperiode(lagretVedtaksperiode.id)!!
 
+        // Assert
         assertThat(lagretVedtaksperiode.id, Is(vedtaksperiode.id))
     }
 
     @Test
     @Transactional
     fun `slettVedtaksperioderFor skal slette vedtakperioder for en gitt vedtak`() {
+        // Arrange
         val vedtaksperiodeId = opprettOgLagVedtaksperiode().id
 
+        // Act
         vedtaksperiodeRepository.slettVedtaksperioderForVedtak(vedtak)
 
         val vedtaksperiode = vedtaksperiodeRepository.finnVedtaksperiode(vedtaksperiodeId)
 
+        // Assert
         assertThat(vedtaksperiode, Is(nullValue()))
     }
 
     @Test
     fun `finnVedtaksperioderForVedtak skal returnere vedtaksperioder for en gitt vedtak`() {
+        // Arrange
         opprettOgLagVedtaksperiode()
 
+        // Act
         val vedtaksperioderForVedtak = vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtak.id)
 
+        // Assert
         assertThat(vedtaksperioderForVedtak.size, Is(1))
     }
 

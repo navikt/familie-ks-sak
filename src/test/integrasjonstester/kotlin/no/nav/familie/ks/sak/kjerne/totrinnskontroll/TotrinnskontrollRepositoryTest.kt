@@ -22,25 +22,31 @@ class TotrinnskontrollRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `findByBehandlingAndAktiv - skal returnere null dersom det ikke finnes noe aktiv totrinnskontroll for behandling`() {
+        // Arrange
         val totrinnskontroll =
             Totrinnskontroll(behandling = behandling, aktiv = false, saksbehandler = "test", saksbehandlerId = "testId")
 
         totrinnskontrollRepository.saveAndFlush(totrinnskontroll)
 
+        // Act
         val hentetTotrinnskontroll = totrinnskontrollRepository.findByBehandlingAndAktiv(behandling.id)
 
+        // Assert
         assertThat(hentetTotrinnskontroll, Is(nullValue()))
     }
 
     @Test
     fun `findByBehandlingAndAktiv - skal returnere totrinnskontroll dersom det finnes aktiv en for behandling`() {
+        // Arrange
         val totrinnskontroll =
             Totrinnskontroll(behandling = behandling, aktiv = true, saksbehandler = "test", saksbehandlerId = "testId")
 
         totrinnskontrollRepository.saveAndFlush(totrinnskontroll)
 
+        // Act
         val hentetTotrinnskontroll = totrinnskontrollRepository.findByBehandlingAndAktiv(behandling.id).shouldNotBeNull()
 
+        // Assert
         assertThat(hentetTotrinnskontroll.behandling, Is(behandling))
     }
 }

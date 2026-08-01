@@ -21,6 +21,7 @@ internal class BehandlingsresultatUtilsTest {
         opphørsresultat: Opphørsresultat,
         behandlingsresultat: Behandlingsresultat,
     ) {
+        // Act
         val kombinertResultat =
             BehandlingsresultatUtils.kombinerResultaterTilBehandlingsresultat(
                 søknadsresultat,
@@ -28,6 +29,7 @@ internal class BehandlingsresultatUtilsTest {
                 opphørsresultat,
             )
 
+        // Assert
         assertEquals(kombinertResultat, behandlingsresultat)
     }
 
@@ -38,6 +40,7 @@ internal class BehandlingsresultatUtilsTest {
         endringsresultat: Endringsresultat,
         opphørsresultat: Opphørsresultat,
     ) {
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             BehandlingsresultatUtils.kombinerResultaterTilBehandlingsresultat(
                 søknadsresultat,

@@ -49,12 +49,16 @@ class SikkerhetContextTest {
     inner class ErSystemKontekstTest {
         @Test
         fun `returnerer false når NAVident er en saksbehandler-ident`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")))
+
+            // Act & Assert
             assertThat(erSystemKontekst()).isFalse()
         }
 
         @Test
         fun `returnerer true når det ikke finnes noe token (fallback til systemforkortelse)`() {
+            // Act & Assert
             assertThat(erSystemKontekst()).isTrue()
         }
     }
@@ -63,6 +67,7 @@ class SikkerhetContextTest {
     inner class ErMaskinTilMaskinTokenTest {
         @Test
         fun `returnerer true når oid er lik sub og roles inneholder access_as_application`() {
+            // Arrange
             val appId = "appId"
             settSikkerhetscontext(
                 lagJwt(
@@ -73,11 +78,14 @@ class SikkerhetContextTest {
                     ),
                 ),
             )
+
+            // Act & Assert
             assertThat(erMaskinTilMaskinToken()).isTrue()
         }
 
         @Test
         fun `returnerer false når oid er ulik sub`() {
+            // Arrange
             settSikkerhetscontext(
                 lagJwt(
                     mapOf(
@@ -87,11 +95,14 @@ class SikkerhetContextTest {
                     ),
                 ),
             )
+
+            // Act & Assert
             assertThat(erMaskinTilMaskinToken()).isFalse()
         }
 
         @Test
         fun `returnerer false når oid er lik sub men rollen mangler`() {
+            // Arrange
             val appId = "appId"
             settSikkerhetscontext(
                 lagJwt(
@@ -102,11 +113,14 @@ class SikkerhetContextTest {
                     ),
                 ),
             )
+
+            // Act & Assert
             assertThat(erMaskinTilMaskinToken()).isFalse()
         }
 
         @Test
         fun `returnerer false når det ikke finnes noe token`() {
+            // Act & Assert
             assertThat(erMaskinTilMaskinToken()).isFalse()
         }
     }
@@ -115,13 +129,19 @@ class SikkerhetContextTest {
     inner class HentSaksbehandlerTest {
         @Test
         fun `returnerer NAVident-claim fra token`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")))
+
+            // Act & Assert
             assertThat(hentSaksbehandler()).isEqualTo("Z999999")
         }
 
         @Test
         fun `returnerer systemforkortelse når NAVident-claim mangler`() {
+            // Arrange
             settSikkerhetscontext(lagJwt())
+
+            // Act & Assert
             assertThat(hentSaksbehandler()).isEqualTo(SikkerhetContext.SYSTEM_FORKORTELSE)
         }
     }
@@ -130,13 +150,19 @@ class SikkerhetContextTest {
     inner class HentSaksbehandlerEpostTest {
         @Test
         fun `returnerer preferred_username-claim fra token`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("preferred_username" to "fornavn.etternavn@nav.no")))
+
+            // Act & Assert
             assertThat(hentSaksbehandlerEpost()).isEqualTo("fornavn.etternavn@nav.no")
         }
 
         @Test
         fun `returnerer systemforkortelse når preferred_username-claim mangler`() {
+            // Arrange
             settSikkerhetscontext(lagJwt())
+
+            // Act & Assert
             assertThat(hentSaksbehandlerEpost()).isEqualTo(SikkerhetContext.SYSTEM_FORKORTELSE)
         }
     }
@@ -145,13 +171,19 @@ class SikkerhetContextTest {
     inner class HentSaksbehandlerNavnTest {
         @Test
         fun `returnerer name-claim fra token`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("name" to "Etternavn, Fornavn")))
+
+            // Act & Assert
             assertThat(hentSaksbehandlerNavn()).isEqualTo("Etternavn, Fornavn")
         }
 
         @Test
         fun `returnerer systemnavn når name-claim mangler`() {
+            // Arrange
             settSikkerhetscontext(lagJwt())
+
+            // Act & Assert
             assertThat(hentSaksbehandlerNavn()).isEqualTo(SikkerhetContext.SYSTEM_NAVN)
         }
     }
@@ -160,14 +192,20 @@ class SikkerhetContextTest {
     inner class HentGrupperTest {
         @Test
         fun `returnerer groups-claim som liste`() {
+            // Arrange
             val grupper = listOf("gruppe-a", "gruppe-b")
             settSikkerhetscontext(lagJwt(mapOf("groups" to grupper)))
+
+            // Act & Assert
             assertThat(hentGrupper()).containsExactlyElementsOf(grupper)
         }
 
         @Test
         fun `returnerer tom liste når groups-claim mangler`() {
+            // Arrange
             settSikkerhetscontext(lagJwt())
+
+            // Act & Assert
             assertThat(hentGrupper()).isEmpty()
         }
     }
@@ -176,13 +214,19 @@ class SikkerhetContextTest {
     inner class HarRolleTest {
         @Test
         fun `returnerer true når bruker har den angitte rollen`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(), roller = listOf(Rolle.SAKSBEHANDLER))
+
+            // Act & Assert
             assertThat(harRolle(Rolle.SAKSBEHANDLER)).isTrue()
         }
 
         @Test
         fun `returnerer false når bruker mangler den angitte rollen`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(), roller = listOf(Rolle.VEILEDER))
+
+            // Act & Assert
             assertThat(harRolle(Rolle.SAKSBEHANDLER)).isFalse()
         }
     }
@@ -193,36 +237,52 @@ class SikkerhetContextTest {
         inner class Enkeltroller {
             @Test
             fun `returnerer SYSTEM ved systemkontekst uten token`() {
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.SYSTEM)
             }
 
             @Test
             fun `returnerer BESLUTTER ved kun BESLUTTER-rolle`() {
+                // Arrange
                 settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.BESLUTTER))
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.BESLUTTER)
             }
 
             @Test
             fun `returnerer SAKSBEHANDLER ved kun SAKSBEHANDLER-rolle`() {
+                // Arrange
                 settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.SAKSBEHANDLER))
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.SAKSBEHANDLER)
             }
 
             @Test
             fun `returnerer FORVALTER ved kun FORVALTER-rolle`() {
+                // Arrange
                 settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.FORVALTER))
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.FORVALTER)
             }
 
             @Test
             fun `returnerer VEILEDER ved kun VEILEDER-rolle`() {
+                // Arrange
                 settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.VEILEDER))
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.VEILEDER)
             }
 
             @Test
             fun `returnerer UKJENT uten noen roller`() {
+                // Arrange
                 settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), emptyList())
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.UKJENT)
             }
         }
@@ -231,25 +291,34 @@ class SikkerhetContextTest {
         inner class Rekkefølgetester {
             @Test
             fun `BESLUTTER returneres før alle lavere roller når bruker har alle roller`() {
+                // Arrange
                 settSikkerhetscontext(
                     lagJwt(mapOf("NAVident" to "Z999999")),
                     listOf(Rolle.BESLUTTER, Rolle.SAKSBEHANDLER, Rolle.FORVALTER, Rolle.VEILEDER),
                 )
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.BESLUTTER)
             }
 
             @Test
             fun `SAKSBEHANDLER returneres før FORVALTER og VEILEDER`() {
+                // Arrange
                 settSikkerhetscontext(
                     lagJwt(mapOf("NAVident" to "Z999999")),
                     listOf(Rolle.SAKSBEHANDLER, Rolle.FORVALTER, Rolle.VEILEDER),
                 )
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.SAKSBEHANDLER)
             }
 
             @Test
             fun `FORVALTER returneres før VEILEDER`() {
+                // Arrange
                 settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.FORVALTER, Rolle.VEILEDER))
+
+                // Act & Assert
                 assertThat(hentHøyesteRolletilgangForInnloggetBruker()).isEqualTo(BehandlerRolle.FORVALTER)
             }
         }
@@ -259,24 +328,34 @@ class SikkerhetContextTest {
     inner class HentRolletilgangFraSikkerhetscontextTest {
         @Test
         fun `returnerer SYSTEM ved systemkontekst uavhengig av lavesteSikkerhetsnivå`() {
+            // Act & Assert
             assertThat(hentRolletilgangFraSikkerhetscontext(BehandlerRolle.SAKSBEHANDLER)).isEqualTo(BehandlerRolle.SYSTEM)
         }
 
         @Test
         fun `returnerer UKJENT når lavesteSikkerhetsnivå er null og bruker ikke er system`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.SAKSBEHANDLER))
+
+            // Act & Assert
             assertThat(hentRolletilgangFraSikkerhetscontext(null)).isEqualTo(BehandlerRolle.UKJENT)
         }
 
         @Test
         fun `returnerer lavesteSikkerhetsnivå når bruker har tilstrekkelig nivå`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.BESLUTTER))
+
+            // Act & Assert
             assertThat(hentRolletilgangFraSikkerhetscontext(BehandlerRolle.SAKSBEHANDLER)).isEqualTo(BehandlerRolle.SAKSBEHANDLER)
         }
 
         @Test
         fun `returnerer UKJENT når bruker ikke har tilstrekkelig nivå`() {
+            // Arrange
             settSikkerhetscontext(lagJwt(mapOf("NAVident" to "Z999999")), listOf(Rolle.VEILEDER))
+
+            // Act & Assert
             assertThat(hentRolletilgangFraSikkerhetscontext(BehandlerRolle.SAKSBEHANDLER)).isEqualTo(BehandlerRolle.UKJENT)
         }
     }

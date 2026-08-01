@@ -14,6 +14,7 @@ import java.time.YearMonth
 internal class EøsSkjemaTidslinjerTest {
     @Test
     fun `skal håndtere to påfølgende perioder i fremtiden, men de komprimeres ikke`() {
+        // Arrange
         val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
         val kompetanse1 =
             Kompetanse(
@@ -29,6 +30,8 @@ internal class EøsSkjemaTidslinjerTest {
             )
 
         val kompetanseTidslinje = listOf(kompetanse1, kompetanse2).tilTidslinje()
+
+        // Act & Assert
         assertEquals(1, kompetanseTidslinje.tilPerioder().size)
 
         val periode = kompetanseTidslinje.tilPerioder()[0]

@@ -54,6 +54,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
 
     @Test
     fun `finnAndelerTilkjentYtelseMedEndreteUtbetalinger finner andeler med overlappende endrete utbetalinger`() {
+        // Arrange
         val fom = YearMonth.now().minusMonths(6)
         val tom = YearMonth.now().plusMonths(5)
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
@@ -86,8 +87,11 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 ),
             )
 
+        // Act
         val andeler =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandling.id)
+
+        // Assert
         assertTrue { andeler.size == 1 }
 
         val andelTilkjentYtelse = andeler[0].andel
@@ -105,6 +109,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
 
     @Test
     fun `finnEndreteUtbetalingerMedAndelerTilkjentYtelse finner endrete utbetalinger med overlappende andeler`() {
+        // Arrange
         val fom = YearMonth.now().minusMonths(6)
         val tom = YearMonth.now().minusMonths(1)
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
@@ -149,8 +154,11 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) } returns vilkårsvurdering
 
+        // Act
         val endreteUtbetalinger =
             andelerTilkjentYtelseOgEndreteUtbetalingerService.finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
+
+        // Assert
         assertTrue { endreteUtbetalinger.size == 1 }
 
         val endretUtbetalingAndel = endreteUtbetalinger[0].endretUtbetaling

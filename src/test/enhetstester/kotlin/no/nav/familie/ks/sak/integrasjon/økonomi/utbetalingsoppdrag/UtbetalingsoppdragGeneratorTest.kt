@@ -276,6 +276,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
 
+        // Act
         val beregnetUtbetalingsoppdragLongId =
             utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
                 saksbehandlerId = "123abc",
@@ -288,6 +289,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
+        // Assert
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
@@ -316,6 +318,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
     @Test
     fun `lagTilkjentYtelseMedUtbetalingsoppdrag skal opprette revurdering med nytt barn`() {
+        // Arrange
         val tidNå = LocalDate.now()
 
         val aktør = fnrTilAktør(randomFnr())
@@ -396,6 +399,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
 
+        // Act
         val oppdatertTilkjentYtelseIAndreBehandling =
             utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
                 saksbehandlerId = "123abc",
@@ -408,6 +412,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         val utbetalingsoppdrag = oppdatertTilkjentYtelseIAndreBehandling.utbetalingsoppdrag
 
+        // Assert
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.all { it.sats == BigDecimal(7500) }, Is(true))
         assertThat(
@@ -436,6 +441,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
     @Test
     fun `lagUtbetalingsoppdrag skal ikke generere utbetalingsperioder for andeler som er uendret`() {
+        // Arrange
         val tidNå = LocalDate.now()
 
         val aktør = fnrTilAktør(randomFnr())
@@ -530,6 +536,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
 
+        // Act
         val beregnetUtbetalingsoppdragLongId =
             utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
                 saksbehandlerId = "123abc",
@@ -542,11 +549,13 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
+        // Assert
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(0))
     }
 
     @Test
     fun `lagUtbetalingsoppdrag skal ikke generere utbetalingsperioder for overgangsordningAndeler som har uendret sum`() {
+        // Arrange
         val tidNå = LocalDate.now()
 
         val aktør = fnrTilAktør(randomFnr())
@@ -649,6 +658,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         tilkjentYtelseIAndreBehandling.andelerTilkjentYtelse.addAll(andelTilkjentYtelserIAndreBehandling)
 
+        // Act
         val beregnetUtbetalingsoppdragLongId =
             utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
                 saksbehandlerId = "123abc",
@@ -665,11 +675,13 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
+        // Assert
         assertThat("Det er uventede utbetalingsperioder: ${utbetalingsoppdrag.utbetalingsperiode}", utbetalingsoppdrag.utbetalingsperiode.size, Is(0))
     }
 
     @Test
     fun `lagUtbetalingsoppdrag skal generere én utbetalingsperiode for overgangsordning per barn `() {
+        // Arrange
         val tidNå = LocalDate.now()
 
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -689,6 +701,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         tilkjentYtelse.andelerTilkjentYtelse.addAll(andelTilkjentYtelser)
 
+        // Act
         val beregnetUtbetalingsoppdragLongId =
             utbetalingsoppdragGenerator.lagUtbetalingsoppdrag(
                 saksbehandlerId = "123abc",
@@ -701,6 +714,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
         val utbetalingsoppdrag = beregnetUtbetalingsoppdragLongId.utbetalingsoppdrag
 
+        // Assert
         assertThat(utbetalingsoppdrag.kodeEndring, Is(no.nav.familie.felles.utbetalingsgenerator.domain.Utbetalingsoppdrag.KodeEndring.NY))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
         assertThat(
@@ -731,6 +745,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
     @Test
     fun `lagUtbetalingsoppdrag skal summere overgangsordning og ordinær andel for utbetalingsmåned i overgangsordningandelen per barn`() {
+        // Arrange
         val tidNå = LocalDate.now()
 
         val aktør = fnrTilAktør(randomFnr())
@@ -778,6 +793,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     )
                 }
 
+        // Act
         val utbetalingsoppdrag =
             utbetalingsoppdragGenerator
                 .lagUtbetalingsoppdrag(
@@ -789,6 +805,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     erSimulering = false,
                 ).utbetalingsoppdrag
 
+        // Assert
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(3))
 
@@ -817,6 +834,7 @@ internal class UtbetalingsoppdragGeneratorTest {
 
     @Test
     fun `lagUtbetalingsoppdrag skal ta hensyn til overgangsordningsandeler dersom den siste andelen i kjeden er overgangsordning andel`() {
+        // Arrange
         val tidNå = LocalDate.now()
 
         val aktør = fnrTilAktør(randomFnr())
@@ -870,6 +888,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     )
                 }
 
+        // Act
         val utbetalingsoppdrag =
             utbetalingsoppdragGenerator
                 .lagUtbetalingsoppdrag(
@@ -881,6 +900,7 @@ internal class UtbetalingsoppdragGeneratorTest {
                     erSimulering = false,
                 ).utbetalingsoppdrag
 
+        // Assert
         assertThat(utbetalingsoppdrag.kodeEndring, Is(Utbetalingsoppdrag.KodeEndring.ENDR))
         assertThat(utbetalingsoppdrag.utbetalingsperiode.size, Is(1))
 

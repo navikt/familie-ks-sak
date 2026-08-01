@@ -47,6 +47,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
 
     @Test
     fun `skal forskyve fom med 1 mnd for periode med erAnnenForelderOmfattetAvNorskLovgivning`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val fagsak = Fagsak(aktør = søker.aktør)
@@ -91,6 +92,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
 
     @Test
     fun `skal ikke gi overlapp feil dersom tom i forrige periode og fom i neste periode er i samme måned`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val fagsak = Fagsak(aktør = søker.aktør)
@@ -159,6 +161,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
 
     @Test
     fun `skal ikke gi noen oppfylte perioder hvis vilkår kun oppfylt innenfor én måned`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val fagsak = Fagsak(aktør = søker.aktør)
@@ -194,6 +197,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
 
     @Test
     fun `skal gi false i perioder som er gyldige men som ikke har utdypende vilkårsvurdering ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør())
         val fagsak = Fagsak(aktør = søker.aktør)

@@ -41,6 +41,7 @@ class ECBServiceTest {
 
     @Test
     fun `Hent valutakurs for utenlandsk valuta til NOK og sjekk at beregning av kurs er riktig`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 6, 28)
         val ecbExchangeRatesData =
             createECBResponse(
@@ -58,12 +59,15 @@ class ECBServiceTest {
                 valutakursDato,
             )
         } returns ecbExchangeRatesData.toExchangeRates()
+        // Act
         val sekTilNOKValutakurs = ecbService.hentValutakurs("SEK", valutakursDato)
+        // Assert
         assertEquals(BigDecimal.valueOf(0.9702185972), sekTilNOKValutakurs)
     }
 
     @Test
     fun `Test at ECBService kaster ECBServiceException dersom de returnerte kursene ikke inneholder kurs for forespurt valuta`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 7, 22)
         val ecbExchangeRatesData =
             createECBResponse(
@@ -84,6 +88,7 @@ class ECBServiceTest {
 
     @Test
     fun `Test at ECBService kaster FunksjonellFeil dersom ValutakursRestClient kaster IngenValutakursException`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2024, 3, 29)
         every { evbValutakursCacheRepository.findByValutakodeAndValutakursdato(any(), any()) } returns null
         every { ecbClient.hentValutakurs(any(), any(), any()) } throws IngenValutakursException(message = "Fant ikke valutakurser", cause = null)
@@ -94,6 +99,7 @@ class ECBServiceTest {
 
     @Test
     fun `Test at ECBService kaster ECBServiceException dersom ValutakursRestClient kaster ValutakursException`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2024, 3, 29)
         every { evbValutakursCacheRepository.findByValutakodeAndValutakursdato(any(), any()) } returns null
         every { ecbClient.hentValutakurs(any(), any(), any()) } throws ValutakursException(message = "En feil har skjedd", cause = null)
@@ -104,6 +110,7 @@ class ECBServiceTest {
 
     @Test
     fun `Test at ECBService kaster ECBServiceException dersom de returnerte kursene ikke inneholder kurser med forespurt dato`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 7, 20)
         val ecbExchangeRatesData =
             createECBResponse(
@@ -124,6 +131,7 @@ class ECBServiceTest {
 
     @Test
     fun `Test at ECBService returnerer NOK til EUR dersom den forespurte valutaen er EUR`() {
+        // Arrange
         val nokTilEur = BigDecimal.valueOf(9.4567)
         val valutakursDato = LocalDate.of(2022, 7, 20)
         val ecbExchangeRatesData =

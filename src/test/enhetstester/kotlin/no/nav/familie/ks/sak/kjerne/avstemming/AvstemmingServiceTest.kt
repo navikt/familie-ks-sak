@@ -30,11 +30,13 @@ internal class AvstemmingServiceTest {
 
     @Test
     fun `hentDataForKonsistensavstemming skal hente data for konsistensavstemming`() {
+        // Arrange
         every { beregningService.hentLøpendeAndelerTilkjentYtelseMedUtbetalingerForBehandlinger(any(), any()) } returns
             listOf(lagAndelTilkjentYtelse(behandling = behandling, periodeOffset = 1))
         every { behandlingService.hentAktivtFødselsnummerForBehandlinger(any()) } returns
             mapOf(behandling.id to behandling.fagsak.aktør.aktivFødselsnummer())
 
+        // Act & Assert
         val perioderForBehandling =
             assertDoesNotThrow {
                 avstemmingService.hentDataForKonsistensavstemming(LocalDateTime.now(), listOf(behandling.id))

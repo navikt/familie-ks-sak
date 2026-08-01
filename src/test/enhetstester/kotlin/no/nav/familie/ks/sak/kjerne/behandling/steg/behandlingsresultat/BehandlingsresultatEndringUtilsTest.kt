@@ -45,6 +45,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `utledEndringsresultat skal returnere INGEN_ENDRING dersom det ikke finnes noe endringer i behandling`() {
         val endringsresultat =
+            // Arrange
             utledEndringsresultat(
                 nåværendeAndeler = emptyList(),
                 forrigeAndeler = emptyList(),
@@ -65,6 +66,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `utledEndringsresultat skal returnere ENDRING dersom det finnes endringer i beløp`() {
         val person = lagPerson(aktør = randomAktør())
 
+        // Arrange
         val forrigeAndel =
             lagAndelTilkjentYtelse(
                 fom = jan22,
@@ -92,6 +94,7 @@ class BehandlingsresultatEndringUtilsTest {
 
     @Test
     fun `utledEndringsresultat skal returnere ENDRING dersom det finnes endringer i vilkårsvurderingen`() {
+        // Arrange
         val fødselsdato = LocalDate.of(2015, 1, 1)
         val barn = lagPerson(aktør = barn1Aktør, fødselsdato = fødselsdato)
         val forrigeAndeler =
@@ -162,6 +165,7 @@ class BehandlingsresultatEndringUtilsTest {
                 vilkårResultater = nåværendeVilkårResultater.toMutableSet(),
             )
 
+        // Act
         val endringsresultat =
             utledEndringsresultat(
                 forrigeAndeler = forrigeAndeler,
@@ -176,11 +180,13 @@ class BehandlingsresultatEndringUtilsTest {
                 personerIForrigeBehandling = setOf(barn),
             )
 
+        // Assert
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
     }
 
     @Test
     fun `utledEndringsresultat skal returnere ENDRING dersom det finnes endringer i kompetanse`() {
+        // Arrange
         val forrigeBehandling = lagBehandling()
         val nåværendeBehandling = lagBehandling()
 
@@ -200,6 +206,7 @@ class BehandlingsresultatEndringUtilsTest {
                 tom = null,
             )
 
+        // Act
         val endringsresultat =
             utledEndringsresultat(
                 nåværendeAndeler = emptyList(),
@@ -219,6 +226,7 @@ class BehandlingsresultatEndringUtilsTest {
                 personerIForrigeBehandling = setOf(barnPerson),
             )
 
+        // Assert
         assertThat(endringsresultat, Is(Endringsresultat.ENDRING))
     }
 
@@ -226,6 +234,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `utledEndringsresultat skal returnere ENDRING dersom det finnes endringer i endret utbetaling andeler`() {
         val barn = lagPerson(aktør = barn1Aktør)
 
+        // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
@@ -256,6 +265,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i beløp - Skal returnere false dersom eneste endring er opphør`() {
         val forrigeAndeler =
+            // Arrange
             listOf(
                 lagAndelTilkjentYtelse(
                     fom = jan22,
@@ -281,6 +291,7 @@ class BehandlingsresultatEndringUtilsTest {
                 endretAndelerForForrigeBehandling = emptyList(),
             )
 
+        // Act
         val erEndringIBeløp =
             erEndringIBeløpForPerson(
                 nåværendeAndelerForPerson = nåværendeAndeler,
@@ -289,12 +300,14 @@ class BehandlingsresultatEndringUtilsTest {
                 erFremstiltKravForPerson = false,
             )
 
+        // Assert
         assertEquals(false, erEndringIBeløp)
     }
 
     @Test
     fun `Endring i beløp - Skal returnere true når beløp i periode har gått fra større enn 0 til null og det er søkt for person`() {
         val barn2Aktør = randomAktør()
+        // Arrange
         val personerFramstiltKravFor = listOf(barn1Aktør)
 
         val forrigeAndeler =
@@ -328,6 +341,7 @@ class BehandlingsresultatEndringUtilsTest {
                 ),
             )
 
+        // Act
         val erEndringIBeløp =
             listOf(barn1Aktør, barn2Aktør).any { aktør ->
                 val erFremstiltKravForPerson = personerFramstiltKravFor.contains(aktør)
@@ -350,6 +364,7 @@ class BehandlingsresultatEndringUtilsTest {
                 erEndringIBeløpForPerson
             }
 
+        // Assert
         assertEquals(true, erEndringIBeløp)
     }
 
@@ -357,6 +372,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `Endring i beløp - Skal returnere false når beløp i periode har gått fra større enn 0 til at annet tall større enn 0 og det er søkt for person`() {
         val barn2Aktør = randomAktør()
 
+        // Arrange
         val personerFramstiltKravFor = listOf(barn1Aktør)
 
         val forrigeAndeler =
@@ -396,6 +412,7 @@ class BehandlingsresultatEndringUtilsTest {
                 ),
             )
 
+        // Act
         val erEndringIBeløp =
             listOf(barn1Aktør, barn2Aktør).any { aktør ->
                 val erFremstiltKravForPerson = personerFramstiltKravFor.contains(aktør)
@@ -418,6 +435,7 @@ class BehandlingsresultatEndringUtilsTest {
                 erEndringIBeløpForPerson
             }
 
+        // Assert
         assertEquals(false, erEndringIBeløp)
     }
 
@@ -425,6 +443,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `Endring i beløp - Skal returnere true når beløp i periode har gått fra null til et tall større enn 0 og det ikke er søkt for person`() {
         val barn2Aktør = randomAktør()
 
+        // Arrange
         val forrigeAndeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -456,6 +475,7 @@ class BehandlingsresultatEndringUtilsTest {
                 ),
             )
 
+        // Act
         val erEndringIBeløp =
             listOf(barn1Aktør, barn2Aktør).any { aktør ->
                 val opphørstidspunktForBehandling =
@@ -476,6 +496,7 @@ class BehandlingsresultatEndringUtilsTest {
                 erEndringIBeløpForPerson
             }
 
+        // Assert
         assertEquals(true, erEndringIBeløp)
     }
 
@@ -483,6 +504,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `Endring i beløp - Skal returnere false når beløp i periode har gått fra null til et tall større enn 0 og det er søkt for person`() {
         val barn2Aktør = randomAktør()
 
+        // Arrange
         val personerFramstiltKravFor = listOf(barn1Aktør)
 
         val forrigeAndeler =
@@ -516,6 +538,7 @@ class BehandlingsresultatEndringUtilsTest {
                 ),
             )
 
+        // Act
         val erEndringIBeløp =
             listOf(barn1Aktør, barn2Aktør).any { aktør ->
                 val erFremstiltKravForPerson = personerFramstiltKravFor.contains(aktør)
@@ -538,6 +561,7 @@ class BehandlingsresultatEndringUtilsTest {
                 erEndringIBeløpForPerson
             }
 
+        // Assert
         assertEquals(false, erEndringIBeløp)
     }
 
@@ -545,6 +569,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `Endring i beløp - Skal returnere true når beløp i periode har gått fra større enn 0 til at annet tall større enn 0 og det ikke er søkt for person`() {
         val barn2Aktør = randomAktør()
 
+        // Arrange
         val forrigeAndeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -582,6 +607,7 @@ class BehandlingsresultatEndringUtilsTest {
                 ),
             )
 
+        // Act
         val erEndringIBeløp =
             listOf(barn1Aktør, barn2Aktør).any { aktør ->
 
@@ -603,6 +629,7 @@ class BehandlingsresultatEndringUtilsTest {
                 erEndringIBeløpForPerson
             }
 
+        // Assert
         assertEquals(true, erEndringIBeløp)
     }
 
@@ -610,6 +637,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `Endring i endret utbetaling andel - skal returnere true hvis årsak er endret`() {
         val barn = lagPerson(aktør = randomAktør())
 
+        // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
@@ -632,6 +660,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i endret utbetaling andel - skal returnere false hvis prosent er endret`() {
         val barn = lagPerson(aktør = randomAktør())
+        // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
@@ -654,6 +683,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i endret utbetaling andel - skal returnere true hvis eneste endring er at perioden blir lenger`() {
         val barn = lagPerson(aktør = randomAktør())
+        // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
@@ -677,6 +707,7 @@ class BehandlingsresultatEndringUtilsTest {
     fun `Endring i endret utbetaling andel - skal returnere true hvis endringsperiode oppstår i nåværende behandling`() {
         val barn = lagPerson(aktør = randomAktør())
 
+        // Arrange
         val nåværendeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
@@ -699,6 +730,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i endret utbetaling andel - skal returnere true hvis et av to barn har endring på årsak`() {
         val barn1 = lagPerson(aktør = randomAktør())
+        // Arrange
         val barn2 = lagPerson(aktør = randomAktør())
 
         val forrigeEndretAndelBarn1 =
@@ -733,6 +765,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere false når ingenting endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -760,6 +793,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere true når søkers aktivitetsland endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -790,6 +824,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere true når søkers aktivitet endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -822,6 +857,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere true når annen forelders aktivitetsland endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -854,6 +890,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere true når annen forelders aktivitet endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -886,6 +923,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere true når barnets bostedsland endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -916,6 +954,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere true når resultat på kompetansen endrer seg`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -948,6 +987,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i kompetanse - skal returnere false når det kun blir lagt på en ekstra kompetanseperiode`() {
         val forrigeBehandling = lagBehandling()
+        // Arrange
         val nåværendeBehandling = lagBehandling()
         val forrigeKompetanse =
             lagKompetanse(
@@ -980,6 +1020,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i vilkårsvurdering - skal returnere false dersom vilkårresultatene er helt like`() {
         val fødselsdato = LocalDate.of(2015, 1, 1)
+        // Arrange
         val nåværendeVilkårResultat =
             setOf(
                 VilkårResultat(
@@ -1058,6 +1099,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i vilkårsvurdering - skal returnere true dersom det har vært endringer i regelverk`() {
         val fødselsdato = LocalDate.of(2015, 1, 1)
+        // Arrange
         val nåværendeVilkårResultat =
             setOf(
                 VilkårResultat(
@@ -1108,6 +1150,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i vilkårsvurdering - skal returnere true dersom det har vært endringer i utdypendevilkårsvurdering`() {
         val fødselsdato = LocalDate.of(2015, 1, 1)
+        // Arrange
         val nåværendeVilkårResultat =
             setOf(
                 VilkårResultat(
@@ -1158,6 +1201,7 @@ class BehandlingsresultatEndringUtilsTest {
     @Test
     fun `Endring i vilkårsvurdering - skal returnere false hvis det kun er opphørt`() {
         val fødselsdato = LocalDate.of(2015, 1, 1)
+        // Arrange
         val nåværendeVilkårResultat =
             setOf(
                 VilkårResultat(

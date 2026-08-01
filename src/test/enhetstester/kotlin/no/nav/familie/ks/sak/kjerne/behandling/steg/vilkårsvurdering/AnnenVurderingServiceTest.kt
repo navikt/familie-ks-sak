@@ -26,11 +26,14 @@ class AnnenVurderingServiceTest {
 
     @Test
     fun `endreAnnenVurdering - skal kaste feil dersom AnnenVurdering med forespurt id ikke finnes i db`() {
+        // Arrange
         every { annenVurderingRepository.findById(any()) } returns Optional.ofNullable(null)
 
         val annenVurderingDto =
+            // Act
             AnnenVurderingDto(404L, Resultat.OPPFYLT, AnnenVurderingType.OPPLYSNINGSPLIKT, "Begrunnelse")
         val funksjonellFeil =
+            // Assert
             assertThrows<FunksjonellFeil> {
                 annenVurderingService.endreAnnenVurdering(
                     annenVurderingDto,
@@ -42,8 +45,10 @@ class AnnenVurderingServiceTest {
 
     @Test
     fun `endreAnnenVurdering - endre AnnenVurdering med forespurt id`() {
+        // Arrange
         val endretAnnenVurderingSlot = slot<AnnenVurdering>()
         val eksisterendeAnnenVurdering =
+            // Act
             AnnenVurdering(
                 200L,
                 PersonResultat(
@@ -66,6 +71,7 @@ class AnnenVurderingServiceTest {
 
         val endretAnnenVurdering = endretAnnenVurderingSlot.captured
 
+        // Assert
         assertEquals(Resultat.OPPFYLT, endretAnnenVurdering.resultat)
         assertEquals("Begrunnelse", endretAnnenVurdering.begrunnelse)
     }

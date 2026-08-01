@@ -20,6 +20,7 @@ class FerdigstillOppgaverTaskTest {
 
     @Test
     fun `doTask skal forsøke å ferdigstille oppgave som ble lagret ned`() {
+        // Arrange
         val mockedTask = mockk<Task>()
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
@@ -27,8 +28,10 @@ class FerdigstillOppgaverTaskTest {
         every { behandlingService.hentBehandling(1) } returns behandling
         every { oppgaveService.ferdigstillOppgaver(behandling, Oppgavetype.BehandleSak) } just runs
 
+        // Act
         ferdigstillOppgaverTask.doTask(mockedTask)
 
+        // Assert
         verify(exactly = 1) { mockedTask.payload }
         verify(exactly = 1) { behandlingService.hentBehandling(1) }
         verify(exactly = 1) { oppgaveService.ferdigstillOppgaver(behandling, Oppgavetype.BehandleSak) }

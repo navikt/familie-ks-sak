@@ -21,17 +21,22 @@ internal class VilkårsvurderingRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `finnAktivForBehandling - skal returnere aktiv vilkårsvurdering for behandling`() {
+        // Arrange
         opprettVilkårsvurdering(aktør = søker, behandling = behandling, resultat = Resultat.IKKE_VURDERT)
 
+        // Act
         val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(behandling.id).shouldNotBeNull()
 
+        // Assert
         assertEquals(behandling.id, hentetVilkårsvurdering.behandling.id)
     }
 
     @Test
     fun `finnAktivForBehandling - skal returnere null dersom vilkårsvurdering for behandling ikke finnes`() {
+        // Act
         val hentetVilkårsvurdering = vilkårsvurderingRepository.finnAktivForBehandling(404L)
 
+        // Assert
         assertNull(hentetVilkårsvurdering)
     }
 }

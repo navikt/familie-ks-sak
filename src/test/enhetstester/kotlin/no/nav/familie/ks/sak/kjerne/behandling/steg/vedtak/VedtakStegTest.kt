@@ -51,16 +51,19 @@ class VedtakStegTest {
 
     @Test
     fun `utførSteg skal kaste feil dersom behandlingen er henlagt`() {
+        // Arrange
         val mocketBehandling = mockk<Behandling>()
 
         every { mocketBehandling.erHenlagt() } returns true
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
 
+        // Act & Assert
         val feil =
             assertThrows<Feil> {
                 vedtakSteg.utførSteg(200)
             }
 
+        // Assert
         assertThat(feil.message, Is("Behandlingen er henlagt og dermed så kan ikke vedtak foreslås."))
     }
 
@@ -69,6 +72,7 @@ class VedtakStegTest {
     fun `utførSteg skal kaste feil dersom det er flere enn 1 steg i behandlingen som har status VENTER eller KLAR`(
         behandlingStegStatus: BehandlingStegStatus,
     ) {
+        // Arrange
         val mocketBehandling = mockk<Behandling>()
         val mocketStegTilstand = mockk<BehandlingStegTilstand>()
         val mocketStegTilstand2 = mockk<BehandlingStegTilstand>()
@@ -79,16 +83,19 @@ class VedtakStegTest {
         every { mocketBehandling.behandlingStegTilstand } returns mutableSetOf(mocketStegTilstand, mocketStegTilstand2)
         every { behandlingService.hentBehandling(200) } returns mocketBehandling
 
+        // Act & Assert
         val feil =
             assertThrows<Feil> {
                 vedtakSteg.utførSteg(200)
             }
 
+        // Assert
         assertThat(feil.message, Is("Behandlingen har mer enn ett ikke fullført steg."))
     }
 
     @Test
     fun `utførSteg lage logg, ny godkjennevedtak task og sette status på behandling til fatter vedtak`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         every { behandlingService.hentBehandling(200) } returns behandling
@@ -101,8 +108,10 @@ class VedtakStegTest {
         every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns null
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
 
+        // Act
         vedtakSteg.utførSteg(200)
 
+        // Assert
         verify(exactly = 1) { behandlingService.hentBehandling(200) }
         verify(exactly = 1) { loggService.opprettSendTilBeslutterLogg(behandling.id) }
         verify(exactly = 1) { totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling) }
@@ -115,6 +124,7 @@ class VedtakStegTest {
 
     @Test
     fun `utførSteg skal kaste FunksjonellFeil hvis sammensatt kontrollsak finnes med tom fritekst`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         every { behandlingService.hentBehandling(200) } returns behandling
@@ -123,16 +133,19 @@ class VedtakStegTest {
         every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns
             SammensattKontrollsak(behandlingId = behandling.id, fritekst = "   ")
 
+        // Act & Assert
         val feil =
             assertThrows<FunksjonellFeil> {
                 vedtakSteg.utførSteg(200)
             }
 
+        // Assert
         assertThat(feil.frontendFeilmelding, Is("Fritekstfeltet i sammensatt kontrollsak kan ikke være tomt ved sending til beslutter."))
     }
 
     @Test
     fun `utførSteg skal ikke kaste feil hvis sammensatt kontrollsak finnes med utfylt fritekst`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         every { behandlingService.hentBehandling(200) } returns behandling
@@ -146,11 +159,13 @@ class VedtakStegTest {
         every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns
             SammensattKontrollsak(behandlingId = behandling.id, fritekst = "En begrunnelse")
 
+        // Act
         vedtakSteg.utførSteg(200)
     }
 
     @Test
     fun `utførSteg skal ikke kaste feil hvis ingen sammensatt kontrollsak finnes`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
         every { behandlingService.hentBehandling(200) } returns behandling
@@ -163,6 +178,7 @@ class VedtakStegTest {
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
         every { sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(any()) } returns null
 
+        // Act
         vedtakSteg.utførSteg(200)
     }
 }

@@ -14,6 +14,7 @@ class TotrinnskontrollTest {
     inner class ErUgyldigTest {
         @Test
         fun `Skal returnere false dersom det er samme navn på saksbehandler og beslutter men annen ID`() {
+            // Arrange
             val kontroll =
                 Totrinnskontroll(
                     behandling = behandling,
@@ -23,11 +24,14 @@ class TotrinnskontrollTest {
                     beslutter = "NAV-Bruker",
                     beslutterId = "X123Beslutter",
                 )
+
+            // Act & Assert
             assertFalse(kontroll.erUgyldig())
         }
 
         @Test
         fun `Skal returnere false dersom det er samme person som beslutter men det er system brukeren`() {
+            // Arrange
             val kontroll =
                 Totrinnskontroll(
                     behandling = behandling,
@@ -38,11 +42,13 @@ class TotrinnskontrollTest {
                     beslutterId = "VL",
                 )
 
+            // Act & Assert
             assertFalse(kontroll.erUgyldig())
         }
 
         @Test
         fun `Skal returnere false dersom det er forskjellige brukere som har fattet vedtak og besluttet`() {
+            // Arrange
             val kontroll =
                 Totrinnskontroll(
                     behandling = behandling,
@@ -53,11 +59,13 @@ class TotrinnskontrollTest {
                     beslutterId = "ID2",
                 )
 
+            // Act & Assert
             assertFalse(kontroll.erUgyldig())
         }
 
         @Test
         fun `Skal returnere true dersom id'ne er det samme selvom navn er annerledes på saksbehandler og beslutter`() {
+            // Arrange
             val kontroll =
                 Totrinnskontroll(
                     behandling = behandling,
@@ -68,6 +76,7 @@ class TotrinnskontrollTest {
                     beslutterId = "samme-id",
                 )
 
+            // Act & Assert
             assertTrue(kontroll.erUgyldig())
         }
     }

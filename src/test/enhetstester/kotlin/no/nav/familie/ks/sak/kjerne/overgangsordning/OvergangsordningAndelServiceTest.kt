@@ -308,6 +308,7 @@ class OvergangsordningAndelServiceTest {
 
     @Test
     fun `kopierOvergangsordningAndelFraForrigeBehandling - skal kopiere over overgangsordningandeler fra forrige behandling og lagre disse på ny`() {
+        // Arrange
         val gammelBehandling = lagBehandling()
         val nyBehandling = lagBehandling()
 
@@ -320,8 +321,10 @@ class OvergangsordningAndelServiceTest {
                 OvergangsordningAndel(id = 2, behandlingId = gammelBehandling.id),
             )
 
+        // Act
         val nyeOvergangsordningAndeler = overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
+        // Assert
         assertThat(nyeOvergangsordningAndeler).allSatisfy {
             assertThat(it.behandlingId).isEqualTo(nyBehandling.id)
             assertThat(it.antallTimer).isEqualTo(BigDecimal.ZERO)
@@ -339,6 +342,7 @@ class OvergangsordningAndelServiceTest {
     inner class KopierOvergangsordningAndelFraForrigeBehandling {
         @Test
         fun `skal bruke personer fra inneværende behandling ved kopiering`() {
+            // Arrange
             val gammelBehandling = lagBehandling()
             val nyBehandling = lagBehandling()
             val aktør = randomAktør()
@@ -352,14 +356,17 @@ class OvergangsordningAndelServiceTest {
                 listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, person = gammelPerson))
             every { overgangsordningAndelRepository.save(any()) } returnsArgument 0
 
+            // Act
             val nyeOvergangsordningAndeler = overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
+            // Assert
             assertThat(nyeOvergangsordningAndeler).hasSize(1)
             assertThat(nyeOvergangsordningAndeler.single().person?.id).isEqualTo(2L)
         }
 
         @Test
         fun `skal ikke kopiere andel hvis personen ikke finnes i inneværende behandling`() {
+            // Arrange
             val gammelBehandling = lagBehandling()
             val nyBehandling = lagBehandling()
 
@@ -372,8 +379,10 @@ class OvergangsordningAndelServiceTest {
             every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) } returns
                 listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, person = gammelPerson))
 
+            // Act
             val nyeOvergangsordningAndeler = overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
+            // Assert
             assertThat(nyeOvergangsordningAndeler).isEmpty()
             verify(exactly = 0) { overgangsordningAndelRepository.save(any()) }
         }

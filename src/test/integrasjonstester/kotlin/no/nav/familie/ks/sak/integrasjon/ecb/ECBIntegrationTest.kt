@@ -49,6 +49,7 @@ class ECBIntegrationTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `Skal teste at valutakurs hentes fra cache dersom valutakursen allerede er hentet fra ECB`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 7, 20)
         val ecbExchangeRatesData =
             createECBResponse(
@@ -64,6 +65,7 @@ class ECBIntegrationTest : OppslagSpringRunnerTest() {
             )
         } returns ecbExchangeRatesData.toExchangeRates()
 
+        // Act & Assert
         ecbService.hentValutakurs("EUR", valutakursDato)
         val valutakurs = ecbValutakursCacheRepository.findByValutakodeAndValutakursdato("EUR", valutakursDato)
         assertEquals(valutakurs!!.kurs, BigDecimal.valueOf(9.4567))

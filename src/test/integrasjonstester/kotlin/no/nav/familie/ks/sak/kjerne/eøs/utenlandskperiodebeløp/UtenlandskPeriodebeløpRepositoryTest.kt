@@ -23,6 +23,7 @@ class UtenlandskPeriodebeløpRepositoryTest(
 ) : OppslagSpringRunnerTest() {
     @Test
     fun `Skal lagre flere utenlandske periodebeløp med gjenbruk av flere aktører`() {
+        // Arrange
         val søker = aktørRepository.save(randomAktør())
         val barn1 = aktørRepository.save(randomAktør())
         val barn2 = aktørRepository.save(randomAktør())
@@ -30,6 +31,7 @@ class UtenlandskPeriodebeløpRepositoryTest(
         val fagsak = fagsakRepository.save(Fagsak(aktør = søker))
         val behandling = behandlingRepository.save(lagBehandling(fagsak))
 
+        // Act
         val utenlandskPeriodebeløp =
             utenlandskPeriodebeløpRepository.save(
                 lagUtenlandskPeriodebeløp(
@@ -44,17 +46,20 @@ class UtenlandskPeriodebeløpRepositoryTest(
                 ).also { it.behandlingId = behandling.id },
             )
 
+        // Assert
         assertEquals(utenlandskPeriodebeløp.barnAktører, utenlandskPeriodebeløp2.barnAktører)
     }
 
     @Test
     fun `Skal lagre skjema-feltene`() {
+        // Arrange
         val søker = aktørRepository.save(randomAktør())
         val barn1 = aktørRepository.save(randomAktør())
 
         val fagsak = fagsakRepository.save(Fagsak(aktør = søker))
         val behandling = behandlingRepository.save(lagBehandling(fagsak))
 
+        // Act
         val utenlandskPeriodebeløp =
             utenlandskPeriodebeløpRepository.save(
                 lagUtenlandskPeriodebeløp(
@@ -68,6 +73,7 @@ class UtenlandskPeriodebeløpRepositoryTest(
                 ),
             )
 
+        // Assert
         val hentedeUtenlandskePeriodebeløp =
             utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId = behandling.id)
 

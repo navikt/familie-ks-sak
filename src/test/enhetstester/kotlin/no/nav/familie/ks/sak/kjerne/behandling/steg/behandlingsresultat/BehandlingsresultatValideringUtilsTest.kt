@@ -16,6 +16,7 @@ import java.time.LocalDate
 internal class BehandlingsresultatValideringUtilsTest {
     @Test
     fun `Valider eksplisitt avlag - Skal kaste feil hvis eksplisitt avslått for barn det ikke er fremstilt krav for`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val vilkårsvurdering =
             lagVilkårsvurdering(
@@ -49,6 +50,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 erEksplisittAvslagPåSøknad = true,
             )
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             BehandlingsresultatValideringUtils.validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag(
                 personResultater = setOf(barn1PersonResultat, barn2PersonResultat),
@@ -59,6 +61,7 @@ internal class BehandlingsresultatValideringUtilsTest {
 
     @Test
     fun `Valider eksplisitt avslag - Skal ikke kaste feil hvis person med eksplsitt avslag er fremstilt krav for`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val vilkårsvurdering =
             lagVilkårsvurdering(
@@ -92,6 +95,7 @@ internal class BehandlingsresultatValideringUtilsTest {
                 erEksplisittAvslagPåSøknad = true,
             )
 
+        // Act & Assert
         assertDoesNotThrow {
             BehandlingsresultatValideringUtils.validerAtBarePersonerFremstiltKravForEllerSøkerHarFåttEksplisittAvslag(
                 personResultater = setOf(barn1PersonResultat, barn2PersonResultat),

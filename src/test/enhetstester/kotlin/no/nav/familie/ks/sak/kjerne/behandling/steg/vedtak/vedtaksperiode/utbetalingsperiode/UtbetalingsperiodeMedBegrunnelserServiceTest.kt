@@ -98,6 +98,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
 
     @Test
     fun `lagFørskjøvetVilkårResultatTidslinjeMap - skal håndtere bor med søker-overlapp`() {
+        // Arrange
         val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2021, 10, 5))
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -161,6 +162,7 @@ class UtbetalingsperiodeMedBegrunnelserServiceTest {
                 ),
             )
 
+        // Act & Assert
         assertDoesNotThrow {
             personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
                 personopplysningGrunnlag = personopplysningGrunnlag,

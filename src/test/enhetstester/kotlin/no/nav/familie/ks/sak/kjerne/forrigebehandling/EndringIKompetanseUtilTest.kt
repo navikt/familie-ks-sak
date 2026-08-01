@@ -23,6 +23,7 @@ class EndringIKompetanseUtilTest {
     inner class UtledEndringstidspunktForEndretUtbetalingAndelTest {
         @Test
         fun `Skal ikke returnere noe endringstidspunkt hvis ingen ting har endret seg siden sist`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -41,17 +42,20 @@ class EndringIKompetanseUtilTest {
 
             val nåværendeKompetanse = forrigeKompetanse.copy().apply { behandlingId = nåværendeBehandling.id }
 
+            // Act
             val endringstidspunkt =
                 EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
                     nåværendeKompetanser = listOf(nåværendeKompetanse),
                     forrigeKompetanser = listOf(forrigeKompetanse),
                 )
 
+            // Assert
             Assertions.assertNull(endringstidspunkt)
         }
 
         @Test
         fun `Skal returnere riktig endringstidspunkt når søkers aktivitetsland endrer seg`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -71,6 +75,7 @@ class EndringIKompetanseUtilTest {
             val nåværendeKompetanse =
                 forrigeKompetanse.copy(søkersAktivitetsland = "DK").apply { behandlingId = nåværendeBehandling.id }
 
+            // Act
             val endringstidspunkt =
                 EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
                     nåværendeKompetanser =
@@ -80,11 +85,13 @@ class EndringIKompetanseUtilTest {
                     forrigeKompetanser = listOf(forrigeKompetanse),
                 )
 
+            // Assert
             assertThat(jan22).isEqualTo(endringstidspunkt)
         }
 
         @Test
         fun `Endringtidspunkt skal ikke endre på seg når det settes ekstra kompetanseperiode`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -106,6 +113,7 @@ class EndringIKompetanseUtilTest {
                     .copy(fom = YearMonth.now().minusMonths(10))
                     .apply { behandlingId = nåværendeBehandling.id }
 
+            // Act
             val endringstidspunkt =
                 EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
                     nåværendeKompetanser =
@@ -115,11 +123,13 @@ class EndringIKompetanseUtilTest {
                     forrigeKompetanser = listOf(forrigeKompetanse),
                 )
 
+            // Assert
             Assertions.assertNull(endringstidspunkt)
         }
 
         @Test
         fun `Endringstidspunkt skal ikke endre på seg når man fyller ut kompetanse som tidligere ikke var utfylt (pga migrering+ evt autovedtak)`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -150,6 +160,7 @@ class EndringIKompetanseUtilTest {
                     tom = null,
                 )
 
+            // Act
             val endringstidspunkt =
                 EndringIKompetanseUtil.utledEndringstidspunktForKompetanse(
                     nåværendeKompetanser =
@@ -159,6 +170,7 @@ class EndringIKompetanseUtilTest {
                     forrigeKompetanser = listOf(forrigeKompetanse),
                 )
 
+            // Assert
             Assertions.assertNull(endringstidspunkt)
         }
     }
@@ -167,6 +179,7 @@ class EndringIKompetanseUtilTest {
     inner class LagEndringIKompetanseForPersonTidslinjeTest {
         @Test
         fun `Skal ikke returnere noen endrede perioder når ingenting endrer seg`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -185,6 +198,7 @@ class EndringIKompetanseUtilTest {
 
             val nåværendeKompetanse = forrigeKompetanse.copy().apply { behandlingId = nåværendeBehandling.id }
 
+            // Act
             val perioderMedEndring =
                 EndringIKompetanseUtil
                     .lagEndringIKompetanseForPersonTidslinje(
@@ -193,11 +207,13 @@ class EndringIKompetanseUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
 
         @Test
         fun `Skal returnere endret periode når søkers aktivitetsland endrer seg`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -217,6 +233,7 @@ class EndringIKompetanseUtilTest {
             val nåværendeKompetanse =
                 forrigeKompetanse.copy(søkersAktivitetsland = "DK").apply { behandlingId = nåværendeBehandling.id }
 
+            // Act
             val perioderMedEndring =
                 EndringIKompetanseUtil
                     .lagEndringIKompetanseForPersonTidslinje(
@@ -228,6 +245,7 @@ class EndringIKompetanseUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(jan22.førsteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().fom)
             assertThat(mai22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)
@@ -235,6 +253,7 @@ class EndringIKompetanseUtilTest {
 
         @Test
         fun `Skal ikke lage endret periode når det kun blir lagt på en ekstra kompetanseperiode`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -256,6 +275,7 @@ class EndringIKompetanseUtilTest {
                     .copy(fom = YearMonth.now().minusMonths(10))
                     .apply { behandlingId = nåværendeBehandling.id }
 
+            // Act
             val perioderMedEndring =
                 EndringIKompetanseUtil
                     .lagEndringIKompetanseForPersonTidslinje(
@@ -267,11 +287,13 @@ class EndringIKompetanseUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
 
         @Test
         fun `Skal ikke lage endret periode når forrige kompetanse ikke er utfylt (pga migrering+ evt autovedtak)`() {
+            // Arrange
             val forrigeBehandling = lagBehandling()
             val nåværendeBehandling = lagBehandling()
             val forrigeKompetanse =
@@ -302,6 +324,7 @@ class EndringIKompetanseUtilTest {
                     tom = null,
                 )
 
+            // Act
             val perioderMedEndring =
                 EndringIKompetanseUtil
                     .lagEndringIKompetanseForPersonTidslinje(
@@ -313,6 +336,7 @@ class EndringIKompetanseUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
     }

@@ -90,6 +90,7 @@ internal class BisysServiceTest {
 
     @Test
     fun `hentUtbetalingsinfo skal hente utbetalingsinfo fra både ks-sak og infotrygd`() {
+        // Arrange
         every {
             infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns
@@ -113,7 +114,10 @@ internal class BisysServiceTest {
                     ),
             )
 
+        // Act
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), barnIdenter)
+
+        // Assert
         assertTrue { utbetalinger.infotrygdPerioder.isNotEmpty() }
         assertTrue { utbetalinger.infotrygdPerioder.size == 2 }
 
@@ -146,11 +150,15 @@ internal class BisysServiceTest {
 
     @Test
     fun `hentUtbetalingsinfo skal hente utbetalingsinfo kun fra ks-sak`() {
+        // Arrange
         every {
             infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns InnsynResponse(data = emptyList())
 
+        // Act
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), barnIdenter)
+
+        // Assert
         assertTrue { utbetalinger.infotrygdPerioder.isNullOrEmpty() }
         assertTrue { utbetalinger.ksSakPerioder.size == 2 }
 
@@ -170,6 +178,7 @@ internal class BisysServiceTest {
 
     @Test
     fun `hentUtbetalingsinfo skal hente utbetalingsinfo fra både ks-sak og infotrygd og filtrere på fomdato`() {
+        // Arrange
         every {
             infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns
@@ -193,7 +202,10 @@ internal class BisysServiceTest {
                     ),
             )
 
+        // Act
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(4), barnIdenter)
+
+        // Assert
         assertTrue { utbetalinger.infotrygdPerioder.isNotEmpty() }
         assertTrue { utbetalinger.infotrygdPerioder.size == 1 }
 
@@ -221,12 +233,16 @@ internal class BisysServiceTest {
 
     @Test
     fun `hentUtbetalingsinfo filtrerer vekk identer med bare NPID`() {
+        // Arrange
         every {
             infotrygdReplikaKlient.hentKontantstøttePerioderFraInfotrygd(barnIdenter)
         } returns InnsynResponse(data = emptyList())
         every { personidentService.hentIdenter(any(), false) } returns listOf(PdlIdent("NPID", false, Type.NPID.name))
 
+        // Act
         val utbetalinger = bisysService.hentUtbetalingsinfo(LocalDate.now().minusMonths(32), listOf("NPID"))
+
+        // Assert
         assertTrue { utbetalinger.infotrygdPerioder.isEmpty() }
         assertTrue { utbetalinger.ksSakPerioder.isEmpty() }
     }

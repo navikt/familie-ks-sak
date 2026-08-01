@@ -48,6 +48,7 @@ internal class ValutakursServiceTest {
 
     @Test
     fun `skal tilpasse utenlandsk periodebeløp til endrede kompetanser`() {
+        // Arrange
         val behandlingId = BehandlingId(10L)
 
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = jan(2020).førsteDagIInneværendeMåned())
@@ -65,8 +66,10 @@ internal class ValutakursServiceTest {
 
         every { utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId.id) } returns utenlandskePeriodebeløp
 
+        // Act
         tilpassValutakurserTilUtenlandskePeriodebeløpService.tilpassValutakursTilUtenlandskPeriodebeløp(behandlingId)
 
+        // Assert
         val faktiskeValutakurser = valutakursService.hentValutakurser(behandlingId)
 
         val forventedeValutakurser =
@@ -81,6 +84,7 @@ internal class ValutakursServiceTest {
 
     @Test
     fun `slette et valutakurs-skjema skal resultere i et skjema uten innhold, men som fortsatt har valutakoden`() {
+        // Arrange
         val behandlingId = BehandlingId(10L)
 
         val lagretValutakurs =
@@ -98,8 +102,10 @@ internal class ValutakursServiceTest {
                     ).medBehandlingId(behandlingId),
                 ).single()
 
+        // Act
         valutakursService.slettValutakurs(lagretValutakurs.id)
 
+        // Assert
         val faktiskValutakurs = valutakursService.hentValutakurser(behandlingId).single()
 
         assertEquals("EUR", faktiskValutakurs.valutakode)
@@ -113,6 +119,7 @@ internal class ValutakursServiceTest {
 
     @Test
     fun `skal kunne lukke åpen valutakurs ved å sende inn identisk skjema med til-og-med-dato`() {
+        // Arrange
         val behandlingId = BehandlingId(10L)
         val barn1 = tilfeldigPerson(personType = PersonType.BARN)
 
@@ -121,10 +128,12 @@ internal class ValutakursServiceTest {
             .medKurs("4>", "EUR", barn1)
             .lagreTil(valutakursRepository)
 
+        // Act
         // Endrer kun til-og-med dato fra uendelig (null) til en gitt dato
         val oppdatertKompetanse = valutakurs(jan(2020), "444", "EUR", barn1)
         valutakursService.oppdaterValutakurs(behandlingId, oppdatertKompetanse)
 
+        // Assert
         // Forventer skjema uten innhold (MEN MED VALUTAKODE) fra oppdatert dato og fremover
         val forventedeValutakurser =
             ValutakursBuilder(jan(2020), behandlingId)

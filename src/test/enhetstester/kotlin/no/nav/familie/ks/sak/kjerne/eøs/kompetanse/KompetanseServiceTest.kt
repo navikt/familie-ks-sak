@@ -510,6 +510,7 @@ internal class KompetanseServiceTest {
 
         @Test
         fun `tilpassKompetanse skal opprette kompetanse med sluttdato når et av barnets regelverk-tidslinjer avsluttes før nåtidspunktet`() {
+            // Arrange
             val nåDato = LocalDate.of(2024, 10, 1)
             val fom = nåDato.minusMonths(6).førsteDagIInneværendeMåned()
             val tom = fom.plusMonths(10).sisteDagIMåned()
@@ -528,8 +529,10 @@ internal class KompetanseServiceTest {
                         ),
                 )
 
+            // Act
             kompetanseService.tilpassKompetanse(behandlingId)
 
+            // Assert
             // henter kompetanse perioder som opprettes automatisk etter vilkårsvurdering
             val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
             assertThat(kompetanser.size == 2)
@@ -550,6 +553,7 @@ internal class KompetanseServiceTest {
 
         @Test
         fun `tilpassKompetanse skal opprette tomme kompetanser for perioder med overgangsordningandeler`() {
+            // Arrange
             val vilkårFom = LocalDate.of(2024, 5, 1)
             val vilkårTom = LocalDate.of(2024, 9, 1)
             val kompetanseFom = vilkårFom.plusMonths(1).toYearMonth()
@@ -583,8 +587,10 @@ internal class KompetanseServiceTest {
                     ),
                 )
 
+            // Act
             kompetanseService.tilpassKompetanse(behandlingId)
 
+            // Assert
             val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
             assertThat(kompetanser)
                 .hasSize(3)
@@ -606,6 +612,7 @@ internal class KompetanseServiceTest {
 
         @Test
         fun `tilpassKompetanse skal ikke opprette kompetanser for perioder med overgangsordningandeler i nasjonale saker`() {
+            // Arrange
             val vilkårFom = LocalDate.of(2024, 5, 1)
             val vilkårTom = LocalDate.of(2024, 9, 1)
             val nasjonalBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
@@ -641,14 +648,17 @@ internal class KompetanseServiceTest {
                     ),
                 )
 
+            // Act
             kompetanseService.tilpassKompetanse(nasjonalBehandling.behandlingId)
 
+            // Assert
             val kompetanser = kompetanseService.hentKompetanser(nasjonalBehandling.behandlingId).sortedBy { it.fom }
             assertThat(kompetanser).isEmpty()
         }
 
         @Test
         fun `tilpassKompetanse skal tilpasse kompetanser til endrede regelverk-tidslinjer`() {
+            // Arrange
             val eksisterendeKompetanse1 =
                 lagKompetanse(
                     behandlingId = behandlingId.id,
@@ -715,8 +725,10 @@ internal class KompetanseServiceTest {
                         ),
                 )
 
+            // Act
             kompetanseService.tilpassKompetanse(behandlingId)
 
+            // Assert
             // henter kompetanse perioder som tilpasses etter endringer i vilkårsvurdering
             val kompetanser = kompetanseService.hentKompetanser(behandlingId).sortedBy { it.fom }
             assertThat(kompetanser.size == 6)
@@ -760,6 +772,7 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `skal kopiere over kompetanse-skjema fra forrige behandling til ny behandling`() {
+        // Arrange
         val behandlingId1 = BehandlingId(10L)
         val behandlingId2 = BehandlingId(11L)
         val barn1 = tilfeldigPerson(personType = PersonType.BARN)
@@ -786,8 +799,10 @@ internal class KompetanseServiceTest {
                     erAnnenForelderOmfattetAvNorskLovgivning = true,
                 ).lagreTil(kompetanseRepository)
 
+        // Act
         kompetanseService.kopierOgErstattKompetanser(behandlingId1, behandlingId2)
 
+        // Assert
         val kompetanserBehandling2 = kompetanseService.hentKompetanser(behandlingId2)
 
         assertThat(kompetanserBehandling2).hasSize(kompetanserBehandling2.size).containsAll(kompetanser)
@@ -807,6 +822,7 @@ internal class KompetanseServiceTest {
 
     @Test
     fun `skal kopiere kompetanser fra en behandling til en annen behandling, og overskrive eksisterende`() {
+        // Arrange
         val behandlingId1 = BehandlingId(10L)
         val behandlingId2 = BehandlingId(22L)
         val barn1 = tilfeldigPerson(personType = PersonType.BARN)
@@ -824,8 +840,10 @@ internal class KompetanseServiceTest {
             .medKompetanse("PPPSSSPPPPPPP", barn1, barn2, barn3)
             .lagreTil(kompetanseRepository)
 
+        // Act
         kompetanseService.kopierOgErstattKompetanser(behandlingId1, behandlingId2)
 
+        // Assert
         val kompetanserBehandling2EtterEndring = kompetanseService.hentKompetanser(behandlingId2)
 
         assertThat(kompetanserBehandling2EtterEndring).hasSize(kompetanserBehandling2EtterEndring.size).containsAll(kompetanser1)

@@ -22,8 +22,10 @@ internal class TidKtTest {
 
     @Test
     fun `LocalDate tilyyyyMMdd() skal formatere dato til yyyy-MM-dd format`() {
+        // Arrange
         val localDate = LocalDate.of(2020, 12, 16)
 
+        // Act & Assert
         assertThat(localDate.tilyyyyMMdd(), Is("2020-12-16"))
     }
 
@@ -36,8 +38,10 @@ internal class TidKtTest {
 
     @Test
     fun `LocalDate tilDagMånedÅr() skal formatere dato til d MMMM yyyy format`() {
+        // Arrange
         val localDate = LocalDate.of(2020, 12, 16)
 
+        // Act & Assert
         assertThat(localDate.tilDagMånedÅr(), Is("16. desember 2020"))
     }
 
@@ -50,9 +54,11 @@ internal class TidKtTest {
 
     @Test
     fun `LocalDate tilYearMonth() skal konverte LocalDate til YearMonth`() {
+        // Arrange
         val localDate = LocalDate.of(2020, 12, 16)
         val yearMonth = localDate.tilYearMonth()
 
+        // Act & Assert
         assertThat(yearMonth, Is(YearMonth.of(2020, 12)))
     }
 
@@ -65,8 +71,10 @@ internal class TidKtTest {
 
     @Test
     fun `YearMonth tilKortString() skal formatere dato til MM yy format`() {
+        // Arrange
         val yearMonth = YearMonth.of(2020, 12)
 
+        // Act & Assert
         assertThat(yearMonth.tilKortString(), Is("12.20"))
     }
 
@@ -94,6 +102,9 @@ internal class TidKtTest {
 
     @Test
     fun `LocalDate erHelligDag skal returnere true for alle helligedager`() {
+        // Arrange
+
+        // Act & Assert
         assertTrue { LocalDate.of(2022, 1, 1).erHelligdag() }
         assertTrue { LocalDate.of(2022, 5, 1).erHelligdag() }
         assertTrue { LocalDate.of(2022, 5, 17).erHelligdag() }

@@ -51,6 +51,7 @@ import java.time.YearMonth
 class BrevPeriodeContextTest {
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehage-begrunnelse når alle vilkår er oppfylt`() {
+        // Arrange
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling =
@@ -75,6 +76,7 @@ class BrevPeriodeContextTest {
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
 
+        // Act & Assert
         Assertions.assertEquals(
             listOf(barnFødselsdato.plusYears(1).førsteDagINesteMåned().tilDagMånedÅr()),
             brevPeriodeDto?.fom,
@@ -122,6 +124,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehage-begrunnelse ved 17 timer barnehageplass`() {
+        // Arrange
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling =
@@ -154,6 +157,7 @@ class BrevPeriodeContextTest {
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
 
+        // Act & Assert
         Assertions.assertEquals(
             NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
@@ -176,6 +180,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetDeltidBarnehageAdopsjon ved 17 timer barnehageplass`() {
+        // Arrange
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling =
@@ -214,6 +219,7 @@ class BrevPeriodeContextTest {
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
 
+        // Act & Assert
         Assertions.assertEquals(
             NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
@@ -236,6 +242,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi riktig output for innvilgetIkkeBarnehageAdopsjon`() {
+        // Arrange
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling =
@@ -268,6 +275,7 @@ class BrevPeriodeContextTest {
                 skalOppretteEndretUtbetalingAndeler = false,
             ).genererBrevPeriodeDto()
 
+        // Act & Assert
         Assertions.assertEquals(
             NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,
@@ -290,6 +298,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi true for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
+        // Arrange
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling =
@@ -351,6 +360,7 @@ class BrevPeriodeContextTest {
 
     @Test
     fun `genererBrevPeriodeDto skal gi false for gjelderAnnenForelder feltet dersom annen forelder ikke er vurdert i MedlemskapAnnenForelder vilkåret`() {
+        // Arrange
         val barnFødselsdato = LocalDate.of(2021, 3, 15)
 
         val personerIbehandling =
@@ -390,6 +400,7 @@ class BrevPeriodeContextTest {
                 skalOppretteEndretUtbetalingAndeler = true,
             ).genererBrevPeriodeDto()
 
+        // Act & Assert
         Assertions.assertEquals(
             NasjonalOgFellesBegrunnelseDataDto(
                 vedtakBegrunnelseType = BegrunnelseType.INNVILGET,

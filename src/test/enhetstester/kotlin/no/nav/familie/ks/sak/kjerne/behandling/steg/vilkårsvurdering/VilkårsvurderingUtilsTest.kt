@@ -238,6 +238,7 @@ class VilkårsvurderingUtilsTest {
 
     @Test
     fun `tilpassVilkårForEndretVilkår - skal ikke endre gamle vilkår som når det nye er av en annen type`() {
+        // Arrange
         val vilkårResultat1 =
             lagVilkårResultat(
                 id = 50,
@@ -257,6 +258,7 @@ class VilkårsvurderingUtilsTest {
                 vilkårType = Vilkår.BOSATT_I_RIKET,
             )
 
+        // Act
         val resultat =
             tilpassVilkårForEndretVilkår(
                 endretVilkårResultatId = vilkårResultat2.id,
@@ -264,6 +266,7 @@ class VilkårsvurderingUtilsTest {
                 endretVilkårResultat = vilkårResultat2,
             )
 
+        // Assert
         assertEquals(1, resultat.size)
 
         assertEquals(januar, resultat[0].periodeFom)
@@ -276,6 +279,7 @@ class VilkårsvurderingUtilsTest {
 
     @Test
     fun `oppdaterMedDødsdatoer skal oppdatere vikårsvurdering slik at den avsluttes ved dødsdato dersom den starter før dødsdato`() {
+        // Arrange
         val søkerPersonIdent = randomFnr()
         val personIdentBarn1 = randomFnr()
         val personIdentBarn2 = randomFnr()
@@ -296,8 +300,10 @@ class VilkårsvurderingUtilsTest {
 
         val vilkårsvurdering = lagVilkårsvurderingOppfylt(personer = persongrunnlag.personer)
 
+        // Act
         vilkårsvurdering.oppdaterMedDødsdatoer(persongrunnlag)
 
+        // Assert
         // Siden barnet dør før vilkårResulatatene starter skal vi ikke gjøre noe med dem
         val personResultaterBarn1 = vilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == personIdentBarn1 }
         personResultaterBarn1.vilkårResultater.forEach { assertEquals(fødselsDatoBarn1.plusMonths(19), it.periodeTom) }
@@ -308,6 +314,7 @@ class VilkårsvurderingUtilsTest {
 
     @Test
     fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter hvis periode krysser lovendringsdato`() {
+        // Arrange
         val vilkårResultat =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
@@ -316,13 +323,16 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
+        // Act
         val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
 
+        // Assert
         assertEquals(LocalDate.of(2024, 12, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
 
     @Test
     fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter ikke hvis periode ikke krysser lovendringsdato`() {
+        // Arrange
         val vilkårResultat =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
@@ -331,13 +341,16 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
+        // Act
         val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
 
+        // Assert
         assertEquals(LocalDate.of(2024, 7, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
 
     @Test
     fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter hvis periode er laget etter nytt lovverk og er lengre enn 7 mnd`() {
+        // Arrange
         val vilkårResultat =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
@@ -346,13 +359,16 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
+        // Act
         val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
 
+        // Assert
         assertEquals(LocalDate.of(2025, 3, 1), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
 
     @Test
     fun `forkortHvisSkalForkortesEtterRegelverkEndring forkorter til lovendringsdato hvis den forkortes under 7 mnder`() {
+        // Arrange
         val vilkårResultat =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNETS_ALDER,
@@ -361,8 +377,10 @@ class VilkårsvurderingUtilsTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ADOPSJON),
             )
 
+        // Act
         val resultat = listOf(vilkårResultat).forkortTomTilGyldigLengde()
 
+        // Assert
         assertEquals(LocalDate.of(2024, 7, 31), resultat.first { it.vilkårType == Vilkår.BARNETS_ALDER }.periodeTom)
     }
 
@@ -370,6 +388,7 @@ class VilkårsvurderingUtilsTest {
     inner class EndreVilkårResultatTest {
         @Test
         fun `Skal kastes funksjonell feil hvis det forsøkes å lage en oppfylt periode mens det finnes en avslagsperiode uten periode`() {
+            // Arrange
             val person = mockk<PersonResultat>(relaxed = true)
 
             val eksisterendeVilkårResultat =
@@ -408,6 +427,7 @@ class VilkårsvurderingUtilsTest {
                     endretAv = "VL",
                 )
 
+            // Act & Assert
             val frontendFeilmelding =
                 assertThrows<FunksjonellFeil> {
                     endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
@@ -418,6 +438,7 @@ class VilkårsvurderingUtilsTest {
 
         @Test
         fun `Skal kastes funksjonell feil hvis det forsøkes å lage en avslagsperiode uten dato mens det finnes en oppfylt periode`() {
+            // Arrange
             val person = mockk<PersonResultat>(relaxed = true)
 
             val eksisterendeVilkårResultat =
@@ -456,6 +477,7 @@ class VilkårsvurderingUtilsTest {
                     erEksplisittAvslagPåSøknad = true,
                 )
 
+            // Act & Assert
             val frontendFeilmelding =
                 assertThrows<FunksjonellFeil> {
                     endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
@@ -466,6 +488,7 @@ class VilkårsvurderingUtilsTest {
 
         @Test
         fun `Skal kaste funksjonell feil hvis det forsøkes å lage en periode med datoer mens det finnes avslag uten periode`() {
+            // Arrange
             val person = mockk<PersonResultat>(relaxed = true)
 
             val eksisterendeVilkårResultat =
@@ -504,6 +527,7 @@ class VilkårsvurderingUtilsTest {
                     endretAv = "VL",
                 )
 
+            // Act & Assert
             val frontendFeilmelding =
                 assertThrows<FunksjonellFeil> {
                     endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)
@@ -514,6 +538,7 @@ class VilkårsvurderingUtilsTest {
 
         @Test
         fun `Skal kaste funksjonell feil hvis det forsøkes å lage avslag uten periode mens det allerede finnes periode med datoer`() {
+            // Arrange
             val person = mockk<PersonResultat>(relaxed = true)
 
             val eksisterendeVilkårResultat =
@@ -552,6 +577,7 @@ class VilkårsvurderingUtilsTest {
                     erEksplisittAvslagPåSøknad = true,
                 )
 
+            // Act & Assert
             val frontendFeilmelding =
                 assertThrows<FunksjonellFeil> {
                     endreVilkårResultat(eksisterendeVilkårResultat, vilkårDto)

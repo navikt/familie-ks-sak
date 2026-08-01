@@ -96,6 +96,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 header("Authorization", "Bearer $token")
                 contentType(ContentType.JSON)
                 body(ugyldigOvergangsordningAndelDto)
+                // Act & Assert
             } When {
                 put("$overgangsordningAndelControllerUrl/${behandling.id}/${overgangsordningAndel.id}")
             } Then {
@@ -146,6 +147,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 header("Authorization", "Bearer $token")
                 contentType(ContentType.JSON)
                 body(jsonMapper.writeValueAsString(overgangsordningAndelDto))
+                // Act & Assert
             } When {
                 put("$overgangsordningAndelControllerUrl/${behandling.id}/${gamleOvergangsordningAndeler.first().id}")
             } Then {
@@ -181,6 +183,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
 
             Given {
                 header("Authorization", "Bearer $token")
+                // Act & Assert
             } When {
                 delete("$overgangsordningAndelControllerUrl/${behandling.id}/${overgangsordningAndel.id}")
             } Then {
@@ -202,6 +205,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
 
             Given {
                 header("Authorization", "Bearer $token")
+                // Act & Assert
             } When {
                 post("$overgangsordningAndelControllerUrl/${behandling.id}")
             } Then {
@@ -215,6 +219,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
         fun `skal opprette tom OvergangsordningAndel`() {
             Given {
                 header("Authorization", "Bearer $token")
+                // Act & Assert
             } When {
                 post("$overgangsordningAndelControllerUrl/${behandling.id}")
             } Then {

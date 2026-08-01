@@ -40,6 +40,7 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
             body(jsonMapper.writeValueAsString(PersonIdent(ident)))
+            // Act & Assert
         } When {
             post(apiUrl)
         } Then {
@@ -65,6 +66,7 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
             body(jsonMapper.writeValueAsString(PersonIdent(ident)))
+            // Act & Assert
         } When {
             post(apiUrl)
         } Then {

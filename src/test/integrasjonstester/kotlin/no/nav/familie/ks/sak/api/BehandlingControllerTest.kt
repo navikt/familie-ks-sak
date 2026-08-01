@@ -48,6 +48,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentBehandling - skal returnere 401 dersom brukeren ikke har token for å hente behandling`() {
+        // Act & Assert
         When {
             get("$behandlingControllerUrl/401")
         } Then {
@@ -61,6 +62,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
 
         Given {
             header("Authorization", "Bearer $token")
+            // Act & Assert
         } When {
             get("$behandlingControllerUrl/403")
         } Then {
@@ -74,6 +76,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
 
         Given {
             header("Authorization", "Bearer $token")
+            // Act & Assert
         } When {
             get("$behandlingControllerUrl/${behandling.id}")
         } Then {
@@ -91,6 +94,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
             body(jsonMapper.writeValueAsString(EndreBehandlendeEnhetDto("enhet", "")))
+            // Act & Assert
         } When {
             put("$behandlingControllerUrl/${behandling.id}/enhet")
         } Then {
@@ -108,6 +112,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
             header("Authorization", "Bearer $token")
             contentType(ContentType.JSON)
             body(jsonMapper.writeValueAsString(EndreBehandlendeEnhetDto("50", "nybegrunnelse")))
+            // Act & Assert
         } When {
             put("$behandlingControllerUrl/${behandling.id}/enhet")
         } Then {
@@ -134,6 +139,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                     ),
                 ),
             )
+            // Act & Assert
         } When {
             post(behandlingControllerUrl)
         } Then {
@@ -155,6 +161,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
 
         Given {
             header("Authorization", "Bearer $token")
+            // Act & Assert
         } When {
             get("$behandlingControllerUrl/fagsak/${fagsak.id}")
         } Then {

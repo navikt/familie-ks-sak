@@ -40,10 +40,13 @@ class VedtakServiceTest {
 
     @Test
     fun `hentVedtak - skal hente vedtak fra VedtakRepository`() {
+        // Arrange
         every { vedtakRepository.hentVedtak(1) } returns mockk()
 
+        // Act
         val hentetVedtak = vedtakService.hentVedtak(1)
 
+        // Assert
         Assertions.assertNotNull(hentetVedtak)
         verify(exactly = 1) { vedtakRepository.hentVedtak(1) }
     }
@@ -53,6 +56,7 @@ class VedtakServiceTest {
     fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato og stønadsbrev`(
         behandlingÅrsak: BehandlingÅrsak,
     ) {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = behandlingÅrsak, resultat = ENDRET_OG_OPPHØRT)
         val vedtak = lagVedtak(behandling)
         val brev = "brev".toByteArray()
@@ -65,8 +69,10 @@ class VedtakServiceTest {
         every { behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(any()) } returns false
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
 
+        // Act
         val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
 
+        // Assert
         assertThat(oppdatertVedtak.stønadBrevPdf, Is(brev))
         assertThat(oppdatertVedtak.vedtaksdato, Is(LocalDateTime.of(2024, 1, 1, 0, 0)))
 
@@ -82,6 +88,7 @@ class VedtakServiceTest {
     fun `oppdaterVedtakMedDatoOgStønadsbrev - skal oppdatere vedtak med dato, men ikke stønadsbrev`(
         behandlingÅrsak: BehandlingÅrsak,
     ) {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = behandlingÅrsak, resultat = INNVILGET, type = REVURDERING)
         val vedtak = lagVedtak(behandling)
 
@@ -92,8 +99,10 @@ class VedtakServiceTest {
         every { behandlingService.erLovendringOgFremtidigOpphørOgHarFlereAndeler(any()) } returns false
         every { LocalDateTime.now() } returns LocalDateTime.of(2024, 1, 1, 0, 0)
 
+        // Act
         val oppdatertVedtak = vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(behandling)
 
+        // Assert
         assertThat(oppdatertVedtak.stønadBrevPdf, IsNull())
         assertThat(oppdatertVedtak.vedtaksdato, Is(LocalDateTime.of(2024, 1, 1, 0, 0)))
 
@@ -109,9 +118,11 @@ class VedtakServiceTest {
     fun `opprettOgInitierNyttVedtakForBehandling - skal kaste feil hvis steg ikke er BESLUTTE_VEDTAK eller REGISTRERE_PERSONGRUNNLAG`(
         behandlingSteg: BehandlingSteg,
     ) {
+        // Arrange
         val behandling = mockk<Behandling>()
         every { behandling.steg } returns behandlingSteg
 
+        // Act & Assert
         val feil = assertThrows<Feil> { vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, false) }
 
         assertThat(feil.message, Is("Forsøker å initiere vedtak på steg ${behandlingSteg.name}"))
@@ -122,6 +133,7 @@ class VedtakServiceTest {
     fun `opprettOgInitierNyttVedtakForBehandling - skal lagre ny vedtak og deaktivere gamle hvis steg er BESLUTTE_VEDTAK eller REGISTRERE_PERSONGRUNNLAG`(
         behandlingSteg: BehandlingSteg,
     ) {
+        // Arrange
         val behandling = mockk<Behandling>(relaxed = true)
         val eksisterendeVedtak = mockk<Vedtak>(relaxed = true)
         val slot = slot<Vedtak>()
@@ -131,10 +143,12 @@ class VedtakServiceTest {
         every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns eksisterendeVedtak
         every { vedtakRepository.saveAndFlush(capture(slot)) } returns mockk(relaxed = true)
 
+        // Act
         vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, false)
 
         val lagretVedtak = slot.captured
 
+        // Assert
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { eksisterendeVedtak setProperty "aktiv" value false }
         verify(exactly = 1) { vedtakRepository.saveAndFlush(lagretVedtak) }
@@ -147,6 +161,7 @@ class VedtakServiceTest {
     fun `opprettOgInitierNyttVedtakForBehandling - skal kopiere over vedtaksperioder dersom det eksisterer gammmelt vedtak og kopierOverVedtaksperioder er satt til true`(
         behandlingSteg: BehandlingSteg,
     ) {
+        // Arrange
         val behandling = mockk<Behandling>(relaxed = true)
         val eksisterendeVedtak = mockk<Vedtak>(relaxed = true)
         val slot = slot<Vedtak>()
@@ -157,10 +172,12 @@ class VedtakServiceTest {
         every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns eksisterendeVedtak
         every { vedtakRepository.saveAndFlush(capture(slot)) } returns mockk(relaxed = true)
 
+        // Act
         vedtakService.opprettOgInitierNyttVedtakForBehandling(behandling, true)
 
         val lagretVedtak = slot.captured
 
+        // Assert
         verify(exactly = 1) { vedtaksperiodeService.kopierOverVedtaksperioder(any(), any()) }
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { eksisterendeVedtak setProperty "aktiv" value false }

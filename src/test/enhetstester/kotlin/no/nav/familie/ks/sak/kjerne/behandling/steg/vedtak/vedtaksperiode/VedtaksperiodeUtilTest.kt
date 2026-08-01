@@ -19,6 +19,7 @@ class VedtaksperiodeUtilTest {
     fun `validerVedtaksperiodeMedBegrunnelser - skal kaste FunksjonellFeil dersom det er fritekst uten stanadard begrunnelser i opphør eller avslag`(
         vedtaksperiodetype: Vedtaksperiodetype,
     ) {
+        // Arrange
         val vedtaksperiodeMedBegrunnelser =
             VedtaksperiodeMedBegrunnelser(
                 vedtak = mockk(),
@@ -26,11 +27,13 @@ class VedtaksperiodeUtilTest {
                 fritekster = mutableListOf(mockk()),
             )
 
+        // Act & Assert
         val funksjonellFeil =
             assertThrows<FunksjonellFeil> {
                 validerVedtaksperiodeMedBegrunnelser(vedtaksperiodeMedBegrunnelser)
             }
 
+        // Assert
         assertThat(
             funksjonellFeil.message,
             Is(

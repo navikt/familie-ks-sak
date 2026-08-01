@@ -9,15 +9,25 @@ import org.junit.jupiter.api.Test
 internal class UtilsTest {
     @Test
     fun `konverterEnumsTilString - skal konvertere liste av enum verdier til semikolon-separert string`() {
+        // Arrange
         val enums: List<Vilkår> = listOf(Vilkår.MEDLEMSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER)
+
+        // Act
         val enumString = konverterEnumsTilString(enums)
+
+        // Assert
         assertEquals("${Vilkår.MEDLEMSKAP};${Vilkår.BARNEHAGEPLASS};${Vilkår.BOR_MED_SØKER}", enumString)
     }
 
     @Test
     fun `konverterStringTilEnums - skal konvertere semikolon-separert enumString til liste av enum verdier`() {
+        // Arrange
         val enumString = "${Vilkår.MEDLEMSKAP};${Vilkår.BARNEHAGEPLASS};${Vilkår.BOR_MED_SØKER}"
+
+        // Act
         val enums = konverterStringTilEnums<Vilkår>(enumString)
+
+        // Assert
         assertEquals(listOf(Vilkår.MEDLEMSKAP, Vilkår.BARNEHAGEPLASS, Vilkår.BOR_MED_SØKER), enums)
     }
 
@@ -28,8 +38,13 @@ internal class UtilsTest {
     inner class TilEtterfølgendePar {
         @Test
         fun `skal plukke ut to og to etterfølgende elementer inkludert det siste elementet`() {
+            // Arrange
             val liste = listOf(1, 2, 3, 4, 5)
+
+            // Act
             val par = liste.tilEtterfølgendePar { a, b -> a to b }
+
+            // Assert
             assertThat(par).hasSize(5)
             assertThat(par[0]).isEqualTo(Pair(1, 2))
             assertThat(par[1]).isEqualTo(Pair(2, 3))

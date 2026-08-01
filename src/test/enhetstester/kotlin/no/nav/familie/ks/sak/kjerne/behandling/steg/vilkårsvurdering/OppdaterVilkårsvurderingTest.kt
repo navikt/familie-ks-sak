@@ -28,9 +28,11 @@ class OppdaterVilkårsvurderingTest {
     inner class KopierResultaterFraForrigeBehandlingTest {
         @Test
         fun `Skal legge til nytt vilkår`() {
+            // Arrange
             val søkerPersonIdent = randomFnr()
             val barnPersonIdent = randomFnr()
             val persongrunnlag =
+                // Act
                 lagPersonopplysningGrunnlag(
                     søkerPersonIdent = søkerPersonIdent,
                     barnasIdenter = listOf(barnPersonIdent),
@@ -57,6 +59,7 @@ class OppdaterVilkårsvurderingTest {
             val barnVilkårResultater =
                 initiellVilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == barnPersonIdent }.vilkårResultater
 
+            // Assert
             Assertions.assertEquals(2, søkerVilkårResultater.size)
             Assertions.assertEquals(5, barnVilkårResultater.size)
 
@@ -77,8 +80,10 @@ class OppdaterVilkårsvurderingTest {
 
         @Test
         fun `Skal legge til person på vilkårsvurdering`() {
+            // Arrange
             val søkerPersonIdent = randomFnr()
             val persongrunnlag1 =
+                // Act
                 lagPersonopplysningGrunnlag(
                     søkerPersonIdent = søkerPersonIdent,
                 )
@@ -108,6 +113,7 @@ class OppdaterVilkårsvurderingTest {
             val barnVilkårResultater =
                 initiellVilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == barnPersonIdent }.vilkårResultater
 
+            // Assert
             Assertions.assertEquals(2, initiellVilkårsvurdering.personResultater.size)
 
             Vilkår.hentVilkårFor(persongrunnlag2.søker.type).forEach { vilkår ->
@@ -137,7 +143,9 @@ class OppdaterVilkårsvurderingTest {
 
         @Test
         fun `Skal fjerne person på vilkårsvurdering`() {
+            // Arrange
             val persongrunnlagRevurdering =
+                // Act
                 lagPersonopplysningGrunnlag(
                     søkerPersonIdent = randomFnr(),
                 )
@@ -166,16 +174,19 @@ class OppdaterVilkårsvurderingTest {
             initiellVilkårsvurdering.kopierResultaterFraForrigeBehandling(
                 vilkårsvurderingForrigeBehandling = vilkårsvurderingForrigeBehandling,
             )
+            // Assert
             Assertions.assertEquals(1, initiellVilkårsvurdering.personResultater.size)
         }
 
         @Test
         fun `Skal ha med tomt vilkår på person hvis vilkåret ble avslått forrige behandling`() {
+            // Arrange
             val søkerFnr = randomFnr()
             val nyBehandling = lagBehandling(type = BehandlingType.REVURDERING)
             val forrigeBehandling = lagBehandling()
 
             val persongrunnlag =
+                // Act
                 lagPersonopplysningGrunnlag(
                     behandlingId = nyBehandling.id,
                     søkerPersonIdent = søkerFnr,
@@ -217,6 +228,7 @@ class OppdaterVilkårsvurderingTest {
                     ?.filter { it.vilkårType == Vilkår.BOSATT_I_RIKET }
                     ?: emptyList()
 
+            // Assert
             Assertions.assertTrue(nyInitBosattIRiketVilkår.isNotEmpty())
             Assertions.assertTrue(nyInitBosattIRiketVilkår.single().resultat == Resultat.IKKE_VURDERT)
         }
@@ -226,10 +238,12 @@ class OppdaterVilkårsvurderingTest {
     inner class GenererInitiellVilkårsvurderingTest {
         @Test
         fun `Skal generere eøs spesifikke vilkår dersom det er en behandling med kategori EØS`() {
+            // Arrange
             val søkerFnr = randomFnr()
             val nyBehandling = lagBehandling(kategori = BehandlingKategori.EØS)
 
             val persongrunnlag =
+                // Act
                 lagPersonopplysningGrunnlag(
                     behandlingId = nyBehandling.id,
                     søkerPersonIdent = søkerFnr,
@@ -244,15 +258,18 @@ class OppdaterVilkårsvurderingTest {
 
             val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
 
+            // Assert
             assertThat(finnesEøsSpesifikkeVilkårIVilkårsvurdering).isTrue()
         }
 
         @Test
         fun `Skal generere eøs spesifikke vilkår dersom forrige behandling hadde eøs spesifikke vilkår selvom kategori nå er nasjonal`() {
+            // Arrange
             val søkerFnr = randomFnr()
             val nyBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
 
             val persongrunnlag =
+                // Act
                 lagPersonopplysningGrunnlag(
                     behandlingId = nyBehandling.id,
                     søkerPersonIdent = søkerFnr,
@@ -270,15 +287,18 @@ class OppdaterVilkårsvurderingTest {
 
             val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
 
+            // Assert
             assertThat(finnesEøsSpesifikkeVilkårIVilkårsvurdering).isTrue()
         }
 
         @Test
         fun `Skal generere ikke eøs spesifikke vilkår dersom det er en behandling med kategori NASJONAL`() {
+            // Arrange
             val søkerFnr = randomFnr()
             val nyBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
 
             val persongrunnlag =
+                // Act
                 lagPersonopplysningGrunnlag(
                     behandlingId = nyBehandling.id,
                     søkerPersonIdent = søkerFnr,
@@ -293,6 +313,7 @@ class OppdaterVilkårsvurderingTest {
 
             val finnesEøsSpesifikkeVilkårIVilkårsvurdering = initiellVilkårsvurdering.personResultater.flatMap { it.vilkårResultater }.any { it.vilkårType.eøsSpesifikt }
 
+            // Assert
             assertThat(finnesEøsSpesifikkeVilkårIVilkårsvurdering).isFalse()
         }
     }
@@ -301,11 +322,13 @@ class OppdaterVilkårsvurderingTest {
     inner class KopierVilkårResultaterFraForrigeVilkårsvurderingTest {
         @Test
         fun `Skal kopiere vilkårene til eksisterende personer fra forrige vilkårsvurdering`() {
+            // Arrange
             val behandling = lagBehandling()
 
             val eksisterendeSøkerPersonIdent = randomFnr()
             val nyBarnPersonIdent = randomFnr()
             val persongrunnlag =
+                // Act
                 lagPersonopplysningGrunnlag(
                     søkerPersonIdent = eksisterendeSøkerPersonIdent,
                     barnasIdenter = listOf(nyBarnPersonIdent),
@@ -334,6 +357,7 @@ class OppdaterVilkårsvurderingTest {
             val nyBarnVilkårResultaterFørKopiering =
                 initiellVilkårsvurdering.personResultater.single { it.aktør.aktivFødselsnummer() == nyBarnPersonIdent }.vilkårResultater
 
+            // Assert
             assertThat(eksisterendeSøkerVilkårResultaterFørKopiering).allSatisfy {
                 assertThat(it.begrunnelse).isEmpty()
                 assertThat(it.periodeTom).isNull()
@@ -363,10 +387,12 @@ class OppdaterVilkårsvurderingTest {
 
     @Test
     fun `kopierOverOppfylteOgIkkeAktuelleResultaterFraForrigeBehandling skal beholde andreVurderinger lagt til på inneværende behandling`() {
+        // Arrange
         val søkerAktørId = randomAktør()
         val nyBehandling = lagBehandling()
 
         val initiellVilkårsvurderingUtenAndreVurderinger =
+            // Act
             lagVilkårsvurderingOppfylt(
                 behandling = nyBehandling,
                 personer =
@@ -390,6 +416,7 @@ class OppdaterVilkårsvurderingTest {
                 .andreVurderinger
                 .any { it.type == AnnenVurderingType.OPPLYSNINGSPLIKT }
 
+        // Assert
         Assertions.assertTrue(nyInitInnholderOpplysningspliktVilkår)
     }
 }

@@ -32,9 +32,13 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har norsk adresse`() {
+        // Arrange
         val brevmottakere = listOf(lagBrevMottaker(søkersnavn, mottakerType = MottakerType.FULLMEKTIG))
+
+        // Act
         val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
 
+        // Assert
         assertTrue { mottakerInfo.size == 2 }
 
         assertTrue(mottakerInfo.first() is Bruker)
@@ -46,6 +50,7 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har utenlandsk adresse`() {
+        // Arrange
         val brevmottakere =
             listOf(
                 lagBrevMottaker(mottakerType = MottakerType.FULLMEKTIG, navn = "Fullmektig navn"),
@@ -58,8 +63,10 @@ internal class BrevmottakerServiceTest {
             )
         // every { brevmottakerRepository.finnBrevMottakereForBehandling(any()) } returns brevmottakere.map { it.tilBrevMottakerDb(1) }
 
+        // Act
         val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
 
+        // Assert
         assertTrue { mottakerInfo.size == 2 }
 
         assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen til bruker som overstyres)
@@ -72,6 +79,7 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er VERGE og bruker har utenlandsk adresse`() {
+        // Arrange
         val brevmottakere =
             listOf(
                 lagBrevMottaker(mottakerType = MottakerType.VERGE, navn = "Verge navn"),
@@ -83,8 +91,10 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
+        // Act
         val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
 
+        // Assert
         assertTrue { mottakerInfo.size == 2 }
 
         assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen til bruker som overstyres)
@@ -97,6 +107,7 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `lagMottakereFraBrevMottakere skal lage mottakere når bruker har utenlandsk adresse`() {
+        // Arrange
         val brevmottakere =
             listOf(
                 lagBrevMottaker(
@@ -107,8 +118,10 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
+        // Act
         val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
 
+        // Assert
         assertTrue { mottakerInfo.size == 1 }
 
         assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen som overstyrers)
@@ -118,6 +131,7 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `lagMottakereFraBrevMottakere skal lage mottakere når bruker har dødsbo`() {
+        // Arrange
         val brevmottakere =
             listOf(
                 lagBrevMottaker(
@@ -128,8 +142,10 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
+        // Act
         val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
 
+        // Assert
         assertTrue { mottakerInfo.size == 1 }
 
         assertEquals(søkersnavn, mottakerInfo.first().navn)
@@ -139,6 +155,7 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `lagMottakereFraBrevMottakere skal kaste feil når brevmottakere inneholder ugyldig kombinasjon`() {
+        // Arrange
         val brevmottakere =
             listOf(
                 lagBrevMottaker(
@@ -155,6 +172,7 @@ internal class BrevmottakerServiceTest {
                 ),
             )
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
         }.also {
@@ -164,6 +182,7 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `leggTilBrevmottaker skal lagre logg på at brevmottaker legges til`() {
+        // Arrange
         val brevmottakerDto = mockk<BrevmottakerDto>(relaxed = true)
 
         every {
@@ -176,16 +195,20 @@ internal class BrevmottakerServiceTest {
         every { loggService.opprettBrevmottakerLogg(any(), false) } just runs
         every { brevmottakerRepository.save(any()) } returns mockk()
 
+        // Act
         brevmottakerService.leggTilBrevmottaker(brevmottakerDto, 200)
 
+        // Assert
         verify { loggService.opprettBrevmottakerLogg(any(), false) }
         verify { brevmottakerRepository.save(any()) }
     }
 
     @Test
     fun `fjernBrevmottaker skal kaste feil dersom brevmottakeren ikke finnes`() {
+        // Arrange
         every { brevmottakerRepository.findByIdOrNull(404) } returns null
 
+        // Act & Assert
         assertThrows<Feil> {
             brevmottakerService.fjernBrevmottaker(404)
         }
@@ -195,14 +218,17 @@ internal class BrevmottakerServiceTest {
 
     @Test
     fun `fjernBrevmottaker skal lagre logg på at brevmottaker fjernes`() {
+        // Arrange
         val mocketBrevmottaker = mockk<BrevmottakerDb>()
 
         every { brevmottakerRepository.findByIdOrNull(200) } returns mocketBrevmottaker
         every { loggService.opprettBrevmottakerLogg(mocketBrevmottaker, true) } just runs
         every { brevmottakerRepository.deleteById(200) } just runs
 
+        // Act
         brevmottakerService.fjernBrevmottaker(200)
 
+        // Assert
         verify { brevmottakerRepository.findByIdOrNull(200) }
         verify { loggService.opprettBrevmottakerLogg(mocketBrevmottaker, true) }
         verify { brevmottakerRepository.deleteById(200) }

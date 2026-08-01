@@ -118,9 +118,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til REGISTRER_SØKNAD for FGB`() {
+        // Arrange
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+
+        // Act & Assert
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
+        // Assert
         behandling = behandlingRepository.hentBehandling(behandling.id)
         assertEquals(2, behandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
@@ -129,6 +133,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRER_PERSONGRUNNLAG og sette neste steg til VILKÅRSVURDERING for revurdering`() {
+        // Arrange
         lagreBehandling(
             behandling.also {
                 it.aktiv = false
@@ -145,8 +150,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             )
         lagreArbeidsfordeling(lagArbeidsfordelingPåBehandling(behandlingId = revurderingBehandling.id))
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+
+        // Act & Assert
         assertDoesNotThrow { stegService.utførSteg(revurderingBehandling.id, REGISTRERE_PERSONGRUNNLAG) }
 
+        // Assert
         revurderingBehandling = behandlingRepository.hentBehandling(revurderingBehandling.id)
         assertEquals(2, revurderingBehandling.behandlingStegTilstand.size)
         assertBehandlingHarSteg(revurderingBehandling, REGISTRERE_PERSONGRUNNLAG, UTFØRT)
@@ -155,10 +163,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal tilbakeføre behandlingsresultat når REGISTRERE_SØKNAD utføres på nytt for FGB`() {
+        // Arrange
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
         val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
+
+        // Act
         vedtakRepository.saveAndFlush(vedtak)
 
+        // Assert
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_SØKNAD, lagRegistrerSøknadDto()) }
         assertDoesNotThrow { stegService.utførSteg(behandling.id, VILKÅRSVURDERING) }
@@ -181,8 +193,13 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal gjenoppta REGISTRERE_SØKNAD når steget er på vent for FGB`() {
+        // Arrange
         assertBehandlingHarSteg(behandling, REGISTRERE_PERSONGRUNNLAG, KLAR)
+
+        // Act & Assert
         assertDoesNotThrow { stegService.utførSteg(behandling.id, REGISTRERE_PERSONGRUNNLAG) }
+
+        // Assert
         behandling = behandlingRepository.hentBehandling(behandling.id)
 
         stegService.settBehandlingstegPåVent(behandling, LocalDate.now().plusMonths(2), VenteÅrsak.AVVENTER_BEHANDLING)
@@ -201,6 +218,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal ikke utføre IVERKSETT_MOT_OPPDRAG steg av beslutter`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.leggTilNesteSteg(IVERKSETT_MOT_OPPDRAG)
         lagreBehandling(behandling)
@@ -208,7 +226,10 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         mockkObject(SikkerhetContext)
         every { SikkerhetContext.erSystemKontekst() } returns false
 
+        // Act & Assert
         val exception = assertThrows<RuntimeException> { stegService.utførSteg(behandling.id, IVERKSETT_MOT_OPPDRAG) }
+
+        // Assert
         assertEquals(
             "Steget ${IVERKSETT_MOT_OPPDRAG.name} kan ikke behandles for behandling ${behandling.id}",
             exception.message,
@@ -217,6 +238,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal ikke utføre REGISTRERE_SØKNAD for behandling med årsak SATSENDRING`() {
+        // Arrange
         lagreBehandling(
             behandling.also {
                 it.aktiv = false
@@ -236,7 +258,10 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         lagreBehandling(revurderingBehandling)
 
         val exception =
+
+            // Act & Assert
             assertThrows<RuntimeException> {
+                // Assert
                 stegService.utførSteg(
                     revurderingBehandling.id,
                     REGISTRERE_SØKNAD,
@@ -252,11 +277,15 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal ikke utføre SATSENDRING steg før REGISTRERE_PERSONGRUNNLAG er utført`() {
+        // Arrange
         behandling.leggTilNesteSteg(REGISTRERE_SØKNAD)
         lagreBehandling(behandling)
 
         val exception =
+
+            // Act & Assert
             assertThrows<RuntimeException> {
+                // Assert
                 stegService.utførSteg(
                     behandling.id,
                     REGISTRERE_SØKNAD,
@@ -273,6 +302,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal videresende behandling fra BESLUTTE_VEDTAK til IVERKSETT_MOT_OPPDRAG steg når SB godkjenner`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR))
@@ -280,6 +310,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         behandling.status = BehandlingStatus.FATTER_VEDTAK
         lagreBehandling(behandling)
         val vedtak = Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now())
+
+        // Act
         vedtakRepository.saveAndFlush(vedtak)
 
         søknadGrunnlagService.lagreOgDeaktiverGammel(
@@ -317,6 +349,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
         totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling = behandling)
 
+        // Assert
         assertDoesNotThrow { stegService.utførSteg(behandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
@@ -331,6 +364,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @ParameterizedTest
     @EnumSource(value = BehandlingSteg::class, names = ["BESLUTTE_VEDTAK", "IVERKSETT_MOT_OPPDRAG", "JOURNALFØR_VEDTAKSBREV", "AVSLUTT_BEHANDLING"])
     fun `utførSteg skal kaste feil dersom vi forsøker å utføre et allerede utført steg fra og med BESLUTTE_VEDTAK-steget`(behandlingSteg: BehandlingSteg) {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, behandlingSteg, UTFØRT))
 
@@ -342,7 +376,10 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             every { SikkerhetContext.erSystemKontekst() } returns true
         }
 
+        // Act & Assert
         val alleredeUtførtStegFeil = assertThrows<Feil> { stegService.utførSteg(behandling.id, behandlingSteg, null) }
+
+        // Assert
         assertTrue(alleredeUtførtStegFeil.message!!.contains("allerede utført"))
         unmockkObject(SikkerhetContext)
     }
@@ -350,6 +387,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @ParameterizedTest
     @EnumSource(BehandlingSteg::class)
     fun `utførSteg skal kaste feil dersom vi forsøker å utføre et steg i en avsluttet behandling`(behandlingSteg: BehandlingSteg) {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
 
         BehandlingSteg.entries.forEach {
@@ -366,13 +404,17 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             every { SikkerhetContext.erSystemKontekst() } returns true
         }
 
+        // Act & Assert
         val behandlingAvsluttetFeil = assertThrows<Feil> { stegService.utførSteg(behandling.id, behandlingSteg, null) }
+
+        // Assert
         assertTrue(behandlingAvsluttetFeil.message!!.contains("avsluttet behandling"))
         unmockkObject(SikkerhetContext)
     }
 
     @Test
     fun `utførSteg skal tilbakeføre behandling fra BESLUTTE_VEDTAK til VEDTAK steg når SB underkjenner vedtaket`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, VEDTAK, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, BESLUTTE_VEDTAK, KLAR))
@@ -381,8 +423,11 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         lagreBehandling(behandling)
 
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.UNDERKJENT, begrunnelse = "Underkjent")
+
+        // Act
         totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling = behandling)
 
+        // Assert
         assertDoesNotThrow { stegService.utførSteg(behandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(behandling.id)
@@ -394,6 +439,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
     @Test
     @Transactional
     fun `utførStegEtterIverksettelseAutomatisk skal utføre AVSLUTT_BEHANDLING steg automatisk`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, AVSLUTT_BEHANDLING, KLAR))
@@ -406,9 +452,12 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 kalkulertUtbetalingsbeløp = 1000,
                 behandling = behandling,
             )
+
+        // Act
         andelTilkjentYtelseRepository.saveAndFlush(andelTilkjentYtelse)
         val lagretBehandling = lagreBehandling(behandling)
 
+        // Assert
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(lagretBehandling.id) }
         assertNotNull(
             taskService.lagredeTasker.find {
@@ -423,13 +472,17 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførStegEtterIverksettelseAutomatisk skal opprette task for å utføre JOURNALFØR_VEDTAKSBREV steg automatisk`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
+
+        // Act
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
 
+        // Assert
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
 
         assertNotNull(
@@ -441,11 +494,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførStegEtterIverksettelseAutomatisk skal opprette tilbakekreving task for revurdering`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
+
+        // Act
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
         tilbakekrevingRepository.save(
             Tilbakekreving(
@@ -456,6 +512,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             ),
         )
 
+        // Assert
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
         assertNotNull(
             taskService.lagredeTasker.find {
@@ -471,11 +528,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførStegEtterIverksettelseAutomatisk skal ikke opprette tilbakekreving task for revurdering med valg IGNORER_TILBAKEKREVING`() {
+        // Arrange
         behandling.behandlingStegTilstand.clear()
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, IVERKSETT_MOT_OPPDRAG, UTFØRT))
         behandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(behandling, JOURNALFØR_VEDTAKSBREV, KLAR))
         behandling.status = BehandlingStatus.IVERKSETTER_VEDTAK
         lagreBehandling(behandling)
+
+        // Act
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = LocalDateTime.now()))
         tilbakekrevingRepository.save(
             Tilbakekreving(
@@ -486,6 +546,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
             ),
         )
 
+        // Assert
         assertDoesNotThrow { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
         assertNotNull(
             taskService.lagredeTasker.find {
@@ -496,6 +557,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre TEKNISK_ENDRING behandling som ikke iverksetter og ikke sender brev til bruker`() {
+        // Arrange
         val aktør = lagreAktør(aktør = randomAktør())
         val fagsak = lagreFagsak(lagFagsak(aktør = aktør, status = FagsakStatus.LØPENDE))
         val tekniskEndringBehandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING, type = BehandlingType.TEKNISK_ENDRING))
@@ -507,11 +569,14 @@ class StegServiceTest : OppslagSpringRunnerTest() {
         tekniskEndringBehandling.behandlingStegTilstand.clear()
         tekniskEndringBehandling.behandlingStegTilstand.add(lagBehandlingStegTilstand(tekniskEndringBehandling, BESLUTTE_VEDTAK, KLAR))
         lagreBehandling(tekniskEndringBehandling)
+
+        // Act
         vedtakRepository.saveAndFlush(Vedtak(behandling = tekniskEndringBehandling, vedtaksdato = LocalDateTime.now()))
 
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
         totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling = tekniskEndringBehandling)
 
+        // Assert
         assertDoesNotThrow { stegService.utførSteg(tekniskEndringBehandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(tekniskEndringBehandling.id)
@@ -521,6 +586,7 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre TEKNISK_ENDRING behandling som iverksetter`() {
+        // Arrange
         val aktør = lagreAktør(aktør = randomAktør())
         val fagsak = lagreFagsak(lagFagsak(aktør = aktør, status = FagsakStatus.LØPENDE))
         val tekniskEndringBehandling = lagreBehandling(lagBehandling(fagsak = fagsak, opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING, type = BehandlingType.TEKNISK_ENDRING))
@@ -533,6 +599,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
                 kalkulertUtbetalingsbeløp = 1000,
                 behandling = tekniskEndringBehandling,
             )
+
+        // Act
         andelTilkjentYtelseRepository.saveAndFlush(andelTilkjentYtelse)
 
         tekniskEndringBehandling.resultat = Behandlingsresultat.ENDRET_UTBETALING
@@ -544,6 +612,8 @@ class StegServiceTest : OppslagSpringRunnerTest() {
 
         val beslutteVedtakDto = BesluttVedtakDto(beslutning = Beslutning.GODKJENT, begrunnelse = "Godkjent")
         totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling = tekniskEndringBehandling)
+
+        // Assert
         assertDoesNotThrow { stegService.utførSteg(tekniskEndringBehandling.id, BESLUTTE_VEDTAK, beslutteVedtakDto) }
 
         val oppdatertBehandling = behandlingRepository.hentBehandling(tekniskEndringBehandling.id)

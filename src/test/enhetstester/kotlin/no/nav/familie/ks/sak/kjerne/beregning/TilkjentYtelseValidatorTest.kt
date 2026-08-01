@@ -50,6 +50,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `kaster ikke feil på å validere andeler for barn som kun har overgangsandel`() {
+        // Arrange
         val andelTilkjentYtelseOvergang =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -77,6 +78,7 @@ internal class TilkjentYtelseValidatorTest {
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 1, 1).minusMonths(11), adopsjonsdato = null)
 
+        // Assert
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
@@ -90,6 +92,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 11 måneder`() {
+        // Arrange
         val andelTilkjentYtelse1 =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -125,12 +128,14 @@ internal class TilkjentYtelseValidatorTest {
             "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale 12 måneder for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
+        // Assert
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(feilmelding, exception.message)
     }
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 7 måneder når barn er født i 2023 og treffes av nytt lovverk fra august 2024`() {
+        // Arrange
         val barnFødtIJanuar2023 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012312345"))
 
         val andelTilkjentYtelse1 =
@@ -175,12 +180,14 @@ internal class TilkjentYtelseValidatorTest {
             "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale 8 måneder for barn med fnr ${barnFødtIJanuar2023.aktør.aktivFødselsnummer()}. " +
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
+        // Assert
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(feilmelding, exception.message)
     }
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når utbetalingsperiode er mer enn 11 måneder når barn er født før september 2022 og kun treffes av gammelt lovverk`() {
+        // Arrange
         val barnFødtIAugust2022 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082212345"))
 
         val andelTilkjentYtelse1 =
@@ -196,6 +203,7 @@ internal class TilkjentYtelseValidatorTest {
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtIAugust2022.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1), adopsjonsdato = null)
 
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
@@ -223,6 +231,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal ikke kaste feil når selvom utbetalingsperioden er over 11 måneder dersom det er fordelt på flere barn`() {
+        // Arrange
         val barnFødtAugust2023 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082312345"))
         val barnFødtAugust2022 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082212345"))
 
@@ -250,6 +259,7 @@ internal class TilkjentYtelseValidatorTest {
         val personResultatBarn2 = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust2023.aktør)
         val barnetsAlderVilkårResultaterBarn2 = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultatBarn2, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 8, 1), adopsjonsdato = null)
 
+        // Assert
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
@@ -269,6 +279,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når søkers andel ikke er tom`() {
+        // Arrange
         val andelTilkjentYtelseForSøker =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -302,6 +313,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp skal kaste feil når barn har andel med beløp som er større en maks beløp`() {
+        // Arrange
         val barnFødtJuli2023 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01072312345"))
 
         val andelTilkjentYtelseForBarn =
@@ -351,6 +363,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal kaste feil dersom et eller flere barn får flere utbetalinger samme periode`() {
+        // Arrange
         val andelTilkjentYtelseForBarn =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -396,6 +409,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal ikke kaste feil dersom ingen barn har flere utbetalinger i samme periode`() {
+        // Arrange
         val andelTilkjentYtelseForBarn =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -439,6 +453,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal tillate 1 måned overlapp mellom 2024 august og 2025 februar`() {
+        // Arrange
         val andelTilkjentYtelseForBarn =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -484,6 +499,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `validerAtBarnIkkeFårFlereUtbetalingerSammePeriode - skal ikke tillate 1 måned overlapp dersom andelen ikke utbetales mellom 2024 august og 2025 februar`() {
+        // Arrange
         val andelTilkjentYtelseForBarn =
             lagAndelTilkjentYtelse(
                 tilkjentYtelse = tilkjentYtelse,
@@ -532,6 +548,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `finnAktørIderMedUgyldigEtterbetalingsperiode - skal returnere liste over aktører med ugyldig etterbetalingsperiode når det finnes andeler med fom før gyldig etterbetallings fom hvor beløpet har økt`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -555,12 +572,14 @@ internal class TilkjentYtelseValidatorTest {
         val aktørerMedUgyldigEtterbetalingsperiode =
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
+        // Assert
         assertEquals(1, aktørerMedUgyldigEtterbetalingsperiode.size)
         assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktør.aktørId)
     }
 
     @Test
     fun `finnAktørIderMedUgyldigEtterbetalingsperiode - skal returnere liste over aktører med ugyldig etterbetalingsperiode når det er lagt til nye andeler før gyldig etterbetalings fom med beløp større enn 0`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -584,6 +603,7 @@ internal class TilkjentYtelseValidatorTest {
         var aktørerMedUgyldigEtterbetalingsperiode =
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
+        // Assert
         assertEquals(1, aktørerMedUgyldigEtterbetalingsperiode.size)
         assertEquals(aktørerMedUgyldigEtterbetalingsperiode.single(), barn.aktør.aktørId)
 
@@ -596,6 +616,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `finnAktørIderMedUgyldigEtterbetalingsperiode - skal returnere tom liste over aktører når andel tilkjent ytelse er uendret selv om fom er mer enn 3 mnd tilbake i tid`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -619,11 +640,13 @@ internal class TilkjentYtelseValidatorTest {
         val aktørerMedUgyldigEtterbetalingsperiode =
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
+        // Assert
         assertEquals(0, aktørerMedUgyldigEtterbetalingsperiode.size)
     }
 
     @Test
     fun `finnAktørIderMedUgyldigEtterbetalingsperiode - skal returnere tom liste over aktører når andel tilkjent ytelse er endret innenfor siste 3 mnd`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -647,11 +670,13 @@ internal class TilkjentYtelseValidatorTest {
         val aktørerMedUgyldigEtterbetalingsperiode =
             finnAktørIderMedUgyldigEtterbetalingsperiode(forrigeAndeler, andeler, LocalDateTime.now())
 
+        // Assert
         assertEquals(0, aktørerMedUgyldigEtterbetalingsperiode.size)
     }
 
     @Test
     fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med lovverk fra februar 2025`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -668,6 +693,7 @@ internal class TilkjentYtelseValidatorTest {
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2024, 2, 1), adopsjonsdato = LocalDate.of(2024, 4, 10))
 
+        // Assert
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
@@ -681,6 +707,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med lovverk før august 2024`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -697,6 +724,7 @@ internal class TilkjentYtelseValidatorTest {
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2022, 8, 1), adopsjonsdato = LocalDate.of(2022, 10, 10))
 
+        // Assert
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
@@ -710,6 +738,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `Validering ved adopsjonssaker skal være gyldig uavhengig av alder med regelverk august 2024`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -726,6 +755,7 @@ internal class TilkjentYtelseValidatorTest {
         val personResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn.aktør)
         val barnetsAlderVilkårResultater = lagAutomatiskGenererteVilkårForBarnetsAlder(personResultat = personResultat, behandlingId = behandling.id, fødselsdato = LocalDate.of(2023, 7, 1), adopsjonsdato = LocalDate.of(2023, 10, 10))
 
+        // Assert
         assertDoesNotThrow {
             validerAtTilkjentYtelseHarFornuftigePerioderOgBeløp(
                 tilkjentYtelse = tilkjentYtelse,
@@ -739,6 +769,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `Det skal kastes feil dersom det forsøkes å innvilge mer enn 1 måned fram i tid`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(
@@ -771,6 +802,7 @@ internal class TilkjentYtelseValidatorTest {
 
     @Test
     fun `Validering ved adopsjonssaker skal være ugyldig dersom mer enn 7 mnd`() {
+        // Arrange
         val andeler =
             listOf(
                 lagAndelTilkjentYtelse(

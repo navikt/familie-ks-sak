@@ -60,6 +60,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal opprette SøknadGrunnlag og oppdatere personopplysningsgrunnlag for FGB`() {
+        // Arrange
         val søknadDto =
             SøknadDto(
                 søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
@@ -75,6 +76,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         val personopplysningGrunnlagFørSteg = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id)
         assertEquals(1, personopplysningGrunnlagFørSteg.personer.size)
 
+        // Act
         registrereSøknadSteg.utførSteg(
             behandling.id,
             RegistrerSøknadDto(
@@ -83,6 +85,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             ),
         )
 
+        // Assert
         // Valider at lagret søknad stemmer med innsendt søknad
         val søknadGrunnlag = søknadGrunnlagRepository.finnAktiv(behandling.id)
         assertNotNull(søknadGrunnlag)
@@ -117,6 +120,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal deaktivere eksisterende SøknadGrunnlag dersom det finnes fra før av og deretter opprette et nytt`() {
+        // Arrange
         val søknadDto =
             SøknadDto(
                 søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
@@ -127,6 +131,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
                 endringAvOpplysningerBegrunnelse = "",
             )
 
+        // Act
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, true))
 
         val søknadDto2 =
@@ -142,6 +147,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto2, true))
 
+        // Assert
         val søknadsGrunnlag = søknadGrunnlagRepository.hentAlle(behandling.id)
         val aktivtSøknadsGrunnlag = søknadsGrunnlag.singleOrNull { it.aktiv }
 
@@ -152,6 +158,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg - skal ikke utføre noen endringer dersom det allerede finnes en identisk søknad`() {
+        // Arrange
         val søknadDto =
             SøknadDto(
                 søkerMedOpplysninger = SøkerMedOpplysningerDto(ident = søker.aktivFødselsnummer()),
@@ -164,6 +171,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
 
         søknadGrunnlagRepository.saveAndFlush(søknadDto.tilSøknadGrunnlag(behandling.id))
 
+        // Act
         registrereSøknadSteg.utførSteg(behandling.id, RegistrerSøknadDto(søknadDto, false))
     }
 }

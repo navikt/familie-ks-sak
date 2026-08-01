@@ -35,6 +35,7 @@ class InternKonsistensavstemmingServiceTest {
 
     @Test
     fun `skal summere overgangsordningandeler i intern konsistensavstemming`() {
+        // Arrange
         val behandling = lagBehandling()
         val fagsakId = behandling.fagsak.id
         val aktør = behandling.fagsak.aktør
@@ -97,9 +98,11 @@ class InternKonsistensavstemmingServiceTest {
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlinger(any()) } returns listOf(ordinæreAndel, overgangsordningAndel)
         every { oppdragKlient.hentSisteUtbetalingsoppdragForFagsaker(any()) } returns listOf(utbetalingsoppdragMedBehandlingOgFagsak)
 
+        // Act
         val (andeler, utbetalingsoppdrag) =
             internKonsistensavstemmingService.hentFagsakTilSisteUtbetalingsoppdragOgSisteAndelerMap(fagsakIder = setOf(fagsakId)).getValue(fagsakId)
 
+        // Assert
         assertThat(
             erForskjellMellomAndelerOgOppdrag(
                 andeler = andeler,

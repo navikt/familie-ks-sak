@@ -69,8 +69,10 @@ internal class HentStatusFraOppdragTaskTest {
 
     @Test
     fun `doTask skal kaste feil når oppdrag returnerer med status LAGT_PÅ_KØ`() {
+        // Arrange
         every { oppdragKlient.hentStatus(any()) } returns OppdragStatus.LAGT_PÅ_KØ
 
+        // Act & Assert
         val exception = assertThrows<RekjørSenereException> { hentStatusFraOppdragTask.doTask(lagTask()) }
         assertEquals("Mottok ${OppdragStatus.LAGT_PÅ_KØ.name} fra oppdrag.", exception.årsak)
         assertNotNull(exception.triggerTid)
@@ -78,25 +80,32 @@ internal class HentStatusFraOppdragTaskTest {
 
     @Test
     fun `doTask skal sette task til manuell oppfølging når oppdrag returnerer med KVITTERT_TEKNISK_FEIL`() {
+        // Arrange
         every { oppdragKlient.hentStatus(any()) } returns OppdragStatus.KVITTERT_TEKNISK_FEIL
         val taskSlot = slot<Task>()
+
+        // Act
         assertDoesNotThrow { hentStatusFraOppdragTask.doTask(lagTask()) }
 
+        // Assert
         verify(exactly = 1) { taskService.save(capture(taskSlot)) }
         assertEquals(Status.MANUELL_OPPFØLGING, taskSlot.captured.status)
     }
 
     @Test
     fun `doTask skal utføre task når oppdrag returnerer med KVITTERT_OK`() {
+        // Arrange
         every { oppdragKlient.hentStatus(any()) } returns OppdragStatus.KVITTERT_OK
         every { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) } just runs
 
+        // Act & Assert
         assertDoesNotThrow { hentStatusFraOppdragTask.doTask(lagTask()) }
         verify(exactly = 1) { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
     }
 
     @Test
     fun `doTask skal ikke hente status fra oppdrag hvis utbetalingsperiode er en tom liste`() {
+        // Arrange
         every { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) } just runs
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns
             lagTilkjentYtelse(
@@ -113,6 +122,7 @@ internal class HentStatusFraOppdragTaskTest {
                     ),
             )
 
+        // Act & Assert
         assertDoesNotThrow { hentStatusFraOppdragTask.doTask(lagTask()) }
         verify(exactly = 1) { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
         verify(exactly = 0) { oppdragKlient.hentStatus(any()) }

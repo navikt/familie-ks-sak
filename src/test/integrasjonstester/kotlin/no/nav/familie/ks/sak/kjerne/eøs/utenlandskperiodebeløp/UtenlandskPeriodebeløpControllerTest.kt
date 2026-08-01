@@ -40,6 +40,7 @@ class UtenlandskPeriodebeløpControllerTest {
 
     @Test
     fun `Skal kaste feil dersom validering av input feiler`() {
+        // Act & Assert
         val exception =
             assertThrows<ConstraintViolationException> {
                 utenlandskPeriodebeløpController.oppdaterUtenlandskPeriodebeløp(
@@ -48,6 +49,7 @@ class UtenlandskPeriodebeløpControllerTest {
                 )
             }
 
+        // Assert
         val forventedeFelterMedFeil = listOf("beløp")
         val faktiskeFelterMedFeil =
             exception.constraintViolations.map { constraintViolation ->
@@ -62,15 +64,18 @@ class UtenlandskPeriodebeløpControllerTest {
 
     @Test
     fun `Skal ikke kaste feil dersom validering av input går bra`() {
+        // Arrange
         every { utenlandskPeriodebeløpRepository.getReferenceById(any()) } returns UtenlandskPeriodebeløp.NULL
         every { utenlandskPeriodebeløpService.oppdaterUtenlandskPeriodebeløp(any(), any()) } just runs
 
+        // Act
         val response =
             utenlandskPeriodebeløpController.oppdaterUtenlandskPeriodebeløp(
                 1,
                 UtenlandskPeriodebeløpDto(1, null, null, emptyList(), beløp = 1.0.toBigDecimal(), null, null, null),
             )
 
+        // Assert
         assertEquals(HttpStatus.OK, response.statusCode)
     }
 }

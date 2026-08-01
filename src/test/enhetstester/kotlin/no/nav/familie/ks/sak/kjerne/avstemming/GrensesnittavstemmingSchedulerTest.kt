@@ -36,12 +36,15 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre scheduler når det ikke finnes ferdige tasker`() {
+        // Arrange
         every { taskService.finnTasksMedStatus(any(), any(), any()) } returns emptyList()
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
@@ -52,6 +55,7 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre scheduler når det finnes siste ferdig task`() {
+        // Arrange
         // siste kjørte task er på tirsdag for fom mandag 28.11.2022 00:00 og tom tirsdag 29.11.2022 00:00
         val fom = LocalDate.of(2022, 12, 1) // torsdag
         val tom = fom.plusDays(1) // tirsdag
@@ -59,8 +63,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
@@ -71,6 +77,7 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre scheduler når scheduler kjører på mandag`() {
+        // Arrange
         // siste kjørte task er på fredag for fom torsdag 24.11.2022 00:00 og tom fredag 25.11.2022 00:00
         val fom = LocalDate.of(2022, 11, 24)
         val tom = fom.plusDays(1)
@@ -78,8 +85,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
@@ -91,14 +100,19 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal ikke utføre scheduler dersom det er helligdag`() {
+        // Arrange
         every { LocalDate.now().erHelligdag() } returns true
+
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 0) { taskService.finnTasksMedStatus(any(), any(), any()) }
     }
 
     @Test
     fun `utfør skal utføre scheduler når scheduler kjører på siste dag i desember, tom blir 2 januar`() {
+        // Arrange
         // siste kjørte task er for fom 30.12.2022 00:00 og tom 31.12.2022 00:00
         val fom = LocalDate.of(2022, 12, 30)
         val tom = fom.plusDays(1)
@@ -106,8 +120,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
@@ -119,6 +135,7 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre scheduler når scheduler kjører på siste dag i april, tom blir 2 mai`() {
+        // Arrange
         // siste kjørte task er for fom 29.04.2022 00:00 og tom 30.04.2022 00:00
         val fom = LocalDate.of(2022, 4, 29)
         val tom = fom.plusDays(1)
@@ -126,8 +143,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
@@ -139,6 +158,7 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre scheduler når scheduler kjører på 16 mai, tom blir 18 mai`() {
+        // Arrange
         // siste kjørte task er for fom 15.05.2022 00:00 og tom 16.05.2022 00:00
         val fom = LocalDate.of(2022, 5, 15)
         val tom = fom.plusDays(1)
@@ -146,8 +166,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 
@@ -159,6 +181,7 @@ internal class GrensesnittavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre scheduler når scheduler kjører på 24 desember, tom blir 27 desember`() {
+        // Arrange
         // siste kjørte task er for fom 23.12.2022 00:00 og tom 24.12.2022 00:00
         val fom = LocalDate.of(2022, 12, 23)
         val tom = fom.plusDays(1)
@@ -166,8 +189,10 @@ internal class GrensesnittavstemmingSchedulerTest {
         val taskDataSlot = slot<Task>()
         every { taskService.save(capture(taskDataSlot)) } returns mockk()
 
+        // Act
         grensesnittavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.finnTasksMedStatus(any(), any(), any()) }
         verify(exactly = 1) { taskService.save(any()) }
 

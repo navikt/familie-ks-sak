@@ -41,6 +41,7 @@ class IverksettMotOppdragStegTest {
 
     @Test
     fun `utførSteg skal kaste feil dersom totrinnskontroll er ugyldig `() {
+        // Arrange
         val mocketBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val mocketTotrinnskontroll =
             Totrinnskontroll(
@@ -56,6 +57,7 @@ class IverksettMotOppdragStegTest {
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(mocketBehandling) } just runs
         every { totrinnskontrollService.hentAktivForBehandling(mocketBehandling.id) } returns mocketTotrinnskontroll
 
+        // Act & Assert
         val feil = assertThrows<Feil> { iverksettMotOppdragSteg.utførSteg(200, iverksettMotOppdragDto) }
 
         assertThat(feil.message, Is("Totrinnskontroll($mocketTotrinnskontroll) er ugyldig ved iverksetting"))
@@ -64,6 +66,7 @@ class IverksettMotOppdragStegTest {
 
     @Test
     fun `utførSteg skal kaste feil dersom totrinnskontroll ikke er godkjent`() {
+        // Arrange
         val mocketBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val mocketTotrinnskontroll =
             Totrinnskontroll(
@@ -77,6 +80,7 @@ class IverksettMotOppdragStegTest {
         every { tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(mocketBehandling) } just runs
         every { totrinnskontrollService.hentAktivForBehandling(mocketBehandling.id) } returns mocketTotrinnskontroll
 
+        // Act & Assert
         val feil = assertThrows<Feil> { iverksettMotOppdragSteg.utførSteg(200, iverksettMotOppdragDto) }
 
         assertThat(feil.message, Is("Prøver å iverksette et underkjent vedtak"))
@@ -84,6 +88,7 @@ class IverksettMotOppdragStegTest {
 
     @Test
     fun `utførSteg skal lage utbetalingsoppdrag hvis totrinnskontroll er gyldig og godkjent`() {
+        // Arrange
         val mocketBehandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val mocketTotrinnskontroll =
             Totrinnskontroll(
@@ -102,8 +107,10 @@ class IverksettMotOppdragStegTest {
         } returns mockk()
         every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns null
 
+        // Act
         iverksettMotOppdragSteg.utførSteg(200, iverksettMotOppdragDto)
 
+        // Assert
         verify(exactly = 1) { behandlingService.hentBehandling(any()) }
         verify(exactly = 1) {
             tilkjentYtelseValideringService.validerAtIngenUtbetalingerOverstiger100Prosent(

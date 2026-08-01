@@ -66,6 +66,7 @@ class BegrunnelserForPeriodeContextTest {
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere standardbegrunnelsen INNVILGET_IKKE_BARNEHAGE når antall timer barnehage er 0 eller mer enn 33 og barnet ikke er adoptert`() {
+        // Arrange
         val personResultatBarn =
             PersonResultat(
                 aktør = barnAktør,
@@ -94,6 +95,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultatSøker,
             )
 
+        // Act
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
@@ -101,12 +103,15 @@ class BegrunnelserForPeriodeContextTest {
                 barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
+        // Assert
         assertEquals(1, begrunnelser.size)
+        // Assert
         assertEquals(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE, begrunnelser.first())
     }
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere standardbegrunnelsen INNVILGET_IKKE_BARNEHAGE_ADOPSJON når antall timer barnehage er 0 eller mer enn 33 og barnet er adoptert`() {
+        // Arrange
         val personResultatBarn =
             PersonResultat(
                 aktør = barnAktør,
@@ -150,6 +155,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultatSøker,
             )
 
+        // Act
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
@@ -157,11 +163,13 @@ class BegrunnelserForPeriodeContextTest {
                 barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
+        // Assert
         assertTrue(begrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE_ADOPSJON))
     }
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere standardbegrunnelsen INNVILGET_DELTID_BARNEHAGE når antall timer barnehage er større enn 0 og mindre enn 33 og barnet ikke er adoptert`() {
+        // Arrange
         val personResultatBarn =
             PersonResultat(
                 aktør = barnAktør,
@@ -205,6 +213,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultatSøker,
             )
 
+        // Act
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
@@ -212,12 +221,15 @@ class BegrunnelserForPeriodeContextTest {
                 barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
+        // Assert
         assertEquals(1, begrunnelser.size)
+        // Assert
         assertEquals(NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE, begrunnelser.first())
     }
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere standardbegrunnelsen INNVILGET_DELTID_BARNEHAGE_ADOPSJON når antall timer barnehage er større enn 0 og mindre enn 33 og barnet er adoptert`() {
+        // Arrange
         val personResultatBarn =
             PersonResultat(
                 aktør = barnAktør,
@@ -266,6 +278,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultatSøker,
             )
 
+        // Act
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
@@ -273,11 +286,13 @@ class BegrunnelserForPeriodeContextTest {
                 barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
+        // Assert
         assertTrue(begrunnelser.contains(NasjonalEllerFellesBegrunnelse.INNVILGET_DELTID_BARNEHAGE_ADOPSJON))
     }
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til INNVILGET_BOSATT_I_NORGE når vilkåret BOSATT_I_RIKET trigger vedtaksperioden`() {
+        // Arrange
         val barn1ÅrSanityNasjonalEllerFellesBegrunnelse =
             SanityBegrunnelse(
                 apiNavn = NasjonalEllerFellesBegrunnelse.INNVILGET_BOSATT_I_NORGE.sanityApiNavn,
@@ -336,6 +351,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultatSøker,
             )
 
+        // Act
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
@@ -343,7 +359,9 @@ class BegrunnelserForPeriodeContextTest {
                 barnAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
+        // Assert
         assertEquals(2, begrunnelser.size)
+        // Assert
         assertThat(
             begrunnelser,
             containsInAnyOrder(
@@ -355,6 +373,7 @@ class BegrunnelserForPeriodeContextTest {
 
     @Test
     fun `hentGyldigeBegrunnelserForVedtaksperiode - skal returnere 1 begrunnelse av type Standard i tillegg til 1 tilleggstekst som skal vises når BOSATT_I_RIKET for søker trigger vedtaksperioden`() {
+        // Arrange
         val bosattIRiketBegrunnelser =
             listOf(
                 SanityBegrunnelse(
@@ -414,6 +433,7 @@ class BegrunnelserForPeriodeContextTest {
                 personResultatSøker,
             )
 
+        // Act
         val begrunnelser =
             lagFinnGyldigeBegrunnelserForPeriodeContext(
                 personResultater,
@@ -421,7 +441,9 @@ class BegrunnelserForPeriodeContextTest {
                 søkerAktør,
             ).hentGyldigeBegrunnelserForVedtaksperiode()
 
+        // Assert
         assertEquals(2, begrunnelser.size)
+        // Assert
         assertThat(
             begrunnelser,
             containsInAnyOrder(
@@ -435,6 +457,7 @@ class BegrunnelserForPeriodeContextTest {
     inner class EØS {
         @Test
         fun `Skal kunne få opp eøs som gyldige begrunnelser dersom det er en kompetanse i perioden`() {
+            // Arrange
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
@@ -468,14 +491,18 @@ class BegrunnelserForPeriodeContextTest {
                     vedtaksperiodeSluttTidpunkt = 31.jan(2020),
                     andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = jan(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
+            // Act
             val begrunnelser =
+                // Act
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
+            // Assert
             assertThat(begrunnelser).contains(EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE)
         }
 
         @Test
         fun `Kompetanser som ikke gjelder for perioden skal ikke føre til gyldige begrunnelser`() {
+            // Arrange
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.INNVILGET_PRIMÆRLAND_BARNET_BOR_I_NORGE.sanityApiNavn,
@@ -509,14 +536,18 @@ class BegrunnelserForPeriodeContextTest {
                     vedtaksperiodeSluttTidpunkt = 28.feb(2021),
                     andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = feb(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
+            // Act
             val begrunnelser =
+                // Act
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
+            // Assert
             assertThat(begrunnelser.filter { it.begrunnelseType != BegrunnelseType.FORTSATT_INNVILGET }.size).isEqualTo(0)
         }
 
         @Test
         fun `Skal kunne få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før`() {
+            // Arrange
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
@@ -551,14 +582,18 @@ class BegrunnelserForPeriodeContextTest {
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
                     andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = jan(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
+            // Act
             val begrunnelser =
+                // Act
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
+            // Assert
             assertThat(begrunnelser.size).isEqualTo(1)
         }
 
         @Test
         fun `Skal ikke få opp eøs-opphør som gyldige begrunnelser dersom det er en kompetanse som slutter måneden før når vi fremdeles har kompetanse`() {
+            // Arrange
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
@@ -597,14 +632,18 @@ class BegrunnelserForPeriodeContextTest {
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
                     andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = feb(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
+            // Act
             val begrunnelser =
+                // Act
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
+            // Assert
             assertThat(begrunnelser.size).isEqualTo(0)
         }
 
         @Test
         fun `Skal få opp fortsatt innvilget tekster dersom det ikke er forandring i kompetanse`() {
+            // Arrange
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD.sanityApiNavn,
@@ -642,14 +681,18 @@ class BegrunnelserForPeriodeContextTest {
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
                     andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = feb(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
+            // Act
             val begrunnelser =
+                // Act
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
+            // Assert
             assertThat(begrunnelser).contains(EØSBegrunnelse.FORTSATT_INNVILGET_PRIMÆRLAND_STANDARD)
         }
 
         @Test
         fun `Skal kunne få opp eøs-opphør selv om kompetanse som varer evig når det ikke er noen utbetaling på barnet`() {
+            // Arrange
             val eøsBegrunnelse =
                 SanityBegrunnelse(
                     apiNavn = EØSBegrunnelse.OPPHØR_EØS_STANDARD.sanityApiNavn,
@@ -684,9 +727,12 @@ class BegrunnelserForPeriodeContextTest {
                     vedtaksperiodeSluttTidpunkt = 28.feb(2020),
                     andelerTilkjentYtelse = listOf(AndelTilkjentYtelseMedEndreteUtbetalinger(lagAndelTilkjentYtelse(fom = jan(2020), tom = jan(2020), aktør = barnAktør), endreteUtbetalingerAndeler = emptyList())),
                 )
+            // Act
             val begrunnelser =
+                // Act
                 begrunnelseContext.hentGyldigeBegrunnelserForVedtaksperiode()
 
+            // Assert
             assertThat(begrunnelser.size).isEqualTo(1)
         }
     }

@@ -30,12 +30,14 @@ internal class OppdragKlientTest {
 
     @Test
     fun `hentSimulering - skal hente simulering for utbetalingsoppdrag`() {
+        // Arrange
         wiremockServerItem.stubFor(
             WireMock
                 .post(WireMock.urlEqualTo("/simulering/v1"))
                 .willReturn(WireMock.okJson(readFile("hentSimulering.json"))),
         )
 
+        // Act
         val simulering =
             oppdragKlient.hentSimulering(
                 Utbetalingsoppdrag(
@@ -63,19 +65,23 @@ internal class OppdragKlientTest {
                 ),
             )
 
+        // Assert
         assertThat(simulering.simuleringMottaker.size, Is(1))
     }
 
     @Test
     fun `hentStatus - skal hente status for oppdragId`() {
+        // Arrange
         wiremockServerItem.stubFor(
             WireMock
                 .post(WireMock.urlEqualTo("/status"))
                 .willReturn(WireMock.okJson(readFile("hentStatus.json"))),
         )
 
+        // Act
         val oppdragStatus = oppdragKlient.hentStatus(OppdragId("KS", "12345678910", "1"))
 
+        // Assert
         assertThat(oppdragStatus, Is(OppdragStatus.KVITTERT_OK))
     }
 
