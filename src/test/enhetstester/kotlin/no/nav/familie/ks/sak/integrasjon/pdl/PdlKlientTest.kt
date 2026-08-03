@@ -30,6 +30,7 @@ internal class PdlKlientTest {
 
     @Test
     fun `hentPerson skal hente enkel persondata fra PDL med ENKEL query`() {
+        // Arrange
         wiremockServerItem.stubFor(
             WireMock
                 .post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
@@ -38,14 +39,17 @@ internal class PdlKlientTest {
 
         val randomAktør = randomAktør()
 
+        // Act
         val pdlPersonData = pdlKlient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)
 
+        // Assert
         assertThat(pdlPersonData.navn.single().fulltNavn(), Is("ENGASJERT FYR"))
         assertThat(pdlPersonData.kjoenn.single().kjoenn, Is(KJOENN.MANN))
     }
 
     @Test
     fun `hentPerson skal kaste exception når person ikke eksisterer i PDL`() {
+        // Arrange
         wiremockServerItem.stubFor(
             WireMock
                 .post(WireMock.urlEqualTo("/${PdlConfig.PATH_GRAPHQL}"))
@@ -54,6 +58,7 @@ internal class PdlKlientTest {
 
         val randomAktør = randomAktør()
 
+        // Act & Assert
         val feil =
             assertThrows<PdlNotFoundException> {
                 pdlKlient.hentPerson(randomAktør, PersonInfoQuery.ENKEL)

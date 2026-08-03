@@ -15,6 +15,7 @@ class KafkaErrorHandlerTest {
 
     @Test
     fun `handle skal stoppe container hvis man mottar feil med en tom liste med records`() {
+        // Arrange & Act
         val exceptionThrown =
             Assertions.assertThatThrownBy {
                 errorHandler.handleRemaining(
@@ -24,6 +25,8 @@ class KafkaErrorHandlerTest {
                     container,
                 )
             }
+
+        // Assert
         exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
 
         val cause = exceptionThrown.cause()
@@ -33,7 +36,10 @@ class KafkaErrorHandlerTest {
 
     @Test
     fun `handle skal stoppe container hvis man mottar feil med en liste med records`() {
+        // Arrange
         val consumerRecord = ConsumerRecord("topic", 1, 1, 1, "record")
+
+        // Act & Assert
         val exceptionThrown =
             Assertions.assertThatThrownBy {
                 errorHandler.handleRemaining(

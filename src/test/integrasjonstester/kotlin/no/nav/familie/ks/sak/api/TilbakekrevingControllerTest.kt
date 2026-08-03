@@ -35,6 +35,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentTilbakekrevingsbehandlinger - skal returnere 401 unauthorized dersom brukeren ikke har token for å hente behandling`() {
+        // Act & Assert
         When {
             get("$controllerUrl/fagsak/123456")
         } Then {
@@ -49,6 +50,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
 
         Given {
             header("Authorization", "Bearer $token")
+            // Act & Assert
         } When {
             get("$controllerUrl/fagsak/123456")
         } Then {
@@ -76,6 +78,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
 
         Given {
             header("Authorization", "Bearer $token")
+            // Act & Assert
         } When {
             get("$controllerUrl/fagsak/123456")
         } Then {
@@ -96,6 +99,7 @@ class TilbakekrevingControllerTest : OppslagSpringRunnerTest() {
 
         Given {
             header("Authorization", "Bearer $token")
+            // Act & Assert
         } When {
             get("$controllerUrl/fagsak/123456")
         } Then {

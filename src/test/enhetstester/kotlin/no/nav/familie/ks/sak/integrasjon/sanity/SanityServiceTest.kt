@@ -18,6 +18,7 @@ class SanityServiceTest {
 
     @Test
     fun `Skal hente SanityBegrunnelser`() {
+        // Arrange
         every { cachedSanityKlient.hentSanityBegrunnelserCached() } returns
             listOf(
                 SanityBegrunnelse(
@@ -38,11 +39,13 @@ class SanityServiceTest {
                 ),
             )
 
+        // Assert
         assertThat(sanityService.hentSanityBegrunnelser()).hasSize(1)
     }
 
     @Test
     fun `Skal ikke returnere SanityBegrunnelser som er markert ikke i bruk`() {
+        // Arrange
         every { cachedSanityKlient.hentSanityBegrunnelserCached() } returns
             listOf(
                 SanityBegrunnelse(
@@ -63,19 +66,23 @@ class SanityServiceTest {
                 ),
             )
 
+        // Assert
         assertThat(sanityService.hentSanityBegrunnelser()).isEmpty()
     }
 
     @Test
     fun `Skal kaste feil hvis det ikke er mulig å hente fra Sanity eller finnes i Cache`() {
+        // Arrange
         every { cachedSanityKlient.hentSanityBegrunnelserCached() } throws RuntimeException("Feil ved henting av begrunnelser i test")
 
+        // Act & Assert
         val e = assertThrows<RuntimeException> { sanityService.hentSanityBegrunnelser() }
         assertThat(e.message).isEqualTo("Feil ved henting av begrunnelser i test")
     }
 
     @Test
     fun `Skal bruke allerede lagret cache hvis det feiler mot sanity`() {
+        // Arrange
         every { cachedSanityKlient.hentSanityBegrunnelserCached() } returns
             listOf(
                 SanityBegrunnelse(
@@ -96,6 +103,7 @@ class SanityServiceTest {
                 ),
             ) andThenThrows RuntimeException("Feil får å teste cachet versjon")
 
+        // Assert
         assertThat(sanityService.hentSanityBegrunnelser()).hasSize(1)
     }
 }

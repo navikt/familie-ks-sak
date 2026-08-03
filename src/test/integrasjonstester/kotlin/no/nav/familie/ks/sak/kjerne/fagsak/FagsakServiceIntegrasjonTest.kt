@@ -47,6 +47,7 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `ikke oppdater status på fagsaker som er løpende og har løpende utbetalinger`() {
+        // Arrange
         val søker = randomAktør(randomFnr())
 
         opprettSøkerFagsakOgBehandling(søker, fagsakStatus = FagsakStatus.LØPENDE)
@@ -64,7 +65,10 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
         Assertions.assertTrue(løpendeFagsaker.any { it.id == søkersFagsak.id })
 
+        // Act
         fagsakService.finnOgAvsluttFagsakerSomSkalAvsluttes()
+
+        // Assert
         val løpendeFagsaker2 = fagsakRepository.finnLøpendeFagsaker()
 
         Assertions.assertTrue(løpendeFagsaker2.any { it.id == søkersFagsak.id })
@@ -72,6 +76,7 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `skal sette status til avsluttet hvis ingen løpende utbetalinger`() {
+        // Arrange
         val søker = randomAktør(randomFnr())
 
         opprettSøkerFagsakOgBehandling(søker, fagsakStatus = FagsakStatus.LØPENDE)
@@ -89,7 +94,10 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
         tilkjentYtelse.stønadTom = LocalDate.now().minusMonths(1).toYearMonth()
         tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
 
+        // Act
         fagsakService.finnOgAvsluttFagsakerSomSkalAvsluttes()
+
+        // Assert
         val løpendeFagsaker = fagsakRepository.finnLøpendeFagsaker()
 
         Assertions.assertFalse(løpendeFagsaker.any { it.id == søkersFagsak.id })
@@ -97,18 +105,22 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `Skal kun hente løpende fagsak for søker`() {
+        // Arrange
         val søker = randomAktør(randomFnr())
 
         opprettSøkerFagsakOgBehandling(søker, fagsakStatus = FagsakStatus.LØPENDE)
         opprettPersonopplysningGrunnlagOgPersonForBehandling(behandling.id)
 
+        // Act
         val fagsakerMedSøkerSomDeltaker = fagsakService.finnAlleFagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte(søker)
 
+        // Assert
         assertEquals(1, fagsakerMedSøkerSomDeltaker.size)
     }
 
     @Test
     fun `Skal hente fagsak hvor barn har løpende andel`() {
+        // Arrange
         val søker = randomAktør(randomFnr())
 
         opprettSøkerFagsakOgBehandling(søker, fagsakStatus = FagsakStatus.LØPENDE)
@@ -122,8 +134,10 @@ class FagsakServiceIntegrasjonTest : OppslagSpringRunnerTest() {
 
         lagreBehandling(behandling.apply { status = BehandlingStatus.AVSLUTTET })
 
+        // Act
         val fagsakDerBarnharLøpendeAndel = fagsakService.finnAlleFagsakerHvorAktørErSøkerEllerMottarLøpendeKontantstøtte(barn)
 
+        // Assert
         assertEquals(1, fagsakDerBarnharLøpendeAndel.size)
     }
 

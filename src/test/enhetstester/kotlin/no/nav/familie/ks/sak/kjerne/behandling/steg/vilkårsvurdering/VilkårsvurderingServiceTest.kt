@@ -65,12 +65,14 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
+        // Arrange
         val barn1 = randomAktør()
         val barn2 = randomAktør()
 
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns null
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns
+            // Act
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktivFødselsnummer(),
@@ -82,6 +84,7 @@ class VilkårsvurderingServiceTest {
 
         val lagretVilkårsvurdering = lagretVilkårsvurderingSlot.captured
 
+        // Assert
         assertEquals(3, lagretVilkårsvurdering.personResultater.size)
         assertThat(
             lagretVilkårsvurdering.personResultater
@@ -152,11 +155,13 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `opprettVilkårsvurdering - skal opprette tom vilkårsvurdering og deaktivere eksisterende dersom det ikke finnes tidligere vedtatte behandlinger på fagsak`() {
+        // Arrange
         val barn1 = randomAktør()
         val barn2 = randomAktør()
         val lagretDeaktivertVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         val lagretVilkårsvurderingSlot = slot<Vilkårsvurdering>()
         every { vilkårsvurderingRepository.finnAktivForBehandling(any()) } returns
+            // Act
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker,
                 behandling = behandling,
@@ -176,13 +181,16 @@ class VilkårsvurderingServiceTest {
         val lagretVilkårsvurdering = lagretVilkårsvurderingSlot.captured
         val lagretDeaktivertVilkårsvurdering = lagretDeaktivertVilkårsvurderingSlot.captured
 
+        // Assert
         assertEquals(3, lagretVilkårsvurdering.personResultater.size)
         assertFalse(lagretDeaktivertVilkårsvurdering.aktiv)
     }
 
     @Test
     fun `hentVilkårsbegrunnelser - skal returnere et map med begrunnelsestyper mappet mot liste av begrunnelser`() {
+        // Arrange
         every { sanityService.hentSanityBegrunnelser() } returns
+            // Act
             listOf(
                 SanityBegrunnelse(
                     NasjonalEllerFellesBegrunnelse.INNVILGET_IKKE_BARNEHAGE.sanityApiNavn,
@@ -205,15 +213,19 @@ class VilkårsvurderingServiceTest {
         val vilkårsbegrunnelser = vilkårsvurderingService.hentVilkårsbegrunnelser()
 
         // TODO: Endre denne testen når vi får lagt inn riktige Begrunnelser og EØSBegrunnelser
+        // Assert
         assertEquals(9, vilkårsbegrunnelser.size)
         assertEquals(0, vilkårsbegrunnelser[BegrunnelseType.AVSLAG]?.size)
     }
 
     @Test
     fun `hentAktivVilkårsvurderingForBehandling - skal kaste feil hvis aktiv vilkårsvurdering for behandling ikke eksisterer`() {
+        // Arrange
         every { vilkårsvurderingRepository.finnAktivForBehandling(404) } returns null
 
         val feil =
+            // Act
+            // Assert
             assertThrows<Feil> {
                 vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(404)
             }
@@ -223,18 +235,23 @@ class VilkårsvurderingServiceTest {
 
     @Test
     fun `hentAktivVilkårsvurderingForBehandling - skal returnere aktiv vilkårsvurdering for behandling`() {
+        // Arrange
         val mocketVilkårsvurdering = mockk<Vilkårsvurdering>()
 
         every { vilkårsvurderingRepository.finnAktivForBehandling(404) } returns mocketVilkårsvurdering
 
         val hentetVilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(404)
 
+        // Assert
         assertThat(mocketVilkårsvurdering, Is(hentetVilkårsvurdering))
+        // Act
     }
 
     @Test
     fun `slettVilkårPåBehandling - skal kaste feil dersom vilkåret som forsøkes å slettes ikke finnes`() {
+        // Arrange
         val vilkårsvurdering =
+            // Act
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker,
                 behandling = behandling,
@@ -245,6 +262,7 @@ class VilkårsvurderingServiceTest {
         every { vilkårsvurderingRepository.finnAktivForBehandling(200) } returns vilkårsvurdering
 
         val feil =
+            // Assert
             assertThrows<Feil> {
                 vilkårsvurderingService.slettVilkårPåBehandling(200, 404, søker)
             }

@@ -33,6 +33,7 @@ class TilkjentYtelseDifferanseberegningTest {
 
     @Test
     fun `skal gjøre differanseberegning på en tilkjent ytelse med endringsperioder`() {
+        // Arrange
         val barnsFødselsdato = 13.jan(2020)
         val søker = tilfeldigPerson(personType = PersonType.SØKER)
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = barnsFødselsdato)
@@ -97,6 +98,7 @@ class TilkjentYtelseDifferanseberegningTest {
                 .medOrdinær("                 $$$$$", 100, nasjonalt = { it }, differanse = { it - 54 }) { it - 54 }
                 .bygg()
 
+        // Act & Assert
         val andelerMedDifferanse =
             beregnDifferanse(tilkjentYtelse.andelerTilkjentYtelse.toList(), utenlandskePeriodebeløp, valutakurser)
 
@@ -107,6 +109,7 @@ class TilkjentYtelseDifferanseberegningTest {
 
     @Test
     fun `skal fjerne differanseberegning når utenlandsk periodebeløp eller valutakurs nullstilles`() {
+        // Arrange
         val barnsFødselsdato = 13.jan(2020)
         val søker = tilfeldigPerson(personType = PersonType.SØKER)
         val barn1 = tilfeldigPerson(personType = PersonType.BARN, fødselsdato = barnsFødselsdato)
@@ -157,6 +160,7 @@ class TilkjentYtelseDifferanseberegningTest {
                 .medOrdinær("      $$$$$$$$$$$$$$$$", nasjonalt = { it }, differanse = { it - 54 }) { it - 54 }
                 .bygg()
 
+        // Act & Assert
         val andelerMedDiff =
             beregnDifferanse(tilkjentYtelse.andelerTilkjentYtelse.toMutableList(), utenlandskePeriodebeløp, valutakurser)
 

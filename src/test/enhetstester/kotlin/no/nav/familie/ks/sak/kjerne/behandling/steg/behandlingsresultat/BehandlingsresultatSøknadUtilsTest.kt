@@ -344,6 +344,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
     @Test
     fun `kombinerSøknadsresultater skal returnere DELVIS_INNVILGET dersom lista består av INNVILGET, AVSLÅTT OG INGEN_RELEVANTE_ENDRINGER`() {
+        // Arrange
         val listeMedSøknadsresultat =
             listOf(
                 Søknadsresultat.INNVILGET,
@@ -351,13 +352,16 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 Søknadsresultat.INGEN_RELEVANTE_ENDRINGER,
             )
 
+        // Act
         val kombinertResultat = listeMedSøknadsresultat.kombinerSøknadsresultater(behandlingÅrsak = BehandlingÅrsak.SØKNAD)
 
+        // Assert
         assertThat(kombinertResultat, Is(Søknadsresultat.DELVIS_INNVILGET))
     }
 
     @Test
     fun `utledResultatPåSøknad - skal kaste feil dersom man har endt opp med ingen resultater`() {
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                 forrigeAndeler = emptyList(),
@@ -373,6 +377,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
     @Test
     fun `utledResultatPåSøknad - skal returnere AVSLÅTT dersom det er søkt for barn som ikke er registrert`() {
+        // Arrange
         val resultatPåSøknad =
             BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                 forrigeAndeler = emptyList(),
@@ -384,11 +389,13 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 finnesUregistrerteBarn = true,
             )
 
+        // Assert
         assertThat(resultatPåSøknad, Is(Søknadsresultat.AVSLÅTT))
     }
 
     @Test
     fun `utledResultatPåSøknad - skal returnere AVSLÅTT dersom er eksplisitt avslag på minst en person det er framstilt krav for`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val vikårsvurdering = Vilkårsvurdering(behandling = behandling)
 
@@ -406,6 +413,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 lagFullstendigVilkårResultat = true,
             )
 
+        // Act
         val resultatPåSøknad =
             BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                 forrigeAndeler = emptyList(),
@@ -417,11 +425,13 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 finnesUregistrerteBarn = false,
             )
 
+        // Assert
         assertThat(resultatPåSøknad, Is(Søknadsresultat.AVSLÅTT))
     }
 
     @Test
     fun `utledResultatPåSøknad - skal returnere INNVILGET dersom barnet det er søkt for har fått andeler med positive beløp som er annerledes enn forrige gang`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val vikårsvurdering = Vilkårsvurdering(behandling = behandling)
 
@@ -448,6 +458,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 lagFullstendigVilkårResultat = true,
             )
 
+        // Act
         val resultatPåSøknad =
             BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                 forrigeAndeler = emptyList(),
@@ -459,11 +470,13 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 finnesUregistrerteBarn = false,
             )
 
+        // Assert
         assertThat(resultatPåSøknad, Is(Søknadsresultat.INNVILGET))
     }
 
     @Test
     fun `utledResultatPåSøknad - skal returnere DELVIS_INNVILGET dersom det finnes et barn som har fått innvilget men også et barn som ikke er registrert`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val vikårsvurdering = Vilkårsvurdering(behandling = behandling)
 
@@ -490,6 +503,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 lagFullstendigVilkårResultat = true,
             )
 
+        // Act
         val resultatPåSøknad =
             BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                 forrigeAndeler = emptyList(),
@@ -501,11 +515,13 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 finnesUregistrerteBarn = true,
             )
 
+        // Assert
         assertThat(resultatPåSøknad, Is(Søknadsresultat.DELVIS_INNVILGET))
     }
 
     @Test
     fun `utledResultatPåSøknad - skal returnere INGEN_RELEVANTE_ENDRINGER dersom barnet det er søkt for har fått helt lik andel som forrige behandling`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val vikårsvurdering = Vilkårsvurdering(behandling = behandling)
 
@@ -532,6 +548,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 lagFullstendigVilkårResultat = true,
             )
 
+        // Act
         val resultatPåSøknad =
             BehandlingsresultatSøknadUtils.utledResultatPåSøknad(
                 forrigeAndeler = andeler,
@@ -543,6 +560,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
                 finnesUregistrerteBarn = false,
             )
 
+        // Assert
         assertThat(resultatPåSøknad, Is(Søknadsresultat.INGEN_RELEVANTE_ENDRINGER))
     }
 }

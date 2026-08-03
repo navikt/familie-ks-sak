@@ -21,54 +21,68 @@ class TotrinnskontrollServiceTest {
 
     @Test
     fun `finnAktivForBehandling skal returnere null dersom det ikke finnes aktiv totrinnskontroll for behandling`() {
+        // Arrange
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(404) } returns null
 
+        // Act
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(404)
 
+        // Assert
         assertThat(totrinnskontroll, Is(nullValue()))
     }
 
     @Test
     fun `finnAktivForBehandling skal returnere totrinnskontroll dersom det finnes aktiv for behandling`() {
+        // Arrange
         val mocketTotrinnskontroll = mockk<Totrinnskontroll>()
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
 
+        // Act
         val totrinnskontroll = totrinnskontrollService.finnAktivForBehandling(200)
 
+        // Assert
         assertThat(totrinnskontroll, Is(notNullValue()))
         assertThat(totrinnskontroll, Is(mocketTotrinnskontroll))
     }
 
     @Test
     fun `hentAktivForBehandling skal kaste feil dersom det ikke eksisterer aktiv totrinnskontroll for behandling`() {
+        // Arrange
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(404) } returns null
 
+        // Act & Assert
         val feil =
             assertThrows<Feil> {
                 totrinnskontrollService.hentAktivForBehandling(404)
             }
 
+        // Assert
         assertThat(feil.message, Is("Fant ikke aktiv totrinnskontroll for behandling 404"))
     }
 
     @Test
     fun `hentAktivForBehandling skal returnere totrinnskontroll dersom det finnes aktiv for behandling`() {
+        // Arrange
         val mocketTotrinnskontroll = mockk<Totrinnskontroll>()
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
 
+        // Act
         val totrinnskontroll = totrinnskontrollService.hentAktivForBehandling(200)
 
+        // Assert
         assertThat(totrinnskontroll, Is(notNullValue()))
         assertThat(totrinnskontroll, Is(mocketTotrinnskontroll))
     }
 
     @Test
     fun `besluttTotrinnskontroll skal kaste funksjonell feil hvis totrinnskontroll er ugyldig`() {
+        // Arrange
         val mocketTotrinnskontroll = mockk<Totrinnskontroll>(relaxed = true)
 
         every { mocketTotrinnskontroll.erUgyldig() } returns true
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
 
+        // Act & Assert
         val funksjonellFeil =
             assertThrows<FunksjonellFeil> {
                 totrinnskontrollService.besluttTotrinnskontroll(
@@ -79,6 +93,7 @@ class TotrinnskontrollServiceTest {
                 )
             }
 
+        // Assert
         assertThat(
             funksjonellFeil.message,
             Is("Samme saksbehandler kan ikke foreslå og beslutte iverksetting på samme vedtak"),
@@ -88,12 +103,14 @@ class TotrinnskontrollServiceTest {
 
     @Test
     fun `besluttTotrinnskontroll skal oppdatere behandling status til iverksetter vedtak hvis beslutning er godkjent`() {
+        // Arrange
         val mocketTotrinnskontroll = mockk<Totrinnskontroll>(relaxed = true)
 
         every { mocketTotrinnskontroll.erUgyldig() } returns false
         every { totrinnskontrollRepository.findByBehandlingAndAktiv(200) } returns mocketTotrinnskontroll
         every { totrinnskontrollRepository.save(mocketTotrinnskontroll) } returns mocketTotrinnskontroll
 
+        // Act
         totrinnskontrollService.besluttTotrinnskontroll(
             200,
             "beslutter",
@@ -101,6 +118,7 @@ class TotrinnskontrollServiceTest {
             Beslutning.GODKJENT,
         )
 
+        // Assert
         verify(exactly = 1) { mocketTotrinnskontroll.erUgyldig() }
         verify(exactly = 1) { totrinnskontrollRepository.findByBehandlingAndAktiv(200) }
         verify(exactly = 1) { totrinnskontrollRepository.save(mocketTotrinnskontroll) }
@@ -108,6 +126,7 @@ class TotrinnskontrollServiceTest {
 
     @Test
     fun `lagreOgDeaktiverGammel skal lagre ny totrinnskontroll`() {
+        // Arrange
         val mocketNyTotrinnskontroll = mockk<Totrinnskontroll>(relaxed = true)
         val mocketEksisterendeTotrinnskontroll = mockk<Totrinnskontroll>(relaxed = true)
 
@@ -118,8 +137,10 @@ class TotrinnskontrollServiceTest {
         every { totrinnskontrollRepository.saveAndFlush(mocketEksisterendeTotrinnskontroll) } returns mocketEksisterendeTotrinnskontroll
         every { mocketEksisterendeTotrinnskontroll.id } returns 200
 
+        // Act
         val totrinnskontroll = totrinnskontrollService.lagreOgDeaktiverGammel(mocketNyTotrinnskontroll)
 
+        // Assert
         assertThat(totrinnskontroll, Is(notNullValue()))
         assertThat(totrinnskontroll, Is(mocketNyTotrinnskontroll))
 

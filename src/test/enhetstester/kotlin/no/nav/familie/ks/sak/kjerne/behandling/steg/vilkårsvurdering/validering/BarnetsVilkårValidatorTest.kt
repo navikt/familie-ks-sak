@@ -58,6 +58,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når vilkår resulat er oppfylt men mangler fom`() {
+        // Arrange
         val fom = null
         val tom = LocalDate.now().plusMonths(7)
 
@@ -78,6 +79,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -92,6 +94,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når vilkår resulat fom er før barnets fødselsdato`() {
+        // Arrange
         val fom = barnPerson.fødselsdato.minusMonths(2)
         val tom = fom.plusMonths(5)
 
@@ -112,6 +115,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -126,6 +130,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil når vilkår resulat mangler fom, tom med eksplisitt avslag`() {
+        // Arrange
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn =
             setOf(
@@ -144,6 +149,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         assertDoesNotThrow {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
@@ -154,6 +160,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnets 1 års dag når barn er født før august 2023`() {
+        // Arrange
         val barnFødtJuli23 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("30062312345"))
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtJuli23.aktør)
         val vilkårResultaterForBarn =
@@ -182,6 +189,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -194,6 +202,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnet fyller 19 måneder for barn født i 2023 og senere`() {
+        // Arrange
         val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012312345"))
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
         val vilkårResultaterForBarn =
@@ -222,6 +231,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -234,6 +244,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har fom etter barnet blir 13 måneder og barn er født etter 2023`() {
+        // Arrange
         val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01082212345"))
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
         val vilkårResultaterForBarn =
@@ -252,6 +263,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -264,6 +276,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER vilkår resulat har tom etter barnet fyller 2 år og barn er født før 2023`() {
+        // Arrange
         val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01122212345"))
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
         val vilkårResultaterForBarn =
@@ -282,6 +295,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -294,6 +308,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER med adopsjon vilkår resulat har tom etter barnets 6 år`() {
+        // Arrange
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn =
             setOf(
@@ -316,6 +331,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -328,6 +344,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil når BARNETS_ALDER med adopsjon vilkår resulat har diff mellom fom,tom mer enn 1 år og 1 dag`() {
+        // Arrange
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn =
             setOf(
@@ -346,6 +363,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
@@ -358,6 +376,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil når BARNETS_ALDER med adopsjon vilkår resulat har tom etter August barnet fyller 6 år`() {
+        // Arrange
         val tom = barnPerson.fødselsdato.plusYears(6).withMonth(Month.AUGUST.value)
         val fom = tom.minusMonths(5)
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
@@ -378,6 +397,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         assertDoesNotThrow {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
@@ -388,6 +408,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil når MEDLEMSKAP_ANNEN_FORELDER har fom før barnets fødselsdato`() {
+        // Arrange
         val fom = barnPerson.fødselsdato.minusYears(10)
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barn1)
         val vilkårResultaterForBarn =
@@ -406,6 +427,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         assertDoesNotThrow {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
@@ -416,6 +438,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal ikke kaste feil dersom tom på barnetsalder vilkår er satt til barnets dødsfallsdato`() {
+        // Arrange
         val dødsfallsdato = barnPerson.fødselsdato.plusYears(1).plusMonths(5)
 
         val barnPersonMedDødsfallsdato =
@@ -440,6 +463,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         assertDoesNotThrow {
             barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(
                 vilkårsvurdering,
@@ -450,6 +474,7 @@ class BarnetsVilkårValidatorTest {
 
     @Test
     fun `validerAtDatoErKorrektIBarnasVilkår skal kaste funksjonell feil dersom det finnes avslag i barnets alder vilkår uten fom og tom samtidig som det finnes oppfylte barnets alder vilkår`() {
+        // Arrange
         val barnFødtAugust22 = lagPerson(personType = PersonType.BARN, aktør = randomAktør("01012312345"))
         val personResultatForBarn = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = barnFødtAugust22.aktør)
         val vilkårResultaterForBarn =
@@ -479,6 +504,7 @@ class BarnetsVilkårValidatorTest {
         personResultatForBarn.setSortedVilkårResultater(vilkårResultaterForBarn)
         vilkårsvurdering.personResultater = setOf(personResultatForBarn)
 
+        // Act & Assert
         val exception =
             org.junit.jupiter.api.assertThrows<FunksjonellFeil> {
                 barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(

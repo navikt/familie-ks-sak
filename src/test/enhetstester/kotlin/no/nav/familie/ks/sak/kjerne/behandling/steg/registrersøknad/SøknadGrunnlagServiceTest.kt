@@ -22,10 +22,12 @@ class SøknadGrunnlagServiceTest {
 
     @Test
     fun `lagreOgDeaktiverGammel - skal hente eksisterende aktiv søknad tilknyttet behandlingId og sette den til inaktiv og deretter lagre ny`() {
+        // Arrange
         val deaktivertSøknadSlot = slot<SøknadGrunnlag>()
         val nySøknadSlot = slot<SøknadGrunnlag>()
 
         val nySøknadGrunnlag =
+            // Act
             SøknadGrunnlag(
                 behandlingId = 0,
                 aktiv = true,
@@ -45,13 +47,16 @@ class SøknadGrunnlagServiceTest {
 
         søknadGrunnlagService.lagreOgDeaktiverGammel(nySøknadGrunnlag)
 
+        // Assert
         assertFalse(deaktivertSøknadSlot.captured.aktiv)
         assertTrue(nySøknadSlot.captured.aktiv)
     }
 
     @Test
     fun `finnAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
+        // Arrange
         val søknadGrunnlag =
+            // Act
             SøknadGrunnlag(
                 behandlingId = 0,
                 aktiv = true,
@@ -61,21 +66,27 @@ class SøknadGrunnlagServiceTest {
 
         val aktivSøknad = søknadGrunnlagService.finnAktiv(0L)
 
+        // Assert
         assertNotNull(aktivSøknad)
     }
 
     @Test
     fun `finnAktiv - skal returnere null dersom søknad tilknyttet behandlingId ikke finnes`() {
+        // Arrange
         every { søknadGrunnlagRepository.finnAktiv(any()) } returns null
 
         val aktivSøknad = søknadGrunnlagService.finnAktiv(404L)
 
+        // Assert
         assertNull(aktivSøknad)
+        // Act
     }
 
     @Test
     fun `hentAktiv - skal hente aktiv søknad tilknyttet behandlingId når den finnes`() {
+        // Arrange
         val søknadGrunnlag =
+            // Act
             SøknadGrunnlag(
                 behandlingId = 0,
                 aktiv = true,
@@ -85,14 +96,18 @@ class SøknadGrunnlagServiceTest {
 
         val aktivSøknad = søknadGrunnlagService.hentAktiv(0L)
 
+        // Assert
         assertNotNull(aktivSøknad)
     }
 
     @Test
     fun `hentAktiv - skal kaste feil dersom søknad tilknyttet behandlingId ikke finnes`() {
+        // Arrange
         every { søknadGrunnlagRepository.finnAktiv(0L) } returns null
 
         val feil =
+            // Act
+            // Assert
             assertThrows<Feil> {
                 søknadGrunnlagService.hentAktiv(0L)
             }

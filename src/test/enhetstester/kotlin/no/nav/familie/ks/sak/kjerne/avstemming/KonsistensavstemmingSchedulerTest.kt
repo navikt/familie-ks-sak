@@ -37,11 +37,14 @@ internal class KonsistensavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal utføre konsistensavstemming og lager task når dagensdato matchher med kjøreplan`() {
+        // Arrange
         every { konsistensavstemmingKjøreplanService.plukkLedigKjøreplanFor(any()) } returns
             KonsistensavstemmingKjøreplan(kjøredato = LocalDate.now())
 
+        // Act
         konsistensavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 1) { taskService.save(any()) }
 
         val taskData = taskSlot.captured
@@ -53,10 +56,13 @@ internal class KonsistensavstemmingSchedulerTest {
 
     @Test
     fun `utfør skal ikke utføre konsistensavstemming når dagensdato ikke matchher med kjøreplan`() {
+        // Arrange
         every { konsistensavstemmingKjøreplanService.plukkLedigKjøreplanFor(any()) } returns null
 
+        // Act
         konsistensavstemmingScheduler.utfør()
 
+        // Assert
         verify(exactly = 0) { taskService.save(any()) }
     }
 }

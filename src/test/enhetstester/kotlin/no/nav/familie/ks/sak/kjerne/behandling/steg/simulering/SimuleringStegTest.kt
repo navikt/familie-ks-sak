@@ -38,9 +38,11 @@ internal class SimuleringStegTest {
 
     @Test
     fun `skal utføre steg for revurdering når det ikke finnes åpen tilbakekrevingsbehandling`() {
+        // Arrange
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(revurderingsbehandling.fagsak.id) } returns false
         every { simuleringService.hentFeilutbetaling(revurderingsbehandling.id) } returns BigDecimal(3500)
 
+        // Act & Assert
         assertDoesNotThrow { simuleringSteg.utførSteg(revurderingsbehandling.id, lagTilbakekrevingDto()) }
         verify(exactly = 1) { simuleringService.hentFeilutbetaling(revurderingsbehandling.id) }
         verify(exactly = 1) { tilbakekrevingService.lagreTilbakekreving(any(), any()) }
@@ -48,8 +50,10 @@ internal class SimuleringStegTest {
 
     @Test
     fun `skal utføre steg for revurdering når det finnes åpen tilbakekrevingsbehandling`() {
+        // Arrange
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(revurderingsbehandling.fagsak.id) } returns true
 
+        // Act & Assert
         assertDoesNotThrow { simuleringSteg.utførSteg(revurderingsbehandling.id, lagTilbakekrevingDto()) }
         verify(exactly = 0) { simuleringService.hentFeilutbetaling(revurderingsbehandling.id) }
         verify(exactly = 0) { tilbakekrevingService.lagreTilbakekreving(any(), any()) }
@@ -57,9 +61,11 @@ internal class SimuleringStegTest {
 
     @Test
     fun `skal ikke utføre steg for revurdering når det ikke finnes en feilutbetaling men frontend sender tilbakekrevingDto`() {
+        // Arrange
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(revurderingsbehandling.fagsak.id) } returns false
         every { simuleringService.hentFeilutbetaling(revurderingsbehandling.id) } returns BigDecimal.ZERO
 
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 simuleringSteg.utførSteg(revurderingsbehandling.id, lagTilbakekrevingDto())

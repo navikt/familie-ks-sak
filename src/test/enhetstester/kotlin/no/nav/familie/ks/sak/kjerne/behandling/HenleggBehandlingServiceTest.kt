@@ -77,9 +77,11 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling når den allerede er avsluttet`() {
+        // Arrange
         every { behandlingRepository.hentBehandling(behandlingId) } returns
             behandling.copy(status = BehandlingStatus.AVSLUTTET)
 
+        // Act & Assert
         val exception =
             assertThrows<Feil> {
                 henleggBehandlingService.henleggBehandling(
@@ -97,8 +99,10 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling for årsak TEKNISK_VEDLIKEHOLD når toggelen er ikke på`() {
+        // Arrange
         every { featureToggleService.isEnabled(FeatureToggle.TEKNISK_VEDLIKEHOLD_HENLEGGELSE) } returns false
 
+        // Act & Assert
         val exception =
             assertThrows<Feil> {
                 henleggBehandlingService.henleggBehandling(
@@ -117,11 +121,13 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge TEKNISK_ENDRING behandling når toggelen er ikke på`() {
+        // Arrange
         val tekniskEndringBehandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.TEKNISK_ENDRING)
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns tekniskEndringBehandling
         every { featureToggleService.isEnabled(FeatureToggle.TEKNISK_ENDRING) } returns false
 
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 henleggBehandlingService.henleggBehandling(
@@ -141,6 +147,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal ikke henlegge behandling for årsak  FEILAKTIG_OPPRETTET når behandling er i IVERKSETT_MOT_OPPDRAG steg`() {
+        // Arrange
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG,
@@ -150,6 +157,7 @@ internal class HenleggBehandlingServiceTest {
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
 
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 henleggBehandlingService.henleggBehandling(
@@ -168,6 +176,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal henlegge behandling for årsak TEKNISK_VEDLIKEHOLD når behandling er i IVERKSETT_MOT_OPPDRAG steg`() {
+        // Arrange
         behandling.behandlingStegTilstand.add(
             BehandlingStegTilstand(
                 behandlingSteg = BehandlingSteg.IVERKSETT_MOT_OPPDRAG,
@@ -177,6 +186,7 @@ internal class HenleggBehandlingServiceTest {
 
         every { behandlingRepository.hentBehandling(behandlingId) } returns behandling
 
+        // Act
         assertDoesNotThrow {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
@@ -184,6 +194,8 @@ internal class HenleggBehandlingServiceTest {
                 begrunnelse = "",
             )
         }
+
+        // Assert
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
         verify(exactly = 1) {
             loggService.opprettHenleggBehandlingLogg(
@@ -204,6 +216,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal henlegge behandling for årsak SØKNAD_TRUKKET og sende brev`() {
+        // Act
         assertDoesNotThrow {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
@@ -211,6 +224,8 @@ internal class HenleggBehandlingServiceTest {
                 begrunnelse = "",
             )
         }
+
+        // Assert
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
         verify(exactly = 1) {
             loggService.opprettHenleggBehandlingLogg(
@@ -231,6 +246,7 @@ internal class HenleggBehandlingServiceTest {
 
     @Test
     fun `henleggBehandling skal henlegge behandling og aktivere siste vedtatt behandling når fagsak har flere behandlinger`() {
+        // Arrange
         val sisteVedtattBehandling =
             lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also {
                 it.aktiv = false
@@ -241,6 +257,7 @@ internal class HenleggBehandlingServiceTest {
         every { behandlingRepository.finnBehandlinger(behandling.fagsak.id) } returns listOf(sisteVedtattBehandling, behandling)
         every { behandlingRepository.saveAndFlush(capture(sisteVedtattBehandlingSlot)) } returns mockk()
 
+        // Act
         assertDoesNotThrow {
             henleggBehandlingService.henleggBehandling(
                 behandlingId = behandlingId,
@@ -248,6 +265,8 @@ internal class HenleggBehandlingServiceTest {
                 begrunnelse = "",
             )
         }
+
+        // Assert
         verify(exactly = 1) { oppgaveService.hentOppgaverSomIkkeErFerdigstilt(behandling) }
         verify(exactly = 1) {
             loggService.opprettHenleggBehandlingLogg(

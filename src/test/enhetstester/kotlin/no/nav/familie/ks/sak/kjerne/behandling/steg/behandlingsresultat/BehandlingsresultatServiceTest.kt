@@ -51,8 +51,10 @@ class BehandlingsresultatServiceTest {
 
     @Test
     fun `finnPersonerFremstiltKravFor skal returnere tom liste dersom behandlingen ikke er søknad, fødselshendelse eller manuell migrering`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.BARNEHAGELISTE)
 
+        // Act
         val personerFramstiltForKrav =
             behandlingsresultatService.finnPersonerFremstiltKravFor(
                 behandling = behandling,
@@ -61,11 +63,13 @@ class BehandlingsresultatServiceTest {
                 harTidligereBareBehandlingerSomErAvslått = false,
             )
 
+        // Assert
         assertThat(personerFramstiltForKrav, Is(emptyList()))
     }
 
     @Test
     fun `finnPersonerFremstiltKravFor skal bare returnere barn som er folkeregistret og krysset av på søknad`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val barn1Fnr = randomFnr()
         val mocketAktør = mockk<Aktør>()
@@ -108,6 +112,7 @@ class BehandlingsresultatServiceTest {
 
         every { personidentService.hentAktør(barn1Fnr) } returns mocketAktør
 
+        // Act
         val personerFramstiltForKrav =
             behandlingsresultatService.finnPersonerFremstiltKravFor(
                 behandling = behandling,
@@ -116,6 +121,7 @@ class BehandlingsresultatServiceTest {
                 harTidligereBareBehandlingerSomErAvslått = false,
             )
 
+        // Assert
         assertThat(personerFramstiltForKrav.single(), Is(mocketAktør))
 
         verify(exactly = 1) { personidentService.hentAktør(barn1Fnr) }
@@ -123,6 +129,7 @@ class BehandlingsresultatServiceTest {
 
     @Test
     fun `finnPersonerFremstiltKravFor skal ikke returnere duplikater av personer`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val barn = lagPerson(aktør = randomAktør())
 
@@ -152,6 +159,7 @@ class BehandlingsresultatServiceTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns Vilkårsvurdering(behandling = behandling)
         every { personidentService.hentAktør(barn.aktør.aktivFødselsnummer()) } returns barn.aktør
 
+        // Act
         val personerFramstiltForKrav =
             behandlingsresultatService.finnPersonerFremstiltKravFor(
                 behandling = behandling,
@@ -160,6 +168,7 @@ class BehandlingsresultatServiceTest {
                 harTidligereBareBehandlingerSomErAvslått = false,
             )
 
+        // Assert
         assertThat(personerFramstiltForKrav.size, Is(1))
         assertThat(personerFramstiltForKrav.single(), Is(barn.aktør))
     }

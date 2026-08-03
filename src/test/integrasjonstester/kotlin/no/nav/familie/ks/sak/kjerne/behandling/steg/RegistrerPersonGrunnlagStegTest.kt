@@ -42,8 +42,10 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for FGB`() {
+        // Arrange
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(behandling.id) }
 
+        // Assert
         val personopplysningGrunnlag =
             personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id).shouldNotBeNull()
         assertEquals(1, personopplysningGrunnlag.personer.size)
@@ -60,6 +62,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering med opprettet årsak søknad`() {
+        // Arrange
         val barnAktør = lagreAktør(randomAktør())
 
         val gammelPersonopplysningGrunnlag =
@@ -70,6 +73,8 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
                 barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
                 barnAktør = listOf(barnAktør),
             )
+
+        // Act
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
 
         lagreBehandling(
@@ -87,6 +92,8 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                 ),
             )
+
+        // Assert
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         val personopplysningGrunnlag =
@@ -106,6 +113,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `utførSteg skal utføre REGISTRERE_PERSONGRUNNLAG steg for Revurdering med opprettet årsak ÅRLIG_KONTROLL`() {
+        // Arrange
         val barnAktør = lagreAktør(randomAktør())
 
         val gammelPersonopplysningGrunnlag =
@@ -116,6 +124,8 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
                 barnasIdenter = listOf(randomFnr()),
                 barnAktør = listOf(barnAktør),
             )
+
+        // Act
         personopplysningGrunnlagRepository.save(gammelPersonopplysningGrunnlag)
         vilkårsvurderingService.opprettVilkårsvurdering(behandling, null)
 
@@ -134,6 +144,8 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
                     opprettetÅrsak = BehandlingÅrsak.ÅRLIG_KONTROLL,
                 ),
             )
+
+        // Assert
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         val personopplysningGrunnlag =

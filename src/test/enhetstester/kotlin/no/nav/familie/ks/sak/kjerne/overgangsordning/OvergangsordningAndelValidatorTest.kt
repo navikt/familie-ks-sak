@@ -32,6 +32,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerOvergangsordningAndeler() {
+        // Arrange
         val overgangsordningAndel =
             OvergangsordningAndel(
                 behandlingId = 1,
@@ -63,6 +64,7 @@ class OvergangsordningAndelValidatorTest {
                 },
             )
 
+        // Act & Assert
         assertDoesNotThrow {
             OvergangsordningAndelValidator.validerOvergangsordningAndeler(
                 overgangsordningAndeler = listOf(overgangsordningAndel),
@@ -76,6 +78,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerIngenEndringIOrdinæreAndelerTilkjentYtelse() {
+        // Arrange
         val nåværendeAndeler =
             setOf(
                 lagAndelTilkjentYtelse(
@@ -96,6 +99,7 @@ class OvergangsordningAndelValidatorTest {
                 ),
             )
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerIngenEndringIOrdinæreAndelerTilkjentYtelse(
                 andelerNåværendeBehandling = nåværendeAndeler,
@@ -107,8 +111,10 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerAndelerErIPeriodenBarnetEr20Til23Måneder() {
+        // Arrange
         val andeler = listOf(andel)
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(andeler)
         }
@@ -116,8 +122,10 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt() {
+        // Arrange
         val andeler = listOf(OvergangsordningAndel(behandlingId = 1))
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(andeler)
         }
@@ -125,6 +133,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler() {
+        // Arrange
         val andelerTilkjentYtelse =
             setOf(
                 lagAndelTilkjentYtelse(
@@ -141,6 +150,7 @@ class OvergangsordningAndelValidatorTest {
                 ),
             )
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(andelerTilkjentYtelse)
         }
@@ -148,6 +158,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder() {
+        // Arrange
         val barnehageVilkår =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
@@ -157,6 +168,7 @@ class OvergangsordningAndelValidatorTest {
 
         val barnehagevilkårPerAktør = mapOf(aktør to listOf(barnehageVilkår))
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør)
         }
@@ -164,6 +176,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerAtBarnehagevilkårMedTomLikNullErOppfyltForAlleOvergangsordningPerioder() {
+        // Arrange
         val barnehageVilkår =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
@@ -173,6 +186,7 @@ class OvergangsordningAndelValidatorTest {
 
         val barnehagevilkårPerAktør = mapOf(aktør to listOf(barnehageVilkår))
 
+        // Act & Assert
         assertDoesNotThrow {
             OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør)
         }
@@ -180,6 +194,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerIngenOverlappMedEksisterendeOvergangsordningAndeler() {
+        // Arrange
         val eksisterendeAndeler =
             listOf(
                 OvergangsordningAndel(
@@ -190,6 +205,7 @@ class OvergangsordningAndelValidatorTest {
                 ).tilUtfyltOvergangsordningAndel(),
             )
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerIngenOverlappMedEksisterendeOvergangsordningAndeler(andel, eksisterendeAndeler)
         }
@@ -197,6 +213,7 @@ class OvergangsordningAndelValidatorTest {
 
     @Test
     fun validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode() {
+        // Arrange
         val barnehageVilkår =
             lagVilkårResultat(
                 vilkårType = Vilkår.BARNEHAGEPLASS,
@@ -204,6 +221,7 @@ class OvergangsordningAndelValidatorTest {
                 periodeTom = LocalDate.now().minusMonths(1),
             )
 
+        // Act & Assert
         assertThrows<FunksjonellFeil> {
             OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(andel, listOf(barnehageVilkår))
         }

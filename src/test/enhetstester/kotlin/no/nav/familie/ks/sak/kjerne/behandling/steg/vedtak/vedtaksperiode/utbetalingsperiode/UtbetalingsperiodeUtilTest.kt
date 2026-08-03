@@ -59,6 +59,7 @@ internal class UtbetalingsperiodeUtilTest {
 
     @Test
     fun `hentPerioderMedUtbetaling skal beholde split i andel tilkjent ytelse`() {
+        // Arrange
         val mars2020 = YearMonth.of(2020, 3)
         val april2020 = YearMonth.of(2020, 4)
         val mai2020 = YearMonth.of(2020, 5)
@@ -127,6 +128,7 @@ internal class UtbetalingsperiodeUtilTest {
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )
 
+        // Act
         val faktiskResultat =
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilApril, andelPerson1MaiTilJuli, andelPerson2MarsTilJuli),
@@ -139,6 +141,7 @@ internal class UtbetalingsperiodeUtilTest {
                 kompetanser = emptyList(),
             )
 
+        // Assert
         assertEquals(
             forventetResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
             faktiskResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
@@ -152,6 +155,7 @@ internal class UtbetalingsperiodeUtilTest {
 
     @Test
     fun `hentPerioderMedUtbetaling skal splitte på forskjellige personer`() {
+        // Arrange
         val mars2020 = YearMonth.of(2020, 3)
         val april2020 = YearMonth.of(2020, 4)
         val mai2020 = YearMonth.of(2020, 5)
@@ -215,6 +219,7 @@ internal class UtbetalingsperiodeUtilTest {
                 vilkårsvurdering.lagGodkjentPersonResultatForBarn(barn2),
             )
 
+        // Act
         val faktiskResultat =
             hentPerioderMedUtbetaling(
                 andelerTilkjentYtelse = listOf(andelPerson1MarsTilMai, andelPerson2MaiTilJuli),
@@ -227,6 +232,7 @@ internal class UtbetalingsperiodeUtilTest {
                 kompetanser = emptyList(),
             )
 
+        // Assert
         assertEquals(
             forventetResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
             faktiskResultat.map { Periode(it, it.fom ?: TIDENES_MORGEN, it.tom ?: TIDENES_ENDE) },
@@ -242,6 +248,7 @@ internal class UtbetalingsperiodeUtilTest {
     inner class EØS {
         @Test
         fun `Skal lage ny vedtaksperiode dersom vi får en ny kompetansene`() {
+            // Arrange
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
             val forskjøvetVilkårResultatTidslinjeMap =
                 vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
@@ -249,6 +256,7 @@ internal class UtbetalingsperiodeUtilTest {
                     adopsjonerIBehandling = emptyList(),
                 )
 
+            // Act
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
                     andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.map { AndelTilkjentYtelseMedEndreteUtbetalinger(it, emptyList()) },
@@ -257,6 +265,7 @@ internal class UtbetalingsperiodeUtilTest {
                     kompetanser = emptyList(),
                 )
 
+            // Assert
             assertThat(vedtaksperioderUtenKompetanse.size).isEqualTo(2)
 
             val kompetanser =
@@ -285,6 +294,7 @@ internal class UtbetalingsperiodeUtilTest {
 
         @Test
         fun `Skal lage ny vedtaksperiode dersom det er endring i kompetansene`() {
+            // Arrange
             val (vilkårsvurdering, tilkjentYtelse) = kjørBehandlingFramTilBehandlingsresultatMedAltGodkjent()
             val forskjøvetVilkårResultatTidslinjeMap =
                 vilkårsvurdering.personResultater.tilForskjøvetOppfylteVilkårResultatTidslinjeMap(
@@ -292,6 +302,7 @@ internal class UtbetalingsperiodeUtilTest {
                     adopsjonerIBehandling = emptyList(),
                 )
 
+            // Act
             val vedtaksperioderUtenKompetanse =
                 hentPerioderMedUtbetaling(
                     andelerTilkjentYtelse = tilkjentYtelse.andelerTilkjentYtelse.map { AndelTilkjentYtelseMedEndreteUtbetalinger(it, emptyList()) },
@@ -300,6 +311,7 @@ internal class UtbetalingsperiodeUtilTest {
                     kompetanser = emptyList(),
                 )
 
+            // Assert
             assertThat(vedtaksperioderUtenKompetanse.size).isEqualTo(2)
 
             val kompetanser =
@@ -342,6 +354,7 @@ internal class UtbetalingsperiodeUtilTest {
     inner class HentBegrunnelserForOvergangsordningPerioder {
         @Test
         fun `skal ikke returnere noe begrunnelser dersom det ikke finnes noe overgangsordningandeler i perioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -361,13 +374,16 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).isEmpty()
         }
 
         @Test
         fun `skal ikke returnere noe begrunnelser dersom overgangsordning andelene ikke overlapper med vedtaksperioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -387,13 +403,16 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).isEmpty()
         }
 
         @Test
         fun `skal returnere noe begrunnelser dersom overgangsordning andelene ikke overlapper med vedtaksperioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -413,13 +432,16 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).isEmpty()
         }
 
         @Test
         fun `skal returnere INNVILGET_OVERGANGSORDNING begrunnelse dersom det eksisterer overgangsordning andeler med full sats som overlapper med vedtak perioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -439,14 +461,17 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).size().isEqualTo(1)
             assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING)
         }
 
         @Test
         fun `skal returnere INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING begrunnelse dersom det eksisterer overgangsordning andeler med gradert sats som overlapper med vedtak perioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -466,14 +491,17 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).size().isEqualTo(1)
             assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
         }
 
         @Test
         fun `skal returnere INNVILGET_OVERGANGSORDNING_DELT_BOSTED begrunnelse dersom det eksisterer overgangsordning andeler med halv sats som overlapper med vedtak perioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -493,14 +521,17 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).size().isEqualTo(1)
             assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED)
         }
 
         @Test
         fun `skal returnere INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING begrunnelse dersom det både eksisterer overgangsordning andeler med gradert sats og full sats som overlapper med vedtak perioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -524,14 +555,17 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).size().isEqualTo(1)
             assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_GRADERT_UTBETALING)
         }
 
         @Test
         fun `skal returnere INNVILGET_OVERGANGSORDNING_DELT_BOSTED begrunnelse dersom det både eksisterer overgangsordning andeler med halv sats og full sats som overlapper med vedtak perioden`() {
+            // Arrange
             val andeler =
                 listOf(
                     AndelTilkjentYtelseMedEndreteUtbetalinger(
@@ -555,8 +589,10 @@ internal class UtbetalingsperiodeUtilTest {
                     tom = LocalDate.of(2024, 12, 31),
                 )
 
+            // Act
             val begrunnelser = hentBegrunnelserForOvergangsordningPerioder(splittKriteriePeriode)
 
+            // Assert
             assertThat(begrunnelser).size().isEqualTo(1)
             assertThat(begrunnelser.single()).isEqualTo(NasjonalEllerFellesBegrunnelse.INNVILGET_OVERGANGSORDNING_DELT_BOSTED)
         }

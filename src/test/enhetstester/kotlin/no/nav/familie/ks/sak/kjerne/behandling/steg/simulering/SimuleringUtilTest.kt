@@ -138,15 +138,18 @@ class SimuleringUtilTest {
 
     @Test
     fun `tilSimuleringDto - Total feilutbetaling skal bli 0 i periode med negativ feilutbetaling`() {
+        // Arrange
         val økonomiSimuleringMottaker =
             mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = økonomiSimuleringPosteringerMedNegativFeilutbetaling)
         val simuleringDto = listOf(økonomiSimuleringMottaker).tilSimuleringDto()
 
+        // Act & Assert
         Assertions.assertEquals(BigDecimal.valueOf(0), simuleringDto.feilutbetaling)
     }
 
     @Test
     fun `tilSimuleringDto - Skal gi 0 etterbetaling og sum feilutbetaling ved positiv feilutbetaling`() {
+        // Arrange
         val økonomiSimuleringPosteringerMedPositivFeilutbetaling =
             listOf(
                 mockVedtakSimuleringPostering(beløp = 500, posteringType = PosteringType.FEILUTBETALING),
@@ -159,12 +162,14 @@ class SimuleringUtilTest {
             mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = økonomiSimuleringPosteringerMedPositivFeilutbetaling)
         val simuleringDto = listOf(økonomiSimuleringMottaker).tilSimuleringDto()
 
+        // Act & Assert
         Assertions.assertEquals(BigDecimal.valueOf(0), simuleringDto.etterbetaling)
         Assertions.assertEquals(BigDecimal.valueOf(500), simuleringDto.feilutbetaling)
     }
 
     @Test
     fun `hentEtterbetalingIPeriode - Test at bare perioder med passert forfalldato blir inludert i summeringen av etterbetaling`() {
+        // Arrange
         val vedtaksimuleringPosteringer =
             listOf(
                 mockVedtakSimuleringPostering(
@@ -179,6 +184,7 @@ class SimuleringUtilTest {
                 ),
             )
 
+        // Act & Assert
         Assertions.assertEquals(
             BigDecimal.valueOf(200),
             hentEtterbetalingIPeriode(
@@ -197,6 +203,7 @@ class SimuleringUtilTest {
      */
     @Test
     fun `ytelse på 10000 korrigert til 2000`() {
+        // Arrange
         val redusertYtelseTil2000 =
             listOf(
                 mockVedtakSimuleringPostering(
@@ -233,9 +240,12 @@ class SimuleringUtilTest {
 
         val økonomiSimuleringMottakere =
             listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = redusertYtelseTil2000))
+
+        // Act
         val simuleringsperioder = økonomiSimuleringMottakere.tilSimuleringsPerioder()
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
+        // Assert
         assertThat(simuleringsperioder.size).isEqualTo(1)
         assertThat(simuleringsperioder[0].tidligereUtbetalt).isEqualTo(10000.toBigDecimal())
         assertThat(simuleringsperioder[0].nyttBeløp).isEqualTo(2000.toBigDecimal())
@@ -246,6 +256,7 @@ class SimuleringUtilTest {
 
     @Test
     fun `ytelse på 2000 korrigert til 3000`() {
+        // Arrange
         val øktYtelseFra2000Til3000 =
             listOf(
                 mockVedtakSimuleringPostering(
@@ -278,9 +289,12 @@ class SimuleringUtilTest {
 
         val økonomiSimuleringMottakere =
             listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = øktYtelseFra2000Til3000))
+
+        // Act
         val simuleringsperioder = økonomiSimuleringMottakere.tilSimuleringsPerioder()
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
+        // Assert
         assertThat(simuleringsperioder.size).isEqualTo(1)
         assertThat(simuleringsperioder[0].tidligereUtbetalt).isEqualTo(2000.toBigDecimal())
         assertThat(simuleringsperioder[0].nyttBeløp).isEqualTo(3000.toBigDecimal())
@@ -291,6 +305,7 @@ class SimuleringUtilTest {
 
     @Test
     fun `ytelse på 3000 korrigert til 12000`() {
+        // Arrange
         val øktYtelseFra3000Til12000 =
             listOf(
                 mockVedtakSimuleringPostering(
@@ -323,9 +338,12 @@ class SimuleringUtilTest {
 
         val økonomiSimuleringMottakere =
             listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = øktYtelseFra3000Til12000))
+
+        // Act
         val simuleringsperioder = økonomiSimuleringMottakere.tilSimuleringsPerioder()
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
+        // Assert
         assertThat(simuleringsperioder.size).isEqualTo(1)
         assertThat(simuleringsperioder[0].tidligereUtbetalt).isEqualTo(3000.toBigDecimal())
         assertThat(simuleringsperioder[0].nyttBeløp).isEqualTo(12000.toBigDecimal())
@@ -344,20 +362,25 @@ class SimuleringUtilTest {
 
     @Test
     fun `førstegangsbehandling 18 nov`() {
+        // Arrange
         val førstegangsbehandling18nov =
             mockVedtakSimuleringPosteringer(YearMonth.of(2021, 2), 3, 17_153, PosteringType.YTELSE) +
                 mockVedtakSimuleringPosteringer(YearMonth.of(2021, 5), 6, 18_195, PosteringType.YTELSE)
 
         val økonomiSimuleringMottakere =
             listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = førstegangsbehandling18nov))
+
+        // Act
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
+        // Assert
         assertThat(oppsummering.feilutbetaling).isEqualTo(0.toBigDecimal())
         assertThat(oppsummering.etterbetaling).isEqualTo(160_629.toBigDecimal())
     }
 
     @Test
     fun `revurdering 22 nov`() {
+        // Arrange
         val revurering22nov =
             // Forrige ytelse
             mockVedtakSimuleringPosteringer(YearMonth.of(2021, 2), 3, -17_153, PosteringType.YTELSE) +
@@ -375,14 +398,18 @@ class SimuleringUtilTest {
 
         val økonomiSimuleringMottakere =
             listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = revurering22nov))
+
+        // Act
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
+        // Assert
         assertThat(oppsummering.feilutbetaling).isEqualTo(3_752.toBigDecimal())
         assertThat(oppsummering.etterbetaling).isEqualTo(0.toBigDecimal())
     }
 
     @Test
     fun `revurdering 23 nov`() {
+        // Arrange
         val revurdering23nov =
             // Forrige ytelse
             mockVedtakSimuleringPosteringer(YearMonth.of(2021, 2), 3, -17_153, PosteringType.YTELSE) +
@@ -400,9 +427,12 @@ class SimuleringUtilTest {
 
         val økonomiSimuleringMottakere =
             listOf(mockØkonomiSimuleringMottaker(økonomiSimuleringPostering = revurdering23nov))
+
+        // Act
         val simuleringsperioder = økonomiSimuleringMottakere.tilSimuleringsPerioder()
         val oppsummering = økonomiSimuleringMottakere.tilSimuleringDto()
 
+        // Assert
         (3..6).forEach {
             assertThat(simuleringsperioder[it].tidligereUtbetalt).isEqualTo(17_257.toBigDecimal())
             assertThat(simuleringsperioder[it].resultat).isEqualTo(1_125.toBigDecimal())

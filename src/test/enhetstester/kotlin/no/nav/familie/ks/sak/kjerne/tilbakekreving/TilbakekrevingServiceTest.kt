@@ -141,14 +141,18 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `hentForhåndsvisningTilbakekrevingVarselBrev henter forhåndvisning av varselbrev med feilutbetalte perioder`() {
+        // Arrange
         every {
             tilbakekrevingKlient.hentForhåndsvisningTilbakekrevingVarselbrev(capture(forhåndsvisVarselbrevRequestSlot))
         } returns ByteArray(10)
 
+        // Act
         tilbakekrevingService.hentForhåndsvisningTilbakekrevingVarselBrev(
             behandling.id,
             ForhåndsvisTilbakekrevingVarselbrevDto("fritekst"),
         )
+
+        // Assert
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify(exactly = 1) { arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandling.id) }
@@ -179,12 +183,15 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `sendOpprettTilbakekrevingRequest sender OpprettTilbakekreving request med varsel`() {
+        // Arrange
         val requestSlot = slot<OpprettTilbakekrevingRequest>()
         every { tilbakekrevingRepository.findByBehandlingId(behandling.id) } returns
             lagTilbakekreving(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL, "test")
 
+        // Act
         tilbakekrevingService.sendOpprettTilbakekrevingRequest(behandling)
 
+        // Assert
         verify(exactly = 1) { tilbakekrevingKlient.opprettTilbakekrevingBehandling(capture(requestSlot)) }
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
@@ -223,12 +230,15 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `sendOpprettTilbakekrevingRequest sender OpprettTilbakekreving request uten varsel`() {
+        // Arrange
         val requestSlot = slot<OpprettTilbakekrevingRequest>()
         every { tilbakekrevingRepository.findByBehandlingId(behandling.id) } returns
             lagTilbakekreving(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_UTEN_VARSEL)
 
+        // Act
         tilbakekrevingService.sendOpprettTilbakekrevingRequest(behandling)
 
+        // Assert
         verify(exactly = 1) { tilbakekrevingKlient.opprettTilbakekrevingBehandling(capture(requestSlot)) }
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
@@ -261,9 +271,11 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `opprettTilbakekrevingsbehandlingManuelt skal ikke opprette når kanBehandlingOpprettesManuelt returnerer med false respons`() {
+        // Arrange
         every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
             KanBehandlingOpprettesManueltRespons(kanBehandlingOpprettes = false, melding = "feilmelding")
 
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
@@ -274,6 +286,7 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `opprettTilbakekrevingsbehandlingManuelt skal ikke opprette når kanBehandlingOpprettesManuelt ikke returnerer referanse`() {
+        // Arrange
         every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
             KanBehandlingOpprettesManueltRespons(
                 kanBehandlingOpprettes = true,
@@ -281,6 +294,7 @@ internal class TilbakekrevingServiceTest {
                 kravgrunnlagsreferanse = null,
             )
 
+        // Act & Assert
         val exception =
             assertThrows<Feil> {
                 tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
@@ -293,6 +307,7 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `opprettTilbakekrevingsbehandlingManuelt skal ikke opprette når kanBehandlingOpprettesManuelt returnerer med feil referanse`() {
+        // Arrange
         val kravgrunnlagsreferanse = "123"
         every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
             KanBehandlingOpprettesManueltRespons(
@@ -302,6 +317,7 @@ internal class TilbakekrevingServiceTest {
             )
         every { vedtakRepository.findByBehandlingAndAktivOptional(kravgrunnlagsreferanse.toLong()) } returns null
 
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
@@ -321,6 +337,7 @@ internal class TilbakekrevingServiceTest {
 
     @Test
     fun `opprettTilbakekrevingsbehandlingManuelt skal opprette tilbakekrevingsbehandling`() {
+        // Arrange
         val requestSlot = slot<OpprettManueltTilbakekrevingRequest>()
         every { tilbakekrevingKlient.kanTilbakekrevingsbehandlingOpprettesManuelt(behandling.fagsak.id) } returns
             KanBehandlingOpprettesManueltRespons(
@@ -330,8 +347,10 @@ internal class TilbakekrevingServiceTest {
             )
         every { tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(any()) } returns ""
 
+        // Act
         tilbakekrevingService.opprettTilbakekrevingsbehandlingManuelt(behandling.fagsak.id)
 
+        // Assert
         verify(exactly = 1) { tilbakekrevingKlient.opprettTilbakekrevingsbehandlingManuelt(capture(requestSlot)) }
 
         val request = requestSlot.captured

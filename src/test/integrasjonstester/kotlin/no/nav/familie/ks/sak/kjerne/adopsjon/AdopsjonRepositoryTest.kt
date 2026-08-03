@@ -21,6 +21,7 @@ class AdopsjonRepositoryTest(
 
     @Test
     fun `skal kaste feil hvis det forsøkes å lagre to adopsjoner på samme aktør i samme behandling `() {
+        // Arrange
         val adopsjon =
             Adopsjon(
                 aktør = barn,
@@ -37,6 +38,7 @@ class AdopsjonRepositoryTest(
 
         adopsjonRepository.saveAndFlush(adopsjon)
 
+        // Act & Assert
         assertThrows<DataIntegrityViolationException> {
             adopsjonRepository.saveAndFlush(adopsjon2)
         }

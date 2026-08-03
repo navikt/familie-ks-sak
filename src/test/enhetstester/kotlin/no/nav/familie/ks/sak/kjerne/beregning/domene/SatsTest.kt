@@ -12,6 +12,7 @@ internal class SatsTest {
 
     @Test
     fun `hentGyldigSatsFor skal utlede 100 prosent sats når barn ikke har fått barnehageplass`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = null,
@@ -20,11 +21,13 @@ internal class SatsTest {
                 stønadTom = stønadTom,
             )
 
+        // Assert
         assertSatsPeriode(BigDecimal(100), satsPeriode)
     }
 
     @Test
     fun `hentGyldigSatsFor skal utlede 80 prosent sats når barn har fått barnehageplass i 8 timer`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = BigDecimal(8.99),
@@ -32,11 +35,13 @@ internal class SatsTest {
                 stønadFom = stønadFom,
                 stønadTom = stønadTom,
             )
+        // Assert
         assertSatsPeriode(BigDecimal(80), satsPeriode)
     }
 
     @Test
     fun `hentGyldigSatsFor skal utlede 60 prosent sats når barn har fått barnehageplass mindre enn 16 timer`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = BigDecimal(13.55),
@@ -44,11 +49,13 @@ internal class SatsTest {
                 stønadFom = stønadFom,
                 stønadTom = stønadTom,
             )
+        // Assert
         assertSatsPeriode(BigDecimal(60), satsPeriode)
     }
 
     @Test
     fun `hentGyldigSatsFor skal utlede 40 prosent sats når barn har fått barnehageplass mindre enn 24 timer`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = BigDecimal(22),
@@ -56,11 +63,13 @@ internal class SatsTest {
                 stønadFom = stønadFom,
                 stønadTom = stønadTom,
             )
+        // Assert
         assertSatsPeriode(BigDecimal(40), satsPeriode)
     }
 
     @Test
     fun `hentGyldigSatsFor skal utlede 20 prosent sats når barn har fått barnehageplass i 32 timer`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = BigDecimal(32.85),
@@ -68,11 +77,13 @@ internal class SatsTest {
                 stønadFom = stønadFom,
                 stønadTom = stønadTom,
             )
+        // Assert
         assertSatsPeriode(BigDecimal(20), satsPeriode)
     }
 
     @Test
     fun `hentGyldigSatsFor skal utlede 0 prosent sats når barn har fått barnehageplass mer enn 32 timer`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = BigDecimal(35),
@@ -80,11 +91,13 @@ internal class SatsTest {
                 stønadFom = stønadFom,
                 stønadTom = stønadTom,
             )
+        // Assert
         assertSatsPeriode(BigDecimal(0), satsPeriode)
     }
 
     @Test
     fun `hentGyldigSatsFor skal utlede 50 prosent sats når barn har delt bosted`() {
+        // Act
         val satsPeriode =
             hentGyldigSatsFor(
                 antallTimer = null,
@@ -92,6 +105,7 @@ internal class SatsTest {
                 stønadFom = stønadFom,
                 stønadTom = stønadTom,
             )
+        // Assert
         assertSatsPeriode(BigDecimal(50), satsPeriode)
     }
 

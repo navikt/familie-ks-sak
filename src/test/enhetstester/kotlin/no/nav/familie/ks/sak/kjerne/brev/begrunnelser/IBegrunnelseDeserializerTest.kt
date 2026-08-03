@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 class IBegrunnelseDeserializerTest {
     @Test
     fun `deserialiserer liste av enumverdier til IBegrunnelse`() {
+        // Arrange
         val testdata =
             EndretUtbetalingAndelRequestDto(
                 id = 1L,
@@ -28,6 +29,8 @@ class IBegrunnelseDeserializerTest {
             )
         val json = jsonMapper.writeValueAsString(testdata)
         val forventetJson = """{"id":1,"personIdent":"12345678903","personIdenter":["12345678903"],"prosent":100,"fom":"2023-01","tom":"2023-12","årsak":"ALLEREDE_UTBETALT","søknadstidspunkt":"2023-01-01","begrunnelse":"en begrunnelse","erEksplisittAvslagPåSøknad":false,"vedtaksbegrunnelser":["NasjonalEllerFellesBegrunnelse${'$'}AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_SØKER","NasjonalEllerFellesBegrunnelse${'$'}AVSLAG_ENDRINGSPERIODE_ALLEREDE_UTBETALT_ANNEN_FORELDER"]}"""
+
+        // Act & Assert
         assertEquals(forventetJson, json)
         assertEquals(testdata, jsonMapper.readValue(json, EndretUtbetalingAndelRequestDto::class.java))
     }

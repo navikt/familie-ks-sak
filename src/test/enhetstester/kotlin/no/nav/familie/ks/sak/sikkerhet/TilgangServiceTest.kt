@@ -97,8 +97,10 @@ class TilgangServiceTest {
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler eller veileder forsøker å gjøre handling som krever BESLUTTER-rolle`(
         behandlerRolle: BehandlerRolle,
     ) {
+        // Arrange
         mockBrukerContext(groups = listOf(behandlerRolle.name))
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandling(BehandlerRolle.BESLUTTER, defaultHandling)
@@ -111,8 +113,10 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom veileder forsøker å gjøre handling som krever SAKSBEHANDLER-rolle`() {
+        // Arrange
         mockBrukerContext(groups = listOf(BehandlerRolle.VEILEDER.name))
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandling(BehandlerRolle.SAKSBEHANDLER, defaultHandling)
@@ -125,8 +129,10 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom bruker verken er veileder saksbehandler eller beslutter`() {
+        // Arrange
         mockBrukerContext(groups = emptyList())
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, defaultHandling)
@@ -139,7 +145,10 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom beslutter beslutter forsøker å gjøre handling som krever BESLUTTER-rolle`() {
+        // Arrange
         mockBrukerContext(groups = listOf(BehandlerRolle.BESLUTTER.name))
+
+        // Act & Assert
         tilgangService.validerTilgangTilHandling(BehandlerRolle.BESLUTTER, "")
     }
 
@@ -148,7 +157,10 @@ class TilgangServiceTest {
     internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom saksbehandler eller beslutter forsøker å gjøre handling som krever SAKSBEHANDLER-rolle`(
         behandlerRolle: BehandlerRolle,
     ) {
+        // Arrange
         mockBrukerContext(groups = listOf(behandlerRolle.name))
+
+        // Act & Assert
         tilgangService.validerTilgangTilHandling(BehandlerRolle.SAKSBEHANDLER, "")
     }
 
@@ -157,12 +169,16 @@ class TilgangServiceTest {
     internal fun `skal ikke kaste RolleTilgangskontrollFeil dersom saksbehandler beslutter eller veileder forsøker å gjøre handling som krever VEILEDER-rolle`(
         behandlerRolle: BehandlerRolle,
     ) {
+        // Arrange
         mockBrukerContext(groups = listOf(behandlerRolle.name))
+
+        // Act & Assert
         tilgangService.validerTilgangTilHandling(BehandlerRolle.VEILEDER, "")
     }
 
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til person`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
@@ -170,6 +186,7 @@ class TilgangServiceTest {
 
         val personIdenter = listOf(aktør.aktivFødselsnummer())
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandlingOgPersoner(
@@ -187,11 +204,13 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal ikke feile når saksbehandler har tilgang til person`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
+        // Act & Assert
         tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(aktør.aktivFødselsnummer()),
             AuditLoggerEvent.ACCESS,
@@ -202,11 +221,13 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til behandling`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
             )
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
@@ -228,11 +249,13 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal ikke feile når saksbehandler har tilgang til behandling`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
+        // Act & Assert
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
@@ -243,6 +266,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilPersoner - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
@@ -251,6 +275,7 @@ class TilgangServiceTest {
         mockBrukerContext("A", groups = listOf(BehandlerRolle.SAKSBEHANDLER.name))
         val ident = "12345678910"
 
+        // Act
         tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
@@ -263,6 +288,7 @@ class TilgangServiceTest {
             BehandlerRolle.SAKSBEHANDLER,
             "",
         )
+        // Assert
         verify(exactly = 1) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
         }
@@ -270,6 +296,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilPersoner - hvis to ulike saksbehandler kaller skal den sjekke tilgang på nytt`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
@@ -280,6 +307,7 @@ class TilgangServiceTest {
         mockBrukerContext("A", roller)
         val ident = "12345678910"
 
+        // Act
         tilgangService.validerTilgangTilHandlingOgPersoner(
             listOf(ident),
             AuditLoggerEvent.ACCESS,
@@ -294,6 +322,7 @@ class TilgangServiceTest {
             "",
         )
 
+        // Assert
         verify(exactly = 2) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
         }
@@ -301,6 +330,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilBehandling - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
@@ -308,6 +338,7 @@ class TilgangServiceTest {
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
+        // Act
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
@@ -321,6 +352,7 @@ class TilgangServiceTest {
             "",
         )
 
+        // Assert
         verify(exactly = 1) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
         }
@@ -328,6 +360,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilBehandling - hvis to ulike saksbehandler kaller skal den sjekke tilgang på nytt`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
@@ -336,6 +369,7 @@ class TilgangServiceTest {
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
 
         mockBrukerContext("A", roller)
+        // Act
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandling.id,
             AuditLoggerEvent.ACCESS,
@@ -350,6 +384,7 @@ class TilgangServiceTest {
             "",
         )
 
+        // Assert
         verify(exactly = 2) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
         }
@@ -357,11 +392,13 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), false, "Bruker mangler rolle 'TEST_ROLLE'"),
             )
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandlingOgFagsak(
@@ -380,11 +417,13 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal ikke feile når saksbehandler har tilgang til fagsak`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
             )
 
+        // Act & Assert
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
@@ -395,18 +434,23 @@ class TilgangServiceTest {
 
     @Test
     internal fun `skal ikke feile når fagsak ikke eksisterer`() {
+        // Arrange
         every { mockFagsakRepository.finnFagsak(fagsak.id) } returns null
+
+        // Act
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
             BehandlerRolle.SAKSBEHANDLER,
             "hente behandling",
         )
+        // Assert
         verify(exactly = 0) { mockBehandlingRepository.finnBehandlinger(fagsak.id) }
     }
 
     @Test
     internal fun `validerTilgangTilFagsak - hvis samme saksbehandler kaller skal den ha cachet resultatet`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
@@ -414,6 +458,7 @@ class TilgangServiceTest {
 
         mockBrukerContext("A", listOf(BehandlerRolle.SAKSBEHANDLER.name))
 
+        // Act
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
@@ -427,6 +472,7 @@ class TilgangServiceTest {
             "",
         )
 
+        // Assert
         verify(exactly = 1) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
         }
@@ -434,6 +480,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilFagsak - hvis to ulike saksbehandlere kaller skal den sjekke tilgang på nytt`() {
+        // Arrange
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
                 Tilgang(aktør.aktivFødselsnummer(), true),
@@ -442,6 +489,7 @@ class TilgangServiceTest {
         val roller = listOf(BehandlerRolle.SAKSBEHANDLER.name)
 
         mockBrukerContext("A", roller)
+        // Act
         tilgangService.validerTilgangTilHandlingOgFagsak(
             fagsak.id,
             AuditLoggerEvent.ACCESS,
@@ -456,6 +504,7 @@ class TilgangServiceTest {
             "",
         )
 
+        // Assert
         verify(exactly = 2) {
             mockIntegrasjonService.sjekkTilgangTilPersoner(any())
         }
@@ -463,6 +512,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilFagsakForPerson - skal kaste RolleTilgangskontrollFeil dersom saksbehandler ikke har tilgang til fagsak`() {
+        // Arrange
         val aktør = randomAktør("12345678910")
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
@@ -471,6 +521,7 @@ class TilgangServiceTest {
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
         every { mockFagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
 
+        // Act & Assert
         val rolleTilgangskontrollFeil =
             assertThrows<RolleTilgangskontrollFeil> {
                 tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
@@ -489,6 +540,7 @@ class TilgangServiceTest {
 
     @Test
     internal fun `validerTilgangTilFagsakForPerson - skal ikke feile når saksbehandler har tilgang til fagsak`() {
+        // Arrange
         val aktør = randomAktør("12345678910")
         every { mockIntegrasjonService.sjekkTilgangTilPersoner(any()) } returns
             listOf(
@@ -497,6 +549,7 @@ class TilgangServiceTest {
         every { personidentService.hentOgLagreAktør("12345678910", any()) } returns aktør
         every { mockFagsakRepository.finnFagsakForAktør(aktør) } returns fagsak
 
+        // Act & Assert
         tilgangService.validerTilgangTilHandlingOgFagsakForPerson(
             "12345678910",
             AuditLoggerEvent.ACCESS,
@@ -507,6 +560,7 @@ class TilgangServiceTest {
 
     @Test
     fun `validerTilgangTilFagsak - skal kaste feil dersom søker eller et eller flere av barna har diskresjonskode og saksbehandler mangler tilgang`() {
+        // Arrange
         every { mockBehandlingRepository.finnBehandlinger(fagsak.id) }.returns(listOf(behandling))
         every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }.returns(
             PersonopplysningGrunnlag(
@@ -575,6 +629,7 @@ class TilgangServiceTest {
                 Tilgang("12345678910", false),
             )
 
+        // Act & Assert
         assertThrows<RolleTilgangskontrollFeil> {
             tilgangService.validerTilgangTilHandlingOgFagsak(
                 fagsak.id,

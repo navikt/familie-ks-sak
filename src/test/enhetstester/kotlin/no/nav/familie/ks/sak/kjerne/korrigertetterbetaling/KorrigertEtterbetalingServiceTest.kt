@@ -19,15 +19,18 @@ internal class KorrigertEtterbetalingServiceTest {
 
     @Test
     fun `finnAktivtKorrigeringPåBehandling skal hente aktivt korrigering fra repository hvis det finnes`() {
+        // Arrange
         val behandling = lagBehandling()
         val korrigertEtterbetaling = lagKorrigertEtterbetaling(behandling)
 
+        // Act
         every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) } returns korrigertEtterbetaling
 
         val hentetKorrigertEtterbetaling =
             korrigertEtterbetalingService.finnAktivtKorrigeringPåBehandling(behandling.id)
                 ?: fail("etterbetaling korrigering ikke hentet riktig")
 
+        // Assert
         assertThat(hentetKorrigertEtterbetaling.behandling.id, Is(behandling.id))
         assertThat(hentetKorrigertEtterbetaling.aktiv, Is(true))
 
@@ -36,9 +39,11 @@ internal class KorrigertEtterbetalingServiceTest {
 
     @Test
     fun `finnAlleKorrigeringerPåBehandling skal hente alle korrigering fra repository hvis de finnes`() {
+        // Arrange
         val behandling = lagBehandling()
         val korrigertEtterbetaling = lagKorrigertEtterbetaling(behandling)
 
+        // Act
         every { korrigertEtterbetalingRepository.finnAlleKorrigeringerPåBehandling(behandling.id) } returns
             listOf(
                 korrigertEtterbetaling,
@@ -48,6 +53,7 @@ internal class KorrigertEtterbetalingServiceTest {
         val hentetKorrigertEtterbetaling =
             korrigertEtterbetalingService.finnAlleKorrigeringerPåBehandling(behandling.id)
 
+        // Assert
         assertThat(hentetKorrigertEtterbetaling.size, Is(2))
 
         verify(exactly = 1) { korrigertEtterbetalingRepository.finnAlleKorrigeringerPåBehandling(behandling.id) }
@@ -55,9 +61,11 @@ internal class KorrigertEtterbetalingServiceTest {
 
     @Test
     fun `lagreKorrigertEtterbetaling skal lagre korrigering på behandling og logg på dette`() {
+        // Arrange
         val behandling = lagBehandling()
         val korrigertEtterbetaling = lagKorrigertEtterbetaling(behandling)
 
+        // Act
         every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) } returns null
         every { korrigertEtterbetalingRepository.save(korrigertEtterbetaling) } returns korrigertEtterbetaling
         every { loggService.opprettKorrigertEtterbetalingLogg(behandling, any()) } returns Unit
@@ -65,6 +73,7 @@ internal class KorrigertEtterbetalingServiceTest {
         val lagretKorrigertEtterbetaling =
             korrigertEtterbetalingService.lagreKorrigertEtterbetaling(korrigertEtterbetaling)
 
+        // Assert
         assertThat(lagretKorrigertEtterbetaling.behandling.id, Is(behandling.id))
 
         verify(exactly = 1) { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandling.id) }
@@ -79,10 +88,12 @@ internal class KorrigertEtterbetalingServiceTest {
 
     @Test
     fun `lagreKorrigertEtterbetaling skal sette og lagre forrige korrigering til inaktivt hvis det finnes tidligere korrigering`() {
+        // Arrange
         val behandling = lagBehandling()
         val forrigeKorrigering = mockk<KorrigertEtterbetaling>(relaxed = true)
         val korrigertEtterbetaling = lagKorrigertEtterbetaling(behandling)
 
+        // Act
         every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(any()) } returns forrigeKorrigering
         every { korrigertEtterbetalingRepository.saveAndFlush(forrigeKorrigering) } returns korrigertEtterbetaling
         every { korrigertEtterbetalingRepository.save(korrigertEtterbetaling) } returns korrigertEtterbetaling
@@ -90,6 +101,7 @@ internal class KorrigertEtterbetalingServiceTest {
 
         korrigertEtterbetalingService.lagreKorrigertEtterbetaling(korrigertEtterbetaling)
 
+        // Assert
         verify(exactly = 1) { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(any()) }
         verify(exactly = 1) { forrigeKorrigering setProperty "aktiv" value false }
         verify(exactly = 1) { korrigertEtterbetalingRepository.saveAndFlush(forrigeKorrigering) }
@@ -98,14 +110,17 @@ internal class KorrigertEtterbetalingServiceTest {
 
     @Test
     fun `settKorrigeringPåBehandlingTilInaktiv skal sette korrigering til inaktivt hvis det finnes`() {
+        // Arrange
         val behandling = lagBehandling()
         val korrigertEtterbetaling = mockk<KorrigertEtterbetaling>(relaxed = true)
 
+        // Act
         every { korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(any()) } returns korrigertEtterbetaling
         every { loggService.opprettKorrigertEtterbetalingLogg(any(), any()) } returns Unit
 
         korrigertEtterbetalingService.settKorrigeringPåBehandlingTilInaktiv(behandling)
 
+        // Assert
         verify(exactly = 1) { korrigertEtterbetaling setProperty "aktiv" value false }
         verify(exactly = 1) {
             loggService.opprettKorrigertEtterbetalingLogg(

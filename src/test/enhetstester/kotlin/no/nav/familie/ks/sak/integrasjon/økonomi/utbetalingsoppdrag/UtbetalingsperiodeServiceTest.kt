@@ -48,6 +48,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal ikke iverksette mot oppdrag hvis det ikke finnes utbetalingsperioder`() {
+        // Arrange
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
         every { oppdragKlient.iverksettOppdrag(any()) } returns ""
 
@@ -63,16 +64,19 @@ internal class UtbetalingsperiodeServiceTest {
             tilkjentYtelseSlot = tilkjentYtelseSlot,
         )
 
+        // Act
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak = vedtak,
             "abc123",
         )
 
+        // Assert
         verify(exactly = 0) { oppdragKlient.iverksettOppdrag(any()) }
     }
 
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal iverksette mot oppdrag hvis det finnes utbetalingsperioder`() {
+        // Arrange
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
         every { oppdragKlient.iverksettOppdrag(any()) } returns ""
 
@@ -111,16 +115,19 @@ internal class UtbetalingsperiodeServiceTest {
             tilkjentYtelseSlot = tilkjentYtelseSlot,
         )
 
+        // Act
         utbetalingsoppdragService.oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett(
             vedtak = vedtak,
             "abc123",
         )
 
+        // Assert
         verify(exactly = 1) { oppdragKlient.iverksettOppdrag(any()) }
     }
 
     @Test
     fun `genererUtbetalingsoppdrag - skal generere nytt utbetalingsoppdrag og oppdatere andeler med offset når det ikke finnes en forrige behandling`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -156,12 +163,14 @@ internal class UtbetalingsperiodeServiceTest {
             tilkjentYtelseSlot = tilkjentYtelseSlot,
         )
 
+        // Act
         val beregnetUtbetalingsoppdrag =
             utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
                 vedtak = vedtak,
                 "abc123",
             )
 
+        // Assert
         val lagredeAndeler = tilkjentYtelseSlot.captured.andelerTilkjentYtelse
 
         verify(exactly = 1) { tilkjentYtelseRepository.save(any()) }
@@ -182,6 +191,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - skal generere nytt utbetalingsoppdrag og oppdatere andeler med offset når det finnes en forrige behandling`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -239,12 +249,14 @@ internal class UtbetalingsperiodeServiceTest {
             tilkjentYtelseSlot = tilkjentYtelseSlot,
         )
 
+        // Act
         val beregnetUtbetalingsoppdrag =
             utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
                 vedtak = vedtak,
                 "abc123",
             )
 
+        // Assert
         val lagredeAndeler = tilkjentYtelseSlot.captured.andelerTilkjentYtelse
 
         verify(exactly = 1) { tilkjentYtelseRepository.save(any()) }
@@ -263,6 +275,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - skal generere nytt utbetalingsoppdrag og oppdatere andeler med offset for 2 personer`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -341,6 +354,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - skal generere nytt utbetalingsoppdrag og oppdatere andeler med offset for 2 personer og tidligere behandling`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -446,6 +460,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - skal generere nytt utbetalingsoppdrag og oppdatere andeler med offset for 2 personer og tidligere behandling for overgangsordning`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -537,12 +552,14 @@ internal class UtbetalingsperiodeServiceTest {
             forrigeTilkjentYtelse = forrigeTilkjentYtelse,
         )
 
+        // Act
         val beregnetUtbetalingsoppdrag =
             utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
                 vedtak = vedtak,
                 "abc123",
             )
 
+        // Assert
         val lagredeAndeler = tilkjentYtelseSlot.captured.andelerTilkjentYtelse
 
         verify(exactly = 1) { tilkjentYtelseRepository.save(any()) }
@@ -563,6 +580,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - skal generere nytt utbetalingsoppdrag for simulering med en eksisterende kjede og en ny kjede`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -650,6 +668,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - revurdering hvor 0-utbetaling går til betaling skal ikke opprette noe opphør ved simulering`() {
+        // Arrange
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
         val person = tilfeldigPerson()
@@ -725,6 +744,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @Test
     fun `genererUtbetalingsoppdrag - revurdering hvor en overgangsordningandel settes til 0 skal ikke inkludere den andelen`() {
+        // Arrange
         val barn = tilfeldigPerson()
 
         val forrigeBehandling = lagBehandling()

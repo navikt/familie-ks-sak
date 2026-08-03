@@ -51,8 +51,11 @@ class ValutakursControllerTest {
 
     @Test
     fun `Test at valutakurs hentes fra ECB dersom dato og valuta er satt`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 1, 1)
         val valuta = "SEK"
+
+        // Act & Assert
         assertThrows<MockKException> {
             valutakursController.oppdaterValutakurs(
                 1,
@@ -65,7 +68,10 @@ class ValutakursControllerTest {
 
     @Test
     fun `Test at valutakurs ikke hentes fra ECB dersom dato ikke er satt`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 1, 1)
+
+        // Act & Assert
         assertThrows<MockKException> {
             valutakursController.oppdaterValutakurs(
                 1,
@@ -78,7 +84,10 @@ class ValutakursControllerTest {
 
     @Test
     fun `Test at valutakurs ikke hentes fra ECB dersom valuta ikke er satt`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2022, 1, 1)
+
+        // Act & Assert
         assertThrows<MockKException> {
             valutakursController.oppdaterValutakurs(
                 1,
@@ -91,7 +100,10 @@ class ValutakursControllerTest {
 
     @Test
     fun `Test at valutakurs ikke hentes fra ECB dersom ISK og før 1 feb 2018`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2018, 1, 31)
+
+        // Act & Assert
         assertThrows<MockKException> {
             valutakursController.oppdaterValutakurs(
                 1,
@@ -104,7 +116,10 @@ class ValutakursControllerTest {
 
     @Test
     fun `Test at valutakurs hentes fra ECB dersom ISK og etter 1 feb 2018`() {
+        // Arrange
         val valutakursDato = LocalDate.of(2018, 2, 1)
+
+        // Act & Assert
         assertThrows<MockKException> {
             valutakursController.oppdaterValutakurs(
                 1,

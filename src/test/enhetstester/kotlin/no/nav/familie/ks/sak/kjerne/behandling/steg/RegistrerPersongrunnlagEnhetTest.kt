@@ -48,14 +48,17 @@ class RegistrerPersongrunnlagEnhetTest {
 
     @Test
     fun `Kopierer kompetanser, valutakurser og utenlandsk periodebeløp til ny behandling`() {
+        // Arrange
         val sisteVedtatteBehandling = lagBehandling(status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.INNVILGET)
         val behandling2 = lagBehandling()
 
         every { behandlingRepository.hentBehandling(behandling2.id) } returns behandling2
         every { behandlingRepository.finnBehandlinger(behandling2.fagsak.id) } returns listOf(sisteVedtatteBehandling)
 
+        // Act
         registrerPersongrunnlagSteg.utførSteg(behandlingId = behandling2.id)
 
+        // Assert
         verify(exactly = 1) {
             kompetanseService.kopierOgErstattKompetanser(
                 BehandlingId(sisteVedtatteBehandling.id),
@@ -82,14 +85,17 @@ class RegistrerPersongrunnlagEnhetTest {
 
     @Test
     fun `Skal ikke kopierer kompetanser, valutakurser og utenlandsk periodebeløp for man ikke har noen siste behandling er henlagt`() {
+        // Arrange
         val sisteVedtatteBehandling = lagBehandling(status = BehandlingStatus.AVSLUTTET, resultat = Behandlingsresultat.HENLAGT_FEILAKTIG_OPPRETTET)
         val behandling2 = lagBehandling()
 
         every { behandlingRepository.hentBehandling(behandling2.id) } returns behandling2
         every { behandlingRepository.finnBehandlinger(behandling2.fagsak.id) } returns listOf(sisteVedtatteBehandling)
 
+        // Act
         registrerPersongrunnlagSteg.utførSteg(behandlingId = behandling2.id)
 
+        // Assert
         verify(exactly = 0) {
             kompetanseService.kopierOgErstattKompetanser(
                 BehandlingId(sisteVedtatteBehandling.id),

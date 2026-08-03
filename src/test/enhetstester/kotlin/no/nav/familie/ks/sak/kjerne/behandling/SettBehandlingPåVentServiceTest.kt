@@ -39,6 +39,7 @@ class SettBehandlingPåVentServiceTest {
     @Test
     fun `settBehandlingPåVent - skal sette behandling på vent og forlenge frist på oppgave`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
+        // Arrange
         every { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) } just runs
         every { oppgaveService.settNyFristÅpneOppgaverPåBehandling(any(), any()) } just runs
 
@@ -49,6 +50,7 @@ class SettBehandlingPåVentServiceTest {
             VenteÅrsak.AVVENTER_DOKUMENTASJON,
         )
 
+        // Act & Assert
         verify(exactly = 1) { behandlingRepository.hentBehandling(any()) }
         verify(exactly = 1) { stegService.settBehandlingstegPåVent(any(), any(), VenteÅrsak.AVVENTER_DOKUMENTASJON) }
         verify(exactly = 1) { oppgaveService.settNyFristÅpneOppgaverPåBehandling(any(), any()) }
@@ -57,12 +59,15 @@ class SettBehandlingPåVentServiceTest {
     @Test
     fun `settBehandlingPåVent - skal kaste feil når behandling allerede er satt på vent`() {
         behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }.behandlingStegStatus =
+            // Arrange
             BehandlingStegStatus.VENTER
         every { behandlingRepository.hentBehandling(any()) } returns behandling
 
         val frist = LocalDate.now().plusWeeks(1)
 
         val funksjonellFeil =
+
+            // Act & Assert
             assertThrows<FunksjonellFeil> {
                 settBehandlingPåVentService.settBehandlingPåVent(
                     behandling.id,
@@ -78,9 +83,12 @@ class SettBehandlingPåVentServiceTest {
     fun `settBehandlingPåVent - skal kaste feil når frist er før dagens dato`() {
         every { behandlingRepository.hentBehandling(any()) } returns behandling
 
+        // Arrange
         val frist = LocalDate.now().minusWeeks(1)
 
         val funksjonellFeil =
+
+            // Act & Assert
             assertThrows<FunksjonellFeil> {
                 settBehandlingPåVentService.settBehandlingPåVent(
                     behandling.id,
@@ -100,9 +108,12 @@ class SettBehandlingPåVentServiceTest {
         behandling.status = BehandlingStatus.AVSLUTTET
         every { behandlingRepository.hentBehandling(any()) } returns behandling
 
+        // Arrange
         val frist = LocalDate.now().plusWeeks(1)
 
         val funksjonellFeil =
+
+            // Act & Assert
             assertThrows<FunksjonellFeil> {
                 settBehandlingPåVentService.settBehandlingPåVent(
                     behandling.id,
@@ -122,9 +133,12 @@ class SettBehandlingPåVentServiceTest {
         behandling.aktiv = false
         every { behandlingRepository.hentBehandling(any()) } returns behandling
 
+        // Arrange
         val frist = LocalDate.now().plusWeeks(1)
 
         val funksjonellFeil =
+
+            // Act & Assert
             assertThrows<FunksjonellFeil> {
                 settBehandlingPåVentService.settBehandlingPåVent(
                     behandling.id,
@@ -145,7 +159,9 @@ class SettBehandlingPåVentServiceTest {
         val frist = LocalDate.now().plusWeeks(2)
 
         every { behandlingRepository.hentBehandling(any()) } returns behandling
+        // Arrange
         every {
+            // Act & Assert
             stegService.oppdaterBehandlingstegFristOgÅrsak(
                 any(),
                 any(),
@@ -175,8 +191,11 @@ class SettBehandlingPåVentServiceTest {
     @Test
     fun `gjenopptaBehandlingPåVent - skal gjenoppta ventende behandling, oppdatere logg og sette ny frist på oppgave`() {
         behandling.behandlingStegTilstand.single { it.behandlingSteg == behandling.steg }.behandlingStegStatus =
+            // Arrange
             BehandlingStegStatus.VENTER
         every { behandlingRepository.hentBehandling(any()) } returns behandling
+
+        // Act & Assert
         every { stegService.utførSteg(any(), any()) } just runs
         every { loggService.opprettBehandlingGjenopptattLogg(behandling) } just runs
         every { oppgaveService.settFristÅpneOppgaverPåBehandlingTil(any(), any()) } just runs

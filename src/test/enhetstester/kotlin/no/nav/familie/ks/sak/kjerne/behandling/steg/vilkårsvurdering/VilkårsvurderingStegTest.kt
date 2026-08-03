@@ -145,11 +145,13 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis behandlingsårsak er DØDSFALL og det eksisterer vilkår lengre fram i tid enn søkers dødsdato`() {
+        // Arrange
         val behandling = behandling.copy(opprettetÅrsak = BehandlingÅrsak.DØDSFALL)
         every { behandlingService.hentBehandling(behandling.id) } returns behandling
 
         val barn = randomAktør()
         val personopplysningGrunnlag =
+            // Act
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
@@ -181,6 +183,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
 
         val feil =
+            // Assert
             assertThrows<FunksjonellFeil> {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }
@@ -199,10 +202,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis det er periode overlapp mellom delt bosted og gradert barnehageplass vilkår`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -247,6 +252,7 @@ class VilkårsvurderingStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurderingForSøker
 
         val feil =
+            // Assert
             assertThrows<IllegalStateException> {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }
@@ -263,8 +269,10 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste funksjonell feil hvis det ikke er noe barn i personopplysningsgrunnlaget`() {
+        // Arrange
         val søknadGrunnlagMock = mockk<SøknadGrunnlag>(relaxed = true)
 
+        // Act
         mockkObject(SøknadGrunnlagMapper)
         with(SøknadGrunnlagMapper) {
             every { søknadGrunnlagMock.tilSøknadDto() } returns
@@ -306,6 +314,7 @@ class VilkårsvurderingStegTest {
         every { søknadGrunnlagService.finnAktiv(behandling.id) } returns søknadGrunnlagMock
 
         val feil =
+            // Assert
             assertThrows<FunksjonellFeil> {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }
@@ -328,7 +337,9 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste feil hvis barnehageplass perioder ikke dekker perioder i barnets alder vilkår`() {
+        // Arrange
         val vilkårsvurdering =
+            // Act
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker.aktør,
                 behandling = behandling,
@@ -356,6 +367,7 @@ class VilkårsvurderingStegTest {
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
 
+        // Assert
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Det mangler vurdering på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}. " +
@@ -366,7 +378,9 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste feil hvis barnehageplass perioder starter etter siste dato i barnets alder vilkår`() {
+        // Arrange
         val vilkårsvurdering =
+            // Act
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker.aktør,
                 behandling = behandling,
@@ -398,6 +412,7 @@ class VilkårsvurderingStegTest {
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
 
+        // Assert
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Du har lagt til en periode på vilkåret ${Vilkår.BARNEHAGEPLASS.beskrivelse}" +
@@ -409,8 +424,10 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal ikke kaste feil hvis barnehageplass perioder starter i periode for overgangsordning etter siste dato i barnets alder vilkår`() {
+        // Arrange
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 1, 1))
         val personopplysningGrunnlag =
+            // Act
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
@@ -461,7 +478,9 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned`() {
+        // Arrange
         val vilkårsvurdering =
+            // Act
             lagVilkårsvurderingMedSøkersVilkår(
                 søkerAktør = søker.aktør,
                 behandling = behandling,
@@ -496,6 +515,7 @@ class VilkårsvurderingStegTest {
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
 
+        // Assert
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
@@ -506,10 +526,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste feil når det er blanding av regelverk på vilkårene for barnet`() {
+        // Arrange
         val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurdering, aktør = søker.aktør)
         // BOSATT I RIKET er vurdert etter både NASJONALE_REGLER og EØS_FORORDNINGEN
         // mens MEDLEMSKAP er vurdert etter kun NASJONALE_REGLER
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 lagVilkårResultat(
@@ -564,6 +586,7 @@ class VilkårsvurderingStegTest {
 
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
 
+        // Assert
         val exception = assertThrows<FunksjonellFeil> { vilkårsvurderingSteg.utførSteg(behandling.id) }
         assertEquals(
             "Det er forskjellig regelverk for en eller flere perioder for søker eller barna",
@@ -573,10 +596,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal validere vilkårsvurderingen`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -615,6 +640,7 @@ class VilkårsvurderingStegTest {
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
+        // Assert
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
@@ -624,10 +650,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste feil dersom det finnes vilkår som har fom dato satt senere enn inneværende måned`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -665,6 +693,7 @@ class VilkårsvurderingStegTest {
         every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
 
         val feilmelding =
+            // Assert
             assertThrows<FunksjonellFeil> {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }.melding
@@ -674,10 +703,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal kaste feil dersom det finnes barnehageplass vilkår som har fom dato satt senere enn neste måned`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -715,6 +746,7 @@ class VilkårsvurderingStegTest {
         every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
 
         val feilmelding =
+            // Assert
             assertThrows<FunksjonellFeil> {
                 vilkårsvurderingSteg.utførSteg(behandling.id)
             }.melding
@@ -724,10 +756,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal oppdatere behandlingstema med EØS hvis nåværende behandling inneholder vilkår vurdert etter EØS ordningen`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -762,6 +796,7 @@ class VilkårsvurderingStegTest {
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
+        // Assert
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
@@ -772,10 +807,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal oppdatere behandlingstema med EØS hvis forrige behandling inneholder løpende vilkår vurdert etter EØS ordningen`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -853,6 +890,7 @@ class VilkårsvurderingStegTest {
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
+        // Assert
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
@@ -864,10 +902,12 @@ class VilkårsvurderingStegTest {
 
     @Test
     fun `utførSteg - skal ikke oppdatere behandlingstema med EØS hvis forrige behandling inneholder løpende vilkår vurdert etter EØS ordningen men som er utløpt`() {
+        // Arrange
         val vilkårsvurderingForSøker = Vilkårsvurdering(behandling = behandling)
         val søkerPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = søker.aktør)
         val barnPersonResultat = PersonResultat(vilkårsvurdering = vilkårsvurderingForSøker, aktør = barn.aktør)
 
+        // Act
         søkerPersonResultat.setSortedVilkårResultater(
             setOf(
                 VilkårResultat(
@@ -949,6 +989,7 @@ class VilkårsvurderingStegTest {
 
         vilkårsvurderingSteg.utførSteg(behandling.id)
 
+        // Assert
         verify(exactly = 1) { behandlingService.hentBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }

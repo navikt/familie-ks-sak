@@ -23,19 +23,25 @@ class AktørRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `findByAktørId - skal returnere Aktør dersom aktør med bestemt aktørId finnes i db`() {
+        // Arrange
         val aktør = opprettAktør()
 
+        // Act
         val hentetAktør = aktørRepository.findByAktørId(aktør.aktørId)
 
+        // Assert
         assertNotNull(hentetAktør)
     }
 
     @Test
     fun `findByAktørId - skal returnere null dersom aktør med bestemt aktørId ikke finnes i db`() {
+        // Arrange
         val aktørId = randomAktørId()
 
+        // Act
         val hentetAktør = aktørRepository.findByAktørId(aktørId)
 
+        // Assert
         assertNull(hentetAktør)
     }
 

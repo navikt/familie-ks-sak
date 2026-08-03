@@ -83,6 +83,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `endreVilkår - skal returnere endrede vilkår`() {
+        // Arrange
         val bosattIRiketVilkår =
             vilkårsvurderingService
                 .hentAktivVilkårsvurderingForBehandling(behandling.id)
@@ -118,6 +119,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             }
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -135,6 +137,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `endreVilkår - skal endre vilkår og tilbakefører behandling til vilkårsvurdering`() {
+        // Arrange
         val behandlingForOppdatering = behandlingRepository.hentAktivBehandling(behandling.id)
         behandlingForOppdatering.behandlingStegTilstand.clear()
         behandlingForOppdatering.behandlingStegTilstand.addAll(
@@ -202,6 +205,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             }
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -216,6 +220,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             statusCode(HttpStatus.OK.value())
         }
 
+        // Assert
         assertTrue { vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtak.id).isEmpty() }
 
         val oppdatertBehandling = behandlingRepository.hentAktivBehandling(behandlingForOppdatering.id)
@@ -235,6 +240,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `opprettNyttVilkår - skal kaste feil dersom det eksisterer uvurdert vilkår av samme type`() {
+        // Arrange
         val request =
             """
             {
@@ -244,6 +250,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             }
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -262,6 +269,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `opprettNyttVilkår - skal opprette nytt vilkår dersom det ikke eksisterer uvurdert vilkår av samme type på person`() {
+        // Arrange
         val request =
             """
             {
@@ -271,6 +279,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             }
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -288,6 +297,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `opprettNyttVilkår - skal opprette nytt vilkår og tilbakefører behandling til vilkårsvurdering steg`() {
+        // Arrange
         val behandlingForOppdatering = behandlingRepository.hentAktivBehandling(behandling.id)
         behandlingForOppdatering.behandlingStegTilstand.clear()
         behandlingForOppdatering.behandlingStegTilstand.addAll(
@@ -328,6 +338,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             }
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -342,6 +353,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             )
         }
 
+        // Assert
         assertTrue { vedtaksperiodeRepository.finnVedtaksperioderForVedtak(vedtak.id).isEmpty() }
 
         val oppdatertBehandling = behandlingRepository.hentAktivBehandling(behandlingForOppdatering.id)
@@ -361,6 +373,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `slettVilkår - skal kaste feil dersom det forsøkes å slette vilkår som ikke eksisterer`() {
+        // Arrange
         val ikkeEksisterendeVilkårId = 404
 
         val request =
@@ -368,6 +381,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             ${søker.aktivFødselsnummer()}
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -383,6 +397,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `slettVilkår - skal lage nytt initiell vilkår av samme type dersom det bare finnes en ved sletting`() {
+        // Arrange
         val bosattIRiketVilkår =
             vilkårsvurderingService
                 .hentAktivVilkårsvurderingForBehandling(behandling.id)
@@ -398,6 +413,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
             ${søker.aktivFødselsnummer()}
             """.trimIndent()
 
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -415,6 +431,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `endreAnnenVurdering - skal kaste feil dersom annen vurdering ikke finnes`() {
+        // Arrange
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
         val request =
             """
@@ -426,6 +443,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
               
             }
             """.trimIndent()
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)
@@ -440,6 +458,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `endreAnnenVurdering - skal oppdatere eksisterende annen vurdering`() {
+        // Arrange
         val token = lokalTestToken(behandlerRolle = BehandlerRolle.SAKSBEHANDLER)
         val personResultat =
             vilkårsvurderingService
@@ -463,6 +482,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
                 "begrunnelse": "Begrunnelse"
             }
             """.trimIndent()
+        // Act
         Given {
             header("Authorization", "Bearer $token")
             body(request)

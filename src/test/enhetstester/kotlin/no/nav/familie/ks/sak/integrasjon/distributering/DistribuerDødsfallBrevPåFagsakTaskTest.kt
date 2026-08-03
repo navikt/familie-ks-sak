@@ -17,26 +17,32 @@ class DistribuerDødsfallBrevPåFagsakTaskTest {
 
     @Test
     fun `doTask skal stoppes dersom task er eldre enn 6 måneder og brev skal ikke bli forsøkt distribuert`() {
+        // Arrange
         val mockedTask = mockk<Task>()
 
         every { mockedTask.payload } returns "{\"journalpostId\":\"testId\",\"brevmal\":\"VEDTAK_OPPHØR_DØDSFALL\"}"
         every { mockedTask.opprettetTid } returns LocalDateTime.of(2021, 10, 10, 0, 0)
 
+        // Act
         distribuerDødsfallBrevPåFagsakTask.doTask(mockedTask)
 
+        // Assert
         verify(exactly = 0) { brevService.prøvDistribuerBrevOgLoggHendelse(any(), any(), any(), any()) }
     }
 
     @Test
     fun `doTask skal forsøke å distribuere brev dersom task ikke er eldre enn 6mnd`() {
+        // Arrange
         val mockedTask = mockk<Task>()
 
         every { mockedTask.payload } returns "{\"journalpostId\":\"testId\",\"brevmal\":\"VEDTAK_OPPHØR_DØDSFALL\"}"
         every { brevService.prøvDistribuerBrevOgLoggHendelse(any(), any(), any(), any()) } just runs
         every { mockedTask.opprettetTid } returns LocalDateTime.now()
 
+        // Act
         distribuerDødsfallBrevPåFagsakTask.doTask(mockedTask)
 
+        // Assert
         verify(exactly = 1) { brevService.prøvDistribuerBrevOgLoggHendelse(any(), any(), any(), any()) }
     }
 }

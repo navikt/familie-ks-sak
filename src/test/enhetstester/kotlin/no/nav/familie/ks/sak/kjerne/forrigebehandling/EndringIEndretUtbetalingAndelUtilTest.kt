@@ -26,6 +26,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
     inner class UtledEndringstidspunktForEndretUtbetalingAndelTest {
         @Test
         fun `Skal utlede riktig endringstidspunkt når årsak er endret`() {
+            // Arrange
             val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
@@ -39,17 +40,20 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
             val nåværendeEndretAndel = forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)
 
+            // Act
             val endringstidspunkt =
                 EndringIEndretUtbetalingAndelUtil.utledEndringstidspunktForEndretUtbetalingAndel(
                     forrigeEndretAndeler = listOf(forrigeEndretAndel),
                     nåværendeEndretAndeler = listOf(nåværendeEndretAndel),
                 )
 
+            // Assert
             assertThat(jan22).isEqualTo(endringstidspunkt)
         }
 
         @Test
         fun `Endring av prosent skal ikke trigge at endringstidspunktet blir endret`() {
+            // Arrange
             val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
@@ -63,17 +67,20 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
             val nåværendeEndretAndel = forrigeEndretAndel.copy(prosent = BigDecimal(100))
 
+            // Act
             val endringstidspunkt =
                 EndringIEndretUtbetalingAndelUtil.utledEndringstidspunktForEndretUtbetalingAndel(
                     forrigeEndretAndeler = listOf(forrigeEndretAndel),
                     nåværendeEndretAndeler = listOf(nåværendeEndretAndel),
                 )
 
+            // Assert
             assertNull(endringstidspunkt)
         }
 
         @Test
         fun `Skal utlede riktig endringstidspunkt når det har vært endring på årsak på et av to barn`() {
+            // Arrange
             val barn1 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val barn2 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
 
@@ -97,6 +104,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     årsak = Årsak.ETTERBETALING_3MND,
                 )
 
+            // Act
             val endringstidspunkt =
                 EndringIEndretUtbetalingAndelUtil.utledEndringstidspunktForEndretUtbetalingAndel(
                     forrigeEndretAndeler = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2),
@@ -106,6 +114,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                             forrigeEndretAndelBarn2.copy(årsak = Årsak.ALLEREDE_UTBETALT),
                         ),
                 )
+            // Assert
             assertThat(jan22).isEqualTo(endringstidspunkt)
         }
     }
@@ -114,6 +123,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
     inner class LagEndringIEndretUbetalingAndelPerPersonTidslinje {
         @Test
         fun `Skal ha endret periode hvis årsak er endret`() {
+            // Arrange
             val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
@@ -127,6 +137,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
             val nåværendeEndretAndel = forrigeEndretAndel.copy(årsak = Årsak.ALLEREDE_UTBETALT)
 
+            // Act
             val perioderMedEndring =
                 EndringIEndretUtbetalingAndelUtil
                     .lagEndringIEndretUbetalingAndelPerPersonTidslinje(
@@ -135,6 +146,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(jan22.førsteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().fom)
             assertThat(aug22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)
@@ -142,6 +154,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
         @Test
         fun `Skal ikke ha noen endrede perioder hvis kun prosent er endret`() {
+            // Arrange
             val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
@@ -155,6 +168,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
             val nåværendeEndretAndel = forrigeEndretAndel.copy(prosent = BigDecimal(100))
 
+            // Act
             val perioderMedEndring =
                 EndringIEndretUtbetalingAndelUtil
                     .lagEndringIEndretUbetalingAndelPerPersonTidslinje(
@@ -163,11 +177,13 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             assertTrue(perioderMedEndring.isEmpty())
         }
 
         @Test
         fun `Skal returnere endret periode hvis et av to barn har endring på årsak`() {
+            // Arrange
             val barn1 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val barn2 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
 
@@ -191,6 +207,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     årsak = Årsak.ETTERBETALING_3MND,
                 )
 
+            // Act
             val perioderMedEndring =
                 listOf(barn1, barn2)
                     .map {
@@ -201,6 +218,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     }.flatMap { it.tilPerioder() }
                     .filter { it.verdi == true }
 
+            // Assert
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(jan22.førsteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().fom)
             assertThat(aug22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)
@@ -208,6 +226,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
         @Test
         fun `Skal noen endrede perioder hvis eneste endring er at perioden blir lenger`() {
+            // Arrange
             val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
@@ -221,6 +240,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
             val nåværendeEndretAndel = forrigeEndretAndel.copy(tom = des22)
 
+            // Act
             val perioderMedEndring =
                 EndringIEndretUtbetalingAndelUtil
                     .lagEndringIEndretUbetalingAndelPerPersonTidslinje(
@@ -229,6 +249,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(sep22.førsteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().fom)
             assertThat(des22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)
@@ -236,6 +257,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
 
         @Test
         fun `Skal ha endrede perioder hvis endringsperiode oppstår i nåværende behandling`() {
+            // Arrange
             val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
             val nåværendeEndretAndel =
                 lagEndretUtbetalingAndel(
@@ -247,6 +269,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     årsak = Årsak.ALLEREDE_UTBETALT,
                 )
 
+            // Act
             val perioderMedEndring =
                 EndringIEndretUtbetalingAndelUtil
                     .lagEndringIEndretUbetalingAndelPerPersonTidslinje(
@@ -255,6 +278,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(jan22.førsteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().fom)
             assertThat(aug22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)

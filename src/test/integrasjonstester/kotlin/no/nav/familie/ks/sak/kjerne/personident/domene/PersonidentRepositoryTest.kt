@@ -22,27 +22,37 @@ class PersonidentRepositoryTest : OppslagSpringRunnerTest() {
 
     @Test
     fun `hentAlleIdenterForAktørid - skal hente liste over alle personidenter tilknyttet aktørId`() {
+        // Arrange (data er opprettet av @BeforeEach)
+
+        // Act
         val hentedePersonidenter = personidentRepository.hentAlleIdenterForAktørid(søker.aktørId)
 
+        // Assert
         assertEquals(1, hentedePersonidenter.size)
     }
 
     @Test
     fun `findByFødselsnummerOrNull - skal hente personident med bestemt fødselsnummer dersom det finnes i db`() {
+        // Arrange
         val aktivFødselsnummer = søker.aktivFødselsnummer()
 
+        // Act
         val personident = personidentRepository.findByFødselsnummerOrNull(aktivFødselsnummer)
 
+        // Assert
         assertNotNull(personident)
         assertEquals(aktivFødselsnummer, personident!!.fødselsnummer)
     }
 
     @Test
     fun `findByFødselsnummerOrNull - skal returnere null dersom det ikke finnes en personident med bestemt fødselsnummer i db`() {
+        // Arrange
         val fødselsnummer = randomFnr()
 
+        // Act
         val personident = personidentRepository.findByFødselsnummerOrNull(fødselsnummer)
 
+        // Assert
         assertNull(personident)
     }
 }

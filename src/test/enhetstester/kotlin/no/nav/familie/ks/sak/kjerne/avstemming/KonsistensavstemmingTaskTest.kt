@@ -39,15 +39,20 @@ internal class KonsistensavstemmingTaskTest {
 
     @Test
     fun `doTask skal ikke utføre task når kjøreplan status er FERDIG`() {
+        // Arrange
         every { konsistensavstemmingKjøreplanService.harKjøreplanStatusFerdig(1) } returns true
 
+        // Act
         konsistensavstemmingTask.doTask(lagTask())
+
+        // Assert
         verify(exactly = 0) { avstemmingService.sendKonsistensavstemmingStartMelding(any(), any()) }
         verify(exactly = 0) { konsistensavstemmingKjøreplanService.lagreNyStatus(any<KonsistensavstemmingKjøreplan>(), any()) }
     }
 
     @Test
     fun `doTask skal utføre task for 25000 løpende behandlinger`() {
+        // Arrange
         val behandlingIder = (1..4999).map { it.toLong() }
 
         val page = mockk<Page<Long>>()
@@ -60,8 +65,10 @@ internal class KonsistensavstemmingTaskTest {
         every { behandlingService.hentSisteIverksatteBehandlingerFraLøpendeFagsaker(any()) } returns page
         every { avstemmingService.hentDataForKonsistensavstemming(any(), any()) } returns mockk()
 
+        // Act
         konsistensavstemmingTask.doTask(lagTask())
 
+        // Assert
         verify(exactly = 1) { avstemmingService.sendKonsistensavstemmingStartMelding(any(), any()) }
         verify(exactly = 50) { avstemmingService.sendKonsistensavstemmingData(any(), any(), any()) }
         verify(exactly = 1) { avstemmingService.sendKonsistensavstemmingAvsluttMelding(any(), any()) }

@@ -41,11 +41,14 @@ class EndretUtbetalingAndelTest {
 
     @Test
     fun `validerUtfyltEndring skal kaste feil når EndretUtbetalingAndel ikke har prosent fylt ut`() {
+        // Arrange
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = behandling.id,
                 personer = setOf(person),
             )
+
+        // Act & Assert
         val exception =
             assertThrows<RuntimeException> {
                 endretUtbetalingAndel.validerUtfyltEndring()
@@ -58,6 +61,7 @@ class EndretUtbetalingAndelTest {
 
     @Test
     fun `validerUtfyltEndring skal kaste feil når EndretUtbetalingAndel har feil fom, tom`() {
+        // Arrange
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = behandling.id,
@@ -66,6 +70,8 @@ class EndretUtbetalingAndelTest {
                 periodeFom = YearMonth.now(),
                 periodeTom = YearMonth.now().minusYears(1),
             )
+
+        // Act & Assert
         val exception =
             assertThrows<FunksjonellFeil> {
                 endretUtbetalingAndel.validerUtfyltEndring()

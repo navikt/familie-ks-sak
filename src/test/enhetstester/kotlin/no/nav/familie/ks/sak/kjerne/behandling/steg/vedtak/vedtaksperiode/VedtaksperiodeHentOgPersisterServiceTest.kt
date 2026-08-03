@@ -22,8 +22,10 @@ class VedtaksperiodeHentOgPersisterServiceTest {
 
     @Test
     fun `hentVedtaksperiodeThrows - skal kaste feil dersom det ikke finnes noe vedtaksperiode med gitt id`() {
+        // Arrange
         every { vedtaksperiodeRepository.finnVedtaksperiode(404) } returns null
 
+        // Act & Assert
         val exception =
             assertThrows<RuntimeException> {
                 vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(404)
@@ -34,41 +36,53 @@ class VedtaksperiodeHentOgPersisterServiceTest {
 
     @Test
     fun `hentVedtaksperiodeThrows - skal returnere vedtaksperiode med gitt id dersom det finnes`() {
+        // Arrange
         val mocketVedtaksperiode = mockk<VedtaksperiodeMedBegrunnelser>()
         every { vedtaksperiodeRepository.finnVedtaksperiode(404) } returns mocketVedtaksperiode
 
+        // Act
         val vedtaksperiode = vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(404)
 
+        // Assert
         assertThat(vedtaksperiode, Is(mocketVedtaksperiode))
     }
 
     @Test
     fun `slettVedtaksperioderFor - skal slette vedtaksperioder for vedtak`() {
+        // Arrange
         val mocketVedtak = mockk<Vedtak>()
         every { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) } just runs
 
+        // Act
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(vedtak = mocketVedtak)
 
+        // Assert
         verify(exactly = 1) { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) }
     }
 
     @Test
     fun `finnVedtaksperioderFor - skal returnere vedtaksperioder for vedtak`() {
+        // Arrange
         every { vedtaksperiodeRepository.finnVedtaksperioderForVedtak(200) } returns listOf(mockk())
 
+        // Act
         val vedtaksperioder = vedtaksperiodeHentOgPersisterService.hentVedtaksperioderFor(200)
 
+        // Assert
         assertThat(vedtaksperioder.size, Is(1))
     }
 
     @Test
     fun `slettVedtaksperioderFor - skal slette vedtaksperioder for behandling`() {
+        // Arrange
         val mocketVedtak = mockk<Vedtak>()
         every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mocketVedtak
         every { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) } just runs
 
+        // Act
         vedtaksperiodeHentOgPersisterService.slettVedtaksperioderFor(behandlingId = 200)
 
+        // Assert
         verify(exactly = 1) { vedtakRepository.findByBehandlingAndAktivOptional(200) }
         verify(exactly = 1) { vedtaksperiodeRepository.slettVedtaksperioderForVedtak(mocketVedtak) }
     }

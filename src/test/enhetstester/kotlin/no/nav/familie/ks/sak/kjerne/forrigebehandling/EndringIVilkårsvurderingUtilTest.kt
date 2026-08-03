@@ -28,6 +28,7 @@ class EndringIVilkårsvurderingUtilTest {
     inner class UtledEndringstidspunktForVilkårsvurderingTest {
         @Test
         fun `Endringstidspunkt skal ikke bli satt dersom vilkårresultatene er helt like`() {
+            // Arrange
             val fødselsdato = LocalDate.of(2015, 1, 1)
             val vilkårResultater =
                 setOf(
@@ -63,17 +64,20 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val endringstidspunkt =
                 EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
                     nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
                     forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(vilkårResultater, aktør)),
                 )
 
+            // Assert
             Assertions.assertNull(endringstidspunkt)
         }
 
         @Test
         fun `Skal returnere riktig endringstidspunkt dersom det har vært endringer i regelverk`() {
+            // Arrange
             val fødselsdato = jan22.førsteDagIInneværendeMåned()
             val nåværendeVilkårResultat =
                 setOf(
@@ -113,17 +117,20 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val endringstidspunkt =
                 EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
                     nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                     forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
                 )
 
+            // Assert
             assertThat(jan22).isEqualTo(endringstidspunkt)
         }
 
         @Test
         fun `Skal ikke sette endringstidspunkt dersom det bare har blitt opphørt vilkårsvurdering`() {
+            // Arrange
             val fødselsdato = LocalDate.of(2015, 1, 1)
             val nåværendeVilkårResultat =
                 setOf(
@@ -163,12 +170,14 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val endringstidspunkt =
                 EndringIVilkårsvurderingUtil.utledEndringstidspunktForVilkårsvurdering(
                     nåværendePersonResultat = setOf(lagPersonResultatFraVilkårResultater(nåværendeVilkårResultat, aktør)),
                     forrigePersonResultat = setOf(lagPersonResultatFraVilkårResultater(forrigeVilkårResultat, aktør)),
                 )
 
+            // Assert
             Assertions.assertNull(endringstidspunkt)
         }
     }
@@ -177,6 +186,7 @@ class EndringIVilkårsvurderingUtilTest {
     inner class LagEndringIVilkårsvurderingTidslinjeTest {
         @Test
         fun `Endring i vilkårsvurdering - skal ikke lage periode med endring dersom vilkårresultatene er helt like`() {
+            // Arrange
             val fødselsdato = LocalDate.of(2015, 1, 1)
             val vilkårResultater =
                 setOf(
@@ -212,6 +222,7 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val perioderMedEndring =
                 EndringIVilkårsvurderingUtil
                     .lagEndringIVilkårsvurderingTidslinje(
@@ -220,11 +231,13 @@ class EndringIVilkårsvurderingUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
 
         @Test
         fun `Endring i vilkårsvurdering - skal returnere periode med endring dersom det har vært endringer i regelverk`() {
+            // Arrange
             val fødselsdato = jan22.førsteDagIInneværendeMåned()
             val nåværendeVilkårResultat =
                 setOf(
@@ -264,6 +277,7 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val perioderMedEndring =
                 EndringIVilkårsvurderingUtil
                     .lagEndringIVilkårsvurderingTidslinje(
@@ -272,6 +286,7 @@ class EndringIVilkårsvurderingUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             assertThat(1).isEqualTo(perioderMedEndring.size)
             assertThat(fødselsdato).isEqualTo(perioderMedEndring.single().fom)
             assertThat(mai22.sisteDagIInneværendeMåned()).isEqualTo(perioderMedEndring.single().tom)
@@ -279,6 +294,7 @@ class EndringIVilkårsvurderingUtilTest {
 
         @Test
         fun `Endring i vilkårsvurdering - skal ikke lage periode med endring hvis det kun er opphørt`() {
+            // Arrange
             val fødselsdato = LocalDate.of(2015, 1, 1)
             val nåværendeVilkårResultat =
                 setOf(
@@ -318,6 +334,7 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val perioderMedEndring =
                 EndringIVilkårsvurderingUtil
                     .lagEndringIVilkårsvurderingTidslinje(
@@ -326,11 +343,13 @@ class EndringIVilkårsvurderingUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
 
         @Test
         fun `Endring i vilkårsvurdering - skal ikke lage periode med endring hvis det er barnets alder som er endret`() {
+            // Arrange
             val nåværendeVilkårResultat =
                 setOf(
                     VilkårResultat(
@@ -374,6 +393,7 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val perioderMedEndring =
                 EndringIVilkårsvurderingUtil
                     .lagEndringIVilkårsvurderingTidslinje(
@@ -382,11 +402,13 @@ class EndringIVilkårsvurderingUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
 
         @Test
         fun `Endring i vilkårsvurdering - skal ikke lage periode med endring hvis eneste endring er å sette obligatoriske utdypende vilkårsvurderinger`() {
+            // Arrange
             val fødselsdato = LocalDate.of(2015, 1, 1)
             val forrigeVilkårResultat =
                 setOf(
@@ -423,6 +445,7 @@ class EndringIVilkårsvurderingUtilTest {
 
             val aktør = randomAktør()
 
+            // Act
             val perioderMedEndring =
                 EndringIVilkårsvurderingUtil
                     .lagEndringIVilkårsvurderingTidslinje(
@@ -431,6 +454,7 @@ class EndringIVilkårsvurderingUtilTest {
                     ).tilPerioder()
                     .filter { it.verdi == true }
 
+            // Assert
             Assertions.assertTrue(perioderMedEndring.isEmpty())
         }
     }

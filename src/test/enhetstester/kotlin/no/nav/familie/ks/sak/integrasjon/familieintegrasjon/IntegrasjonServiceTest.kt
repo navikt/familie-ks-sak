@@ -23,6 +23,7 @@ internal class IntegrasjonServiceTest {
 
     @Test
     fun `hentMaskertPersonInfoVedManglendeTilgang skal returnere maskert personinfo hvis SB ikke har tilgang til aktør`() {
+        // Arrange
         val aktør = mockk<Aktør>()
         val aktørFnr = "1234567891234"
 
@@ -33,8 +34,10 @@ internal class IntegrasjonServiceTest {
 
         mockBrukerContext()
 
+        // Act
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)!!
 
+        // Assert
         verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
         verify(exactly = 1) { pdlKlient.hentAdressebeskyttelse(aktør) }
 
@@ -49,6 +52,7 @@ internal class IntegrasjonServiceTest {
 
     @Test
     fun `hentMaskertPersonInfoVedManglendeTilgang skal returnere null hvis SB har tilgang til aktør`() {
+        // Arrange
         val aktør = mockk<Aktør>()
         val aktørFnr = "1234567891234"
 
@@ -58,8 +62,10 @@ internal class IntegrasjonServiceTest {
 
         mockBrukerContext()
 
+        // Act
         val maskertPersonInfo = integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
 
+        // Assert
         verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
 
         assertThat(maskertPersonInfo, Is(nullValue()))
@@ -69,12 +75,15 @@ internal class IntegrasjonServiceTest {
 
     @Test
     fun `hentJournalpost skal returnere journalpost fra familie-integrasjoner`() {
+        // Arrange
         val mocketJournalPost = mockk<Journalpost>()
 
         every { integrasjonKlient.hentJournalpost("test") } returns mocketJournalPost
 
+        // Act
         val hentetJournalPost = integrasjonService.hentJournalpost("test")
 
+        // Assert
         verify(exactly = 1) { integrasjonKlient.hentJournalpost("test") }
 
         assertThat(hentetJournalPost, Is(mocketJournalPost))
@@ -82,6 +91,7 @@ internal class IntegrasjonServiceTest {
 
     @Test
     fun `sjekkTilgangTilPersoner skal sjekke om SB har tilgang til personidenter`() {
+        // Arrange
         val listeMedIdenter = listOf("Ident1", "Ident2")
 
         every { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) } returns
@@ -96,8 +106,10 @@ internal class IntegrasjonServiceTest {
 
         mockBrukerContext()
 
+        // Act
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
+        // Assert
         verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
@@ -108,12 +120,15 @@ internal class IntegrasjonServiceTest {
 
     @Test
     fun `sjekkTilgangTilPersoner skal gi tilgang om SB er systembruker`() {
+        // Arrange
         val listeMedIdenter = listOf("Ident1", "Ident2")
 
         mockBrukerContext("VL")
 
+        // Act
         val tilgang = integrasjonService.sjekkTilgangTilPersoner(listeMedIdenter)
 
+        // Assert
         verify(exactly = 0) { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))

@@ -20,6 +20,7 @@ import java.time.LocalDate
 internal class UtbetalingsoppdragValidatorTest {
     @Test
     fun `valider skal kaste feil dersom utbetalingsoppdrag inneholder perioder og resultat er FORTSATT_INNVILGET`() {
+        // Arrange
         val utbetalingsoppdrag =
             lagBeregnetUtbetalingsoppdrag(
                 lagVedtak(),
@@ -39,6 +40,7 @@ internal class UtbetalingsoppdragValidatorTest {
                 ),
             )
 
+        // Act & Assert
         val funksjonellFeil =
             assertThrows<FunksjonellFeil> {
                 utbetalingsoppdrag.valider(
@@ -51,12 +53,14 @@ internal class UtbetalingsoppdragValidatorTest {
 
     @Test
     fun `valider ikke skal kaste feil dersom utbetalingsoppdrag ikke inneholder perioder og resultat er FORTSATT_INNVILGET`() {
+        // Arrange
         val utbetalingsoppdrag =
             lagBeregnetUtbetalingsoppdrag(
                 lagVedtak(),
                 emptyList(),
             )
 
+        // Act & Assert
         assertDoesNotThrow {
             utbetalingsoppdrag.valider(
                 behandlingsresultat = Behandlingsresultat.FORTSATT_INNVILGET,
@@ -67,6 +71,7 @@ internal class UtbetalingsoppdragValidatorTest {
     @ParameterizedTest
     @EnumSource(value = Behandlingsresultat::class, names = ["FORTSATT_INNVILGET"], mode = EnumSource.Mode.EXCLUDE)
     fun `valider skal ikke kaste feil dersom utbetalingsoppdrag inneholder perioder og resultat ikke er FORTSATT_INNVILGET`(behandlingsresultat: Behandlingsresultat) {
+        // Arrange
         val utbetalingsoppdrag =
             lagBeregnetUtbetalingsoppdrag(
                 lagVedtak(),
@@ -86,6 +91,7 @@ internal class UtbetalingsoppdragValidatorTest {
                 ),
             )
 
+        // Act & Assert
         assertDoesNotThrow {
             utbetalingsoppdrag.valider(
                 behandlingsresultat = behandlingsresultat,

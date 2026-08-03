@@ -23,6 +23,7 @@ class RefusjonEøsServiceTest(
 
     @Test
     fun kanLagreEndreOgSlette() {
+        // Arrange
         val refusjonEøs =
             RefusjonEøsDto(
                 id = 0,
@@ -33,14 +34,17 @@ class RefusjonEøsServiceTest(
                 refusjonAvklart = true,
             )
 
+        // Act
         val id = refusjonEøsService.leggTilRefusjonEøsPeriode(refusjonEøs = refusjonEøs, behandlingId = behandling.id)
 
+        // Assert
         refusjonEøsService
             .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it[0].id).isEqualTo(id) }
             .also { Assertions.assertThat(it[0].fom).isEqualTo("2020-01-01") }
             .also { Assertions.assertThat(it[0].tom).isEqualTo("2021-05-31") }
 
+        // Act
         refusjonEøsService.oppdaterRefusjonEøsPeriode(
             refusjonEøs =
                 RefusjonEøsDto(
@@ -54,6 +58,7 @@ class RefusjonEøsServiceTest(
             id = id,
         )
 
+        // Assert
         refusjonEøsService
             .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it[0].id).isEqualTo(id) }
@@ -62,6 +67,7 @@ class RefusjonEøsServiceTest(
             .also { Assertions.assertThat(it[0].land).isEqualTo("NL") }
             .also { Assertions.assertThat(it[0].refusjonAvklart).isEqualTo(false) }
 
+        // Arrange
         val refusjonEøs2 =
             RefusjonEøsDto(
                 id = 0,
@@ -72,15 +78,19 @@ class RefusjonEøsServiceTest(
                 refusjonAvklart = false,
             )
 
+        // Act
         val id2 = refusjonEøsService.leggTilRefusjonEøsPeriode(refusjonEøs = refusjonEøs2, behandlingId = behandling.id)
 
+        // Assert
         refusjonEøsService
             .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it.size).isEqualTo(2) }
             .also { Assertions.assertThat(it[0].id).isEqualTo(id2) }
 
+        // Act
         refusjonEøsService.fjernRefusjonEøsPeriode(id = id, behandlingId = behandling.id)
 
+        // Assert
         refusjonEøsService
             .hentRefusjonEøsPerioder(behandlingId = behandling.id)
             .also { Assertions.assertThat(it.size).isEqualTo(1) }
