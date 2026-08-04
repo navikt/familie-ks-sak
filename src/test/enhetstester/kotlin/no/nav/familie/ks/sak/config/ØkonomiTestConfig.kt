@@ -12,6 +12,7 @@ import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.kontrakter.felles.simulering.SimulertPostering
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -32,6 +33,17 @@ class ØkonomiTestConfig {
         return økonomiKlient
     }
 
+    @Bean
+    @Profile("mock-økonomi")
+    @Primary
+    fun mockOppdragBackendKlient(): OppdragBackendKlient {
+        val oppdragBackendKlient: OppdragBackendKlient = mockk(relaxed = true)
+
+        clearOppdragBackendMocks(oppdragBackendKlient)
+
+        return oppdragBackendKlient
+    }
+
     companion object {
         fun clearØkonomiMocks(økonomiKlient: OppdragKlient) {
             clearMocks(økonomiKlient)
@@ -44,6 +56,12 @@ class ØkonomiTestConfig {
             every { økonomiKlient.hentStatus(any()) } returns hentStatusRespons
 
             every { økonomiKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottakerMock)
+        }
+
+        fun clearOppdragBackendMocks(oppdragBackendKlient: OppdragBackendKlient) {
+            clearMocks(oppdragBackendKlient)
+
+            every { oppdragBackendKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottakerMock)
         }
     }
 }

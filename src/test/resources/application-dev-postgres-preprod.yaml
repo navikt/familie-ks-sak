@@ -52,6 +52,8 @@ PDL_URL: https://pdl-api.dev.intern.nav.no/
 PDL_SCOPE: api://dev-fss.pdl.pdl-api/.default
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.dev.intern.nav.no/api
 FAMILIE_OPPDRAG_SCOPE: api://dev-fss.teamfamilie.familie-oppdrag/.default
+FAMILIE_OPPDRAG_BACKEND_API_URL: https://familie-oppdrag-backend.intern.dev.nav.no/api
+FAMILIE_OPPDRAG_BACKEND_SCOPE: api://dev-gcp.teamfamilie.familie-oppdrag-backend/.default
 FAMILIE_BREV_API_URL: https://familie-brev.intern.dev.nav.no
 FAMILIE_BREV_SCOPE: api://dev-gcp.teamfamilie.familie-brev/.default
 FAMILIE_TILBAKE_API_URL: https://tilbakekreving-backend.intern.dev.nav.no
