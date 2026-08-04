@@ -23,7 +23,7 @@ class OppdragBackendKlient(
     @Retryable(
         value = [Exception::class],
         maxAttempts = 3,
-        backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
+        backoff = Backoff(delayExpression = 10000L.toString()),
     )
     fun hentSimulering(utbetalingsoppdrag: Utbetalingsoppdrag): DetaljertSimuleringResultat {
         val uri = URI.create("$familieOppdragBackendUri/simulering/v1")
