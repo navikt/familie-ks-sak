@@ -7,6 +7,9 @@ import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
 import no.nav.familie.ks.sak.api.dto.SimuleringResponsDto
 import no.nav.familie.ks.sak.api.mapper.SimuleringMapper.tilSimuleringDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.tilRestUtbetalingsoppdrag
@@ -26,11 +29,13 @@ import java.time.LocalDate
 @Service
 class SimuleringService(
     private val oppdragKlient: OppdragKlient,
+    private val oppdragBackendKlient: OppdragBackendKlient,
     private val utbetalingsoppdragService: UtbetalingsoppdragService,
     private val beregningService: BeregningService,
     private val øknomiSimuleringMottakerRepository: ØkonomiSimuleringMottakerRepository,
     private val vedtakRepository: VedtakRepository,
     private val behandlingRepository: BehandlingRepository,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val simulert = Metrics.counter("familie.ks.sak.oppdrag.simulert")
 
@@ -98,7 +103,11 @@ class SimuleringService(
         if (utbetalingsoppdrag.utbetalingsperiode.isEmpty()) return null
 
         simulert.increment()
-        return oppdragKlient.hentSimulering(utbetalingsoppdrag)
+        return if (featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_HENT_SIMULERING_GCP)) {
+            oppdragBackendKlient.hentSimulering(utbetalingsoppdrag)
+        } else {
+            oppdragKlient.hentSimulering(utbetalingsoppdrag)
+        }
     }
 
     private fun simuleringErUtdatert(simulering: SimuleringResponsDto) =

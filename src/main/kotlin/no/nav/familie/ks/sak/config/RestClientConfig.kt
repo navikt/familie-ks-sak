@@ -57,6 +57,15 @@ class RestClientConfig(
             SikkerhetContext.hentJwt()?.tokenValue
         }
 
+    // Går mot familie-oppdrag-backend som kjører i GCP.
+    @Bean("oppdragBackendRestClient")
+    fun oppdragBackendRestClient(
+        @Value("\${FAMILIE_OPPDRAG_BACKEND_SCOPE}") scope: String,
+    ): RestClient =
+        entraIDRestClientFactory.lagHybridRestKlient(scope) {
+            SikkerhetContext.hentJwt()?.tokenValue
+        }
+
     @Bean("avstemmingRestClient")
     fun avstemmingRestClient(
         @Value("\${FAMILIE_OPPDRAG_SCOPE}") scope: String,
