@@ -17,4 +17,7 @@ enum class FeatureToggle(
 
     // NAV-29936
     SKAL_SLETTE_GAMLE_VEDTAKSBREV_FRA_DB("familie-ks-sak.skal-slette-gamle-vedtaksbrev-fra-db"),
+
+    // NAV-30011
+    OPPDRAG_MIGRERING_HENT_SIMULERING_GCP("familie-baks-sak.oppdrag-migrering-hent-simulering-gcp"),
 }
