@@ -40,7 +40,7 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
-class FakeIntegrasjonKlient : IntegrasjonKlient(URI("integrasjoner-url"), mockk(relaxed = true), mockk(relaxed = true)) {
+class FakeIntegrasjonKlient : IntegrasjonKlient(URI("integrasjoner-url"), mockk(relaxed = true)) {
     private val egenansatt = mutableSetOf<String>()
     private val behandlendeEnhetForIdent = mutableMapOf<String, List<Arbeidsfordelingsenhet>>()
     private val journalførteDokumenter = mutableListOf<ArkiverDokumentRequest>()
