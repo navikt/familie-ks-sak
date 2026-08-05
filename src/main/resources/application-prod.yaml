@@ -35,7 +35,6 @@ FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.prod-fss-pub.nais.io/
 
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.prod-fss-pub.nais.io/api
 FAMILIE_OPPDRAG_SCOPE: api://prod-fss.teamfamilie.familie-oppdrag/.default
-FAMILIE_OPPDRAG_BACKEND_API_URL: https://familie-oppdrag-backend.intern.nav.no/api
 FAMILIE_OPPDRAG_BACKEND_SCOPE: api://prod-gcp.teamfamilie.familie-oppdrag-backend/.default
 
 FAMILIE_KLAGE_SCOPE: api://prod-gcp.teamfamilie.familie-klage/.default

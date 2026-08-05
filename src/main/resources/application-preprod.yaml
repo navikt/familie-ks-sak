@@ -31,7 +31,6 @@ FAMILIE_OPPDRAG_BACKEND_SCOPE: api://dev-gcp.teamfamilie.familie-oppdrag-backend
 FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.dev-fss-pub.nais.io/api
 
 FAMILIE_OPPDRAG_API_URL: https://familie-oppdrag.dev-fss-pub.nais.io/api
-FAMILIE_OPPDRAG_BACKEND_API_URL: https://familie-oppdrag-backend.intern.dev.nav.no/api
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/30 * ? * *"
 
 ENVIRONMENT_NAME: q2
