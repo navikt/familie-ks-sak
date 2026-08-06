@@ -16,7 +16,6 @@ import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle.HENT_VEDTAKSBREV_FRA_JOARK
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagArbeidsfordelingPåBehandling
@@ -351,40 +350,8 @@ class BrevServiceTest {
 
     @Nested
     inner class LeggTilEnhet {
-        @BeforeEach
-        fun setup() {
-            every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns true
-        }
-
         @Test
-        fun `skal hente arbeidsfordeling uten behandlingstype når feature toggle er av`() {
-            // Arrange
-            val arbeidsfordelingsenhet =
-                Arbeidsfordelingsenhet(
-                    enhetId = OSLO.enhetsnummer,
-                    enhetNavn = OSLO.enhetsnavn,
-                )
-
-            every { featureToggleService.isEnabled(HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE) } returns false
-            every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(any(), any(), any()) } returns arbeidsfordelingsenhet
-
-            // Act
-            val oppdatertManueltBrevDto = brevService.leggTilEnhet(fagsak.id, manueltBrevDto)
-
-            // Assert
-            assertThat(oppdatertManueltBrevDto.enhet?.enhetId).isEqualTo(OSLO.enhetsnummer)
-            assertThat(oppdatertManueltBrevDto.enhet?.enhetNavn).isEqualTo(OSLO.enhetsnavn)
-            verify(exactly = 1) {
-                arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(
-                    søkerIdent = søker.aktivFødselsnummer(),
-                    barnIdenter = any(),
-                    behandlingstype = null,
-                )
-            }
-        }
-
-        @Test
-        fun `skal legge til saksbehandlers enhet når feature toggle er på og NavIdent har tilgang til kun én enhet`() {
+        fun `skal legge til saksbehandlers enhet når NavIdent har tilgang til kun én enhet`() {
             // Arrange
             every { integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(any()) } returns listOf(OSLO)
 
@@ -399,7 +366,7 @@ class BrevServiceTest {
         }
 
         @Test
-        fun `skal hente arbeidsfordeling med behandlingstype når feature toggle er på og NavIdent har tilgang til flere enheter`() {
+        fun `skal hente arbeidsfordeling med behandlingstype når NavIdent har tilgang til flere enheter`() {
             // Arrange
             val behandling = lagBehandling(fagsak, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
             val arbeidsfordelingsenhet =
@@ -429,7 +396,7 @@ class BrevServiceTest {
         }
 
         @Test
-        fun `skal håndtere ingen siste vedtatte behandling når feature toggle er på og NavIdent har tilgang til flere enheter`() {
+        fun `skal håndtere ingen siste vedtatte behandling når NavIdent har tilgang til flere enheter`() {
             // Arrange
             val barn1Ident = "12345678910"
             val barn2Ident = "10987654321"

@@ -100,30 +100,21 @@ class BrevService(
         fagsakId: Long,
         manueltBrevDto: ManueltBrevDto,
     ): ManueltBrevDto {
+        val enheterSomNavIdentHarTilgangTil = integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(NavIdent(SikkerhetContext.hentSaksbehandler()))
         val arbeidsfordelingsenhet =
-            if (featureToggleService.isEnabled(FeatureToggle.HENT_ARBEIDSFORDELING_MED_BEHANDLINGSTYPE)) {
-                val enheterSomNavIdentHarTilgangTil = integrasjonKlient.hentBehandlendeEnheterSomNavIdentHarTilgangTil(NavIdent(SikkerhetContext.hentSaksbehandler()))
-                if (enheterSomNavIdentHarTilgangTil.size == 1) {
-                    Arbeidsfordelingsenhet(
-                        enhetId = enheterSomNavIdentHarTilgangTil.first().enhetsnummer,
-                        enhetNavn = enheterSomNavIdentHarTilgangTil.first().enhetsnavn,
-                    )
-                } else {
-                    val sisteVedtatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId)
-
-                    arbeidsfordelingService
-                        .hentArbeidsfordelingsenhetPåIdenter(
-                            søkerIdent = manueltBrevDto.mottakerIdent,
-                            barnIdenter = manueltBrevDto.barnIBrev,
-                            behandlingstype = sisteVedtatteBehandling?.kategori?.tilOppgavebehandlingType(),
-                        )
-                }
+            if (enheterSomNavIdentHarTilgangTil.size == 1) {
+                Arbeidsfordelingsenhet(
+                    enhetId = enheterSomNavIdentHarTilgangTil.first().enhetsnummer,
+                    enhetNavn = enheterSomNavIdentHarTilgangTil.first().enhetsnavn,
+                )
             } else {
+                val sisteVedtatteBehandling = behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId)
+
                 arbeidsfordelingService
                     .hentArbeidsfordelingsenhetPåIdenter(
                         søkerIdent = manueltBrevDto.mottakerIdent,
                         barnIdenter = manueltBrevDto.barnIBrev,
-                        behandlingstype = null,
+                        behandlingstype = sisteVedtatteBehandling?.kategori?.tilOppgavebehandlingType(),
                     )
             }
         return manueltBrevDto.copy(
