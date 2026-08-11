@@ -16,16 +16,16 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
-internal class OppdragKlientTest {
+internal class OppdragBackendKlientTest {
     private val restClient: RestClient = RestClient.builder().build()
-    private lateinit var oppdragKlient: OppdragKlient
+    private lateinit var oppdragBackendKlient: OppdragBackendKlient
     private lateinit var wiremockServerItem: WireMockServer
 
     @BeforeEach
     fun beforeEach() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        oppdragKlient = OppdragKlient(wiremockServerItem.baseUrl(), restClient)
+        oppdragBackendKlient = OppdragBackendKlient(wiremockServerItem.baseUrl(), restClient)
     }
 
     @Test
@@ -39,7 +39,7 @@ internal class OppdragKlientTest {
 
         // Act
         val simulering =
-            oppdragKlient.hentSimulering(
+            oppdragBackendKlient.hentSimulering(
                 Utbetalingsoppdrag(
                     kodeEndring = Utbetalingsoppdrag.KodeEndring.NY,
                     fagSystem = "KS",
@@ -79,7 +79,7 @@ internal class OppdragKlientTest {
         )
 
         // Act
-        val oppdragStatus = oppdragKlient.hentStatus(OppdragId("KS", "12345678910", "1"))
+        val oppdragStatus = oppdragBackendKlient.hentStatus(OppdragId("KS", "12345678910", "1"))
 
         // Assert
         assertThat(oppdragStatus, Is(OppdragStatus.KVITTERT_OK))

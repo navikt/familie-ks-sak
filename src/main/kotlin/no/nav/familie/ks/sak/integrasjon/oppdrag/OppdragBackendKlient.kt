@@ -1,5 +1,7 @@
 package no.nav.familie.ks.sak.integrasjon.oppdrag
 
+import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
+import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient.Companion.RETRY_BACKOFF_5000MS
@@ -20,6 +22,22 @@ class OppdragBackendKlient(
     private val familieOppdragBackendUri: String,
     @Qualifier("oppdragBackendRestClient") private val restClient: RestClient,
 ) {
+    fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
+        val uri = URI.create("$familieOppdragBackendUri/oppdrag")
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-oppdrag-backend",
+            uri = uri,
+            formål = "Iverksetter mot oppdrag",
+        ) {
+            restClient
+                .post()
+                .uri(uri)
+                .body(utbetalingsoppdrag)
+                .retrieve()
+                .body()!!
+        }
+    }
+
     @Retryable(
         value = [Exception::class],
         maxAttempts = 3,
@@ -37,6 +55,22 @@ class OppdragBackendKlient(
                 .post()
                 .uri(uri)
                 .body(utbetalingsoppdrag)
+                .retrieve()
+                .body()!!
+        }
+    }
+
+    fun hentStatus(oppdragId: OppdragId): OppdragStatus {
+        val uri = URI.create("$familieOppdragBackendUri/status")
+        return kallEksternTjenesteRessurs(
+            tjeneste = "familie-oppdrag-backend",
+            uri = uri,
+            formål = "Henter oppdragstatus fra oppdrag",
+        ) {
+            restClient
+                .post()
+                .uri(uri)
+                .body(oppdragId)
                 .retrieve()
                 .body()!!
         }

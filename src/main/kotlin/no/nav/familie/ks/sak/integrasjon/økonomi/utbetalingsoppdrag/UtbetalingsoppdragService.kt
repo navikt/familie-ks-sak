@@ -8,6 +8,9 @@ import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.toYearMonth
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -30,11 +33,13 @@ import java.time.LocalDate
 @Service
 class UtbetalingsoppdragService(
     private val oppdragKlient: OppdragKlient,
+    private val oppdragBackendKlient: OppdragBackendKlient,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val utbetalingsoppdragGenerator: UtbetalingsoppdragGenerator,
     private val behandlingService: BehandlingService,
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val sammeOppdragSendtKonflikt = Metrics.counter("familie.ks.sak.samme.oppdrag.sendt.konflikt")
 
@@ -65,7 +70,11 @@ class UtbetalingsoppdragService(
             return
         }
         try {
-            oppdragKlient.iverksettOppdrag(utbetalingsoppdrag)
+            if (featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP)) {
+                oppdragBackendKlient.iverksettOppdrag(utbetalingsoppdrag)
+            } else {
+                oppdragKlient.iverksettOppdrag(utbetalingsoppdrag)
+            }
         } catch (exception: Exception) {
             if (exception is RestClientResponseException &&
                 exception.statusCode == HttpStatus.CONFLICT
