@@ -28,6 +28,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import org.assertj.core.api.Assertions.assertThat
@@ -51,6 +53,7 @@ class OpprettBehandlingServiceTest {
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val behandlingMetrikker = mockk<BehandlingMetrikker>()
     private val eksternBehandlingRelasjonService = mockk<EksternBehandlingRelasjonService>()
+    private val fagsakLåsingService = mockk<FagsakLåsingService>()
 
     private val opprettBehandlingService =
         OpprettBehandlingService(
@@ -64,6 +67,7 @@ class OpprettBehandlingServiceTest {
             stegService = stegService,
             behandlingMetrikker = behandlingMetrikker,
             eksternBehandlingRelasjonService = eksternBehandlingRelasjonService,
+            fagsakLåsingService = fagsakLåsingService,
         )
 
     private val søker = randomAktør()
@@ -353,6 +357,64 @@ class OpprettBehandlingServiceTest {
             assertThat(eksternBehandlingRelasjonSlot.captured.eksternBehandlingId).isEqualTo(nyEksternBehandlingRelasjon.eksternBehandlingId)
             assertThat(eksternBehandlingRelasjonSlot.captured.eksternBehandlingFagsystem).isEqualTo(nyEksternBehandlingRelasjon.eksternBehandlingFagsystem)
             assertThat(eksternBehandlingRelasjonSlot.captured.opprettetTid).isNotNull()
+        }
+
+        @Test
+        fun `skal kaste FunksjonellFeil dersom fagsaken er LÅST ved opprettelse av ny behandling`() {
+            // Arrange
+            val fagsak = lagFagsak(aktør = søker, status = FagsakStatus.LÅST)
+
+            val opprettBehandlingDto =
+                OpprettBehandlingDto(
+                    søkersIdent = søkersIdent,
+                    behandlingType = BehandlingType.REVURDERING,
+                    behandlingÅrsak = BehandlingÅrsak.SØKNAD,
+                    kategori = BehandlingKategori.NASJONAL,
+                )
+
+            every { fagsakRepository.finnFagsakForAktør(søker) } returns fagsak
+
+            // Act & assert
+            val exception =
+                assertThrows<FunksjonellFeil> {
+                    opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
+                }
+
+            assertThat(exception.message).isEqualTo("Kan ikke opprette behandling på en låst fagsak ${fagsak.id}.")
+        }
+
+        @Test
+        fun `skal låse opp fagsak og opprette behandling dersom fagsaken er LÅST og behandlingen skal behandles automatisk`() {
+            // Arrange
+            val fagsak = lagFagsak(aktør = søker, status = FagsakStatus.LÅST)
+
+            val opprettBehandlingDto =
+                OpprettBehandlingDto(
+                    søkersIdent = søkersIdent,
+                    behandlingType = BehandlingType.REVURDERING,
+                    behandlingÅrsak = BehandlingÅrsak.LOVENDRING_2024,
+                    kategori = BehandlingKategori.NASJONAL,
+                )
+
+            val begrunnelseSlot = slot<String>()
+
+            every { fagsakRepository.finnFagsakForAktør(søker) } returns fagsak
+            every { fagsakLåsingService.låsOppFagsak(fagsak.id, capture(begrunnelseSlot)) } returns fagsak
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns
+                listOf(
+                    lagBehandling(
+                        fagsak,
+                        opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                    ).copy(status = BehandlingStatus.AVSLUTTET),
+                )
+
+            // Act
+            val opprettetBehandling = opprettBehandlingService.opprettBehandling(opprettBehandlingDto)
+
+            // Assert
+            assertThat(opprettetBehandling).isNotNull()
+            verify(exactly = 1) { fagsakLåsingService.låsOppFagsak(fagsak.id, any()) }
+            assertThat(begrunnelseSlot.captured).isEqualTo("Låst opp grunnet automatisk behandling LOVENDRING_2024")
         }
     }
 

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.fagsak
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.Adressebeskyttelse
 import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
@@ -23,6 +24,10 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakReposito
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsHendelse
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsing
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonEnkel
@@ -36,6 +41,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class FagsakServiceTest {
     private val personidentService = mockk<PersonidentService>()
@@ -50,6 +56,7 @@ class FagsakServiceTest {
     private val clockProvider = mockk<ClockProvider>()
     private val adopsjonService = mockk<AdopsjonService>()
     private val pdlKlient = mockk<PdlKlient>()
+    private val fagsakLåsingRepository = mockk<FagsakLåsingRepository>()
 
     private val fagsakService =
         FagsakService(
@@ -65,6 +72,7 @@ class FagsakServiceTest {
             clockProvider = clockProvider,
             adopsjonService = adopsjonService,
             pdlKlient = pdlKlient,
+            fagsakLåsingRepository = fagsakLåsingRepository,
         )
 
     @BeforeEach
@@ -198,6 +206,34 @@ class FagsakServiceTest {
                 feil.frontendFeilmelding,
             )
         }
+
+        @Test
+        fun `Skal returnere låstTidspunkt når fagsaken er LÅST`() {
+            // Arrange
+            val søker = randomAktør()
+            val fagsak = lagFagsak(søker, status = FagsakStatus.LÅST)
+            val låsetidspunkt = LocalDateTime.of(2025, 6, 15, 10, 30)
+            val fagsakLåsing =
+                FagsakLåsing(
+                    fagsak = fagsak,
+                    tidspunkt = låsetidspunkt,
+                    hendelse = FagsakLåsHendelse.LÅST,
+                    begrunnelse = "Låst",
+                    aktiv = true,
+                )
+
+            every { personidentService.hentOgLagreAktør(søker.aktørId, true) } returns søker
+            every { fagsakRepository.finnFagsakForAktør(søker) } returns fagsak
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
+            every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns null
+            every { fagsakLåsingRepository.finnAktivLåsForFagsak(fagsak.id) } returns fagsakLåsing
+
+            // Act
+            val fagsakResponse = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(personIdent = null, aktørId = søker.aktørId))
+
+            // Assert
+            assertThat(fagsakResponse.låstTidspunkt).isEqualTo(fagsakLåsing.opprettetTidspunkt)
+        }
     }
 
     @Nested
@@ -243,6 +279,53 @@ class FagsakServiceTest {
             val funksjonellFeil = assertThrows<FunksjonellFeil> { fagsakService.hentMinimalFagsak(404L) }
 
             assertEquals("Finner ikke fagsak med id 404", funksjonellFeil.message)
+        }
+
+        @Test
+        fun `Skal returnere låstTidspunkt når fagsaken er LÅST`() {
+            // Arrange
+            val søker = randomAktør()
+            val fagsak = lagFagsak(søker, status = FagsakStatus.LÅST)
+            val låsetidspunkt = LocalDateTime.of(2025, 6, 15, 10, 30)
+            val fagsakLåsing =
+                FagsakLåsing(
+                    fagsak = fagsak,
+                    tidspunkt = låsetidspunkt,
+                    hendelse = FagsakLåsHendelse.LÅST,
+                    begrunnelse = "Låst",
+                    aktiv = true,
+                )
+
+            every { fagsakRepository.finnFagsak(any()) } returns fagsak
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
+            every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns null
+            every { personopplysningGrunnlagRepository.finnSøkerOgBarnAktørerTilFagsak(any()) } returns emptySet()
+            every { fagsakLåsingRepository.finnAktivLåsForFagsak(fagsak.id) } returns fagsakLåsing
+
+            // Act
+            val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
+
+            // Assert
+            assertThat(fagsakResponse.låstTidspunkt).isEqualTo(fagsakLåsing.opprettetTidspunkt)
+        }
+
+        @Test
+        fun `Skal returnere låstTidspunkt som null når fagsaken ikke er LÅST`() {
+            // Arrange
+            val søker = randomAktør()
+            val fagsak = lagFagsak(søker, status = FagsakStatus.AVSLUTTET)
+
+            every { fagsakRepository.finnFagsak(any()) } returns fagsak
+            every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
+            every { behandlingRepository.findByFagsakAndAktiv(fagsak.id) } returns null
+            every { personopplysningGrunnlagRepository.finnSøkerOgBarnAktørerTilFagsak(any()) } returns emptySet()
+
+            // Act
+            val fagsakResponse = fagsakService.hentMinimalFagsak(fagsak.id)
+
+            // Assert
+            assertThat(fagsakResponse.låstTidspunkt).isNull()
+            verify(exactly = 0) { fagsakLåsingRepository.finnAktivLåsForFagsak(any()) }
         }
     }
 

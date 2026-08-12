@@ -39,6 +39,7 @@ object FagsakMapper {
         behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
         gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
         finnesStrengtFortroligPersonIFagsak: Boolean = false,
+        låstTidspunkt: LocalDateTime? = null,
     ): MinimalFagsakResponsDto =
         MinimalFagsakResponsDto(
             opprettetTidspunkt = fagsak.opprettetTidspunkt,
@@ -50,6 +51,7 @@ object FagsakMapper {
             behandlinger = behandlinger,
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder,
             finnesStrengtFortroligPersonIFagsak = finnesStrengtFortroligPersonIFagsak,
+            låstTidspunkt = låstTidspunkt,
         )
 
     fun lagBehandlingResponsDto(

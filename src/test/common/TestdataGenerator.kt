@@ -265,6 +265,19 @@ fun lagPersonopplysningGrunnlag(
 
 fun Person.tilPersonEnkel() = PersonEnkel(this.type, this.aktør, this.fødselsdato, this.dødsfall?.dødsfallDato, this.målform)
 
+fun lagPersonEnkel(
+    personType: PersonType,
+    fødselsdato: LocalDate,
+    aktør: Aktør = randomAktør(),
+): PersonEnkel =
+    PersonEnkel(
+        type = personType,
+        aktør = aktør,
+        dødsfallDato = null,
+        fødselsdato = fødselsdato,
+        målform = Målform.NB,
+    )
+
 fun lagFagsak(
     aktør: Aktør = randomAktør(randomFnr()),
     id: Long = 0,

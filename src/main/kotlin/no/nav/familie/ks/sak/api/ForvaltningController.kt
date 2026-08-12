@@ -38,6 +38,8 @@ import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDt
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.fagsak.FagsakStatusScheduler
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingService
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -69,6 +71,7 @@ import java.time.LocalDate
 @RequestMapping("/api/forvaltning/")
 @Validated
 class ForvaltningController(
+    private val fagsakLåsingService: FagsakLåsingService,
     private val tilgangService: TilgangService,
     private val integrasjonKlient: IntegrasjonKlient,
     private val sakStatistikkService: SakStatistikkService,
@@ -86,6 +89,7 @@ class ForvaltningController(
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
+    private val fagsakStatusScheduler: FagsakStatusScheduler,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -419,5 +423,29 @@ class ForvaltningController(
         )
 
         return ResponseEntity.ok(Ressurs.success("OK"))
+    }
+
+    @PostMapping("/fagsaklåsing/start-batch")
+    @Operation(summary = "Start batch for å låse fagsaker iht. arkivloven")
+    fun startFagsakLåsingBatch(): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Start fagsaklåsing-batch",
+        )
+        fagsakStatusScheduler.startFagsakLåsing()
+        return ResponseEntity.ok(Ressurs.success("Fagsaklåsing-batch startet"))
+    }
+
+    @PostMapping("/fagsaklåsing/lås-fagsak/{fagsakId}")
+    @Operation(summary = "Lås én fagsak iht. arkivloven")
+    fun låsFagsak(
+        @PathVariable fagsakId: Long,
+    ): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "Lås fagsak",
+        )
+        fagsakLåsingService.låsFagsak(fagsakId)
+        return ResponseEntity.ok(Ressurs.success("Fagsak $fagsakId er låst"))
     }
 }
