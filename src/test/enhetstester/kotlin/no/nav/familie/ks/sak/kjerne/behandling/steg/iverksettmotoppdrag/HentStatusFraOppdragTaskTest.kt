@@ -10,9 +10,12 @@ import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -32,16 +35,20 @@ import java.util.UUID
 
 internal class HentStatusFraOppdragTaskTest {
     private val oppdragKlient = mockk<OppdragKlient>()
+    private val oppdragBackendKlient = mockk<OppdragBackendKlient>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val stegService = mockk<StegService>()
     private val tilkjentYtelseRepository = mockk<TilkjentYtelseRepository>()
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val hentStatusFraOppdragTask =
         HentStatusFraOppdragTask(
             oppdragKlient = oppdragKlient,
+            oppdragBackendKlient = oppdragBackendKlient,
             taskService = taskService,
             stegService = stegService,
             tilkjentYtelseRepository = tilkjentYtelseRepository,
+            featureToggleService = featureToggleService,
         )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -49,6 +56,8 @@ internal class HentStatusFraOppdragTaskTest {
     @BeforeEach
     fun setup() {
         every { taskService.save(any()) } returns mockk()
+
+        every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP) } returns true
 
         // utbetalingsoppdrag med periode
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns
@@ -70,7 +79,7 @@ internal class HentStatusFraOppdragTaskTest {
     @Test
     fun `doTask skal kaste feil når oppdrag returnerer med status LAGT_PÅ_KØ`() {
         // Arrange
-        every { oppdragKlient.hentStatus(any()) } returns OppdragStatus.LAGT_PÅ_KØ
+        every { oppdragBackendKlient.hentStatus(any()) } returns OppdragStatus.LAGT_PÅ_KØ
 
         // Act & Assert
         val exception = assertThrows<RekjørSenereException> { hentStatusFraOppdragTask.doTask(lagTask()) }
@@ -81,7 +90,7 @@ internal class HentStatusFraOppdragTaskTest {
     @Test
     fun `doTask skal sette task til manuell oppfølging når oppdrag returnerer med KVITTERT_TEKNISK_FEIL`() {
         // Arrange
-        every { oppdragKlient.hentStatus(any()) } returns OppdragStatus.KVITTERT_TEKNISK_FEIL
+        every { oppdragBackendKlient.hentStatus(any()) } returns OppdragStatus.KVITTERT_TEKNISK_FEIL
         val taskSlot = slot<Task>()
 
         // Act
@@ -95,7 +104,7 @@ internal class HentStatusFraOppdragTaskTest {
     @Test
     fun `doTask skal utføre task når oppdrag returnerer med KVITTERT_OK`() {
         // Arrange
-        every { oppdragKlient.hentStatus(any()) } returns OppdragStatus.KVITTERT_OK
+        every { oppdragBackendKlient.hentStatus(any()) } returns OppdragStatus.KVITTERT_OK
         every { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) } just runs
 
         // Act & Assert
@@ -125,7 +134,7 @@ internal class HentStatusFraOppdragTaskTest {
         // Act & Assert
         assertDoesNotThrow { hentStatusFraOppdragTask.doTask(lagTask()) }
         verify(exactly = 1) { stegService.utførStegEtterIverksettelseAutomatisk(behandling.id) }
-        verify(exactly = 0) { oppdragKlient.hentStatus(any()) }
+        verify(exactly = 0) { oppdragBackendKlient.hentStatus(any()) }
     }
 
     private fun lagTask() =

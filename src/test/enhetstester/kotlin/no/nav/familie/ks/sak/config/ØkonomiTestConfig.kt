@@ -61,6 +61,12 @@ class ØkonomiTestConfig {
         fun clearOppdragBackendMocks(oppdragBackendKlient: OppdragBackendKlient) {
             clearMocks(oppdragBackendKlient)
 
+            val iverksettRespons = "Mocksvar fra Økonomi-klient"
+            every { oppdragBackendKlient.iverksettOppdrag(any()) } returns iverksettRespons
+
+            val hentStatusRespons = OppdragStatus.KVITTERT_OK
+            every { oppdragBackendKlient.hentStatus(any()) } returns hentStatusRespons
+
             every { oppdragBackendKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottakerMock)
         }
     }

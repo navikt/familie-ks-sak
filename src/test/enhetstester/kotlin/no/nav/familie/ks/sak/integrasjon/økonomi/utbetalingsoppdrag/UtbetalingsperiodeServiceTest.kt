@@ -8,11 +8,14 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.felles.utbetalingsgenerator.domain.BeregnetUtbetalingsoppdragLongId
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagInitiellTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.tilfeldigPerson
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -24,33 +27,43 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.beregning.domene.filtrerAndelerSomSkalSendesTilOppdrag
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.YearMonth
 
 internal class UtbetalingsperiodeServiceTest {
     private val oppdragKlient = mockk<OppdragKlient>()
+    private val oppdragBackendKlient = mockk<OppdragBackendKlient>()
     private val tilkjentYtelseValideringService = mockk<TilkjentYtelseValideringService>()
     private val behandlingService = mockk<BehandlingService>()
     private val tilkjentYtelseRepository = mockk<TilkjentYtelseRepository>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val utbetalingsoppdragGenerator = UtbetalingsoppdragGenerator()
     private val utbetalingsoppdragService =
         UtbetalingsoppdragService(
             oppdragKlient = oppdragKlient,
+            oppdragBackendKlient = oppdragBackendKlient,
             tilkjentYtelseValideringService = tilkjentYtelseValideringService,
             utbetalingsoppdragGenerator = utbetalingsoppdragGenerator,
             behandlingService = behandlingService,
             tilkjentYtelseRepository = tilkjentYtelseRepository,
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            featureToggleService = featureToggleService,
         )
+
+    @BeforeEach
+    fun setUp() {
+        every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP) } returns true
+    }
 
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal ikke iverksette mot oppdrag hvis det ikke finnes utbetalingsperioder`() {
         // Arrange
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
-        every { oppdragKlient.iverksettOppdrag(any()) } returns ""
+        every { oppdragBackendKlient.iverksettOppdrag(any()) } returns ""
 
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
@@ -71,14 +84,14 @@ internal class UtbetalingsperiodeServiceTest {
         )
 
         // Assert
-        verify(exactly = 0) { oppdragKlient.iverksettOppdrag(any()) }
+        verify(exactly = 0) { oppdragBackendKlient.iverksettOppdrag(any()) }
     }
 
     @Test
     fun `oppdaterTilkjentYtelseMedUtbetalingsoppdragOgIverksett - skal iverksette mot oppdrag hvis det finnes utbetalingsperioder`() {
         // Arrange
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
-        every { oppdragKlient.iverksettOppdrag(any()) } returns ""
+        every { oppdragBackendKlient.iverksettOppdrag(any()) } returns ""
 
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
@@ -122,7 +135,7 @@ internal class UtbetalingsperiodeServiceTest {
         )
 
         // Assert
-        verify(exactly = 1) { oppdragKlient.iverksettOppdrag(any()) }
+        verify(exactly = 1) { oppdragBackendKlient.iverksettOppdrag(any()) }
     }
 
     @Test
