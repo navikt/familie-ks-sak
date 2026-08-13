@@ -51,9 +51,6 @@ class FagsakService(
     private val clockProvider: ClockProvider,
     private val adopsjonService: AdopsjonService,
     private val pdlKlient: PdlKlient,
-    // Bruker repository framfor FagsakLåsingService for å unngå sirkulær avhengighet. FagsakLåsingService
-    // når FagsakService via både ArbeidsfordelingService -> SakStatistikkService og
-    // PersonopplysningGrunnlagService -> BeregningService.
     private val fagsakLåsingRepository: FagsakLåsingRepository,
 ) {
     private val antallFagsakerOpprettetFraManuell =

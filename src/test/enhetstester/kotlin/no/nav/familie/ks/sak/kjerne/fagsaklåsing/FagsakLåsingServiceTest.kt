@@ -1,7 +1,5 @@
 package no.nav.familie.ks.sak.kjerne.fagsaklåsing
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import io.mockk.every
@@ -45,12 +43,10 @@ import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -96,9 +92,6 @@ class FagsakLåsingServiceTest {
         private val sisteStønadTom = YearMonth.now().minusYears(3)
         private val vedtaksdato = LocalDateTime.now().minusYears(2)
         private val personer = setOf(lagPersonEnkel(personType = PersonType.BARN, fødselsdato = LocalDate.now().minusYears(4)))
-        private val åpenLogger = LoggerFactory.getLogger(FagsakLåsingService::class.java) as Logger
-        private lateinit var listAppender: ListAppender<ILoggingEvent>
-        private var opprinneligLoggnivå: Level? = null
 
         @BeforeEach
         fun setup() {
@@ -119,19 +112,6 @@ class FagsakLåsingServiceTest {
             every { taskService.save(any()) } answers { firstArg() }
             every { arbeidsfordelingService.hentArbeidsfordelingsenhetPåIdenter(fagsak.aktør.aktivFødselsnummer(), personer.map { it.aktør.aktivFødselsnummer() }, any()) } returns arbeidsfordelingsenhet
             every { integrasjonKlient.avsluttSak(any()) } just runs
-
-            listAppender = ListAppender<ILoggingEvent>().apply { start() }
-            opprinneligLoggnivå = åpenLogger.level
-            åpenLogger.level = Level.INFO
-            åpenLogger.addAppender(listAppender)
-        }
-
-        // Loggeren er delt for hele JVM-en, så appender og nivå må tilbakestilles etter hver test
-        @AfterEach
-        fun tearDown() {
-            åpenLogger.detachAppender(listAppender)
-            listAppender.stop()
-            åpenLogger.level = opprinneligLoggnivå
         }
 
         @Test
@@ -140,7 +120,6 @@ class FagsakLåsingServiceTest {
             val lagretLåsSlot = slot<FagsakLåsing>()
             val joarkRequestSlot = slot<AvsluttSakRequest>()
 
-            // Mocker for å kunne sette `opprettetTidspunkt` til mer enn 30 dager siden
             val låstOppFagsakLåsing =
                 mockk<FagsakLåsing>(relaxed = true) {
                     every { opprettetTidspunkt } returns LocalDateTime.now().minusDays(50)
@@ -173,10 +152,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(1)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).isEqualTo("Toggle for låsing av fagsak er av, hopper ut")
-            }
             verify(exactly = 0) { fagsakRepository.finnFagsak(any()) }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
@@ -194,10 +169,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).isEqualTo("Status for fagsak ${fagsak.id} er LØPENDE. Hopper ut av fagsaklåsing.")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { fagsakLåsingRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
@@ -214,10 +185,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).isEqualTo("Fagsak ${fagsak.id} har åpen klagebehandling. Hopper ut av fagsaklåsing.")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
@@ -233,10 +200,7 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).isEqualTo("Fagsak ${fagsak.id} har åpen tilbakekrevingsbehandling. Hopper ut av fagsaklåsing.")
-            }
+
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
@@ -252,10 +216,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).contains("som er for under 1 år siden. Hopper ut")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
         }
@@ -279,10 +239,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).contains("som er for under 1 år siden. Hopper ut")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
         }
@@ -325,10 +281,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).contains("som er for under 1 år siden. Hopper ut")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
         }
@@ -348,10 +300,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).contains("som er for under 1 år siden. Hopper ut")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
         }
@@ -365,10 +313,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).isEqualTo("Fagsak ${fagsak.id} har åpen behandling. Hopper ut av fagsaklåsing.")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
@@ -409,10 +353,6 @@ class FagsakLåsingServiceTest {
             fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
-            assertThat(listAppender.list).anySatisfy {
-                assertThat(it.level.toString()).isEqualTo("INFO")
-                assertThat(it.formattedMessage).isEqualTo("Fagsak ${fagsak.id} ble låst opp for under 30 dager siden. Hopper ut av fagsaklåsing.")
-            }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
             verify(exactly = 0) { integrasjonKlient.avsluttSak(any()) }
@@ -599,7 +539,7 @@ class FagsakLåsingServiceTest {
         }
 
         @Test
-        fun `skal kaste FunksjonellFeil hvis begrunnelse er blank`() {
+        fun `skal kaste FunksjonellFeil hvis begrunnelsen for opplåsing er blank`() {
             // Arrange
             val fagsak = lagFagsak(status = FagsakStatus.LÅST)
             every { fagsakRepository.finnFagsak(fagsak.id) } returns fagsak

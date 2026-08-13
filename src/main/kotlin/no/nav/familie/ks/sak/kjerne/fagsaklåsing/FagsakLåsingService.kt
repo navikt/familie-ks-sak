@@ -60,9 +60,7 @@ class FagsakLåsingService(
             return
         }
 
-        val fagsak =
-            fagsakRepository.finnFagsak(fagsakId)
-                ?: throw Feil("Fant ikke fagsak $fagsakId")
+        val fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw Feil("Fant ikke fagsak $fagsakId")
 
         if (fagsakSkalIkkeLåses(fagsak)) return
 
@@ -132,6 +130,7 @@ class FagsakLåsingService(
         }
 
         val aktivLåsForFagsak = finnAktivLåsForFagsak(fagsak.id)
+
         if (aktivLåsForFagsak?.hendelse == FagsakLåsHendelse.LÅST) {
             throw Feil("Fagsak ${fagsak.id} med status ${fagsak.status} har allerede en aktiv låsing.")
         }
@@ -158,9 +157,6 @@ class FagsakLåsingService(
             return true
         }
 
-        // NB: Klage og tilbakekreving bidrar kun med vedtaksdato. En henlagt klage uten vedtaksdato starter
-        // dermed ingen 1-årsfrist, i motsetning til henlagte KS-behandlinger. KlagebehandlingDto har ingen
-        // ferdigstilt-tidspunkt, så dette krever en kontraktsendring for å kunne håndteres likt.
         val sisteAvsluttetTidspunkt =
             listOfNotNull(
                 sisteAvsluttedeBehandlingTidspunkt(fagsak.id),
@@ -223,8 +219,6 @@ class FagsakLåsingService(
 
     private fun erÅpenBehandlingPåFagsak(fagsakId: Long): Boolean = behandlingRepository.findByFagsakAndAktivAndOpen(fagsakId) != null
 
-    // Henlagte behandlinger teller også som avsluttet, jf. kravet om at fagsaken tidligst kan låses
-    // 1 år etter at en åpen behandling er ferdigstilt/avsluttet
     private fun sisteAvsluttedeBehandlingTidspunkt(fagsakId: Long): LocalDateTime? =
         behandlingRepository
             .finnBehandlinger(fagsakId)
