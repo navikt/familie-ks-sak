@@ -29,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.hentSaksbehandlerNavn
+import no.nav.familie.ks.sak.task.GjenåpneFagsakIDokarkivTask
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -54,26 +55,20 @@ class FagsakLåsingService(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
-    fun låsFagsak(fagsakId: Long) {
+    fun låsFagsak(fagsakId: Long): FagsakLåsingResultat {
         if (!featureToggleService.isEnabled(FeatureToggle.KAN_LÅSE_FAGSAK)) {
-            logger.info("Toggle for låsing av fagsak er av, hopper ut")
-            return
+            return ikkeLåst(fagsakId, "Toggle for låsing av fagsak er av")
         }
 
         val fagsak = fagsakRepository.finnFagsak(fagsakId) ?: throw Feil("Fant ikke fagsak $fagsakId")
 
-        if (fagsakSkalIkkeLåses(fagsak)) return
+        årsakTilAtFagsakIkkeSkalLåses(fagsak)?.let { return ikkeLåst(fagsakId, it) }
 
         val sisteVedtatteBehandling =
             behandlingService.hentSisteBehandlingSomErVedtatt(fagsakId)
                 ?: throw Feil("Fant ingen vedtatt behandling på fagsak $fagsakId")
 
-        // En behandling kan ha flere tilkjente ytelser, og vi må bruke den som strekker seg lengst
-        val sisteStønadTom =
-            tilkjentYtelseRepository
-                .hentTilkjenteYtelserForBehandling(sisteVedtatteBehandling.id)
-                .mapNotNull { it.stønadTom }
-                .maxOrNull()
+        val sisteStønadTom = tilkjentYtelseRepository.hentOptionalTilkjentYtelseForBehandling(sisteVedtatteBehandling.id)?.stønadTom
         val vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(sisteVedtatteBehandling.id)?.vedtaksdato
 
         // stønadTom er en måned, og 1-årsfristen løper fra siste dag i måneden det ble utbetalt for
@@ -84,8 +79,7 @@ class FagsakLåsingService(
         val låsedato = sisteUtbetalingEllerVedtaksdato.plusYears(1).atStartOfDay()
 
         if (LocalDateTime.now() < låsedato) {
-            logger.info("Fagsak skal ikke låses før $låsedato. Hopper ut av fagsaklåsing.")
-            return
+            return ikkeLåst(fagsakId, "Fagsaken skal ikke låses før $låsedato")
         }
 
         val barnPåFagsak =
@@ -121,12 +115,20 @@ class FagsakLåsingService(
             ),
         )
         logger.info("Fagsak $fagsakId er låst og meldt til Joark")
+        return FagsakLåsingResultat.Låst
     }
 
-    private fun fagsakSkalIkkeLåses(fagsak: Fagsak): Boolean {
+    private fun ikkeLåst(
+        fagsakId: Long,
+        årsak: String,
+    ): FagsakLåsingResultat.IkkeLåst {
+        logger.info("Fagsak $fagsakId ble ikke låst: $årsak")
+        return FagsakLåsingResultat.IkkeLåst(årsak)
+    }
+
+    private fun årsakTilAtFagsakIkkeSkalLåses(fagsak: Fagsak): String? {
         if (fagsak.status != FagsakStatus.AVSLUTTET) {
-            logger.info("Status for fagsak ${fagsak.id} er ${fagsak.status}. Hopper ut av fagsaklåsing.")
-            return true
+            return "Status for fagsaken er ${fagsak.status}"
         }
 
         val aktivLåsForFagsak = finnAktivLåsForFagsak(fagsak.id)
@@ -136,25 +138,21 @@ class FagsakLåsingService(
         }
 
         if (aktivLåsForFagsak?.opprettetTidspunkt?.isAfter(LocalDateTime.now().minusDays(30)) == true) {
-            logger.info("Fagsak ${fagsak.id} ble låst opp for under 30 dager siden. Hopper ut av fagsaklåsing.")
-            return true
+            return "Fagsaken ble låst opp for under 30 dager siden"
         }
 
         if (erÅpenBehandlingPåFagsak(fagsak.id)) {
-            logger.info("Fagsak ${fagsak.id} har åpen behandling. Hopper ut av fagsaklåsing.")
-            return true
+            return "Fagsaken har åpen behandling"
         }
 
         val klagebehandlinger = klagebehandlingHenter.hentKlagebehandlingerPåFagsak(fagsak.id)
         if (klagebehandlinger.any { it.status != KlageBehandlingStatus.FERDIGSTILT }) {
-            logger.info("Fagsak ${fagsak.id} har åpen klagebehandling. Hopper ut av fagsaklåsing.")
-            return true
+            return "Fagsaken har åpen klagebehandling"
         }
 
         val tilbakekrevingsbehandlinger = tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsak.id)
         if (tilbakekrevingsbehandlinger.any { it.status != Behandlingsstatus.AVSLUTTET }) {
-            logger.info("Fagsak ${fagsak.id} har åpen tilbakekrevingsbehandling. Hopper ut av fagsaklåsing.")
-            return true
+            return "Fagsaken har åpen tilbakekrevingsbehandling"
         }
 
         val sisteAvsluttetTidspunkt =
@@ -165,11 +163,10 @@ class FagsakLåsingService(
             ).maxOrNull()
 
         if (sisteAvsluttetTidspunkt != null && sisteAvsluttetTidspunkt.isAfter(LocalDateTime.now().minusYears(1))) {
-            logger.info("Fagsak ${fagsak.id} hadde siste avsluttede behandling $sisteAvsluttetTidspunkt, som er for under 1 år siden. Hopper ut av fagsaklåsing.")
-            return true
+            return "Fagsaken hadde siste avsluttede behandling $sisteAvsluttetTidspunkt, som er for under 1 år siden"
         }
 
-        return false
+        return null
     }
 
     @Transactional
@@ -199,18 +196,9 @@ class FagsakLåsingService(
 
         oppdaterStatus(fagsak, FagsakStatus.AVSLUTTET)
 
-        integrasjonKlient.gjenåpneSakIDokarkiv(
-            GjenåpneSakRequest(
-                tema = Tema.KON,
-                fagsakId = fagsakId.toString(),
-                fagsaksystem = Fagsystem.KONT,
-                bruker =
-                    DokarkivBruker(
-                        idType = BrukerIdType.FNR,
-                        id = fagsak.aktør.aktivFødselsnummer(),
-                    ),
-            ),
-        )
+        // Gjenåpningen i Joark kan ikke rulles tilbake, så den legges på task og kjører først når
+        // opplåsingen faktisk er commitet.
+        taskService.save(GjenåpneFagsakIDokarkivTask.opprettTask(fagsakId))
 
         return fagsak
     }
@@ -249,4 +237,12 @@ class FagsakLåsingService(
         logger.info("${hentSaksbehandlerNavn()} oppdaterer fagsak $fagsak")
         return fagsakRepository.save(fagsak).also { taskService.save(PubliserSaksstatistikkTask.lagTask(it.id)) }
     }
+}
+
+sealed interface FagsakLåsingResultat {
+    data object Låst : FagsakLåsingResultat
+
+    data class IkkeLåst(
+        val årsak: String,
+    ) : FagsakLåsingResultat
 }

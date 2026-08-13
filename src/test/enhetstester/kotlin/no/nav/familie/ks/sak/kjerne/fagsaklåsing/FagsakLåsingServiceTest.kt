@@ -42,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.task.GjenåpneFagsakIDokarkivTask
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -102,8 +103,8 @@ class FagsakLåsingServiceTest {
             every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(sisteVedtatteBehandling)
             every { behandlingService.hentSisteBehandlingSomErVedtatt(fagsak.id) } returns sisteVedtatteBehandling
             every { behandlingRepository.findByFagsakAndAktivAndOpen(fagsak.id) } returns null
-            every { tilkjentYtelseRepository.hentTilkjenteYtelserForBehandling(sisteVedtatteBehandling.id) } returns
-                listOf(TilkjentYtelse(behandling = sisteVedtatteBehandling, stønadTom = sisteStønadTom, opprettetDato = LocalDate.now(), endretDato = LocalDate.now()))
+            every { tilkjentYtelseRepository.hentOptionalTilkjentYtelseForBehandling(sisteVedtatteBehandling.id) } returns
+                TilkjentYtelse(behandling = sisteVedtatteBehandling, stønadTom = sisteStønadTom, opprettetDato = LocalDate.now(), endretDato = LocalDate.now())
             every { vedtakRepository.findByBehandlingAndAktivOptional(sisteVedtatteBehandling.id) } returns lagVedtak(behandling = sisteVedtatteBehandling, vedtaksDato = vedtaksdato)
             every { klagebehandlingHenter.hentKlagebehandlingerPåFagsak(fagsak.id) } returns emptyList()
             every { tilbakekrevingKlient.hentTilbakekrevingsbehandlinger(fagsak.id) } returns emptyList()
@@ -130,9 +131,10 @@ class FagsakLåsingServiceTest {
             every { integrasjonKlient.avsluttSak(capture(joarkRequestSlot)) } just runs
 
             // Act
-            fagsakLåsingService.låsFagsak(fagsak.id)
+            val resultat = fagsakLåsingService.låsFagsak(fagsak.id)
 
             // Assert
+            assertThat(resultat).isEqualTo(FagsakLåsingResultat.Låst)
             assertThat(fagsak.status).isEqualTo(FagsakStatus.LÅST)
             assertThat(lagretLåsSlot.captured.hendelse).isEqualTo(FagsakLåsHendelse.LÅST)
             assertThat(lagretLåsSlot.captured.aktiv).isTrue()
@@ -149,9 +151,10 @@ class FagsakLåsingServiceTest {
             every { featureToggleService.isEnabled(FeatureToggle.KAN_LÅSE_FAGSAK) } returns false
 
             // Act
-            fagsakLåsingService.låsFagsak(1)
+            val resultat = fagsakLåsingService.låsFagsak(1)
 
             // Assert
+            assertThat(resultat).isInstanceOf(FagsakLåsingResultat.IkkeLåst::class.java)
             verify(exactly = 0) { fagsakRepository.finnFagsak(any()) }
             verify(exactly = 0) { fagsakRepository.save(any()) }
             verify(exactly = 0) { taskService.save(any()) }
@@ -379,8 +382,8 @@ class FagsakLåsingServiceTest {
         @Test
         fun `skal hoppe over fagsak der siste utbetaling var for under 1 år siden`() {
             // Arrange
-            every { tilkjentYtelseRepository.hentTilkjenteYtelserForBehandling(sisteVedtatteBehandling.id) } returns
-                listOf(TilkjentYtelse(behandling = sisteVedtatteBehandling, stønadTom = YearMonth.now().minusMonths(6), opprettetDato = LocalDate.now(), endretDato = LocalDate.now()))
+            every { tilkjentYtelseRepository.hentOptionalTilkjentYtelseForBehandling(sisteVedtatteBehandling.id) } returns
+                TilkjentYtelse(behandling = sisteVedtatteBehandling, stønadTom = YearMonth.now().minusMonths(6), opprettetDato = LocalDate.now(), endretDato = LocalDate.now())
 
             // Act
             fagsakLåsingService.låsFagsak(fagsak.id)
@@ -429,7 +432,7 @@ class FagsakLåsingServiceTest {
             // Arrange
             val lagretLåsSlot = slot<FagsakLåsing>()
 
-            every { tilkjentYtelseRepository.hentTilkjenteYtelserForBehandling(sisteVedtatteBehandling.id) } returns emptyList()
+            every { tilkjentYtelseRepository.hentOptionalTilkjentYtelseForBehandling(sisteVedtatteBehandling.id) } returns null
             every { fagsakLåsingRepository.save(capture(lagretLåsSlot)) } answers { firstArg() }
 
             // Act
@@ -458,7 +461,6 @@ class FagsakLåsingServiceTest {
             every { fagsakLåsingRepository.finnAktivLåsForFagsak(any()) } returns null
             every { fagsakLåsingRepository.save(any()) } answers { firstArg() }
             every { fagsakRepository.save(any()) } answers { firstArg() }
-            every { integrasjonKlient.gjenåpneSakIDokarkiv(any()) } just runs
         }
 
         @Test
@@ -498,25 +500,24 @@ class FagsakLåsingServiceTest {
         }
 
         @Test
-        fun `skal kalle gjenåpneSak på integrasjonsklienten med riktige verdier`() {
+        fun `skal opprette task for å gjenåpne sak i dokarkiv framfor å kalle integrasjonsklienten`() {
             // Arrange
             val fagsak = lagFagsak(status = FagsakStatus.LÅST)
             every { fagsakRepository.finnFagsak(fagsak.id) } returns fagsak
-
-            val requestSlot = slot<GjenåpneSakRequest>()
-            every { integrasjonKlient.gjenåpneSakIDokarkiv(capture(requestSlot)) } just runs
             every { taskService.save(any()) } answers { firstArg() }
 
             // Act
             fagsakLåsingService.låsOppFagsak(fagsak.id, "Begrunnelse")
 
             // Assert
-            val request = requestSlot.captured
-            assertThat(request.tema).isEqualTo(Tema.KON)
-            assertThat(request.fagsakId).isEqualTo(fagsak.id.toString())
-            assertThat(request.fagsaksystem).isEqualTo(Fagsystem.KONT)
-            assertThat(request.bruker.idType).isEqualTo(BrukerIdType.FNR)
-            assertThat(request.bruker.id).isEqualTo(fagsak.aktør.aktivFødselsnummer())
+            verify {
+                taskService.save(
+                    match {
+                        it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE && it.payload == fagsak.id.toString()
+                    },
+                )
+            }
+            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
             verify { taskService.save(match { it.type == PubliserSaksstatistikkTask.TASK_STEP_TYPE }) }
         }
 
@@ -535,7 +536,7 @@ class FagsakLåsingServiceTest {
             assertThat(feil.message).contains("LÅST")
             assertThat(feil.message).contains("LØPENDE")
             verify(exactly = 0) { fagsakLåsingRepository.save(any()) }
-            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
+            verify(exactly = 0) { taskService.save(match { it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE }) }
         }
 
         @Test
@@ -550,7 +551,7 @@ class FagsakLåsingServiceTest {
             }
 
             verify(exactly = 0) { fagsakLåsingRepository.save(any()) }
-            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
+            verify(exactly = 0) { taskService.save(match { it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE }) }
         }
 
         @Test
@@ -564,7 +565,7 @@ class FagsakLåsingServiceTest {
                 fagsakLåsingService.låsOppFagsak(fagsak.id, "Begrunnelse")
             }
 
-            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
+            verify(exactly = 0) { taskService.save(match { it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE }) }
             verify(exactly = 0) { fagsakRepository.save(any()) }
         }
     }

@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakStatusScheduler
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingResultat
 import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingService
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentDto
 import no.nav.familie.ks.sak.kjerne.personident.PatchMergetIdentTask
@@ -432,8 +433,9 @@ class ForvaltningController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Start fagsaklåsing-batch",
         )
-        fagsakStatusScheduler.startFagsakLåsing()
-        return ResponseEntity.ok(Ressurs.success("Fagsaklåsing-batch startet"))
+        val startet = fagsakStatusScheduler.startFagsakLåsing()
+        val melding = if (startet) "Fagsaklåsing-batch startet" else "Fagsaklåsing-batch ble ikke startet: toggle er av"
+        return ResponseEntity.ok(Ressurs.success(melding))
     }
 
     @PostMapping("/fagsaklåsing/lås-fagsak/{fagsakId}")
@@ -445,7 +447,11 @@ class ForvaltningController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "Lås fagsak",
         )
-        fagsakLåsingService.låsFagsak(fagsakId)
-        return ResponseEntity.ok(Ressurs.success("Fagsak $fagsakId er låst"))
+        val melding =
+            when (val resultat = fagsakLåsingService.låsFagsak(fagsakId)) {
+                is FagsakLåsingResultat.Låst -> "Fagsak $fagsakId er låst"
+                is FagsakLåsingResultat.IkkeLåst -> "Fagsak $fagsakId ble ikke låst: ${resultat.årsak}"
+            }
+        return ResponseEntity.ok(Ressurs.success(melding))
     }
 }

@@ -35,15 +35,21 @@ class FagsakStatusScheduler(
     }
 
     @Scheduled(cron = "\${CRON_LAAS_FAGSAK_SCHEDULER}")
-    fun startFagsakLåsing() {
+    fun startFagsakLåsingScheduled() {
+        if (envService.erLokal() || LeaderClient.isLeader() == true) {
+            startFagsakLåsing()
+        }
+    }
+
+    fun startFagsakLåsing(): Boolean {
         if (!featureToggleService.isEnabled(FeatureToggle.FAGSAKLÅSING_SCHEDULER)) {
             logger.info("Fagsaklåsing-scheduler-toggle er av, hopper over batch")
-            return
+            return false
         }
-        if (envService.erLokal() || LeaderClient.isLeader() == true) {
-            taskService.save(Task(type = FinnFagsakerSomSkalLåsesTask.TASK_STEP_TYPE, payload = ""))
-            logger.info("Opprettet FinnFagsakerForLåsingTask")
-        }
+
+        taskService.save(Task(type = FinnFagsakerSomSkalLåsesTask.TASK_STEP_TYPE, payload = ""))
+        logger.info("Opprettet FinnFagsakerSomSkalLåsesTask")
+        return true
     }
 
     companion object {
