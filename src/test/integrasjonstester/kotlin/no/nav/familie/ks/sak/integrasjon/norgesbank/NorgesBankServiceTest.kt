@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class NorgesBankServiceIntegrationTest : OppslagSpringRunnerTest() {
+class NorgesBankServiceTest : OppslagSpringRunnerTest() {
     private val norgesBankValutakursRestKlient = mockk<NorgesBankValutakursRestKlient>()
 
     @Autowired
