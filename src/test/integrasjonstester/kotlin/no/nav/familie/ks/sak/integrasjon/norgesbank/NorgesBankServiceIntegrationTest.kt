@@ -17,25 +17,22 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class NorgesBankServiceIntegrationTest : OppslagSpringRunnerTest() {
+class NorgesBankServiceIntegrationTest(
+    @Autowired
+    private val ecbValutakursCacheRepository: ECBValutakursCacheRepository,
+    @Autowired
+    private val databaseCleanupService: DatabaseCleanupService,
+) : OppslagSpringRunnerTest() {
     private val norgesBankValutakursRestKlient = mockk<NorgesBankValutakursRestKlient>()
 
-    @Autowired
-    private lateinit var ecbValutakursCacheRepository: ECBValutakursCacheRepository
-
-    @Autowired
-    private lateinit var databaseCleanupService: DatabaseCleanupService
-
-    @Autowired
-    private lateinit var norgesBankService: NorgesBankService
+    private val norgesBankService: NorgesBankService =
+        NorgesBankService(
+            norgesBankValutakursRestKlient = norgesBankValutakursRestKlient,
+            ecbValutakursCacheRepository = ecbValutakursCacheRepository,
+        )
 
     @BeforeEach
     fun setUp() {
-        norgesBankService =
-            NorgesBankService(
-                norgesBankValutakursRestKlient = norgesBankValutakursRestKlient,
-                ecbValutakursCacheRepository = ecbValutakursCacheRepository,
-            )
         databaseCleanupService.truncate()
     }
 
