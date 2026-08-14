@@ -24,6 +24,7 @@ data class MinimalFagsakResponsDto(
     val behandlinger: List<MinimalBehandlingResponsDto> = emptyList(),
     val gjeldendeUtbetalingsperioder: List<UtbetalingsperiodeResponsDto> = emptyList(),
     val finnesStrengtFortroligPersonIFagsak: Boolean = false,
+    val låstTidspunkt: LocalDateTime? = null,
 )
 
 data class MinimalBehandlingResponsDto(

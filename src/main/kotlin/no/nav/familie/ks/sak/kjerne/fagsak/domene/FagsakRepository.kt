@@ -52,6 +52,31 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
 
     @Query(
         value = """
+        WITH siste_vedtatte AS (
+            -- Siste vedtatte behandling per fagsak
+            SELECT DISTINCT ON (b.fk_fagsak_id) b.id, b.fk_fagsak_id
+            FROM behandling b
+            INNER JOIN fagsak f ON f.id = b.fk_fagsak_id
+            WHERE f.status   = 'AVSLUTTET'
+              AND f.arkivert  = FALSE
+              AND b.status   = 'AVSLUTTET'
+              AND b.resultat NOT LIKE 'HENLAGT%'
+            ORDER BY b.fk_fagsak_id, b.aktivert_tid DESC
+        )
+        -- Fagsaker der siste utbetaling og siste vedtak var for mer enn 1 år siden.
+        -- stonad_tom lagres som første dag i måneden, mens fristen løper fra siste dag i måneden.
+        SELECT DISTINCT sv.fk_fagsak_id
+        FROM   siste_vedtatte sv
+        LEFT JOIN tilkjent_ytelse ty ON ty.fk_behandling_id = sv.id
+        LEFT JOIN vedtak v ON v.fk_behandling_id = sv.id AND v.aktiv = TRUE
+        WHERE  GREATEST((ty.stonad_tom + INTERVAL '1 month' - INTERVAL '1 day')::date, v.vedtaksdato::date) + INTERVAL '1 year' <= CURRENT_DATE
+        """,
+        nativeQuery = true,
+    )
+    fun finnAvsluttedeFagsakerSomSkalLåses(): List<Long>
+
+    @Query(
+        value = """
             SELECT new kotlin.Pair(f.id, f.status)
                 FROM Fagsak f
                     JOIN Behandling b ON f.id = b.fagsak.id

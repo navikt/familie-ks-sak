@@ -97,6 +97,7 @@ class CucumberMock(
             clockProvider = clockProvider,
             adopsjonService = adopsjonServiceMock,
             pdlKlient = pdlKlientMock,
+            fagsakLåsingRepository = mockk(relaxed = true),
         )
 
     val beregningService =

@@ -21,11 +21,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.EksternBehandlingRelasjon
 import no.nav.familie.ks.sak.kjerne.behandling.domene.NyEksternBehandlingRelasjon
+import no.nav.familie.ks.sak.kjerne.behandling.domene.skalBehandlesAutomatisk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.VedtakService
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
+import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
@@ -48,6 +51,7 @@ class OpprettBehandlingService(
     private val stegService: StegService,
     private val behandlingMetrikker: BehandlingMetrikker,
     private val eksternBehandlingRelasjonService: EksternBehandlingRelasjonService,
+    private val fagsakLåsingService: FagsakLåsingService,
 ) {
     @Transactional
     fun opprettBehandling(opprettBehandlingRequest: OpprettBehandlingDto): Behandling {
@@ -57,6 +61,20 @@ class OpprettBehandlingService(
                 ?: throw FunksjonellFeil(
                     melding = "Kan ikke lage behandling på person uten tilknyttet fagsak.",
                 )
+
+        if (fagsak.status == FagsakStatus.LÅST) {
+            if (opprettBehandlingRequest.behandlingÅrsak.skalBehandlesAutomatisk()) {
+                fagsakLåsingService.låsOppFagsak(
+                    fagsakId = fagsak.id,
+                    begrunnelseForÅLåseOppFagsak = "Låst opp grunnet automatisk behandling ${opprettBehandlingRequest.behandlingÅrsak}",
+                )
+            } else {
+                throw FunksjonellFeil(
+                    melding = "Kan ikke opprette behandling på en låst fagsak ${fagsak.id}.",
+                    frontendFeilmelding = "Fagsaken er låst og det er ikke mulig å opprette nye behandlinger.",
+                )
+            }
+        }
 
         val aktivBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id)
         val sisteVedtattBehandling = hentSisteBehandlingSomErVedtatt(fagsak.id)

@@ -69,6 +69,7 @@ NAIS_APP_NAME: familie-ks-sak
 NAIS_TOKEN_EXCHANGE_ENDPOINT: http://localhost:7575/api/v1/token/exchange
 NAIS_TOKEN_ENDPOINT: http://localhost:7575/api/v1/token
 CRON_FAGSAKSTATUS_SCHEDULER: "0 0/10 * ? * *"
+CRON_LAAS_FAGSAK_SCHEDULER: "0 0/10 * ? * *"
 
 
 rolle:

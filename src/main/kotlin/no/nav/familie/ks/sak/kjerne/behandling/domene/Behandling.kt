@@ -191,7 +191,7 @@ data class Behandling(
 
     fun erOvergangsordning() = opprettetÅrsak == BehandlingÅrsak.OVERGANGSORDNING_2024
 
-    fun skalBehandlesAutomatisk(): Boolean = this.opprettetÅrsak in listOf(BehandlingÅrsak.LOVENDRING_2024)
+    fun skalBehandlesAutomatisk(): Boolean = this.opprettetÅrsak.skalBehandlesAutomatisk()
 
     fun erRedigerbar() = status in setOf(OPPRETTET, UTREDES, SATT_PÅ_MASKINELL_VENT)
 }
@@ -277,6 +277,8 @@ fun Behandlingsresultat.tilDokumenttype() =
         IKKE_VURDERT,
         -> throw Feil("Behandlingsresultat $this støtter ikke utsendelse av journalpost.")
     }
+
+fun BehandlingÅrsak.skalBehandlesAutomatisk(): Boolean = this in listOf(BehandlingÅrsak.LOVENDRING_2024)
 
 /**
  * Årsak er knyttet til en behandling og sier noe om hvorfor behandling ble opprettet.

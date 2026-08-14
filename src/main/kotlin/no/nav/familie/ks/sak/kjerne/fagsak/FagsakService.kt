@@ -24,6 +24,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 @Service
@@ -49,6 +51,7 @@ class FagsakService(
     private val clockProvider: ClockProvider,
     private val adopsjonService: AdopsjonService,
     private val pdlKlient: PdlKlient,
+    private val fagsakLåsingRepository: FagsakLåsingRepository,
 ) {
     private val antallFagsakerOpprettetFraManuell =
         Metrics.counter("familie.ks.sak.fagsak.opprettet", "saksbehandling", "manuell")
@@ -73,7 +76,7 @@ class FagsakService(
                     vedtaksdato = vedtakRepository.findByBehandlingAndAktivOptional(it.id)?.vedtaksdato,
                 )
             }
-        return lagMinimalFagsakResponsDto(fagsak = fagsak, aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id), behandlinger = minimaleBehandlinger)
+        return lagMinimalFagsakResponsDto(fagsak = fagsak, aktivtBehandling = behandlingRepository.findByFagsakAndAktiv(fagsak.id), behandlinger = minimaleBehandlinger, låstTidspunkt = finnLåstTidspunkt(fagsak))
     }
 
     fun hentMinimalFagsak(fagsakId: Long): MinimalFagsakResponsDto {
@@ -107,6 +110,7 @@ class FagsakService(
                 },
             gjeldendeUtbetalingsperioder = gjeldendeUtbetalingsperioder ?: emptyList(),
             finnesStrengtFortroligPersonIFagsak = harFagsakPersonMedStrengtFortroligAdressebeskyttelse(fagsak),
+            låstTidspunkt = finnLåstTidspunkt(fagsak),
         )
     }
 
@@ -210,6 +214,13 @@ class FagsakService(
 
         return behandlingerSomErSisteVedtattePåFagsak.map { it.fagsak }
     }
+
+    private fun finnLåstTidspunkt(fagsak: Fagsak): LocalDateTime? =
+        if (fagsak.status == FagsakStatus.LÅST) {
+            fagsakLåsingRepository.finnAktivLåsForFagsak(fagsak.id)?.opprettetTidspunkt
+        } else {
+            null
+        }
 
     private fun hentSisteBehandlingSomErVedtattPåFagsak(fagsakId: Long) =
         behandlingRepository

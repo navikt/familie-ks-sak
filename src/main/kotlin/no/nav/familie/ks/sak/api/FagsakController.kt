@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.FagsakRequestDto
 import no.nav.familie.ks.sak.api.dto.MinimalFagsakResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
+import no.nav.familie.ks.sak.kjerne.fagsaklåsing.FagsakLåsingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/fagsaker")
 @Validated
 class FagsakController(
+    private val fagsakLåsingService: FagsakLåsingService,
     private val fagsakService: FagsakService,
     private val tilgangService: TilgangService,
     private val tilbakekrevingService: TilbakekrevingService,
@@ -127,10 +130,33 @@ class FagsakController(
 
         return ResponseEntity.ok().body(Ressurs.success(fagsakIdOgTilknyttetAktørId))
     }
+
+    @PatchMapping(path = ["/{fagsakId}/laas-opp"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun låsOppFagsak(
+        @PathVariable fagsakId: Long,
+        @RequestBody request: LåsOppFagsakRequestDto,
+    ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
+        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} låser opp fagsak med id $fagsakId")
+
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            event = AuditLoggerEvent.UPDATE,
+            handling = "låse opp fagsak",
+        )
+
+        fagsakLåsingService.låsOppFagsak(fagsakId, request.begrunnelse)
+
+        return ResponseEntity.ok().body(Ressurs.success(fagsakService.hentMinimalFagsak(fagsakId)))
+    }
 }
 
 data class RestSøkFagsakRequest(
     val personIdent: String,
+)
+
+data class LåsOppFagsakRequestDto(
+    val begrunnelse: String,
 )
 
 data class RestFagsakIdOgTilknyttetAktørId(

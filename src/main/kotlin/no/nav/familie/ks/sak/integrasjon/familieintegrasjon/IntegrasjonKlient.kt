@@ -6,6 +6,8 @@ import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
@@ -448,6 +450,40 @@ class IntegrasjonKlient(
                 .uri(uri)
                 .retrieve()
                 .body<Ressurs<LogiskVedleggResponse>>()!!
+        }
+    }
+
+    fun avsluttSak(request: AvsluttSakRequest) {
+        val uri = URI.create("$integrasjonUri/arkiv/avsluttSak")
+
+        kallEksternTjenesteUtenRespons(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Avslutt sak ${request.fagsakId} i fagsaksystem ${request.fagsaksystem}",
+        ) {
+            restClient
+                .patch()
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body<Ressurs<Any>>()!!
+        }
+    }
+
+    fun gjenåpneSakIDokarkiv(request: GjenåpneSakRequest) {
+        val uri = URI.create("$integrasjonUri/arkiv/gjenaapneSak")
+
+        kallEksternTjenesteUtenRespons(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Gjenåpne sak ${request.fagsakId} i fagsaksystem ${request.fagsaksystem}",
+        ) {
+            restClient
+                .patch()
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body<Ressurs<Any>>()!!
         }
     }
 
