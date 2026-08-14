@@ -106,6 +106,7 @@ spec:
         - host: familie-oppdrag.dev-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
+        - host: data.norges-bank.no
   replicas:
     min: 2
     max: 2
