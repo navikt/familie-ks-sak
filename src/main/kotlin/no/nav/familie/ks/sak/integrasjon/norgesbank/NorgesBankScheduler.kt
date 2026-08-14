@@ -17,7 +17,7 @@ class NorgesBankScheduler(
 ) {
     private val logger: Logger = LoggerFactory.getLogger(NorgesBankScheduler::class.java)
 
-    @Scheduled(cron = "0 0 0 8 * MON-FRI")
+    @Scheduled(cron = "0 0 0 * * MON-FRI")
     fun dagligSjekkOmValutakursklientFungerer() {
         if (LeaderClient.isLeader() == true) {
             val førsteMandagIForrigeMåned =
