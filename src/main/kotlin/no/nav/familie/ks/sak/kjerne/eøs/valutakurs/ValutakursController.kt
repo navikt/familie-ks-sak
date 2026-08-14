@@ -6,7 +6,10 @@ import no.nav.familie.ks.sak.api.dto.ValutakursDto
 import no.nav.familie.ks.sak.api.dto.tilValutakurs
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
+import no.nav.familie.ks.sak.integrasjon.norgesbank.NorgesBankService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -32,6 +35,8 @@ class ValutakursController(
     private val personidentService: PersonidentService,
     private val behandlingService: BehandlingService,
     private val ecbService: ECBService,
+    private val norgesBankService: NorgesBankService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     @PutMapping(path = ["{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun oppdaterValutakurs(
@@ -50,7 +55,7 @@ class ValutakursController(
             if (skalManueltSetteValutakurs(valutakursDto)) {
                 valutakursDto.tilValutakurs(barnAktører)
             } else {
-                oppdaterValutakursMedKursFraECB(valutakursDto, valutakursDto.tilValutakurs(barnAktører = barnAktører))
+                oppdaterValutakurs(valutakursDto, valutakursDto.tilValutakurs(barnAktører = barnAktører))
             }
 
         valutakursService.oppdaterValutakurs(BehandlingId(behandlingId), valutaKurs)
@@ -74,19 +79,30 @@ class ValutakursController(
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
-    private fun oppdaterValutakursMedKursFraECB(
+    private fun oppdaterValutakurs(
         restValutakurs: ValutakursDto,
         valutakurs: Valutakurs,
-    ) = if (valutakursErEndret(restValutakurs, valutakursService.hentValutakurs(restValutakurs.id))) {
-        valutakurs.copy(
-            kurs =
-                ecbService.hentValutakurs(
-                    restValutakurs.valutakode!!,
-                    restValutakurs.valutakursdato!!,
-                ),
-        )
-    } else {
-        valutakurs
+    ): Valutakurs {
+        val skalHenteValutakursFraNorgesBank =
+            featureToggleService.isEnabled(FeatureToggle.HENT_VALUTAKURS_FRA_NORGESBANK, false)
+        return if (valutakursErEndret(restValutakurs, valutakursService.hentValutakurs(restValutakurs.id))) {
+            valutakurs.copy(
+                kurs =
+                    if (skalHenteValutakursFraNorgesBank) {
+                        norgesBankService.hentValutakurs(
+                            restValutakurs.valutakode!!,
+                            restValutakurs.valutakursdato!!,
+                        )
+                    } else {
+                        ecbService.hentValutakurs(
+                            restValutakurs.valutakode!!,
+                            restValutakurs.valutakursdato!!,
+                        )
+                    },
+            )
+        } else {
+            valutakurs
+        }
     }
 
     /**
