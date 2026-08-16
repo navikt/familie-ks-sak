@@ -10,16 +10,41 @@ import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.data.BrukerContextUtil.clearBrukerContext
 import no.nav.familie.ks.sak.data.BrukerContextUtil.mockBrukerContext
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
+import no.nav.familie.ks.sak.integrasjon.tilgangsmaskin.TilgangsmaskinSkyggeService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class IntegrasjonServiceTest {
     private val integrasjonKlient = mockk<IntegrasjonKlient>()
     private val pdlKlient = mockk<PdlKlient>()
-    private val integrasjonService = IntegrasjonService(integrasjonKlient, pdlKlient)
+    private val tilgangsmaskinSkyggeService = mockk<TilgangsmaskinSkyggeService>(relaxed = true)
+    private val integrasjonService = IntegrasjonService(integrasjonKlient, pdlKlient, tilgangsmaskinSkyggeService)
+
+    @AfterEach
+    fun tearDown() {
+        clearBrukerContext()
+    }
+
+    @Test
+    fun `sjekkTilgangTilPersoner skal skyggekjøre Tilgangsmaskinen med resultatet fra integrasjoner i saksbehandlerkontekst`() {
+        // Arrange
+        val personIdenter = listOf("1234567891234")
+        val tilganger = listOf(Tilgang("1234567891234", true))
+
+        every { integrasjonKlient.sjekkTilgangTilPersoner(personIdenter) } returns tilganger
+
+        mockBrukerContext()
+
+        // Act
+        integrasjonService.sjekkTilgangTilPersoner(personIdenter)
+
+        // Assert
+        verify(exactly = 1) { tilgangsmaskinSkyggeService.skyggeSjekkTilgangTilPersoner(personIdenter, tilganger) }
+    }
 
     @Test
     fun `hentMaskertPersonInfoVedManglendeTilgang skal returnere maskert personinfo hvis SB ikke har tilgang til aktør`() {
@@ -47,7 +72,6 @@ internal class IntegrasjonServiceTest {
             maskertPersonInfo.adressebeskyttelseGradering,
             Is(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND),
         )
-        clearBrukerContext()
     }
 
     @Test
@@ -69,8 +93,6 @@ internal class IntegrasjonServiceTest {
         verify(exactly = 1) { integrasjonKlient.sjekkTilgangTilPersoner(listOf(aktørFnr)) }
 
         assertThat(maskertPersonInfo, Is(nullValue()))
-
-        clearBrukerContext()
     }
 
     @Test
@@ -114,8 +136,6 @@ internal class IntegrasjonServiceTest {
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
         assertThat(tilgang.all { it.begrunnelse == "test" }, Is(true))
-
-        clearBrukerContext()
     }
 
     @Test
@@ -132,7 +152,5 @@ internal class IntegrasjonServiceTest {
         verify(exactly = 0) { integrasjonKlient.sjekkTilgangTilPersoner(listeMedIdenter) }
 
         assertThat(tilgang.all { it.harTilgang }, Is(true))
-
-        clearBrukerContext()
     }
 }

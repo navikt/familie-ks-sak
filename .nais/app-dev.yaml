@@ -82,6 +82,9 @@ spec:
           cluster: dev-gcp
         - application: familie-integrasjoner
           cluster: dev-fss
+        - application: populasjonstilgangskontroll
+          namespace: tilgangsmaskin
+          cluster: dev-gcp
         - application: familie-ks-infotrygd
           cluster: dev-fss
         - application: familie-ef-sak

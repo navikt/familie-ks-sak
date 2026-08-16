@@ -28,6 +28,8 @@ FAMILIE_EF_SAK_API_URL_SCOPE: api://prod-gcp.teamfamilie.familie-ef-sak/.default
 FAMILIE_INTEGRASJONER_API_URL: https://familie-integrasjoner.prod-fss-pub.nais.io/api
 FAMILIE_INTEGRASJONER_SCOPE: api://prod-fss.teamfamilie.familie-integrasjoner/.default
 
+TILGANGSMASKIN_SCOPE: api://prod-gcp.tilgangsmaskin.populasjonstilgangskontroll/.default
+
 
 FAMILIE_KS_INFOTRYGD_SCOPE: api://prod-fss.teamfamilie.familie-ks-infotrygd/.default
 FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.prod-fss-pub.nais.io/api
