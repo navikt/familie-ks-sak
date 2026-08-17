@@ -144,9 +144,8 @@ class TilgangsmaskinSkyggeServiceTest {
     }
 
     @Test
-    fun `skal logge oppsummering på debug-nivå uten personident når det ikke er divergens`() {
+    fun `skal logge oppsummering uten personident når det ikke er divergens`() {
         // Arrange
-        åpenLogg.level = Level.DEBUG
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
             listOf(TilgangsmaskinResultat(personIdent = PERSONIDENT, harTilgang = true, httpStatus = 204))
 
