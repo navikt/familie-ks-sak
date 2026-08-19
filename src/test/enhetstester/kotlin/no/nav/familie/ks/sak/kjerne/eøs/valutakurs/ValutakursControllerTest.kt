@@ -8,8 +8,11 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.UtfyltStatus
 import no.nav.familie.ks.sak.api.dto.ValutakursDto
 import no.nav.familie.ks.sak.api.dto.tilValutakurs
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
+import no.nav.familie.ks.sak.integrasjon.norgesbank.NorgesBankService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -25,7 +28,9 @@ class ValutakursControllerTest {
     private val personidentService = mockk<PersonidentService>()
     private val behandlingService = mockk<BehandlingService>()
     private val ecbService = mockk<ECBService>()
+    private val norgesBankService = mockk<NorgesBankService>()
     private val tilgangService = mockk<TilgangService>()
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val valutakursController =
         ValutakursController(
@@ -34,6 +39,8 @@ class ValutakursControllerTest {
             personidentService = personidentService,
             behandlingService = behandlingService,
             ecbService = ecbService,
+            norgesBankService = norgesBankService,
+            featureToggleService = featureToggleService,
         )
 
     private val barnId = tilfeldigPerson()
@@ -45,12 +52,13 @@ class ValutakursControllerTest {
     fun setup() {
         every { personidentService.hentAktør(any()) } returns barnId.aktør
         every { valutakursService.hentValutakurs(any()) } returns restValutakurs.tilValutakurs(listOf(barnId.aktør))
-        every { ecbService.hentValutakurs(any(), any()) } returns BigDecimal.valueOf(0.95)
+        every { norgesBankService.hentValutakurs(any(), any()) } returns BigDecimal.valueOf(0.95)
+        every { featureToggleService.isEnabled(FeatureToggle.HENT_VALUTAKURS_FRA_NORGESBANK, false) } returns true
         justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
     }
 
     @Test
-    fun `Test at valutakurs hentes fra ECB dersom dato og valuta er satt`() {
+    fun `Test at valutakurs hentes fra Norges Bank dersom dato og valuta er satt`() {
         // Arrange
         val valutakursDato = LocalDate.of(2022, 1, 1)
         val valuta = "SEK"
@@ -62,12 +70,12 @@ class ValutakursControllerTest {
                 restValutakurs.copy(valutakursdato = valutakursDato, valutakode = valuta),
             )
         }
-        verify(exactly = 1) { ecbService.hentValutakurs("SEK", valutakursDato) }
+        verify(exactly = 1) { norgesBankService.hentValutakurs("SEK", valutakursDato) }
         verify(exactly = 1) { valutakursService.oppdaterValutakurs(any(), any()) }
     }
 
     @Test
-    fun `Test at valutakurs ikke hentes fra ECB dersom dato ikke er satt`() {
+    fun `Test at valutakurs ikke hentes fra Norges Bank dersom dato ikke er satt`() {
         // Arrange
         val valutakursDato = LocalDate.of(2022, 1, 1)
 
@@ -78,12 +86,12 @@ class ValutakursControllerTest {
                 restValutakurs.copy(valutakode = "SEK"),
             )
         }
-        verify(exactly = 0) { ecbService.hentValutakurs("SEK", valutakursDato) }
+        verify(exactly = 0) { norgesBankService.hentValutakurs("SEK", valutakursDato) }
         verify(exactly = 1) { valutakursService.oppdaterValutakurs(any(), any()) }
     }
 
     @Test
-    fun `Test at valutakurs ikke hentes fra ECB dersom valuta ikke er satt`() {
+    fun `Test at valutakurs ikke hentes fra NorgesBank dersom valuta ikke er satt`() {
         // Arrange
         val valutakursDato = LocalDate.of(2022, 1, 1)
 
@@ -94,12 +102,12 @@ class ValutakursControllerTest {
                 restValutakurs.copy(valutakursdato = valutakursDato),
             )
         }
-        verify(exactly = 0) { ecbService.hentValutakurs("SEK", valutakursDato) }
+        verify(exactly = 0) { norgesBankService.hentValutakurs("SEK", valutakursDato) }
         verify(exactly = 1) { valutakursService.oppdaterValutakurs(any(), any()) }
     }
 
     @Test
-    fun `Test at valutakurs ikke hentes fra ECB dersom ISK og før 1 feb 2018`() {
+    fun `Test at valutakurs ikke hentes fra Norges Bank dersom ISK og før 1 feb 2018`() {
         // Arrange
         val valutakursDato = LocalDate.of(2018, 1, 31)
 
@@ -110,12 +118,12 @@ class ValutakursControllerTest {
                 restValutakurs.copy(valutakursdato = valutakursDato, valutakode = "ISK"),
             )
         }
-        verify(exactly = 0) { ecbService.hentValutakurs("ISK", valutakursDato) }
+        verify(exactly = 0) { norgesBankService.hentValutakurs("ISK", valutakursDato) }
         verify(exactly = 1) { valutakursService.oppdaterValutakurs(any(), any()) }
     }
 
     @Test
-    fun `Test at valutakurs hentes fra ECB dersom ISK og etter 1 feb 2018`() {
+    fun `Test at valutakurs hentes fra Norges Bank dersom ISK og etter 1 feb 2018`() {
         // Arrange
         val valutakursDato = LocalDate.of(2018, 2, 1)
 
@@ -126,7 +134,7 @@ class ValutakursControllerTest {
                 restValutakurs.copy(valutakursdato = valutakursDato, valutakode = "ISK"),
             )
         }
-        verify(exactly = 1) { ecbService.hentValutakurs("ISK", valutakursDato) }
+        verify(exactly = 1) { norgesBankService.hentValutakurs("ISK", valutakursDato) }
         verify(exactly = 1) { valutakursService.oppdaterValutakurs(any(), any()) }
     }
 }

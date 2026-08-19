@@ -22,4 +22,7 @@ enum class FeatureToggle(
     // NAV-30112
     FAGSAKLÅSING_SCHEDULER("familie-ks-sak.fagsaklaasing-scheduler"),
     KAN_LÅSE_FAGSAK("familie-ks-sak.kan-laase-fagsak"),
+
+    // NAV-26710
+    HENT_VALUTAKURS_FRA_NORGESBANK("familie-baks-sak.hent-valutakurs-fra-norgesbank"),
 }

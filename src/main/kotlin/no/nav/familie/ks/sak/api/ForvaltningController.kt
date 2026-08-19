@@ -26,8 +26,11 @@ import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
+import no.nav.familie.ks.sak.integrasjon.norgesbank.NorgesBankService
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
@@ -91,6 +94,8 @@ class ForvaltningController(
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val avstemmingKlient: AvstemmingKlient,
     private val fagsakStatusScheduler: FagsakStatusScheduler,
+    private val norgesBankService: NorgesBankService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -275,7 +280,13 @@ class ForvaltningController(
             minimumBehandlerRolle = BehandlerRolle.FORVALTER,
             handling = "hentValutakurs",
         )
-        return ResponseEntity.ok(ecbService.hentValutakurs(valuta, dato))
+        val valutakurs =
+            if (featureToggleService.isEnabled(FeatureToggle.HENT_VALUTAKURS_FRA_NORGESBANK)) {
+                norgesBankService.hentValutakurs(valuta, dato)
+            } else {
+                ecbService.hentValutakurs(valuta, dato)
+            }
+        return ResponseEntity.ok(valutakurs)
     }
 
     @GetMapping(path = ["/behandling/{behandlingId}/begrunnelsetest"])
