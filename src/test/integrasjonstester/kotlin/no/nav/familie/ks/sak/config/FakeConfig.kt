@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.fake.FakePdlKlient
 import no.nav.familie.ks.sak.fake.FakePersonopplysningerService
 import no.nav.familie.ks.sak.fake.FakeTaskRepositoryWrapper
 import no.nav.familie.ks.sak.fake.FakeTilbakekrevingKlient
+import no.nav.familie.ks.sak.fake.FakeTilgangsmaskinKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
@@ -39,6 +40,11 @@ class FakeConfig {
     @Primary
     @Profile("fake-integrasjon-klient")
     fun fakeIntegrasjonKlient(): FakeIntegrasjonKlient = FakeIntegrasjonKlient()
+
+    @Bean
+    @Primary
+    @Profile("integrasjonstest", "postgres")
+    fun fakeTilgangsmaskinKlient(): FakeTilgangsmaskinKlient = FakeTilgangsmaskinKlient()
 
     @Bean
     @Primary

@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.integrasjon.pdl
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.ForelderBarnRelasjon
 import no.nav.familie.kontrakter.felles.personopplysning.KJOENN
@@ -77,7 +78,7 @@ class PersonopplysningerServiceTest {
 
             every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
             every { personidentService.hentAktør(barnIdent.fødselsnummer) } returns barnAktør
-            every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnIdent.fødselsnummer, true)
+            every { integrasjonService.sjekkTilgangTilPersoner(listOf(barnAktør.aktivFødselsnummer())) } returns listOf(Tilgang(barnAktør.aktivFødselsnummer(), true))
             every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
             every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
 
@@ -91,6 +92,65 @@ class PersonopplysningerServiceTest {
 
             assertThat(barnRelasjon.navn).isEqualTo("Fornavn Etternavn")
             assertThat(barnRelasjon.aktør).isEqualTo(barnAktør)
+        }
+
+        @Test
+        fun `Skal sjekke tilgang til alle relasjoner i ett kall og maskere relasjoner saksbehandler ikke har tilgang til`() {
+            // Arrange
+            val aktør = randomAktør()
+            val barnMedTilgangAktør = randomAktør()
+            val barnUtenTilgangAktør = randomAktør()
+            val fødselsdato = LocalDate.of(2000, 2, 2)
+
+            val pdlPersonData =
+                PdlPersonData(
+                    forelderBarnRelasjon =
+                        listOf(
+                            ForelderBarnRelasjon(
+                                relatertPersonsIdent = barnMedTilgangAktør.aktivFødselsnummer(),
+                                relatertPersonsRolle = FORELDERBARNRELASJONROLLE.BARN,
+                            ),
+                            ForelderBarnRelasjon(
+                                relatertPersonsIdent = barnUtenTilgangAktør.aktivFødselsnummer(),
+                                relatertPersonsRolle = FORELDERBARNRELASJONROLLE.BARN,
+                            ),
+                        ),
+                    folkeregisteridentifikator = emptyList(),
+                    foedselsdato = listOf(PdlFødselsDato(fødselsdato.toString())),
+                    bostedsadresse = emptyList(),
+                )
+
+            val pdlRelasjonData =
+                PdlPersonData(
+                    navn = listOf(PdlNavn("Fornavn", null, "Etternavn")),
+                    folkeregisteridentifikator = emptyList(),
+                    foedselsdato = listOf(PdlFødselsDato(fødselsdato.toString())),
+                    bostedsadresse = emptyList(),
+                )
+
+            every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
+            every { personidentService.hentAktør(barnMedTilgangAktør.aktivFødselsnummer()) } returns barnMedTilgangAktør
+            every { personidentService.hentAktør(barnUtenTilgangAktør.aktivFødselsnummer()) } returns barnUtenTilgangAktør
+            every {
+                integrasjonService.sjekkTilgangTilPersoner(
+                    listOf(barnMedTilgangAktør.aktivFødselsnummer(), barnUtenTilgangAktør.aktivFødselsnummer()),
+                )
+            } returns
+                listOf(
+                    Tilgang(barnMedTilgangAktør.aktivFødselsnummer(), true),
+                    Tilgang(barnUtenTilgangAktør.aktivFødselsnummer(), false),
+                )
+            every { pdlKlient.hentPerson(barnMedTilgangAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
+            every { pdlKlient.hentAdressebeskyttelse(barnUtenTilgangAktør) } returns emptyList()
+
+            // Act
+            val personInfo = personopplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
+
+            // Assert
+            verify(exactly = 1) { integrasjonService.sjekkTilgangTilPersoner(any()) }
+            verify(exactly = 0) { integrasjonService.sjekkTilgangTilPerson(any()) }
+            assertThat(personInfo.forelderBarnRelasjoner.map { it.aktør }).containsExactly(barnMedTilgangAktør)
+            assertThat(personInfo.forelderBarnRelasjonerMaskert.map { it.relasjonsrolle }).containsExactly(FORELDERBARNRELASJONROLLE.BARN)
         }
 
         @Test
@@ -125,7 +185,7 @@ class PersonopplysningerServiceTest {
 
             every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
             every { personidentService.hentAktør(barnIdent.fødselsnummer) } throws PdlPersonKanIkkeBehandlesIFagsystem(PdlPersonKanIkkeBehandlesIFagSystemÅrsak.MANGLER_FØDSELSDATO)
-            every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnIdent.fødselsnummer, true)
+            every { integrasjonService.sjekkTilgangTilPersoner(listOf(barnAktør.aktivFødselsnummer())) } returns listOf(Tilgang(barnAktør.aktivFødselsnummer(), true))
             every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
             every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
 
@@ -167,7 +227,7 @@ class PersonopplysningerServiceTest {
 
             every { pdlKlient.hentPerson(aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns pdlPersonData
             every { personidentService.hentAktør(barnAktør.aktivFødselsnummer()) } returns barnAktør
-            every { integrasjonService.sjekkTilgangTilPerson(barnAktør.aktivFødselsnummer()) } returns Tilgang(barnAktør.aktivFødselsnummer(), true)
+            every { integrasjonService.sjekkTilgangTilPersoner(listOf(barnAktør.aktivFødselsnummer())) } returns listOf(Tilgang(barnAktør.aktivFødselsnummer(), true))
             every { pdlKlient.hentPerson(barnAktør, PersonInfoQuery.ENKEL) } returns pdlRelasjonData
             every { pdlKlient.hentAdressebeskyttelse(any()) } returns emptyList()
 
@@ -210,7 +270,7 @@ class PersonopplysningerServiceTest {
 
         every { pdlKlient.hentPerson(person.aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns søkerPersonInfoData
         every { pdlKlient.hentPerson(barn.aktør, PersonInfoQuery.ENKEL) } returns barnPersonInfoData
-        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang(personIdent = barn.aktør.aktivFødselsnummer(), harTilgang = true)
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang(personIdent = barn.aktør.aktivFødselsnummer(), harTilgang = true))
 
         every { integrasjonService.sjekkErEgenAnsattBulk(any()) } returns emptyMap()
 
@@ -259,7 +319,7 @@ class PersonopplysningerServiceTest {
 
         every { pdlKlient.hentPerson(søker.aktør, PersonInfoQuery.MED_RELASJONER_OG_REGISTERINFORMASJON) } returns søkerPersonInfoData
         every { pdlKlient.hentPerson(barn.aktør, PersonInfoQuery.ENKEL) } returns barnPersonInfoData
-        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang(personIdent = barn.aktør.aktivFødselsnummer(), harTilgang = true)
+        every { integrasjonService.sjekkTilgangTilPersoner(any()) } returns listOf(Tilgang(personIdent = barn.aktør.aktivFødselsnummer(), harTilgang = true))
 
         every { integrasjonService.sjekkErEgenAnsattBulk(any()) } returns emptyMap()
 

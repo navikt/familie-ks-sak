@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.pdl.tilAdressebeskyttelse
+import no.nav.familie.ks.sak.integrasjon.tilgangsmaskin.TilgangsmaskinSkyggeService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.springframework.stereotype.Service
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service
 class IntegrasjonService(
     private val integrasjonKlient: IntegrasjonKlient,
     private val pdlKlient: PdlKlient,
+    private val tilgangsmaskinSkyggeService: TilgangsmaskinSkyggeService,
 ) {
     fun sjekkTilgangTilPerson(personIdent: String): Tilgang = sjekkTilgangTilPersoner(listOf(personIdent)).single()
 
@@ -21,7 +23,9 @@ class IntegrasjonService(
         if (SikkerhetContext.erSystemKontekst()) {
             personIdenter.map { Tilgang(personIdent = it, harTilgang = true, begrunnelse = null) }
         } else {
-            integrasjonKlient.sjekkTilgangTilPersoner(personIdenter)
+            integrasjonKlient.sjekkTilgangTilPersoner(personIdenter).also { tilganger ->
+                tilgangsmaskinSkyggeService.skyggeSjekkTilgangTilPersoner(personIdenter, tilganger)
+            }
         }
 
     fun hentMaskertPersonInfoVedManglendeTilgang(aktør: Aktør): PersonInfoDto? {

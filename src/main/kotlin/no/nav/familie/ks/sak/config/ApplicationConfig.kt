@@ -4,6 +4,7 @@ import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.filter.LogFilter
 import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.sikkerhet.context.FamilieFellesSpringSecurityKonfigurasjon
+import no.nav.familie.tilgangsmaskin.TilgangsmaskinKlientConfig
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -30,6 +31,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @Import(
     ConsumerIdClientInterceptor::class,
     FamilieFellesSpringSecurityKonfigurasjon::class,
+    TilgangsmaskinKlientConfig::class,
 )
 class ApplicationConfig {
     @Bean
