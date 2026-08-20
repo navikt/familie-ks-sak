@@ -11,12 +11,13 @@ import no.nav.familie.tilgangsmaskin.TilgangsmaskinException
 import no.nav.familie.tilgangsmaskin.TilgangsmaskinKlient
 import no.nav.familie.tilgangsmaskin.TilgangsmaskinResultat
 import org.slf4j.LoggerFactory
+import org.springframework.core.NestedExceptionUtils
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 /**
  * Skyggekjøring av Tilgangsmaskinen (NAV-27897): sammenligner dagens tilgangsbeslutning fra
- * familie-integrasjoner med hva Tilgangsmaskinen ville svart, og logger divergenser.
+ * familie-integrasjoner med hva Tilgangsmaskinen ville svart, og logger avvik.
  * Påvirker aldri selve tilgangsbeslutningen.
  */
 @Service
@@ -24,8 +25,8 @@ class TilgangsmaskinSkyggeService(
     private val tilgangsmaskinKlient: TilgangsmaskinKlient,
     private val featureToggleService: FeatureToggleService,
 ) {
-    private val sammenlignetTeller = Metrics.counter("familie.ks.sak.tilgangsmaskin.skygge.sammenlignet")
-    private val manglendeSvarTeller = Metrics.counter("familie.ks.sak.tilgangsmaskin.skygge.manglende.svar")
+    private val sammenlignetTeller = Metrics.counter("tilgangsmaskin.skygge.sammenlignet")
+    private val manglendeSvarTeller = Metrics.counter("tilgangsmaskin.skygge.manglende.svar")
 
     fun skyggeSjekkTilgangTilPersoner(
         personIdenter: List<String>,
@@ -50,37 +51,38 @@ class TilgangsmaskinSkyggeService(
             sammenlignetTeller.increment(resultaterFraTilgangsmaskinen.size.toDouble())
 
             val tilgangerPerIdent = tilgangerFraIntegrasjoner.associateBy { it.personIdent }
-            val divergenser =
+            val avvik =
                 resultaterFraTilgangsmaskinen.mapNotNull { nyttResultat ->
                     val gammelTilgang = tilgangerPerIdent[nyttResultat.personIdent] ?: return@mapNotNull null
                     if (gammelTilgang.harTilgang != nyttResultat.harTilgang) gammelTilgang to nyttResultat else null
                 }
-            if (divergenser.isEmpty()) {
-                logger.info("Tilgangsmaskin-skygge: sammenlignet ${resultaterFraTilgangsmaskinen.size} identer, ingen divergens.")
+            if (avvik.isEmpty()) {
+                logger.info("Tilgangsmaskin-skygge: sammenlignet ${resultaterFraTilgangsmaskinen.size} identer, ingen avvik.")
                 return
             }
 
-            divergenser.forEach { (gammelTilgang, nyttResultat) -> loggDivergens(gammelTilgang, nyttResultat) }
+            avvik.forEach { (gammelTilgang, nyttResultat) -> loggAvvik(gammelTilgang, nyttResultat) }
 
-            val avvisningskoder = divergenser.mapNotNull { (_, nyttResultat) -> nyttResultat.avvisningskode }.groupingBy { it }.eachCount()
-            val traceIder = divergenser.mapNotNull { (_, nyttResultat) -> nyttResultat.traceId }
+            val avvisningskoder = avvik.mapNotNull { (_, nyttResultat) -> nyttResultat.avvisningskode }.groupingBy { it }.eachCount()
+            val traceIder = avvik.mapNotNull { (_, nyttResultat) -> nyttResultat.traceId }
 
             logger.warn(
-                "Tilgangsmaskin-skygge: ${divergenser.size} av ${resultaterFraTilgangsmaskinen.size} identer divergerte. " +
+                "Tilgangsmaskin-skygge: ${avvik.size} av ${resultaterFraTilgangsmaskinen.size} identer hadde avvik. " +
                     "Avvisningskoder=$avvisningskoder, traceIder=$traceIder. Se securelogs for detaljer.",
             )
         } catch (exception: Exception) {
             // Skyggingen skal aldri påvirke den gjeldende tilgangskontrollen.
+            val rotårsak = NestedExceptionUtils.getMostSpecificCause(exception)
             val httpStatus = (exception as? TilgangsmaskinException)?.httpStatus
             Metrics
                 .counter(
-                    "familie.ks.sak.tilgangsmaskin.skygge.feilet",
+                    "tilgangsmaskin.skygge.feilet",
                     "feiltype",
-                    exception.javaClass.simpleName,
+                    rotårsak.javaClass.simpleName,
                     "httpStatus",
                     httpStatus?.toString() ?: "INGEN",
                 ).increment()
-            logger.warn("Tilgangsmaskin-skygge feilet: ${exception.javaClass.simpleName}${httpStatus?.let { " (HTTP $it)" } ?: ""}")
+            logger.warn("Tilgangsmaskin-skygge feilet: ${rotårsak.javaClass.simpleName}${httpStatus?.let { " (HTTP $it)" } ?: ""}")
             secureLogger.warn("Tilgangsmaskin-skygge feilet", exception)
         }
     }
@@ -90,21 +92,21 @@ class TilgangsmaskinSkyggeService(
             httpStatus == HttpStatus.INTERNAL_SERVER_ERROR.value() &&
             avvisningskode == Avvisningskode.UKJENT
 
-    private fun loggDivergens(
+    private fun loggAvvik(
         gammelTilgang: Tilgang,
         nyttResultat: TilgangsmaskinResultat,
     ) {
-        val retning = if (nyttResultat.harTilgang) Divergensretning.NY_MILDERE else Divergensretning.NY_STRENGERE
+        val retning = if (nyttResultat.harTilgang) Avviksretning.NY_MILDERE else Avviksretning.NY_STRENGERE
         Metrics
             .counter(
-                "familie.ks.sak.tilgangsmaskin.skygge.divergens",
+                "tilgangsmaskin.skygge.avvik",
                 "retning",
                 retning.tag,
                 "avvisningskode",
                 nyttResultat.avvisningskode?.name ?: "INGEN",
             ).increment()
         secureLogger.warn(
-            "Tilgangsmaskin-skygge divergens (${retning.tag}) for ident ${nyttResultat.personIdent}: " +
+            "Tilgangsmaskin-skygge avvik (${retning.tag}) for ident ${nyttResultat.personIdent}: " +
                 "integrasjoner harTilgang=${gammelTilgang.harTilgang} (begrunnelse=${gammelTilgang.begrunnelse}), " +
                 "tilgangsmaskinen harTilgang=${nyttResultat.harTilgang} (avvisningskode=${nyttResultat.avvisningskode}, " +
                 "begrunnelse=${nyttResultat.begrunnelse}, kanOverstyres=${nyttResultat.kanOverstyres}, " +
@@ -112,7 +114,7 @@ class TilgangsmaskinSkyggeService(
         )
     }
 
-    private enum class Divergensretning(
+    private enum class Avviksretning(
         val tag: String,
     ) {
         NY_MILDERE("ny-mildere"),

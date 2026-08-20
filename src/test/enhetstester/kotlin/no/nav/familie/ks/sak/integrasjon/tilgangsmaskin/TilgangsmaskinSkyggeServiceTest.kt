@@ -98,7 +98,7 @@ class TilgangsmaskinSkyggeServiceTest {
     }
 
     @Test
-    fun `skal ikke feile når Tilgangsmaskinen divergerer fra integrasjoner`() {
+    fun `skal ikke feile når Tilgangsmaskinen avviker fra integrasjoner`() {
         // Arrange
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
             listOf(
@@ -119,7 +119,7 @@ class TilgangsmaskinSkyggeServiceTest {
     }
 
     @Test
-    fun `divergenslogg i åpen logg skal aldri inneholde personidenten`() {
+    fun `avvikslogg i åpen logg skal aldri inneholde personidenten`() {
         // Arrange
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
             listOf(
@@ -144,7 +144,7 @@ class TilgangsmaskinSkyggeServiceTest {
     }
 
     @Test
-    fun `skal logge oppsummering uten personident når det ikke er divergens`() {
+    fun `skal logge oppsummering uten personident når det ikke er avvik`() {
         // Arrange
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
             listOf(TilgangsmaskinResultat(personIdent = PERSONIDENT, harTilgang = true, httpStatus = 204))
@@ -154,12 +154,12 @@ class TilgangsmaskinSkyggeServiceTest {
 
         // Assert
         val meldinger = listAppender.list.map { it.formattedMessage }
-        assertThat(meldinger.single()).contains("ingen divergens")
+        assertThat(meldinger.single()).contains("ingen avvik")
         assertThat(meldinger.single()).doesNotContain(PERSONIDENT)
     }
 
     @Test
-    fun `skal ikke telle manglende svar fra Tilgangsmaskinen som divergens, men varsle med kun antall`() {
+    fun `skal ikke telle manglende svar fra Tilgangsmaskinen som avvik, men varsle med kun antall`() {
         // Arrange
         // Klienten fyller inn dette syntetiske avslaget for identer Tilgangsmaskinen ikke svarte for.
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
@@ -179,14 +179,14 @@ class TilgangsmaskinSkyggeServiceTest {
         // Assert
         val advarsler = listAppender.list.filter { it.level == Level.WARN }.map { it.formattedMessage }
         assertThat(advarsler.single()).contains("fikk ikke svar for 1 av 1 identer")
-        assertThat(advarsler.single()).doesNotContain(PERSONIDENT, "divergerte")
-        assertThat(tellerVerdi("familie.ks.sak.tilgangsmaskin.skygge.manglende.svar")).isEqualTo(1.0)
-        assertThat(tellerVerdi("familie.ks.sak.tilgangsmaskin.skygge.sammenlignet")).isEqualTo(0.0)
-        assertThat(meterRegistry.find("familie.ks.sak.tilgangsmaskin.skygge.divergens").counters().sumOf { it.count() }).isEqualTo(0.0)
+        assertThat(advarsler.single()).doesNotContain(PERSONIDENT, "hadde avvik")
+        assertThat(tellerVerdi("tilgangsmaskin.skygge.manglende.svar")).isEqualTo(1.0)
+        assertThat(tellerVerdi("tilgangsmaskin.skygge.sammenlignet")).isEqualTo(0.0)
+        assertThat(meterRegistry.find("tilgangsmaskin.skygge.avvik").counters().sumOf { it.count() }).isEqualTo(0.0)
     }
 
     @Test
-    fun `skal telle divergens som ny-strengere med avvisningskode når Tilgangsmaskinen avviser`() {
+    fun `skal telle avvik som ny-strengere med avvisningskode når Tilgangsmaskinen avviser`() {
         // Arrange
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
             listOf(
@@ -202,10 +202,10 @@ class TilgangsmaskinSkyggeServiceTest {
         tilgangsmaskinSkyggeService.skyggeSjekkTilgangTilPersoner(listOf(PERSONIDENT), listOf(Tilgang(PERSONIDENT, true)))
 
         // Assert
-        assertThat(tellerVerdi("familie.ks.sak.tilgangsmaskin.skygge.sammenlignet")).isEqualTo(1.0)
+        assertThat(tellerVerdi("tilgangsmaskin.skygge.sammenlignet")).isEqualTo(1.0)
         assertThat(
             tellerVerdi(
-                "familie.ks.sak.tilgangsmaskin.skygge.divergens",
+                "tilgangsmaskin.skygge.avvik",
                 "retning",
                 "ny-strengere",
                 "avvisningskode",
@@ -215,7 +215,7 @@ class TilgangsmaskinSkyggeServiceTest {
     }
 
     @Test
-    fun `skal telle divergens som ny-mildere uten avvisningskode når Tilgangsmaskinen gir tilgang`() {
+    fun `skal telle avvik som ny-mildere uten avvisningskode når Tilgangsmaskinen gir tilgang`() {
         // Arrange
         every { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(PERSONIDENT), Regeltype.KJERNE_REGELTYPE) } returns
             listOf(TilgangsmaskinResultat(personIdent = PERSONIDENT, harTilgang = true, httpStatus = 204))
@@ -226,7 +226,7 @@ class TilgangsmaskinSkyggeServiceTest {
         // Assert
         assertThat(
             tellerVerdi(
-                "familie.ks.sak.tilgangsmaskin.skygge.divergens",
+                "tilgangsmaskin.skygge.avvik",
                 "retning",
                 "ny-mildere",
                 "avvisningskode",
@@ -259,7 +259,7 @@ class TilgangsmaskinSkyggeServiceTest {
         // Assert
         assertThat(
             tellerVerdi(
-                "familie.ks.sak.tilgangsmaskin.skygge.feilet",
+                "tilgangsmaskin.skygge.feilet",
                 "feiltype",
                 "TilgangsmaskinException",
                 "httpStatus",
