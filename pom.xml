@@ -50,7 +50,7 @@
         <jsqlparser.version>5.3</jsqlparser.version>
 
         <!-- Kafka -->
-        <avro.version>1.12.1</avro.version>
+        <avro.version>1.12.2</avro.version>
         <confluent.version>8.3.1</confluent.version>
 
         <!-- Annet -->
@@ -58,7 +58,7 @@
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>12.2.3</unleash.version>
         <microsoft-graph.version>6.67.0</microsoft-graph.version>
-        <okhttp-jvm.version>5.4.0</okhttp-jvm.version>
+        <okhttp-jvm.version>5.5.0</okhttp-jvm.version>
         <azure-identity.version>1.18.4</azure-identity.version>
 
         <!-- Test -->
