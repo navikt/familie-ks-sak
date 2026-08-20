@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
     "no.nav.familie.prosessering",
     "no.nav.familie.unleash",
     "no.nav.familie.felles.tokenklient.entraid",
+    "no.nav.familie.felles.tokenklient.tokenx",
     ApplicationConfig.PAKKENAVN,
 )
 @EnableRetry
