@@ -92,7 +92,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(listOf(fagsak.id)))
@@ -110,7 +110,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(emptyList()))
@@ -128,7 +128,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusMonths(6))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(emptyList()))
@@ -146,7 +146,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(emptyList()))
@@ -163,7 +163,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(listOf(fagsak.id)))
@@ -180,7 +180,7 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreTilkjentYtelseMedStønadTom(YearMonth.now().minusYears(2))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(listOf(fagsak.id)))
@@ -199,10 +199,30 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
 
         // Act
-        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses()
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
 
         // Assert
         assertThat(fagsakerSomSkalLåses, Is(listOf(fagsak.id)))
+    }
+
+    @Test
+    fun `finnAvsluttedeFagsakerSomSkalLåses skal ikke returnere flere fagsaker enn maksAntall`() {
+        // Arrange
+        repeat(3) {
+            opprettSøkerFagsakOgBehandling(
+                fagsakStatus = FagsakStatus.AVSLUTTET,
+                behandlingStatus = BehandlingStatus.AVSLUTTET,
+                behandlingResultat = Behandlingsresultat.INNVILGET,
+            )
+            lagreTilkjentYtelseMedStønadTom(YearMonth.now().minusYears(2))
+            lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
+        }
+
+        // Act
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 2)
+
+        // Assert
+        assertThat(fagsakerSomSkalLåses.size, Is(2))
     }
 
     private fun lagreTilkjentYtelseMedStønadTom(stønadTom: YearMonth) {
