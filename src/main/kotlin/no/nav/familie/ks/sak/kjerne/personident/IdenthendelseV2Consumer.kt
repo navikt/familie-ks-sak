@@ -45,6 +45,11 @@ class IdenthendelseV2Consumer(
                 SECURE_LOGGER.warn("Tom aktør fra identhendelse med nøkkel $aktørIdPåHendelse")
             }
 
+            if (aktør?.identifikatorer?.any { it.type == Type.UKJENT } == true) {
+                log.warn("Mottok identhendelse med ukjent identtype fra PDL. Sjekk om Type-enumen i AktorV2.avdl må oppdateres.")
+                SECURE_LOGGER.warn("Mottok identhendelse med ukjent identtype fra PDL: $consumerRecord")
+            }
+
             val aktivAktørid =
                 aktør
                     ?.identifikatorer
