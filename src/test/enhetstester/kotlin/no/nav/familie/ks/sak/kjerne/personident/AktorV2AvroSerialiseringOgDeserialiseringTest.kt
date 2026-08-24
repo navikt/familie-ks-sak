@@ -20,8 +20,8 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class AktorV2AvroSerdeTest {
-    private val registryScope = "aktor-v2-serde-test"
+class AktorV2AvroSerialiseringOgDeserialiseringTest {
+    private val registryScope = "aktor-v2-serialisering-test"
     private val config =
         mapOf(
             "schema.registry.url" to "mock://$registryScope",
