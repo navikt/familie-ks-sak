@@ -70,10 +70,12 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
         LEFT JOIN tilkjent_ytelse ty ON ty.fk_behandling_id = sv.id
         LEFT JOIN vedtak v ON v.fk_behandling_id = sv.id AND v.aktiv = TRUE
         WHERE  GREATEST((ty.stonad_tom + INTERVAL '1 month' - INTERVAL '1 day')::date, v.vedtaksdato::date) + INTERVAL '1 year' <= CURRENT_DATE
+        ORDER BY sv.fk_fagsak_id
+        LIMIT :maksAntall
         """,
         nativeQuery = true,
     )
-    fun finnAvsluttedeFagsakerSomSkalLåses(): List<Long>
+    fun finnAvsluttedeFagsakerSomSkalLåses(maksAntall: Int): List<Long>
 
     @Query(
         value = """

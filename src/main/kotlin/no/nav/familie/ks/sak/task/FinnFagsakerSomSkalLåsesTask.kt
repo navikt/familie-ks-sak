@@ -19,14 +19,21 @@ class FinnFagsakerSomSkalLåsesTask(
     private val fagsakRepository: FagsakRepository,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
+        val maksAntall = task.payload.toInt()
         fagsakRepository
-            .finnAvsluttedeFagsakerSomSkalLåses()
-            .also { logger.info("Fant ${it.size} fagsaker som skal låses") }
+            .finnAvsluttedeFagsakerSomSkalLåses(maksAntall = maksAntall)
+            .also { logger.info("Fant ${it.size} fagsaker som skal låses (maks $maksAntall)") }
             .forEach { taskService.save(LåsFagsakTask.opprettTask(it)) }
     }
 
     companion object {
         const val TASK_STEP_TYPE = "finnFagsakerSomSkalLåsesTask"
         private val logger = LoggerFactory.getLogger(FinnFagsakerSomSkalLåsesTask::class.java)
+
+        fun opprettTask(maksAntall: Int): Task =
+            Task(
+                type = TASK_STEP_TYPE,
+                payload = maksAntall.toString(),
+            )
     }
 }

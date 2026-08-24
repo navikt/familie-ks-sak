@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.task.FinnFagsakerSomSkalLåsesTask
 import no.nav.familie.leader.LeaderClient
-import no.nav.familie.prosessering.domene.Task
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -37,22 +36,25 @@ class FagsakStatusScheduler(
     @Scheduled(cron = "\${CRON_LAAS_FAGSAK_SCHEDULER}")
     fun startFagsakLåsingScheduled() {
         if (envService.erLokal() || LeaderClient.isLeader() == true) {
-            startFagsakLåsing()
+            startFagsakLåsing(maksAntall = STANDARD_MAKS_ANTALL_FAGSAKER_PER_KJØRING)
         }
     }
 
-    fun startFagsakLåsing(): Boolean {
+    fun startFagsakLåsing(maksAntall: Int): Boolean {
         if (!featureToggleService.isEnabled(FeatureToggle.FAGSAKLÅSING_SCHEDULER)) {
             logger.info("Fagsaklåsing-scheduler-toggle er av, hopper over batch")
             return false
         }
 
-        taskService.save(Task(type = FinnFagsakerSomSkalLåsesTask.TASK_STEP_TYPE, payload = ""))
-        logger.info("Opprettet FinnFagsakerSomSkalLåsesTask")
+        taskService.save(FinnFagsakerSomSkalLåsesTask.opprettTask(maksAntall = maksAntall))
+        logger.info("Opprettet FinnFagsakerSomSkalLåsesTask med maks $maksAntall fagsaker")
         return true
     }
 
     companion object {
         private val logger = LoggerFactory.getLogger(FagsakStatusScheduler::class.java)
+
+        // Maks antall fagsaker som låses per automatiske kjøring. Holdes lavt i oppstarten og økes etter hvert.
+        const val STANDARD_MAKS_ANTALL_FAGSAKER_PER_KJØRING = 100
     }
 }
