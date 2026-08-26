@@ -50,7 +50,7 @@
         <jsqlparser.version>5.3</jsqlparser.version>
 
         <!-- Kafka -->
-        <avro.version>1.12.1</avro.version>
+        <avro.version>1.12.2</avro.version>
         <confluent.version>8.3.1</confluent.version>
 
         <!-- Annet -->
@@ -62,7 +62,7 @@
         <azure-identity.version>1.18.4</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.34.6</cucumber.version>
+        <cucumber.version>7.34.7</cucumber.version>
         <rest-assured.version>6.0.1</rest-assured.version>
         <mock-oauth2-server.version>6.0.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
