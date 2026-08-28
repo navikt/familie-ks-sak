@@ -103,7 +103,7 @@ class SimuleringService(
         if (utbetalingsoppdrag.utbetalingsperiode.isEmpty()) return null
 
         simulert.increment()
-        return if (featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_HENT_SIMULERING_GCP)) {
+        return if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
             oppdragBackendKlient.hentSimulering(utbetalingsoppdrag)
         } else {
             oppdragKlient.hentSimulering(utbetalingsoppdrag)

@@ -6,8 +6,11 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag.KodeEndring.ENDR
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsperiode.SatsType.MND
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.UtbetalingsoppdragMedBehandlingOgFagsak
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -24,13 +27,17 @@ class InternKonsistensavstemmingServiceTest {
     private val behandlingService = mockk<BehandlingService>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val oppdragKlient = mockk<OppdragKlient>()
+    private val oppdragBackendKlient = mockk<OppdragBackendKlient>()
+    private val featureToggleService = mockk<FeatureToggleService>()
     private val internKonsistensavstemmingService =
         InternKonsistensavstemmingService(
             oppdragKlient = oppdragKlient,
+            oppdragBackendKlient = oppdragBackendKlient,
             behandlingService = behandlingService,
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             fagsakRepository = mockk(),
             taskService = mockk(),
+            featureToggleService = featureToggleService,
         )
 
     @Test
@@ -96,7 +103,11 @@ class InternKonsistensavstemmingServiceTest {
 
         every { behandlingService.hentSisteBehandlingSomErAvsluttetEllerSendtTilØkonomiPerFagsak(any()) } returns listOf(behandling)
         every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlinger(any()) } returns listOf(ordinæreAndel, overgangsordningAndel)
-        every { oppdragKlient.hentSisteUtbetalingsoppdragForFagsaker(any()) } returns listOf(utbetalingsoppdragMedBehandlingOgFagsak)
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns true
+        every { oppdragBackendKlient.hentSisteUtbetalingsoppdragForFagsaker(any()) } returns
+            listOf(
+                utbetalingsoppdragMedBehandlingOgFagsak,
+            )
 
         // Act
         val (andeler, utbetalingsoppdrag) =

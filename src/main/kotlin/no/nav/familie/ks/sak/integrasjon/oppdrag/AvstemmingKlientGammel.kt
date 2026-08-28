@@ -14,18 +14,20 @@ import java.net.URI
 import java.time.LocalDateTime
 import java.util.UUID
 
+private const val FAMILIE_OPPDRAG = "familie-oppdrag"
+
 @Service
-class AvstemmingKlient(
-    @Value("\${FAMILIE_OPPDRAG_BACKEND_API_URL}")
-    private val familieOppdragBackendUri: String,
-    @Qualifier("avstemmingRestClient") private val restClient: RestClient,
+class AvstemmingKlientGammel(
+    @Value("\${FAMILIE_OPPDRAG_API_URL}")
+    private val familieOppdragUri: String,
+    @Qualifier("avstemmingRestClientGammel") private val restClient: RestClient,
 ) {
     fun sendGrensesnittavstemmingTilOppdrag(
         fom: LocalDateTime,
         tom: LocalDateTime,
         avstemmingId: UUID?,
     ): String {
-        val uri = URI.create("$familieOppdragBackendUri/grensesnittavstemming")
+        val uri = URI.create("$familieOppdragUri/grensesnittavstemming")
         return kallEksternTjenesteRessurs(
             tjeneste = FAMILIE_OPPDRAG,
             uri = uri,
@@ -52,7 +54,7 @@ class AvstemmingKlient(
     ): String {
         val uri =
             URI.create(
-                "$familieOppdragBackendUri/v2/konsistensavstemming" +
+                "$familieOppdragUri/v2/konsistensavstemming" +
                     "?sendStartmelding=true&sendAvsluttmelding=false&transaksjonsId=$transaksjonsId",
             )
 
@@ -82,7 +84,7 @@ class AvstemmingKlient(
     ): String {
         val uri =
             URI.create(
-                "$familieOppdragBackendUri/v2/konsistensavstemming" +
+                "$familieOppdragUri/v2/konsistensavstemming" +
                     "?sendStartmelding=false&sendAvsluttmelding=false&transaksjonsId=$transaksjonsId",
             )
 
@@ -111,7 +113,7 @@ class AvstemmingKlient(
     ): String {
         val uri =
             URI.create(
-                "$familieOppdragBackendUri/v2/konsistensavstemming" +
+                "$familieOppdragUri/v2/konsistensavstemming" +
                     "?sendStartmelding=false&sendAvsluttmelding=true&transaksjonsId=$transaksjonsId",
             )
         return kallEksternTjenesteRessurs(
@@ -138,7 +140,7 @@ class AvstemmingKlient(
     ): String {
         val uri =
             URI.create(
-                "$familieOppdragBackendUri/timeout-test?sekunder=$sovAntallSekunder",
+                "$familieOppdragUri/timeout-test?sekunder=$sovAntallSekunder",
             )
         return kallEksternTjenesteRessurs(
             tjeneste = FAMILIE_OPPDRAG,
@@ -151,9 +153,5 @@ class AvstemmingKlient(
                 .retrieve()
                 .body()!!
         }
-    }
-
-    companion object {
-        private const val FAMILIE_OPPDRAG = "familie-oppdrag"
     }
 }

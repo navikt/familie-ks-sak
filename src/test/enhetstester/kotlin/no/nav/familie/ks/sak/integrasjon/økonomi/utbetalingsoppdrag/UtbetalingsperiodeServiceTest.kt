@@ -56,7 +56,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @BeforeEach
     fun setUp() {
-        every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP) } returns true
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns true
     }
 
     @Test

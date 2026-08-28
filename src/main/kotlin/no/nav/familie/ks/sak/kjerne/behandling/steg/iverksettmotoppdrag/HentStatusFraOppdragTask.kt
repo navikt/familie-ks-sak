@@ -80,7 +80,7 @@ class HentStatusFraOppdragTask(
         behandlingId: BehandlingId,
     ): OppdragStatus =
         if (tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId.id).skalIverksettesMotOppdrag()) {
-            if (featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP)) {
+            if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
                 oppdragBackendKlient.hentStatus(oppdragId)
             } else {
                 oppdragKlient.hentStatus(oppdragId)

@@ -2,7 +2,10 @@ package no.nav.familie.ks.sak.kjerne.avstemming
 
 import no.nav.familie.kontrakter.felles.oppdrag.PerioderForBehandling
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
+import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlientGammel
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -14,16 +17,26 @@ import java.util.UUID
 
 @Service
 class AvstemmingService(
+    private val avstemmingKlientGammel: AvstemmingKlientGammel,
     private val avstemmingKlient: AvstemmingKlient,
     private val behandlingService: BehandlingService,
     private val beregningService: BeregningService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     fun sendGrensesnittavstemming(
         fom: LocalDateTime,
         tom: LocalDateTime,
         avstemmingId: UUID?,
     ) {
-        avstemmingKlient.sendGrensesnittavstemmingTilOppdrag(fom = fom, tom = tom, avstemmingId = avstemmingId)
+        if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
+            avstemmingKlient.sendGrensesnittavstemmingTilOppdrag(fom = fom, tom = tom, avstemmingId = avstemmingId)
+        } else {
+            avstemmingKlientGammel.sendGrensesnittavstemmingTilOppdrag(
+                fom = fom,
+                tom = tom,
+                avstemmingId = avstemmingId,
+            )
+        }
     }
 
     fun sendKonsistensavstemmingStartMelding(
@@ -31,7 +44,11 @@ class AvstemmingService(
         transaksjonsId: UUID,
     ) {
         logger.info("Utfører Konsistensavstemming: Sender start melding for transaksjonsId $transaksjonsId")
-        avstemmingKlient.konsistensavstemOppdragStart(avstemmingstidspunkt, transaksjonsId)
+        if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
+            avstemmingKlient.konsistensavstemOppdragStart(avstemmingstidspunkt, transaksjonsId)
+        } else {
+            avstemmingKlientGammel.konsistensavstemOppdragStart(avstemmingstidspunkt, transaksjonsId)
+        }
     }
 
     fun sendKonsistensavstemmingData(
@@ -40,7 +57,15 @@ class AvstemmingService(
         transaksjonsId: UUID,
     ) {
         logger.info("Utfører Konsistensavstemming: Sender perioder for transaksjonsId $transaksjonsId")
-        avstemmingKlient.konsistensavstemOppdragData(avstemmingstidspunkt, perioderTilAvstemming, transaksjonsId)
+        if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
+            avstemmingKlient.konsistensavstemOppdragData(avstemmingstidspunkt, perioderTilAvstemming, transaksjonsId)
+        } else {
+            avstemmingKlientGammel.konsistensavstemOppdragData(
+                avstemmingstidspunkt,
+                perioderTilAvstemming,
+                transaksjonsId,
+            )
+        }
     }
 
     fun sendKonsistensavstemmingAvsluttMelding(
@@ -48,7 +73,11 @@ class AvstemmingService(
         transaksjonsId: UUID,
     ) {
         logger.info("Utfører Konsistensavstemming: Sender avslutt melding for transaksjonsId $transaksjonsId")
-        avstemmingKlient.konsistensavstemOppdragAvslutt(avstemmingstidspunkt, transaksjonsId)
+        if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
+            avstemmingKlient.konsistensavstemOppdragAvslutt(avstemmingstidspunkt, transaksjonsId)
+        } else {
+            avstemmingKlientGammel.konsistensavstemOppdragAvslutt(avstemmingstidspunkt, transaksjonsId)
+        }
     }
 
     fun hentDataForKonsistensavstemming(

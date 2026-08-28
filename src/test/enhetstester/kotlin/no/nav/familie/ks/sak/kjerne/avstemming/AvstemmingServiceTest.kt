@@ -2,9 +2,11 @@ package no.nav.familie.ks.sak.kjerne.avstemming
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
+import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlientGammel
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
@@ -15,15 +17,19 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import java.time.LocalDateTime
 
 internal class AvstemmingServiceTest {
+    private val avstemmingKlientGammel = mockk<AvstemmingKlientGammel>()
     private val avstemmingKlient = mockk<AvstemmingKlient>()
     private val behandlingService = mockk<BehandlingService>()
     private val beregningService = mockk<BeregningService>()
+    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val avstemmingService =
         AvstemmingService(
+            avstemmingKlientGammel = avstemmingKlientGammel,
             avstemmingKlient = avstemmingKlient,
             behandlingService = behandlingService,
             beregningService = beregningService,
+            featureToggleService = featureToggleService,
         )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)

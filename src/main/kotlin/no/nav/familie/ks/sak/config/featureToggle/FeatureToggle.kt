@@ -25,4 +25,7 @@ enum class FeatureToggle(
 
     // NAV-27897
     SKAL_SKYGGEKJØRE_TILGANGSMASKINEN("familie-ks-sak.skal-skyggekjore-tilgangsmaskinen"),
+
+    // NAV-29077
+    BRUK_FAMILIE_OPPDRAG_BACKEND_GCP("familie-baks-sak.bruk-familie-oppdrag-backend-gcp"),
 }

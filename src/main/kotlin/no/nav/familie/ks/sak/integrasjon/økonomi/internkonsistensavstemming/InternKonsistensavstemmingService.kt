@@ -6,6 +6,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
@@ -22,10 +25,12 @@ import java.time.LocalDateTime
 @Service
 class InternKonsistensavstemmingService(
     val oppdragKlient: OppdragKlient,
+    val oppdragBackendKlient: OppdragBackendKlient,
     val behandlingService: BehandlingService,
     val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     val fagsakRepository: FagsakRepository,
     val taskService: TaskRepositoryWrapper,
+    val featureToggleService: FeatureToggleService,
 ) {
     fun validerLikUtbetalingIAndeleneOgUtbetalingsoppdragetPåAlleFagsaker(maksAntallTasker: Int = Int.MAX_VALUE) {
         val fagsakerSomIkkeErArkivert =
@@ -77,8 +82,14 @@ class InternKonsistensavstemmingService(
     ): Map<Long, Pair<List<AndelTilkjentYtelse>, Utbetalingsoppdrag?>> {
         val scope = CoroutineScope(SupervisorJob())
         val utbetalingsoppdragDeferred =
-            scope.async {
-                oppdragKlient.hentSisteUtbetalingsoppdragForFagsaker(fagsakIder)
+            if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP)) {
+                scope.async {
+                    oppdragBackendKlient.hentSisteUtbetalingsoppdragForFagsaker(fagsakIder)
+                }
+            } else {
+                scope.async {
+                    oppdragKlient.hentSisteUtbetalingsoppdragForFagsaker(fagsakIder)
+                }
             }
 
         val fagsakTilAndelerISisteBehandlingSendTilØkonomiMap =
