@@ -50,7 +50,8 @@
         <jsqlparser.version>5.3</jsqlparser.version>
 
         <!-- Kafka -->
-        <avro.version>1.12.1</avro.version>
+        <avro.version>1.12.2</avro.version>
+        <avro.serializable.packages>no.nav.person.pdl.aktor.v2</avro.serializable.packages>
         <confluent.version>8.3.1</confluent.version>
 
         <!-- Annet -->
@@ -608,6 +609,9 @@
                     <excludedGroups>${excludedGroups}</excludedGroups>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
+                    <systemPropertyVariables>
+                        <org.apache.avro.SERIALIZABLE_PACKAGES>${avro.serializable.packages}</org.apache.avro.SERIALIZABLE_PACKAGES>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
