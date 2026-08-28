@@ -26,7 +26,7 @@ class OppdragBackendKlient(
     fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
         val uri = URI.create("$familieOppdragBackendUri/oppdrag")
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag-backend",
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
             uri = uri,
             formål = "Iverksetter mot oppdrag",
         ) {
@@ -48,7 +48,7 @@ class OppdragBackendKlient(
         val uri = URI.create("$familieOppdragBackendUri/simulering/v1")
 
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag-backend",
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
             uri = uri,
             formål = "Henter simulering fra familie-oppdrag-backend",
         ) {
@@ -64,7 +64,7 @@ class OppdragBackendKlient(
     fun hentStatus(oppdragId: OppdragId): OppdragStatus {
         val uri = URI.create("$familieOppdragBackendUri/status")
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag-backend",
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
             uri = uri,
             formål = "Henter oppdragstatus fra oppdrag",
         ) {
