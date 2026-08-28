@@ -92,6 +92,12 @@ internal class UtbetalingsperiodeServiceTest {
         // Arrange
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
         every { oppdragBackendKlient.iverksettOppdrag(any()) } returns ""
+        every {
+            featureToggleService.isEnabled(
+                FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP,
+                any<Long>(),
+            )
+        } returns true
 
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)
