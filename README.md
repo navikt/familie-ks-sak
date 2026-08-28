@@ -60,15 +60,17 @@ CREATE DATABASE "familie-ks-sak";
 
 ### Autentisering
 
-For å kalle applikasjonen fra fontend må du sette miljøvariablene AZURE_APP_CLIENT_ID og AZURE_APP_CLIENT_SECRET. Dette kan gjøres
-under `Edit Configurations -> Environment Variables`. Miljøvariablene kan hentes fra `azuread-familie-ks-sak-lokal` i
-dev-gcp-clusteret ved å gjøre følgende:
+For å kalle applikasjonen fra frontend må du sette miljøvariablene AZURE_APP_CLIENT_ID og AZURE_APP_CLIENT_SECRET. Dette kan gjøres
+under `Edit Configurations -> Environment Variables`. Verdiene ligger i secreten `azuread-familie-ks-sak-lokal` i
+dev-gcp, og hentes med [nais-cli](https://cli.nais.io). Du må være på naisdevice og ha kjørt `nais login -y`,
+som logger deg inn i både gcloud og login.nais.io:
 
-1. Logg på `gcloud`, typisk med kommandoen: `gcloud auth login`
-2. Koble deg til dev-gcp-cluster'et: `kubectl config use-context dev-gcp`
-3. Hent info:  
-   `kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json | jq '.data | map_values(@base64d)'`. Dersom du er på
-   windows: `kubectl -n teamfamilie get secret azuread-familie-ks-sak-lokal -o json` og base64 decode verdiene "manuelt".
+```
+nais secret get azuread-familie-ks-sak-lokal -e dev-gcp -t teamfamilie --with-values --reason "Lokal utvikling av familie-ks-sak"
+```
+
+Uthenting av secret-verdier logges. `--reason` (minst 10 tegn) er valgfritt – utelater du flagget, blir du
+spurt om begrunnelse. Merk at `nais secret get` uten `--with-values` ikke finner plattform-secrets som denne.
 
 Kopier og sett verdiene til de lokale miljøvariablene `AZURE_APP_CLIENT_ID` og `AZURE_APP_CLIENT_SECRET`.
 
@@ -83,7 +85,7 @@ DevLauncher/DevLauncherPostgres
 
 DevLauncherPostgresPreprod:
 Trenger ikke å sette miljøvariabler manuelt. De hentes automatisk fra Nais.
-Krever at man er logget på naisdevice og gcloud.
+Krever at man er på naisdevice og har kjørt `nais login -y`.
 Husk å sette `KS_SAK_SCOPE=api://dev-gcp.teamfamilie.familie-ks-sak/.default` i `.env`-filen frontend.
 
 ### Ktlint
