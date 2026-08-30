@@ -8,10 +8,15 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.task.LåsFagsakTask
+import no.nav.familie.prosessering.domene.Status
+import no.nav.familie.prosessering.internal.TaskService
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,6 +32,9 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vedtakRepository: VedtakRepository
+
+    @Autowired
+    private lateinit var taskService: TaskService
 
     @BeforeEach
     fun beforeEach() {
@@ -90,6 +98,66 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         )
         lagreTilkjentYtelseMedStønadTom(YearMonth.now().minusYears(2))
         lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
+
+        // Act
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
+
+        // Assert
+        assertThat(fagsakerSomSkalLåses, Is(listOf(fagsak.id)))
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Status::class, names = ["FERDIG", "AVVIKSHÅNDTERT"], mode = EnumSource.Mode.EXCLUDE)
+    fun `finnAvsluttedeFagsakerSomSkalLåses skal ikke returnere fagsak som allerede har en LåsFagsakTask som ikke er ferdig behandlet`(status: Status) {
+        // Arrange
+        opprettSøkerFagsakOgBehandling(
+            fagsakStatus = FagsakStatus.AVSLUTTET,
+            behandlingStatus = BehandlingStatus.AVSLUTTET,
+            behandlingResultat = Behandlingsresultat.INNVILGET,
+        )
+        lagreTilkjentYtelseMedStønadTom(YearMonth.now().minusYears(2))
+        lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
+        lagreLåsFagsakTask(fagsakId = fagsak.id, status = status)
+
+        // Act
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
+
+        // Assert
+        assertThat(fagsakerSomSkalLåses, Is(emptyList<Long>()))
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Status::class, names = ["FERDIG", "AVVIKSHÅNDTERT"])
+    fun `finnAvsluttedeFagsakerSomSkalLåses skal returnere fagsak som har en LåsFagsakTask som er ferdig behandlet`(status: Status) {
+        // Arrange
+        opprettSøkerFagsakOgBehandling(
+            fagsakStatus = FagsakStatus.AVSLUTTET,
+            behandlingStatus = BehandlingStatus.AVSLUTTET,
+            behandlingResultat = Behandlingsresultat.INNVILGET,
+        )
+        lagreTilkjentYtelseMedStønadTom(YearMonth.now().minusYears(2))
+        lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
+        lagreLåsFagsakTask(fagsakId = fagsak.id, status = status)
+
+        // Act
+        val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
+
+        // Assert
+        assertThat(fagsakerSomSkalLåses, Is(listOf(fagsak.id)))
+    }
+
+    @Test
+    fun `finnAvsluttedeFagsakerSomSkalLåses skal returnere fagsak når det kun finnes en uferdig LåsFagsakTask for en annen fagsak`() {
+        // Arrange
+        val annenFagsakId = fagsak.id
+        opprettSøkerFagsakOgBehandling(
+            fagsakStatus = FagsakStatus.AVSLUTTET,
+            behandlingStatus = BehandlingStatus.AVSLUTTET,
+            behandlingResultat = Behandlingsresultat.INNVILGET,
+        )
+        lagreTilkjentYtelseMedStønadTom(YearMonth.now().minusYears(2))
+        lagreVedtakMedVedtaksdato(LocalDateTime.now().minusYears(2))
+        lagreLåsFagsakTask(fagsakId = annenFagsakId, status = Status.UBEHANDLET)
 
         // Act
         val fagsakerSomSkalLåses = fagsakRepository.finnAvsluttedeFagsakerSomSkalLåses(maksAntall = 100)
@@ -238,5 +306,17 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
 
     private fun lagreVedtakMedVedtaksdato(vedtaksdato: LocalDateTime) {
         vedtakRepository.saveAndFlush(Vedtak(behandling = behandling, vedtaksdato = vedtaksdato))
+    }
+
+    private fun lagreLåsFagsakTask(
+        fagsakId: Long,
+        status: Status,
+    ) {
+        // triggerTid frem i tid slik at TaskScheduler ikke plukker tasken mens testen kjører
+        taskService.save(
+            LåsFagsakTask
+                .opprettTask(fagsakId)
+                .copy(status = status, triggerTid = LocalDateTime.now().plusDays(1)),
+        )
     }
 }
