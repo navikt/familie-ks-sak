@@ -56,7 +56,7 @@ internal class UtbetalingsperiodeServiceTest {
 
     @BeforeEach
     fun setUp() {
-        every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP) } returns true
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns true
     }
 
     @Test
@@ -92,6 +92,12 @@ internal class UtbetalingsperiodeServiceTest {
         // Arrange
         every { tilkjentYtelseValideringService.validerIngenAndelerTilkjentYtelseMedSammeOffsetIBehandling(any()) } just runs
         every { oppdragBackendKlient.iverksettOppdrag(any()) } returns ""
+        every {
+            featureToggleService.isEnabled(
+                FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP,
+                any<Long>(),
+            )
+        } returns true
 
         val vedtak = lagVedtak()
         val tilkjentYtelse = lagInitiellTilkjentYtelse(vedtak.behandling)

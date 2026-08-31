@@ -67,9 +67,25 @@ class RestClientConfig(
             SikkerhetContext.hentJwt()?.tokenValue
         }
 
+    @Bean("avstemmingRestClientGammel")
+    fun avstemmingRestClientGammel(
+        @Value("\${FAMILIE_OPPDRAG_SCOPE}") scope: String,
+    ): RestClient {
+        val requestFactory =
+            SimpleClientHttpRequestFactory().apply {
+                setConnectTimeout(Duration.ofSeconds(150))
+                setReadTimeout(Duration.ofSeconds(150))
+            }
+        return entraIDRestClientFactory
+            .lagMaskinTilMaskinRestKlient(scope)
+            .mutate()
+            .requestFactory(requestFactory)
+            .build()
+    }
+
     @Bean("avstemmingRestClient")
     fun avstemmingRestClient(
-        @Value("\${FAMILIE_OPPDRAG_SCOPE}") scope: String,
+        @Value("\${FAMILIE_OPPDRAG_BACKEND_SCOPE}") scope: String,
     ): RestClient {
         val requestFactory =
             SimpleClientHttpRequestFactory().apply {

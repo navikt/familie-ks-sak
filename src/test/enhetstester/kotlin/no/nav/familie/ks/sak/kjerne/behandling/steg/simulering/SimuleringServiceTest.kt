@@ -222,7 +222,7 @@ class SimuleringServiceTest {
                 )
             } returns
                 lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
-            every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_HENT_SIMULERING_GCP) } returns false
+            every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns false
             every { oppdragKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
             every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
             every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()
@@ -278,7 +278,7 @@ class SimuleringServiceTest {
                 )
             } returns
                 lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
-            every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_HENT_SIMULERING_GCP) } returns true
+            every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns true
             every { oppdragBackendKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
             every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
             every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()

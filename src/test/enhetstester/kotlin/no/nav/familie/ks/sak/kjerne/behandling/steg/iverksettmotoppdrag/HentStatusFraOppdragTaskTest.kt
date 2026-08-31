@@ -57,7 +57,12 @@ internal class HentStatusFraOppdragTaskTest {
     fun setup() {
         every { taskService.save(any()) } returns mockk()
 
-        every { featureToggleService.isEnabled(FeatureToggle.OPPDRAG_MIGRERING_IVERKSETT_OPPDRAG_GCP) } returns true
+        every {
+            featureToggleService.isEnabled(
+                FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP,
+                any<Long>(),
+            )
+        } returns true
 
         // utbetalingsoppdrag med periode
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns

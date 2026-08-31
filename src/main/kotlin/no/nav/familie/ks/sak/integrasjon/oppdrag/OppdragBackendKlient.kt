@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient.Companion.RETRY_BACKOFF_5000MS
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
+import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.retry.annotation.Backoff
@@ -25,7 +26,7 @@ class OppdragBackendKlient(
     fun iverksettOppdrag(utbetalingsoppdrag: Utbetalingsoppdrag): String {
         val uri = URI.create("$familieOppdragBackendUri/oppdrag")
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag-backend",
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
             uri = uri,
             formål = "Iverksetter mot oppdrag",
         ) {
@@ -47,7 +48,7 @@ class OppdragBackendKlient(
         val uri = URI.create("$familieOppdragBackendUri/simulering/v1")
 
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag-backend",
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
             uri = uri,
             formål = "Henter simulering fra familie-oppdrag-backend",
         ) {
@@ -63,7 +64,7 @@ class OppdragBackendKlient(
     fun hentStatus(oppdragId: OppdragId): OppdragStatus {
         val uri = URI.create("$familieOppdragBackendUri/status")
         return kallEksternTjenesteRessurs(
-            tjeneste = "familie-oppdrag-backend",
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
             uri = uri,
             formål = "Henter oppdragstatus fra oppdrag",
         ) {
@@ -74,5 +75,28 @@ class OppdragBackendKlient(
                 .retrieve()
                 .body()!!
         }
+    }
+
+    fun hentSisteUtbetalingsoppdragForFagsaker(
+        fagsakIder: Set<Long>,
+    ): List<UtbetalingsoppdragMedBehandlingOgFagsak> {
+        val uri = URI.create("$familieOppdragBackendUri/$FAGSYSTEM/fagsaker/siste-utbetalingsoppdrag")
+
+        return kallEksternTjenesteRessurs(
+            tjeneste = FAMILIE_OPPDRAG_BACKEND,
+            uri = uri,
+            formål = "Hent utbetalingsoppdrag for fagsaker",
+        ) {
+            restClient
+                .post()
+                .uri(uri)
+                .body(fagsakIder)
+                .retrieve()
+                .body()!!
+        }
+    }
+
+    companion object {
+        private const val FAMILIE_OPPDRAG_BACKEND = "familie-oppdrag-backend"
     }
 }

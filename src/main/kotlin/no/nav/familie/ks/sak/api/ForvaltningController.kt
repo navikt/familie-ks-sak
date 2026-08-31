@@ -28,7 +28,7 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
-import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlient
+import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlientGammel
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -89,7 +89,7 @@ class ForvaltningController(
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
-    private val avstemmingKlient: AvstemmingKlient,
+    private val avstemmingKlientGammel: AvstemmingKlientGammel,
     private val fagsakStatusScheduler: FagsakStatusScheduler,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -308,7 +308,7 @@ class ForvaltningController(
         var result = "OK"
         repeat(antallGanger.toInt()) { i ->
             try {
-                avstemmingKlient.sov(sekunder)
+                avstemmingKlientGammel.sov(sekunder)
                 logger.info("testTregtEndepunktOppdrag kjørte ok #${i + 1}")
             } catch (e: Exception) {
                 logger.error("testTregtEndepunktOppdrag feilet #${i + 1}", e)
