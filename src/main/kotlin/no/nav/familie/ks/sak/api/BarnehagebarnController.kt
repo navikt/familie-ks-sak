@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
+import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnStatistikkService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class BarnehagebarnController(
     private val barnehagebarnService: BarnehagebarnService,
+    private val barnehagebarnStatistikkService: BarnehagebarnStatistikkService,
     private val tilgangService: TilgangService,
 ) {
     @PostMapping(
@@ -44,4 +46,17 @@ class BarnehagebarnController(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun hentAlleBarnehageKommuner(): ResponseEntity<Ressurs<Set<String>>> = ResponseEntity.ok(Ressurs.success(barnehagebarnService.hentAlleKommuner()))
+
+    @PostMapping(
+        path = ["/oppdater-statistikk"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun oppdaterStatistikk(): ResponseEntity<Ressurs<String>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.FORVALTER,
+            handling = "oppdatere barnehagebarn-statistikk",
+        )
+        barnehagebarnStatistikkService.oppdaterBarnehagebarnStatistikk()
+        return ResponseEntity.ok(Ressurs.success("Barnehagebarn-statistikk oppdatert"))
+    }
 }
