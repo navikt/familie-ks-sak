@@ -111,4 +111,57 @@ FROM barnehagebarn_visning
         """,
     )
     fun hentAlleKommuner(): Set<String>
+
+    @Query(
+        """
+        WITH min_month AS (
+            SELECT MIN(DATE_TRUNC('month', opprettet_tid)) AS month, kommune_navn
+            FROM barnehagebarn
+            WHERE kilde_topic = 'teamfamilie.privat-kontantstotte-barnehagelister'
+              AND DATE_TRUNC('month', opprettet_tid) > '2025-01-01'
+            GROUP BY kommune_navn
+            ORDER BY month DESC
+        )
+        SELECT CAST(month AS TEXT) AS month, kommune_navn AS kommuneNavn
+        FROM min_month
+        """,
+        nativeQuery = true,
+    )
+    fun finnNyeKommunerPerMaaned(): List<NyKommunePerMaaned>
+
+    @Query(
+        """
+        SELECT COUNT(DISTINCT kommune_navn) AS antall, CAST(DATE_TRUNC('month', opprettet_tid) AS TEXT) AS month
+        FROM barnehagebarn
+        WHERE kilde_topic = 'teamfamilie.privat-kontantstotte-barnehagelister'
+        GROUP BY month
+        ORDER BY month DESC
+        """,
+        nativeQuery = true,
+    )
+    fun finnAntallKommunerPerMaaned(): List<AntallPerMaaned>
+
+    @Query(
+        """
+        SELECT COUNT(DISTINCT ident) AS antall, CAST(DATE_TRUNC('month', opprettet_tid) AS TEXT) AS month
+        FROM barnehagebarn
+        WHERE kilde_topic = 'teamfamilie.privat-kontantstotte-barnehagelister'
+        GROUP BY month
+        ORDER BY month DESC
+        """,
+        nativeQuery = true,
+    )
+    fun finnAntallBarnPerMaaned(): List<AntallPerMaaned>
+}
+
+interface NyKommunePerMaaned {
+    fun getMonth(): String
+
+    fun getKommuneNavn(): String
+}
+
+interface AntallPerMaaned {
+    fun getMonth(): String
+
+    fun getAntall(): Long
 }
