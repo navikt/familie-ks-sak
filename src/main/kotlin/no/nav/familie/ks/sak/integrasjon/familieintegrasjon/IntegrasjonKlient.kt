@@ -39,6 +39,7 @@ import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
@@ -46,6 +47,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
@@ -456,17 +458,25 @@ class IntegrasjonKlient(
     fun avsluttSak(request: AvsluttSakRequest) {
         val uri = URI.create("$integrasjonUri/arkiv/avsluttSak")
 
-        kallEksternTjenesteUtenRespons(
-            tjeneste = "dokarkiv",
-            uri = uri,
-            formål = "Avslutt sak ${request.fagsakId} i fagsaksystem ${request.fagsaksystem}",
-        ) {
-            restClient
-                .patch()
-                .uri(uri)
-                .body(request)
-                .retrieve()
-                .body<Ressurs<Any>>()!!
+        try {
+            kallEksternTjenesteUtenRespons(
+                tjeneste = "dokarkiv",
+                uri = uri,
+                formål = "Avslutt sak ${request.fagsakId} i fagsaksystem ${request.fagsaksystem}",
+            ) {
+                restClient
+                    .patch()
+                    .uri(uri)
+                    .body(request)
+                    .retrieve()
+                    .body<Ressurs<Any>>()!!
+            }
+        } catch (exception: HttpClientErrorException.NotFound) {
+            // Dokarkiv svarer 404 når det ikke finnes noen arkivsak for fagsaken, dvs. at ingen journalposter
+            // er journalført på fagsaken. Da er det ingenting å avslutte. Kilden i feilmeldingen brukes for å
+            // skille denne fra en 404 fra familie-integrasjoner selv.
+            if (!exception.responseBodyAsString.contains(DOKARKIV_AVSLUTT_SAK_KILDE)) throw exception
+            logger.warn("Fant ikke sak ${request.fagsakId} i fagsaksystem ${request.fagsaksystem} i dokarkiv. Ingen journalposter er knyttet til fagsaken, så det er ingenting å avslutte.")
         }
     }
 
@@ -762,6 +772,8 @@ class IntegrasjonKlient(
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(IntegrasjonKlient::class.java)
+        private const val DOKARKIV_AVSLUTT_SAK_KILDE = "dokarkiv.avsluttSak"
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         const val RETRY_BACKOFF_1000MS = "\${retry.backoff.delay:1000}"
         private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"

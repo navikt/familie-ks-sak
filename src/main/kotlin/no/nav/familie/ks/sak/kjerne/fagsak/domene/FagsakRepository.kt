@@ -63,13 +63,21 @@ interface FagsakRepository : JpaRepository<Fagsak, Long> {
               AND b.resultat NOT LIKE 'HENLAGT%'
             ORDER BY b.fk_fagsak_id, b.aktivert_tid DESC
         )
-        -- Fagsaker der siste utbetaling og siste vedtak var for mer enn 1 år siden.
+        -- Fagsaker der siste utbetaling og siste vedtak var for mer enn 1 år siden,
+        -- og som ikke allerede har en LåsFagsakTask som ikke er ferdig behandlet.
         -- stonad_tom lagres som første dag i måneden, mens fristen løper fra siste dag i måneden.
         SELECT DISTINCT sv.fk_fagsak_id
         FROM   siste_vedtatte sv
         LEFT JOIN tilkjent_ytelse ty ON ty.fk_behandling_id = sv.id
         LEFT JOIN vedtak v ON v.fk_behandling_id = sv.id AND v.aktiv = TRUE
         WHERE  GREATEST((ty.stonad_tom + INTERVAL '1 month' - INTERVAL '1 day')::date, v.vedtaksdato::date) + INTERVAL '1 year' <= CURRENT_DATE
+          AND NOT EXISTS (
+              SELECT 1
+              FROM   task t
+              WHERE  t.type    = 'låsFagsakTask'
+                AND  t.payload = CAST(sv.fk_fagsak_id AS TEXT)
+                AND  t.status  NOT IN ('FERDIG', 'AVVIKSHÅNDTERT')
+          )
         ORDER BY sv.fk_fagsak_id
         LIMIT :maksAntall
         """,
