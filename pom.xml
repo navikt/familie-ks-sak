@@ -41,9 +41,9 @@
         <prosessering.version>2.20260817115650_f13f507</prosessering.version>
         <felles-kontrakter.version>4.0_20260821102510_33ea755</felles-kontrakter.version>
         <felles.version>4.20260818093920_16ad74a</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20260824124128_f3bb214</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20260824124128_f3bb214</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20260824124128_f3bb214</familie.kontrakter.saksstatistikk>
+        <eksterne-kontrakter-bisys.version>2.0_20260831102321_6c105e6</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20260831102321_6c105e6</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20260831102321_6c105e6</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20260527092003_ed16208</utbetalingsgenerator.version>
 
         <!-- Database -->
