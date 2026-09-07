@@ -130,11 +130,6 @@ Use `secureLogger` when logging national identity numbers (fødselsnummer) or ot
 - Emergency deploy: manual workflow `manual-deploy-prod` (runs full test suite by default, then build and deploy) or `manual-deploy-with-image` (deploy existing image).
 - Nais manifests: `.nais/app-dev.yaml`, `.nais/app-prod.yaml`.
 
-## Gotchas
-
-- Build requires GitHub Packages authentication (`GITHUB_USERNAME`/`GITHUB_TOKEN`), configured against `maven.pkg.github.com/navikt/familie-felles`, otherwise dependency resolution fails.
-- `maven-enforcer-plugin` bans JUnit in `compile` scope — watch for transitive dependencies.
-
 ## Boundaries
 
 ### ✅ Always
