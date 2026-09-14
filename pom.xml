@@ -23,7 +23,7 @@
 
         <!-- Java/Kotlin -->
         <java.version>25</java.version>
-        <kotlin.version>2.4.10</kotlin.version>
+        <kotlin.version>2.4.20</kotlin.version>
         <kotlin.compiler.languageVersion>2.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>2.3</kotlin.compiler.apiVersion>
       
@@ -57,13 +57,13 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>12.2.3</unleash.version>
-        <microsoft-graph.version>6.67.0</microsoft-graph.version>
+        <unleash.version>12.3.0</unleash.version>
+        <microsoft-graph.version>6.69.0</microsoft-graph.version>
         <okhttp-jvm.version>5.5.0</okhttp-jvm.version>
-        <azure-identity.version>1.18.4</azure-identity.version>
+        <azure-identity.version>1.18.6</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>7.34.7</cucumber.version>
+        <cucumber.version>7.34.8</cucumber.version>
         <rest-assured.version>6.0.1</rest-assured.version>
         <mock-oauth2-server.version>6.0.2</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
