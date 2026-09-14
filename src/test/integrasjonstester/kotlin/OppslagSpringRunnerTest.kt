@@ -4,10 +4,11 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.nimbusds.jose.JOSEObjectType
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.EMBEDDED
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.DatabaseCleanupService
-import no.nav.familie.ks.sak.config.DbContainerInitializer
 import no.nav.familie.ks.sak.config.RolleConfig
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
@@ -66,8 +67,8 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @ExtendWith(SpringExtension::class)
-@ContextConfiguration(initializers = [DbContainerInitializer::class])
 @SpringBootTest(classes = [DevLauncherLocal::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureEmbeddedDatabase(provider = EMBEDDED)
 @ActiveProfiles(
     "integrasjonstest",
     "fake-integrasjon-klient",
