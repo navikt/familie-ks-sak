@@ -5,11 +5,13 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
@@ -20,6 +22,9 @@ jobs:
           RESOURCE: .nais/unleash/unleash-apitoken-dev.yaml
   deploy-prod:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
