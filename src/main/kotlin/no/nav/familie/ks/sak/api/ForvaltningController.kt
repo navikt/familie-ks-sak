@@ -28,7 +28,6 @@ import no.nav.familie.ks.sak.config.SpringProfile
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.integrasjon.ecb.ECBService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
-import no.nav.familie.ks.sak.integrasjon.oppdrag.AvstemmingKlientGammel
 import no.nav.familie.ks.sak.internal.TestVerktøyService
 import no.nav.familie.ks.sak.kjerne.autovedtak.AutovedtakService
 import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
@@ -89,7 +88,6 @@ class ForvaltningController(
     private val autovedtakService: AutovedtakService,
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
-    private val avstemmingKlientGammel: AvstemmingKlientGammel,
     private val fagsakStatusScheduler: FagsakStatusScheduler,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
@@ -292,30 +290,6 @@ class ForvaltningController(
         return testVerktøyService
             .hentBrevTest(behandlingId)
             .replace("\n", System.lineSeparator())
-    }
-
-    @Operation(
-        summary = "Endepunkt for å teste trege http kall",
-        description =
-            "Dette endepunktet kaller et endepunkt som vil sove x antall sekunder i familie-oppdrag",
-    )
-    @Deprecated("Kan slettes når spring er fikset med httpclient5")
-    @PostMapping(path = ["/testTregtEndepunktOppdrag"])
-    fun sov(
-        @RequestParam sekunder: Long,
-        @RequestParam antallGanger: Long,
-    ): String {
-        var result = "OK"
-        repeat(antallGanger.toInt()) { i ->
-            try {
-                avstemmingKlientGammel.sov(sekunder)
-                logger.info("testTregtEndepunktOppdrag kjørte ok #${i + 1}")
-            } catch (e: Exception) {
-                logger.error("testTregtEndepunktOppdrag feilet #${i + 1}", e)
-                result = "FAILED"
-            }
-        }
-        return result
     }
 
     @PostMapping("/opprettAutovedtakBehandlingPaaFagsak")

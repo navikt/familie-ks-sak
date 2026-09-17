@@ -50,14 +50,6 @@ class RestClientConfig(
             SikkerhetContext.hentJwt()?.tokenValue
         }
 
-    @Bean("oppdragRestClient")
-    fun oppdragRestClient(
-        @Value("\${FAMILIE_OPPDRAG_SCOPE}") scope: String,
-    ): RestClient =
-        entraIDRestClientFactory.lagHybridRestKlient(scope) {
-            SikkerhetContext.hentJwt()?.tokenValue
-        }
-
     // Går mot familie-oppdrag-backend som kjører i GCP.
     @Bean("oppdragBackendRestClient")
     fun oppdragBackendRestClient(
@@ -66,22 +58,6 @@ class RestClientConfig(
         entraIDRestClientFactory.lagHybridRestKlient(scope) {
             SikkerhetContext.hentJwt()?.tokenValue
         }
-
-    @Bean("avstemmingRestClientGammel")
-    fun avstemmingRestClientGammel(
-        @Value("\${FAMILIE_OPPDRAG_SCOPE}") scope: String,
-    ): RestClient {
-        val requestFactory =
-            SimpleClientHttpRequestFactory().apply {
-                setConnectTimeout(Duration.ofSeconds(150))
-                setReadTimeout(Duration.ofSeconds(150))
-            }
-        return entraIDRestClientFactory
-            .lagMaskinTilMaskinRestKlient(scope)
-            .mutate()
-            .requestFactory(requestFactory)
-            .build()
-    }
 
     @Bean("avstemmingRestClient")
     fun avstemmingRestClient(
