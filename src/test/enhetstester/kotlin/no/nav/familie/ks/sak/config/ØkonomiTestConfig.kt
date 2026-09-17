@@ -21,7 +21,6 @@ import java.time.LocalDate
 
 @TestConfiguration
 class ØkonomiTestConfig {
-
     @Bean
     @Profile("mock-økonomi")
     @Primary
@@ -34,7 +33,6 @@ class ØkonomiTestConfig {
     }
 
     companion object {
-
         fun clearOppdragBackendMocks(oppdragBackendKlient: OppdragBackendKlient) {
             clearMocks(oppdragBackendKlient)
 
