@@ -5,10 +5,7 @@ import no.nav.familie.kontrakter.felles.oppdrag.OppdragId
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
-import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
@@ -42,12 +39,10 @@ import java.util.Properties
     maxAntallFeil = 100,
 )
 class HentStatusFraOppdragTask(
-    private val oppdragKlient: OppdragKlient,
     private val oppdragBackendKlient: OppdragBackendKlient,
     private val taskService: TaskRepositoryWrapper,
     private val stegService: StegService,
     private val tilkjentYtelseRepository: TilkjentYtelseRepository,
-    private val featureToggleService: FeatureToggleService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
         val statusFraOppdragDto = jsonMapper.readValue(task.payload, HentStatusFraOppdragDto::class.java)
@@ -80,11 +75,7 @@ class HentStatusFraOppdragTask(
         behandlingId: BehandlingId,
     ): OppdragStatus =
         if (tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingId.id).skalIverksettesMotOppdrag()) {
-            if (featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP, behandlingId.id)) {
-                oppdragBackendKlient.hentStatus(oppdragId)
-            } else {
-                oppdragKlient.hentStatus(oppdragId)
-            }
+            oppdragBackendKlient.hentStatus(oppdragId)
         } else {
             OppdragStatus.KVITTERT_OK
         }

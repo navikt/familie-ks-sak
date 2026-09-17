@@ -9,8 +9,6 @@ import no.nav.familie.kontrakter.felles.simulering.DetaljertSimuleringResultat
 import no.nav.familie.kontrakter.felles.simulering.MottakerType
 import no.nav.familie.kontrakter.felles.simulering.PosteringType
 import no.nav.familie.kontrakter.felles.simulering.SimuleringMottaker
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBeregnetUtbetalingsoppdrag
 import no.nav.familie.ks.sak.data.lagSimulertPostering
@@ -19,7 +17,6 @@ import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.data.lagØkonomiSimuleringMottaker
 import no.nav.familie.ks.sak.data.lagØkonomiSimuleringPostering
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
-import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.UtbetalingsoppdragService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -39,25 +36,21 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 class SimuleringServiceTest {
-    private val oppdragKlient = mockk<OppdragKlient>()
     private val oppdragBackendKlient = mockk<OppdragBackendKlient>()
     private val utbetalingsoppdragService = mockk<UtbetalingsoppdragService>()
     private val beregningService = mockk<BeregningService>()
     private val øknomiSimuleringMottakerRepository = mockk<ØkonomiSimuleringMottakerRepository>()
     private val vedtakRepository = mockk<VedtakRepository>()
     private val behandlingRepository = mockk<BehandlingRepository>()
-    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val simuleringService =
         SimuleringService(
-            oppdragKlient = oppdragKlient,
             oppdragBackendKlient = oppdragBackendKlient,
             utbetalingsoppdragService = utbetalingsoppdragService,
             beregningService = beregningService,
             øknomiSimuleringMottakerRepository = øknomiSimuleringMottakerRepository,
             vedtakRepository = vedtakRepository,
             behandlingRepository = behandlingRepository,
-            featureToggleService = featureToggleService,
         )
 
     @Nested
@@ -168,7 +161,6 @@ class SimuleringServiceTest {
 
             simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
-            verify(exactly = 0) { oppdragKlient.hentSimulering(any()) }
             verify(exactly = 0) { oppdragBackendKlient.hentSimulering(any()) }
         }
 
@@ -178,69 +170,7 @@ class SimuleringServiceTest {
             names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"],
             mode = EnumSource.Mode.EXCLUDE,
         )
-        fun `skal hente ny simulering dersom det har vært endring i utbetaling og simulering ikke er hentet fra før`(
-            behandlingStatus: BehandlingStatus,
-        ) {
-            every { beregningService.sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(any()) } returns true
-
-            val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD).also { it.status = behandlingStatus }
-            val nySimulering =
-                listOf(
-                    SimuleringMottaker(
-                        mottakerType = MottakerType.BRUKER,
-                        mottakerNummer = "",
-                        simulertPostering =
-                            listOf(
-                                lagSimulertPostering(
-                                    fom = LocalDate.now().minusMonths(4),
-                                    tom = LocalDate.now().minusMonths(2),
-                                    beløp = BigDecimal.valueOf(7500),
-                                    forfallsdato = LocalDate.now(),
-                                ),
-                                lagSimulertPostering(
-                                    fom = LocalDate.now().minusMonths(2),
-                                    tom = LocalDate.now(),
-                                    beløp = BigDecimal.valueOf(7500),
-                                    forfallsdato = LocalDate.now().plusMonths(2),
-                                ),
-                            ),
-                    ),
-                )
-
-            every { behandlingRepository.hentBehandling(behandling.id) } returns behandling
-
-            // Finnes ingen lagret simulering fra før
-            every { øknomiSimuleringMottakerRepository.findByBehandlingId(behandling.id) } returns emptyList()
-
-            every { vedtakRepository.findByBehandlingAndAktivOptional(behandling.id) } returns Vedtak(behandling = behandling)
-            every { beregningService.innvilgetSøknadUtenUtbetalingsperioderGrunnetEndringsPerioder(behandling = behandling) } returns false
-            every {
-                utbetalingsoppdragService.genererUtbetalingsoppdragOgOppdaterTilkjentYtelse(
-                    vedtak = any(),
-                    saksbehandlerId = any(),
-                    erSimulering = any(),
-                )
-            } returns
-                lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
-            every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns false
-            every { oppdragKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
-            every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
-            every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()
-
-            simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
-
-            verify(exactly = 1) { oppdragKlient.hentSimulering(any()) }
-            verify(exactly = 0) { oppdragBackendKlient.hentSimulering(any()) }
-            verify(exactly = 1) { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) }
-        }
-
-        @ParameterizedTest
-        @EnumSource(
-            value = BehandlingStatus::class,
-            names = ["IVERKSETTER_VEDTAK", "AVSLUTTET"],
-            mode = EnumSource.Mode.EXCLUDE,
-        )
-        fun `skal hente simulering fra familie-oppdrag-backend når toggelen for GCP-migrering er skrudd på`(
+        fun `skal hente simulering fra familie-oppdrag-backend`(
             behandlingStatus: BehandlingStatus,
         ) {
             every { beregningService.sjekkOmDetErEndringIUtbetalingFraForrigeBehandlingSendtTilØkonomi(any()) } returns true
@@ -278,7 +208,6 @@ class SimuleringServiceTest {
                 )
             } returns
                 lagBeregnetUtbetalingsoppdrag(vedtak = lagVedtak(behandling), listOf(lagUtbetalingsperiode(vedtak = lagVedtak(behandling))))
-            every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP) } returns true
             every { oppdragBackendKlient.hentSimulering(any()) } returns DetaljertSimuleringResultat(simuleringMottaker = nySimulering)
             every { øknomiSimuleringMottakerRepository.deleteByBehandlingId(any()) } just runs
             every { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) } returns mockk()
@@ -286,7 +215,6 @@ class SimuleringServiceTest {
             simuleringService.oppdaterSimuleringPåBehandlingVedBehov(behandlingId = behandling.id)
 
             verify(exactly = 1) { oppdragBackendKlient.hentSimulering(any()) }
-            verify(exactly = 0) { oppdragKlient.hentSimulering(any()) }
             verify(exactly = 1) { øknomiSimuleringMottakerRepository.saveAll(any<List<ØkonomiSimuleringMottaker>>()) }
         }
     }

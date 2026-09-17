@@ -10,13 +10,10 @@ import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.oppdrag.OppdragStatus
 import no.nav.familie.kontrakter.felles.oppdrag.Utbetalingsoppdrag
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
-import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagUtbetalingsperiode
 import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragBackendKlient
-import no.nav.familie.ks.sak.integrasjon.oppdrag.OppdragKlient
 import no.nav.familie.ks.sak.integrasjon.økonomi.utbetalingsoppdrag.FAGSYSTEM
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
@@ -34,21 +31,17 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 internal class HentStatusFraOppdragTaskTest {
-    private val oppdragKlient = mockk<OppdragKlient>()
     private val oppdragBackendKlient = mockk<OppdragBackendKlient>()
     private val taskService = mockk<TaskRepositoryWrapper>()
     private val stegService = mockk<StegService>()
     private val tilkjentYtelseRepository = mockk<TilkjentYtelseRepository>()
-    private val featureToggleService = mockk<FeatureToggleService>()
 
     private val hentStatusFraOppdragTask =
         HentStatusFraOppdragTask(
-            oppdragKlient = oppdragKlient,
             oppdragBackendKlient = oppdragBackendKlient,
             taskService = taskService,
             stegService = stegService,
             tilkjentYtelseRepository = tilkjentYtelseRepository,
-            featureToggleService = featureToggleService,
         )
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -56,13 +49,6 @@ internal class HentStatusFraOppdragTaskTest {
     @BeforeEach
     fun setup() {
         every { taskService.save(any()) } returns mockk()
-
-        every {
-            featureToggleService.isEnabled(
-                FeatureToggle.BRUK_FAMILIE_OPPDRAG_BACKEND_GCP,
-                any<Long>(),
-            )
-        } returns true
 
         // utbetalingsoppdrag med periode
         every { tilkjentYtelseRepository.hentTilkjentYtelseForBehandling(any()) } returns
