@@ -133,26 +133,6 @@ class AvstemmingKlient(
         }
     }
 
-    fun sov(
-        sovAntallSekunder: Long,
-    ): String {
-        val uri =
-            URI.create(
-                "$familieOppdragBackendUri/timeout-test?sekunder=$sovAntallSekunder",
-            )
-        return kallEksternTjenesteRessurs(
-            tjeneste = FAMILIE_OPPDRAG_BACKEND,
-            uri = uri,
-            formål = "sov",
-        ) {
-            restClient
-                .get()
-                .uri(uri)
-                .retrieve()
-                .body()!!
-        }
-    }
-
     companion object {
         private const val FAMILIE_OPPDRAG_BACKEND = "familie-oppdrag-backend"
     }
