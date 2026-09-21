@@ -47,7 +47,7 @@
         <utbetalingsgenerator.version>1.0_20260527092003_ed16208</utbetalingsgenerator.version>
 
         <!-- Database -->
-        <jsqlparser.version>5.3</jsqlparser.version>
+        <jsqlparser.version>5.4</jsqlparser.version>
 
         <!-- Kafka -->
         <avro.version>1.12.2</avro.version>
