@@ -52,7 +52,7 @@
         <!-- Kafka -->
         <avro.version>1.12.2</avro.version>
         <avro.serializable.packages>no.nav.person.pdl.aktor.v2</avro.serializable.packages>
-        <confluent.version>8.3.1</confluent.version>
+        <confluent.version>8.3.2</confluent.version>
 
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
