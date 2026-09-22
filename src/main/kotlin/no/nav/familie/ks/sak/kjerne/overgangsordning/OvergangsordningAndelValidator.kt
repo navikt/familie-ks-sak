@@ -25,6 +25,7 @@ import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.outerJoin
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
+import java.time.LocalDate
 import java.time.YearMonth
 
 object OvergangsordningAndelValidator {
@@ -35,11 +36,12 @@ object OvergangsordningAndelValidator {
         personResultaterForBarn: List<PersonResultat>,
         barna: List<Person>,
     ) {
+        val fødselsdatoPerAktør = barna.associate { it.aktør to it.fødselsdato }
         val barnehageplassVilkårPerPerson = personResultaterForBarn.groupBy { it.aktør }.mapValues { it.value.flatMap { it.vilkårResultater.filter { it.vilkårType == Vilkår.BARNEHAGEPLASS } } }
         validerAtAlleOpprettedeOvergangsordningAndelerErGyldigUtfylt(overgangsordningAndeler)
         validerAtOvergangsordningAndelerIkkeOverlapperMedOrdinæreAndeler(andelerTilkjentYtelseNåværendeBehandling)
-        validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson)
-        validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder())
+        validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(overgangsordningAndeler.utfyltePerioder(), barnehageplassVilkårPerPerson, fødselsdatoPerAktør)
+        validerAndelerErIPeriodenBarnetEr20Til23Måneder(overgangsordningAndeler.utfyltePerioder(), fødselsdatoPerAktør)
         validerIngenEndringIOrdinæreAndelerTilkjentYtelse(andelerTilkjentYtelseNåværendeBehandling, andelerTilkjentYtelseForrigeBehandling, barna)
     }
 
@@ -76,18 +78,20 @@ object OvergangsordningAndelValidator {
 
     fun validerAndelerErIPeriodenBarnetEr20Til23Måneder(
         overgangsordningAndeler: List<UtfyltOvergangsordningAndel>,
+        fødselsdatoPerAktør: Map<Aktør, LocalDate>,
     ) {
         overgangsordningAndeler
-            .groupBy { it.person }
-            .forEach { (person, overgangsordningAndelerForPerson) ->
-                val tidligsteGyldigeFom = beregnGyldigFom(person)
-                val senesteGyldigeTom = beregnGyldigTom(person)
+            .groupBy { it.aktør }
+            .forEach { (_, overgangsordningAndelerForPerson) ->
+                val fødselsdato = requireNotNull(fødselsdatoPerAktør[overgangsordningAndelerForPerson.first().aktør])
+                val tidligsteGyldigeFom = beregnGyldigFom(fødselsdato)
+                val senesteGyldigeTom = beregnGyldigTom(fødselsdato)
                 overgangsordningAndelerForPerson.forEach {
                     if (it.fom.isBefore(tidligsteGyldigeFom) || it.tom.isAfter(senesteGyldigeTom)) {
                         throw FunksjonellFeil(
                             melding = "Perioden som blir forsøkt lagt til er utenfor gyldig periode for person.",
                             frontendFeilmelding =
-                                "Perioden for overgangsordning du forsøker å legge til (${it.fom} - ${it.tom}) er utenfor gyldig periode for barn født ${person.fødselsdato}. " +
+                                "Perioden for overgangsordning du forsøker å legge til (${it.fom} - ${it.tom}) er utenfor gyldig periode for barn født $fødselsdato. " +
                                     "Gyldig periode er fra og med 20 til og med 23 måneder etter fødselsdato ($tidligsteGyldigeFom - $senesteGyldigeTom).",
                         )
                     }
@@ -125,14 +129,17 @@ object OvergangsordningAndelValidator {
     fun validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(
         overgangsordningAndeler: List<UtfyltOvergangsordningAndel>,
         barnehageplassVilkårPerPerson: Map<Aktør, List<VilkårResultat>>,
+        fødselsdatoPerAktør: Map<Aktør, LocalDate>,
     ) {
         overgangsordningAndeler.forEach { overgangsordningAndel ->
+            val fødselsdato = requireNotNull(fødselsdatoPerAktør[overgangsordningAndel.aktør])
             val barnehagevilkår =
-                barnehageplassVilkårPerPerson[overgangsordningAndel.person.aktør]
-                    ?: throw FunksjonellFeil("Fant ikke barnehagevilkår for barn født ${overgangsordningAndel.person.fødselsdato.tilKortString()}")
+                barnehageplassVilkårPerPerson[overgangsordningAndel.aktør]
+                    ?: throw FunksjonellFeil("Fant ikke barnehagevilkår for barn født ${fødselsdato.tilKortString()}")
             validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(
                 overgangsordningAndel = overgangsordningAndel,
                 barnehageplassVilkår = barnehagevilkår,
+                barnetsFødselsdato = fødselsdato,
             )
         }
     }
@@ -142,7 +149,7 @@ object OvergangsordningAndelValidator {
         eksisterendeUtfylteOvergangsordningAndeler: List<UtfyltOvergangsordningAndel>,
     ) {
         if (eksisterendeUtfylteOvergangsordningAndeler.any {
-                it.overlapperMed(nyOvergangsordningAndel) && it.person == nyOvergangsordningAndel.person
+                it.overlapperMed(nyOvergangsordningAndel) && it.aktør == nyOvergangsordningAndel.aktør
             }
         ) {
             throw FunksjonellFeil(
@@ -155,6 +162,7 @@ object OvergangsordningAndelValidator {
     fun validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(
         overgangsordningAndel: UtfyltOvergangsordningAndel,
         barnehageplassVilkår: List<VilkårResultat>,
+        barnetsFødselsdato: LocalDate,
     ) {
         val barnehagevilkårTidslinje = barnehageplassVilkår.tilTidslinje()
         val andelTidslinje = listOf(overgangsordningAndel).tilPerioder().tilTidslinje()
@@ -169,7 +177,7 @@ object OvergangsordningAndelValidator {
 
         if (perioderBarnehagevilkårIkkeErOppfylt.isNotEmpty()) {
             val feilmelding =
-                "Barnehageplassvilkåret må være oppfylt alle periodene det er overgangsordning for barn født ${overgangsordningAndel.person.fødselsdato.tilKortString()}. " +
+                "Barnehageplassvilkåret må være oppfylt alle periodene det er overgangsordning for barn født ${barnetsFødselsdato.tilKortString()}. " +
                     "Vilkåret er ikke oppfylt i " +
                     when (perioderBarnehagevilkårIkkeErOppfylt.size) {
                         1 -> "perioden ${perioderBarnehagevilkårIkkeErOppfylt.first()}."

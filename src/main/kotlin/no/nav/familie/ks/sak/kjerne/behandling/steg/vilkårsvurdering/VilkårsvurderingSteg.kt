@@ -319,8 +319,8 @@ class VilkårsvurderingSteg(
     ): Boolean {
         val august2024 = LocalDate.of(2024, 8, 1)
         val april2025 = LocalDate.of(2025, 4, 30)
-        val barn20Måneder = beregnGyldigFom(barn).førsteDagIInneværendeMåned()
-        val barn23Måneder = beregnGyldigTom(barn).sisteDagIInneværendeMåned()
+        val barn20Måneder = beregnGyldigFom(barn.fødselsdato).førsteDagIInneværendeMåned()
+        val barn23Måneder = beregnGyldigTom(barn.fødselsdato).sisteDagIInneværendeMåned()
         return fom?.isSameOrAfter(barn20Måneder) == true && fom.isSameOrAfter(august2024) &&
             tom?.isSameOrBefore(barn23Måneder) == true && tom.isSameOrBefore(april2025)
     }

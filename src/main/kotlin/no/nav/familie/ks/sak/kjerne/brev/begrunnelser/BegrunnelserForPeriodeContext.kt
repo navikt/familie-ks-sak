@@ -216,12 +216,14 @@ class BegrunnelserForPeriodeContext(
         val personerMedOvergangsordningAndel =
             overgangsordningAndeler
                 .filter { it.periode.overlapperHeltEllerDelvisMed(MånedPeriode(vedtaksperiode.fom.toYearMonth(), vedtaksperiode.tom.toYearMonth())) }
-                .mapNotNull { it.person }
+                .mapNotNull { it.aktør }
+                .mapNotNull { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør } }
 
         val personerMedOvergangsordningAndelerSomSlutterRettFørVedtaksperiode =
             overgangsordningAndeler
                 .filter { it.periode.tom.plusMonths(1) == vedtaksperiode.fom.toYearMonth() }
-                .mapNotNull { it.person }
+                .mapNotNull { it.aktør }
+                .mapNotNull { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør } }
 
         val filtrerPersonerUtenUtbetalingVedInnvilget =
             hentVilkårResultaterSomOverlapperVedtaksperiode

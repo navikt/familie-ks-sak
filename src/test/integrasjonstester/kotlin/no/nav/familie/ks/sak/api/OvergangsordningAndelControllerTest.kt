@@ -116,14 +116,14 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
                 listOf(
                     OvergangsordningAndel(
                         behandlingId = behandling.id,
-                        person = barn1,
+                        aktør = barn1.aktør,
                         antallTimer = BigDecimal(20),
                         fom = barn1.fødselsdato.plusMonths(20).toYearMonth(),
                         tom = barn1.fødselsdato.plusMonths(21).toYearMonth(),
                     ),
                     OvergangsordningAndel(
                         behandlingId = behandling.id,
-                        person = barn1,
+                        aktør = barn1.aktør,
                         antallTimer = BigDecimal.ZERO,
                         fom = barn1.fødselsdato.plusMonths(22).toYearMonth(),
                         tom = barn1.fødselsdato.plusMonths(23).toYearMonth(),

@@ -14,10 +14,11 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValida
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelValidator.validerTomDato
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordningAndel
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.slåSammenLikePerioder
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
@@ -37,12 +38,12 @@ class OvergangsordningAndelService(
 
     fun hentOvergangsordningAndeler(behandlingId: Long) = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId)
 
-    fun hentUtfylteOvergangsordningAndeler(behandlingId: Long) = hentOvergangsordningAndeler(behandlingId).utfyltePerioder()
+    fun hentUtfylteOvergangsordningAndeler(behandlingId: Long): List<UtfyltOvergangsordningAndel> = hentOvergangsordningAndeler(behandlingId).utfyltePerioder()
 
     fun hentOvergangsordningAndelerForPerson(
         behandlingId: Long,
-        person: Person,
-    ): List<OvergangsordningAndel> = hentOvergangsordningAndeler(behandlingId).filter { it.person == person }
+        aktør: Aktør,
+    ): List<OvergangsordningAndel> = hentOvergangsordningAndeler(behandlingId).filter { it.aktør == aktør }
 
     @Transactional
     fun opprettTomOvergangsordningAndel(behandling: Behandling): OvergangsordningAndel {
@@ -69,7 +70,7 @@ class OvergangsordningAndelService(
 
         val utfyltOvergangsordningAndel =
             overgangsordningAndel
-                .fraOvergangsordningAndelDto(overgangsordningAndelRequestDto, person)
+                .fraOvergangsordningAndelDto(overgangsordningAndelRequestDto, person.aktør)
                 .tilUtfyltOvergangsordningAndel()
 
         val barnehageplassVilkår =
@@ -79,12 +80,12 @@ class OvergangsordningAndelService(
 
         validerFomDato(
             overgangsordningAndel = utfyltOvergangsordningAndel,
-            gyldigFom = beregnGyldigFom(person),
+            gyldigFom = beregnGyldigFom(person.fødselsdato),
         )
 
         validerTomDato(
             overgangsordningAndel = utfyltOvergangsordningAndel,
-            gyldigTom = beregnGyldigTom(person),
+            gyldigTom = beregnGyldigTom(person.fødselsdato),
         )
 
         validerIngenOverlappMedEksisterendeOvergangsordningAndeler(
@@ -95,9 +96,10 @@ class OvergangsordningAndelService(
         validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(
             overgangsordningAndel = utfyltOvergangsordningAndel,
             barnehageplassVilkår = barnehageplassVilkår,
+            barnetsFødselsdato = person.fødselsdato,
         )
 
-        slåSammenOgOppdaterOvergangsordningAndeler(behandling, person)
+        slåSammenOgOppdaterOvergangsordningAndeler(behandling, person.aktør)
 
         beregningService.oppdaterTilkjentYtelsePåBehandling(
             behandling = behandling,
@@ -141,22 +143,22 @@ class OvergangsordningAndelService(
         forrigeBehandling: Behandling,
     ): List<OvergangsordningAndel> {
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
-        val personPerAktør = personopplysningGrunnlag.personer.associateBy { it.aktør }
+        val aktørerIGrunnlag = personopplysningGrunnlag.personer.map { it.aktør }.toSet()
 
         return hentOvergangsordningAndeler(forrigeBehandling.id).mapNotNull { forrige ->
-            val forrigeAktør = forrige.person?.aktør
-            val nyPerson = forrigeAktør?.let { personPerAktør[it] }
+            val forrigeAktør = forrige.aktør
+            val nyAktør = forrigeAktør?.takeIf { it in aktørerIGrunnlag }
 
-            if (forrigeAktør != null && nyPerson == null) {
+            if (forrigeAktør != null && nyAktør == null) {
                 logger.warn(
                     "Dropper OvergangsordningAndel ${forrige.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
-                        "til behandling ${behandling.id}: person med aktørId $forrigeAktør finnes ikke i det nye persongrunnlaget",
+                        "til behandling ${behandling.id}: person med aktørId ${forrigeAktør.aktørId} finnes ikke i det nye persongrunnlaget",
                 )
                 return@mapNotNull null
             }
 
             overgangsordningAndelRepository.save(
-                forrige.copy(id = 0, behandlingId = behandling.id, person = nyPerson),
+                forrige.copy(id = 0, behandlingId = behandling.id, aktør = nyAktør),
             )
         }
     }
@@ -167,9 +169,9 @@ class OvergangsordningAndelService(
 
     private fun slåSammenOgOppdaterOvergangsordningAndeler(
         behandling: Behandling,
-        person: Person,
+        aktør: Aktør,
     ) {
-        val overgangsordningAndeler = hentOvergangsordningAndelerForPerson(behandling.id, person)
+        val overgangsordningAndeler = hentOvergangsordningAndelerForPerson(behandling.id, aktør)
         val sammenslåtteOvergangsordningAndeler = overgangsordningAndeler.slåSammenLikePerioder()
         val utfyltePerioder = overgangsordningAndeler.filter { it.erObligatoriskeFelterUtfylt() }
 
