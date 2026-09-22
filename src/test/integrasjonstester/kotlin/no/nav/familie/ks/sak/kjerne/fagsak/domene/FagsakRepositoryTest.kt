@@ -8,9 +8,15 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.task.LåsFagsakTask
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.internal.TaskService
+import org.assertj.core.api.Assertions
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -86,6 +92,24 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         // Assert
         assertThat(hentetFagsak.id, Is(fagsak.id))
         assertThat(hentetFagsak.aktør, Is(fagsak.aktør))
+    }
+
+    @Test
+    fun `finnFagsakIdOgStatusMedAktivBehandlingForIdent skal ikke gi treff for ident som kun finnes i inaktivt grunnlag`() {
+        // Arrange
+        val inaktivtGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandling.id, aktiv = false))
+        lagrePerson(lagSøkerPerson(barn, inaktivtGrunnlag))
+
+        val aktivtGrunnlag = lagrePersonopplysningGrunnlag(PersonopplysningGrunnlag(behandlingId = behandling.id))
+        lagrePerson(lagSøkerPerson(søker, aktivtGrunnlag))
+
+        // Act
+        val treffForBarn = fagsakRepository.finnFagsakIdOgStatusMedAktivBehandlingForIdent(barn.aktivFødselsnummer())
+        val treffForSøker = fagsakRepository.finnFagsakIdOgStatusMedAktivBehandlingForIdent(søker.aktivFødselsnummer())
+
+        // Assert
+        Assertions.assertThat(treffForBarn).isEmpty()
+        Assertions.assertThat(treffForSøker).containsExactly(Pair(fagsak.id, FagsakStatus.LØPENDE))
     }
 
     @Test
@@ -292,6 +316,18 @@ internal class FagsakRepositoryTest : OppslagSpringRunnerTest() {
         // Assert
         assertThat(fagsakerSomSkalLåses.size, Is(2))
     }
+
+    private fun lagSøkerPerson(
+        aktør: Aktør,
+        grunnlag: PersonopplysningGrunnlag,
+    ) = Person(
+        aktør = aktør,
+        type = PersonType.SØKER,
+        personopplysningGrunnlag = grunnlag,
+        fødselsdato = LocalDate.of(2000, 1, 1),
+        navn = "",
+        kjønn = Kjønn.KVINNE,
+    )
 
     private fun lagreTilkjentYtelseMedStønadTom(stønadTom: YearMonth) {
         tilkjentYtelseRepository.saveAndFlush(
