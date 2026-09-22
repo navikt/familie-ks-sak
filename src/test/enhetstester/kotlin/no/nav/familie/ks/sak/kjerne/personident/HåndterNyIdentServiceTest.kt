@@ -85,7 +85,7 @@ internal class HåndterNyIdentServiceTest {
             every { aktørRepository.findByAktørId(gammelAktør.aktørId) } returns gammelAktør
             every { fagsakService.hentFagsakerPåPerson(any()) } returns listOf(Fagsak(id = 0, aktør = randomAktør()))
             every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns gammelBehandling
-            every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns
+            every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns
                 PersonopplysningGrunnlag(
                     behandlingId = gammelBehandling.id,
                     personer = mutableSetOf(gammelPerson),
@@ -212,7 +212,7 @@ internal class HåndterNyIdentServiceTest {
                     foedselsdato = listOf(PdlFødselsDato(nyFødselsdato.toString())),
                     bostedsadresse = emptyList(),
                 )
-            every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns PersonopplysningGrunnlag(behandlingId = gammelBehandling.id)
+            every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns PersonopplysningGrunnlag(behandlingId = gammelBehandling.id)
             every { behandlingRepository.finnBehandlinger(any<Long>()) } returns listOf(gammelBehandling)
             every { behandlingRepository.finnAktivtFødselsnummerForBehandlinger(any()) } returns listOf(1L to gammeltFnr)
 
@@ -321,7 +321,7 @@ internal class HåndterNyIdentServiceTest {
 
             every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns lagBehandling()
 
-            every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns
+            every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns
                 PersonopplysningGrunnlag(
                     behandlingId = 1L,
                     personer =
@@ -412,7 +412,7 @@ internal class HåndterNyIdentServiceTest {
 
             every { behandlingService.hentSisteBehandlingSomErVedtatt(any()) } returns lagBehandling()
 
-            every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns
+            every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns
                 PersonopplysningGrunnlag(
                     behandlingId = 1L,
                     personer =

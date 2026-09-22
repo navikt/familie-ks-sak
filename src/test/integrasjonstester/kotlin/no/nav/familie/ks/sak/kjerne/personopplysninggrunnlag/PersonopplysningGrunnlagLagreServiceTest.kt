@@ -37,7 +37,7 @@ class PersonopplysningGrunnlagLagreServiceTest : OppslagSpringRunnerTest() {
         assertThat(lagretGrunnlag.id).isNotZero()
         assertThat(personopplysningGrunnlagRepository.findById(lagretGrunnlag.id)).isPresent
         assertThat(personRepository.findById(lagretGrunnlag.personer.single().id)).isPresent
-        assertThat(personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)?.id).isEqualTo(lagretGrunnlag.id)
+        assertThat(personopplysningGrunnlagRepository.findByBehandling(behandling.id)?.id).isEqualTo(lagretGrunnlag.id)
     }
 
     @Test
@@ -54,7 +54,7 @@ class PersonopplysningGrunnlagLagreServiceTest : OppslagSpringRunnerTest() {
         assertThat(personopplysningGrunnlagRepository.findById(gammeltGrunnlag.id)).isEmpty
         assertThat(personRepository.findById(gammelPersonId)).isEmpty
         assertThat(personopplysningGrunnlagRepository.findById(nyttGrunnlag.id)).isPresent
-        assertThat(personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)?.id).isEqualTo(nyttGrunnlag.id)
+        assertThat(personopplysningGrunnlagRepository.findByBehandling(behandling.id)?.id).isEqualTo(nyttGrunnlag.id)
     }
 
     @Test
@@ -72,7 +72,7 @@ class PersonopplysningGrunnlagLagreServiceTest : OppslagSpringRunnerTest() {
         }
         assertThat(personopplysningGrunnlagRepository.findById(gammeltGrunnlag.id)).isPresent
         assertThat(personRepository.findById(gammelPersonId)).isPresent
-        assertThat(personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)?.id).isEqualTo(gammeltGrunnlag.id)
+        assertThat(personopplysningGrunnlagRepository.findByBehandling(behandling.id)?.id).isEqualTo(gammeltGrunnlag.id)
     }
 
     private fun lagGrunnlag(

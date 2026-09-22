@@ -99,7 +99,7 @@ class FagsakServiceTest {
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                 )
             every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns emptyList()
-            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns lagPersonopplysningGrunnlag()
+            every { personopplysningGrunnlagRepository.hentByBehandling(any()) } returns lagPersonopplysningGrunnlag()
             every { behandlingRepository.finnBehandlinger(fagsak.id) } returns emptyList()
 
             // Act & Assert
@@ -135,7 +135,7 @@ class FagsakServiceTest {
                     opprettetÅrsak = BehandlingÅrsak.SØKNAD,
                 )
             every { andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(any()) } returns emptyList()
-            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns lagPersonopplysningGrunnlag()
+            every { personopplysningGrunnlagRepository.hentByBehandling(any()) } returns lagPersonopplysningGrunnlag()
             every { behandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
             every { vedtakRepository.findByBehandlingAndAktivOptional(any()) } returns mockk(relaxed = true)
 

@@ -55,7 +55,7 @@ class BeregningServiceTest {
     fun `finnBarnFraBehandlingMedTilkjentYtelse skal returnere når tom liste når det ikke finnes en andel tilkjent ytelse`() {
         val behandlngId = 111L
         every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlngId) } returns emptyList()
-        every { mockPersonopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlngId) } returns
+        every { mockPersonopplysningGrunnlagRepository.hentByBehandling(behandlngId) } returns
             lagPersonopplysningGrunnlag(
                 behandlngId,
                 søkerPersonIdent = randomFnr(),
@@ -70,7 +70,7 @@ class BeregningServiceTest {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         every { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) } returns
             listOf(lagAndelTilkjentYtelse(behandling = behandling))
-        every { mockPersonopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
+        every { mockPersonopplysningGrunnlagRepository.hentByBehandling(behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandling.id,
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
@@ -98,7 +98,7 @@ class BeregningServiceTest {
                     aktør = barnAktør,
                 ),
             )
-        every { mockPersonopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns
+        every { mockPersonopplysningGrunnlagRepository.hentByBehandling(behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandling.id,
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
@@ -156,7 +156,7 @@ class BeregningServiceTest {
 
         every { mockTilkjentYtelseRepository.hentTilkjentYtelseForBehandling(behandlingTilGodkjenning.id) } returns tilkjentYtelse
 
-        every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingTilGodkjenning.id) } returns personopplysningGrunnlag
+        every { mockPersonopplysningGrunnlagRepository.findByBehandling(behandlingTilGodkjenning.id) } returns personopplysningGrunnlag
 
         val relevanteTilkjenteYtelserForBarn = beregningService.hentRelevanteTilkjentYtelserForBarn(barnAktør, fagak.id)
 
@@ -206,7 +206,7 @@ class BeregningServiceTest {
         every { mockTilkjentYtelseRepository.hentTilkjentYtelseForBehandling(godkjentBehandlingSomIkkeErIverksatt.id) } returns tilkjentYtelse
 
         every {
-            mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(godkjentBehandlingSomIkkeErIverksatt.id)
+            mockPersonopplysningGrunnlagRepository.findByBehandling(godkjentBehandlingSomIkkeErIverksatt.id)
         } returns personopplysningGrunnlag
 
         every { mockBehandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns
@@ -264,7 +264,7 @@ class BeregningServiceTest {
 
         every { mockTilkjentYtelseRepository.hentTilkjentYtelseForBehandling(iverksatteBehandlinger.id) } returns tilkjentYtelse
 
-        every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(iverksatteBehandlinger.id) } returns personopplysningGrunnlag
+        every { mockPersonopplysningGrunnlagRepository.findByBehandling(iverksatteBehandlinger.id) } returns personopplysningGrunnlag
 
         every { mockBehandlingRepository.finnBehandlingerSomHolderPåÅIverksettes(fagsakId = annenFagsak.id) } returns emptyList()
 

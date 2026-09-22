@@ -123,7 +123,7 @@ class HåndterNyIdentService(
                 ?: return // Hvis det ikke er noen tidligere behandling kan vi patche uansett
 
         val aktørIder = alleIdenterFraPdl.hentAktørIder()
-        val personGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(forrigeBehandling.id) ?: throw Feil("Fant ikke persongrunnlag for behandling med id ${forrigeBehandling.id}")
+        val personGrunnlag = personopplysningGrunnlagRepository.findByBehandling(forrigeBehandling.id) ?: throw Feil("Fant ikke persongrunnlag for behandling med id ${forrigeBehandling.id}")
         val fødselsdatoForrigeBehandling =
             personGrunnlag.personer.singleOrNull { it.aktør.aktørId in aktørIder }?.fødselsdato
                 ?: return // Hvis aktør ikke er med i forrige behandling kan vi patche selv om fødselsdato er ulik

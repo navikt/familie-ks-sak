@@ -32,10 +32,8 @@ data class PersonopplysningGrunnlag(
         cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE],
     )
     val personer: MutableSet<Person> = mutableSetOf(),
-    @Column(name = "aktiv", nullable = false)
-    var aktiv: Boolean = true,
 ) : BaseEntitet() {
-    override fun toString(): String = "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer,aktiv=$aktiv}"
+    override fun toString(): String = "PersonopplysningGrunnlagEntitet{id=$id,personer=$personer}"
 
     val barna: List<Person> get() = personer.filter { it.type == PersonType.BARN }
 

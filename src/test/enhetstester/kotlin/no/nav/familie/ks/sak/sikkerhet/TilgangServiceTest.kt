@@ -79,7 +79,7 @@ class TilgangServiceTest {
         every { mockFagsakRepository.finnFagsak(fagsak.id) } returns fagsak
         every { mockBehandlingRepository.hentBehandling(any()) } returns behandling
         every { mockBehandlingRepository.finnBehandlinger(fagsak.id) } returns listOf(behandling)
-        every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
+        every { mockPersonopplysningGrunnlagRepository.findByBehandling(any()) } returns personopplysningGrunnlag
     }
 
     @AfterEach
@@ -562,7 +562,7 @@ class TilgangServiceTest {
     fun `validerTilgangTilFagsak - skal kaste feil dersom søker eller et eller flere av barna har diskresjonskode og saksbehandler mangler tilgang`() {
         // Arrange
         every { mockBehandlingRepository.finnBehandlinger(fagsak.id) }.returns(listOf(behandling))
-        every { mockPersonopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }.returns(
+        every { mockPersonopplysningGrunnlagRepository.findByBehandling(behandling.id) }.returns(
             PersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 personer =
@@ -587,7 +587,6 @@ class TilgangServiceTest {
                                 PersonopplysningGrunnlag(
                                     behandlingId = behandling.id,
                                     personer = mutableSetOf(),
-                                    aktiv = true,
                                 ),
                         ),
                         Person(
@@ -610,7 +609,6 @@ class TilgangServiceTest {
                                 PersonopplysningGrunnlag(
                                     behandlingId = behandling.id,
                                     personer = mutableSetOf(),
-                                    aktiv = true,
                                 ),
                         ),
                     ),

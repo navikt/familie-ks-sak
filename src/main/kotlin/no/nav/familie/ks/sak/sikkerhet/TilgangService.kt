@@ -128,7 +128,7 @@ class TilgangService(
                     behandlinger
                         .flatMap { behandling ->
                             val personopplysningGrunnlag =
-                                personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+                                personopplysningGrunnlagRepository.findByBehandling(behandling.id)
                             personopplysningGrunnlag?.personer?.map { person -> person.aktør.aktivFødselsnummer() } ?: emptyList()
                         }.distinct()
                         .ifEmpty { listOf(fagsak.aktør.aktivFødselsnummer()) }

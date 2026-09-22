@@ -23,14 +23,14 @@ class VilkårsvurderingTidslinjeService(
 ) {
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
-        val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId)
+        val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandling(behandlingId)
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId))
 
         return VilkårsvurderingTidslinjer(vilkårsvurdering, personopplysningGrunnlag, adopsjonerIBehandling)
     }
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {
-        val søker = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandlingId).søker
+        val søker = personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandlingId).søker
         val personResultater =
             vilkårsvurderingService
                 .hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)

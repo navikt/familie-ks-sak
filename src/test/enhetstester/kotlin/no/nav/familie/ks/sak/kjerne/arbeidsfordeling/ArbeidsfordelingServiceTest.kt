@@ -192,7 +192,7 @@ internal class ArbeidsfordelingServiceTest {
 
             every {
                 personopplysningGrunnlagRepository
-                    .findByBehandlingAndAktiv(behandling.id)
+                    .findByBehandling(behandling.id)
             } returns lagPersonopplysningGrunnlag(søkerPersonIdent = søker.aktør.aktivFødselsnummer())
 
             every { integrasjonKlient.hentBehandlendeEnheter(søker.aktør.aktivFødselsnummer(), any()) } returns

@@ -41,7 +41,7 @@ class BeregningService(
         val andelerTilkjentYtelse = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId)
 
         return personopplysningGrunnlagRepository
-            .hentByBehandlingAndAktiv(behandlingId)
+            .hentByBehandling(behandlingId)
             .barna
             .map { it.aktør }
             .filter { andelerTilkjentYtelse.any { aty -> aty.aktør == it } }
@@ -153,7 +153,7 @@ class BeregningService(
                 hentTilkjentYtelseForBehandling(behandlingId = it.id)
             }.filter {
                 personopplysningGrunnlagRepository
-                    .findByBehandlingAndAktiv(behandlingId = it.behandling.id)
+                    .findByBehandling(behandlingId = it.behandling.id)
                     ?.barna
                     ?.map { barn -> barn.aktør }
                     ?.contains(barnAktør)
@@ -170,7 +170,7 @@ class BeregningService(
                 .finnAndelerTilkjentYtelseMedEndreteUtbetalinger(behandlingId)
 
         return personopplysningGrunnlagRepository
-            .hentByBehandlingAndAktiv(behandlingId)
+            .hentByBehandling(behandlingId)
             .barna
             .map { it.aktør }
             .filter { aktør ->
