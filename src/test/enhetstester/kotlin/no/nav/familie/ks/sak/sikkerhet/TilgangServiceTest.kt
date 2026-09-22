@@ -587,7 +587,6 @@ class TilgangServiceTest {
                                 PersonopplysningGrunnlag(
                                     behandlingId = behandling.id,
                                     personer = mutableSetOf(),
-                                    aktiv = true,
                                 ),
                         ),
                         Person(
@@ -610,7 +609,6 @@ class TilgangServiceTest {
                                 PersonopplysningGrunnlag(
                                     behandlingId = behandling.id,
                                     personer = mutableSetOf(),
-                                    aktiv = true,
                                 ),
                         ),
                     ),

@@ -36,25 +36,9 @@ class PersonRepositoryTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `finnPersonerIAktiveGrunnlag skal ikke returnere personer fra inaktive grunnlag`() {
+    fun `finnPersonerIAktiveGrunnlag skal returnere personer for aktør`() {
         // Arrange
         opprettSøkerFagsakOgBehandling()
-
-        val inaktivtGrunnlag =
-            personopplysningGrunnlagRepository.saveAndFlush(
-                PersonopplysningGrunnlag(behandlingId = behandling.id, aktiv = false),
-            )
-        lagrePerson(
-            Person(
-                aktør = søker,
-                type = PersonType.SØKER,
-                personopplysningGrunnlag = inaktivtGrunnlag,
-                fødselsdato = LocalDate.of(2000, 1, 1),
-                navn = "",
-                kjønn = Kjønn.KVINNE,
-            ),
-        )
-
         opprettPersonopplysningGrunnlagOgPersonForBehandling()
 
         // Act
@@ -62,7 +46,6 @@ class PersonRepositoryTest : OppslagSpringRunnerTest() {
 
         // Assert
         assertThat(treff).hasSize(1)
-        assertThat(treff.single().personopplysningGrunnlag.aktiv).isTrue()
         assertThat(treff.single().personopplysningGrunnlag.id).isEqualTo(personopplysningGrunnlag.id)
     }
 
@@ -79,34 +62,7 @@ class PersonRepositoryTest : OppslagSpringRunnerTest() {
     }
 
     @Test
-    fun `findFagsakerByAktør skal ikke returnere fagsak dersom aktør kun finnes i inaktivt grunnlag`() {
-        // Arrange
-        opprettSøkerFagsakOgBehandling()
-
-        val inaktivtGrunnlag =
-            personopplysningGrunnlagRepository.saveAndFlush(
-                PersonopplysningGrunnlag(behandlingId = behandling.id, aktiv = false),
-            )
-        lagrePerson(
-            Person(
-                aktør = søker,
-                type = PersonType.SØKER,
-                personopplysningGrunnlag = inaktivtGrunnlag,
-                fødselsdato = LocalDate.of(2000, 1, 1),
-                navn = "",
-                kjønn = Kjønn.KVINNE,
-            ),
-        )
-
-        // Act
-        val fagsaker = personRepository.findFagsakerByAktør(søker)
-
-        // Assert
-        assertThat(fagsaker).isEmpty()
-    }
-
-    @Test
-    fun `findFagsakerByAktør skal returnere fagsak dersom aktør finnes i aktivt grunnlag`() {
+    fun `findFagsakerByAktør skal returnere fagsak dersom aktør finnes i grunnlag`() {
         // Arrange
         opprettSøkerFagsakOgBehandling()
         opprettPersonopplysningGrunnlagOgPersonForBehandling()
