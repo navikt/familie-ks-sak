@@ -9,7 +9,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.prosent
 import no.nav.familie.ks.sak.kjerne.beregning.endretUtbetaling.AndelTilkjentYtelseMedEndretUtbetalingBehandler
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.praksisendring.Praksisendring2024Service
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
@@ -33,7 +32,8 @@ class TilkjentYtelseService(
                 opprettetDato = LocalDate.now(),
                 endretDato = LocalDate.now(),
             )
-        val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.personer.any { person -> person.type == PersonType.BARN } }
+        val barnaAktør = personopplysningGrunnlag.barna.map { it.aktør }.toSet()
+        val endretUtbetalingAndelerBarna = endretUtbetalingAndeler.filter { it.aktører.any { aktør -> aktør in barnaAktør } }
 
         val andelerTilkjentYtelseBarnaUtenEndringer =
             beregnAndelTilkjentYtelseService.beregnAndelerTilkjentYtelse(personopplysningGrunnlag, vilkårsvurdering, tilkjentYtelse)

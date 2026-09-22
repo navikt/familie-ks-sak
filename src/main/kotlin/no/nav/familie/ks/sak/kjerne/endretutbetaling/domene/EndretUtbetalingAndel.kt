@@ -25,7 +25,7 @@ import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.IBegrunnelseListConverter
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -45,11 +45,11 @@ data class EndretUtbetalingAndel(
     val behandlingId: Long,
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "PERSON_TIL_ENDRET_UTBETALING_ANDEL",
+        name = "AKTOER_TIL_ENDRET_UTBETALING_ANDEL",
         joinColumns = [JoinColumn(name = "fk_endret_utbetaling_andel_id")],
-        inverseJoinColumns = [JoinColumn(name = "fk_person_id")],
+        inverseJoinColumns = [JoinColumn(name = "fk_aktoer_id")],
     )
-    var personer: MutableSet<Person> = mutableSetOf(),
+    var aktører: MutableSet<Aktør> = mutableSetOf(),
     @Column(name = "prosent")
     var prosent: BigDecimal? = null,
     @Column(name = "fom", columnDefinition = "DATE")
@@ -95,7 +95,7 @@ data class EndretUtbetalingAndel(
     }
 
     fun manglerObligatoriskFelt() =
-        this.personer.isEmpty() ||
+        this.aktører.isEmpty() ||
             listOf(
                 this.prosent,
                 this.fom,
@@ -123,9 +123,9 @@ fun EndretUtbetalingAndelMedAndelerTilkjentYtelse.tilEndretUtbetalingAndelRespon
 
 fun EndretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
     endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
-    personer: Collection<Person>,
+    aktører: Collection<Aktør>,
 ): EndretUtbetalingAndel {
-    this.personer = personer.toMutableSet()
+    this.aktører = aktører.toMutableSet()
     this.prosent = endretUtbetalingAndelRequestDto.prosent
     this.fom = endretUtbetalingAndelRequestDto.fom
     this.tom = endretUtbetalingAndelRequestDto.tom
@@ -155,7 +155,7 @@ data class TomEndretUtbetalingAndel(
 sealed interface IUtfyltEndretUtbetalingAndel : IEndretUtbetalingAndel {
     val id: Long
     val behandlingId: Long
-    val personer: Set<Person>
+    val aktører: Set<Aktør>
     val prosent: BigDecimal
     val fom: YearMonth
     val tom: YearMonth
@@ -167,7 +167,7 @@ sealed interface IUtfyltEndretUtbetalingAndel : IEndretUtbetalingAndel {
 data class UtfyltEndretUtbetalingAndel(
     override val id: Long,
     override val behandlingId: Long,
-    override val personer: Set<Person>,
+    override val aktører: Set<Aktør>,
     override val prosent: BigDecimal,
     override val fom: YearMonth,
     override val tom: YearMonth,
@@ -186,7 +186,7 @@ fun EndretUtbetalingAndel.tilIEndretUtbetalingAndel(): IEndretUtbetalingAndel =
         UtfyltEndretUtbetalingAndel(
             id = this.id,
             behandlingId = this.behandlingId,
-            personer = this.personer,
+            aktører = this.aktører,
             prosent = this.prosent!!,
             fom = this.fom!!,
             tom = this.tom!!,

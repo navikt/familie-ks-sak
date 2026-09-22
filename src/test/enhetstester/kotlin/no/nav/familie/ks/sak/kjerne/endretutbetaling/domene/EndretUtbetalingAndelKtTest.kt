@@ -2,7 +2,6 @@ package no.nav.familie.ks.sak.kjerne.endretutbetaling.domene
 
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndelRequestDto
-import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -29,11 +28,11 @@ class EndretUtbetalingAndelKtTest {
                     erEksplisittAvslagPåSøknad = false,
                 )
 
-            val personer = setOf(lagPerson(aktør = randomAktør()))
+            val aktører = setOf(randomAktør())
 
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    personer = personer,
+                    aktører = aktører,
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(2),
                     periodeTom = YearMonth.now().plusMonths(2),
@@ -46,13 +45,13 @@ class EndretUtbetalingAndelKtTest {
             val oppdatertEndretUtbetalingAndel =
                 endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(
                     endretUtbetalingAndelRequestDto,
-                    personer,
+                    aktører,
                 )
 
             // Assert
             assertThat(oppdatertEndretUtbetalingAndel.id).isEqualTo(endretUtbetalingAndel.id)
             assertThat(oppdatertEndretUtbetalingAndel.behandlingId).isEqualTo(endretUtbetalingAndel.id)
-            assertThat(oppdatertEndretUtbetalingAndel.personer).isEqualTo(personer)
+            assertThat(oppdatertEndretUtbetalingAndel.aktører).isEqualTo(aktører)
             assertThat(oppdatertEndretUtbetalingAndel.prosent).isEqualTo(endretUtbetalingAndelRequestDto.prosent)
             assertThat(oppdatertEndretUtbetalingAndel.fom).isEqualTo(endretUtbetalingAndelRequestDto.fom)
             assertThat(oppdatertEndretUtbetalingAndel.tom).isEqualTo(endretUtbetalingAndelRequestDto.tom)

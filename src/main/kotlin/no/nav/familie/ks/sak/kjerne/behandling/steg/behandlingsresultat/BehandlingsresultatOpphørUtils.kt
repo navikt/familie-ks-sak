@@ -43,7 +43,7 @@ object BehandlingsresultatOpphørUtils {
                 val aktørIderMedAvslagFulltidsplassBarnehage2024 =
                     nåværendeEndretAndeler
                         .filtrerAvslagFulltidsplassBarnehageAugust2024()
-                        .flatMap { it.personer.map { it.aktør.aktørId } }
+                        .flatMap { it.aktører.map { aktør -> aktør.aktørId } }
 
                 utledOpphørsdatoUtenAndelerForAktørIder(
                     aktørIderMedAvslagFulltidsplassBarnehage2024 = aktørIderMedAvslagFulltidsplassBarnehage2024,
@@ -106,8 +106,8 @@ object BehandlingsresultatOpphørUtils {
             .filterNot { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 }
             .utledOpphørsdatoForNåværendeBehandlingMedFallback(
                 forrigeAndeler.filterNot { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 },
-                nåværendeEndretAndeler.filterNot { it.personer.all { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 } },
-                forrigeEndretAndeler.filterNot { it.personer.all { it.aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 } },
+                nåværendeEndretAndeler.filterNot { it.aktører.all { aktør -> aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 } },
+                forrigeEndretAndeler.filterNot { it.aktører.all { aktør -> aktør.aktørId in aktørIderMedAvslagFulltidsplassBarnehage2024 } },
             )
 
     private fun List<PersonResultat>.harMeldtOmBarnehagePlassPåAlleBarnMedLøpendeAndeler(
@@ -156,7 +156,7 @@ object BehandlingsresultatOpphørUtils {
 
         return personerMedAndeler.flatMap { aktør ->
             val andelerGruppertPerTypePåPerson = this.filter { it.aktør == aktør }.groupBy { it.type }
-            val endretUtbetalingAndelerPåPerson = endretAndeler.filter { it.personer.any { person -> person.aktør == aktør } }
+            val endretUtbetalingAndelerPåPerson = endretAndeler.filter { it.aktører.contains(aktør) }
 
             andelerGruppertPerTypePåPerson.values.flatMap { andelerPerType ->
                 filtrerBortIrrelevanteAndelerPerPersonOgType(andelerPerType, endretUtbetalingAndelerPåPerson)

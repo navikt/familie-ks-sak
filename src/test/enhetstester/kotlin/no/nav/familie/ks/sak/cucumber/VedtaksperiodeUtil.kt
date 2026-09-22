@@ -384,11 +384,12 @@ fun lagEndredeUtbetalinger(
             behandlingId = behandlingId,
             fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)?.toYearMonth(),
             tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)?.toYearMonth(),
-            personer =
+            aktører =
                 persongrunnlag
                     .finnPersonGrunnlagForBehandling(behandlingId)
                     .personer
                     .filter { it.aktør.aktørId in aktørIder }
+                    .map { it.aktør }
                     .toMutableSet(),
             prosent =
                 parseValgfriLong(
