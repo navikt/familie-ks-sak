@@ -7,8 +7,6 @@ import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
-import no.nav.familie.ks.sak.data.lagPerson
-import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForDeltBosted
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -19,7 +17,6 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseReposito
 import no.nav.familie.ks.sak.kjerne.beregning.domene.maksBeløp
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -43,13 +40,6 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
     private val barn1 = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-    val personopplysningGrunnlag =
-        lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer()),
-        )
-    private val søkerPerson = lagPerson(personopplysningGrunnlag, søker, PersonType.SØKER)
     val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
 
     @Test
@@ -72,7 +62,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 // overlappende periode, kommer med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(100),
                     periodeFom = YearMonth.now().minusMonths(2),
                     periodeTom = YearMonth.now().minusMonths(1),
@@ -80,7 +70,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 // ikke overlappende perioder, kommer ikke med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(100),
                     periodeFom = YearMonth.now().minusMonths(10),
                     periodeTom = YearMonth.now().minusMonths(9),
@@ -134,7 +124,7 @@ class AndelerTilkjentYtelseOgEndreteUtbetalingerServiceTest {
                 // overlappende periode, kommer med andelTilkjentYtelse
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(100),
                     periodeFom = fom,
                     periodeTom = tom,

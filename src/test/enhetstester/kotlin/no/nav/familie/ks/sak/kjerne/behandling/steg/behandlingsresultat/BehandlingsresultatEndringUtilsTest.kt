@@ -238,7 +238,7 @@ class BehandlingsresultatEndringUtilsTest {
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
-                personer = setOf(barn),
+                aktører = setOf(barn1Aktør),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -635,13 +635,13 @@ class BehandlingsresultatEndringUtilsTest {
 
     @Test
     fun `Endring i endret utbetaling andel - skal returnere true hvis årsak er endret`() {
-        val barn = lagPerson(aktør = randomAktør())
+        val barn = randomAktør()
 
         // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
-                personer = setOf(barn),
+                aktører = setOf(barn),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -659,12 +659,12 @@ class BehandlingsresultatEndringUtilsTest {
 
     @Test
     fun `Endring i endret utbetaling andel - skal returnere false hvis prosent er endret`() {
-        val barn = lagPerson(aktør = randomAktør())
+        val barn = randomAktør()
         // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
-                personer = setOf(barn),
+                aktører = setOf(barn),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -682,12 +682,12 @@ class BehandlingsresultatEndringUtilsTest {
 
     @Test
     fun `Endring i endret utbetaling andel - skal returnere true hvis eneste endring er at perioden blir lenger`() {
-        val barn = lagPerson(aktør = randomAktør())
+        val barn = randomAktør()
         // Arrange
         val forrigeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
-                personer = setOf(barn),
+                aktører = setOf(barn),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -705,13 +705,13 @@ class BehandlingsresultatEndringUtilsTest {
 
     @Test
     fun `Endring i endret utbetaling andel - skal returnere true hvis endringsperiode oppstår i nåværende behandling`() {
-        val barn = lagPerson(aktør = randomAktør())
+        val barn = randomAktør()
 
         // Arrange
         val nåværendeEndretAndel =
             lagEndretUtbetalingAndel(
                 behandlingId = 0,
-                personer = setOf(barn),
+                aktører = setOf(barn),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -729,13 +729,13 @@ class BehandlingsresultatEndringUtilsTest {
 
     @Test
     fun `Endring i endret utbetaling andel - skal returnere true hvis et av to barn har endring på årsak`() {
-        val barn1 = lagPerson(aktør = randomAktør())
+        val barn1 = randomAktør()
         // Arrange
-        val barn2 = lagPerson(aktør = randomAktør())
+        val barn2 = randomAktør()
 
         val forrigeEndretAndelBarn1 =
             lagEndretUtbetalingAndel(
-                personer = setOf(barn1),
+                aktører = setOf(barn1),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -744,7 +744,7 @@ class BehandlingsresultatEndringUtilsTest {
 
         val forrigeEndretAndelBarn2 =
             lagEndretUtbetalingAndel(
-                personer = setOf(barn2),
+                aktører = setOf(barn2),
                 prosent = BigDecimal.ZERO,
                 periodeFom = jan22,
                 periodeTom = aug22,
@@ -754,8 +754,8 @@ class BehandlingsresultatEndringUtilsTest {
         val erEndringIEndretAndeler =
             listOf(barn1, barn2).any {
                 erEndringIEndretUtbetalingAndelerForPerson(
-                    forrigeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2).filter { endretAndel -> endretAndel.personer.contains(it) },
-                    nåværendeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2.copy(årsak = Årsak.ALLEREDE_UTBETALT)).filter { endretAndel -> endretAndel.personer.contains(it) },
+                    forrigeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2).filter { endretAndel -> endretAndel.aktører.contains(it) },
+                    nåværendeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2.copy(årsak = Årsak.ALLEREDE_UTBETALT)).filter { endretAndel -> endretAndel.aktører.contains(it) },
                 )
             }
 

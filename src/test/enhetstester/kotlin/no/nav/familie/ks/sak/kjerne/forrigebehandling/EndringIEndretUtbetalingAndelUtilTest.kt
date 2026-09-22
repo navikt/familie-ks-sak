@@ -3,10 +3,8 @@ package no.nav.familie.ks.sak.kjerne.forrigebehandling
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
-import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNull
@@ -27,11 +25,11 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal utlede riktig endringstidspunkt når årsak er endret`() {
             // Arrange
-            val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn = randomAktør()
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -54,11 +52,11 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Endring av prosent skal ikke trigge at endringstidspunktet blir endret`() {
             // Arrange
-            val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn = randomAktør()
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -81,13 +79,13 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal utlede riktig endringstidspunkt når det har vært endring på årsak på et av to barn`() {
             // Arrange
-            val barn1 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
-            val barn2 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn1 = randomAktør()
+            val barn2 = randomAktør()
 
             val forrigeEndretAndelBarn1 =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn1),
+                    aktører = setOf(barn1),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -97,7 +95,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
             val forrigeEndretAndelBarn2 =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn2),
+                    aktører = setOf(barn2),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -124,11 +122,11 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal ha endret periode hvis årsak er endret`() {
             // Arrange
-            val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn = randomAktør()
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -155,11 +153,11 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal ikke ha noen endrede perioder hvis kun prosent er endret`() {
             // Arrange
-            val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn = randomAktør()
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -184,13 +182,13 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal returnere endret periode hvis et av to barn har endring på årsak`() {
             // Arrange
-            val barn1 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
-            val barn2 = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn1 = randomAktør()
+            val barn2 = randomAktør()
 
             val forrigeEndretAndelBarn1 =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn1),
+                    aktører = setOf(barn1),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -200,7 +198,7 @@ class EndringIEndretUtbetalingAndelUtilTest {
             val forrigeEndretAndelBarn2 =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn2),
+                    aktører = setOf(barn2),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -212,8 +210,8 @@ class EndringIEndretUtbetalingAndelUtilTest {
                 listOf(barn1, barn2)
                     .map {
                         EndringIEndretUtbetalingAndelUtil.lagEndringIEndretUbetalingAndelPerPersonTidslinje(
-                            forrigeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2).filter { endretAndel -> endretAndel.personer.contains(it) },
-                            nåværendeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2.copy(årsak = Årsak.ALLEREDE_UTBETALT)).filter { endretAndel -> endretAndel.personer.contains(it) },
+                            forrigeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2).filter { endretAndel -> endretAndel.aktører.contains(it) },
+                            nåværendeEndretAndelerForPerson = listOf(forrigeEndretAndelBarn1, forrigeEndretAndelBarn2.copy(årsak = Årsak.ALLEREDE_UTBETALT)).filter { endretAndel -> endretAndel.aktører.contains(it) },
                         )
                     }.flatMap { it.tilPerioder() }
                     .filter { it.verdi == true }
@@ -227,11 +225,11 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal noen endrede perioder hvis eneste endring er at perioden blir lenger`() {
             // Arrange
-            val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn = randomAktør()
             val forrigeEndretAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,
@@ -258,11 +256,11 @@ class EndringIEndretUtbetalingAndelUtilTest {
         @Test
         fun `Skal ha endrede perioder hvis endringsperiode oppstår i nåværende behandling`() {
             // Arrange
-            val barn = lagPerson(aktør = randomAktør(), personType = PersonType.BARN)
+            val barn = randomAktør()
             val nåværendeEndretAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = jan22,
                     periodeTom = aug22,

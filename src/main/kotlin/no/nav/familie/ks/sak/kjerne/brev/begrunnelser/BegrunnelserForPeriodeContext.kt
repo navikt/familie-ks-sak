@@ -192,7 +192,7 @@ class BegrunnelserForPeriodeContext(
                     ?.erDagenFør(utvidetVedtaksperiodeMedBegrunnelser.fom) ?: false
 
             val endringsperiodeGjelderSammePersonSomVedtaksperiode =
-                personResultater.any { endretUtbetalingAndel.personer.any { person -> person.aktør == it.aktør } }
+                personResultater.any { endretUtbetalingAndel.aktører.contains(it.aktør) }
 
             val begrunnelseHarSammeÅrsakSomEndringsperiode =
                 begrunnelse.endringsårsaker.contains(endretUtbetalingAndel.årsak)
@@ -276,7 +276,8 @@ class BegrunnelserForPeriodeContext(
                 val endretUtbetalingAndelStarterSamtidigSomVedtaksperiode = endretUtbetalingAndel.fom == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth()
 
                 endretUtbetalingAndelStarterFørVedtaksperiode || endretUtbetalingAndelStarterSamtidigSomVedtaksperiode
-            }.flatMap { it.personer }
+            }.flatMap { it.aktører }
+            .mapNotNull { aktør -> personopplysningGrunnlag.personer.find { it.aktør == aktør } }
             .toSet()
 
     private fun Map<Person, List<VilkårResultat>>.filtrerPåVilkårResultaterSomPasserMedVedtaksperiodeDatoEllerSanityBegrunnelseType(

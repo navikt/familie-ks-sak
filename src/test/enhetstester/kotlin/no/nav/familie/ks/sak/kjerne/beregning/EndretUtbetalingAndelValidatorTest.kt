@@ -4,14 +4,11 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
-import no.nav.familie.ks.sak.data.lagPerson
-import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValidator
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -26,25 +23,6 @@ class EndretUtbetalingAndelValidatorTest {
 
     private val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
     private val vilkårsvurdering = Vilkårsvurdering(behandling = behandling)
-
-    private val personopplysningGrunnlag =
-        lagPersonopplysningGrunnlag(
-            behandlingId = behandling.id,
-            søkerPersonIdent = søker.aktivFødselsnummer(),
-            barnasIdenter = listOf(barn1.aktivFødselsnummer()),
-        )
-    private val søkerPerson =
-        lagPerson(
-            personopplysningGrunnlag,
-            søker,
-            PersonType.SØKER,
-        )
-    private val barnPerson =
-        lagPerson(
-            personopplysningGrunnlag,
-            barn1,
-            PersonType.BARN,
-        )
 
     @Nested
     inner class ValiderPeriodeInnenforTilkjentytelseTest {
@@ -62,7 +40,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(1),
                     periodeTom = YearMonth.now().plusMonths(7),
@@ -98,7 +76,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(2),
                     periodeTom = YearMonth.now().plusMonths(5),
@@ -134,7 +112,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(1),
                     periodeTom = YearMonth.now().plusMonths(5),
@@ -168,7 +146,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(søkerPerson),
+                    aktører = setOf(søker),
                     prosent = BigDecimal(50),
                     periodeFom = YearMonth.now().minusMonths(1),
                     periodeTom = YearMonth.now().plusMonths(4),
@@ -191,7 +169,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(5),
                     periodeTom = YearMonth.now().minusMonths(4),
                     prosent = BigDecimal.ZERO,
@@ -211,7 +189,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(5),
                     periodeTom = YearMonth.now().minusMonths(4),
                     prosent = null,
@@ -243,7 +221,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(5),
                     periodeTom = YearMonth.now().minusMonths(4),
                     prosent = BigDecimal.ZERO,
@@ -274,7 +252,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(5),
                     periodeTom = YearMonth.now().minusMonths(4),
                     prosent = BigDecimal.ZERO,
@@ -310,7 +288,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(3),
                     periodeTom = YearMonth.now().minusMonths(2),
                     prosent = BigDecimal(100),
@@ -337,7 +315,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(1),
                     periodeTom = YearMonth.now().plusMonths(2),
                     prosent = BigDecimal.ZERO,
@@ -364,7 +342,7 @@ class EndretUtbetalingAndelValidatorTest {
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
                     behandlingId = behandling.id,
-                    personer = setOf(barnPerson),
+                    aktører = setOf(barn1),
                     periodeFom = YearMonth.now().minusMonths(5),
                     periodeTom = YearMonth.now().minusMonths(4),
                     prosent = BigDecimal.ZERO,

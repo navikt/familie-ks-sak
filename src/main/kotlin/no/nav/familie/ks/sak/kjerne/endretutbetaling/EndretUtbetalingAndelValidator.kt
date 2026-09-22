@@ -22,17 +22,17 @@ object EndretUtbetalingAndelValidator {
         val frontendFeilMelding =
             "Du har valgt en periode der det ikke finnes tilkjent ytelse for valgt person " +
                 "i hele eller deler av perioden."
-        endretUtbetalingAndel.personer.forEach { person ->
+        endretUtbetalingAndel.aktører.forEach { aktør ->
             val minsteDatoForTilkjentYtelse =
                 andelTilkjentYtelser
-                    .filter { it.aktør == person.aktør }
+                    .filter { it.aktør == aktør }
                     .minByOrNull { it.stønadFom }
                     ?.stønadFom
                     ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
 
             val størsteDatoForTilkjentYtelse =
                 andelTilkjentYtelser
-                    .filter { it.aktør == person.aktør }
+                    .filter { it.aktør == aktør }
                     .maxByOrNull { it.stønadTom }
                     ?.stønadTom
                     ?: throw FunksjonellFeil(melding = feilMelding, frontendFeilmelding = frontendFeilMelding)
@@ -149,7 +149,7 @@ object EndretUtbetalingAndelValidator {
         if (eksisterendeEndringerPåBehandling.any
                 {
                     it.overlapperMed(endretUtbetalingAndel.periode) &&
-                        it.personer.intersect(endretUtbetalingAndel.personer).isNotEmpty()
+                        it.aktører.intersect(endretUtbetalingAndel.aktører).isNotEmpty()
                 }
         ) {
             throw FunksjonellFeil(
