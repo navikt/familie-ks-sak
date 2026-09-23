@@ -44,7 +44,7 @@
         <eksterne-kontrakter-bisys.version>2.0_20260918153401_c082792</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20260918153401_c082792</familie.kontrakter.stønadsstatistikk>
         <familie.kontrakter.saksstatistikk>2.0_20260918153401_c082792</familie.kontrakter.saksstatistikk>
-        <utbetalingsgenerator.version>1.0_20260527092003_ed16208</utbetalingsgenerator.version>
+        <utbetalingsgenerator.version>1.0_20260923084625_49defa2</utbetalingsgenerator.version>
 
         <!-- Database -->
         <jsqlparser.version>5.4</jsqlparser.version>
