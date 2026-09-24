@@ -16,7 +16,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.MånedPeriode
 import no.nav.familie.ks.sak.common.util.YearMonthConverter
 import no.nav.familie.ks.sak.common.util.overlapperHeltEllerDelvisMed
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.tidslinje.Periode
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -35,8 +35,8 @@ data class OvergangsordningAndel(
     @Column(name = "fk_behandling_id", updatable = false, nullable = false)
     val behandlingId: Long,
     @ManyToOne
-    @JoinColumn(name = "fk_po_person_id")
-    var person: Person? = null,
+    @JoinColumn(name = "fk_aktoer_id")
+    var aktør: Aktør? = null,
     @Column(name = "antallTimer")
     var antallTimer: BigDecimal = BigDecimal.ZERO,
     @Column(name = "deltBosted")
@@ -58,7 +58,7 @@ data class OvergangsordningAndel(
         "OvergangsordningAndel(" +
             "id=$id, " +
             "behandling=$behandlingId, " +
-            "person=${person?.aktør}, " +
+            "aktør=$aktør, " +
             "antallTimer=$antallTimer, " +
             "deltBosted=$deltBosted, " +
             "fom=$fom, " +
@@ -76,7 +76,7 @@ data class OvergangsordningAndel(
     override fun hashCode(): Int = id.hashCode()
 
     fun erObligatoriskeFelterUtfylt(): Boolean =
-        this.person != null &&
+        this.aktør != null &&
             this.fom != null &&
             this.tom != null
 
@@ -106,7 +106,7 @@ data class OvergangsordningAndel(
     fun tilOvergangsordningAndelDto(): OvergangsordningAndelDto =
         OvergangsordningAndelDto(
             id = this.id,
-            personIdent = this.person?.aktør?.aktivFødselsnummer(),
+            personIdent = this.aktør?.aktivFødselsnummer(),
             antallTimer = this.antallTimer,
             deltBosted = this.deltBosted,
             fom = this.fom,
@@ -115,9 +115,9 @@ data class OvergangsordningAndel(
 
     fun fraOvergangsordningAndelDto(
         overgangsordningAndelDto: OvergangsordningAndelDto,
-        person: Person,
+        aktør: Aktør,
     ): OvergangsordningAndel {
-        this.person = person
+        this.aktør = aktør
         this.antallTimer = overgangsordningAndelDto.antallTimer
         this.deltBosted = overgangsordningAndelDto.deltBosted
         this.fom = overgangsordningAndelDto.fom
@@ -128,10 +128,11 @@ data class OvergangsordningAndel(
 
     fun tilUtfyltOvergangsordningAndel(): UtfyltOvergangsordningAndel {
         validerAtObligatoriskeFelterErGyldigUtfylt()
+        val aktør = requireNotNull(aktør)
         return UtfyltOvergangsordningAndel(
             id = id,
             behandlingId = behandlingId,
-            person = person!!,
+            aktør = aktør,
             antallTimer = antallTimer,
             deltBosted = deltBosted,
             fom = fom!!,
@@ -143,10 +144,11 @@ data class OvergangsordningAndel(
 fun List<OvergangsordningAndel>.utfyltePerioder(): List<UtfyltOvergangsordningAndel> =
     filter { it.erObligatoriskeFelterUtfylt() }
         .map {
+            val aktør = requireNotNull(it.aktør)
             UtfyltOvergangsordningAndel(
                 id = it.id,
                 behandlingId = it.behandlingId,
-                person = it.person!!,
+                aktør = aktør,
                 antallTimer = it.antallTimer,
                 deltBosted = it.deltBosted,
                 fom = it.fom!!,
@@ -157,7 +159,7 @@ fun List<OvergangsordningAndel>.utfyltePerioder(): List<UtfyltOvergangsordningAn
 data class UtfyltOvergangsordningAndel(
     val id: Long,
     val behandlingId: Long,
-    val person: Person,
+    val aktør: Aktør,
     val antallTimer: BigDecimal,
     val deltBosted: Boolean,
     val fom: YearMonth,
@@ -168,7 +170,7 @@ data class UtfyltOvergangsordningAndel(
 
     fun tilPeriode(): Periode<OvergangsordningAndelPeriode> =
         Periode(
-            verdi = OvergangsordningAndelPeriode(behandlingId, person, antallTimer, deltBosted),
+            verdi = OvergangsordningAndelPeriode(behandlingId, aktør, antallTimer, deltBosted),
             fom = fom.atDay(1),
             tom = tom.atEndOfMonth(),
         )
@@ -180,7 +182,7 @@ fun List<UtfyltOvergangsordningAndel>.tilPerioder(): List<Periode<Overgangsordni
 
 data class OvergangsordningAndelPeriode(
     val behandlingId: Long,
-    val person: Person,
+    val aktør: Aktør,
     val antallTimer: BigDecimal,
     val deltBosted: Boolean,
 ) {
@@ -190,7 +192,7 @@ data class OvergangsordningAndelPeriode(
     ): OvergangsordningAndel =
         OvergangsordningAndel(
             behandlingId = behandlingId,
-            person = person,
+            aktør = aktør,
             antallTimer = antallTimer,
             deltBosted = deltBosted,
             fom = fom,

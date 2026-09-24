@@ -27,7 +27,7 @@ class OvergangsordningAndelValidatorTest {
         lagUtfyltOvergangsordningAndel(
             fom = YearMonth.now(),
             tom = YearMonth.now(),
-            person = person,
+            aktør = aktør,
         )
 
     @Test
@@ -38,7 +38,7 @@ class OvergangsordningAndelValidatorTest {
                 behandlingId = 1,
                 fom = person.fødselsdato.plusMonths(20).toYearMonth(),
                 tom = person.fødselsdato.plusMonths(23).toYearMonth(),
-                person = person,
+                aktør = aktør,
             )
 
         val ordinæreAndel =
@@ -116,7 +116,7 @@ class OvergangsordningAndelValidatorTest {
 
         // Act & Assert
         assertThrows<FunksjonellFeil> {
-            OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(andeler)
+            OvergangsordningAndelValidator.validerAndelerErIPeriodenBarnetEr20Til23Måneder(andeler, mapOf(aktør to person.fødselsdato))
         }
     }
 
@@ -170,7 +170,7 @@ class OvergangsordningAndelValidatorTest {
 
         // Act & Assert
         assertThrows<FunksjonellFeil> {
-            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør)
+            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør, mapOf(aktør to person.fødselsdato))
         }
     }
 
@@ -188,7 +188,7 @@ class OvergangsordningAndelValidatorTest {
 
         // Act & Assert
         assertDoesNotThrow {
-            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør)
+            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltForAlleOvergangsordningPerioder(listOf(andel), barnehagevilkårPerAktør, mapOf(aktør to person.fødselsdato))
         }
     }
 
@@ -199,7 +199,7 @@ class OvergangsordningAndelValidatorTest {
             listOf(
                 OvergangsordningAndel(
                     behandlingId = 1,
-                    person = person,
+                    aktør = aktør,
                     fom = YearMonth.now(),
                     tom = YearMonth.now(),
                 ).tilUtfyltOvergangsordningAndel(),
@@ -223,7 +223,7 @@ class OvergangsordningAndelValidatorTest {
 
         // Act & Assert
         assertThrows<FunksjonellFeil> {
-            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(andel, listOf(barnehageVilkår))
+            OvergangsordningAndelValidator.validerAtBarnehagevilkårErOppfyltIOvergangsordningAndelPeriode(andel, listOf(barnehageVilkår), person.fødselsdato)
         }
     }
 

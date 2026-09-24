@@ -53,7 +53,8 @@ class TilpassKompetanserService(
         val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
         val endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId.id)
         val overgangsordningAndeler = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id)
-        val barnaAktør = personopplysningGrunnlagService.hentBarnaThrows(behandlingId.id).map { it.aktør }.toSet()
+        val barna = personopplysningGrunnlagService.hentBarnaThrows(behandlingId.id)
+        val barnaAktør = barna.map { it.aktør }.toSet()
 
         val annenForelderOmfattetAvNorskLovgivningTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
@@ -93,7 +94,7 @@ class TilpassKompetanserService(
 
         val overgangsordningAndelerTidslinjer =
             utfylteOvergangsordningAndeler
-                .groupBy { it.person.aktør }
+                .groupBy { it.aktør }
                 .mapValues {
                     it.value
                         .tilPerioder()

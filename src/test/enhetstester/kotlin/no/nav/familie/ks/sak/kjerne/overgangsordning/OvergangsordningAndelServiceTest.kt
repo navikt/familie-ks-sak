@@ -55,7 +55,7 @@ class OvergangsordningAndelServiceTest {
         OvergangsordningAndel(
             id = 0,
             behandlingId = behandling.id,
-            person = barn,
+            aktør = barn.aktør,
             antallTimer = BigDecimal.ZERO,
             deltBosted = false,
             fom = barn.fødselsdato.plusMonths(20).toYearMonth(),
@@ -82,7 +82,7 @@ class OvergangsordningAndelServiceTest {
         assertThat(tomOvergangsordningAndel.behandlingId).isEqualTo(behandling.id)
         assertThat(tomOvergangsordningAndel.antallTimer).isEqualTo(BigDecimal.ZERO)
         assertThat(tomOvergangsordningAndel.deltBosted).isFalse()
-        assertThat(tomOvergangsordningAndel.person).isNull()
+        assertThat(tomOvergangsordningAndel.aktør).isNull()
         assertThat(tomOvergangsordningAndel.tom).isNull()
         assertThat(tomOvergangsordningAndel.fom).isNull()
 
@@ -116,7 +116,7 @@ class OvergangsordningAndelServiceTest {
 
             verify(exactly = 1) {
                 overgangsordningAndelRepository.deleteAll(any())
-                overgangsordningAndelRepository.saveAllAndFlush(listOf(gammelOvergangsordningAndel.fraOvergangsordningAndelDto(overgangsordningAndelDto, barn)))
+                overgangsordningAndelRepository.saveAllAndFlush(listOf(gammelOvergangsordningAndel.fraOvergangsordningAndelDto(overgangsordningAndelDto, barn.aktør)))
             }
         }
 
@@ -169,7 +169,7 @@ class OvergangsordningAndelServiceTest {
                 OvergangsordningAndel(
                     id = 1,
                     behandlingId = behandling.id,
-                    person = barn,
+                    aktør = barn.aktør,
                     antallTimer = BigDecimal.ZERO,
                     deltBosted = false,
                     fom = barn.fødselsdato.plusMonths(22).toYearMonth(),
@@ -329,7 +329,7 @@ class OvergangsordningAndelServiceTest {
             assertThat(it.behandlingId).isEqualTo(nyBehandling.id)
             assertThat(it.antallTimer).isEqualTo(BigDecimal.ZERO)
             assertThat(it.deltBosted).isFalse()
-            assertThat(it.person).isNull()
+            assertThat(it.aktør).isNull()
             assertThat(it.tom).isNull()
             assertThat(it.fom).isNull()
         }
@@ -353,7 +353,7 @@ class OvergangsordningAndelServiceTest {
 
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
             every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) } returns
-                listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, person = gammelPerson))
+                listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, aktør = gammelPerson.aktør))
             every { overgangsordningAndelRepository.save(any()) } returnsArgument 0
 
             // Act
@@ -361,7 +361,7 @@ class OvergangsordningAndelServiceTest {
 
             // Assert
             assertThat(nyeOvergangsordningAndeler).hasSize(1)
-            assertThat(nyeOvergangsordningAndeler.single().person?.id).isEqualTo(2L)
+            assertThat(nyeOvergangsordningAndeler.single().aktør).isEqualTo(nyPerson.aktør)
         }
 
         @Test
@@ -377,7 +377,7 @@ class OvergangsordningAndelServiceTest {
 
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
             every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(gammelBehandling.id) } returns
-                listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, person = gammelPerson))
+                listOf(OvergangsordningAndel(id = 0, behandlingId = gammelBehandling.id, aktør = gammelPerson.aktør))
 
             // Act
             val nyeOvergangsordningAndeler = overgangsordningAndelService.kopierOvergangsordningAndelFraForrigeBehandling(nyBehandling, gammelBehandling)

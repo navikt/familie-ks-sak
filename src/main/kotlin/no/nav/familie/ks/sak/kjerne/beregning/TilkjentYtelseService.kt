@@ -112,7 +112,7 @@ class TilkjentYtelseService(
                 AndelTilkjentYtelse(
                     behandlingId = behandlingId,
                     tilkjentYtelse = tilkjentYtelse,
-                    aktør = overgangsordningAndel.person.aktør,
+                    aktør = overgangsordningAndel.aktør,
                     prosent = satsPeriode.prosent,
                     stønadFom = overgangsordningAndel.fom,
                     stønadTom = overgangsordningAndel.tom,
