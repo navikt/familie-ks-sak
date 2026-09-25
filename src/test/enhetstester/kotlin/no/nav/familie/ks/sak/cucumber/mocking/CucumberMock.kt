@@ -115,6 +115,7 @@ class CucumberMock(
     val personopplysningGrunnlagService =
         PersonopplysningGrunnlagService(
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepositoryMock,
+            personopplysningGrunnlagLagreService = mockk(),
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepositoryMock,
             beregningService = beregningService,
             personService = personService,

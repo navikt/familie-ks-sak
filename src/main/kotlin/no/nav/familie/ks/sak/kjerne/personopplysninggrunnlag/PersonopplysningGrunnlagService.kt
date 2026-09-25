@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonEnkel
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
-import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class PersonopplysningGrunnlagService(
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
+    private val personopplysningGrunnlagLagreService: PersonopplysningGrunnlagLagreService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
     private val beregningService: BeregningService,
     private val personService: PersonService,
@@ -118,14 +118,7 @@ class PersonopplysningGrunnlagService(
 
     fun hentSøkersMålform(behandlingId: Long) = hentSøkerThrows(behandlingId).målform
 
-    fun lagreOgDeaktiverGammel(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {
-        finnAktivPersonopplysningGrunnlag(personopplysningGrunnlag.behandlingId)?.let {
-            personopplysningGrunnlagRepository.saveAndFlush(it.also { it.aktiv = false })
-        }
-
-        logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} oppretter persongrunnlag $personopplysningGrunnlag")
-        return personopplysningGrunnlagRepository.save(personopplysningGrunnlag)
-    }
+    fun lagreOgSlettGammelt(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag = personopplysningGrunnlagLagreService.lagreOgSlettGammelt(personopplysningGrunnlag)
 
     fun finnAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
 
@@ -140,7 +133,7 @@ class PersonopplysningGrunnlagService(
         målform: Målform,
         barnasAktør: List<Aktør>,
     ): PersonopplysningGrunnlag {
-        val personopplysningGrunnlag = lagreOgDeaktiverGammel(PersonopplysningGrunnlag(behandlingId = behandling.id))
+        val personopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandling.id)
         val krevesEnkelPersonInfo = behandling.erSatsendring()
         val søker =
             personService.lagPerson(
@@ -163,7 +156,7 @@ class PersonopplysningGrunnlagService(
             }
         personopplysningGrunnlag.personer.addAll(barna)
 
-        return personopplysningGrunnlagRepository.save(personopplysningGrunnlag).also {
+        return lagreOgSlettGammelt(personopplysningGrunnlag).also {
             /*
              * For sikkerhetsskyld fastsetter vi alltid behandlende enhet når nytt personopplysningsgrunnlag opprettes.
              * Dette gjør vi fordi det kan ha blitt introdusert personer med fortrolig adresse.
@@ -229,7 +222,6 @@ class PersonopplysningGrunnlagService(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(PersonopplysningGrunnlagService::class.java)
         private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
     }
 }
