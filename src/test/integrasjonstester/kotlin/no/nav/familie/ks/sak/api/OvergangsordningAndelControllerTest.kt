@@ -13,7 +13,7 @@ import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
-import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
+import no.nav.familie.ks.sak.fake.FakeTilgangsmaskinTilgangskontrollKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -41,7 +41,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
     private lateinit var overgangsordningAndelRepository: OvergangsordningAndelRepository
 
     @Autowired
-    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
+    private lateinit var fakeTilgangsmaskinTilgangskontrollKlient: FakeTilgangsmaskinTilgangskontrollKlient
 
     private var token = ""
     private val overgangsordningAndelControllerUrl = "/api/overgangsordningandel"
@@ -66,7 +66,7 @@ class OvergangsordningAndelControllerTest : OppslagSpringRunnerTest() {
             ),
         )
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        fakeIntegrasjonKlient.reset()
+        fakeTilgangsmaskinTilgangskontrollKlient.reset()
     }
 
     @Nested

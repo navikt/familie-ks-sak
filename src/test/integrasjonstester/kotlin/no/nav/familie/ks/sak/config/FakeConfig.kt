@@ -10,13 +10,14 @@ import no.nav.familie.ks.sak.fake.FakePdlKlient
 import no.nav.familie.ks.sak.fake.FakePersonopplysningerService
 import no.nav.familie.ks.sak.fake.FakeTaskRepositoryWrapper
 import no.nav.familie.ks.sak.fake.FakeTilbakekrevingKlient
-import no.nav.familie.ks.sak.fake.FakeTilgangsmaskinKlient
+import no.nav.familie.ks.sak.fake.FakeTilgangsmaskinTilgangskontrollKlient
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import no.nav.familie.prosessering.internal.TaskService
 import no.nav.familie.unleash.UnleashService
 import org.springframework.boot.test.context.TestConfiguration
@@ -44,7 +45,7 @@ class FakeConfig {
     @Bean
     @Primary
     @Profile("integrasjonstest", "postgres")
-    fun fakeTilgangsmaskinKlient(): FakeTilgangsmaskinKlient = FakeTilgangsmaskinKlient()
+    fun fakeTilgangsmaskinTilgangskontrollKlient(): FakeTilgangsmaskinTilgangskontrollKlient = FakeTilgangsmaskinTilgangskontrollKlient()
 
     @Bean
     @Primary
@@ -62,12 +63,14 @@ class FakeConfig {
     fun fakePersonopplysningerService(
         pdlKlient: PdlKlient,
         integrasjonService: IntegrasjonService,
+        personTilgangService: PersonTilgangService,
         personidentService: PersonidentService,
         falskIdentitetService: FalskIdentitetService,
     ): FakePersonopplysningerService =
         FakePersonopplysningerService(
             pdlKlient = pdlKlient,
             integrasjonService = integrasjonService,
+            personTilgangService = personTilgangService,
             personidentService = personidentService,
             falskIdentitetService = falskIdentitetService,
         )

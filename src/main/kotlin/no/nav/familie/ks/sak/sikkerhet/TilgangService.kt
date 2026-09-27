@@ -1,14 +1,13 @@
 package no.nav.familie.ks.sak.sikkerhet
 
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Service
 
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service
 class TilgangService(
     private val behandlingRepository: BehandlingRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val integrasjonService: IntegrasjonService,
+    private val personTilgangService: PersonTilgangService,
     private val personidentService: PersonidentService,
     private val cacheManager: CacheManager,
     private val auditLogger: AuditLogger,
@@ -169,10 +168,14 @@ class TilgangService(
         }
     }
 
-    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> =
-        hentCacheForSaksbehandler("validerTilgangTilPersoner", personIdenter) {
-            integrasjonService.sjekkTilgangTilPersoner(personIdenter)
+    // Tilgangene caches per kilde, slik at en endring av togglen tar effekt med en gang.
+    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<PersonTilgang> {
+        val skalBrukeTilgangsmaskinen = personTilgangService.skalBrukeTilgangsmaskinen()
+        val cacheNavn = if (skalBrukeTilgangsmaskinen) TILGANGSMASKINEN_CACHE else FAMILIE_INTEGRASJONER_CACHE
+        return hentCacheForSaksbehandler(cacheNavn, personIdenter) {
+            personTilgangService.sjekkTilgangTilPersoner(personIdenter.toSet(), skalBrukeTilgangsmaskinen).values.toList()
         }
+    }
 
     /**
      * Logger at informasjon tilknyttet personidenter er forsøkt hentet
@@ -202,18 +205,26 @@ class TilgangService(
         val cache = cacheManager.getCache(cacheName) ?: throw Feil("Finner ikke cache=$cacheName")
         val key = Pair(verdi, SikkerhetContext.hentSaksbehandler())
 
-        return cache.get(key) { hentVerdi() }
-            ?: throw Feil("Finner ikke verdi fra cache=$cacheName")
+        // Cachen pakker inn feil fra hentVerdi. Vi kaster den opprinnelige feilen slik at den håndteres som vanlig.
+        return try {
+            cache.get(key) { hentVerdi() }
+        } catch (e: Cache.ValueRetrievalException) {
+            throw e.cause ?: e
+        } ?: throw Feil("Finner ikke verdi fra cache=$cacheName")
     }
 
-    private fun harTilgangTilAllePersoner(tilganger: List<Tilgang>): Boolean = tilganger.all { it.harTilgang }
+    private fun harTilgangTilAllePersoner(tilganger: List<PersonTilgang>): Boolean = tilganger.all { it.harTilgang }
 
-    private fun List<Tilgang>.tilBegrunnelserForManglendeTilgang(): String =
+    private fun List<PersonTilgang>.tilBegrunnelserForManglendeTilgang(): String =
         this
             .asSequence()
-            .filter { !it.harTilgang }
-            .mapNotNull { it.begrunnelse }
+            .mapNotNull { it.avvisning?.begrunnelse }
             .toSet()
             .toList()
             .joinToString(separator = ", ", postfix = ".")
+
+    companion object {
+        const val TILGANGSMASKINEN_CACHE = "validerTilgangTilPersonerITilgangsmaskinen"
+        const val FAMILIE_INTEGRASJONER_CACHE = "validerTilgangTilPersonerIFamilieIntegrasjoner"
+    }
 }

@@ -294,6 +294,21 @@ internal class IntegrasjonKlientTest {
     }
 
     @Test
+    fun `sjekkTilgangTilPersoner skal gi tilgang uten å kalle familie-integrasjoner i systemkontekst`() {
+        // Arrange
+        mockkObject(SikkerhetContext)
+        every { SikkerhetContext.erSystemKontekst() } returns true
+
+        // Act
+        val tilganger = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2"))
+
+        // Assert
+        assertThat(tilganger.map { it.personIdent }).containsExactly("ident1", "ident2")
+        assertThat(tilganger.all { it.harTilgang }).isTrue()
+        assertThat(wiremockServerItem.allServeEvents).isEmpty()
+    }
+
+    @Test
     fun `fordelOppgave skal returnere fordelt oppgave ved OK fordelelse av oppgave`() {
         // Arrange
         val saksbehandler = "testSB"
