@@ -4,7 +4,6 @@ import com.neovisionaries.i18n.CountryCode
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
 import no.nav.familie.kontrakter.felles.personopplysning.Statsborgerskap
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagsystem
@@ -19,12 +18,15 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgang
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import org.springframework.stereotype.Service
 
 @Service
 class PersonopplysningerService(
     private val pdlKlient: PdlKlient,
     private val integrasjonService: IntegrasjonService,
+    private val personTilgangService: PersonTilgangService,
     private val personidentService: PersonidentService,
     private val falskIdentitetService: FalskIdentitetService,
 ) {
@@ -59,7 +61,7 @@ class PersonopplysningerService(
                 .mapNotNull { forelderBarnRelasjon ->
                     val harTilgang =
                         tilgangPerRelasjonsident[forelderBarnRelasjon.aktør.aktivFødselsnummer()]?.harTilgang
-                            ?: throw Feil("Mangler tilgangssvar for relasjon fra familie-integrasjoner")
+                            ?: throw Feil("Mangler tilgangssvar for relasjon fra Tilgangsmaskinen")
 
                     if (harTilgang) {
                         try {
@@ -105,11 +107,11 @@ class PersonopplysningerService(
         )
     }
 
-    private fun hentTilgangPerIdent(personIdenter: List<String>): Map<String, Tilgang> =
+    private fun hentTilgangPerIdent(personIdenter: List<String>): Map<String, PersonTilgang> =
         if (personIdenter.isEmpty()) {
             emptyMap()
         } else {
-            integrasjonService.sjekkTilgangTilPersoner(personIdenter).associateBy { it.personIdent }
+            personTilgangService.sjekkTilgangTilPersoner(personIdenter.toSet())
         }
 
     fun hentAdressebeskyttelseSomSystembruker(aktør: Aktør): ADRESSEBESKYTTELSEGRADERING = pdlKlient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()

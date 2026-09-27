@@ -25,7 +25,6 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.datagenerator.lagKodeverkLand
 import no.nav.familie.ks.sak.datagenerator.lagTestJournalpost
@@ -44,20 +43,10 @@ class FakeIntegrasjonKlient : IntegrasjonKlient(URI("integrasjoner-url"), mockk(
     private val egenansatt = mutableSetOf<String>()
     private val behandlendeEnhetForIdent = mutableMapOf<String, List<Arbeidsfordelingsenhet>>()
     private val journalførteDokumenter = mutableListOf<ArkiverDokumentRequest>()
-    private val personIdentTilTilgang = mutableMapOf<String, Tilgang>()
-    private val kallMotSjekkTilgangTilPersoner: MutableList<List<String>> = mutableListOf()
-    private var godkjennByDefault: Boolean = true
 
     override fun hentAlleEØSLand(): KodeverkDto = lagKodeverkLand()
 
     override fun hentLand(landkode: String): String = "Testland"
-
-    override fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
-        kallMotSjekkTilgangTilPersoner.add(personIdenter)
-        return personIdenter.map { personIdent ->
-            personIdentTilTilgang[personIdent] ?: Tilgang(personIdent, godkjennByDefault)
-        }
-    }
 
     override fun hentPoststeder(): KodeverkDto =
         KodeverkDto(
@@ -185,25 +174,6 @@ class FakeIntegrasjonKlient : IntegrasjonKlient(URI("integrasjoner-url"), mockk(
             ClassPathResource("landkoder/landkoder.json").inputStream.bufferedReader().use(BufferedReader::readText)
 
         return jsonMapper.readValue<List<LandkodeISO2>>(landkoder).associate { it.code to it.name }
-    }
-
-    /**
-     * Legger til tilgang for testIdenter og setter defaulten for godkjenning til false
-     *
-     * VIKTIG at man resetter godkjennDefault tilbake til true i etterkant, hvis ikke feiler påfølgende tester som trenger at den er satt til true
-     */
-    fun leggTilTilganger(
-        personIdentTilHarTilgang: List<Tilgang>,
-        godkjennDefault: Boolean = false,
-    ) {
-        personIdentTilTilgang.putAll(personIdentTilHarTilgang.associate { tilgang -> tilgang.personIdent to tilgang })
-        godkjennByDefault = godkjennDefault
-    }
-
-    fun reset() {
-        personIdentTilTilgang.clear()
-        kallMotSjekkTilgangTilPersoner.clear()
-        godkjennByDefault = true
     }
 
     data class LandkodeISO2(

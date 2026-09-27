@@ -30,7 +30,6 @@ import no.nav.familie.kontrakter.felles.oppgave.OppgaveResponse
 import no.nav.familie.kontrakter.felles.oppgave.OpprettOppgaveRequest
 import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
 import no.nav.familie.kontrakter.felles.saksbehandler.SaksbehandlerGrupper
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.domene.Arbeidsfordelingsenhet
@@ -38,7 +37,6 @@ import no.nav.familie.ks.sak.integrasjon.kallEksternTjeneste
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteRessurs
 import no.nav.familie.ks.sak.integrasjon.kallEksternTjenesteUtenRespons
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
-import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -58,33 +56,6 @@ class IntegrasjonKlient(
     @Value("\${FAMILIE_INTEGRASJONER_API_URL}") private val integrasjonUri: URI,
     @Qualifier("integrasjonerRestClient") private val restClient: RestClient,
 ) {
-    val tilgangPersonUri =
-        UriComponentsBuilder
-            .fromUri(integrasjonUri)
-            .pathSegment(PATH_TILGANG_PERSON)
-            .build()
-            .toUri()
-
-    fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> {
-        if (SikkerhetContext.erSystemKontekst()) {
-            return personIdenter.map { Tilgang(personIdent = it, harTilgang = true, begrunnelse = null) }
-        }
-
-        return kallEksternTjeneste(
-            tjeneste = "tilgangskontroll",
-            uri = tilgangPersonUri,
-            formål = "Sjekk tilgang til personer",
-        ) {
-            restClient
-                .post()
-                .uri(tilgangPersonUri)
-                .headers { it.addAll(HttpHeaders().also { h -> h.set(HEADER_NAV_TEMA, HEADER_NAV_TEMA_KON) }) }
-                .body(personIdenter)
-                .retrieve()
-                .body<List<Tilgang>>()!!
-        }
-    }
-
     fun ferdigstillOppgave(oppgaveId: Long) {
         val uri = URI.create("$integrasjonUri/oppgave/$oppgaveId/ferdigstill")
 
@@ -776,8 +747,5 @@ class IntegrasjonKlient(
         private const val DOKARKIV_AVSLUTT_SAK_KILDE = "dokarkiv.avsluttSak"
         const val RETRY_BACKOFF_5000MS = "\${retry.backoff.delay:5000}"
         const val RETRY_BACKOFF_1000MS = "\${retry.backoff.delay:1000}"
-        private const val PATH_TILGANG_PERSON = "tilgang/v2/personer"
-        private const val HEADER_NAV_TEMA = "Nav-Tema"
-        private val HEADER_NAV_TEMA_KON = Tema.KON.name
     }
 }
