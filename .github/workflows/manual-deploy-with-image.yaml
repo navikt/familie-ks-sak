@@ -13,6 +13,9 @@ on:
         required: true
         type: string
         description: 'Image tag to deploy (ex: 2025.02.14-14.40-70a41ds)'
+
+permissions: {}
+
 jobs:
   deploy-with-existing-image:
     name: Deploy with existing image
@@ -25,7 +28,6 @@ jobs:
       image-tag: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-gcp
       resource: .nais/app-${{ inputs.environment }}.yaml
-    secrets: inherit
   notify-audit:
     name: Notify if audited deploy
     if: inputs.environment == 'prod'

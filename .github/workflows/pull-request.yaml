@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   ktlint:
     name: Ktlint
@@ -18,7 +21,6 @@ jobs:
     uses: navikt/familie-baks-gha-workflows/.github/workflows/ktlint.yaml@main # ratchet:exclude
     with:
       java-version: '25'
-    secrets: inherit
 
   enhetstest:
     name: Enhetstest
@@ -31,7 +33,6 @@ jobs:
       coverage-artifact-name: 'enhetstest'
       coverage-artifact-path: 'target/coverage/enhetstest/jacoco.xml'
       java-version: 25
-    secrets: inherit
 
   integrasjonstest:
     name: Integrasjonstest
@@ -44,16 +45,19 @@ jobs:
       coverage-artifact-name: 'integrasjonstest'
       coverage-artifact-path: 'target/coverage/integrasjonstest/jacoco.xml'
       java-version: 25
-    secrets: inherit
 
   sonar:
     if: github.actor != 'dependabot[bot]' && github.event_name != 'merge_group'
     name: Sonar
     needs: [ enhetstest, integrasjonstest ]
     runs-on: 'ubuntu-latest'
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
         with:
+          persist-credentials: false
           fetch-depth: 0
       - name: Setup java maven
         uses: navikt/familie-baks-gha-workflows/.github/actions/setup-java-maven@main # ratchet:exclude
