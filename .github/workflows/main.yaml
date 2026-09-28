@@ -13,6 +13,8 @@ on:
       - 'CODEOWNERS'
       - 'LICENSE'
 
+permissions: {}
+
 jobs:
   build:
     name: Build

@@ -8,6 +8,8 @@ on:
         default: false
         type: boolean
 
+permissions: {}
+
 jobs:
   build:
     name: Build
