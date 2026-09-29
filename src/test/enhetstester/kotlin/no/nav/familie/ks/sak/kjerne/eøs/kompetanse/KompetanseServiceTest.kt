@@ -97,7 +97,12 @@ internal class KompetanseServiceTest {
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
-        every { personopplysningGrunnlagService.hentBarnaThrows(any()) } returns emptyList()
+        every { personopplysningGrunnlagService.hentBarnaThrows(any()) } returns
+            listOf(
+                tilfeldigPerson(aktør = barn1),
+                tilfeldigPerson(aktør = barn2),
+                tilfeldigPerson(aktør = barn3),
+            )
         kompetanseRepository.deleteAll()
     }
 
@@ -907,7 +912,7 @@ internal class KompetanseServiceTest {
     ): OvergangsordningAndel =
         OvergangsordningAndel(
             behandlingId = behandling.id,
-            person = tilfeldigPerson(aktør = aktør),
+            aktør = aktør,
             fom = fom,
             tom = tom,
         )

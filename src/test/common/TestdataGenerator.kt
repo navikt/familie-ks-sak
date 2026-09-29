@@ -1301,7 +1301,7 @@ fun lagAndelTilkjentYtelse(
 fun lagUtfyltOvergangsordningAndel(
     id: Long = 0,
     behandling: Behandling = lagBehandling(),
-    person: Person = lagPerson(aktør = randomAktør()),
+    aktør: Aktør = randomAktør(),
     antallTimer: BigDecimal = BigDecimal.ZERO,
     deltBosted: Boolean = false,
     fom: YearMonth = YearMonth.now(),
@@ -1310,7 +1310,7 @@ fun lagUtfyltOvergangsordningAndel(
     UtfyltOvergangsordningAndel(
         id = id,
         behandlingId = behandling.id,
-        person = person,
+        aktør = aktør,
         antallTimer = antallTimer,
         deltBosted = deltBosted,
         fom = fom,
