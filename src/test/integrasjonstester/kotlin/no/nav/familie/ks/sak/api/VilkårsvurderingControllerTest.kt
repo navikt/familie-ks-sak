@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagVedtaksbegrunnelse
 import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
-import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
+import no.nav.familie.ks.sak.fake.FakeTilgangsmaskinTilgangskontrollKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -53,7 +53,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
     private lateinit var vedtaksperiodeRepository: VedtaksperiodeRepository
 
     @Autowired
-    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
+    private lateinit var fakeTilgangsmaskinTilgangskontrollKlient: FakeTilgangsmaskinTilgangskontrollKlient
 
     val vilkårsvurderingControllerUrl = "/api/vilkårsvurdering"
 
@@ -78,7 +78,7 @@ class VilkårsvurderingControllerTest : OppslagSpringRunnerTest() {
         lagreBehandling(behandling)
 
         token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
-        fakeIntegrasjonKlient.reset()
+        fakeTilgangsmaskinTilgangskontrollKlient.reset()
     }
 
     @Test

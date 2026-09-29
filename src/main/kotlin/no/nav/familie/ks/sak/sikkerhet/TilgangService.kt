@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.sikkerhet
 
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
@@ -16,7 +14,7 @@ import org.springframework.stereotype.Service
 class TilgangService(
     private val behandlingRepository: BehandlingRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
-    private val integrasjonService: IntegrasjonService,
+    private val personTilgangService: PersonTilgangService,
     private val personidentService: PersonidentService,
     private val cacheManager: CacheManager,
     private val auditLogger: AuditLogger,
@@ -169,9 +167,9 @@ class TilgangService(
         }
     }
 
-    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<Tilgang> =
+    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<PersonTilgang> =
         hentCacheForSaksbehandler("validerTilgangTilPersoner", personIdenter) {
-            integrasjonService.sjekkTilgangTilPersoner(personIdenter)
+            personTilgangService.sjekkTilgangTilPersoner(personIdenter.toSet()).values.toList()
         }
 
     /**
@@ -206,13 +204,12 @@ class TilgangService(
             ?: throw Feil("Finner ikke verdi fra cache=$cacheName")
     }
 
-    private fun harTilgangTilAllePersoner(tilganger: List<Tilgang>): Boolean = tilganger.all { it.harTilgang }
+    private fun harTilgangTilAllePersoner(tilganger: List<PersonTilgang>): Boolean = tilganger.all { it.harTilgang }
 
-    private fun List<Tilgang>.tilBegrunnelserForManglendeTilgang(): String =
+    private fun List<PersonTilgang>.tilBegrunnelserForManglendeTilgang(): String =
         this
             .asSequence()
-            .filter { !it.harTilgang }
-            .mapNotNull { it.begrunnelse }
+            .mapNotNull { it.avvisning?.begrunnelse }
             .toSet()
             .toList()
             .joinToString(separator = ", ", postfix = ".")

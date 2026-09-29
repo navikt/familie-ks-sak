@@ -6,12 +6,12 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -29,7 +29,7 @@ class PersonController(
     val personidentService: PersonidentService,
     val personOpplysningerService: PersonopplysningerService,
     val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
-    val integrasjonService: IntegrasjonService,
+    val personTilgangService: PersonTilgangService,
     val tilgangService: TilgangService,
     val behandlingService: BehandlingService,
 ) {
@@ -41,7 +41,7 @@ class PersonController(
 
         val aktør = personidentService.hentAktør(personIdent)
         val personinfo =
-            integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
+            personTilgangService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
                 ?: personOpplysningerService
                     .hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(aktør)
                     .tilPersonInfoDto(personIdent)
@@ -56,7 +56,7 @@ class PersonController(
 
         val aktør = personidentService.hentAktør(personIdent)
         val personinfo =
-            integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
+            personTilgangService.hentMaskertPersonInfoVedManglendeTilgang(aktør)
                 ?: personOpplysningerService
                     .hentPersoninfoEnkel(aktør)
                     .tilPersonInfoDto(personIdent)

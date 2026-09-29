@@ -121,6 +121,7 @@ Use `secureLogger` when logging national identity numbers (fødselsnummer) or ot
 
 - **Inbound**: Azure AD only (from frontend `familie-ks-sak-frontend`, prosessering, klage, bisys/bidrag-grunnlag, ef-sak, mottak). No TokenX — this service has no citizen-facing self-service flow.
 - **Outbound**: Azure AD on-behalf-of / client_credentials (via Texas / `token-klient`) to integrasjoner, klage, tilbakekreving, oppdrag, PDL, and the Tilgangsmaskin (OBO only).
+- **Person access control**: Saksbehandler access to persons is decided by the Tilgangsmaskin (`integrasjon/tilgangsmaskin/TilgangsmaskinTilgangskontrollKlient`, kjerneregler) and exposed as `sikkerhet/PersonTilgang` (denials carry `avvisning.avvisningskode` + `begrunnelse`) via `sikkerhet/PersonTilgangService`. `TilgangService` caches the result per saksbehandler. Branch on `avvisningskode`, never on `begrunnelse` text. Missing/5xx answers throw instead of being treated as denials. System context always has access.
 - Role groups configured in Nais manifest (veileder, saksbehandler, beslutter, forvaltning, strengt fortrolig, fortrolig).
 - Namespace: `teamfamilie`. Kafka pool: `nav-dev`/`nav-prod`.
 
