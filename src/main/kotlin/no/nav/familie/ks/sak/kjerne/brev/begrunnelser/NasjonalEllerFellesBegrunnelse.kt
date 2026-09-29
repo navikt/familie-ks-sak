@@ -303,6 +303,10 @@ enum class NasjonalEllerFellesBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.AVSLAG
         override val sanityApiNavn = "avslagUnder12ManederOgFullBarnehageplass"
     },
+    AVSLAG_ADOPTERT_BARN_ENGANGSSTØNAD_SØKT_FOR_TIDLIG {
+        override val begrunnelseType = BegrunnelseType.AVSLAG
+        override val sanityApiNavn = "avslagAdoptertBarnEngangsstonadSoktForTidlig"
+    },
     OPPHØR_VURDERING_IKKE_MEDLEM_I_FOLKETRYGDEN_I_5_ÅR {
         override val begrunnelseType = BegrunnelseType.OPPHØR
         override val sanityApiNavn = "opphorVurderingIkkeMedlemIFolketrygdenI5Aar"

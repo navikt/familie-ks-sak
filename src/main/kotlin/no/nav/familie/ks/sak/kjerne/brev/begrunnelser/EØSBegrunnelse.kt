@@ -548,6 +548,11 @@ enum class EØSBegrunnelse : IBegrunnelse {
         override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
     },
 
+    OPPHØR_SEKUNDÆRLAND_INGEN_AV_FORELDRENE_JOBBER {
+        override val sanityApiNavn = "opphorSekundarlandIngenAvForeldreneJobber"
+        override val begrunnelseType = BegrunnelseType.EØS_OPPHØR
+    },
+
     REDUKSJON_BARN_DØD_EØS {
         override val sanityApiNavn = "reduksjonBarnDodEos"
         override val begrunnelseType = BegrunnelseType.EØS_REDUKSJON
@@ -865,6 +870,10 @@ enum class EØSBegrunnelse : IBegrunnelse {
 
     AVSLAG_DELT_BOSTED_BEGGE_FORELDRE_IKKE_OMFATTET_NORSK_LOVVALG {
         override val sanityApiNavn = "avslagDeltBostedBeggeForeldreIkkeOmfattetNorskLovvalg"
+        override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
+    },
+    AVSLAG_SEKUNDÆRLAND_INGEN_AV_FORELDRENE_JOBBER {
+        override val sanityApiNavn = "avslagSekundarlandIngenAvForeldreneJobber"
         override val begrunnelseType = BegrunnelseType.EØS_AVSLAG
     },
 
