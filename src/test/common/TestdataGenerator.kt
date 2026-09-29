@@ -793,7 +793,7 @@ fun lagVilkårResultaterForDeltBosted(
 fun lagEndretUtbetalingAndel(
     id: Long = 0L,
     behandlingId: Long = 0L,
-    personer: Set<Person> = setOf(lagPerson(aktør = randomAktør())),
+    aktører: Set<Aktør> = setOf(randomAktør()),
     prosent: BigDecimal? = null,
     periodeFom: YearMonth? = YearMonth.now().minusMonths(1),
     periodeTom: YearMonth? = YearMonth.now(),
@@ -806,7 +806,7 @@ fun lagEndretUtbetalingAndel(
     EndretUtbetalingAndel(
         id = id,
         behandlingId = behandlingId,
-        personer = personer.toMutableSet(),
+        aktører = aktører.toMutableSet(),
         prosent = prosent,
         fom = periodeFom,
         tom = periodeTom,
@@ -820,7 +820,7 @@ fun lagEndretUtbetalingAndel(
 fun lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
     id: Long = 0,
     behandlingId: Long = 0,
-    personer: Set<Person>,
+    aktører: Set<Aktør>,
     prosent: BigDecimal = BigDecimal.valueOf(100),
     fom: YearMonth = YearMonth.now().minusMonths(1),
     tom: YearMonth? = YearMonth.now(),
@@ -835,7 +835,7 @@ fun lagEndretUtbetalingAndelMedAndelerTilkjentYtelse(
         EndretUtbetalingAndel(
             id = id,
             behandlingId = behandlingId,
-            personer = personer.toMutableSet(),
+            aktører = aktører.toMutableSet(),
             prosent = prosent,
             fom = fom,
             tom = tom,

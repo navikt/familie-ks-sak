@@ -355,8 +355,7 @@ class BehandlingsresultatOpphørUtilsTest {
     @EnumSource(Årsak::class, names = ["ALLEREDE_UTBETALT", "ETTERBETALING_3MND", "FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024"])
     internal fun `filtrerBortIrrelevanteAndeler - skal filtrere andeler som har 0 i beløp og endret utbetaling andel med årsak ALLEREDE_UTBETALT, FULLTIDSPLASS_I_BARNEHAGE_AUGUST_2024  eller ETTERBETALING_3ÅR`(årsak: Årsak) {
         // Arrange
-        val barn = lagPerson(aktør = randomAktør())
-        val barnAktør = barn.aktør
+        val barn = randomAktør()
 
         val andeler =
             listOf(
@@ -364,33 +363,33 @@ class BehandlingsresultatOpphørUtilsTest {
                     fom = for3mndSiden,
                     tom = for2mndSiden,
                     beløp = 0,
-                    aktør = barnAktør,
+                    aktør = barn,
                 ),
                 lagAndelTilkjentYtelse(
                     fom = for1mndSiden,
                     tom = om1mnd,
                     beløp = 1400,
-                    aktør = barnAktør,
+                    aktør = barn,
                 ),
                 lagAndelTilkjentYtelse(
                     fom = om4mnd,
                     tom = om4mnd,
                     beløp = 0,
-                    aktør = barnAktør,
+                    aktør = barn,
                 ),
             )
 
         val endretUtBetalingAndeler =
             listOf(
                 lagEndretUtbetalingAndel(
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = for3mndSiden,
                     periodeTom = for2mndSiden,
                     årsak = årsak,
                 ),
                 lagEndretUtbetalingAndel(
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = om4mnd,
                     periodeTom = om4mnd,
@@ -409,8 +408,7 @@ class BehandlingsresultatOpphørUtilsTest {
     @Test
     internal fun `filtrerBortIrrelevanteAndeler - skal ikke filtrere andeler som har 0 i beløp grunnet differanseberegning`() {
         // Arrange
-        val barn = lagPerson(aktør = randomAktør())
-        val barnAktør = barn.aktør
+        val barn = randomAktør()
         val søker = lagPerson(aktør = randomAktør())
         val søkerAktør = søker.aktør
 
@@ -428,14 +426,14 @@ class BehandlingsresultatOpphørUtilsTest {
                     tom = om1mnd,
                     beløp = 0,
                     differanseberegnetPeriodebeløp = 50,
-                    aktør = barnAktør,
+                    aktør = barn,
                 ),
                 lagAndelTilkjentYtelse(
                     fom = om4mnd,
                     tom = om4mnd,
                     beløp = 0,
                     differanseberegnetPeriodebeløp = 50,
-                    aktør = barnAktør,
+                    aktør = barn,
                 ),
             )
 
@@ -450,7 +448,7 @@ class BehandlingsresultatOpphørUtilsTest {
     @Test
     fun `utledOpphørsdatoForNåværendeBehandlingMedFallback - skal returnere null hvis det ikke finnes andeler i inneværende behandling og kun irrelevante nullutbetalinger i forrige behandling`() {
         // Arrange
-        val barn = lagPerson(aktør = randomAktør())
+        val barn = randomAktør()
 
         val forrigeAndeler =
             listOf(
@@ -459,28 +457,28 @@ class BehandlingsresultatOpphørUtilsTest {
                     tom = for2mndSiden,
                     beløp = 0,
                     prosent = BigDecimal.ZERO,
-                    aktør = barn.aktør,
+                    aktør = barn,
                 ),
                 lagAndelTilkjentYtelse(
                     fom = for1mndSiden,
                     tom = om4mnd,
                     beløp = 0,
                     prosent = BigDecimal.ZERO,
-                    aktør = barn.aktør,
+                    aktør = barn,
                 ),
             )
 
         val forrigeEndretAndeler =
             listOf(
                 lagEndretUtbetalingAndel(
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = for3mndSiden,
                     periodeTom = for2mndSiden,
                     årsak = Årsak.ALLEREDE_UTBETALT,
                 ),
                 lagEndretUtbetalingAndel(
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = for1mndSiden,
                     periodeTom = om4mnd,
@@ -503,7 +501,7 @@ class BehandlingsresultatOpphørUtilsTest {
     @Test
     fun `utledOpphørsdatoForNåværendeBehandlingMedFallback - skal returnere tidligste fom på andeler i forrige behandling hvis det ikke finnes andeler i inneværende behandling`() {
         // Arrange
-        val barn = lagPerson(aktør = randomAktør())
+        val barn = randomAktør()
 
         val forrigeAndeler =
             listOf(
@@ -512,20 +510,20 @@ class BehandlingsresultatOpphørUtilsTest {
                     tom = for2mndSiden,
                     beløp = 0,
                     prosent = BigDecimal.ZERO,
-                    aktør = barn.aktør,
+                    aktør = barn,
                 ),
                 lagAndelTilkjentYtelse(
                     fom = for1mndSiden,
                     tom = om4mnd,
                     prosent = BigDecimal.ZERO,
-                    aktør = barn.aktør,
+                    aktør = barn,
                 ),
             )
 
         val forrigeEndretAndeler =
             listOf(
                 lagEndretUtbetalingAndel(
-                    personer = setOf(barn),
+                    aktører = setOf(barn),
                     prosent = BigDecimal.ZERO,
                     periodeFom = for3mndSiden,
                     periodeTom = for2mndSiden,

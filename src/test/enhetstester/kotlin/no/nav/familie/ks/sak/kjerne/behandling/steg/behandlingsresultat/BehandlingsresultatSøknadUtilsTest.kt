@@ -140,7 +140,6 @@ internal class BehandlingsresultatSøknadUtilsTest {
         årsak: Årsak,
     ) {
         val barn1Aktør = randomAktør()
-        val barn1Person = lagPerson(aktør = barn1Aktør)
 
         val andel =
             lagAndelTilkjentYtelse(
@@ -153,7 +152,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
-                personer = setOf(barn1Person),
+                aktører = setOf(barn1Aktør),
                 periodeFom = jan22,
                 periodeTom = aug22,
                 prosent = BigDecimal(100),
@@ -182,7 +181,6 @@ internal class BehandlingsresultatSøknadUtilsTest {
         årsak: Årsak,
     ) {
         val barn1Aktør = randomAktør()
-        val barn1Person = lagPerson(aktør = barn1Aktør)
 
         val forrigeAndel =
             lagAndelTilkjentYtelse(
@@ -194,7 +192,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
-                personer = setOf(barn1Person),
+                aktører = setOf(barn1Aktør),
                 periodeFom = jan22,
                 periodeTom = aug22,
                 prosent = BigDecimal(100),
@@ -252,7 +250,6 @@ internal class BehandlingsresultatSøknadUtilsTest {
     @Test
     fun `utledSøknadResultatFraAndelerTilkjentYtelse skal returnere INNVILGET OG AVSLÅTT dersom 1 barn får innvilget og 1 barn får avslått`() {
         val barn1Aktør = randomAktør()
-        val barn1Person = lagPerson(aktør = barn1Aktør)
         val barn2Aktør = randomAktør()
 
         val forrigeAndeler =
@@ -282,7 +279,7 @@ internal class BehandlingsresultatSøknadUtilsTest {
 
         val endretUtbetalingAndel =
             lagEndretUtbetalingAndel(
-                personer = setOf(barn1Person),
+                aktører = setOf(barn1Aktør),
                 periodeFom = jan22,
                 periodeTom = aug22,
                 prosent = BigDecimal(100),

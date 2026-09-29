@@ -25,7 +25,6 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAnde
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -59,12 +58,14 @@ class EndretUtbetalingAndelService(
                 ?: endretUtbetalingAndelRequestDto.personIdent?.let { listOf(it) }
                 ?: throw FunksjonellFeil("Endret utbetaling andel må ha minst én person ident")
 
-        val personer =
-            personopplysningGrunnlag.personer.filter { it.aktør.aktivFødselsnummer() in personIdenterPåEndretUtbetalingAndel }
+        val aktører =
+            personopplysningGrunnlag.personer
+                .filter { it.aktør.aktivFødselsnummer() in personIdenterPåEndretUtbetalingAndel }
+                .map { it.aktør }
 
         val andelTilkjentYtelser = andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id)
 
-        endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, personer)
+        endretUtbetalingAndel.fraEndretUtbetalingAndelRequestDto(endretUtbetalingAndelRequestDto, aktører)
 
         val andreEndredeAndelerPåBehandling =
             hentEndredeUtbetalingAndeler(behandling.id)
@@ -137,10 +138,10 @@ class EndretUtbetalingAndelService(
         forrigeBehandling: Behandling,
     ) {
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
-        val personPerAktør = personopplysningGrunnlag.personer.associateBy { it.aktør }
+        val aktørerIGrunnlag = personopplysningGrunnlag.personer.map { it.aktør }.toSet()
 
         hentEndredeUtbetalingAndeler(forrigeBehandling.id).forEach { forrigeEndretUtbetalingAndel ->
-            kopierEndretUtbetalingAndel(forrigeEndretUtbetalingAndel, behandling, forrigeBehandling, personPerAktør)
+            kopierEndretUtbetalingAndel(forrigeEndretUtbetalingAndel, behandling, forrigeBehandling, aktørerIGrunnlag)
         }
     }
 
@@ -148,20 +149,20 @@ class EndretUtbetalingAndelService(
         forrigeEndretUtbetalingAndel: EndretUtbetalingAndel,
         behandling: Behandling,
         forrigeBehandling: Behandling,
-        personPerAktør: Map<Aktør, Person>,
+        aktørerIGrunnlag: Set<Aktør>,
     ) {
-        val nyePersoner = forrigeEndretUtbetalingAndel.personer.mapNotNull { personPerAktør[it.aktør] }
-        val droppedeAktørIder = forrigeEndretUtbetalingAndel.personer.map { it.aktør }.filterNot { it in personPerAktør }
+        val nyeAktører = forrigeEndretUtbetalingAndel.aktører.filter { it in aktørerIGrunnlag }
+        val droppedeAktørIder = forrigeEndretUtbetalingAndel.aktører.filterNot { it in aktørerIGrunnlag }.map { it.aktørId }
 
         if (droppedeAktørIder.isNotEmpty()) {
             logger.warn(
-                "Dropper person(er) med aktørId ${droppedeAktørIder.joinToString(", ") { it.aktørId }} fra EndretUtbetalingAndel " +
+                "Dropper person(er) med aktørId ${droppedeAktørIder.joinToString(", ")} fra EndretUtbetalingAndel " +
                     "${forrigeEndretUtbetalingAndel.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
                     "til behandling ${behandling.id}: finnes ikke i det nye persongrunnlaget",
             )
         }
 
-        if (nyePersoner.isEmpty()) {
+        if (nyeAktører.isEmpty()) {
             logger.warn(
                 "Dropper EndretUtbetalingAndel ${forrigeEndretUtbetalingAndel.id} ved " +
                     "kopiering fra behandling ${forrigeBehandling.id} til behandling " +
@@ -176,7 +177,7 @@ class EndretUtbetalingAndelService(
                 behandlingId = behandling.id,
                 erEksplisittAvslagPåSøknad = false,
                 vedtaksbegrunnelser = emptyList(),
-                personer = nyePersoner.toMutableSet(),
+                aktører = nyeAktører.toMutableSet(),
             ),
         )
     }
