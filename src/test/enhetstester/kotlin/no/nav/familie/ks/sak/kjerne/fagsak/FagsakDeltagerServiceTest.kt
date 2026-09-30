@@ -88,7 +88,7 @@ class FagsakDeltagerServiceTest {
                         forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(barnAktør, FORELDERBARNRELASJONROLLE.BARN)),
                     ),
             )
-        every { personRepository.findByAktør(any()) } returns
+        every { personRepository.finnPersonerIAktiveGrunnlag(any()) } returns
             listOf(
                 Person(
                     aktør = søkerAktør,
@@ -135,7 +135,7 @@ class FagsakDeltagerServiceTest {
                         forelderBarnRelasjoner = setOf(ForelderBarnRelasjonInfo(søkerAktør, FORELDERBARNRELASJONROLLE.FAR)),
                     ),
             )
-        every { personRepository.findByAktør(any()) } returns
+        every { personRepository.finnPersonerIAktiveGrunnlag(any()) } returns
             listOf(
                 Person(
                     aktør = barnAktør,
@@ -239,7 +239,7 @@ class FagsakDeltagerServiceTest {
             personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
         } returns PdlPersonInfo.Person(personInfo = personInfo)
         every {
-            personRepository.findByAktør(person.aktør)
+            personRepository.finnPersonerIAktiveGrunnlag(person.aktør)
         } returns listOf(person)
         every {
             behandlingRepository.hentBehandling(behandlingId = person.personopplysningGrunnlag.behandlingId)
@@ -277,7 +277,7 @@ class FagsakDeltagerServiceTest {
             personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
         } returns PdlPersonInfo.Person(personInfo = personInfo)
         every {
-            personRepository.findByAktør(person.aktør)
+            personRepository.finnPersonerIAktiveGrunnlag(person.aktør)
         } returns listOf(person)
         every {
             behandlingRepository.hentBehandling(behandlingId = person.personopplysningGrunnlag.behandlingId)
