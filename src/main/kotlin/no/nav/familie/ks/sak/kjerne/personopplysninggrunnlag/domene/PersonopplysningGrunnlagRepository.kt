@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 
 interface PersonopplysningGrunnlagRepository : JpaRepository<PersonopplysningGrunnlag, Long> {
-    @Query("SELECT gr FROM PersonopplysningGrunnlag gr WHERE gr.behandlingId = :behandlingId AND gr.aktiv = true")
+    @Query("SELECT gr FROM PersonopplysningGrunnlag gr WHERE gr.behandlingId = :behandlingId")
     fun findByBehandlingAndAktiv(behandlingId: Long): PersonopplysningGrunnlag?
 
-    @Query("SELECT gr FROM PersonopplysningGrunnlag gr WHERE gr.behandlingId = :behandlingId AND gr.aktiv = true")
+    @Query("SELECT gr FROM PersonopplysningGrunnlag gr WHERE gr.behandlingId = :behandlingId")
     fun hentByBehandlingAndAktiv(behandlingId: Long): PersonopplysningGrunnlag
 
     @Query(
@@ -21,7 +21,6 @@ interface PersonopplysningGrunnlagRepository : JpaRepository<PersonopplysningGru
         JOIN Behandling b ON b.id = gr.behandlingId
         LEFT JOIN p.dødsfall d
         WHERE b.fagsak.id = :fagsakId 
-        AND gr.aktiv = true
         AND p.type IN ('SØKER', 'BARN')
         """,
     )
