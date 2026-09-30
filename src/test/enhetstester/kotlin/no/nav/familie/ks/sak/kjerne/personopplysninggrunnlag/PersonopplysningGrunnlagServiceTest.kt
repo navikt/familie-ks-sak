@@ -41,6 +41,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class PersonopplysningGrunnlagServiceTest {
     private val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
+    private val personopplysningGrunnlagLagreService = mockk<PersonopplysningGrunnlagLagreService>()
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val beregningService = mockk<BeregningService>()
     private val personService = mockk<PersonService>()
@@ -51,6 +52,7 @@ internal class PersonopplysningGrunnlagServiceTest {
     private val personopplysningGrunnlagService =
         PersonopplysningGrunnlagService(
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
+            personopplysningGrunnlagLagreService = personopplysningGrunnlagLagreService,
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             beregningService = beregningService,
             personService = personService,
@@ -67,7 +69,6 @@ internal class PersonopplysningGrunnlagServiceTest {
     @Test
     fun `opprettPersonopplysningGrunnlag skal opprette personopplysninggrunnlag for FGB`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) } returns null
 
         val personopplysningGrunnlag =
             lagPersonopplysningGrunnlag(
@@ -75,17 +76,18 @@ internal class PersonopplysningGrunnlagServiceTest {
                 søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
                 søkerAktør = behandling.fagsak.aktør,
             )
-        every { personopplysningGrunnlagRepository.save(any()) } returns personopplysningGrunnlag
+        val lagretGrunnlag = slot<PersonopplysningGrunnlag>()
+        every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(capture(lagretGrunnlag)) } returnsArgument 0
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns personopplysningGrunnlag.søker
 
         assertDoesNotThrow { personopplysningGrunnlagService.opprettPersonopplysningGrunnlag(behandling, null) }
 
         verify(atMost = 0, atLeast = 0) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(any()) }
         verify(atMost = 1) { personService.lagPerson(any(), any(), any(), any(), any()) }
-        verify(atMost = 2) { personopplysningGrunnlagRepository.save(any()) }
+        verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         verify(atMost = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
 
-        assertEquals(1, personopplysningGrunnlag.personer.size)
+        assertThat(lagretGrunnlag.captured.personer).containsExactly(personopplysningGrunnlag.søker)
     }
 
     @Test
@@ -110,12 +112,12 @@ internal class PersonopplysningGrunnlagServiceTest {
             )
         every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
-        every { personopplysningGrunnlagRepository.save(any()) } returns personopplysningGrunnlag
-        every { personopplysningGrunnlagRepository.saveAndFlush(any()) } returns personopplysningGrunnlag
+        val lagretGrunnlag = slot<PersonopplysningGrunnlag>()
+        every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(capture(lagretGrunnlag)) } returnsArgument 0
         every {
             personService.lagPerson(
                 aktør = revurdering.fagsak.aktør,
-                personopplysningGrunnlag = personopplysningGrunnlag,
+                personopplysningGrunnlag = match { it.behandlingId == revurdering.id },
                 målform = Målform.NB,
                 personType = PersonType.SØKER,
                 krevesEnkelPersonInfo = false,
@@ -124,7 +126,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         every {
             personService.lagPerson(
                 aktør = barnAktør,
-                personopplysningGrunnlag = personopplysningGrunnlag,
+                personopplysningGrunnlag = match { it.behandlingId == revurdering.id },
                 målform = Målform.NB,
                 personType = PersonType.BARN,
                 krevesEnkelPersonInfo = false,
@@ -135,16 +137,33 @@ internal class PersonopplysningGrunnlagServiceTest {
 
         verify(atMost = 1, atLeast = 1) { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(any()) }
         verify(atMost = 2) { personService.lagPerson(any(), any(), any(), any(), any()) }
-        verify(atMost = 2) { personopplysningGrunnlagRepository.save(any()) }
-        verify(atMost = 1) { personopplysningGrunnlagRepository.saveAndFlush(any()) }
+        verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         verify(atMost = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
 
-        assertEquals(2, personopplysningGrunnlag.personer.size)
+        assertThat(lagretGrunnlag.captured.personer).containsExactlyInAnyOrder(personopplysningGrunnlag.søker, personopplysningGrunnlag.barna.single())
     }
 
     @Test
-    fun `oppdaterPersonopplysningGrunnlag - skal i førstegangsbehandlinger deaktivere eksisterende aktivt personopplysningsgrunnlag og opprette et nytt med barn fra innsendt søknad`() {
-        val deaktivertPersonopplysningGrunnlagSlot = slot<PersonopplysningGrunnlag>()
+    fun `lagreSøkerOgBarnINyttGrunnlag skal ikke lagre eller slette grunnlag dersom henting av person feiler`() {
+        // Arrange
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        every { personService.lagPerson(any(), any(), any(), any(), any()) } throws IllegalStateException("PDL feilet")
+
+        // Act & Assert
+        assertThrows<IllegalStateException> {
+            personopplysningGrunnlagService.lagreSøkerOgBarnINyttGrunnlag(
+                aktør = behandling.fagsak.aktør,
+                behandling = behandling,
+                målform = Målform.NB,
+                barnasAktør = listOf(randomAktør()),
+            )
+        }
+        verify(exactly = 0) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
+        verify(exactly = 0) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
+    }
+
+    @Test
+    fun `oppdaterPersonopplysningGrunnlag - skal i førstegangsbehandlinger slette eksisterende aktivt personopplysningsgrunnlag og opprette et nytt med barn fra innsendt søknad`() {
         val søker = randomAktør()
         val barn1 = randomAktør()
         val barn2 = randomAktør()
@@ -165,6 +184,7 @@ internal class PersonopplysningGrunnlagServiceTest {
             ).also { it.personer.clear() }
 
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns eksisterendePersonopplysningGrunnlag
+        every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) } returnsArgument 0
         every { personidentService.hentOgLagreAktør(any(), any()) } returns barn2 andThen barn3
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns
             lagPerson(
@@ -181,8 +201,6 @@ internal class PersonopplysningGrunnlagServiceTest {
                 aktør = barn3,
                 personType = PersonType.BARN,
             )
-        every { personopplysningGrunnlagRepository.saveAndFlush(capture(deaktivertPersonopplysningGrunnlagSlot)) } returnsArgument 0
-        every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
         val lagretPersonopplysningsgrunnlag =
             personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
                 behandling = behandling,
@@ -199,9 +217,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                     ),
             )
 
-        assertThat(deaktivertPersonopplysningGrunnlagSlot.captured.aktiv, Is(false))
-
-        assertThat(lagretPersonopplysningsgrunnlag.aktiv, Is(true))
+        verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         assertThat(lagretPersonopplysningsgrunnlag.personer.size, Is(3))
         assertThat(lagretPersonopplysningsgrunnlag.barna.size, Is(2))
         assertThat(
@@ -211,8 +227,7 @@ internal class PersonopplysningGrunnlagServiceTest {
     }
 
     @Test
-    fun `oppdaterPersonopplysningGrunnlag - skal i revurdering deaktivere eksisterende aktivt personopplysningsgrunnlag og opprette et nytt med barn fra søknad og tidligere vedtatt behandling`() {
-        val deaktivertPersonopplysningGrunnlagSlot = slot<PersonopplysningGrunnlag>()
+    fun `oppdaterPersonopplysningGrunnlag - skal i revurdering slette eksisterende aktivt personopplysningsgrunnlag og opprette et nytt med barn fra søknad og tidligere vedtatt behandling`() {
         val søker = randomAktør()
         val barn1 = randomAktør()
         val barn2 = randomAktør()
@@ -234,6 +249,7 @@ internal class PersonopplysningGrunnlagServiceTest {
             ).also { it.personer.clear() }
 
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns eksisterendePersonopplysningGrunnlag
+        every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) } returnsArgument 0
         every {
             andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(
                 any(),
@@ -264,8 +280,6 @@ internal class PersonopplysningGrunnlagServiceTest {
                 aktør = barn3,
                 personType = PersonType.BARN,
             )
-        every { personopplysningGrunnlagRepository.saveAndFlush(capture(deaktivertPersonopplysningGrunnlagSlot)) } returnsArgument 0
-        every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
         val lagretPersonopplysningGrunnlag =
             personopplysningGrunnlagService.oppdaterPersonopplysningGrunnlag(
                 behandling = behandling,
@@ -282,8 +296,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                     ),
             )
 
-        assertThat(deaktivertPersonopplysningGrunnlagSlot.captured.aktiv, Is(false))
-        assertThat(lagretPersonopplysningGrunnlag.aktiv, Is(true))
+        verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         assertThat(lagretPersonopplysningGrunnlag.personer.size, Is(4))
         assertThat(lagretPersonopplysningGrunnlag.barna.size, Is(3))
         assertThat(
@@ -352,21 +365,19 @@ internal class PersonopplysningGrunnlagServiceTest {
 
         every { personidentService.hentOgLagreAktør(any(), any()) } returns nyBarn
         every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) } returns eksisterendePersonOpplysningGrunnlag
+        every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) } returnsArgument 0
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns
             lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = søker, personType = PersonType.SØKER) andThen
             lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = barn1, personType = PersonType.BARN) andThen
             lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = nyBarn, personType = PersonType.BARN)
         every { loggService.opprettBarnLagtTilLogg(any(), any()) } just runs
-        every { personopplysningGrunnlagRepository.saveAndFlush(any()) } returns eksisterendePersonOpplysningGrunnlag
-        every { personopplysningGrunnlagRepository.save(any()) } returns nyPersonopplysningGrunnlag
 
         assertDoesNotThrow {
             personopplysningGrunnlagService.leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling, barn1.aktivFødselsnummer())
         }
         verify(exactly = 1) { personidentService.hentOgLagreAktør(any(), any()) }
-        verify(exactly = 2) { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }
-        verify(exactly = 2) { personopplysningGrunnlagRepository.save(any()) } // opprett ny og så oppdaterer det med barn
-        verify(exactly = 1) { personopplysningGrunnlagRepository.saveAndFlush(any()) } // deaktiverer eksisterende
+        verify(exactly = 1) { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
         verify(exactly = 3) { personService.lagPerson(any(), any(), any(), any(), any()) }
         verify(exactly = 1) { loggService.opprettBarnLagtTilLogg(any(), any()) }
