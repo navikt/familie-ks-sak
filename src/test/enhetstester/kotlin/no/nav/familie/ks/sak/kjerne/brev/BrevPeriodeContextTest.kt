@@ -498,7 +498,7 @@ fun lagBrevPeriodeContext(
             persongrunnlag.barna.map {
                 EndretUtbetalingAndel(
                     behandlingId = 0,
-                    personer = mutableSetOf(it),
+                    aktører = mutableSetOf(it.aktør),
                     fom = YearMonth.of(2020, 12),
                     tom = vedtaksperiodeMedBegrunnelser.fom?.toYearMonth()?.minusMonths(1),
                     årsak = Årsak.ETTERBETALING_3MND,

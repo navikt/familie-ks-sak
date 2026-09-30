@@ -74,7 +74,7 @@ class AvslagsperiodeGenerator(
             andelerTilkjentYtelseOgEndreteUtbetalingerService
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandlingId)
                 .filter { endretUtbetalingAndel ->
-                    barnInkludertISøknaden?.let { endretUtbetalingAndel.personer.any { person -> person.aktør.aktivFødselsnummer() in barnInkludertISøknaden } } ?: true
+                    barnInkludertISøknaden?.let { endretUtbetalingAndel.aktører.any { aktør -> aktør.aktivFødselsnummer() in barnInkludertISøknaden } } ?: true
                 }
 
         val periodegrupperteAvslagEndreteUtbetalinger =

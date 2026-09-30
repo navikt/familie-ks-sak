@@ -82,9 +82,9 @@ class EndretUtbetalingAndelServiceTest {
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
             every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns
                 listOf(
-                    lagEndretUtbetalingAndel(personer = setOf(lagPerson(aktør = aktør1, personType = PersonType.BARN))),
-                    lagEndretUtbetalingAndel(personer = setOf(lagPerson(aktør = aktør2, personType = PersonType.BARN))),
-                    lagEndretUtbetalingAndel(personer = setOf(lagPerson(aktør = aktør3, personType = PersonType.BARN))),
+                    lagEndretUtbetalingAndel(aktører = setOf(aktør1)),
+                    lagEndretUtbetalingAndel(aktører = setOf(aktør2)),
+                    lagEndretUtbetalingAndel(aktører = setOf(aktør3)),
                 )
             every { endretUtbetalingAndelRepository.save(any()) } returns mockk()
 
@@ -104,7 +104,7 @@ class EndretUtbetalingAndelServiceTest {
                 lagTestPersonopplysningGrunnlag(nyBehandling.id, lagPerson(aktør = aktør, personType = PersonType.BARN))
             val endretUtbetalingAndel =
                 lagEndretUtbetalingAndel(
-                    personer = setOf(lagPerson(aktør = aktør, personType = PersonType.BARN)),
+                    aktører = setOf(aktør),
                     årsak = Årsak.ETTERBETALING_3MND,
                     begrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_SØKT_FOR_SENT_ENDRINGSPERIODE),
                     erEksplisittAvslagPåSøknad = true,
@@ -139,11 +139,10 @@ class EndretUtbetalingAndelServiceTest {
             val nyBehandling = lagBehandling()
             val aktør = randomAktør()
 
-            val gammelPerson = lagPerson(aktør = aktør, personType = PersonType.BARN).copy(id = 1L)
             val nyPerson = lagPerson(aktør = aktør, personType = PersonType.BARN).copy(id = 2L)
             val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, nyPerson)
 
-            val endretUtbetalingAndel = lagEndretUtbetalingAndel(personer = setOf(gammelPerson))
+            val endretUtbetalingAndel = lagEndretUtbetalingAndel(aktører = setOf(aktør))
             val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
 
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
@@ -154,8 +153,8 @@ class EndretUtbetalingAndelServiceTest {
             endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
             // Assert
-            val lagretPersoner = lagretEndretUtbetalingAndelSlot.captured.personer
-            assertThat(lagretPersoner.map { it.id }, Is(listOf(2L)))
+            val lagretAktører = lagretEndretUtbetalingAndelSlot.captured.aktører
+            assertThat(lagretAktører, Is(setOf(aktør)))
         }
 
         @Test
@@ -167,13 +166,11 @@ class EndretUtbetalingAndelServiceTest {
             val aktørSomBlirMed = randomAktør()
             val aktørSomFallerUt = randomAktør()
 
-            val gammelPersonSomBlirMed = lagPerson(aktør = aktørSomBlirMed, personType = PersonType.BARN).copy(id = 1L)
-            val gammelPersonSomFallerUt = lagPerson(aktør = aktørSomFallerUt, personType = PersonType.BARN).copy(id = 2L)
             val nyPersonSomBlirMed = lagPerson(aktør = aktørSomBlirMed, personType = PersonType.BARN).copy(id = 3L)
             // Nytt grunnlag inneholder ikke aktørSomFallerUt, f.eks. fordi barnet har falt ut av saken.
             val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, nyPersonSomBlirMed)
 
-            val endretUtbetalingAndel = lagEndretUtbetalingAndel(personer = setOf(gammelPersonSomBlirMed, gammelPersonSomFallerUt))
+            val endretUtbetalingAndel = lagEndretUtbetalingAndel(aktører = setOf(aktørSomBlirMed, aktørSomFallerUt))
             val lagretEndretUtbetalingAndelSlot = slot<EndretUtbetalingAndel>()
 
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
@@ -184,8 +181,8 @@ class EndretUtbetalingAndelServiceTest {
             endretUtbetalingAndelService.kopierEndretUtbetalingAndelFraForrigeBehandling(nyBehandling, gammelBehandling)
 
             // Assert
-            val lagretPersoner = lagretEndretUtbetalingAndelSlot.captured.personer
-            assertThat(lagretPersoner.map { it.id }, Is(listOf(3L)))
+            val lagretAktører = lagretEndretUtbetalingAndelSlot.captured.aktører
+            assertThat(lagretAktører, Is(setOf(aktørSomBlirMed)))
         }
 
         @Test
@@ -194,11 +191,11 @@ class EndretUtbetalingAndelServiceTest {
             val gammelBehandling = lagBehandling()
             val nyBehandling = lagBehandling()
 
-            val gammelPerson = lagPerson(personType = PersonType.BARN).copy(id = 1L)
+            val gammelAktør = randomAktør()
             // Nytt grunnlag inneholder en helt annen aktør enn den som var med i forrige EndretUtbetalingAndel.
             val personopplysningGrunnlag = lagTestPersonopplysningGrunnlag(nyBehandling.id, lagPerson(personType = PersonType.BARN).copy(id = 2L))
 
-            val endretUtbetalingAndel = lagEndretUtbetalingAndel(personer = setOf(gammelPerson))
+            val endretUtbetalingAndel = lagEndretUtbetalingAndel(aktører = setOf(gammelAktør))
 
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(nyBehandling.id) } returns personopplysningGrunnlag
             every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(gammelBehandling.id) } returns listOf(endretUtbetalingAndel)
@@ -222,7 +219,7 @@ class EndretUtbetalingAndelServiceTest {
 
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.behandlingId, Is(behandling.id))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.årsak, Is(nullValue()))
-        assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.personer, Is(emptySet()))
+        assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.aktører, Is(emptySet()))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.tom, Is(nullValue()))
         assertThat(tomEndretUtbetalingAndelMedBehandlingSatt.fom, Is(nullValue()))
 
@@ -367,7 +364,7 @@ class EndretUtbetalingAndelServiceTest {
         // Assert
         assertThat(lagretEndretUtbetalingAndel.captured).isEqualTo(
             endretUtbetalingAndel.copy(
-                personer = mutableSetOf(barn1),
+                aktører = mutableSetOf(barn1.aktør),
             ),
         )
 
@@ -389,7 +386,7 @@ class EndretUtbetalingAndelServiceTest {
         // Assert
         assertThat(lagretEndretUtbetalingAndel.captured).isEqualTo(
             endretUtbetalingAndel.copy(
-                personer = mutableSetOf(barn1, barn2),
+                aktører = mutableSetOf(barn1.aktør, barn2.aktør),
             ),
         )
     }

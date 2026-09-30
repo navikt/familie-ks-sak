@@ -1,7 +1,6 @@
 package no.nav.familie.ks.sak.kjerne.eøs.util
 
 import no.nav.familie.ks.sak.common.BehandlingId
-import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.beregning.EndretUtbetalingAndelMedAndelerTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelse
@@ -23,9 +22,9 @@ class DeltBostedBuilder(
         vararg barn: Person,
     ) = medSkjema(k, barn.toList()) {
         when (it) {
-            '0' -> DeltBosted(prosent = 0, barnPersoner = barn.toList())
-            '/' -> DeltBosted(prosent = 50, barnPersoner = barn.toList())
-            '1' -> DeltBosted(prosent = 100, barnPersoner = barn.toList())
+            '0' -> DeltBosted(prosent = 0)
+            '/' -> DeltBosted(prosent = 50)
+            '1' -> DeltBosted(prosent = 100)
             else -> null
         }
     }
@@ -36,7 +35,6 @@ data class DeltBosted(
     override val tom: YearMonth? = null,
     override val barnAktører: Set<Aktør> = emptySet(),
     val prosent: Int?,
-    internal val barnPersoner: List<Person> = emptyList(),
 ) : EøsSkjemaEntitet<DeltBosted>() {
     override fun utenInnhold() = copy(prosent = null)
 
@@ -48,12 +46,7 @@ data class DeltBosted(
         fom = fom,
         tom = tom,
         barnAktører = barnAktører.map { it.copy() }.toSet(),
-        barnPersoner = this.barnPersoner.filter { barnAktører.contains(it.aktør) },
-    ).also {
-        if (barnAktører.size != barnPersoner.size) {
-            throw Feil("Ikke samsvar mellom antall aktører og barn lenger")
-        }
-    }
+    )
 
     override var id: Long = 0
     override var behandlingId: Long = 0
@@ -76,11 +69,11 @@ fun Iterable<DeltBosted>.tilEndreteUtebetalingAndeler(): List<EndretUtbetalingAn
     this
         .filter { deltBosted -> deltBosted.fom != null && deltBosted.tom != null && deltBosted.prosent != null }
         .flatMap { deltBosted ->
-            deltBosted.barnPersoner.map { barn ->
+            deltBosted.barnAktører.map { barnAktør ->
                 val endretUtbetalingAndel: EndretUtbetalingAndel =
                     lagEndretUtbetalingAndel(
                         behandlingId = deltBosted.behandlingId,
-                        personer = setOf(barn),
+                        aktører = setOf(barnAktør),
                         periodeFom = deltBosted.fom!!,
                         periodeTom = deltBosted.tom!!,
                         prosent = deltBosted.prosent!!.toBigDecimal(),

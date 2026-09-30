@@ -36,6 +36,7 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAnde
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -54,6 +55,7 @@ internal class KompetanseServiceTest {
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
     private val vilkårsvurderingService: VilkårsvurderingService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
@@ -68,6 +70,7 @@ internal class KompetanseServiceTest {
             vilkårsvurderingTidslinjeService = vilkårsvurderingTidslinjeService,
             endretUtbetalingAndelRepository = endretUtbetalingAndelRepository,
             overgangsordningAndelRepository = overgangsordningAndelRepository,
+            personopplysningGrunnlagService = personopplysningGrunnlagService,
             clockProvider = TestClockProvider.lagClockProviderMedFastTidspunkt(LocalDate.of(2024, 10, 1)),
         )
 
@@ -94,6 +97,7 @@ internal class KompetanseServiceTest {
         every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(any()) } returns emptyList()
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id) } returns emptyList()
         every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()
+        every { personopplysningGrunnlagService.hentBarnaThrows(any()) } returns emptyList()
         kompetanseRepository.deleteAll()
     }
 

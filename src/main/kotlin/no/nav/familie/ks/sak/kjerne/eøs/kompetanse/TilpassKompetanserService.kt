@@ -21,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.UtfyltOvergangsordni
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.tilPerioder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.utfyltePerioder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
@@ -41,6 +42,7 @@ class TilpassKompetanserService(
     private val vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService,
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository,
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository,
+    private val personopplysningGrunnlagService: PersonopplysningGrunnlagService,
     private val clockProvider: ClockProvider,
 ) {
     private val kompetanseSkjemaService = EøsSkjemaService(kompetanseRepository, kompetanseEndringsAbonnenter)
@@ -51,11 +53,12 @@ class TilpassKompetanserService(
         val barnasRegelverkResultatTidslinjer = vilkårsvurderingTidslinjeService.hentBarnasRegelverkResultatTidslinjer(behandlingId)
         val endretUtbetalingAndeler = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId.id)
         val overgangsordningAndeler = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId.id)
+        val barnaAktør = personopplysningGrunnlagService.hentBarnaThrows(behandlingId.id).map { it.aktør }.toSet()
 
         val annenForelderOmfattetAvNorskLovgivningTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId = behandlingId.id)
 
-        val barnasSkalIkkeUtbetalesTidslinjer = endretUtbetalingAndeler.tilBarnasSkalIkkeUtbetalesTidslinjer()
+        val barnasSkalIkkeUtbetalesTidslinjer = endretUtbetalingAndeler.tilBarnasSkalIkkeUtbetalesTidslinjer(barnaAktør)
         val utfylteOvergangsordningAndeler = overgangsordningAndeler.utfyltePerioder()
 
         val oppdaterteKompetanser =
