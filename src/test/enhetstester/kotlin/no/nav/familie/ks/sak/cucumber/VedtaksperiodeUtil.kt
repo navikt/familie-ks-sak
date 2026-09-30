@@ -517,11 +517,12 @@ fun lagOvergangsordningAndeler(
         fom = parseDato(Domenebegrep.FRA_DATO, rad).toYearMonth(),
         tom = parseDato(Domenebegrep.TIL_DATO, rad).toYearMonth(),
         behandlingId = behandlinger.finnBehandling(behandlingId).id,
-        person =
+        aktør =
             personGrunnlag
                 .finnPersonGrunnlagForBehandling(behandlingId)
                 .personer
-                .find { aktørId == it.aktør.aktørId }!!,
+                .find { aktørId == it.aktør.aktørId }!!
+                .aktør,
         deltBosted = parseBoolean(VedtaksperiodeMedBegrunnelserParser.DomenebegrepOvergangsordning.DELT_BOSTED, rad),
         antallTimer =
             parseBigDecimal(

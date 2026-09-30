@@ -715,7 +715,7 @@ class BrevPeriodeContext(
         val antallTimerIOvergangsordningsAndel =
             overgangsordningAndeler
                 .find {
-                    it.person == this &&
+                    it.aktør == this.aktør &&
                         it.fom == utvidetVedtaksperiodeMedBegrunnelser.fom?.toYearMonth() &&
                         it.tom == utvidetVedtaksperiodeMedBegrunnelser.tom?.toYearMonth()
                 }?.antallTimer
