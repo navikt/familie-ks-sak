@@ -36,9 +36,9 @@ class TestVerktøyService(
                 .filter { it.aktivertTidspunkt < behandling.aktivertTidspunkt }
                 .maxByOrNull { it.aktivertTidspunkt }
 
-        val persongrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)!!
+        val persongrunnlag = personopplysningGrunnlagRepository.findByBehandling(behandlingId)!!
         val persongrunnlagForrigeBehandling =
-            forrigeBehandling?.let { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(it.id)!! }
+            forrigeBehandling?.let { personopplysningGrunnlagRepository.findByBehandling(it.id)!! }
 
         val personResultater = vilkårService.hentAktivVilkårsvurderingForBehandling(behandlingId).personResultater
         val personResultaterForrigeBehandling =

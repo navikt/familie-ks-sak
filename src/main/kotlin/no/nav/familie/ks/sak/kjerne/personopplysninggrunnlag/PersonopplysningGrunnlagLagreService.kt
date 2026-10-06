@@ -13,11 +13,11 @@ class PersonopplysningGrunnlagLagreService(
 ) {
     @Transactional
     fun lagreOgSlettGammelt(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag {
-        val aktivtPersonopplysningGrunnlag =
-            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(personopplysningGrunnlag.behandlingId)
+        val lagretPersonopplysningGrunnlag =
+            personopplysningGrunnlagRepository.findByBehandling(personopplysningGrunnlag.behandlingId)
 
-        if (aktivtPersonopplysningGrunnlag != null) {
-            personopplysningGrunnlagRepository.delete(aktivtPersonopplysningGrunnlag)
+        if (lagretPersonopplysningGrunnlag != null) {
+            personopplysningGrunnlagRepository.delete(lagretPersonopplysningGrunnlag)
             personopplysningGrunnlagRepository.flush()
         }
 

@@ -21,7 +21,4 @@ enum class FeatureToggle(
 
     // NAV-27897
     SKAL_SKYGGEKJØRE_TILGANGSMASKINEN("familie-ks-sak.skal-skyggekjore-tilgangsmaskinen"),
-
-    // NAV-31007
-    SKAL_SLETTE_INAKTIVE_PERSONOPPLYSNINGSGRUNNLAG("familie-ks-sak.skal-slette-inaktive-personopplysningsgrunnlag"),
 }

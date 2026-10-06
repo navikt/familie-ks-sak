@@ -63,7 +63,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
             )
 
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
+        every { personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
@@ -132,7 +132,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
 
         vilkårsvurdering.personResultater = setOf(personResultat)
 
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
+        every { personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
@@ -177,7 +177,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.ANNEN_FORELDER_OMFATTET_AV_NORSK_LOVGIVNING),
             )
 
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
+        every { personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
@@ -212,7 +212,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerPeriodeTom = LocalDate.of(2023, 3, 4),
             )
 
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId = behandling.id) } returns
+        every { personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 søkerPersonIdent = søker.aktør.aktivFødselsnummer(),

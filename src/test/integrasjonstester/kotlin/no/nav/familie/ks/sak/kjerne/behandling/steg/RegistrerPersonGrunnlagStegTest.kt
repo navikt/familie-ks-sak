@@ -47,7 +47,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
         // Assert
         val personopplysningGrunnlag =
-            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id).shouldNotBeNull()
+            personopplysningGrunnlagRepository.findByBehandling(behandling.id).shouldNotBeNull()
         assertEquals(1, personopplysningGrunnlag.personer.size)
 
         val person = personopplysningGrunnlag.personer.single()
@@ -97,7 +97,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         val personopplysningGrunnlag =
-            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(revurdering.id).shouldNotBeNull()
+            personopplysningGrunnlagRepository.findByBehandling(revurdering.id).shouldNotBeNull()
         assertEquals(1, personopplysningGrunnlag.personer.size)
 
         val søker = personopplysningGrunnlag.personer.single { it.type == PersonType.SØKER }
@@ -149,7 +149,7 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertDoesNotThrow { registrerPersonGrunnlagSteg.utførSteg(revurdering.id) }
 
         val personopplysningGrunnlag =
-            personopplysningGrunnlagRepository.findByBehandlingAndAktiv(revurdering.id).shouldNotBeNull()
+            personopplysningGrunnlagRepository.findByBehandling(revurdering.id).shouldNotBeNull()
         assertEquals(1, personopplysningGrunnlag.personer.size)
 
         val søker = personopplysningGrunnlag.personer.single { it.type == PersonType.SØKER }

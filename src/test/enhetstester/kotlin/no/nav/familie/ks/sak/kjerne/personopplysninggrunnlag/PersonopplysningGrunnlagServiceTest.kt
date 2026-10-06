@@ -110,8 +110,8 @@ internal class PersonopplysningGrunnlagServiceTest {
                 barnAktør = listOf(barnAktør),
                 barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
             )
-        every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns personopplysningGrunnlag
+        every { personopplysningGrunnlagRepository.hentByBehandling(any()) } returns personopplysningGrunnlag
+        every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns personopplysningGrunnlag
         val lagretGrunnlag = slot<PersonopplysningGrunnlag>()
         every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(capture(lagretGrunnlag)) } returnsArgument 0
         every {
@@ -183,7 +183,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                 søkerPersonIdent = søker.aktivFødselsnummer(),
             ).also { it.personer.clear() }
 
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns eksisterendePersonopplysningGrunnlag
+        every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns eksisterendePersonopplysningGrunnlag
         every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) } returnsArgument 0
         every { personidentService.hentOgLagreAktør(any(), any()) } returns barn2 andThen barn3
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns
@@ -248,7 +248,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                 søkerPersonIdent = søker.aktivFødselsnummer(),
             ).also { it.personer.clear() }
 
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns eksisterendePersonopplysningGrunnlag
+        every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns eksisterendePersonopplysningGrunnlag
         every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) } returnsArgument 0
         every {
             andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(
@@ -309,7 +309,7 @@ internal class PersonopplysningGrunnlagServiceTest {
     fun `oppdaterPersonopplysningGrunnlag - skal kaste feil dersom det ikke eksisterer noe aktivt persongrunnlag for behandling`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
 
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } returns null
+        every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns null
 
         val feil =
             assertThrows<Feil> {
@@ -332,7 +332,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         val barn1 = randomAktør()
 
         every { personidentService.hentOgLagreAktør(any(), any()) } returns barn1
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) } returns
+        every { personopplysningGrunnlagRepository.findByBehandling(behandling.id) } returns
             lagPersonopplysningGrunnlag(
                 behandlingId = behandling.id,
                 barnasIdenter = listOf(barn1.aktivFødselsnummer()),
@@ -364,7 +364,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         val nyPersonopplysningGrunnlag = PersonopplysningGrunnlag(behandlingId = behandling.id)
 
         every { personidentService.hentOgLagreAktør(any(), any()) } returns nyBarn
-        every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) } returns eksisterendePersonOpplysningGrunnlag
+        every { personopplysningGrunnlagRepository.findByBehandling(behandling.id) } returns eksisterendePersonOpplysningGrunnlag
         every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) } returnsArgument 0
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns
             lagPerson(personopplysningGrunnlag = nyPersonopplysningGrunnlag, aktør = søker, personType = PersonType.SØKER) andThen
@@ -376,7 +376,7 @@ internal class PersonopplysningGrunnlagServiceTest {
             personopplysningGrunnlagService.leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling, barn1.aktivFødselsnummer())
         }
         verify(exactly = 1) { personidentService.hentOgLagreAktør(any(), any()) }
-        verify(exactly = 1) { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id) }
+        verify(exactly = 1) { personopplysningGrunnlagRepository.findByBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
         verify(exactly = 3) { personService.lagPerson(any(), any(), any(), any(), any()) }
@@ -419,7 +419,7 @@ internal class PersonopplysningGrunnlagServiceTest {
 
             personopplysningGrunnlag.personer.addAll(setOf(søker, barn1, barn2))
 
-            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } returns personopplysningGrunnlag
+            every { personopplysningGrunnlagRepository.hentByBehandling(behandling.id) } returns personopplysningGrunnlag
 
             // Act
             val barna = personopplysningGrunnlagService.hentBarnaThrows(behandling.id)
@@ -435,7 +435,7 @@ internal class PersonopplysningGrunnlagServiceTest {
             // Arrange
             val behandling = lagBehandling()
 
-            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id) } throws Feil("Ops! Feil oppstod.")
+            every { personopplysningGrunnlagRepository.hentByBehandling(behandling.id) } throws Feil("Ops! Feil oppstod.")
 
             // Act & assert
             val exception =

@@ -161,7 +161,7 @@ class SakStatistikkService(
         val aktørDVHer =
             if (aktivBehandling != null) {
                 personopplysningGrunnlagRepository
-                    .findByBehandlingAndAktiv(behandlingId = aktivBehandling.id)
+                    .findByBehandling(behandlingId = aktivBehandling.id)
                     ?.personer
                     ?.map {
                         AktørDVH(

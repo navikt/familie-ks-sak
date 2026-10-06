@@ -148,7 +148,7 @@ class ArbeidsfordelingService(
 
     fun hentArbeidsfordelingsenhet(behandling: Behandling): Arbeidsfordelingsenhet {
         val søker = identMedAdressebeskyttelse(behandling.fagsak.aktør)
-        val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandling.id)
+        val personopplysningGrunnlag = personopplysningGrunnlagRepository.findByBehandling(behandling.id)
 
         val personer =
             personopplysningGrunnlag?.barna?.map { barn -> identMedAdressebeskyttelse(barn.aktør) }?.plus(søker)

@@ -9,7 +9,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Personopplys
 fun mockPersonopplysningGrunnlagRepository(stepDefinition: StepDefinition): PersonopplysningGrunnlagRepository {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
 
-    every { personopplysningGrunnlagRepository.findByBehandlingAndAktiv(any()) } answers {
+    every { personopplysningGrunnlagRepository.findByBehandling(any()) } answers {
         val behandlingsId = firstArg<Long>()
         stepDefinition.personopplysningGrunnlagMap[behandlingsId]
             ?: throw Feil("Fant ikke personopplysninggrunnlag for behandling $behandlingsId")

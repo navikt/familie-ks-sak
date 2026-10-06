@@ -475,7 +475,7 @@ internal class KompetanseServiceTest {
     inner class TilpassKompetanse {
         @BeforeEach
         fun setup() {
-            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId.id) } returns
+            every { personopplysningGrunnlagRepository.hentByBehandling(behandlingId.id) } returns
                 lagPersonopplysningGrunnlag(
                     behandlingId = behandlingId.id,
                     søkerAktør = søker,
@@ -626,7 +626,7 @@ internal class KompetanseServiceTest {
             val vilkårTom = LocalDate.of(2024, 9, 1)
             val nasjonalBehandling = lagBehandling(kategori = BehandlingKategori.NASJONAL)
 
-            every { personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(nasjonalBehandling.id) } returns
+            every { personopplysningGrunnlagRepository.hentByBehandling(nasjonalBehandling.id) } returns
                 lagPersonopplysningGrunnlag(
                     behandlingId = nasjonalBehandling.id,
                     søkerAktør = søker,

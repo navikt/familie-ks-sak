@@ -103,13 +103,13 @@ class PersonopplysningGrunnlagService(
             andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandlingOgBarn(behandling.id, it).isNotEmpty()
         } ?: emptyList()
 
-    fun hentSøker(behandlingId: Long): Person? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.søker
+    fun hentSøker(behandlingId: Long): Person? = personopplysningGrunnlagRepository.findByBehandling(behandlingId)?.søker
 
-    fun hentSøkerThrows(behandlingId: Long): Person = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).søker
+    fun hentSøkerThrows(behandlingId: Long): Person = personopplysningGrunnlagRepository.hentByBehandling(behandlingId).søker
 
-    fun hentBarna(behandlingId: Long): List<Person>? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId)?.barna
+    fun hentBarna(behandlingId: Long): List<Person>? = personopplysningGrunnlagRepository.findByBehandling(behandlingId)?.barna
 
-    fun hentBarnaThrows(behandlingId: Long): List<Person> = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandlingId).barna
+    fun hentBarnaThrows(behandlingId: Long): List<Person> = personopplysningGrunnlagRepository.hentByBehandling(behandlingId).barna
 
     fun hentSøkerOgBarnPåFagsak(fagsakId: Long): Set<PersonEnkel>? =
         personopplysningGrunnlagRepository
@@ -120,10 +120,10 @@ class PersonopplysningGrunnlagService(
 
     fun lagreOgSlettGammelt(personopplysningGrunnlag: PersonopplysningGrunnlag): PersonopplysningGrunnlag = personopplysningGrunnlagLagreService.lagreOgSlettGammelt(personopplysningGrunnlag)
 
-    fun finnAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? = personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
+    fun finnAktivPersonopplysningGrunnlag(behandlingId: Long): PersonopplysningGrunnlag? = personopplysningGrunnlagRepository.findByBehandling(behandlingId = behandlingId)
 
     fun hentAktivPersonopplysningGrunnlagThrows(behandlingId: Long): PersonopplysningGrunnlag =
-        personopplysningGrunnlagRepository.findByBehandlingAndAktiv(behandlingId = behandlingId)
+        personopplysningGrunnlagRepository.findByBehandling(behandlingId = behandlingId)
             ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for $behandlingId")
 
     @Transactional

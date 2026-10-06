@@ -73,7 +73,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
             )
 
         // Valider at aktivt personopplysningsgrunnlag kun inneholder søker
-        val personopplysningGrunnlagFørSteg = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id)
+        val personopplysningGrunnlagFørSteg = personopplysningGrunnlagRepository.hentByBehandling(behandling.id)
         assertEquals(1, personopplysningGrunnlagFørSteg.personer.size)
 
         // Act
@@ -104,7 +104,7 @@ class RegistrereSøknadStegTest : OppslagSpringRunnerTest() {
         assertEquals(søker.aktivFødselsnummer(), lagretSøknad.søkerMedOpplysninger.ident)
 
         // Valider at aktivt personopplysningsgrunnlag er oppdatert med barna
-        val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(behandling.id)
+        val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandling(behandling.id)
         assertEquals(3, personopplysningGrunnlag.personer.size)
         assertEquals(2, personopplysningGrunnlag.barna.size)
 

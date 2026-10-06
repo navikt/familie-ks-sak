@@ -91,7 +91,7 @@ class FagsakService(
         val gjeldendeUtbetalingsperioder =
             sistIverksatteBehandling?.let {
                 val personopplysningGrunnlag =
-                    personopplysningGrunnlagRepository.hentByBehandlingAndAktiv(it.id)
+                    personopplysningGrunnlagRepository.hentByBehandling(it.id)
                 val andeler =
                     andelerTilkjentYtelseOgEndreteUtbetalingerService.finnAndelerTilkjentYtelseMedEndreteUtbetalinger(it.id)
 
