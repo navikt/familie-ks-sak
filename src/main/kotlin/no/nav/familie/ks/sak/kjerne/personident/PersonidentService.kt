@@ -10,6 +10,8 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlIdent
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.hentAktivAktørId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -97,6 +99,7 @@ class PersonidentService(
         historikk: Boolean,
     ): List<PdlIdent> = pdlKlient.hentIdenter(personIdent, historikk)
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun opprettTaskForIdentHendelse(nyIdent: PersonIdent) {
         if (identSkalLeggesTil(nyIdent)) {
             logger.info("Oppretter task for senere håndterering av ny ident")
