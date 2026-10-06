@@ -85,8 +85,8 @@ spec:
         - application: populasjonstilgangskontroll
           namespace: tilgangsmaskin
           cluster: dev-gcp
-        - application: familie-ks-infotrygd
-          cluster: dev-fss
+        - application: familie-ks-infotrygd-replika
+          cluster: dev-gcp
         - application: familie-ef-sak
           cluster: dev-gcp
         - application: tilbakekreving-backend
@@ -103,7 +103,6 @@ spec:
         - host: xsrv1mh6.api.sanity.io
         - host: pdl-api.dev-fss-pub.nais.io
         - host: familie-integrasjoner.dev-fss-pub.nais.io
-        - host: familie-ks-infotrygd.dev-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
   replicas:
