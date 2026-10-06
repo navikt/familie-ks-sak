@@ -29,48 +29,50 @@ class IdenthendelseV2Consumer(
     )
     @Transactional
     fun listen(
-        consumerRecord: ConsumerRecord<String, Aktor?>,
+        consumerRecords: List<ConsumerRecord<String, Aktor?>>,
         ack: Acknowledgment,
     ) {
-        try {
-            Thread.sleep(60000) // Venter 1 min da det kan hende at PDL ikke er ferdig med å populere sine opplysninger rett etter at vi har lest meldingen
-            MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
-            SECURE_LOGGER.info("Har mottatt ident-hendelse $consumerRecord")
+        Thread.sleep(60000) // Venter 1 min da det kan hende at PDL ikke er ferdig med å populere sine opplysninger rett etter at vi har lest meldingene
+        consumerRecords.forEach { consumerRecord ->
+            try {
+                MDC.put(MDCConstants.MDC_CALL_ID, UUID.randomUUID().toString())
+                SECURE_LOGGER.info("Har mottatt ident-hendelse $consumerRecord")
 
-            val aktør = consumerRecord.value()
-            val aktørIdPåHendelse = consumerRecord.key()
+                val aktør = consumerRecord.value()
+                val aktørIdPåHendelse = consumerRecord.key()
 
-            if (aktør == null) {
-                log.warn("Tom aktør fra identhendelse")
-                SECURE_LOGGER.warn("Tom aktør fra identhendelse med nøkkel $aktørIdPåHendelse")
+                if (aktør == null) {
+                    log.warn("Tom aktør fra identhendelse")
+                    SECURE_LOGGER.warn("Tom aktør fra identhendelse med nøkkel $aktørIdPåHendelse")
+                }
+
+                val aktivAktørid =
+                    aktør
+                        ?.identifikatorer
+                        ?.singleOrNull { ident ->
+                            ident.type == Type.AKTORID && ident.gjeldende
+                        }?.idnummer
+                        .toString()
+
+                // I tilfeller som ved merge av hendelser vil man få både identhendelse på gammel og ny aktørid, så for å unngå duplikater så sender man bare på aktiv ident
+                if (aktørIdPåHendelse.contains(aktivAktørid)) {
+                    aktør
+                        ?.identifikatorer
+                        ?.singleOrNull { ident ->
+                            ident.type == Type.FOLKEREGISTERIDENT && ident.gjeldende
+                        }?.also { folkeregisterident ->
+                            personidentService.opprettTaskForIdentHendelse(PersonIdent(folkeregisterident.idnummer))
+                        }
+                } else {
+                    SECURE_LOGGER.info("Ignorerer å lage task på ident-hendelse fordi aktør $aktørIdPåHendelse ikke lenger er en gyldig aktør")
+                }
+            } catch (e: RuntimeException) {
+                log.warn("Feil i prosessering av ident-hendelser", e)
+                SECURE_LOGGER.warn("Feil i prosessering av ident-hendelser $consumerRecord", e)
+                throw RuntimeException("Feil i prosessering av ident-hendelser", e)
+            } finally {
+                MDC.clear()
             }
-
-            val aktivAktørid =
-                aktør
-                    ?.identifikatorer
-                    ?.singleOrNull { ident ->
-                        ident.type == Type.AKTORID && ident.gjeldende
-                    }?.idnummer
-                    .toString()
-
-            // I tilfeller som ved merge av hendelser vil man få både identhendelse på gammel og ny aktørid, så for å unngå duplikater så sender man bare på aktiv ident
-            if (aktørIdPåHendelse.contains(aktivAktørid)) {
-                aktør
-                    ?.identifikatorer
-                    ?.singleOrNull { ident ->
-                        ident.type == Type.FOLKEREGISTERIDENT && ident.gjeldende
-                    }?.also { folkeregisterident ->
-                        personidentService.opprettTaskForIdentHendelse(PersonIdent(folkeregisterident.idnummer))
-                    }
-            } else {
-                SECURE_LOGGER.info("Ignorerer å lage task på ident-hendelse fordi aktør $aktørIdPåHendelse ikke lenger er en gyldig aktør")
-            }
-        } catch (e: RuntimeException) {
-            log.warn("Feil i prosessering av ident-hendelser", e)
-            SECURE_LOGGER.warn("Feil i prosessering av ident-hendelser $consumerRecord", e)
-            throw RuntimeException("Feil i prosessering av ident-hendelser")
-        } finally {
-            MDC.clear()
         }
         ack.acknowledge()
     }

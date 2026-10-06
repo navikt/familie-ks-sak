@@ -3,6 +3,8 @@ package no.nav.familie.ks.sak.config
 import io.mockk.mockk
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
+import org.apache.kafka.common.TopicPartition
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.listener.MessageListenerContainer
@@ -54,5 +56,20 @@ class KafkaErrorHandlerTest {
         val cause = exceptionThrown.cause()
 
         cause.hasMessageNotContaining("Feil i test").hasMessageContaining("Sjekk securelogs for mer info")
+    }
+
+    @Test
+    fun `skal stoppe container og håndtere feil for en batch`() {
+        // Arrange
+        val partition = TopicPartition("topic", 1)
+        val records = ConsumerRecords(mapOf(partition to listOf(ConsumerRecord("topic", 1, 1, 1, "record"))), emptyMap())
+
+        // Act & Assert
+        val exceptionThrown =
+            Assertions.assertThatThrownBy {
+                errorHandler.handleBatch(RuntimeException("Feil i test"), records, consumer, container, Runnable {})
+            }
+        exceptionThrown.hasCauseExactlyInstanceOf(Exception::class.java)
+        exceptionThrown.cause().hasMessageNotContaining("Feil i test").hasMessageContaining("Sjekk securelogs for mer info")
     }
 }

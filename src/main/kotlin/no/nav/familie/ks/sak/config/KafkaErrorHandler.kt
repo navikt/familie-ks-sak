@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.config
 
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.task.SimpleAsyncTaskExecutor
@@ -22,6 +23,16 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
     private val teller = AtomicInteger(0)
     private val sisteFeil = AtomicLong(0)
 
+    override fun handleBatch(
+        e: Exception,
+        records: ConsumerRecords<*, *>,
+        consumer: Consumer<*, *>,
+        container: MessageListenerContainer,
+        invokeListener: Runnable,
+    ) {
+        handleRemaining(e, records.toList(), consumer, container)
+    }
+
     override fun handleRemaining(
         e: Exception,
         records: List<ConsumerRecord<*, *>>,
@@ -40,7 +51,7 @@ class KafkaErrorHandler : CommonContainerStoppingErrorHandler() {
         } else {
             records.first().run {
                 logger.error(
-                    "Feil ved konsumering av melding fra ${this.topic()}. id ${this.key()}, " +
+                    "Feil ved konsumering av melding fra ${this.topic()}. " +
                         "offset: ${this.offset()}, partition: ${this.partition()}",
                 )
                 secureLogger.error("${this.topic()} - Problemer med prosessering av $records", e)
