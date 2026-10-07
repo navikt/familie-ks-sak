@@ -29,7 +29,6 @@ import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext.hentSaksbehandlerNavn
-import no.nav.familie.ks.sak.task.GjenåpneFagsakIDokarkivTask
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -196,9 +195,18 @@ class FagsakLåsingService(
 
         oppdaterStatus(fagsak, FagsakStatus.AVSLUTTET)
 
-        // Gjenåpningen i Joark kan ikke rulles tilbake, så den legges på task og kjører først når
-        // opplåsingen faktisk er commitet.
-        taskService.save(GjenåpneFagsakIDokarkivTask.opprettTask(fagsakId))
+        integrasjonKlient.gjenåpneSakIDokarkiv(
+            GjenåpneSakRequest(
+                tema = Tema.KON,
+                fagsakId = fagsakId.toString(),
+                fagsaksystem = Fagsystem.KONT,
+                bruker =
+                    DokarkivBruker(
+                        idType = BrukerIdType.FNR,
+                        id = fagsak.aktør.aktivFødselsnummer(),
+                    ),
+            ),
+        )
 
         return fagsak
     }

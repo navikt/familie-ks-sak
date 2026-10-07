@@ -12,6 +12,7 @@ import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.DokarkivBruker
 import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
 import no.nav.familie.kontrakter.felles.tilbakekreving.Behandlingsstatus
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -42,7 +43,6 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
 import no.nav.familie.ks.sak.kjerne.klage.KlagebehandlingHenter
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
-import no.nav.familie.ks.sak.task.GjenåpneFagsakIDokarkivTask
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -461,6 +461,7 @@ class FagsakLåsingServiceTest {
             every { fagsakLåsingRepository.finnAktivLåsForFagsak(any()) } returns null
             every { fagsakLåsingRepository.save(any()) } answers { firstArg() }
             every { fagsakRepository.save(any()) } answers { firstArg() }
+            every { integrasjonKlient.gjenåpneSakIDokarkiv(any()) } just runs
         }
 
         @Test
@@ -500,25 +501,24 @@ class FagsakLåsingServiceTest {
         }
 
         @Test
-        fun `skal opprette task for å gjenåpne sak i dokarkiv framfor å kalle integrasjonsklienten`() {
+        fun `skal gjenåpne sak i dokarkiv`() {
             // Arrange
             val fagsak = lagFagsak(status = FagsakStatus.LÅST)
             every { fagsakRepository.finnFagsak(fagsak.id) } returns fagsak
             every { taskService.save(any()) } answers { firstArg() }
 
+            val gjenåpneSakRequestSlot = slot<GjenåpneSakRequest>()
+            every { integrasjonKlient.gjenåpneSakIDokarkiv(capture(gjenåpneSakRequestSlot)) } just runs
+
             // Act
             fagsakLåsingService.låsOppFagsak(fagsak.id, "Begrunnelse")
 
             // Assert
-            verify {
-                taskService.save(
-                    match {
-                        it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE && it.payload == fagsak.id.toString()
-                    },
-                )
-            }
-            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
-            verify { taskService.save(match { it.type == PubliserSaksstatistikkTask.TASK_STEP_TYPE }) }
+            verify(exactly = 1) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
+            assertThat(gjenåpneSakRequestSlot.captured.tema).isEqualTo(Tema.KON)
+            assertThat(gjenåpneSakRequestSlot.captured.fagsakId).isEqualTo(fagsak.id.toString())
+            assertThat(gjenåpneSakRequestSlot.captured.fagsaksystem).isEqualTo(Fagsystem.KONT)
+            assertThat(gjenåpneSakRequestSlot.captured.bruker).isEqualTo(DokarkivBruker(BrukerIdType.FNR, fagsak.aktør.aktivFødselsnummer()))
         }
 
         @Test
@@ -536,7 +536,7 @@ class FagsakLåsingServiceTest {
             assertThat(feil.message).contains("LÅST")
             assertThat(feil.message).contains("LØPENDE")
             verify(exactly = 0) { fagsakLåsingRepository.save(any()) }
-            verify(exactly = 0) { taskService.save(match { it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE }) }
+            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
         }
 
         @Test
@@ -551,7 +551,7 @@ class FagsakLåsingServiceTest {
             }
 
             verify(exactly = 0) { fagsakLåsingRepository.save(any()) }
-            verify(exactly = 0) { taskService.save(match { it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE }) }
+            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
         }
 
         @Test
@@ -565,7 +565,7 @@ class FagsakLåsingServiceTest {
                 fagsakLåsingService.låsOppFagsak(fagsak.id, "Begrunnelse")
             }
 
-            verify(exactly = 0) { taskService.save(match { it.type == GjenåpneFagsakIDokarkivTask.TASK_STEP_TYPE }) }
+            verify(exactly = 0) { integrasjonKlient.gjenåpneSakIDokarkiv(any()) }
             verify(exactly = 0) { fagsakRepository.save(any()) }
         }
     }
