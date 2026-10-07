@@ -75,7 +75,7 @@ class TilgangService(
             throw RolleTilgangskontrollFeil(
                 melding =
                     "Saksbehandler ${SikkerhetContext.hentSaksbehandler()} " +
-                        "har ikke tilgang til å behandle $personIdenter. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
+                        "har ikke tilgang til å behandle alle personene som etterspørres. ${tilgangerTilPersoner.tilBegrunnelserForManglendeTilgang()}",
             )
         }
     }

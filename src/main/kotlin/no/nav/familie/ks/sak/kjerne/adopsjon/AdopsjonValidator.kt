@@ -2,9 +2,11 @@ package no.nav.familie.ks.sak.kjerne.adopsjon
 
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -14,6 +16,7 @@ class AdopsjonValidator(
 ) {
     fun validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(
         vilkårsvurdering: Vilkårsvurdering,
+        barna: List<Person>,
     ) {
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId)
 
@@ -23,15 +26,17 @@ class AdopsjonValidator(
             val adopsjonIUtdypendeVilkårsvurdering = personResultat.vilkårResultater.filter { it.vilkårType == Vilkår.BARNETS_ALDER }.any { it.utdypendeVilkårsvurderinger.contains(UtdypendeVilkårsvurdering.ADOPSJON) }
 
             if (adopsjonIUtdypendeVilkårsvurdering && adopsjonForPerson == null) {
+                val fødselsdato = barna.first { it.aktør == personResultat.aktør }.fødselsdato.tilKortString()
                 throw FunksjonellFeil(
-                    melding = "Adopsjon er valgt i utdypende vilkårsvurdering, men det mangler adopsjonsdato for barn ${personResultat.aktør.aktivFødselsnummer()} i behandling ${vilkårsvurdering.behandling.id}",
-                    frontendFeilmelding = "Du må legge til adopsjonsdato for barn ${personResultat.aktør.aktivFødselsnummer()} på 'barnets alder'-vilkåret eller fjerne adopsjon i utdypende vilkårsvurdering",
+                    melding = "Adopsjon er valgt i utdypende vilkårsvurdering, men det mangler adopsjonsdato for et barn i behandling ${vilkårsvurdering.behandling.id}",
+                    frontendFeilmelding = "Du må legge til adopsjonsdato for barn født $fødselsdato på 'barnets alder'-vilkåret eller fjerne adopsjon i utdypende vilkårsvurdering",
                 )
             }
             if (!adopsjonIUtdypendeVilkårsvurdering && adopsjonForPerson != null) {
+                val fødselsdato = barna.first { it.aktør == personResultat.aktør }.fødselsdato.tilKortString()
                 throw FunksjonellFeil(
-                    melding = "Adopsjon er ikke valgt i utdypende vilkårsvurdering, men det er lagret en adopsjonsdato for barn ${personResultat.aktør.aktivFødselsnummer()} i behandling ${vilkårsvurdering.behandling.id}",
-                    frontendFeilmelding = "Du må fjerne adopsjonsdato for barn ${personResultat.aktør.aktivFødselsnummer()} på 'barnets alder'-vilkåret eller legge til adopsjon i utdypende vilkårsvurdering",
+                    melding = "Adopsjon er ikke valgt i utdypende vilkårsvurdering, men det er lagret en adopsjonsdato for et barn i behandling ${vilkårsvurdering.behandling.id}",
+                    frontendFeilmelding = "Du må fjerne adopsjonsdato for barn født $fødselsdato på 'barnets alder'-vilkåret eller legge til adopsjon i utdypende vilkårsvurdering",
                 )
             }
         }

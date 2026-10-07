@@ -72,7 +72,7 @@ class AInntektControllerTest : OppslagSpringRunnerTest() {
         } Then {
             statusCode(403)
             body("status", `is`("IKKE_TILGANG"))
-            body("melding", StringContains("Saksbehandler test har ikke tilgang til å behandle [01012012345]."))
+            body("melding", StringContains("Saksbehandler test har ikke tilgang til å behandle alle personene som etterspørres."))
             body("data", `is`(nullValue()))
         }
     }

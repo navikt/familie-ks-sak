@@ -197,7 +197,7 @@ class TilgangServiceTest {
                 )
             }
         assertEquals(
-            "Saksbehandler A har ikke tilgang til å behandle $personIdenter. Bruker mangler rolle 'TEST_ROLLE'.",
+            "Saksbehandler A har ikke tilgang til å behandle alle personene som etterspørres. Bruker mangler rolle 'TEST_ROLLE'.",
             rolleTilgangskontrollFeil.melding,
         )
     }

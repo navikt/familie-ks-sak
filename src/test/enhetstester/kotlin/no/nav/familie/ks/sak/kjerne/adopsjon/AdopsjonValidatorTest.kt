@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -16,6 +17,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vil
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.lagAutomatiskGenererteVilkårForBarnetsAlder
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -43,8 +46,15 @@ class AdopsjonValidatorTest {
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn2.aktør, adopsjonsdato = barn2.fødselsdato.plusMonths(2)))
         every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
 
-        // Act & Assert
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
+        // Act
+        val feil = assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, barna = listOf(barn, barn2)) }
+
+        // Assert
+        assertEquals(
+            "Du må legge til adopsjonsdato for barn født ${barn.fødselsdato.tilKortString()} på 'barnets alder'-vilkåret eller fjerne adopsjon i utdypende vilkårsvurdering",
+            feil.frontendFeilmelding,
+        )
+        assertFalse(feil.melding.contains(barn.aktør.aktivFødselsnummer()))
     }
 
     @Test
@@ -65,8 +75,15 @@ class AdopsjonValidatorTest {
         val adopsjoner = listOf(Adopsjon(behandlingId = vilkårsvurdering.behandling.id, aktør = barn.aktør, adopsjonsdato = barn.fødselsdato.plusMonths(2)))
         every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
 
-        // Act & Assert
-        assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
+        // Act
+        val feil = assertThrows<FunksjonellFeil> { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, barna = listOf(barn, barn2)) }
+
+        // Assert
+        assertEquals(
+            "Du må fjerne adopsjonsdato for barn født ${barn.fødselsdato.tilKortString()} på 'barnets alder'-vilkåret eller legge til adopsjon i utdypende vilkårsvurdering",
+            feil.frontendFeilmelding,
+        )
+        assertFalse(feil.melding.contains(barn.aktør.aktivFødselsnummer()))
     }
 
     @Test
@@ -88,7 +105,7 @@ class AdopsjonValidatorTest {
         every { adopsjonServiceMock.hentAlleAdopsjonerForBehandling(any()) } returns adopsjoner
 
         // Act & Assert
-        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering) }
+        assertDoesNotThrow { adopsjonValidator.validerAdopsjonIUtdypendeVilkårsvurderingOgAdopsjonsdato(vilkårsvurdering = vilkårsvurdering, barna = listOf(barn, barn2)) }
     }
 
     @Test

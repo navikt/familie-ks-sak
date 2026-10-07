@@ -121,7 +121,7 @@ object OvergangsordningAndelValidator {
                     it.overlapperPeriode(overgangsordningAndel.periode) && it.aktør == overgangsordningAndel.aktør
                 }
             ) {
-                throw FunksjonellFeil("Perioder for overgangsordning kan ikke overlappe med perioder med ordinær utbetaling for barn født ${overgangsordningAndel.aktør}.")
+                throw FunksjonellFeil("Perioder med overgangsordning kan ikke overlappe med perioder med ordinær utbetaling for samme barn.")
             }
         }
     }
