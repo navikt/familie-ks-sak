@@ -274,7 +274,7 @@ class VilkårsvurderingService(
 
         return personResultater.find { it.aktør == aktør } ?: throw Feil(
             message = "Fant ikke vilkårsvurdering for person",
-            frontendFeilmelding = "Fant ikke vilkårsvurdering for person med ident $personIdent",
+            frontendFeilmelding = "Vilkårsvurderingen finnes ikke lenger for en av personene. Oppdater siden og forsøk på nytt.",
         )
     }
 
