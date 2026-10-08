@@ -17,6 +17,7 @@ import no.nav.familie.kontrakter.felles.Ressurs.Companion.success
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.DokarkivBruker
+import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
@@ -109,6 +110,62 @@ internal class IntegrasjonKlientTest {
         // Act & Assert
         assertThrows<HttpClientErrorException.NotFound> { integrasjonKlient.avsluttSak(lagAvsluttSakRequest()) }
     }
+
+    @Test
+    fun `gjenåpneSakIDokarkiv skal gjenåpne sak i dokarkiv`() {
+        // Arrange
+        wiremockServerItem.stubFor(
+            WireMock
+                .patch(urlEqualTo("/arkiv/gjenaapneSak"))
+                .willReturn(okJson("""{"data":null,"status":"SUKSESS","melding":"OK"}""")),
+        )
+
+        // Act
+        integrasjonKlient.gjenåpneSakIDokarkiv(lagGjenåpneSakRequest())
+
+        // Assert
+        wiremockServerItem.verify(WireMock.patchRequestedFor(urlEqualTo("/arkiv/gjenaapneSak")))
+    }
+
+    @Test
+    fun `gjenåpneSakIDokarkiv skal ikke kaste feil når dokarkiv svarer 404 fordi det ikke finnes noen avsluttet arkivsak`() {
+        // Arrange
+        wiremockServerItem.stubFor(
+            WireMock
+                .patch(urlEqualTo("/arkiv/gjenaapneSak"))
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withStatus(404)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""{"data":null,"status":"FEILET","melding":"[dokarkiv.gjenaapneSak][Feil ved gjenåpning av sak i dokarkiv av journalpost ][org.springframework.web.client.HttpClientErrorException${'$'}NotFound]"}"""),
+                ),
+        )
+
+        // Act & Assert
+        assertDoesNotThrow { integrasjonKlient.gjenåpneSakIDokarkiv(lagGjenåpneSakRequest()) }
+    }
+
+    @Test
+    fun `gjenåpneSakIDokarkiv skal kaste feil når 404 ikke kommer fra dokarkiv`() {
+        // Arrange
+        wiremockServerItem.stubFor(
+            WireMock
+                .patch(urlEqualTo("/arkiv/gjenaapneSak"))
+                .willReturn(WireMock.aResponse().withStatus(404)),
+        )
+
+        // Act & Assert
+        assertThrows<HttpClientErrorException.NotFound> { integrasjonKlient.gjenåpneSakIDokarkiv(lagGjenåpneSakRequest()) }
+    }
+
+    private fun lagGjenåpneSakRequest() =
+        GjenåpneSakRequest(
+            tema = Tema.KON,
+            fagsakId = "1",
+            fagsaksystem = Fagsystem.KONT,
+            bruker = DokarkivBruker(BrukerIdType.FNR, "12345678910"),
+        )
 
     private fun lagAvsluttSakRequest() =
         AvsluttSakRequest(
