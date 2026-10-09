@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.falskidentitet.FalskIdentitetService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import java.time.LocalDate
@@ -30,11 +31,13 @@ import java.time.LocalDate
 class FakePersonopplysningerService(
     pdlKlient: PdlKlient,
     integrasjonService: IntegrasjonService,
+    personTilgangService: PersonTilgangService,
     personidentService: PersonidentService,
     falskIdentitetService: FalskIdentitetService,
 ) : PersonopplysningerService(
         pdlKlient,
         integrasjonService,
+        personTilgangService,
         personidentService,
         falskIdentitetService,
     ) {

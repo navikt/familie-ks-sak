@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.kontrakter.felles.personopplysning.FORELDERBARNRELASJONROLLE
-import no.nav.familie.kontrakter.felles.tilgangskontroll.Tilgang
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerResponsDto
 import no.nav.familie.ks.sak.api.dto.FagsakDeltagerRolle
 import no.nav.familie.ks.sak.common.exception.PdlPersonKanIkkeBehandlesIFagSystemÅrsak
@@ -15,6 +14,7 @@ import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
+import no.nav.familie.ks.sak.datagenerator.lagPersonTilgangAvvistGrunnetFortrolig
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
@@ -29,6 +29,8 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgang
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -36,6 +38,7 @@ import java.time.LocalDate
 class FagsakDeltagerServiceTest {
     private val personidentService = mockk<PersonidentService>()
     private val integrasjonService = mockk<IntegrasjonService>(relaxed = true)
+    private val personTilgangService = mockk<PersonTilgangService>(relaxed = true)
     private val personopplysningerService = mockk<PersonopplysningerService>()
     private val fagsakRepository = mockk<FagsakRepository>()
     private val personRepository = mockk<PersonRepository>()
@@ -45,6 +48,7 @@ class FagsakDeltagerServiceTest {
         FagsakDeltagerService(
             personidentService = personidentService,
             integrasjonService = integrasjonService,
+            personTilgangService = personTilgangService,
             personopplysningerService = personopplysningerService,
             fagsakRepository = fagsakRepository,
             personRepository = personRepository,
@@ -55,7 +59,7 @@ class FagsakDeltagerServiceTest {
     fun `Skal returnere maskert deltaker dersom saksbehandler ikke har tilgang til aktør med bestemt personident`() {
         // Arrange
         every { personidentService.hentAktør(any()) } returns randomAktør()
-        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", false)
+        every { personTilgangService.sjekkTilgangTilPerson(any()) } returns lagPersonTilgangAvvistGrunnetFortrolig("test")
         every { personopplysningerService.hentAdressebeskyttelseSomSystembruker(any()) } returns ADRESSEBESKYTTELSEGRADERING.FORTROLIG
 
         // Act
@@ -79,7 +83,7 @@ class FagsakDeltagerServiceTest {
         val barnIdenter = listOf(barnPersonident)
 
         every { personidentService.hentAktør(any()) } returns søkerAktør
-        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
+        every { personTilgangService.sjekkTilgangTilPerson(any()) } returns PersonTilgang.medTilgang("test")
         every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
             PdlPersonInfo.Person(
                 personInfo =
@@ -126,7 +130,7 @@ class FagsakDeltagerServiceTest {
         val barnAktør = randomAktør(barnPersonident)
 
         every { personidentService.hentAktør(any()) } returns barnAktør
-        every { integrasjonService.sjekkTilgangTilPerson(any()) } returns Tilgang("test", true)
+        every { personTilgangService.sjekkTilgangTilPerson(any()) } returns PersonTilgang.medTilgang("test")
         every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(any()) } returns
             PdlPersonInfo.Person(
                 personInfo =
@@ -230,11 +234,11 @@ class FagsakDeltagerServiceTest {
             personidentService.hentAktør(person.aktør.aktivFødselsnummer())
         } returns person.aktør
         every {
-            integrasjonService.sjekkTilgangTilPerson(person.aktør.aktivFødselsnummer())
-        } returns Tilgang("test", true)
+            personTilgangService.sjekkTilgangTilPerson(person.aktør.aktivFødselsnummer())
+        } returns PersonTilgang.medTilgang("test")
         every {
-            integrasjonService.sjekkTilgangTilPerson(behandling.fagsak.aktør.aktivFødselsnummer())
-        } returns Tilgang("test", true)
+            personTilgangService.sjekkTilgangTilPerson(behandling.fagsak.aktør.aktivFødselsnummer())
+        } returns PersonTilgang.medTilgang("test")
         every {
             personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
         } returns PdlPersonInfo.Person(personInfo = personInfo)
@@ -268,11 +272,11 @@ class FagsakDeltagerServiceTest {
             personidentService.hentAktør(person.aktør.aktivFødselsnummer())
         } returns person.aktør
         every {
-            integrasjonService.sjekkTilgangTilPerson(person.aktør.aktivFødselsnummer())
-        } returns Tilgang("test", true)
+            personTilgangService.sjekkTilgangTilPerson(person.aktør.aktivFødselsnummer())
+        } returns PersonTilgang.medTilgang("test")
         every {
-            integrasjonService.sjekkTilgangTilPerson(behandling.fagsak.aktør.aktivFødselsnummer())
-        } returns Tilgang("test", true)
+            personTilgangService.sjekkTilgangTilPerson(behandling.fagsak.aktør.aktivFødselsnummer())
+        } returns PersonTilgang.medTilgang("test")
         every {
             personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
         } returns PdlPersonInfo.Person(personInfo = personInfo)
