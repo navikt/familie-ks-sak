@@ -10,7 +10,7 @@ import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.OpprettBehandlingDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
+import no.nav.familie.ks.sak.fake.FakeTilgangsmaskinTilgangskontrollKlient
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandling
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.domene.ArbeidsfordelingPåBehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
@@ -28,7 +28,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
     private lateinit var arbeidsfordelingPåBehandlingRepository: ArbeidsfordelingPåBehandlingRepository
 
     @Autowired
-    private lateinit var fakeIntegrasjonKlient: FakeIntegrasjonKlient
+    private lateinit var fakeTilgangsmaskinTilgangskontrollKlient: FakeTilgangsmaskinTilgangskontrollKlient
 
     val behandlingControllerUrl = "/api/behandlinger"
 
@@ -43,7 +43,7 @@ class BehandlingControllerTest : OppslagSpringRunnerTest() {
                 behandlendeEnhetNavn = "test",
             ),
         )
-        fakeIntegrasjonKlient.reset()
+        fakeTilgangsmaskinTilgangskontrollKlient.reset()
     }
 
     @Test

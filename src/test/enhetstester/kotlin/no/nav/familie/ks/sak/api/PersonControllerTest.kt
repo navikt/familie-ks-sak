@@ -7,7 +7,6 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.data.lagPerson
-import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -15,6 +14,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -25,7 +25,7 @@ class PersonControllerTest {
     private val personopplysningerService = mockk<PersonopplysningerService>()
     private val personidentService = mockk<PersonidentService>()
     private val personopplysningGrunnlagService = mockk<PersonopplysningGrunnlagService>()
-    private val integrasjonService = mockk<IntegrasjonService>()
+    private val personTilgangService = mockk<PersonTilgangService>()
     private val behandlingService = mockk<BehandlingService>()
     private val tilgangService = mockk<TilgangService>()
     private val personController =
@@ -33,7 +33,7 @@ class PersonControllerTest {
             personidentService = personidentService,
             personOpplysningerService = personopplysningerService,
             personopplysningGrunnlagService = personopplysningGrunnlagService,
-            integrasjonService = integrasjonService,
+            personTilgangService = personTilgangService,
             tilgangService = tilgangService,
             behandlingService = behandlingService,
         )
@@ -53,7 +53,7 @@ class PersonControllerTest {
             val pdlPersonInfo = PdlPersonInfo.Person(personInfo = personInfo)
 
             every { personidentService.hentAktør(person.aktør.aktivFødselsnummer()) } returns person.aktør
-            every { integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns null
+            every { personTilgangService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns null
             every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør) } returns pdlPersonInfo
 
             // Act
@@ -84,7 +84,7 @@ class PersonControllerTest {
             val pdlPersonInfo = PdlPersonInfo.FalskPerson(falskIdentitetPersonInfo = falskIdentitetPersonInfo)
 
             every { personidentService.hentAktør(person.aktør.aktivFødselsnummer()) } returns person.aktør
-            every { integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns null
+            every { personTilgangService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns null
             every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør) } returns pdlPersonInfo
 
             // Act
@@ -115,7 +115,7 @@ class PersonControllerTest {
                 )
 
             every { personidentService.hentAktør(person.aktør.aktivFødselsnummer()) } returns person.aktør
-            every { integrasjonService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns restPersonInfo
+            every { personTilgangService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns restPersonInfo
 
             // Act
             val respons = personController.hentPerson(PersonIdent(person.aktør.aktivFødselsnummer()))

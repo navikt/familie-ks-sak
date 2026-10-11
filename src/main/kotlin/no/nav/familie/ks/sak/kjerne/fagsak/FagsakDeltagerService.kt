@@ -15,6 +15,7 @@ import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonRepository
+import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service
 class FagsakDeltagerService(
     private val personidentService: PersonidentService,
     private val integrasjonService: IntegrasjonService,
+    private val personTilgangService: PersonTilgangService,
     private val personopplysningerService: PersonopplysningerService,
     private val fagsakRepository: FagsakRepository,
     private val personRepository: PersonRepository,
@@ -195,7 +197,7 @@ class FagsakDeltagerService(
     }
 
     private fun hentMaskertFagsakdeltakerVedManglendeTilgang(aktør: Aktør): FagsakDeltagerResponsDto? {
-        val harTilgang = integrasjonService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
+        val harTilgang = personTilgangService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
 
         return when {
             !harTilgang -> {
