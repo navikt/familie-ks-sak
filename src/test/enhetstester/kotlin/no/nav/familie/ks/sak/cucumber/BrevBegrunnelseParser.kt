@@ -7,6 +7,7 @@ import no.nav.familie.ks.sak.common.domeneparser.parseEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseEnumListe
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
+import no.nav.familie.ks.sak.common.domeneparser.tilRader
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtaksperiodetype
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.EØSBegrunnelse
@@ -24,7 +25,7 @@ data class SammenlignbarBegrunnelse(
 
 object BrevBegrunnelseParser {
     fun mapBegrunnelser(dataTable: DataTable): List<SammenlignbarBegrunnelse> =
-        dataTable.asMaps().map { rad ->
+        dataTable.tilRader().map { rad ->
             val regelverkForInkluderteBegrunnelser =
                 parseValgfriEnum<Regelverk>(DomenebegrepUtvidetVedtaksperiodeMedBegrunnelser.REGELVERK_INKLUDERTE_BEGRUNNELSER, rad)
                     ?: Regelverk.NASJONALE_REGLER
@@ -58,7 +59,7 @@ object BrevBegrunnelseParser {
     private fun hentForventedeBegrunnelser(
         vurderesEtter: Regelverk,
         inkludertEllerEkskludert: DomenebegrepUtvidetVedtaksperiodeMedBegrunnelser,
-        rad: Map<String, String>,
+        rad: Map<String, String?>,
     ): Set<IBegrunnelse> =
         when (vurderesEtter) {
             Regelverk.NASJONALE_REGLER -> {

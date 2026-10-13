@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.common.domeneparser.VedtaksperiodeMedBegrunnelserPa
 import no.nav.familie.ks.sak.common.domeneparser.parseDato
 import no.nav.familie.ks.sak.common.domeneparser.parseLong
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriDato
+import no.nav.familie.ks.sak.common.domeneparser.tilRader
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.TIDENES_MORGEN
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
@@ -185,7 +186,7 @@ class StepDefinition {
     fun `følgende endrede utbetalinger`(
         dataTable: DataTable,
     ) {
-        endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.asMaps(), personopplysningGrunnlagMap)
+        endredeUtbetalinger = lagEndredeUtbetalinger(dataTable.tilRader(), personopplysningGrunnlagMap)
     }
 
     /**
@@ -197,7 +198,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        kompetanser = lagKompetanser(dataTable.asMaps(), personopplysningGrunnlagMap, behandlingId)
+        kompetanser = lagKompetanser(dataTable.tilRader(), personopplysningGrunnlagMap, behandlingId)
     }
 
     /**
@@ -209,7 +210,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        valutakurs[behandlingId] = lagValutakurs(dataTable.asMaps(), personopplysningGrunnlagMap, behandlingId)
+        valutakurs[behandlingId] = lagValutakurs(dataTable.tilRader(), personopplysningGrunnlagMap, behandlingId)
     }
 
     /**
@@ -221,7 +222,7 @@ class StepDefinition {
         behandlingId: Long,
         dataTable: DataTable,
     ) {
-        utenlandskPeriodebeløp[behandlingId] = lagUtenlandskperiodeBeløp(dataTable.asMaps(), personopplysningGrunnlagMap, behandlingId)
+        utenlandskPeriodebeløp[behandlingId] = lagUtenlandskperiodeBeløp(dataTable.tilRader(), personopplysningGrunnlagMap, behandlingId)
     }
 
     @Og("andeler er beregnet for behandling {}")
@@ -315,7 +316,7 @@ class StepDefinition {
         overstyrteEndringstidspunkt =
             (
                 overstyrteEndringstidspunkt +
-                    dataTable.asMaps().associate { rad ->
+                    dataTable.tilRader().associate { rad ->
                         parseLong(Domenebegrep.BEHANDLING_ID, rad) to
                             parseDato(VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.ENDRINGSTIDSPUNKT, rad)
                     }

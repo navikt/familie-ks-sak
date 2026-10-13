@@ -6,13 +6,14 @@ import no.nav.familie.ks.sak.common.domeneparser.Domenebegrep
 import no.nav.familie.ks.sak.common.domeneparser.parseEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriInt
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriString
+import no.nav.familie.ks.sak.common.domeneparser.tilRader
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeDto
 import no.nav.familie.ks.sak.kjerne.brev.domene.maler.brevperioder.BrevPeriodeType
 
-typealias Tabellrad = Map<String, String>
+typealias Tabellrad = Map<String, String?>
 
 fun parseBrevPerioder(dataTable: DataTable): List<BrevPeriodeDto> =
-    dataTable.asMaps().map { rad: Tabellrad ->
+    dataTable.tilRader().map { rad: Tabellrad ->
 
         val beløp = parseValgfriString(BrevPeriodeParser.DomenebegrepBrevPeriode.BELØP, rad)?.replace(' ', ' ') ?: ""
         val antallBarn = parseValgfriInt(BrevPeriodeParser.DomenebegrepBrevPeriode.ANTALL_BARN, rad) ?: -1
