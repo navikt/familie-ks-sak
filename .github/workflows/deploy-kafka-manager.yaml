@@ -2,6 +2,12 @@ name: Deploy familie-baks-kafka-manager
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy_to_prod:
+        description: Deploy også til prod-gcp
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -21,6 +27,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: .nais/kafka-manager/familie-baks-kafka-manager-dev.yaml
       - name: Deploy familie-baks-kafka-manager til prod
+        if: inputs.deploy_to_prod
         uses: nais/deploy/actions/deploy@7ad7c2b833e1db74a80954e3ee6bb6ac060a8ae7 # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
