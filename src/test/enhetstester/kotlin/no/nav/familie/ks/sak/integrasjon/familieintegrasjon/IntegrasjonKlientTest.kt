@@ -7,9 +7,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.okJson
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.NavIdent
@@ -33,7 +30,6 @@ import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.lagAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.KontantstøtteEnhet
-import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -60,7 +56,6 @@ internal class IntegrasjonKlientTest {
     @AfterEach
     fun tearDown() {
         wiremockServerItem.stop()
-        unmockkObject(SikkerhetContext)
     }
 
     @Test
@@ -251,61 +246,6 @@ internal class IntegrasjonKlientTest {
         assertThat(oppgave.endretAvEnhetsnr).isEqualTo("4812")
         assertThat(oppgave.journalpostId).isEqualTo("123456789")
         assertThat(oppgave.tema).isEqualTo(Tema.KON)
-    }
-
-    @Test
-    fun `sjekkTilgangTilPersoner skal returnere Tilgang med true hvis SB har tilgang til alle personidenter`() {
-        // Arrange
-        wiremockServerItem.stubFor(
-            WireMock
-                .post(urlEqualTo("/tilgang/v2/personer"))
-                .willReturn(okJson(readFile("sjekkTilgangTilPersonerResponseMedTilgangTilAlle.json"))),
-        )
-
-        mockkObject(SikkerhetContext)
-        every { SikkerhetContext.erSystemKontekst() } returns false
-
-        // Act
-        val tilgangTilPersonIdent = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
-
-        // Assert
-        assertThat(tilgangTilPersonIdent.all { it.harTilgang }).isTrue()
-        assertThat(tilgangTilPersonIdent.all { it.begrunnelse == "Har tilgang" }).isTrue()
-    }
-
-    @Test
-    fun `sjekkTilgangTilPersoner skal returnere Tilgang med false hvis SB ikke har tilgang til alle personidenter`() {
-        // Arrange
-        wiremockServerItem.stubFor(
-            WireMock
-                .post(urlEqualTo("/tilgang/v2/personer"))
-                .willReturn(okJson(readFile("sjekkTilgangTilPersonerResponseMedIkkeTilgangTilAlle.json"))),
-        )
-
-        mockkObject(SikkerhetContext)
-        every { SikkerhetContext.erSystemKontekst() } returns false
-
-        // Act
-        val tilgangTilPersonIdent = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2", "ident3"))
-
-        assertThat(tilgangTilPersonIdent.all { it.harTilgang }).isFalse()
-        assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har ikke tilgang" }).isTrue()
-        assertThat(tilgangTilPersonIdent.any { it.begrunnelse == "Har tilgang" }).isTrue()
-    }
-
-    @Test
-    fun `sjekkTilgangTilPersoner skal gi tilgang uten å kalle familie-integrasjoner i systemkontekst`() {
-        // Arrange
-        mockkObject(SikkerhetContext)
-        every { SikkerhetContext.erSystemKontekst() } returns true
-
-        // Act
-        val tilganger = integrasjonKlient.sjekkTilgangTilPersoner(listOf("ident1", "ident2"))
-
-        // Assert
-        assertThat(tilganger.map { it.personIdent }).containsExactly("ident1", "ident2")
-        assertThat(tilganger.all { it.harTilgang }).isTrue()
-        assertThat(wiremockServerItem.allServeEvents).isEmpty()
     }
 
     @Test
