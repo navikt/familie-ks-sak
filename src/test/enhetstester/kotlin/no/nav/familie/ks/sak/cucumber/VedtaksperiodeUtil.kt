@@ -28,6 +28,7 @@ import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriInt
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriLong
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriString
+import no.nav.familie.ks.sak.common.domeneparser.tilRader
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.tilddMMyyyy
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -81,7 +82,7 @@ fun Map<Long, PersonopplysningGrunnlag>.finnPersonGrunnlagForBehandling(behandli
 
 fun lagFagsaker(dataTable: DataTable) =
     dataTable
-        .asMaps()
+        .tilRader()
         .map { rad ->
             Fagsak(
                 id = parseLong(Domenebegrep.FAGSAK_ID, rad),
@@ -93,7 +94,7 @@ fun lagbehandlinger(
     dataTable: DataTable,
     fagsaker: Map<Long, Fagsak>,
 ): List<Behandling> =
-    dataTable.asMaps().map { rad ->
+    dataTable.tilRader().map { rad ->
         val behandlingId = parseLong(Domenebegrep.BEHANDLING_ID, rad)
         val fagsakId = parseValgfriLong(Domenebegrep.FAGSAK_ID, rad)
         val fagsak = fagsaker[fagsakId] ?: lagFagsak()
@@ -129,7 +130,7 @@ fun lagbehandlinger(
 
 fun lagBehandlingTilForrigeBehandlingMap(
     dataTable: DataTable,
-) = dataTable.asMaps().associate { rad ->
+) = dataTable.tilRader().associate { rad ->
     parseLong(Domenebegrep.BEHANDLING_ID, rad) to parseValgfriLong(Domenebegrep.FORRIGE_BEHANDLING_ID, rad)
 }
 
@@ -144,7 +145,7 @@ fun lagVilkårsvurdering(
         )
 
     val vilkårResultaterPerPerson =
-        dataTable.asMaps().groupBy { parseAktørId(it) }
+        dataTable.tilRader().groupBy { parseAktørId(it) }
 
     val personresultater =
         vilkårResultaterPerPerson
@@ -173,7 +174,7 @@ fun lagVilkårsvurdering(
 }
 
 private fun lagVilkårResultater(
-    rad: MutableMap<String, String>,
+    rad: Map<String, String?>,
     behandlingId: Long,
     personResultat: PersonResultat,
 ): List<VilkårResultat> {
@@ -237,7 +238,7 @@ private fun lagVilkårResultater(
     }
 }
 
-private fun hentStandardBegrunnelser(rad: MutableMap<String, String>): List<IBegrunnelse> {
+private fun hentStandardBegrunnelser(rad: Map<String, String?>): List<IBegrunnelse> {
     val standardbegrunnelser: List<IBegrunnelse> =
         try {
             parseEnumListe<NasjonalEllerFellesBegrunnelse>(
@@ -255,7 +256,7 @@ private fun hentStandardBegrunnelser(rad: MutableMap<String, String>): List<IBeg
 }
 
 fun lagKompetanser(
-    nyeKompetanserPerBarn: MutableList<MutableMap<String, String>>,
+    nyeKompetanserPerBarn: List<Map<String, String?>>,
     personopplysningGrunnlag: Map<Long, PersonopplysningGrunnlag>,
     behandlingId: Long,
 ) = nyeKompetanserPerBarn
@@ -308,7 +309,7 @@ fun lagKompetanser(
     .toMutableMap()
 
 fun lagValutakurs(
-    nyeValutakursPerBarn: MutableList<MutableMap<String, String>>,
+    nyeValutakursPerBarn: List<Map<String, String?>>,
     personopplysningGrunnlag: Map<Long, PersonopplysningGrunnlag>,
     behandlingId: Long,
 ): List<Valutakurs> =
@@ -336,7 +337,7 @@ fun lagValutakurs(
     }
 
 fun lagUtenlandskperiodeBeløp(
-    nyeUtenlandskPeriodebeløpPerBarn: MutableList<MutableMap<String, String>>,
+    nyeUtenlandskPeriodebeløpPerBarn: List<Map<String, String?>>,
     personopplysningGrunnlag: Map<Long, PersonopplysningGrunnlag>,
     behandlingId: Long,
 ): List<UtenlandskPeriodebeløp> =
@@ -374,7 +375,7 @@ private fun validerErLandkode(it: String) {
 }
 
 fun lagEndredeUtbetalinger(
-    nyeEndredeUtbetalingAndeler: MutableList<MutableMap<String, String>>,
+    nyeEndredeUtbetalingAndeler: List<Map<String, String?>>,
     persongrunnlag: Map<Long, PersonopplysningGrunnlag>,
 ) = nyeEndredeUtbetalingAndeler
     .map { rad ->
@@ -412,8 +413,9 @@ fun lagEndredeUtbetalinger(
 
 fun lagPersonGrunnlag(dataTable: DataTable): Map<Long, PersonopplysningGrunnlag> =
     dataTable
-        .asMaps()
+        .tilRader()
         .map { rad ->
+
             val behandlingsIder = parseList(Domenebegrep.BEHANDLING_ID, rad)
             behandlingsIder.map { id ->
                 id to
@@ -450,7 +452,7 @@ fun lagSøknadGrunnlag(
     stepDefinition: StepDefinition,
 ): Map<Long, SøknadGrunnlag> =
     dataTable
-        .asMaps()
+        .tilRader()
         .groupBy { parseLong(Domenebegrep.BEHANDLING_ID, it) }
         .map { (behandlingId, rader) ->
             val behandling = stepDefinition.behandlinger[behandlingId]
@@ -510,7 +512,7 @@ fun lagOvergangsordningAndeler(
     behandlingId: Long,
     behandlinger: MutableMap<Long, Behandling>,
     personGrunnlag: Map<Long, PersonopplysningGrunnlag>,
-) = dataTable.asMaps().map { rad ->
+) = dataTable.tilRader().map { rad ->
     val aktørId = parseAktørId(rad)
     OvergangsordningAndel(
         id = 0,
@@ -537,7 +539,7 @@ fun lagAndelerTilkjentYtelse(
     behandlingId: Long,
     behandlinger: MutableMap<Long, Behandling>,
     personGrunnlag: Map<Long, PersonopplysningGrunnlag>,
-) = dataTable.asMaps().map { rad ->
+) = dataTable.tilRader().map { rad ->
     val aktørId = parseAktørId(rad)
     val beløp = parseInt(VedtaksperiodeMedBegrunnelserParser.DomenebegrepVedtaksperiodeMedBegrunnelser.BELØP, rad)
     lagAndelTilkjentYtelse(
@@ -580,7 +582,7 @@ fun lagAndelerTilkjentYtelse(
 }
 
 fun lagUregistrerteBarn(dataTable: DataTable) =
-    dataTable.asMaps().map { rad ->
+    dataTable.tilRader().map { rad ->
         val ident = parseValgfriString(VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.IDENT, rad) ?: RandomStringUtils.randomAlphanumeric(10)
         val fødselsDato = parseValgfriDato(VedtaksperiodeMedBegrunnelserParser.DomenebegrepPersongrunnlag.FØDSELSDATO, rad)
         val erInkludertISøknaden = parseValgfriBoolean(ER_INKLUDERT_I_SØKNADEN, rad) ?: false
@@ -598,7 +600,7 @@ fun leggBegrunnelserIVedtaksperiodene(
     vedtaksperioder: List<VedtaksperiodeMedBegrunnelser>,
 ): List<VedtaksperiodeMedBegrunnelser> {
     val vedtaksperioderSomHarFåttBegrunnelser =
-        dataTable.asMaps().map { rad ->
+        dataTable.tilRader().map { rad ->
             val fom = parseValgfriDato(Domenebegrep.FRA_DATO, rad)
             val tom = parseValgfriDato(Domenebegrep.TIL_DATO, rad)
 

@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.common.domeneparser.parseValgfriBoolean
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriEnum
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriInt
 import no.nav.familie.ks.sak.common.domeneparser.parseValgfriString
+import no.nav.familie.ks.sak.common.domeneparser.tilRader
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseDtoMedData
@@ -28,7 +29,7 @@ enum class Begrunnelsetype {
 }
 
 fun parseBegrunnelser(dataTable: DataTable): List<BegrunnelseDtoMedData> =
-    dataTable.asMaps().map { rad: Tabellrad ->
+    dataTable.tilRader().map { rad: Tabellrad ->
 
         val type =
             parseValgfriEnum<Begrunnelsetype>(

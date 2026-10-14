@@ -63,7 +63,7 @@ object OppdragParser {
 
     private fun parseAndelder(
         behandling: Behandling,
-        rader: List<Map<String, String>>,
+        rader: List<Map<String, String?>>,
         forrigeAndelId: Int,
     ): MutableSet<AndelTilkjentYtelse> {
         val erUtenAndeler = (parseValgfriBoolean(DomenebegrepTilkjentYtelse.UTEN_ANDELER, rader.first()) ?: false)
@@ -100,7 +100,7 @@ object OppdragParser {
             )
         }
 
-    private fun mapForventetUtbetalingsperiode(it: Map<String, String>) =
+    private fun mapForventetUtbetalingsperiode(it: Map<String, String?>) =
         ForventetUtbetalingsperiode(
             erEndringPåEksisterendePeriode = parseBoolean(DomenebegrepUtbetalingsoppdrag.ER_ENDRING, it),
             periodeId = parseLong(DomenebegrepUtbetalingsoppdrag.PERIODE_ID, it),
@@ -115,7 +115,7 @@ object OppdragParser {
             kildebehandlingId = parseValgfriLong(DomenebegrepTilkjentYtelse.KILDEBEHANDLING_ID, it),
         )
 
-    private fun validerAlleKodeEndringerLike(rader: List<Map<String, String>>) {
+    private fun validerAlleKodeEndringerLike(rader: List<Map<String, String?>>) {
         rader
             .map { parseEnum<Utbetalingsoppdrag.KodeEndring>(DomenebegrepUtbetalingsoppdrag.KODE_ENDRING, it) }
             .zipWithNext()
@@ -128,7 +128,7 @@ object OppdragParser {
     }
 
     private fun mapAndelTilkjentYtelse(
-        rad: Map<String, String>,
+        rad: Map<String, String?>,
         behandling: Behandling,
         andelId: Int,
     ): AndelTilkjentYtelse {
@@ -148,7 +148,7 @@ object OppdragParser {
         ).copy(id = parseValgfriLong(Domenebegrep.ID, rad) ?: andelId.toLong())
     }
 
-    private fun parseAktør(rad: Map<String, String>): Aktør {
+    private fun parseAktør(rad: Map<String, String?>): Aktør {
         val id = (parseValgfriInt(DomenebegrepTilkjentYtelse.IDENT, rad) ?: 1).toString()
         val aktørId = id.padStart(13, '0')
         val fødselsnummer = lagFødselsnummer(id)
