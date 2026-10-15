@@ -168,14 +168,10 @@ class TilgangService(
         }
     }
 
-    // Tilgangene caches per kilde, slik at en endring av togglen tar effekt med en gang.
-    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<PersonTilgang> {
-        val skalBrukeTilgangsmaskinen = personTilgangService.skalBrukeTilgangsmaskinen()
-        val cacheNavn = if (skalBrukeTilgangsmaskinen) TILGANGSMASKINEN_CACHE else FAMILIE_INTEGRASJONER_CACHE
-        return hentCacheForSaksbehandler(cacheNavn, personIdenter) {
-            personTilgangService.sjekkTilgangTilPersoner(personIdenter.toSet(), skalBrukeTilgangsmaskinen).values.toList()
+    private fun sjekkTilgangTilPersoner(personIdenter: List<String>): List<PersonTilgang> =
+        hentCacheForSaksbehandler(TILGANGSMASKINEN_CACHE, personIdenter) {
+            personTilgangService.sjekkTilgangTilPersoner(personIdenter.toSet()).values.toList()
         }
-    }
 
     /**
      * Logger at informasjon tilknyttet personidenter er forsøkt hentet
@@ -225,6 +221,5 @@ class TilgangService(
 
     companion object {
         const val TILGANGSMASKINEN_CACHE = "validerTilgangTilPersonerITilgangsmaskinen"
-        const val FAMILIE_INTEGRASJONER_CACHE = "validerTilgangTilPersonerIFamilieIntegrasjoner"
     }
 }
