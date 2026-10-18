@@ -257,7 +257,7 @@ class BehandlingServiceTest {
     fun `oppdaterBehandlingsresultat skal oppdatere behandlingsresultat til INNVILGET og lage historikk på det`() {
         // Arrange
         every {
-            mockLoggService.opprettVilkårsvurderingLogg(
+            mockLoggService.opprettBehandlingsresultatLogg(
                 behandling = behandling,
                 behandlingsForrigeResultat = Behandlingsresultat.IKKE_VURDERT,
                 behandlingsNyResultat = Behandlingsresultat.INNVILGET,
@@ -270,7 +270,7 @@ class BehandlingServiceTest {
             assertDoesNotThrow {
                 behandlingService.oppdaterBehandlingsresultat(behandling.id, Behandlingsresultat.INNVILGET)
             }
-        verify(exactly = 1) { mockLoggService.opprettVilkårsvurderingLogg(any(), any(), any()) }
+        verify(exactly = 1) { mockLoggService.opprettBehandlingsresultatLogg(any(), any(), any()) }
         assertEquals(Behandlingsresultat.INNVILGET, oppdatertBehandling.resultat)
     }
 

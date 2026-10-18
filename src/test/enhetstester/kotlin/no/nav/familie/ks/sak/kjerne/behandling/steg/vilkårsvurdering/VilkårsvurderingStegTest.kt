@@ -45,6 +45,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering.BarnetsVilkårValidator
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.hamcrest.MatcherAssert.assertThat
@@ -66,6 +67,7 @@ class VilkårsvurderingStegTest {
     private val beregningService: BeregningService = mockk()
     private val kompetanseService: KompetanseService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
+    private val loggService: LoggService = mockk(relaxed = true)
 
     private val barnetsAlderVilkårValidator2021 = BarnetsAlderVilkårValidator2021()
     private val barnetsAlderVilkårValidator2024 = BarnetsAlderVilkårValidator2024()
@@ -96,6 +98,7 @@ class VilkårsvurderingStegTest {
             barnetsVilkårValidator,
             adopsjonValidator,
             adopsjonService,
+            loggService,
         )
 
     private val søker = lagPerson(personType = PersonType.SØKER, aktør = randomAktør())
@@ -646,6 +649,7 @@ class VilkårsvurderingStegTest {
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { søknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 0) { kompetanseService.tilpassKompetanse(BehandlingId(behandling.id)) }
+        verify(exactly = 1) { loggService.opprettVilkårsvurderingLogg(behandling) }
     }
 
     @Test

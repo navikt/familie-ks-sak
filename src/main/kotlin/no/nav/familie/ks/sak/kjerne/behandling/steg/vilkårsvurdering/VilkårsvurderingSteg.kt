@@ -29,6 +29,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.validering
 import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.beregnGyldigFom
 import no.nav.familie.ks.sak.kjerne.overgangsordning.beregnGyldigTom
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -57,6 +58,7 @@ class VilkårsvurderingSteg(
     private val barnetsVilkårValidator: BarnetsVilkårValidator,
     private val adopsjonValidator: AdopsjonValidator,
     private val adopsjonService: AdopsjonService,
+    private val loggService: LoggService,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.VILKÅRSVURDERING
 
@@ -90,6 +92,8 @@ class VilkårsvurderingSteg(
             logger.info("Oppretter/Tilpasser kompetanse perioder for behandlingId=$behandlingId")
             kompetanseService.tilpassKompetanse(BehandlingId(behandlingId))
         }
+
+        loggService.opprettVilkårsvurderingLogg(behandling)
     }
 
     private fun settBehandlingstemaBasertPåVilkårsvurdering(

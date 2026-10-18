@@ -15,9 +15,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.logg.domene.Logg
 import no.nav.familie.ks.sak.kjerne.logg.domene.LoggRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.time.LocalDate
 import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -201,61 +204,90 @@ class LoggServiceTest {
     }
 
     @Test
-    fun `opprettVilkårsvurderingLogg skal lagre logg når behandlingsresultat har utledet`() {
+    fun `opprettVilkårsvurderingLogg skal lagre logg om at vilkårsvurderingen er gjennomført`() {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val slot = slot<Logg>()
         every { loggRepository.save(capture(slot)) } returns mockk()
 
-        loggService.opprettVilkårsvurderingLogg(
-            behandling,
-            Behandlingsresultat.IKKE_VURDERT,
-            Behandlingsresultat.INNVILGET,
-        )
+        // Act
+        loggService.opprettVilkårsvurderingLogg(behandling)
 
-        verify(exactly = 1) { loggRepository.save(slot.captured) }
-
-        val lagretLogg = slot.captured
-
-        assertThat(lagretLogg.behandlingId, Is(behandling.id))
-        assertThat(lagretLogg.type, Is(LoggType.VILKÅRSVURDERING))
-        assertThat(lagretLogg.tekst, Is("Resultat ble ${Behandlingsresultat.INNVILGET.displayName.lowercase()}"))
-        assertThat(lagretLogg.tittel, Is("Vilkårsvurdering gjennomført"))
+        // Assert
+        assertThat(slot.captured.behandlingId).isEqualTo(behandling.id)
+        assertThat(slot.captured.type).isEqualTo(LoggType.VILKÅRSVURDERING)
+        assertThat(slot.captured.tittel).isEqualTo("Vilkårsvurdering gjennomført")
     }
 
-    @Test
-    fun `opprettVilkårsvurderingLogg skal lagre logg når behandlingsresultat har endret`() {
+    @ParameterizedTest
+    @CsvSource(
+        "IKKE_VURDERT, INNVILGET, Behandlingsresultat satt, Resultat ble innvilget",
+        "INNVILGET, ENDRET_OG_OPPHØRT, Behandlingsresultat endret, Resultat gikk fra innvilget til endret og opphørt",
+        "INNVILGET, INNVILGET, Behandlingsresultat vurdert, Resultat er uendret: innvilget",
+    )
+    fun `opprettBehandlingsresultatLogg skal lagre logg med tittel og tekst ut fra forrige og nytt behandlingsresultat`(
+        forrigeResultat: Behandlingsresultat,
+        nyttResultat: Behandlingsresultat,
+        forventetTittel: String,
+        forventetTekst: String,
+    ) {
+        // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val behandlingsforrigeResultat = Behandlingsresultat.INNVILGET
-        val behandlingsNyResultat = Behandlingsresultat.ENDRET_OG_OPPHØRT
         val slot = slot<Logg>()
         every { loggRepository.save(capture(slot)) } returns mockk()
 
-        loggService.opprettVilkårsvurderingLogg(behandling, behandlingsforrigeResultat, behandlingsNyResultat)
+        // Act
+        loggService.opprettBehandlingsresultatLogg(behandling, forrigeResultat, nyttResultat)
 
-        verify(exactly = 1) { loggRepository.save(slot.captured) }
-
-        val lagretLogg = slot.captured
-
-        assertThat(lagretLogg.behandlingId, Is(behandling.id))
-        assertThat(lagretLogg.type, Is(LoggType.VILKÅRSVURDERING))
-        assertThat(
-            lagretLogg.tekst,
-            Is(
-                "Resultat gikk fra ${behandlingsforrigeResultat.displayName.lowercase()} " +
-                    "til ${behandlingsNyResultat.displayName.lowercase()}",
-            ),
-        )
-        assertThat(lagretLogg.tittel, Is("Vilkårsvurdering endret"))
+        // Assert
+        assertThat(slot.captured.behandlingId).isEqualTo(behandling.id)
+        assertThat(slot.captured.type).isEqualTo(LoggType.BEHANDLINGSRESULTAT)
+        assertThat(slot.captured.tittel).isEqualTo(forventetTittel)
+        assertThat(slot.captured.tekst).isEqualTo(forventetTekst)
     }
 
     @Test
-    fun `opprettVilkårsvurderingLogg skal ikke lagre logg når behandlingsresultat ikke har endret`() {
-        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
-        val behandlingsforrigeResultat = Behandlingsresultat.INNVILGET
-        val behandlingsNyResultat = Behandlingsresultat.INNVILGET
+    fun `loggEndretUtbetalingAndelLagtTil skal lagre logg når siste logg på behandlingen er av en annen type`() {
+        // Arrange
+        val behandlingId = 1L
+        val slot = slot<Logg>()
+        every { loggRepository.hentLoggForBehandling(behandlingId) } returns
+            listOf(Logg(behandlingId = behandlingId, type = LoggType.ENDRET_UTBETALING_FJERNET, rolle = BehandlerRolle.SAKSBEHANDLER))
+        every { loggRepository.save(capture(slot)) } returns mockk()
 
-        loggService.opprettVilkårsvurderingLogg(behandling, behandlingsforrigeResultat, behandlingsNyResultat)
+        // Act
+        loggService.loggEndretUtbetalingAndelLagtTil(behandlingId)
 
+        // Assert
+        assertThat(slot.captured.type).isEqualTo(LoggType.ENDRET_UTBETALING_LAGT_TIL)
+        assertThat(slot.captured.tittel).isEqualTo("Endret utbetalingsperiode lagt til")
+    }
+
+    @Test
+    fun `loggEndretUtbetalingAndelLagtTil skal ikke lagre logg når siste logg på behandlingen er av samme type`() {
+        // Arrange
+        val behandlingId = 1L
+        every { loggRepository.hentLoggForBehandling(behandlingId) } returns
+            listOf(Logg(behandlingId = behandlingId, type = LoggType.ENDRET_UTBETALING_LAGT_TIL, rolle = BehandlerRolle.SAKSBEHANDLER))
+
+        // Act
+        loggService.loggEndretUtbetalingAndelLagtTil(behandlingId)
+
+        // Assert
+        verify(exactly = 0) { loggRepository.save(any()) }
+    }
+
+    @Test
+    fun `loggEndretUtbetalingAndelFjernet skal ikke lagre logg når siste logg på behandlingen er av samme type`() {
+        // Arrange
+        val behandlingId = 1L
+        every { loggRepository.hentLoggForBehandling(behandlingId) } returns
+            listOf(Logg(behandlingId = behandlingId, type = LoggType.ENDRET_UTBETALING_FJERNET, rolle = BehandlerRolle.SAKSBEHANDLER))
+
+        // Act
+        loggService.loggEndretUtbetalingAndelFjernet(behandlingId)
+
+        // Assert
         verify(exactly = 0) { loggRepository.save(any()) }
     }
 

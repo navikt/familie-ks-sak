@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
@@ -28,11 +29,13 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunn
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.Årsak
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -40,6 +43,7 @@ import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.Optional
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class EndretUtbetalingAndelServiceTest {
@@ -49,6 +53,7 @@ class EndretUtbetalingAndelServiceTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val vilkårsvurderingService = mockk<VilkårsvurderingService>()
     private val sanityService = mockk<SanityService>()
+    private val loggService = mockk<LoggService>(relaxed = true)
 
     private val endretUtbetalingAndelService =
         EndretUtbetalingAndelService(
@@ -58,6 +63,7 @@ class EndretUtbetalingAndelServiceTest {
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
             vilkårsvurderingService = vilkårsvurderingService,
             sanityService = sanityService,
+            loggService = loggService,
         )
 
     @Nested
@@ -230,6 +236,7 @@ class EndretUtbetalingAndelServiceTest {
     fun `fjernEndretUtbetalingAndelOgOppdaterTilkjentYtelse - skal slette endret utbetaling andeler og oppdatere tilkjent ytelse`() {
         val behandling = lagBehandling()
 
+        every { endretUtbetalingAndelRepository.findById(200) } returns Optional.empty()
         every { endretUtbetalingAndelRepository.deleteById(200) } just runs
         every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns mockk()
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns mockk()
@@ -389,5 +396,103 @@ class EndretUtbetalingAndelServiceTest {
                 aktører = mutableSetOf(barn1.aktør, barn2.aktør),
             ),
         )
+    }
+
+    @Nested
+    inner class LoggingAvEndretUtbetalingAndel {
+        private val behandling = lagBehandling()
+        private val barn = lagPerson(personType = PersonType.BARN)
+        private val endretUtbetalingAndelId = 1L
+        private val tomEndretUtbetalingAndel = EndretUtbetalingAndel(id = endretUtbetalingAndelId, behandlingId = behandling.id)
+        private val utfyltEndretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                id = endretUtbetalingAndelId,
+                behandlingId = behandling.id,
+                aktører = setOf(barn.aktør),
+                prosent = BigDecimal.ZERO,
+                periodeFom = YearMonth.of(2025, 1),
+                periodeTom = YearMonth.of(2025, 1),
+            )
+
+        @BeforeEach
+        fun setup() {
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns lagTestPersonopplysningGrunnlag(behandling.id, barn)
+            every { andelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandlingId = behandling.id) } returns
+                listOf(lagAndelTilkjentYtelse(person = barn, fom = YearMonth.of(2025, 1), tom = YearMonth.of(2025, 1)))
+            every { endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId = behandling.id) } returns emptyList()
+            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns Vilkårsvurdering(behandling = behandling)
+            every { endretUtbetalingAndelRepository.saveAndFlush(any<EndretUtbetalingAndel>()) } returnsArgument 0
+            every { endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId) } just runs
+            every { beregningService.oppdaterTilkjentYtelsePåBehandling(any(), any(), any(), any()) } just runs
+            every { beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, any(), any()) } just runs
+        }
+
+        private fun lagUtfyltEndretUtbetalingAndelRequestDto() =
+            EndretUtbetalingAndelRequestDto(
+                id = endretUtbetalingAndelId,
+                personIdent = null,
+                personIdenter = listOf(barn.aktør.aktivFødselsnummer()),
+                prosent = BigDecimal.ZERO,
+                fom = YearMonth.of(2025, 1),
+                tom = YearMonth.of(2025, 1),
+                årsak = Årsak.ALLEREDE_UTBETALT,
+                søknadstidspunkt = LocalDate.now(),
+                begrunnelse = "Test",
+                erEksplisittAvslagPåSøknad = false,
+                vedtaksbegrunnelser = emptyList(),
+            )
+
+        @Test
+        fun `skal logge at endret utbetalingsperiode er lagt til når en ny periode lagres`() {
+            // Arrange
+            every { endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId) } returns tomEndretUtbetalingAndel
+
+            // Act
+            endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(behandling, lagUtfyltEndretUtbetalingAndelRequestDto())
+
+            // Assert
+            verify(exactly = 1) { loggService.loggEndretUtbetalingAndelLagtTil(behandling.id) }
+        }
+
+        @Test
+        fun `skal ikke logge at endret utbetalingsperiode er lagt til når en eksisterende periode endres`() {
+            // Arrange
+            every { endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId) } returns utfyltEndretUtbetalingAndel
+
+            // Act
+            endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(behandling, lagUtfyltEndretUtbetalingAndelRequestDto())
+
+            // Assert
+            verify(exactly = 0) { loggService.loggEndretUtbetalingAndelLagtTil(any()) }
+        }
+
+        @Test
+        fun `skal logge at endret utbetalingsperiode er fjernet når en utfylt periode fjernes`() {
+            // Arrange
+            every { endretUtbetalingAndelRepository.findById(endretUtbetalingAndelId) } returns Optional.of(utfyltEndretUtbetalingAndel)
+
+            // Act
+            endretUtbetalingAndelService.fjernEndretUtbetalingAndelOgOppdaterTilkjentYtelse(behandling, endretUtbetalingAndelId)
+
+            // Assert
+            verifyOrder {
+                endretUtbetalingAndelRepository.findById(endretUtbetalingAndelId)
+                endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId)
+            }
+            verify(exactly = 1) { loggService.loggEndretUtbetalingAndelFjernet(behandling.id) }
+        }
+
+        @Test
+        fun `skal ikke logge at endret utbetalingsperiode er fjernet når en tom periode fjernes`() {
+            // Arrange
+            every { endretUtbetalingAndelRepository.findById(endretUtbetalingAndelId) } returns Optional.of(tomEndretUtbetalingAndel)
+
+            // Act
+            endretUtbetalingAndelService.fjernEndretUtbetalingAndelOgOppdaterTilkjentYtelse(behandling, endretUtbetalingAndelId)
+
+            // Assert
+            verify(exactly = 1) { endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId) }
+            verify(exactly = 0) { loggService.loggEndretUtbetalingAndelFjernet(any()) }
+        }
     }
 }

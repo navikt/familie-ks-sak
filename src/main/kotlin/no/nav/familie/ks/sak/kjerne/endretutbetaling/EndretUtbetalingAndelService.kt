@@ -23,9 +23,11 @@ import no.nav.familie.ks.sak.kjerne.endretutbetaling.EndretUtbetalingAndelValida
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndel
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.fraEndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -38,6 +40,7 @@ class EndretUtbetalingAndelService(
     private val vilkårsvurderingService: VilkårsvurderingService,
     private val endretUtbetalingAndelOppdatertAbonnementer: List<EndretUtbetalingAndelerOppdatertAbonnent> = emptyList(),
     private val sanityService: SanityService,
+    private val loggService: LoggService,
 ) {
     private val logger = LoggerFactory.getLogger(EndretUtbetalingAndelService::class.java)
 
@@ -49,6 +52,7 @@ class EndretUtbetalingAndelService(
         endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ) {
         val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelRequestDto.id)
+        val erNyEndretUtbetalingAndel = endretUtbetalingAndel.manglerObligatoriskFelt()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
             personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
@@ -102,6 +106,10 @@ class EndretUtbetalingAndelService(
                 behandlingId = BehandlingId(behandling.id),
             )
         }
+
+        if (erNyEndretUtbetalingAndel) {
+            loggService.loggEndretUtbetalingAndelLagtTil(behandling.id)
+        }
     }
 
     @Transactional
@@ -109,6 +117,9 @@ class EndretUtbetalingAndelService(
         behandling: Behandling,
         endretUtbetalingAndelId: Long,
     ) {
+        val erUtfyltEndretUtbetalingAndel =
+            endretUtbetalingAndelRepository.findByIdOrNull(endretUtbetalingAndelId)?.manglerObligatoriskFelt() == false
+
         endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId)
 
         val personopplysningGrunnlag =
@@ -126,6 +137,10 @@ class EndretUtbetalingAndelService(
             abonnent.tilpassKompetanserTilEndretUtbetalingAndeler(
                 behandlingId = BehandlingId(behandling.id),
             )
+        }
+
+        if (erUtfyltEndretUtbetalingAndel) {
+            loggService.loggEndretUtbetalingAndelFjernet(behandling.id)
         }
     }
 
