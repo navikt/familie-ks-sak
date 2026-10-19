@@ -97,12 +97,6 @@ spec:
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
-            },
-            {
-              "name": "teamfamilie.privat-tbk-hentfagsystemsbehandling-respons-topic",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
             }
           ]
         }
