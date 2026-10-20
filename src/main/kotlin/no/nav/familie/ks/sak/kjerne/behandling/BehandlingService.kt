@@ -256,7 +256,7 @@ class BehandlingService(
             "${SikkerhetContext.hentSaksbehandlerNavn()} endrer resultat på behandling $behandlingId " +
                 "fra ${behandling.resultat} til $nyUtledetBehandlingsresultat",
         )
-        loggService.opprettVilkårsvurderingLogg(
+        loggService.opprettBehandlingsresultatLogg(
             behandling = behandling,
             behandlingsForrigeResultat = behandling.resultat,
             behandlingsNyResultat = nyUtledetBehandlingsresultat,
