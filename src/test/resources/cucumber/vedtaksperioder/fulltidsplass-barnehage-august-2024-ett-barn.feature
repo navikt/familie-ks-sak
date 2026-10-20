@@ -88,4 +88,4 @@ Egenskap: Fulltidsplass barnehage august 2024 med eksplisitt avslag - ett barn
 
     Så forvent følgende brevbegrunnelser for behandling 2 i periode 01.08.2024 til -
       | Begrunnelse                      | Type     | Gjelder søker | Barnas fødselsdatoer | Antall barn | Måned og år begrunnelsen gjelder for | Beløp | Søknadstidspunkt | Antall timer barnehageplass | Gjelder andre forelder | Målform | Måned og år før vedtaksperiode |
-      | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE | STANDARD |               | 06.05.23             | 1           | august 2024                          | 0     | 27.08.24         | 40                          |                        |         | juli 2024                      |
+      | AVSLAG_FULLTIDSPLASS_I_BARNEHAGE | STANDARD |               | 06.05.23             | 1           | august 2024                          | 0     | 27. august 2024  | 40                          |                        |         | juli 2024                      |

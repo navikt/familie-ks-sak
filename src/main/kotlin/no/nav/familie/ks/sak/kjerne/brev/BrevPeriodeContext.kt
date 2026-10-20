@@ -13,7 +13,6 @@ import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.slåSammen
 import no.nav.familie.ks.sak.common.util.tilDagMånedÅr
-import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.tilMånedÅr
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelse
@@ -387,7 +386,7 @@ class BrevPeriodeContext(
                     belop = formaterBeløp(hentBeløp(begrunnelse)),
                     vedtakBegrunnelseType = begrunnelse.begrunnelseType,
                     antallTimerBarnehageplass = antallTimerBarnehageplass,
-                    soknadstidspunkt = søknadstidspunkt?.tilKortString() ?: "",
+                    soknadstidspunkt = søknadstidspunkt?.tilDagMånedÅr() ?: "",
                     sanityBegrunnelseType = sanityBegrunnelse.type,
                 )
             }
