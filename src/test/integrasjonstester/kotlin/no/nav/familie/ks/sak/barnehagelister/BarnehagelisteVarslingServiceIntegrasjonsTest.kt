@@ -9,11 +9,10 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.epost.EpostService
-import no.nav.familie.ks.sak.data.lagBarnehagebarn
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDateTime
+import org.springframework.test.context.jdbc.Sql
 
 class BarnehagelisteVarslingServiceIntegrasjonsTest(
     @Autowired private val barnehagebarnRepository: BarnehagebarnRepository,
@@ -38,48 +37,11 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
     }
 
     @Test
+    @Sql(
+        scripts = ["/barnehagelister/barnehagebarn-sendt-inn-siste-døgn.sql"],
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+    )
     fun `sendVarslingOmNyBarnehagelisteTilEnhet sender epost når en kommune sender inn for første gang ila én måned`() {
-        // Arrange
-        val barnehageBarnSendtIGår =
-            lagBarnehagebarn(
-                opprettetTidspunkt = LocalDateTime.now().minusDays(1),
-                kommuneNr = "0301",
-                kommuneNavn = "Gamle Oslo",
-            )
-        val barnehageBarnSendtIGårMedSammeKommuneSomIDag =
-            lagBarnehagebarn(
-                opprettetTidspunkt = LocalDateTime.now().minusDays(1),
-                kommuneNr = "3103",
-                kommuneNavn = "Moss",
-            )
-        val barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere =
-            lagBarnehagebarn(
-                opprettetTidspunkt = LocalDateTime.now().minusHours(2),
-                kommuneNr = "3103",
-                kommuneNavn = "Moss",
-            )
-        val barnehageBarnSendtIlaSisteDøgnSagene =
-            lagBarnehagebarn(
-                opprettetTidspunkt = LocalDateTime.now().minusHours(2),
-                kommuneNr = "0303",
-                kommuneNavn = "Sagene",
-            )
-        val barnehageBarnSendtIlaSisteDøgnLøkka =
-            lagBarnehagebarn(
-                opprettetTidspunkt = LocalDateTime.now().minusHours(2),
-                kommuneNr = "0302",
-                kommuneNavn = "Grünerløkka",
-            )
-        barnehagebarnRepository.saveAll(
-            listOf(
-                barnehageBarnSendtIGår,
-                barnehageBarnSendtIGårMedSammeKommuneSomIDag,
-                barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere,
-                barnehageBarnSendtIlaSisteDøgnSagene,
-                barnehageBarnSendtIlaSisteDøgnLøkka,
-            ),
-        )
-
         // Act
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet()
 
@@ -93,21 +55,11 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
     }
 
     @Test
+    @Sql(
+        scripts = ["/barnehagelister/barnehagebarn-sendt-inn-for-mer-enn-ett-døgn-siden.sql"],
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+    )
     fun `sendVarslingOmNyBarnehagelisteTilEnhet sender ikke epost hvis det ikke er blitt sendt inn noe ila det siste døgnet`() {
-        // Arrange
-        val barnehagebarnSendtForMerEnnEttDøgnSiden =
-            lagBarnehagebarn(
-                opprettetTidspunkt = LocalDateTime.now().minusDays(2),
-                kommuneNr = "0301",
-                kommuneNavn = "Gamle Oslo",
-            )
-
-        barnehagebarnRepository.saveAll(
-            listOf(
-                barnehagebarnSendtForMerEnnEttDøgnSiden,
-            ),
-        )
-
         // Act
         barnehagelisteVarslingService.sendVarslingOmNyBarnehagelisteTilEnhet()
 

@@ -6,6 +6,7 @@ import no.nav.familie.felles.tokenklient.entraid.EntraIDClient
 import no.nav.familie.ks.sak.fake.FakeBrevKlient
 import no.nav.familie.ks.sak.fake.FakeFeatureToggleService
 import no.nav.familie.ks.sak.fake.FakeIntegrasjonKlient
+import no.nav.familie.ks.sak.fake.FakeNasjonalBarnehageRegisterKlient
 import no.nav.familie.ks.sak.fake.FakePdlKlient
 import no.nav.familie.ks.sak.fake.FakePersonopplysningerService
 import no.nav.familie.ks.sak.fake.FakeTaskRepositoryWrapper
@@ -46,6 +47,11 @@ class FakeConfig {
     @Primary
     @Profile("integrasjonstest", "postgres")
     fun fakeTilgangsmaskinTilgangskontrollKlient(): FakeTilgangsmaskinTilgangskontrollKlient = FakeTilgangsmaskinTilgangskontrollKlient()
+
+    @Bean
+    @Primary
+    @Profile("integrasjonstest", "postgres")
+    fun fakeNasjonalBarnehageRegisterKlient(): FakeNasjonalBarnehageRegisterKlient = FakeNasjonalBarnehageRegisterKlient()
 
     @Bean
     @Primary

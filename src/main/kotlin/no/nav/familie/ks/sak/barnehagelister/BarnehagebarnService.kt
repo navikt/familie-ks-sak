@@ -62,9 +62,7 @@ class BarnehagebarnService(
     @Transactional
     fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
         barnehagebarnRepository.saveAndFlush(barnehagebarn)
-        if (barnehagebarn.kommuneNr == OSLO_KOMMUNENUMMER && barnehagebarn.barnehageOrgNummer != null) {
-            taskService.save(PopulerBydelForBarnehagebarnTask.opprettTask(barnehagebarn.id))
-        }
+        lagreTaskForPopuleringAvBydelHvisBarnBosattIOslo(barnehagebarn)
     }
 
     fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
@@ -75,5 +73,11 @@ class BarnehagebarnService(
                 .findAll()
                 .filter { it.opprettetTidspunkt >= LocalDateTime.now().minusDays(1) }
         return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
+    }
+
+    private fun lagreTaskForPopuleringAvBydelHvisBarnBosattIOslo(barnehagebarn: Barnehagebarn) {
+        if (barnehagebarn.kommuneNr == OSLO_KOMMUNENUMMER && barnehagebarn.barnehageOrgNummer != null) {
+            taskService.save(PopulerBydelForBarnehagebarnTask.opprettTask(barnehagebarn.id))
+        }
     }
 }

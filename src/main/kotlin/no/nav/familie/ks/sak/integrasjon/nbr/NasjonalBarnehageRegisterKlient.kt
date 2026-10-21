@@ -25,7 +25,11 @@ class NasjonalBarnehageRegisterKlient(
     @Qualifier("utenAuthRestClient") private val restClient: RestClient,
 ) {
     /**
-     * Henter enheten med foreldrerelasjoner, eller null hvis organisasjonsnummeret ikke finnes i NBR.
+     * Returnerer enheten med foreldrerelasjoner, eller null hvis organisasjonsnummeret ikke finnes i NBR (404).
+     *
+     * 404 gir null i stedet for feil fordi et nytt forsøk ikke vil gi et annet svar, f.eks. når barnehagelisten
+     * inneholder et organisasjonsnummer som ikke er registrert i NBR. Andre 4xx-feil kastes videre uten nye forsøk,
+     * mens øvrige feil kastes som [IntegrasjonException] og forsøkes på nytt.
      */
     @Retryable(
         value = [IntegrasjonException::class],

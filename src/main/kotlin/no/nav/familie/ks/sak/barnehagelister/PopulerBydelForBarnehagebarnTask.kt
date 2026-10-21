@@ -9,7 +9,7 @@ import java.util.UUID
 @Service
 @TaskStepBeskrivelse(
     taskStepType = PopulerBydelForBarnehagebarnTask.TASK_STEP_TYPE,
-    beskrivelse = "Populerer bydel orgnummer for barnehagebarn i Oslo",
+    beskrivelse = "Populerer bydel for barnehagebarn i Oslo",
     maxAntallFeil = 3,
     triggerTidVedFeilISekunder = 60 * 60,
 )

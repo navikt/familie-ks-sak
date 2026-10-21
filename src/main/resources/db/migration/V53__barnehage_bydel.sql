@@ -1,13 +1,6 @@
 CREATE TABLE barnehage_bydel
 (
-    id                   BIGINT       NOT NULL PRIMARY KEY,
-    barnehage_org_nummer VARCHAR      NOT NULL UNIQUE,
+    barnehage_org_nummer VARCHAR      NOT NULL PRIMARY KEY,
     bydel_org_nummer     VARCHAR      NOT NULL,
-    versjon              BIGINT       DEFAULT 0              NOT NULL,
-    opprettet_av         VARCHAR      DEFAULT 'VL'           NOT NULL,
-    opprettet_tid        TIMESTAMP(3) DEFAULT localtimestamp NOT NULL,
-    endret_av            VARCHAR,
-    endret_tid           TIMESTAMP(3)
+    opprettet_tid        TIMESTAMP(3) DEFAULT localtimestamp NOT NULL
 );
-
-CREATE SEQUENCE barnehage_bydel_seq INCREMENT BY 50 START WITH 1 NO CYCLE;

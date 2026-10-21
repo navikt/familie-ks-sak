@@ -1,9 +1,9 @@
 package no.nav.familie.ks.sak.integrasjon.nbr.domene
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+private const val RELASJONSTYPE_ADMINISTRATIV_STRUKTUR = "10"
+
 data class NbrEnhet(
     @JsonProperty("Organisasjonsnummer")
     val organisasjonsnummer: String,
@@ -14,8 +14,6 @@ data class NbrEnhet(
     @JsonProperty("ForeldreRelasjoner")
     val foreldreRelasjoner: List<NbrRelasjon>? = null,
 )
-
-private const val RELASJONSTYPE_ADMINISTRATIV_STRUKTUR = "10"
 
 /**
  * Finner organisasjonsnummeret til bydelen i Oslo som barnehagen hører til.
@@ -32,7 +30,6 @@ fun NbrEnhet.finnBydelOrgNummer(): String? =
         .singleOrNull()
         ?.organisasjonsnummer
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class NbrRelasjon(
     @JsonProperty("Enhet")
     val enhet: NbrRelatertEnhet,
@@ -40,7 +37,6 @@ data class NbrRelasjon(
     val relasjonstype: NbrRelasjonstype,
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class NbrRelatertEnhet(
     @JsonProperty("Organisasjonsnummer")
     val organisasjonsnummer: String,
@@ -48,7 +44,6 @@ data class NbrRelatertEnhet(
     val navn: String,
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class NbrRelasjonstype(
     @JsonProperty("Id")
     val id: String,

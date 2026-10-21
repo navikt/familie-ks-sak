@@ -1,0 +1,8 @@
+TRUNCATE TABLE barnehagebarn CASCADE;
+
+-- Gamle Oslo og Moss er sendt inn for mer enn ett døgn siden, Moss, Sagene og Grünerløkka er sendt inn siste døgn
+INSERT INTO barnehagebarn(id, ident, fom, tom, antall_timer_i_barnehage, kommune_navn, kommune_nr, arkiv_referanse, opprettet_tid) VALUES ('a1de9709-7817-4f3e-a822-5d4ca49a6914', '12345678901', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 months', 45, 'Gamle Oslo', '0301', '1111', LOCALTIMESTAMP - INTERVAL '2 days');
+INSERT INTO barnehagebarn(id, ident, fom, tom, antall_timer_i_barnehage, kommune_navn, kommune_nr, arkiv_referanse, opprettet_tid) VALUES ('a2de9709-7817-4f3e-a822-5d4ca49a6914', '23456789012', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 months', 45, 'Moss', '3103', '2222', LOCALTIMESTAMP - INTERVAL '2 days');
+INSERT INTO barnehagebarn(id, ident, fom, tom, antall_timer_i_barnehage, kommune_navn, kommune_nr, arkiv_referanse, opprettet_tid) VALUES ('a3de9709-7817-4f3e-a822-5d4ca49a6914', '34567890123', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 months', 45, 'Moss', '3103', '3333', LOCALTIMESTAMP - INTERVAL '2 hours');
+INSERT INTO barnehagebarn(id, ident, fom, tom, antall_timer_i_barnehage, kommune_navn, kommune_nr, arkiv_referanse, opprettet_tid) VALUES ('a4de9709-7817-4f3e-a822-5d4ca49a6914', '45678901234', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 months', 45, 'Sagene', '0303', '4444', LOCALTIMESTAMP - INTERVAL '2 hours');
+INSERT INTO barnehagebarn(id, ident, fom, tom, antall_timer_i_barnehage, kommune_navn, kommune_nr, arkiv_referanse, opprettet_tid) VALUES ('a5de9709-7817-4f3e-a822-5d4ca49a6914', '56789012345', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 months', 45, 'Grünerløkka', '0302', '5555', LOCALTIMESTAMP - INTERVAL '2 hours');

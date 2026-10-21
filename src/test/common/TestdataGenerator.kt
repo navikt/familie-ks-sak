@@ -129,7 +129,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgers
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
 import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.RelatertBehandling
-import org.springframework.test.util.ReflectionTestUtils
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -1716,7 +1715,7 @@ fun lagBarnehagebarn(
     arkivReferanse: String = UUID.randomUUID().toString(),
     kildeTopic: String = BARNEHAGELISTE_TOPIC,
     barnehageOrgNummer: String? = null,
-    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    endretTidspunkt: LocalDateTime = LocalDateTime.now(),
 ): Barnehagebarn {
     val barnehagebarn =
         Barnehagebarn(
@@ -1732,7 +1731,7 @@ fun lagBarnehagebarn(
             kildeTopic = kildeTopic,
             barnehageOrgNummer = barnehageOrgNummer,
         )
-    ReflectionTestUtils.setField(barnehagebarn, "opprettetTidspunkt", opprettetTidspunkt)
+    barnehagebarn.endretTidspunkt = endretTidspunkt
     return barnehagebarn
 }
 
