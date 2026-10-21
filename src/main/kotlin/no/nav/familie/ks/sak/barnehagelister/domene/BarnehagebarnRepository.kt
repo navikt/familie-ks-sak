@@ -15,7 +15,8 @@ interface BarnehagebarnRepository : JpaRepository<Barnehagebarn, UUID> { // , Jp
         -- Referer til disse variablene flere ganger så de må legges inn slik
         SELECT 
         CAST(:ident AS TEXT) as ident_param,
-        CAST(:kommuneNavn AS TEXT) as kommunenavn_param
+        CAST(:kommuneNavn AS TEXT) as kommunenavn_param,
+        CAST(:bydelOrgNummer AS TEXT) as bydel_org_nummer_param
     ),
     siste_iverksatte_behandling_i_løpende_fagsak AS (
     -- Finn nyeste iverksatte behandling med utbetaling for løpende og ikke-arkivert fagsak for barn
@@ -72,7 +73,8 @@ barnehagebarn_visning AS (
            bb.endringstype,
            bb.kommune_navn AS kommuneNavn,
            bb.kommune_nr AS kommuneNr,
-           MAX(bb.endret_tid) AS endretTid,
+           MAX(bb.bydel_org_nummer) AS bydelOrgNummer,
+           MAX(bb.opprettet_tid) AS endretTid,
            atv.avvik
     FROM barnehagebarn bb
              LEFT JOIN lopende_andel_i_siste_iverksatte_behandling lab
@@ -95,6 +97,7 @@ FROM barnehagebarn_visning
     CROSS JOIN input i
     WHERE (ident = i.ident_param OR i.ident_param IS NULL)
         AND (i.kommunenavn_param IS NULL OR kommuneNavn ILIKE i.kommunenavn_param)
+        AND (i.bydel_org_nummer_param IS NULL OR bydelOrgNummer = i.bydel_org_nummer_param)
  """,
         nativeQuery = true,
     )
@@ -102,6 +105,7 @@ FROM barnehagebarn_visning
         kunLøpendeAndeler: Boolean,
         ident: String?,
         kommuneNavn: String?,
+        bydelOrgNummer: String?,
         pageable: Pageable,
     ): Page<BarnehagebarnPaginerbar>
 

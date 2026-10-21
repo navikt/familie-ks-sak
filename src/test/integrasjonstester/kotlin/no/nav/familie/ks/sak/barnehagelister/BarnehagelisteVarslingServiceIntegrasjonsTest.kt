@@ -25,6 +25,7 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
             fagsakRepository = mockk(),
             behandlingRepository = mockk(),
             vilkårsvurderingService = mockk(),
+            taskService = mockk(),
         )
     private val epostService = mockk<EpostService>()
     private val barnehagelisteVarslingService =
@@ -41,31 +42,31 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
         // Arrange
         val barnehageBarnSendtIGår =
             lagBarnehagebarn(
-                endretTidspunkt = LocalDateTime.now().minusDays(1),
+                opprettetTidspunkt = LocalDateTime.now().minusDays(1),
                 kommuneNr = "0301",
                 kommuneNavn = "Gamle Oslo",
             )
         val barnehageBarnSendtIGårMedSammeKommuneSomIDag =
             lagBarnehagebarn(
-                endretTidspunkt = LocalDateTime.now().minusDays(1),
+                opprettetTidspunkt = LocalDateTime.now().minusDays(1),
                 kommuneNr = "3103",
                 kommuneNavn = "Moss",
             )
         val barnehagebarnSendtIlaSisteDøgnFraKommuneSomHarBlittSendtTidligere =
             lagBarnehagebarn(
-                endretTidspunkt = LocalDateTime.now().minusHours(2),
+                opprettetTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "3103",
                 kommuneNavn = "Moss",
             )
         val barnehageBarnSendtIlaSisteDøgnSagene =
             lagBarnehagebarn(
-                endretTidspunkt = LocalDateTime.now().minusHours(2),
+                opprettetTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "0303",
                 kommuneNavn = "Sagene",
             )
         val barnehageBarnSendtIlaSisteDøgnLøkka =
             lagBarnehagebarn(
-                endretTidspunkt = LocalDateTime.now().minusHours(2),
+                opprettetTidspunkt = LocalDateTime.now().minusHours(2),
                 kommuneNr = "0302",
                 kommuneNavn = "Grünerløkka",
             )
@@ -96,7 +97,7 @@ class BarnehagelisteVarslingServiceIntegrasjonsTest(
         // Arrange
         val barnehagebarnSendtForMerEnnEttDøgnSiden =
             lagBarnehagebarn(
-                endretTidspunkt = LocalDateTime.now().minusDays(2),
+                opprettetTidspunkt = LocalDateTime.now().minusDays(2),
                 kommuneNr = "0301",
                 kommuneNavn = "Gamle Oslo",
             )

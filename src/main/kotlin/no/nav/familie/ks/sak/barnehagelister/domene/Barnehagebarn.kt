@@ -33,6 +33,10 @@ data class Barnehagebarn(
     var arkivReferanse: String,
     @Column(name = "KILDE_TOPIC", nullable = true, updatable = false)
     var kildeTopic: String? = null,
+    @Column(name = "BARNEHAGE_ORG_NUMMER", nullable = true, updatable = false)
+    var barnehageOrgNummer: String? = null,
+    @Column(name = "BYDEL_ORG_NUMMER", nullable = true, updatable = true)
+    var bydelOrgNummer: String? = null,
 ) : BaseEntitet()
 
 // Denne må være et interface for at paginering skal fungere

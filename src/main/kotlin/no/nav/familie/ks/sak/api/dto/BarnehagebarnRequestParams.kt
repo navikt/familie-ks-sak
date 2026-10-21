@@ -6,6 +6,7 @@ data class BarnehagebarnRequestParams(
     val ident: String?,
     val kommuneNavn: String?,
     val kunLøpendeAndel: Boolean,
+    val bydelOrgNummer: String? = null,
     val limit: Int = 50,
     val offset: Int = 0,
     val sortBy: String = "kommuneNavn",
