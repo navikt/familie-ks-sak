@@ -41,7 +41,7 @@ class KSBarnehagebarnDTOTest {
                 kommuneNr = ksBarnehagebarnDTO.kommuneNr,
                 arkivReferanse = ksBarnehagebarnDTO.barnehagelisteId,
                 kildeTopic = KafkaConfig.BARNEHAGELISTE_TOPIC,
-                barnehageOrgNummer = "123456789",
+                barnehageOrganisasjonsnummer = "123456789",
             ),
         )
     }
@@ -67,6 +67,6 @@ class KSBarnehagebarnDTOTest {
         val barnehagebarn = jsonMapper.readValue(melding, KSBarnehagebarnDTO::class.java).tilBarnehagebarn()
 
         // Assert
-        assertThat(barnehagebarn.barnehageOrgNummer).isNull()
+        assertThat(barnehagebarn.barnehageOrganisasjonsnummer).isNull()
     }
 }

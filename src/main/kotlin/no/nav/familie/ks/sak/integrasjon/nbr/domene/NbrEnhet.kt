@@ -21,7 +21,7 @@ data class NbrEnhet(
  * Både kommunale og private barnehager peker på bydelen med relasjonstypen «Administrativ struktur».
  * Returnerer null hvis enheten ikke har nøyaktig én bydel.
  */
-fun NbrEnhet.finnBydelOrgNummer(): String? =
+fun NbrEnhet.finnBydelOrganisasjonsnummer(): String? =
     foreldreRelasjoner
         .orEmpty()
         .filter { it.relasjonstype.id == RELASJONSTYPE_ADMINISTRATIV_STRUKTUR }

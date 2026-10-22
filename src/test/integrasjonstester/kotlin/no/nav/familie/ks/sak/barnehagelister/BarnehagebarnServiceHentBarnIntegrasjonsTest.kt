@@ -92,7 +92,7 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
                 ident = null,
                 kommuneNavn = null,
                 kunLøpendeAndel = false,
-                bydelOrgNummer = "974778726",
+                bydelOrganisasjonsnummer = "974778726",
             )
 
         // Act

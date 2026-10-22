@@ -36,7 +36,7 @@ class BarnehagebarnService(
                 kunLøpendeAndeler = barnehagebarnRequestParams.kunLøpendeAndel,
                 ident = barnehagebarnRequestParams.ident.takeUnless { it.isNullOrBlank() },
                 kommuneNavn = barnehagebarnRequestParams.kommuneNavn.takeUnless { it.isNullOrBlank() },
-                bydelOrgNummer = barnehagebarnRequestParams.bydelOrgNummer.takeUnless { it.isNullOrBlank() },
+                bydelOrganisasjonsnummer = barnehagebarnRequestParams.bydelOrganisasjonsnummer.takeUnless { it.isNullOrBlank() },
                 pageable = pageable,
             )
 
@@ -62,7 +62,7 @@ class BarnehagebarnService(
     @Transactional
     fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
         barnehagebarnRepository.saveAndFlush(barnehagebarn)
-        lagreTaskForPopuleringAvBydelHvisBarnBosattIOslo(barnehagebarn)
+        lagreTaskForPopuleringAvBydelHvisBarnehageIOslo(barnehagebarn)
     }
 
     fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
@@ -75,8 +75,8 @@ class BarnehagebarnService(
         return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
     }
 
-    private fun lagreTaskForPopuleringAvBydelHvisBarnBosattIOslo(barnehagebarn: Barnehagebarn) {
-        if (barnehagebarn.kommuneNr == OSLO_KOMMUNENUMMER && barnehagebarn.barnehageOrgNummer != null) {
+    private fun lagreTaskForPopuleringAvBydelHvisBarnehageIOslo(barnehagebarn: Barnehagebarn) {
+        if (barnehagebarn.kommuneNr == OSLO_KOMMUNENUMMER && barnehagebarn.barnehageOrganisasjonsnummer != null) {
             taskService.save(PopulerBydelForBarnehagebarnTask.opprettTask(barnehagebarn.id))
         }
     }

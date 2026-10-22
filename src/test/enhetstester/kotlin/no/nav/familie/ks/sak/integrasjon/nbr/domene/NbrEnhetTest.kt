@@ -7,7 +7,7 @@ class NbrEnhetTest {
     private val oslokommune = "958935420"
 
     @Test
-    fun `finnBydelOrgNummer skal finne bydel for privat barnehage via administrativ struktur`() {
+    fun `finnBydelOrganisasjonsnummer skal finne bydel for privat barnehage via administrativ struktur`() {
         // Arrange
         val enhet =
             lagEnhet(
@@ -18,14 +18,14 @@ class NbrEnhetTest {
             )
 
         // Act
-        val bydelOrgNummer = enhet.finnBydelOrgNummer()
+        val bydelOrganisasjonsnummer = enhet.finnBydelOrganisasjonsnummer()
 
         // Assert
-        assertThat(bydelOrgNummer).isEqualTo(OsloBydel.ST_HANSHAUGEN.organisasjonsnummer)
+        assertThat(bydelOrganisasjonsnummer).isEqualTo(OsloBydel.ST_HANSHAUGEN.organisasjonsnummer)
     }
 
     @Test
-    fun `finnBydelOrgNummer skal finne bydel for kommunal barnehage som peker på bydelen med flere relasjonstyper`() {
+    fun `finnBydelOrganisasjonsnummer skal finne bydel for kommunal barnehage som peker på bydelen med flere relasjonstyper`() {
         // Arrange
         val enhet =
             lagEnhet(
@@ -36,14 +36,14 @@ class NbrEnhetTest {
             )
 
         // Act
-        val bydelOrgNummer = enhet.finnBydelOrgNummer()
+        val bydelOrganisasjonsnummer = enhet.finnBydelOrganisasjonsnummer()
 
         // Assert
-        assertThat(bydelOrgNummer).isEqualTo(OsloBydel.VESTRE_AKER.organisasjonsnummer)
+        assertThat(bydelOrganisasjonsnummer).isEqualTo(OsloBydel.VESTRE_AKER.organisasjonsnummer)
     }
 
     @Test
-    fun `finnBydelOrgNummer skal returnere null når ingen relasjon peker på en bydel`() {
+    fun `finnBydelOrganisasjonsnummer skal returnere null når ingen relasjon peker på en bydel`() {
         // Arrange
         val enhet =
             lagEnhet(
@@ -52,14 +52,14 @@ class NbrEnhetTest {
             )
 
         // Act
-        val bydelOrgNummer = enhet.finnBydelOrgNummer()
+        val bydelOrganisasjonsnummer = enhet.finnBydelOrganisasjonsnummer()
 
         // Assert
-        assertThat(bydelOrgNummer).isNull()
+        assertThat(bydelOrganisasjonsnummer).isNull()
     }
 
     @Test
-    fun `finnBydelOrgNummer skal ignorere bydel som bare er knyttet via annen relasjonstype enn administrativ struktur`() {
+    fun `finnBydelOrganisasjonsnummer skal ignorere bydel som bare er knyttet via annen relasjonstype enn administrativ struktur`() {
         // Arrange
         val enhet =
             lagEnhet(
@@ -68,14 +68,14 @@ class NbrEnhetTest {
             )
 
         // Act
-        val bydelOrgNummer = enhet.finnBydelOrgNummer()
+        val bydelOrganisasjonsnummer = enhet.finnBydelOrganisasjonsnummer()
 
         // Assert
-        assertThat(bydelOrgNummer).isNull()
+        assertThat(bydelOrganisasjonsnummer).isNull()
     }
 
     @Test
-    fun `finnBydelOrgNummer skal returnere null når enheten peker på flere bydeler`() {
+    fun `finnBydelOrganisasjonsnummer skal returnere null når enheten peker på flere bydeler`() {
         // Arrange
         val enhet =
             lagEnhet(
@@ -85,10 +85,10 @@ class NbrEnhetTest {
             )
 
         // Act
-        val bydelOrgNummer = enhet.finnBydelOrgNummer()
+        val bydelOrganisasjonsnummer = enhet.finnBydelOrganisasjonsnummer()
 
         // Assert
-        assertThat(bydelOrgNummer).isNull()
+        assertThat(bydelOrganisasjonsnummer).isNull()
     }
 
     private fun lagEnhet(

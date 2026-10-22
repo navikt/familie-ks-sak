@@ -9,8 +9,8 @@ import jakarta.persistence.Table
 @Table(name = "BARNEHAGE_BYDEL")
 data class BarnehageBydel(
     @Id
-    @Column(name = "BARNEHAGE_ORG_NUMMER", nullable = false, updatable = false)
-    val barnehageOrgNummer: String,
-    @Column(name = "BYDEL_ORG_NUMMER", nullable = false, updatable = false)
-    val bydelOrgNummer: String,
+    @Column(name = "BARNEHAGE_ORGANISASJONSNUMMER", nullable = false, updatable = false)
+    val barnehageOrganisasjonsnummer: String,
+    @Column(name = "BYDEL_ORGANISASJONSNUMMER", nullable = false, updatable = false)
+    val bydelOrganisasjonsnummer: String,
 )

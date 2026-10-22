@@ -12,9 +12,9 @@ class FakeNasjonalBarnehageRegisterKlient : NasjonalBarnehageRegisterKlient("htt
         enheter[enhet.organisasjonsnummer] = enhet
     }
 
-    override fun hentEnhet(barnehageOrgNummer: String): NbrEnhet? {
-        oppslag.add(barnehageOrgNummer)
-        return enheter[barnehageOrgNummer]
+    override fun hentEnhet(barnehageOrganisasjonsnummer: String): NbrEnhet? {
+        oppslag.add(barnehageOrganisasjonsnummer)
+        return enheter[barnehageOrganisasjonsnummer]
     }
 
     fun reset() {

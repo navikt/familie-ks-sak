@@ -1714,7 +1714,7 @@ fun lagBarnehagebarn(
     kommuneNr: String = "1234",
     arkivReferanse: String = UUID.randomUUID().toString(),
     kildeTopic: String = BARNEHAGELISTE_TOPIC,
-    barnehageOrgNummer: String? = null,
+    barnehageOrganisasjonsnummer: String? = null,
     endretTidspunkt: LocalDateTime = LocalDateTime.now(),
 ): Barnehagebarn {
     val barnehagebarn =
@@ -1729,7 +1729,7 @@ fun lagBarnehagebarn(
             kommuneNr = kommuneNr,
             arkivReferanse = arkivReferanse,
             kildeTopic = kildeTopic,
-            barnehageOrgNummer = barnehageOrgNummer,
+            barnehageOrganisasjonsnummer = barnehageOrganisasjonsnummer,
         )
     barnehagebarn.endretTidspunkt = endretTidspunkt
     return barnehagebarn

@@ -30,47 +30,47 @@ class BarnehageBydelServiceIntegrasjonsTest(
     @Test
     fun `henter bydel fra NBR og lagrer den når barnehagen ikke er slått opp tidligere`() {
         // Arrange
-        val barnehagebarn = barnehagebarnRepository.save(lagBarnehagebarn(kommuneNr = OSLO, barnehageOrgNummer = BARNEHAGE))
+        val barnehagebarn = barnehagebarnRepository.save(lagBarnehagebarn(kommuneNr = OSLO, barnehageOrganisasjonsnummer = BARNEHAGE))
         fakeNasjonalBarnehageRegisterKlient.leggTilEnhet(lagEnhet(BARNEHAGE, SAGENE))
 
         // Act
-        barnehageBydelService.oppdaterBydelOrgNummerPåBarnehagebarn(barnehagebarn.id)
+        barnehageBydelService.oppdaterBydelOrganisasjonsnummerPåBarnehagebarn(barnehagebarn.id)
 
         // Assert
-        assertThat(barnehagebarnRepository.findById(barnehagebarn.id).get().bydelOrgNummer).isEqualTo(SAGENE)
-        assertThat(barnehageBydelRepository.findByIdOrNull(BARNEHAGE)?.bydelOrgNummer).isEqualTo(SAGENE)
+        assertThat(barnehagebarnRepository.findById(barnehagebarn.id).get().bydelOrganisasjonsnummer).isEqualTo(SAGENE)
+        assertThat(barnehageBydelRepository.findByIdOrNull(BARNEHAGE)?.bydelOrganisasjonsnummer).isEqualTo(SAGENE)
     }
 
     @Test
     fun `bruker lagret bydel uten å slå opp i NBR når barnehagen er slått opp tidligere`() {
         // Arrange
-        barnehageBydelRepository.save(BarnehageBydel(barnehageOrgNummer = BARNEHAGE, bydelOrgNummer = SAGENE))
-        val barnehagebarn = barnehagebarnRepository.save(lagBarnehagebarn(kommuneNr = OSLO, barnehageOrgNummer = BARNEHAGE))
+        barnehageBydelRepository.save(BarnehageBydel(barnehageOrganisasjonsnummer = BARNEHAGE, bydelOrganisasjonsnummer = SAGENE))
+        val barnehagebarn = barnehagebarnRepository.save(lagBarnehagebarn(kommuneNr = OSLO, barnehageOrganisasjonsnummer = BARNEHAGE))
 
         // Act
-        barnehageBydelService.oppdaterBydelOrgNummerPåBarnehagebarn(barnehagebarn.id)
+        barnehageBydelService.oppdaterBydelOrganisasjonsnummerPåBarnehagebarn(barnehagebarn.id)
 
         // Assert
-        assertThat(barnehagebarnRepository.findById(barnehagebarn.id).get().bydelOrgNummer).isEqualTo(SAGENE)
+        assertThat(barnehagebarnRepository.findById(barnehagebarn.id).get().bydelOrganisasjonsnummer).isEqualTo(SAGENE)
         assertThat(fakeNasjonalBarnehageRegisterKlient.oppslag).isEmpty()
     }
 
     @Test
     fun `lagrer ingen bydel når NBR ikke finner bydel for barnehagen`() {
         // Arrange
-        val barnehagebarn = barnehagebarnRepository.save(lagBarnehagebarn(kommuneNr = OSLO, barnehageOrgNummer = BARNEHAGE))
+        val barnehagebarn = barnehagebarnRepository.save(lagBarnehagebarn(kommuneNr = OSLO, barnehageOrganisasjonsnummer = BARNEHAGE))
 
         // Act
-        barnehageBydelService.oppdaterBydelOrgNummerPåBarnehagebarn(barnehagebarn.id)
+        barnehageBydelService.oppdaterBydelOrganisasjonsnummerPåBarnehagebarn(barnehagebarn.id)
 
         // Assert
-        assertThat(barnehagebarnRepository.findById(barnehagebarn.id).get().bydelOrgNummer).isNull()
+        assertThat(barnehagebarnRepository.findById(barnehagebarn.id).get().bydelOrganisasjonsnummer).isNull()
         assertThat(barnehageBydelRepository.findByIdOrNull(BARNEHAGE)).isNull()
     }
 
     private fun lagEnhet(
         organisasjonsnummer: String,
-        bydelOrgNummer: String,
+        bydelOrganisasjonsnummer: String,
     ) = NbrEnhet(
         organisasjonsnummer = organisasjonsnummer,
         navn = "Barnehage",
@@ -78,7 +78,7 @@ class BarnehageBydelServiceIntegrasjonsTest(
         foreldreRelasjoner =
             listOf(
                 NbrRelasjon(
-                    enhet = NbrRelatertEnhet(organisasjonsnummer = bydelOrgNummer, navn = "Bydel"),
+                    enhet = NbrRelatertEnhet(organisasjonsnummer = bydelOrganisasjonsnummer, navn = "Bydel"),
                     relasjonstype = NbrRelasjonstype(id = "10", navn = "Administrativ struktur"),
                 ),
             ),

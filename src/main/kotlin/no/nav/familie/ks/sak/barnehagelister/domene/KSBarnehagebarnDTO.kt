@@ -26,6 +26,6 @@ class KSBarnehagebarnDTO(
             kommuneNr = kommuneNr,
             arkivReferanse = barnehagelisteId,
             kildeTopic = KafkaConfig.BARNEHAGELISTE_TOPIC,
-            barnehageOrgNummer = organisasjonsnummer,
+            barnehageOrganisasjonsnummer = organisasjonsnummer,
         )
 }

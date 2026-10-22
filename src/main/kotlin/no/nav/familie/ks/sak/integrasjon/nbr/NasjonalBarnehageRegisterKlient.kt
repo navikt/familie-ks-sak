@@ -37,11 +37,11 @@ class NasjonalBarnehageRegisterKlient(
         backoff = Backoff(delayExpression = RETRY_BACKOFF_5000MS),
     )
     @Cacheable("nasjonalBarnehageRegister", cacheManager = "shortCache")
-    fun hentEnhet(barnehageOrgNummer: String): NbrEnhet? {
+    fun hentEnhet(barnehageOrganisasjonsnummer: String): NbrEnhet? {
         val uri =
             UriComponentsBuilder
                 .fromUriString(nbrUrl)
-                .pathSegment("v4", "enhet", barnehageOrgNummer)
+                .pathSegment("v4", "enhet", barnehageOrganisasjonsnummer)
                 .build()
                 .toUri()
 

@@ -17,7 +17,7 @@ class PopulerBydelForBarnehagebarnTask(
     private val barnehageBydelService: BarnehageBydelService,
 ) : AsyncTaskStep {
     override fun doTask(task: Task) {
-        barnehageBydelService.oppdaterBydelOrgNummerPåBarnehagebarn(UUID.fromString(task.payload))
+        barnehageBydelService.oppdaterBydelOrganisasjonsnummerPåBarnehagebarn(UUID.fromString(task.payload))
     }
 
     companion object {
