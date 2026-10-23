@@ -82,6 +82,29 @@ class BarnehagebarnServiceHentBarnIntegrasjonsTest(
 
     @Test
     @Sql(
+        scripts = ["/barnehagelister/barnehagebarn-med-forskjellig-bydel.sql"],
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
+    )
+    fun `hentBarnehageBarn henter kun barn med riktig bydel`() {
+        // Arrange
+        val barnehagebarnRequestParams =
+            BarnehagebarnRequestParams(
+                ident = null,
+                kommuneNavn = null,
+                kunLøpendeAndel = false,
+                bydelOrganisasjonsnummer = "974778726",
+            )
+
+        // Act
+        val barnehagebarn =
+            barnehagebarnService.hentBarnehagebarnForVisning(barnehagebarnRequestParams = barnehagebarnRequestParams).content
+
+        // Assert
+        assertThat(barnehagebarn.map { it.ident }).containsExactly("12345678901")
+    }
+
+    @Test
+    @Sql(
         scripts = ["/barnehagelister/barnehagebarn-komplekst-case.sql"],
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
     )

@@ -90,9 +90,6 @@ abstract class OppslagSpringRunnerTest {
     private lateinit var applicationContext: ApplicationContext
 
     @Autowired
-    private lateinit var cacheManager: CacheManager
-
-    @Autowired
     private lateinit var rolleConfig: RolleConfig
 
     @Autowired
@@ -323,9 +320,11 @@ abstract class OppslagSpringRunnerTest {
     private fun resetWiremockServers() = applicationContext.getBeansOfType(WireMockServer::class.java).values.forEach(WireMockServer::resetRequests)
 
     private fun clearCaches() =
-        cacheManager.cacheNames
-            .mapNotNull { cacheManager.getCache(it) }
-            .forEach { it.clear() }
+        applicationContext.getBeansOfType(CacheManager::class.java).values.forEach { cacheManager ->
+            cacheManager.cacheNames
+                .mapNotNull { cacheManager.getCache(it) }
+                .forEach { it.clear() }
+        }
 
     private fun resetTableForAllEntityClass() = databaseCleanupService.truncate()
 

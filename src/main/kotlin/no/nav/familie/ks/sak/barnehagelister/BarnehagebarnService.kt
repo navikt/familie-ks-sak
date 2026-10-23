@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.toSort
 import no.nav.familie.ks.sak.barnehagelister.domene.Barnehagebarn
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
+private const val OSLO_KOMMUNENUMMER = "0301"
+
 @Service
 class BarnehagebarnService(
     val barnehagebarnRepository: BarnehagebarnRepository,
@@ -22,6 +25,7 @@ class BarnehagebarnService(
     val fagsakRepository: FagsakRepository,
     val behandlingRepository: BehandlingRepository,
     val vilkårsvurderingService: VilkårsvurderingService,
+    val taskService: TaskRepositoryWrapper,
 ) {
     fun hentBarnehagebarnForVisning(barnehagebarnRequestParams: BarnehagebarnRequestParams): Page<BarnehagebarnVisningDto> {
         val sort = barnehagebarnRequestParams.toSort()
@@ -32,6 +36,7 @@ class BarnehagebarnService(
                 kunLøpendeAndeler = barnehagebarnRequestParams.kunLøpendeAndel,
                 ident = barnehagebarnRequestParams.ident.takeUnless { it.isNullOrBlank() },
                 kommuneNavn = barnehagebarnRequestParams.kommuneNavn.takeUnless { it.isNullOrBlank() },
+                bydelOrganisasjonsnummer = barnehagebarnRequestParams.bydelOrganisasjonsnummer.takeUnless { it.isNullOrBlank() },
                 pageable = pageable,
             )
 
@@ -57,6 +62,7 @@ class BarnehagebarnService(
     @Transactional
     fun lagreBarnehageBarn(barnehagebarn: Barnehagebarn) {
         barnehagebarnRepository.saveAndFlush(barnehagebarn)
+        lagreTaskForPopuleringAvBydelHvisBarnehageIOslo(barnehagebarn)
     }
 
     fun hentAlleKommuner(): Set<String> = barnehagebarnRepository.hentAlleKommuner()
@@ -65,7 +71,13 @@ class BarnehagebarnService(
         val barnSendtInnSisteDøgn =
             barnehagebarnRepository
                 .findAll()
-                .filter { it.endretTidspunkt >= LocalDateTime.now().minusDays(1) }
+                .filter { it.opprettetTidspunkt >= LocalDateTime.now().minusDays(1) }
         return barnSendtInnSisteDøgn.map { KommuneEllerBydel(it.kommuneNr, it.kommuneNavn) }.toSet()
+    }
+
+    private fun lagreTaskForPopuleringAvBydelHvisBarnehageIOslo(barnehagebarn: Barnehagebarn) {
+        if (barnehagebarn.kommuneNr == OSLO_KOMMUNENUMMER && barnehagebarn.barnehageOrganisasjonsnummer != null) {
+            taskService.save(PopulerBydelForBarnehagebarnTask.opprettTask(barnehagebarn.id))
+        }
     }
 }

@@ -112,6 +112,7 @@ spec:
         - host: familie-integrasjoner.prod-fss-pub.nais.io
         - host: familie-ks-infotrygd.prod-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
+        - host: data-nbr.udir.no
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
         - host: graph.microsoft.com
           ports:

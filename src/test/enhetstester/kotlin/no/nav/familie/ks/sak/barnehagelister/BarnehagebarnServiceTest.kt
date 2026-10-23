@@ -2,13 +2,19 @@ package no.nav.familie.ks.sak.barnehagelister
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnRepository
+import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
+import no.nav.familie.ks.sak.data.lagBarnehagebarn
+import no.nav.familie.prosessering.domene.Task
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class BarnehagebarnServiceTest {
     private val mockBarnehagebarnRepository = mockk<BarnehagebarnRepository>()
+    private val mockTaskService = mockk<TaskRepositoryWrapper>()
 
     private val barnehagebarnService =
         BarnehagebarnService(
@@ -17,6 +23,7 @@ class BarnehagebarnServiceTest {
             mockk(),
             mockk(),
             mockk(),
+            mockTaskService,
         )
 
     @Nested
@@ -35,6 +42,51 @@ class BarnehagebarnServiceTest {
             // Assert
             assertThat(alleKommuner).hasSize(3)
             assertThat(alleKommuner).usingRecursiveComparison().isEqualTo(kommuner)
+        }
+    }
+
+    @Nested
+    inner class LagreBarnehageBarn {
+        @Test
+        fun `skal opprette task for å populere bydel når barnehagebarnet er i Oslo og har organisasjonsnummer for barnehagen`() {
+            // Arrange
+            val barnehagebarn = lagBarnehagebarn(kommuneNr = "0301", barnehageOrganisasjonsnummer = "111111111")
+            val lagretTask = slot<Task>()
+            every { mockBarnehagebarnRepository.saveAndFlush(barnehagebarn) } returns barnehagebarn
+            every { mockTaskService.save(capture(lagretTask)) } answers { firstArg() }
+
+            // Act
+            barnehagebarnService.lagreBarnehageBarn(barnehagebarn)
+
+            // Assert
+            assertThat(lagretTask.captured.type).isEqualTo(PopulerBydelForBarnehagebarnTask.TASK_STEP_TYPE)
+            assertThat(lagretTask.captured.payload).isEqualTo(barnehagebarn.id.toString())
+        }
+
+        @Test
+        fun `skal ikke opprette task når barnehagebarnet i Oslo mangler organisasjonsnummer for barnehagen`() {
+            // Arrange
+            val barnehagebarn = lagBarnehagebarn(kommuneNr = "0301", barnehageOrganisasjonsnummer = null)
+            every { mockBarnehagebarnRepository.saveAndFlush(barnehagebarn) } returns barnehagebarn
+
+            // Act
+            barnehagebarnService.lagreBarnehageBarn(barnehagebarn)
+
+            // Assert
+            verify(exactly = 0) { mockTaskService.save(any()) }
+        }
+
+        @Test
+        fun `skal ikke opprette task når barnehagebarnet er utenfor Oslo`() {
+            // Arrange
+            val barnehagebarn = lagBarnehagebarn(kommuneNr = "3103", barnehageOrganisasjonsnummer = "111111111")
+            every { mockBarnehagebarnRepository.saveAndFlush(barnehagebarn) } returns barnehagebarn
+
+            // Act
+            barnehagebarnService.lagreBarnehageBarn(barnehagebarn)
+
+            // Assert
+            verify(exactly = 0) { mockTaskService.save(any()) }
         }
     }
 }

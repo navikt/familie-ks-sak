@@ -13,6 +13,7 @@ class KSBarnehagebarnDTO(
     var kommuneNavn: String,
     var kommuneNr: String,
     var barnehagelisteId: String,
+    var organisasjonsnummer: String? = null,
 ) {
     fun tilBarnehagebarn(): Barnehagebarn =
         Barnehagebarn(
@@ -25,5 +26,6 @@ class KSBarnehagebarnDTO(
             kommuneNr = kommuneNr,
             arkivReferanse = barnehagelisteId,
             kildeTopic = KafkaConfig.BARNEHAGELISTE_TOPIC,
+            barnehageOrganisasjonsnummer = organisasjonsnummer,
         )
 }

@@ -104,6 +104,7 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: familie-integrasjoner.dev-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
+        - host: data-nbr.udir.no
         - host: teamfamilie-unleash-api.nav.cloud.nais.io
   replicas:
     min: 2

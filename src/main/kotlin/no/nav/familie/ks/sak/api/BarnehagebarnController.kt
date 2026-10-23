@@ -2,9 +2,11 @@ package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.BarnehagebarnRequestParams
+import no.nav.familie.ks.sak.api.dto.BydelDto
 import no.nav.familie.ks.sak.barnehagelister.BarnehagebarnService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.integrasjon.nbr.domene.OsloBydel
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
@@ -44,4 +46,10 @@ class BarnehagebarnController(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun hentAlleBarnehageKommuner(): ResponseEntity<Ressurs<Set<String>>> = ResponseEntity.ok(Ressurs.success(barnehagebarnService.hentAlleKommuner()))
+
+    @GetMapping(
+        path = ["/bydeler"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun hentAlleBydeler(): ResponseEntity<Ressurs<List<BydelDto>>> = ResponseEntity.ok(Ressurs.success(OsloBydel.entries.map { BydelDto(it.organisasjonsnummer, it.navn) }))
 }
