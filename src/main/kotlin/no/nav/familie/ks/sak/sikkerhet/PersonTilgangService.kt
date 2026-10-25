@@ -20,13 +20,14 @@ class PersonTilgangService(
             .associateBy { it.personIdent }
 
     fun hentMaskertPersonInfoVedManglendeTilgang(aktør: Aktør): PersonInfoDto? {
-        val harTilgang = sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
-        return if (!harTilgang) {
+        val tilgang = sjekkTilgangTilPerson(aktør.aktivFødselsnummer())
+        return if (tilgang.avvisning != null) {
             val adressebeskyttelse = pdlKlient.hentAdressebeskyttelse(aktør).tilAdressebeskyttelse()
             PersonInfoDto(
                 personIdent = aktør.aktivFødselsnummer(),
                 adressebeskyttelseGradering = adressebeskyttelse,
                 harTilgang = false,
+                avvisningskode = tilgang.avvisning.avvisningskode,
             )
         } else {
             null

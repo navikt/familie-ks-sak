@@ -10,6 +10,7 @@ import no.nav.familie.ks.sak.datagenerator.lagPersonTilgangAvvistGrunnetSkjermin
 import no.nav.familie.ks.sak.datagenerator.lagPersonTilgangAvvistGrunnetStrengtFortrolig
 import no.nav.familie.ks.sak.integrasjon.pdl.PdlKlient
 import no.nav.familie.ks.sak.integrasjon.tilgangsmaskin.TilgangsmaskinTilgangskontrollKlient
+import no.nav.familie.tilgangsmaskin.Avvisningskode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -63,6 +64,7 @@ class PersonTilgangServiceTest {
         assertThat(maskertPersonInfo).isNotNull
         assertThat(maskertPersonInfo!!.personIdent).isEqualTo(personIdent)
         assertThat(maskertPersonInfo.harTilgang).isFalse
+        assertThat(maskertPersonInfo.avvisningskode).isEqualTo(Avvisningskode.AVVIST_STRENGT_FORTROLIG_ADRESSE)
         assertThat(maskertPersonInfo.adressebeskyttelseGradering).isEqualTo(ADRESSEBESKYTTELSEGRADERING.STRENGT_FORTROLIG_UTLAND)
         verify(exactly = 1) { pdlKlient.hentAdressebeskyttelse(aktør) }
     }

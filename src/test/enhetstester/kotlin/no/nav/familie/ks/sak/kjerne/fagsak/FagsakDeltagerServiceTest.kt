@@ -31,6 +31,7 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonReposi
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.sikkerhet.PersonTilgang
 import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
+import no.nav.familie.tilgangsmaskin.Avvisningskode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -68,6 +69,7 @@ class FagsakDeltagerServiceTest {
         // Assert
         assertThat(1).isEqualTo(fagsakdeltakere.size)
         assertThat(ADRESSEBESKYTTELSEGRADERING.FORTROLIG).isEqualTo(fagsakdeltakere.first().adressebeskyttelseGradering)
+        assertThat(fagsakdeltakere.first().avvisningskode).isEqualTo(Avvisningskode.AVVIST_FORTROLIG_ADRESSE)
     }
 
     @Test
