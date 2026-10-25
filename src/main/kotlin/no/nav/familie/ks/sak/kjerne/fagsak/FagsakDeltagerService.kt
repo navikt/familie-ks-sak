@@ -200,14 +200,14 @@ class FagsakDeltagerService(
         val tilgang = personTilgangService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer())
 
         return when {
-            tilgang.avvisning != null -> {
+            !tilgang.harTilgang -> {
                 val adressebeskyttelse = personopplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
 
                 lagFagsakDeltagerResponsDto(
                     rolle = FagsakDeltagerRolle.UKJENT,
                     adressebeskyttelseGradering = adressebeskyttelse,
                     harTilgang = false,
-                    avvisningskode = tilgang.avvisning.avvisningskode,
+                    avvisningskode = tilgang.avvisning?.avvisningskode,
                 )
             }
 
