@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
+import no.nav.familie.tilgangsmaskin.Avvisningskode
 import java.time.LocalDateTime
 
 object FagsakMapper {
@@ -21,6 +22,7 @@ object FagsakMapper {
         fagsak: Fagsak? = null,
         adressebeskyttelseGradering: ADRESSEBESKYTTELSEGRADERING? = null,
         harTilgang: Boolean = true,
+        avvisningskode: Avvisningskode? = null,
     ): FagsakDeltagerResponsDto =
         FagsakDeltagerResponsDto(
             navn = personInfo?.navn,
@@ -31,6 +33,7 @@ object FagsakMapper {
             fagsakStatus = fagsak?.status,
             adressebeskyttelseGradering = personInfo?.adressebeskyttelseGradering ?: adressebeskyttelseGradering,
             harTilgang = harTilgang,
+            avvisningskode = avvisningskode,
         )
 
     fun lagMinimalFagsakResponsDto(

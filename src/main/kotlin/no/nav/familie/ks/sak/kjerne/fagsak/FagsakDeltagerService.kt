@@ -197,16 +197,17 @@ class FagsakDeltagerService(
     }
 
     private fun hentMaskertFagsakdeltakerVedManglendeTilgang(aktør: Aktør): FagsakDeltagerResponsDto? {
-        val harTilgang = personTilgangService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer()).harTilgang
+        val tilgang = personTilgangService.sjekkTilgangTilPerson(aktør.aktivFødselsnummer())
 
         return when {
-            !harTilgang -> {
+            !tilgang.harTilgang -> {
                 val adressebeskyttelse = personopplysningerService.hentAdressebeskyttelseSomSystembruker(aktør)
 
                 lagFagsakDeltagerResponsDto(
                     rolle = FagsakDeltagerRolle.UKJENT,
                     adressebeskyttelseGradering = adressebeskyttelse,
                     harTilgang = false,
+                    avvisningskode = tilgang.avvisning?.avvisningskode,
                 )
             }
 
