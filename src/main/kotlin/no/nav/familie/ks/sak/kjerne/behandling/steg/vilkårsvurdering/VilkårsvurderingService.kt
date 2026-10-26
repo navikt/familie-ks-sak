@@ -3,12 +3,14 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.api.dto.NyttVilkårDto
 import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseDto
+import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.AnnenVurderingType
@@ -36,6 +38,7 @@ class VilkårsvurderingService(
     private val personidentService: PersonidentService,
     private val adopsjonService: AdopsjonService,
     private val adopsjonValidator: AdopsjonValidator,
+    private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -117,6 +120,12 @@ class VilkårsvurderingService(
         val personResultat =
             hentPersonResultatForPerson(vilkårsvurdering.personResultater, endreVilkårResultatDto.personIdent)
 
+        val erEndringIAdopsjonsdato =
+            endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BARNETS_ALDER &&
+                adopsjonService
+                    .finnAdopsjonForAktørIBehandling(personResultat.aktør, BehandlingId(behandlingId))
+                    ?.adopsjonsdato != endreVilkårResultatDto.adopsjonsdato
+
         if (endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BARNETS_ALDER) {
             adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(
                 vilkår = endreVilkårResultatDto.endretVilkårResultat.vilkårType,
@@ -137,12 +146,37 @@ class VilkårsvurderingService(
         val nyeOgEndredeVilkårResultater =
             endreVilkårResultat(eksisterendeVilkårResultater.toList(), endreVilkårResultatDto.endretVilkårResultat)
 
+        val erEndringSomPåvirkerResultat =
+            erEndringIVilkårSomPåvirkerResultat(
+                eksisterendeVilkårResultater.single { it.id == endreVilkårResultatDto.endretVilkårResultat.id },
+                endreVilkårResultatDto.endretVilkårResultat,
+            )
+
         val vilkårResultaterEtterFiltreringAvLovligOpphold = fjernEllerLeggTilLovligOppholdVilkår(personResultat, nyeOgEndredeVilkårResultater)
 
         // Det er ikke nødvendig å save Vilkårresultatene eksplitt pga @Transactional
         eksisterendeVilkårResultater.clear()
         eksisterendeVilkårResultater.addAll(vilkårResultaterEtterFiltreringAvLovligOpphold)
+
+        if (erEndringSomPåvirkerResultat || erEndringIAdopsjonsdato) {
+            tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
+        }
     }
+
+    private fun erEndringIVilkårSomPåvirkerResultat(
+        vilkårResultat: VilkårResultat,
+        vilkårResultatDto: VilkårResultatDto,
+    ): Boolean =
+        vilkårResultat.periodeFom != vilkårResultatDto.periodeFom ||
+            vilkårResultat.periodeTom != vilkårResultatDto.periodeTom ||
+            vilkårResultat.resultat != vilkårResultatDto.resultat ||
+            vilkårResultat.erEksplisittAvslagPåSøknad != vilkårResultatDto.erEksplisittAvslagPåSøknad ||
+            vilkårResultat.vurderesEtter != vilkårResultatDto.vurderesEtter ||
+            vilkårResultat.utdypendeVilkårsvurderinger.toSet() != vilkårResultatDto.utdypendeVilkårsvurderinger.toSet() ||
+            vilkårResultat.begrunnelser.toSet() != vilkårResultatDto.avslagBegrunnelser.orEmpty().toSet() ||
+            vilkårResultat.antallTimer?.stripTrailingZeros() !=
+            vilkårResultatDto.antallTimer?.takeUnless { it.signum() == 0 }?.stripTrailingZeros() ||
+            vilkårResultat.søkerHarMeldtFraOmBarnehageplass != vilkårResultatDto.søkerHarMeldtFraOmBarnehageplass
 
     @Transactional
     fun opprettNyttVilkårPåBehandling(

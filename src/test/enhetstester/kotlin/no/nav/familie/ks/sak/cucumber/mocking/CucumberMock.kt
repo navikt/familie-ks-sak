@@ -134,5 +134,6 @@ class CucumberMock(
             personidentService = personidentService,
             adopsjonService = adopsjonServiceMock,
             adopsjonValidator = adopsjonValidator,
+            tilbakestillBehandlingService = mockk(relaxUnitFun = true),
         )
 }
