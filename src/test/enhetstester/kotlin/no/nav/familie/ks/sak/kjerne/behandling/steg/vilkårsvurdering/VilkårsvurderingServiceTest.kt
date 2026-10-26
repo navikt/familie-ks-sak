@@ -37,6 +37,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -52,7 +53,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
 import java.time.LocalDate
-import org.assertj.core.api.Assertions.assertThat as assertThatAssertJ
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class VilkårsvurderingServiceTest {
@@ -311,7 +311,7 @@ class VilkårsvurderingServiceTest {
         )
 
         // Assert
-        assertThatAssertJ(personResultat.vilkårResultater.single().begrunnelse).isEqualTo("Ny begrunnelse")
+        assertThat(personResultat.vilkårResultater.single().begrunnelse).isEqualTo("Ny begrunnelse")
         verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
     }
 
@@ -370,7 +370,7 @@ class VilkårsvurderingServiceTest {
         )
 
         // Assert
-        assertThatAssertJ(personResultat.vilkårResultater.single().antallTimer).isNull()
+        assertThat(personResultat.vilkårResultater.single().antallTimer).isNull()
         verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
     }
 
