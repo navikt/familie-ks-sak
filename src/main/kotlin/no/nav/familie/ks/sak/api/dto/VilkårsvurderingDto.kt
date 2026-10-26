@@ -72,7 +72,7 @@ data class VilkårResultatDto(
             personResultat = vilkårResultat.personResultat,
             vilkårType = vilkårResultat.vilkårType,
             // antallTimer kan ikke være 0
-            antallTimer = antallTimer?.takeUnless { it.signum() == 0 },
+            antallTimer = if (antallTimer == BigDecimal(0)) null else antallTimer,
             søkerHarMeldtFraOmBarnehageplass = søkerHarMeldtFraOmBarnehageplass,
         )
 }

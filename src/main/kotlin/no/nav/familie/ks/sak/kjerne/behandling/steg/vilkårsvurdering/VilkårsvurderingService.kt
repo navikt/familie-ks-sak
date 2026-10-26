@@ -29,6 +29,7 @@ import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 
 @Service
 class VilkårsvurderingService(
@@ -175,7 +176,7 @@ class VilkårsvurderingService(
             vilkårResultat.utdypendeVilkårsvurderinger.toSet() != vilkårResultatDto.utdypendeVilkårsvurderinger.toSet() ||
             vilkårResultat.begrunnelser.toSet() != vilkårResultatDto.avslagBegrunnelser.orEmpty().toSet() ||
             vilkårResultat.antallTimer?.stripTrailingZeros() !=
-            vilkårResultatDto.antallTimer?.takeUnless { it.signum() == 0 }?.stripTrailingZeros() ||
+            vilkårResultatDto.antallTimer?.takeUnless { it == BigDecimal(0) }?.stripTrailingZeros() ||
             vilkårResultat.søkerHarMeldtFraOmBarnehageplass != vilkårResultatDto.søkerHarMeldtFraOmBarnehageplass
 
     @Transactional

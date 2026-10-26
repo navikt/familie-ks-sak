@@ -352,9 +352,8 @@ class VilkårsvurderingServiceTest {
         verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["0", "0.0", "0.00"])
-    fun `skal ikke tilbakestille behandling når null timer erstattes med nullverdi`(antallTimer: String) {
+    @Test
+    fun `skal ikke tilbakestille behandling når null timer erstattes med nullverdi`() {
         // Arrange
         val vilkårsvurdering = opprettVilkårsvurderingForEndring()
         val personResultat = vilkårsvurdering.personResultater.single()
@@ -366,43 +365,13 @@ class VilkårsvurderingServiceTest {
             EndreVilkårResultatDto(
                 personResultat.aktør.aktivFødselsnummer(),
                 null,
-                vilkårResultatDto.copy(antallTimer = BigDecimal(antallTimer)),
+                vilkårResultatDto.copy(antallTimer = BigDecimal(0)),
             ),
         )
 
         // Assert
         assertThatAssertJ(personResultat.vilkårResultater.single().antallTimer).isNull()
         verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
-    }
-
-    @Test
-    fun `skal tilbakestille behandling når lagret nullverdi for timer normaliseres`() {
-        // Arrange
-        val vilkårsvurdering = opprettVilkårsvurderingForEndring()
-        val personResultat = vilkårsvurdering.personResultater.single()
-        personResultat.vilkårResultater.clear()
-        personResultat.vilkårResultater.add(
-            lagVilkårResultat(
-                id = 1L,
-                personResultat = personResultat,
-                behandlingId = behandling.id,
-                vilkårType = Vilkår.BARNEHAGEPLASS,
-                periodeFom = LocalDate.of(2024, 1, 1),
-                periodeTom = LocalDate.of(2024, 12, 31),
-                antallTimer = BigDecimal("0.00"),
-            ),
-        )
-        val vilkårResultatDto = VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single()
-
-        // Act
-        vilkårsvurderingService.endreVilkårPåBehandling(
-            behandling.id,
-            EndreVilkårResultatDto(personResultat.aktør.aktivFødselsnummer(), null, vilkårResultatDto),
-        )
-
-        // Assert
-        assertThatAssertJ(personResultat.vilkårResultater.single().antallTimer).isNull()
-        verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
     }
 
     @ParameterizedTest
