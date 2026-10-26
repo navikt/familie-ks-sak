@@ -1,13 +1,22 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
+import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
+import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
+import no.nav.familie.ks.sak.api.mapper.VilkårsvurderingMapper
+import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
+import no.nav.familie.ks.sak.data.lagVilkårResultat
+import no.nav.familie.ks.sak.data.lagVilkårsvurdering
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
@@ -16,8 +25,11 @@ import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityBegrunnelseType
 import no.nav.familie.ks.sak.integrasjon.sanity.domene.SanityResultat
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
@@ -25,14 +37,22 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Named.named
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
+import java.math.BigDecimal
+import java.time.LocalDate
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class VilkårsvurderingServiceTest {
@@ -42,6 +62,7 @@ class VilkårsvurderingServiceTest {
     private val personidentService: PersonidentService = mockk()
     private val adopsjonService: AdopsjonService = mockk()
     private val adopsjonValidator: AdopsjonValidator = mockk()
+    private val tilbakestillBehandlingService = mockk<TilbakestillBehandlingService>(relaxUnitFun = true)
     private val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository,
@@ -50,6 +71,7 @@ class VilkårsvurderingServiceTest {
             personidentService,
             adopsjonService,
             adopsjonValidator,
+            tilbakestillBehandlingService,
         )
 
     private val søker = randomAktør()
@@ -269,5 +291,178 @@ class VilkårsvurderingServiceTest {
 
         assertThat(feil.message, Is("Prøver å slette et vilkår som ikke finnes"))
         assertThat(feil.frontendFeilmelding, Is("Vilkåret du prøver å slette finnes ikke i systemet."))
+    }
+
+    @Test
+    fun `skal lagre endring av kun begrunnelse uten å tilbakestille behandling`() {
+        // Arrange
+        val vilkårsvurdering = opprettVilkårsvurderingForEndring()
+        val personResultat = vilkårsvurdering.personResultater.single()
+        val vilkårResultatDto = VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single()
+
+        // Act
+        vilkårsvurderingService.endreVilkårPåBehandling(
+            behandling.id,
+            EndreVilkårResultatDto(
+                personIdent = personResultat.aktør.aktivFødselsnummer(),
+                adopsjonsdato = null,
+                endretVilkårResultat = vilkårResultatDto.copy(begrunnelse = "Ny begrunnelse"),
+            ),
+        )
+
+        // Assert
+        assertThat(personResultat.vilkårResultater.single().begrunnelse).isEqualTo("Ny begrunnelse")
+        verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
+    }
+
+    @Test
+    fun `skal ikke tilbakestille behandling når vilkåret er uendret`() {
+        // Arrange
+        val vilkårsvurdering = opprettVilkårsvurderingForEndring()
+        val personResultat = vilkårsvurdering.personResultater.single()
+        val vilkårResultatDto = VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single()
+
+        // Act
+        vilkårsvurderingService.endreVilkårPåBehandling(
+            behandling.id,
+            EndreVilkårResultatDto(personResultat.aktør.aktivFødselsnummer(), null, vilkårResultatDto),
+        )
+
+        // Assert
+        verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
+    }
+
+    @ParameterizedTest
+    @MethodSource("endringerSomPåvirkerResultat")
+    fun `skal tilbakestille behandling når endringen påvirker resultatet`(
+        endring: (VilkårResultatDto) -> VilkårResultatDto,
+    ) {
+        // Arrange
+        val vilkårsvurdering = opprettVilkårsvurderingForEndring()
+        val personResultat = vilkårsvurdering.personResultater.single()
+        val vilkårResultatDto = endring(VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single())
+
+        // Act
+        vilkårsvurderingService.endreVilkårPåBehandling(
+            behandling.id,
+            EndreVilkårResultatDto(personResultat.aktør.aktivFødselsnummer(), null, vilkårResultatDto),
+        )
+
+        // Assert
+        verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
+    }
+
+    @Test
+    fun `skal ikke tilbakestille behandling når null timer erstattes med nullverdi`() {
+        // Arrange
+        val vilkårsvurdering = opprettVilkårsvurderingForEndring()
+        val personResultat = vilkårsvurdering.personResultater.single()
+        val vilkårResultatDto = VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single()
+
+        // Act
+        vilkårsvurderingService.endreVilkårPåBehandling(
+            behandling.id,
+            EndreVilkårResultatDto(
+                personResultat.aktør.aktivFødselsnummer(),
+                null,
+                vilkårResultatDto.copy(antallTimer = BigDecimal(0)),
+            ),
+        )
+
+        // Assert
+        assertThat(personResultat.vilkårResultater.single().antallTimer).isNull()
+        verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `skal bare tilbakestille behandling når adopsjonsdato endres`(endreAdopsjonsdato: Boolean) {
+        // Arrange
+        val vilkårsvurdering = opprettVilkårsvurderingForEndring(Vilkår.BARNETS_ALDER)
+        val personResultat = vilkårsvurdering.personResultater.single()
+        val vilkårResultatDto = VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single()
+        val eksisterendeAdopsjonsdato = LocalDate.of(2023, 6, 1)
+        val nyAdopsjonsdato = if (endreAdopsjonsdato) eksisterendeAdopsjonsdato.plusMonths(1) else eksisterendeAdopsjonsdato
+
+        every { adopsjonService.finnAdopsjonForAktørIBehandling(personResultat.aktør, BehandlingId(behandling.id)) } returns
+            mockk {
+                every { adopsjonsdato } returns eksisterendeAdopsjonsdato
+            }
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                barnasIdenter = listOf(personResultat.aktør.aktivFødselsnummer()),
+                barnAktør = listOf(personResultat.aktør),
+            )
+        justRun { adopsjonValidator.validerGyldigAdopsjonstilstandForBarnetsAlderVilkår(any(), any(), any(), any()) }
+        justRun { adopsjonService.oppdaterAdopsjonsdato(BehandlingId(behandling.id), personResultat.aktør, nyAdopsjonsdato) }
+
+        // Act
+        vilkårsvurderingService.endreVilkårPåBehandling(
+            behandling.id,
+            EndreVilkårResultatDto(
+                personResultat.aktør.aktivFødselsnummer(),
+                nyAdopsjonsdato,
+                vilkårResultatDto.copy(begrunnelse = "Ny begrunnelse"),
+            ),
+        )
+
+        // Assert
+        verify(exactly = if (endreAdopsjonsdato) 1 else 0) {
+            tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id)
+        }
+        verify(exactly = 1) {
+            adopsjonService.oppdaterAdopsjonsdato(BehandlingId(behandling.id), personResultat.aktør, nyAdopsjonsdato)
+        }
+    }
+
+    private fun opprettVilkårsvurderingForEndring(vilkårType: Vilkår = Vilkår.BARNEHAGEPLASS): Vilkårsvurdering {
+        val barn = randomAktør()
+        val vilkårsvurdering =
+            lagVilkårsvurdering(behandling = behandling) { vilkårsvurdering ->
+                setOf(
+                    lagPersonResultat(
+                        vilkårsvurdering = vilkårsvurdering,
+                        aktør = barn,
+                        lagVilkårResultater = { personResultat ->
+                            setOf(
+                                lagVilkårResultat(
+                                    id = 1L,
+                                    personResultat = personResultat,
+                                    behandlingId = behandling.id,
+                                    vilkårType = vilkårType,
+                                    periodeFom = LocalDate.of(2024, 1, 1),
+                                    periodeTom = LocalDate.of(2024, 12, 31),
+                                    begrunnelse = "Opprinnelig begrunnelse",
+                                    utdypendeVilkårsvurderinger = if (vilkårType == Vilkår.BARNETS_ALDER) listOf(UtdypendeVilkårsvurdering.ADOPSJON) else emptyList(),
+                                ),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        every { vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) } returns vilkårsvurdering
+        every { personidentService.hentAktør(barn.aktivFødselsnummer()) } returns barn
+        return vilkårsvurdering
+    }
+
+    companion object {
+        @JvmStatic
+        fun endringerSomPåvirkerResultat(): List<Arguments> {
+            val endringer: Map<String, (VilkårResultatDto) -> VilkårResultatDto> =
+                mapOf(
+                    "periodeFom" to { it.copy(periodeFom = LocalDate.of(2024, 2, 1)) },
+                    "periodeTom" to { it.copy(periodeTom = null) },
+                    "resultat" to { it.copy(resultat = Resultat.IKKE_OPPFYLT) },
+                    "erEksplisittAvslagPåSøknad" to { it.copy(erEksplisittAvslagPåSøknad = true) },
+                    "vurderesEtter" to { it.copy(vurderesEtter = Regelverk.EØS_FORORDNINGEN) },
+                    "utdypendeVilkårsvurderinger" to { it.copy(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.SOMMERFERIE)) },
+                    "avslagBegrunnelser" to { it.copy(avslagBegrunnelser = listOf(NasjonalEllerFellesBegrunnelse.AVSLAG_FULLTIDSPLASS_I_BARNEHAGE)) },
+                    "antallTimer" to { it.copy(antallTimer = BigDecimal("20")) },
+                    "søkerHarMeldtFraOmBarnehageplass" to { it.copy(søkerHarMeldtFraOmBarnehageplass = true) },
+                )
+            return endringer.map { (navn, endring) -> Arguments.of(named(navn, endring)) }
+        }
     }
 }

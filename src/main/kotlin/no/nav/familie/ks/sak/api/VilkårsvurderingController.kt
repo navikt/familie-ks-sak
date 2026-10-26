@@ -73,8 +73,6 @@ class VilkårsvurderingController(
             endreVilkårResultatDto = endreVilkårResultatDto,
         )
 
-        tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
-
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
