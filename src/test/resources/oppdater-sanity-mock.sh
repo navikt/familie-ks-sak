@@ -12,7 +12,7 @@ fi
 # URL til Vision: https://familie-brev.sanity.studio/ks-brev/vision
 HENT_BEGRUNNELSER_URL="https://xsrv1mh6.api.sanity.io/v2022-03-07/data/query/ks-brev?query=*%5B_type%3D%3D%22ksBegrunnelse%22%5D"
 
-SANITY_BEGRUNNELSER_MOCK_PATH="src/test/resources/cucumber/restSanityBegrunnelser"
+SANITY_BEGRUNNELSER_MOCK_PATH="src/test/resources/cucumber/restSanityBegrunnelser.json"
 
 # Hent begrunnelser fra sanity og lagre i fil
-curl -XGET "$HENT_BEGRUNNELSER_URL" | jq '.result' -c > "$SANITY_BEGRUNNELSER_MOCK_PATH"
+curl -XGET "$HENT_BEGRUNNELSER_URL" | jq -S '.result | sort_by(.apiNavn)' > "$SANITY_BEGRUNNELSER_MOCK_PATH"
