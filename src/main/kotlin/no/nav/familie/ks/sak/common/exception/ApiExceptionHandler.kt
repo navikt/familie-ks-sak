@@ -20,8 +20,6 @@ import tools.jackson.databind.exc.InvalidFormatException
 import tools.jackson.databind.exc.MismatchedInputException
 import java.io.EOFException
 import java.io.IOException
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.net.SocketException
 import java.nio.channels.ClosedChannelException
 
@@ -76,27 +74,6 @@ class ApiExceptionHandler {
 
     @ExceptionHandler(FunksjonellFeil::class)
     fun handleFunksjonellFeil(funksjonellFeil: FunksjonellFeil): ResponseEntity<Ressurs<Nothing>> = RessursUtils.funksjonellFeil(funksjonellFeil)
-
-    @ExceptionHandler(EksternTjenesteFeilException::class)
-    fun handleEksternTjenesteFeil(feil: EksternTjenesteFeilException): ResponseEntity<EksternTjenesteFeil> {
-        val mostSpecificThrowable =
-            if (feil.throwable != null) NestedExceptionUtils.getMostSpecificCause(feil.throwable) else null
-        feil.eksternTjenesteFeil.exception =
-            if (mostSpecificThrowable != null) "[${mostSpecificThrowable::class.java.name}] " else null
-
-        if (mostSpecificThrowable != null) {
-            val sw = StringWriter()
-            feil.printStackTrace(PrintWriter(sw))
-            feil.eksternTjenesteFeil.stackTrace = sw.toString()
-        }
-
-        secureLogger.info("$feil")
-        logger.info(
-            "Feil ekstern tjeneste: path:${feil.eksternTjenesteFeil.path} status:${feil.eksternTjenesteFeil.status} exception:${feil.eksternTjenesteFeil.exception}",
-        )
-
-        return ResponseEntity.status(feil.eksternTjenesteFeil.status).body(feil.eksternTjenesteFeil)
-    }
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(exception: NoResourceFoundException): ResponseEntity<Ressurs<Nothing>> {
