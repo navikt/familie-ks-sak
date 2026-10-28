@@ -1,10 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import no.nav.familie.ks.sak.api.dto.EndreVilkårResultatDto
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.api.mapper.VilkårsvurderingMapper
@@ -13,6 +16,7 @@ import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.data.fnrTilFødselsdato
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
+import no.nav.familie.ks.sak.data.lagKompetanse
 import no.nav.familie.ks.sak.data.lagPersonResultat
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.lagVilkårResultat
@@ -31,10 +35,14 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Reg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import org.assertj.core.api.Assertions.assertThat
@@ -45,6 +53,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Named.named
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -53,6 +62,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class VilkårsvurderingServiceTest {
@@ -63,6 +73,7 @@ class VilkårsvurderingServiceTest {
     private val adopsjonService: AdopsjonService = mockk()
     private val adopsjonValidator: AdopsjonValidator = mockk()
     private val tilbakestillBehandlingService = mockk<TilbakestillBehandlingService>(relaxUnitFun = true)
+    private val kompetanseService = mockk<KompetanseService>()
     private val vilkårsvurderingService =
         VilkårsvurderingService(
             vilkårsvurderingRepository,
@@ -72,6 +83,7 @@ class VilkårsvurderingServiceTest {
             adopsjonService,
             adopsjonValidator,
             tilbakestillBehandlingService,
+            kompetanseService,
         )
 
     private val søker = randomAktør()
@@ -445,6 +457,246 @@ class VilkårsvurderingServiceTest {
         every { vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) } returns vilkårsvurdering
         every { personidentService.hentAktør(barn.aktivFødselsnummer()) } returns barn
         return vilkårsvurdering
+    }
+
+    @Nested
+    inner class NullstillingAvKompetanse {
+        private val barn = randomAktør()
+        private val barnUtenVilkårsvurdering = randomAktør()
+        private val fødselsdatoMedLovendringFebruar2025 = LocalDate.of(2024, 1, 1)
+        private val fødselsdatoFørLovendring2025 = LocalDate.of(2023, 6, 1)
+        private val nullstilteKompetanser = mutableListOf<Kompetanse>()
+
+        @Test
+        fun `skal nullstille kompetanse for barnet før behandlingen tilbakestilles når ny periode har annen utdypende vilkårsvurdering enn forrige periode`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    barnetsBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 11, fom = LocalDate.of(2024, 1, 1), tom = null, utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                            ikkeVurdertBosattIRiket(id = 12),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) {
+                it.copy(
+                    periodeFom = LocalDate.of(2024, 8, 1),
+                    resultat = Resultat.OPPFYLT,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE),
+                )
+            }
+
+            // Assert
+            assertThat(nullstilteKompetanser).containsExactly(
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 9), tom = null, barnAktører = setOf(barn)),
+            )
+            verifyOrder {
+                kompetanseService.oppdaterKompetanse(any(), any<Kompetanse>())
+                tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id)
+            }
+        }
+
+        @Test
+        fun `skal nullstille kompetanse for alle barn i kompetansene etter barnets lovverk når søkers utdypende vilkårsvurdering endres`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    søkersBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 1, fom = LocalDate.of(2025, 1, 1), tom = LocalDate.of(2025, 12, 31), utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.OMFATTET_AV_NORSK_LOVGIVNING),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, søker, vilkårId = 1) {
+                it.copy(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.SØKER_OMFATTET_AV_UTENLANDSK_LOVGIVNING_BOSATT_I_NORGE))
+            }
+
+            // Assert
+            assertThat(nullstilteKompetanser).containsExactlyInAnyOrder(
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barn)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 1), tom = YearMonth.of(2025, 12), barnAktører = setOf(barnUtenVilkårsvurdering)),
+            )
+        }
+
+        @Test
+        fun `skal kun nullstille kompetanse i månedene som får ny utdypende vilkårsvurdering når fom flyttes tidligere`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    barnetsBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 11, fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 6, 30), utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                            oppfyltBosattIRiket(id = 12, fom = LocalDate.of(2024, 7, 1), tom = null, utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) { it.copy(periodeFom = LocalDate.of(2024, 3, 1)) }
+
+            // Assert
+            assertThat(nullstilteKompetanser).containsExactly(
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 4), tom = YearMonth.of(2024, 7), barnAktører = setOf(barn)),
+            )
+        }
+
+        @Test
+        fun `skal nullstille kompetanse fra ny periode som starter etter forrige periodes tom`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    barnetsBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 11, fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 6, 30), utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                            ikkeVurdertBosattIRiket(id = 12),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) {
+                it.copy(
+                    periodeFom = LocalDate.of(2024, 8, 1),
+                    resultat = Resultat.OPPFYLT,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.BARN_BOR_I_NORGE),
+                )
+            }
+
+            // Assert
+            assertThat(nullstilteKompetanser).containsExactly(
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 9), tom = null, barnAktører = setOf(barn)),
+            )
+        }
+
+        @Test
+        fun `skal ikke nullstille kompetanse når perioden forkortes`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    barnetsBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 11, fom = LocalDate.of(2024, 1, 1), tom = null, utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, barn, vilkårId = 11) { it.copy(periodeTom = LocalDate.of(2024, 6, 30)) }
+
+            // Assert
+            assertThat(nullstilteKompetanser).isEmpty()
+            verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
+        }
+
+        @Test
+        fun `skal ikke nullstille kompetanse når en periode deles uten å endre utdypende vilkårsvurdering`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    barnetsBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 11, fom = LocalDate.of(2024, 1, 1), tom = null, utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                            ikkeVurdertBosattIRiket(id = 12),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) {
+                it.copy(
+                    periodeFom = LocalDate.of(2024, 8, 1),
+                    resultat = Resultat.OPPFYLT,
+                    utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                )
+            }
+
+            // Assert
+            assertThat(nullstilteKompetanser).isEmpty()
+            verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
+        }
+
+        private fun opprettVilkårsvurderingMedKompetanse(
+            søkersBosattIRiket: List<VilkårResultat> = emptyList(),
+            barnetsBosattIRiket: List<VilkårResultat> = emptyList(),
+        ): Vilkårsvurdering {
+            val vilkårsvurdering =
+                lagVilkårsvurdering(behandling = behandling) { vilkårsvurdering ->
+                    setOf(
+                        lagPersonResultat(
+                            vilkårsvurdering = vilkårsvurdering,
+                            aktør = søker,
+                            lagVilkårResultater = { personResultat -> søkersBosattIRiket.onEach { it.personResultat = personResultat }.toSet() },
+                        ),
+                        lagPersonResultat(
+                            vilkårsvurdering = vilkårsvurdering,
+                            aktør = barn,
+                            lagVilkårResultater = { personResultat ->
+                                val barnetsAlderVilkår = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER)
+                                (barnetsBosattIRiket + barnetsAlderVilkår)
+                                    .onEach { it.personResultat = personResultat }
+                                    .toSet()
+                            },
+                        ),
+                    )
+                }
+
+            every { vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) } returns vilkårsvurdering
+            every { personidentService.hentAktør(søker.aktivFødselsnummer()) } returns søker
+            every { personidentService.hentAktør(barn.aktivFødselsnummer()) } returns barn
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns
+                lagPersonopplysningGrunnlag(
+                    behandlingId = behandling.id,
+                    søkerPersonIdent = søker.aktivFødselsnummer(),
+                    søkerAktør = søker,
+                    barnasIdenter = listOf(barn.aktivFødselsnummer(), barnUtenVilkårsvurdering.aktivFødselsnummer()),
+                    barnasFødselsdatoer = listOf(fødselsdatoMedLovendringFebruar2025, fødselsdatoFørLovendring2025),
+                    barnAktør = listOf(barn, barnUtenVilkårsvurdering),
+                )
+            every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns
+                listOf(lagKompetanse(behandlingId = behandling.id, barnAktører = setOf(barn, barnUtenVilkårsvurdering)))
+            every { kompetanseService.oppdaterKompetanse(BehandlingId(behandling.id), capture(nullstilteKompetanser)) } just Runs
+
+            return vilkårsvurdering
+        }
+
+        private fun oppfyltBosattIRiket(
+            id: Long,
+            fom: LocalDate,
+            tom: LocalDate?,
+            utdypendeVilkårsvurdering: UtdypendeVilkårsvurdering,
+        ) = lagVilkårResultat(
+            id = id,
+            behandlingId = behandling.id,
+            vilkårType = Vilkår.BOSATT_I_RIKET,
+            resultat = Resultat.OPPFYLT,
+            periodeFom = fom,
+            periodeTom = tom,
+            utdypendeVilkårsvurderinger = listOf(utdypendeVilkårsvurdering),
+        )
+
+        private fun ikkeVurdertBosattIRiket(id: Long) =
+            lagVilkårResultat(
+                id = id,
+                behandlingId = behandling.id,
+                vilkårType = Vilkår.BOSATT_I_RIKET,
+                resultat = Resultat.IKKE_VURDERT,
+                periodeFom = null,
+                periodeTom = null,
+            )
+
+        private fun endreVilkår(
+            vilkårsvurdering: Vilkårsvurdering,
+            aktør: Aktør,
+            vilkårId: Long,
+            endring: (VilkårResultatDto) -> VilkårResultatDto,
+        ) {
+            val personResultat = vilkårsvurdering.personResultater.single { it.aktør == aktør }
+            val vilkårResultatDto = endring(VilkårsvurderingMapper.lagPersonResultatRespons(personResultat).vilkårResultater.single { it.id == vilkårId })
+
+            vilkårsvurderingService.endreVilkårPåBehandling(
+                behandling.id,
+                EndreVilkårResultatDto(personIdent = aktør.aktivFødselsnummer(), adopsjonsdato = null, endretVilkårResultat = vilkårResultatDto),
+            )
+        }
     }
 
     companion object {

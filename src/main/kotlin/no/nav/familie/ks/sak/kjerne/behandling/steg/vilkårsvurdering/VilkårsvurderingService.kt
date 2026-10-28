@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.VedtakBegrunnelseTilknyttetVilkårResponseD
 import no.nav.familie.ks.sak.api.dto.VilkårResultatDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.integrasjon.sanity.SanityService
 import no.nav.familie.ks.sak.integrasjon.secureLogger
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
@@ -17,16 +18,28 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.forskyvning.forskyvVilkårResultater
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
+import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
+import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.tilTidslinje
+import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -40,6 +53,8 @@ class VilkårsvurderingService(
     private val adopsjonService: AdopsjonService,
     private val adopsjonValidator: AdopsjonValidator,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
+    // Brukte @Lazy annotering for å unngå sirkular avhengighet
+    @Lazy private val kompetanseService: KompetanseService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -142,6 +157,16 @@ class VilkårsvurderingService(
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }
 
+        val erBosattIRiketVilkårIBehandlingMedKompetanse =
+            endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BOSATT_I_RIKET &&
+                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
+        val utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn =
+            if (erBosattIRiketVilkårIBehandlingMedKompetanse) {
+                hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(behandlingId, personResultat)
+            } else {
+                null
+            }
+
         val eksisterendeVilkårResultater = personResultat.vilkårResultater
 
         val nyeOgEndredeVilkårResultater =
@@ -160,9 +185,64 @@ class VilkårsvurderingService(
         eksisterendeVilkårResultater.addAll(vilkårResultaterEtterFiltreringAvLovligOpphold)
 
         if (erEndringSomPåvirkerResultat || erEndringIAdopsjonsdato) {
+            // Kompetanseendring tilbakestiller steget til behandlingsresultat, så nullstilling må skje før tilbakestilling til vilkårsvurdering
+            if (utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn != null) {
+                nullstillKompetanseVedEndringIUtdypendeVilkårsvurdering(BehandlingId(behandlingId), personResultat, utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn)
+            }
             tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
         }
     }
+
+    private fun nullstillKompetanseVedEndringIUtdypendeVilkårsvurdering(
+        behandlingId: BehandlingId,
+        personResultat: PersonResultat,
+        utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn: Map<Aktør, Tidslinje<Set<UtdypendeVilkårsvurdering>>>,
+    ) {
+        val utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn = hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(behandlingId.id, personResultat)
+
+        utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn.forEach { (barn, utdypendeVilkårsvurderingerFørEndringTidslinje) ->
+            val perioderMedNyEllerEndretUtdypendeVilkårsvurdering =
+                utdypendeVilkårsvurderingerFørEndringTidslinje
+                    .kombinerMed(utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn.getValue(barn)) { før, etter -> etter != null && før != etter }
+                    .tilPerioderIkkeNull()
+                    .filter { it.verdi }
+
+            perioderMedNyEllerEndretUtdypendeVilkårsvurdering.forEach { periode ->
+                val blankKompetanse = Kompetanse.blankKompetanse.copy(fom = periode.fom?.toYearMonth(), tom = periode.tom?.toYearMonth(), barnAktører = setOf(barn))
+                kompetanseService.oppdaterKompetanse(behandlingId, blankKompetanse)
+            }
+        }
+    }
+
+    private fun hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(
+        behandlingId: Long,
+        personResultat: PersonResultat,
+    ): Map<Aktør, Tidslinje<Set<UtdypendeVilkårsvurdering>>> {
+        val barnAktører =
+            if (personResultat.erSøkersResultater()) {
+                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).flatMap { it.barnAktører }.toSet()
+            } else {
+                setOf(personResultat.aktør)
+            }
+        val barna = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId).barna
+        val adopsjoner = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId))
+
+        return barnAktører.associateWith { barn ->
+            val lovverk =
+                LovverkUtleder.utledLovverkForBarn(
+                    fødselsdato = barna.single { it.aktør == barn }.fødselsdato,
+                    adopsjonsdato = adopsjoner.firstOrNull { it.aktør == barn }?.adopsjonsdato,
+                )
+            personResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(lovverk)
+        }
+    }
+
+    private fun PersonResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(lovverk: Lovverk): Tidslinje<Set<UtdypendeVilkårsvurdering>> =
+        forskyvVilkårResultater(lovverk)[Vilkår.BOSATT_I_RIKET]
+            .orEmpty()
+            .filter { it.verdi.erOppfylt() }
+            .map { Periode(verdi = it.verdi.utdypendeVilkårsvurderinger.toSet(), fom = it.fom, tom = it.tom) }
+            .tilTidslinje()
 
     private fun erEndringIVilkårSomPåvirkerResultat(
         vilkårResultat: VilkårResultat,
