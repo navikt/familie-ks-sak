@@ -42,6 +42,7 @@ import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.BegrunnelseType
 import no.nav.familie.ks.sak.kjerne.brev.begrunnelser.NasjonalEllerFellesBegrunnelse
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -461,9 +462,9 @@ class VilkårsvurderingServiceTest {
 
     @Nested
     inner class NullstillingAvKompetanse {
-        private val barn = randomAktør()
-        private val barnUtenVilkårsvurdering = randomAktør()
-        private val fødselsdatoMedLovendringFebruar2025 = LocalDate.of(2024, 1, 1)
+        private val barnMedLovendringFebruar2025 = randomAktør()
+        private val barnFørLovendring2025UtenVilkårsvurdering = randomAktør()
+        private val fødselsdatoMedLovendringFebruar2025 = LovverkUtleder.FØDSELSDATO_GRENSE_LOVENDRING_FEBRUAR_2025
         private val fødselsdatoFørLovendring2025 = LocalDate.of(2023, 6, 1)
         private val nullstilteKompetanser = mutableListOf<Kompetanse>()
 
@@ -480,7 +481,7 @@ class VilkårsvurderingServiceTest {
                 )
 
             // Act
-            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) {
+            endreVilkår(vilkårsvurdering, barnMedLovendringFebruar2025, vilkårId = 12) {
                 it.copy(
                     periodeFom = LocalDate.of(2024, 8, 1),
                     resultat = Resultat.OPPFYLT,
@@ -490,7 +491,7 @@ class VilkårsvurderingServiceTest {
 
             // Assert
             assertThat(nullstilteKompetanser).containsExactly(
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 9), tom = null, barnAktører = setOf(barn)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 9), tom = null, barnAktører = setOf(barnMedLovendringFebruar2025)),
             )
             verifyOrder {
                 kompetanseService.oppdaterKompetanse(any(), any<Kompetanse>())
@@ -516,8 +517,8 @@ class VilkårsvurderingServiceTest {
 
             // Assert
             assertThat(nullstilteKompetanser).containsExactlyInAnyOrder(
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barn)),
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 1), tom = YearMonth.of(2025, 12), barnAktører = setOf(barnUtenVilkårsvurdering)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barnMedLovendringFebruar2025)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 1), tom = YearMonth.of(2025, 12), barnAktører = setOf(barnFørLovendring2025UtenVilkårsvurdering)),
             )
         }
 
@@ -533,7 +534,7 @@ class VilkårsvurderingServiceTest {
                         ),
                 )
             every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns
-                listOf(lagKompetanse(behandlingId = behandling.id, barnAktører = setOf(barn, barnFjernetFraPersongrunnlaget)))
+                listOf(lagKompetanse(behandlingId = behandling.id, barnAktører = setOf(barnMedLovendringFebruar2025, barnFjernetFraPersongrunnlaget)))
 
             // Act
             endreVilkår(vilkårsvurdering, søker, vilkårId = 1) {
@@ -542,7 +543,7 @@ class VilkårsvurderingServiceTest {
 
             // Assert
             assertThat(nullstilteKompetanser).containsExactly(
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barn)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barnMedLovendringFebruar2025)),
             )
         }
 
@@ -570,8 +571,8 @@ class VilkårsvurderingServiceTest {
 
             // Assert
             assertThat(nullstilteKompetanser).containsExactlyInAnyOrder(
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 7), tom = YearMonth.of(2025, 9), barnAktører = setOf(barn)),
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 6), tom = YearMonth.of(2025, 8), barnAktører = setOf(barnUtenVilkårsvurdering)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 7), tom = YearMonth.of(2025, 9), barnAktører = setOf(barnMedLovendringFebruar2025)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 6), tom = YearMonth.of(2025, 8), barnAktører = setOf(barnFørLovendring2025UtenVilkårsvurdering)),
             )
         }
 
@@ -588,16 +589,16 @@ class VilkårsvurderingServiceTest {
                 )
 
             // Act
-            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) { it.copy(periodeFom = LocalDate.of(2024, 3, 1)) }
+            endreVilkår(vilkårsvurdering, barnMedLovendringFebruar2025, vilkårId = 12) { it.copy(periodeFom = LocalDate.of(2024, 3, 1)) }
 
             // Assert
             assertThat(nullstilteKompetanser).containsExactly(
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 4), tom = YearMonth.of(2024, 7), barnAktører = setOf(barn)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 4), tom = YearMonth.of(2024, 7), barnAktører = setOf(barnMedLovendringFebruar2025)),
             )
         }
 
         @Test
-        fun `skal nullstille kompetanse fra ny periode som starter etter forrige periodes tom`() {
+        fun `skal nullstille kompetanse fra ny periode som starter en måned etter at forrige periode slutter`() {
             // Arrange
             val vilkårsvurdering =
                 opprettVilkårsvurderingMedKompetanse(
@@ -609,7 +610,7 @@ class VilkårsvurderingServiceTest {
                 )
 
             // Act
-            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) {
+            endreVilkår(vilkårsvurdering, barnMedLovendringFebruar2025, vilkårId = 12) {
                 it.copy(
                     periodeFom = LocalDate.of(2024, 8, 1),
                     resultat = Resultat.OPPFYLT,
@@ -619,7 +620,7 @@ class VilkårsvurderingServiceTest {
 
             // Assert
             assertThat(nullstilteKompetanser).containsExactly(
-                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 9), tom = null, barnAktører = setOf(barn)),
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2024, 9), tom = null, barnAktører = setOf(barnMedLovendringFebruar2025)),
             )
         }
 
@@ -635,7 +636,7 @@ class VilkårsvurderingServiceTest {
                 )
 
             // Act
-            endreVilkår(vilkårsvurdering, barn, vilkårId = 11) { it.copy(periodeTom = LocalDate.of(2024, 6, 30)) }
+            endreVilkår(vilkårsvurdering, barnMedLovendringFebruar2025, vilkårId = 11) { it.copy(periodeTom = LocalDate.of(2024, 6, 30)) }
 
             // Assert
             assertThat(nullstilteKompetanser).isEmpty()
@@ -654,7 +655,7 @@ class VilkårsvurderingServiceTest {
                 )
 
             // Act
-            endreVilkår(vilkårsvurdering, barn, vilkårId = 11) {
+            endreVilkår(vilkårsvurdering, barnMedLovendringFebruar2025, vilkårId = 11) {
                 it.copy(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.BARN_BOR_I_EØS, UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD))
             }
 
@@ -676,7 +677,7 @@ class VilkårsvurderingServiceTest {
                 )
 
             // Act
-            endreVilkår(vilkårsvurdering, barn, vilkårId = 12) {
+            endreVilkår(vilkårsvurdering, barnMedLovendringFebruar2025, vilkårId = 12) {
                 it.copy(
                     periodeFom = LocalDate.of(2024, 8, 1),
                     resultat = Resultat.OPPFYLT,
@@ -703,7 +704,7 @@ class VilkårsvurderingServiceTest {
                         ),
                         lagPersonResultat(
                             vilkårsvurdering = vilkårsvurdering,
-                            aktør = barn,
+                            aktør = barnMedLovendringFebruar2025,
                             lagVilkårResultater = { personResultat ->
                                 val barnetsAlderVilkår = lagVilkårResultat(vilkårType = Vilkår.BARNETS_ALDER)
                                 (barnetsBosattIRiket + barnetsAlderVilkår)
@@ -716,18 +717,18 @@ class VilkårsvurderingServiceTest {
 
             every { vilkårsvurderingRepository.finnAktivForBehandling(behandling.id) } returns vilkårsvurdering
             every { personidentService.hentAktør(søker.aktivFødselsnummer()) } returns søker
-            every { personidentService.hentAktør(barn.aktivFødselsnummer()) } returns barn
+            every { personidentService.hentAktør(barnMedLovendringFebruar2025.aktivFødselsnummer()) } returns barnMedLovendringFebruar2025
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns
                 lagPersonopplysningGrunnlag(
                     behandlingId = behandling.id,
                     søkerPersonIdent = søker.aktivFødselsnummer(),
                     søkerAktør = søker,
-                    barnasIdenter = listOf(barn.aktivFødselsnummer(), barnUtenVilkårsvurdering.aktivFødselsnummer()),
+                    barnasIdenter = listOf(barnMedLovendringFebruar2025.aktivFødselsnummer(), barnFørLovendring2025UtenVilkårsvurdering.aktivFødselsnummer()),
                     barnasFødselsdatoer = listOf(fødselsdatoMedLovendringFebruar2025, fødselsdatoFørLovendring2025),
-                    barnAktør = listOf(barn, barnUtenVilkårsvurdering),
+                    barnAktør = listOf(barnMedLovendringFebruar2025, barnFørLovendring2025UtenVilkårsvurdering),
                 )
             every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns
-                listOf(lagKompetanse(behandlingId = behandling.id, barnAktører = setOf(barn, barnUtenVilkårsvurdering)))
+                listOf(lagKompetanse(behandlingId = behandling.id, barnAktører = setOf(barnMedLovendringFebruar2025, barnFørLovendring2025UtenVilkårsvurdering)))
             every { kompetanseService.oppdaterKompetanse(BehandlingId(behandling.id), capture(nullstilteKompetanser)) } just Runs
 
             return vilkårsvurdering

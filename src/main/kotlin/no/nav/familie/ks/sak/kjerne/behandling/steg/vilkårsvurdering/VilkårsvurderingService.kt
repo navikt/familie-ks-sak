@@ -40,7 +40,6 @@ import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.mapIkkeNull
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -54,8 +53,7 @@ class VilkårsvurderingService(
     private val adopsjonService: AdopsjonService,
     private val adopsjonValidator: AdopsjonValidator,
     private val tilbakestillBehandlingService: TilbakestillBehandlingService,
-    // Brukte @Lazy annotering for å unngå sirkular avhengighet
-    @Lazy private val kompetanseService: KompetanseService,
+    private val kompetanseService: KompetanseService,
 ) {
     @Transactional
     fun opprettVilkårsvurdering(
@@ -201,10 +199,11 @@ class VilkårsvurderingService(
     ) {
         val utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn = hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(behandlingId, personResultat)
 
-        utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn.forEach { (barn, utdypendeVilkårsvurderingerFørEndringTidslinje) ->
+        utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn.forEach { (barnAktør, utdypendeVilkårsvurderingerFørEndringTidslinje) ->
+            val utdypendeVilkårsvurderingerEtterEndringTidslinje = utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn.getValue(barnAktør)
             val perioderMedNyEllerEndretUtdypendeVilkårsvurdering =
                 utdypendeVilkårsvurderingerFørEndringTidslinje
-                    .kombinerMed(utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn.getValue(barn)) { før, etter ->
+                    .kombinerMed(utdypendeVilkårsvurderingerEtterEndringTidslinje) { før, etter ->
                         val erBosattIRiketOppfyltEtterEndring = etter != null
                         val erUtdypendeVilkårsvurderingEndret = før != etter
                         erBosattIRiketOppfyltEtterEndring && erUtdypendeVilkårsvurderingEndret
@@ -212,7 +211,7 @@ class VilkårsvurderingService(
                     .filter { it.verdi }
 
             perioderMedNyEllerEndretUtdypendeVilkårsvurdering.forEach { periode ->
-                val blankKompetanse = Kompetanse.blankKompetanse.copy(fom = periode.fom?.toYearMonth(), tom = periode.tom?.toYearMonth(), barnAktører = setOf(barn))
+                val blankKompetanse = Kompetanse.blankKompetanse.copy(fom = periode.fom?.toYearMonth(), tom = periode.tom?.toYearMonth(), barnAktører = setOf(barnAktør))
                 kompetanseService.oppdaterKompetanse(behandlingId, blankKompetanse)
             }
         }
@@ -228,18 +227,18 @@ class VilkårsvurderingService(
             } else {
                 setOf(personResultat.aktør)
             }
-        val barna = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId.id).barna
+        val barnIPersongrunnlaget = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId.id).barna
         val adopsjoner = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId)
 
-        return barna
+        return barnIPersongrunnlaget
             .filter { it.aktør in barnAktører }
             .associate { barn ->
-                val lovverk =
+                val barnetsLovverk =
                     LovverkUtleder.utledLovverkForBarn(
                         fødselsdato = barn.fødselsdato,
                         adopsjonsdato = adopsjoner.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
                     )
-                barn.aktør to personResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(lovverk)
+                barn.aktør to personResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(barnetsLovverk)
             }
     }
 
