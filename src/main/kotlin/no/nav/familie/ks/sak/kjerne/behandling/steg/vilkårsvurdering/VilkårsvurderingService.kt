@@ -33,10 +33,10 @@ import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
-import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.utvidelser.kombinerMed
+import no.nav.familie.tidslinje.utvidelser.mapIkkeNull
 import no.nav.familie.tidslinje.utvidelser.tilPerioderIkkeNull
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
@@ -162,7 +162,7 @@ class VilkårsvurderingService(
                 kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
         val utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn =
             if (erBosattIRiketVilkårIBehandlingMedKompetanse) {
-                hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(behandlingId, personResultat)
+                hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(BehandlingId(behandlingId), personResultat)
             } else {
                 null
             }
@@ -198,7 +198,7 @@ class VilkårsvurderingService(
         personResultat: PersonResultat,
         utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn: Map<Aktør, Tidslinje<Set<UtdypendeVilkårsvurdering>>>,
     ) {
-        val utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn = hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(behandlingId.id, personResultat)
+        val utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn = hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(behandlingId, personResultat)
 
         utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn.forEach { (barn, utdypendeVilkårsvurderingerFørEndringTidslinje) ->
             val perioderMedNyEllerEndretUtdypendeVilkårsvurdering =
@@ -215,34 +215,36 @@ class VilkårsvurderingService(
     }
 
     private fun hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(
-        behandlingId: Long,
+        behandlingId: BehandlingId,
         personResultat: PersonResultat,
     ): Map<Aktør, Tidslinje<Set<UtdypendeVilkårsvurdering>>> {
         val barnAktører =
             if (personResultat.erSøkersResultater()) {
-                kompetanseService.hentKompetanser(BehandlingId(behandlingId)).flatMap { it.barnAktører }.toSet()
+                kompetanseService.hentKompetanser(behandlingId).flatMap { it.barnAktører }.toSet()
             } else {
                 setOf(personResultat.aktør)
             }
-        val barna = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId).barna
-        val adopsjoner = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId))
+        val barna = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId.id).barna
+        val adopsjoner = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId)
 
-        return barnAktører.associateWith { barn ->
-            val lovverk =
-                LovverkUtleder.utledLovverkForBarn(
-                    fødselsdato = barna.single { it.aktør == barn }.fødselsdato,
-                    adopsjonsdato = adopsjoner.firstOrNull { it.aktør == barn }?.adopsjonsdato,
-                )
-            personResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(lovverk)
-        }
+        return barna
+            .filter { it.aktør in barnAktører }
+            .associate { barn ->
+                val lovverk =
+                    LovverkUtleder.utledLovverkForBarn(
+                        fødselsdato = barn.fødselsdato,
+                        adopsjonsdato = adopsjoner.firstOrNull { it.aktør == barn.aktør }?.adopsjonsdato,
+                    )
+                barn.aktør to personResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(lovverk)
+            }
     }
 
     private fun PersonResultat.tilUtdypendeVilkårsvurderingerForBosattIRiketTidslinje(lovverk: Lovverk): Tidslinje<Set<UtdypendeVilkårsvurdering>> =
         forskyvVilkårResultater(lovverk)[Vilkår.BOSATT_I_RIKET]
             .orEmpty()
             .filter { it.verdi.erOppfylt() }
-            .map { Periode(verdi = it.verdi.utdypendeVilkårsvurderinger.toSet(), fom = it.fom, tom = it.tom) }
             .tilTidslinje()
+            .mapIkkeNull { it.utdypendeVilkårsvurderinger.toSet() }
 
     private fun erEndringIVilkårSomPåvirkerResultat(
         vilkårResultat: VilkårResultat,

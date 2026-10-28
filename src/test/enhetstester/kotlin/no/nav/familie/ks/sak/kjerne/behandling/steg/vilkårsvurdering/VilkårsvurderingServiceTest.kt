@@ -499,7 +499,7 @@ class VilkårsvurderingServiceTest {
         }
 
         @Test
-        fun `skal nullstille kompetanse for alle barn i kompetansene etter barnets lovverk når søkers utdypende vilkårsvurdering endres`() {
+        fun `skal nullstille kompetanse for alle barn i kompetansene etter hvert barns lovverk når søkers utdypende vilkårsvurdering endres`() {
             // Arrange
             val vilkårsvurdering =
                 opprettVilkårsvurderingMedKompetanse(
@@ -518,6 +518,31 @@ class VilkårsvurderingServiceTest {
             assertThat(nullstilteKompetanser).containsExactlyInAnyOrder(
                 Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barn)),
                 Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 1), tom = YearMonth.of(2025, 12), barnAktører = setOf(barnUtenVilkårsvurdering)),
+            )
+        }
+
+        @Test
+        fun `skal ikke nullstille kompetanse for barn som ikke lenger er i persongrunnlaget`() {
+            // Arrange
+            val barnFjernetFraPersongrunnlaget = randomAktør()
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    søkersBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 1, fom = LocalDate.of(2025, 1, 1), tom = LocalDate.of(2025, 12, 31), utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.OMFATTET_AV_NORSK_LOVGIVNING),
+                        ),
+                )
+            every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns
+                listOf(lagKompetanse(behandlingId = behandling.id, barnAktører = setOf(barn, barnFjernetFraPersongrunnlaget)))
+
+            // Act
+            endreVilkår(vilkårsvurdering, søker, vilkårId = 1) {
+                it.copy(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.SØKER_OMFATTET_AV_UTENLANDSK_LOVGIVNING_BOSATT_I_NORGE))
+            }
+
+            // Assert
+            assertThat(nullstilteKompetanser).containsExactly(
+                Kompetanse.blankKompetanse.copy(fom = YearMonth.of(2025, 2), tom = YearMonth.of(2025, 11), barnAktører = setOf(barn)),
             )
         }
 
