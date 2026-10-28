@@ -34,12 +34,10 @@ class VilkårsvurderingTidslinjeService(
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {
         val søker = personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandlingId).søker
-        val personResultater =
-            (
-                vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
-                    ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
-            ).personResultater
-        val søkerPersonresultater = personResultater.single { it.aktør == søker.aktør }
+        val vilkårsvurdering =
+            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+                ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
+        val søkerPersonresultater = vilkårsvurdering.personResultater.single { it.aktør == søker.aktør }
 
         val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje =
             søkerPersonresultater.vilkårResultater
