@@ -93,7 +93,7 @@ class TilbakestillStegServiceTest {
     }
 
     @Test
-    fun `tilbakeførSteg skal ikke tilbakeføre til behandling steg når behandling allerede er tilbakeført til et tidligere steg`() {
+    fun `tilbakeførSteg skal ikke flytte behandlingen fram når den allerede står på et tidligere steg`() {
         // Arrange
         val behandling =
             lagBehandling(
