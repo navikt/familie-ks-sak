@@ -158,11 +158,11 @@ class VilkårsvurderingService(
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }
 
-        val erBosattIRiketVilkårIBehandlingMedKompetanse =
+        val skalVurdereNullstillingAvKompetanse =
             endreVilkårResultatDto.endretVilkårResultat.vilkårType == Vilkår.BOSATT_I_RIKET &&
                 kompetanseService.hentKompetanser(BehandlingId(behandlingId)).isNotEmpty()
         val utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn =
-            if (erBosattIRiketVilkårIBehandlingMedKompetanse) {
+            if (skalVurdereNullstillingAvKompetanse) {
                 hentUtdypendeVilkårsvurderingerForBosattIRiketTidslinjePerBarn(BehandlingId(behandlingId), personResultat)
             } else {
                 null
@@ -204,8 +204,11 @@ class VilkårsvurderingService(
         utdypendeVilkårsvurderingerFørEndringTidslinjePerBarn.forEach { (barn, utdypendeVilkårsvurderingerFørEndringTidslinje) ->
             val perioderMedNyEllerEndretUtdypendeVilkårsvurdering =
                 utdypendeVilkårsvurderingerFørEndringTidslinje
-                    .kombinerMed(utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn.getValue(barn)) { før, etter -> etter != null && før != etter }
-                    .tilPerioderIkkeNull()
+                    .kombinerMed(utdypendeVilkårsvurderingerEtterEndringTidslinjePerBarn.getValue(barn)) { før, etter ->
+                        val erBosattIRiketOppfyltEtterEndring = etter != null
+                        val erUtdypendeVilkårsvurderingEndret = før != etter
+                        erBosattIRiketOppfyltEtterEndring && erUtdypendeVilkårsvurderingEndret
+                    }.tilPerioderIkkeNull()
                     .filter { it.verdi }
 
             perioderMedNyEllerEndretUtdypendeVilkårsvurdering.forEach { periode ->
@@ -245,7 +248,7 @@ class VilkårsvurderingService(
             .orEmpty()
             .filter { it.verdi.erOppfylt() }
             .tilTidslinje()
-            .mapIkkeNull { it.utdypendeVilkårsvurderinger.toSet() - BOSATT_PÅ_SVALBARD }
+            .mapIkkeNull { it.utdypendeVilkårsvurderinger.toSet() - UTDYPENDE_VILKÅRSVURDERINGER_SOM_IKKE_PÅVIRKER_KOMPETANSE }
 
     private fun erEndringIVilkårSomPåvirkerResultat(
         vilkårResultat: VilkårResultat,
@@ -398,5 +401,6 @@ class VilkårsvurderingService(
 
     companion object {
         val logger = LoggerFactory.getLogger(VilkårsvurderingService::class.java)
+        private val UTDYPENDE_VILKÅRSVURDERINGER_SOM_IKKE_PÅVIRKER_KOMPETANSE = setOf(BOSATT_PÅ_SVALBARD)
     }
 }
