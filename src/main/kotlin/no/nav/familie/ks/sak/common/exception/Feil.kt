@@ -1,11 +1,8 @@
 package no.nav.familie.ks.sak.common.exception
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import no.nav.familie.log.mdc.MDCConstants
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
-import java.time.LocalDateTime
 
 open class Feil(
     message: String,
@@ -64,37 +61,6 @@ class PdlPersonKanIkkeBehandlesIFagsystem(
 enum class PdlPersonKanIkkeBehandlesIFagSystemÅrsak {
     MANGLER_FØDSELSDATO,
     OPPHØRT,
-}
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder(value = ["melding", "path", "timestamp", "status", "exception", "stackTrace"])
-data class EksternTjenesteFeil(
-    val path: String,
-    val status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
-    var exception: String? = null,
-    val timestamp: LocalDateTime = LocalDateTime.now(),
-    var stackTrace: String? = null,
-) {
-    lateinit var melding: String
-}
-
-open class EksternTjenesteFeilException(
-    val eksternTjenesteFeil: EksternTjenesteFeil,
-    val melding: String,
-    val request: Any?,
-    val throwable: Throwable? = null,
-) : RuntimeException(melding, throwable) {
-    init {
-        eksternTjenesteFeil.melding = melding
-    }
-
-    override fun toString(): String =
-        """EksternTjenesteFeil(
-            |   melding='$melding' 
-            |   eksternTjeneste=$eksternTjenesteFeil
-            |   request=$request
-            |   throwable=$throwable)
-        """.trimMargin()
 }
 
 const val KONTAKT_TEAMET_SUFFIX = "Kontakt teamet for hjelp."

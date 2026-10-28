@@ -3,6 +3,7 @@ package no.nav.familie.ks.sak.common.exception
 import io.micrometer.core.instrument.Metrics
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.ks.sak.common.exception.NettverksfeilType.Companion.fraException
 import no.nav.familie.ks.sak.common.util.RessursUtils
 import no.nav.familie.ks.sak.common.util.RessursUtils.unauthorized
 import org.slf4j.LoggerFactory
@@ -20,10 +21,11 @@ import tools.jackson.databind.exc.InvalidFormatException
 import tools.jackson.databind.exc.MismatchedInputException
 import java.io.EOFException
 import java.io.IOException
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.net.http.HttpTimeoutException
 import java.nio.channels.ClosedChannelException
+import java.util.concurrent.TimeoutException
 
 @ControllerAdvice
 class ApiExceptionHandler {
@@ -56,7 +58,18 @@ class ApiExceptionHandler {
     }
 
     @ExceptionHandler(IntegrasjonException::class)
-    fun handleIntegrasjonException(integrasjonException: IntegrasjonException): ResponseEntity<Ressurs<Nothing>> = RessursUtils.illegalState(integrasjonException.message.toString(), integrasjonException)
+    fun handleIntegrasjonException(
+        integrasjonException: IntegrasjonException,
+        request: HttpServletRequest,
+    ): ResponseEntity<Ressurs<Nothing>> {
+        val årsak = NestedExceptionUtils.getMostSpecificCause(integrasjonException)
+
+        if (fraException(årsak) != NettverksfeilType.UKJENT) {
+            return handleNettverksfeil(årsak, request)
+        }
+
+        return RessursUtils.illegalState(integrasjonException.message.toString(), integrasjonException)
+    }
 
     @ExceptionHandler(PdlNotFoundException::class)
     fun handlePdlNotFoundException(feil: PdlNotFoundException): ResponseEntity<Ressurs<Nothing>> {
@@ -76,27 +89,6 @@ class ApiExceptionHandler {
 
     @ExceptionHandler(FunksjonellFeil::class)
     fun handleFunksjonellFeil(funksjonellFeil: FunksjonellFeil): ResponseEntity<Ressurs<Nothing>> = RessursUtils.funksjonellFeil(funksjonellFeil)
-
-    @ExceptionHandler(EksternTjenesteFeilException::class)
-    fun handleEksternTjenesteFeil(feil: EksternTjenesteFeilException): ResponseEntity<EksternTjenesteFeil> {
-        val mostSpecificThrowable =
-            if (feil.throwable != null) NestedExceptionUtils.getMostSpecificCause(feil.throwable) else null
-        feil.eksternTjenesteFeil.exception =
-            if (mostSpecificThrowable != null) "[${mostSpecificThrowable::class.java.name}] " else null
-
-        if (mostSpecificThrowable != null) {
-            val sw = StringWriter()
-            feil.printStackTrace(PrintWriter(sw))
-            feil.eksternTjenesteFeil.stackTrace = sw.toString()
-        }
-
-        secureLogger.info("$feil")
-        logger.info(
-            "Feil ekstern tjeneste: path:${feil.eksternTjenesteFeil.path} status:${feil.eksternTjenesteFeil.status} exception:${feil.eksternTjenesteFeil.exception}",
-        )
-
-        return ResponseEntity.status(feil.eksternTjenesteFeil.status).body(feil.eksternTjenesteFeil)
-    }
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(exception: NoResourceFoundException): ResponseEntity<Ressurs<Nothing>> {
@@ -165,7 +157,7 @@ class ApiExceptionHandler {
 
     @ExceptionHandler(IOException::class, ClosedChannelException::class, EOFException::class)
     fun handleNettverksfeil(
-        e: Exception,
+        e: Throwable,
         request: HttpServletRequest,
     ): ResponseEntity<Ressurs<Nothing>> {
         val cause = NestedExceptionUtils.getMostSpecificCause(e)
@@ -194,12 +186,14 @@ enum class NettverksfeilType(
     CLOSED_CHANNEL("closed_channel"),
     CONNECTION_RESET("connection_reset"),
     EOF("eof"),
+    TIMEOUT("timeout"),
     UKJENT("ukjent"),
     ;
 
     companion object {
         fun fraException(e: Throwable): NettverksfeilType =
             when {
+                e is SocketTimeoutException || e is HttpTimeoutException || e is TimeoutException -> TIMEOUT
                 e is ClosedChannelException -> CLOSED_CHANNEL
                 e is EOFException -> EOF
                 e is IOException && e.message?.lowercase()?.contains("broken pipe") == true -> BROKEN_PIPE
