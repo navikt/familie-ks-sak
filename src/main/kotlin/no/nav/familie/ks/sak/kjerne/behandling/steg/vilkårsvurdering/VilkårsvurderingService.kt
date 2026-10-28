@@ -19,6 +19,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Per
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
@@ -244,7 +245,7 @@ class VilkårsvurderingService(
             .orEmpty()
             .filter { it.verdi.erOppfylt() }
             .tilTidslinje()
-            .mapIkkeNull { it.utdypendeVilkårsvurderinger.toSet() }
+            .mapIkkeNull { it.utdypendeVilkårsvurderinger.toSet() - BOSATT_PÅ_SVALBARD }
 
     private fun erEndringIVilkårSomPåvirkerResultat(
         vilkårResultat: VilkårResultat,

@@ -614,6 +614,27 @@ class VilkårsvurderingServiceTest {
         }
 
         @Test
+        fun `skal ikke nullstille kompetanse når kun Svalbard-markering endres`() {
+            // Arrange
+            val vilkårsvurdering =
+                opprettVilkårsvurderingMedKompetanse(
+                    barnetsBosattIRiket =
+                        listOf(
+                            oppfyltBosattIRiket(id = 11, fom = LocalDate.of(2024, 1, 1), tom = null, utdypendeVilkårsvurdering = UtdypendeVilkårsvurdering.BARN_BOR_I_EØS),
+                        ),
+                )
+
+            // Act
+            endreVilkår(vilkårsvurdering, barn, vilkårId = 11) {
+                it.copy(utdypendeVilkårsvurderinger = listOf(UtdypendeVilkårsvurdering.BARN_BOR_I_EØS, UtdypendeVilkårsvurdering.BOSATT_PÅ_SVALBARD))
+            }
+
+            // Assert
+            assertThat(nullstilteKompetanser).isEmpty()
+            verify(exactly = 1) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
+        }
+
+        @Test
         fun `skal ikke nullstille kompetanse når en periode deles uten å endre utdypende vilkårsvurdering`() {
             // Arrange
             val vilkårsvurdering =
