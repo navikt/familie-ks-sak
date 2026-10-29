@@ -35,9 +35,9 @@ class TilbakestillBehandlingService(
         // Sletter tilbakekreving
         tilbakekrevingRepository.findByBehandlingId(behandlingId)?.let { tilbakekrevingRepository.deleteById(it.id) }
 
-        // tilbakefører Behandling til gitt behandlingSteg kun når steget eksisterer
+        // tilbakefører Behandling til gitt behandlingSteg kun når steget eksisterer og behandlingen ikke står på et tidligere steg
         val behandling = behandlingRepository.hentAktivBehandling(behandlingId)
-        if (behandling.behandlingStegTilstand.any { it.behandlingSteg == behandlingSteg }) {
+        if (behandling.behandlingStegTilstand.any { it.behandlingSteg == behandlingSteg } && behandling.steg.sekvens >= behandlingSteg.sekvens) {
             tilbakestillStegService.tilbakeførSteg(behandlingId, behandlingSteg)
         }
     }
