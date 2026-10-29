@@ -74,12 +74,11 @@ jobs:
         with:
           name: 'integrasjonstest'
           path: 'coverage/integrasjonstest'
-      - name: Cache Sonar
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # ratchet:actions/cache@v4
+      - name: Restore Sonar cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # ratchet:actions/cache/restore@v4
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-v2
       - name: Sonar
         env:
           MAVEN_OPTS: "-Xmx4g -Dmaven.artifact.threads=10"
