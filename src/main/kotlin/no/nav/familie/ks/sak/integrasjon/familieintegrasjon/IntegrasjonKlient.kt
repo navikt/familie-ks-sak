@@ -7,9 +7,8 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
-import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
-import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.AdresseType
@@ -387,41 +386,23 @@ class IntegrasjonKlient(
         }
     }
 
-    fun leggTilLogiskVedlegg(
-        request: LogiskVedleggRequest,
-        dokumentinfoId: String,
-    ): LogiskVedleggResponse {
-        val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg")
+    fun oppdaterLogiskeVedlegg(
+        dokumentInfoId: String,
+        request: BulkOppdaterLogiskVedleggRequest,
+    ) {
+        val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentInfoId/logiskVedlegg")
 
-        return kallEksternTjenesteRessurs(
+        kallEksternTjenesteRessurs(
             tjeneste = "dokarkiv",
             uri = uri,
-            formål = "Legg til logisk vedlegg på dokument $dokumentinfoId",
+            formål = "Oppdater logiske vedlegg på dokument $dokumentInfoId",
         ) {
             restClient
-                .post()
+                .put()
                 .uri(uri)
                 .body(request)
                 .retrieve()
-                .body()!!
-        }
-    }
-
-    fun slettLogiskVedlegg(
-        logiskVedleggId: String,
-        dokumentinfoId: String,
-    ): LogiskVedleggResponse {
-        val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentinfoId/logiskVedlegg/$logiskVedleggId")
-        return kallEksternTjenesteRessurs(
-            tjeneste = "dokarkiv",
-            uri = uri,
-            formål = "Slett logisk vedlegg på dokument $dokumentinfoId",
-        ) {
-            restClient
-                .delete()
-                .uri(uri)
-                .retrieve()
-                .body<Ressurs<LogiskVedleggResponse>>()!!
+                .body<Ressurs<String>>()!!
         }
     }
 

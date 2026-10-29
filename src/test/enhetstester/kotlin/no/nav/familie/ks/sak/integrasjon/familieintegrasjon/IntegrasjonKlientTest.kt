@@ -10,12 +10,13 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.NavIdent
+import no.nav.familie.kontrakter.felles.Ressurs.Companion.failure
 import no.nav.familie.kontrakter.felles.Ressurs.Companion.success
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.DokarkivBruker
 import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
-import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
@@ -26,6 +27,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Behandlingstype
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
+import no.nav.familie.ks.sak.common.exception.IntegrasjonException
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.lagAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
@@ -285,37 +287,107 @@ internal class IntegrasjonKlientTest {
     }
 
     @Test
-    fun `leggTilLogiskVedlegg skal returnere id på vedlegg som ble lagt til`() {
+    fun `oppdaterLogiskeVedlegg skal sende PUT med titlene til familie-integrasjoner`() {
         // Arrange
-        val request = LogiskVedleggRequest("testtittel")
+        val dokumentInfoId = "5678"
 
         wiremockServerItem.stubFor(
             WireMock
-                .post(urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
-                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+                .put(urlEqualTo("/arkiv/dokument/$dokumentInfoId/logiskVedlegg"))
+                .willReturn(okJson(jsonMapper.writeValueAsString(success(dokumentInfoId)))),
         )
 
         // Act
-        val fordeltOppgave = integrasjonKlient.leggTilLogiskVedlegg(request, "testid")
+        integrasjonKlient.oppdaterLogiskeVedlegg(
+            dokumentInfoId = dokumentInfoId,
+            request = BulkOppdaterLogiskVedleggRequest(titler = listOf("Vigselsattest", "Pass")),
+        )
 
         // Assert
-        assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
+        wiremockServerItem.verify(
+            WireMock
+                .putRequestedFor(urlEqualTo("/arkiv/dokument/$dokumentInfoId/logiskVedlegg"))
+                .withRequestBody(WireMock.equalToJson("""{"titler": ["Vigselsattest", "Pass"]}""")),
+        )
     }
 
     @Test
-    fun `slettLogiskVedlegg skal returnere id på vedlegg som ble slettet til`() {
+    fun `oppdaterLogiskeVedlegg skal sende tom liste for å fjerne alle logiske vedlegg`() {
         // Arrange
+        val dokumentInfoId = "5678"
+
         wiremockServerItem.stubFor(
             WireMock
-                .delete(urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
-                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+                .put(urlEqualTo("/arkiv/dokument/$dokumentInfoId/logiskVedlegg"))
+                .willReturn(okJson(jsonMapper.writeValueAsString(success(dokumentInfoId)))),
         )
 
         // Act
-        val fordeltOppgave = integrasjonKlient.slettLogiskVedlegg("testId", "testDokumentId")
+        integrasjonKlient.oppdaterLogiskeVedlegg(
+            dokumentInfoId = dokumentInfoId,
+            request = BulkOppdaterLogiskVedleggRequest(titler = emptyList()),
+        )
 
         // Assert
-        assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
+        wiremockServerItem.verify(
+            WireMock
+                .putRequestedFor(urlEqualTo("/arkiv/dokument/$dokumentInfoId/logiskVedlegg"))
+                .withRequestBody(WireMock.equalToJson("""{"titler": []}""")),
+        )
+    }
+
+    @Test
+    fun `oppdaterLogiskeVedlegg skal kaste IntegrasjonException når dokarkiv avviser en tittel som er for lang`() {
+        // Arrange
+        // familie-integrasjoner gjør alle feil fra dokarkiv, også 400 ved tittel over 550 tegn, om til 500.
+        val dokumentInfoId = "5678"
+        val feilmeldingFraFamilieIntegrasjoner =
+            "[dokarkiv.logiskVedlegg.oppdater][Kan ikke bulk oppdatere logiske vedlegg for dokumentinfo $dokumentInfoId " +
+                "Tittel er lengre enn 550 tegn][org.springframework.web.client.HttpClientErrorException\$BadRequest]"
+
+        wiremockServerItem.stubFor(
+            WireMock
+                .put(urlEqualTo("/arkiv/dokument/$dokumentInfoId/logiskVedlegg"))
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withStatus(500)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(jsonMapper.writeValueAsString(failure<String>(feilmeldingFraFamilieIntegrasjoner))),
+                ),
+        )
+
+        // Act & Assert
+        val feil =
+            assertThrows<IntegrasjonException> {
+                integrasjonKlient.oppdaterLogiskeVedlegg(
+                    dokumentInfoId = dokumentInfoId,
+                    request = BulkOppdaterLogiskVedleggRequest(titler = listOf("A".repeat(551))),
+                )
+            }
+        assertThat(feil.message).contains("dokarkiv", "Tittel er lengre enn 550 tegn")
+    }
+
+    @Test
+    fun `oppdaterLogiskeVedlegg skal kaste IntegrasjonException når familie-integrasjoner svarer med feilet ressurs`() {
+        // Arrange
+        val dokumentInfoId = "5678"
+
+        wiremockServerItem.stubFor(
+            WireMock
+                .put(urlEqualTo("/arkiv/dokument/$dokumentInfoId/logiskVedlegg"))
+                .willReturn(okJson(jsonMapper.writeValueAsString(failure<String>("Kan ikke bulk oppdatere logiske vedlegg")))),
+        )
+
+        // Act & Assert
+        val feil =
+            assertThrows<IntegrasjonException> {
+                integrasjonKlient.oppdaterLogiskeVedlegg(
+                    dokumentInfoId = dokumentInfoId,
+                    request = BulkOppdaterLogiskVedleggRequest(titler = listOf("Vigselsattest")),
+                )
+            }
+        assertThat(feil.message).contains("dokarkiv", "Kan ikke bulk oppdatere logiske vedlegg")
     }
 
     @Test

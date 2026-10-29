@@ -4,8 +4,7 @@ import io.mockk.mockk
 import no.nav.familie.kontrakter.felles.NavIdent
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
-import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
-import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
+import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
@@ -132,15 +131,12 @@ class FakeIntegrasjonKlient : IntegrasjonKlient(URI("integrasjoner-url"), mockk(
         return
     }
 
-    override fun leggTilLogiskVedlegg(
-        request: LogiskVedleggRequest,
-        dokumentinfoId: String,
-    ): LogiskVedleggResponse = LogiskVedleggResponse(12345678L)
-
-    override fun slettLogiskVedlegg(
-        logiskVedleggId: String,
-        dokumentinfoId: String,
-    ): LogiskVedleggResponse = LogiskVedleggResponse(12345678L)
+    override fun oppdaterLogiskeVedlegg(
+        dokumentInfoId: String,
+        request: BulkOppdaterLogiskVedleggRequest,
+    ) {
+        return
+    }
 
     override fun journalførDokument(arkiverDokumentRequest: ArkiverDokumentRequest): ArkiverDokumentResponse {
         journalførteDokumenter.add(arkiverDokumentRequest)
