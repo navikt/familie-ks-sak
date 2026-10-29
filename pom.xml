@@ -38,12 +38,12 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20260817115650_f13f507</prosessering.version>
-        <felles-kontrakter.version>4.0_20261023114950_9ae0359</felles-kontrakter.version>
-        <felles.version>4.20261014144209_63578dc</felles.version>
-        <eksterne-kontrakter-bisys.version>2.0_20261023114954_0543fb5</eksterne-kontrakter-bisys.version>
-        <familie.kontrakter.stønadsstatistikk>2.0_20261023114954_0543fb5</familie.kontrakter.stønadsstatistikk>
-        <familie.kontrakter.saksstatistikk>2.0_20261023114954_0543fb5</familie.kontrakter.saksstatistikk>
+        <prosessering.version>2.20261027150838_57ccae7</prosessering.version>
+        <felles-kontrakter.version>4.0_20261026123216_8087cb5</felles-kontrakter.version>
+        <felles.version>4.20261026180911_c3ff6d9</felles.version>
+        <eksterne-kontrakter-bisys.version>2.0_20261026123216_f55dd20</eksterne-kontrakter-bisys.version>
+        <familie.kontrakter.stønadsstatistikk>2.0_20261026123216_f55dd20</familie.kontrakter.stønadsstatistikk>
+        <familie.kontrakter.saksstatistikk>2.0_20261026123216_f55dd20</familie.kontrakter.saksstatistikk>
         <utbetalingsgenerator.version>1.0_20260923084625_49defa2</utbetalingsgenerator.version>
 
         <!-- Database -->
@@ -57,7 +57,7 @@
         <!-- Annet -->
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <unleash.version>12.3.0</unleash.version>
+        <unleash.version>12.3.1</unleash.version>
         <microsoft-graph.version>6.71.0</microsoft-graph.version>
         <okhttp-jvm.version>5.5.0</okhttp-jvm.version>
         <azure-identity.version>1.18.7</azure-identity.version>
@@ -65,7 +65,7 @@
         <!-- Test -->
         <cucumber.version>8.0.4</cucumber.version>
         <rest-assured.version>6.2.0</rest-assured.version>
-        <mock-oauth2-server.version>6.1.1</mock-oauth2-server.version>
+        <mock-oauth2-server.version>6.1.2</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.11</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
