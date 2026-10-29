@@ -114,13 +114,10 @@ Den andre (krise-eksisterende-image-rett-i-prod) lar deg deploye et tidligere by
 du skal rulle tilbake til forrige versjon. Denne tar som parameter taggen til imaget du vil deploye. Denne finner du
 under actions på GitHub, finn byggejobben du vil gå tilbake til, og kopier taggen derfra.
 
-### Monitorering av kafka køer
+### Kafka Manager
+familie-baks-kafka-manager er en applikasjon for å administrere Kafka-topics. Den kan deployes manuelt ved behov.
 
-Det er satt opp en tjeneste familie-baks-kafka-manager som er et verktøy for å monitorere
-kafka meldinger i preprod og prod.
-
-* Preprod: https://familie-baks-kafka-manager.intern.dev.nav.no
-* Prod: https://familie-baks-kafka-manager.intern.nav.no
+Mer info om hvordan deploye app på [Kafka Manager](.nais/kafka-manager/README.md) 
 
 ## Kontaktinformasjon
 
