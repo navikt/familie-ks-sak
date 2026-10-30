@@ -19,12 +19,12 @@ import no.nav.familie.ks.sak.data.tilfeldigPerson
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
@@ -53,13 +53,13 @@ internal class KompetanseServiceTest {
     private val endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository = mockk()
     private val overgangsordningAndelRepository: OvergangsordningAndelRepository = mockk()
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository = mockk()
-    private val vilkårsvurderingService: VilkårsvurderingService = mockk()
+    private val vilkårsvurderingRepository: VilkårsvurderingRepository = mockk()
     private val adopsjonService: AdopsjonService = mockk()
     private val personopplysningGrunnlagService: PersonopplysningGrunnlagService = mockk()
 
     private val vilkårsvurderingTidslinjeService =
         VilkårsvurderingTidslinjeService(
-            vilkårsvurderingService = vilkårsvurderingService,
+            vilkårsvurderingRepository = vilkårsvurderingRepository,
             personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
             adopsjonService = adopsjonService,
         )
@@ -491,7 +491,7 @@ internal class KompetanseServiceTest {
             val tom = fom.plusMonths(10).sisteDagIMåned()
             val tomForBarn2 = fom.plusMonths(6).sisteDagIMåned()
 
-            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+            every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId.id) } returns
                 lagVilkårsvurdering(
                     // søkersperiode avslutter etter nå tidspunkt
                     søkersperiode = Periode(fom, tom),
@@ -525,7 +525,7 @@ internal class KompetanseServiceTest {
             val tom = fom.plusMonths(10).sisteDagIMåned()
             val tomForBarn2 = fom.plusMonths(3).sisteDagIMåned()
 
-            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+            every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId.id) } returns
                 lagVilkårsvurdering(
                     // søkersperiode avslutter etter nåtidspunkt
                     søkersperiode = Periode(fom, tom),
@@ -576,7 +576,7 @@ internal class KompetanseServiceTest {
                 resultat = KompetanseResultat.NORGE_ER_SEKUNDÆRLAND,
             ).lagreTil(kompetanseRepository)
 
-            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+            every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId.id) } returns
                 lagVilkårsvurdering(
                     søkersperiode = Periode(vilkårFom, vilkårTom),
                     barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
@@ -634,7 +634,7 @@ internal class KompetanseServiceTest {
                     barnAktør = listOf(barn1, barn2),
                 )
 
-            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(nasjonalBehandling.id) } returns
+            every { vilkårsvurderingRepository.finnAktivForBehandling(nasjonalBehandling.id) } returns
                 lagVilkårsvurdering(
                     søkersperiode = Periode(vilkårFom, vilkårTom),
                     barnasperioder = listOf(barn1, barn2).associateWith { Pair(vilkårFom, vilkårTom) },
@@ -719,7 +719,7 @@ internal class KompetanseServiceTest {
             val fomForBarn2 = fom.plusMonths(2)
             val tomForBarn2 = fomForBarn2.plusMonths(3).sisteDagIMåned()
 
-            every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId.id) } returns
+            every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId.id) } returns
                 lagVilkårsvurdering(
                     // søkersperiode 2022-01-2022-11
                     søkersperiode = Periode(fom, tom),

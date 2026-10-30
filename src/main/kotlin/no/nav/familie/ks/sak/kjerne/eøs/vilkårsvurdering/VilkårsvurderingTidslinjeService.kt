@@ -1,12 +1,13 @@
 package no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.personident.Aktør
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
 import no.nav.familie.tidslinje.Periode
@@ -17,12 +18,14 @@ import org.springframework.stereotype.Service
 
 @Service
 class VilkårsvurderingTidslinjeService(
-    private val vilkårsvurderingService: VilkårsvurderingService,
+    private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val personopplysningGrunnlagRepository: PersonopplysningGrunnlagRepository,
     private val adopsjonService: AdopsjonService,
 ) {
     fun lagVilkårsvurderingTidslinjer(behandlingId: Long): VilkårsvurderingTidslinjer {
-        val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
+        val vilkårsvurdering =
+            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+                ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
         val personopplysningGrunnlag = personopplysningGrunnlagRepository.hentByBehandling(behandlingId)
         val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(BehandlingId(behandlingId))
 
@@ -31,11 +34,10 @@ class VilkårsvurderingTidslinjeService(
 
     fun hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(behandlingId: Long): Tidslinje<Boolean> {
         val søker = personopplysningGrunnlagRepository.hentByBehandling(behandlingId = behandlingId).søker
-        val personResultater =
-            vilkårsvurderingService
-                .hentAktivVilkårsvurderingForBehandling(behandlingId = behandlingId)
-                .personResultater
-        val søkerPersonresultater = personResultater.single { it.aktør == søker.aktør }
+        val vilkårsvurdering =
+            vilkårsvurderingRepository.finnAktivForBehandling(behandlingId)
+                ?: throw Feil("Fant ikke vilkårsvurdering knyttet til behandling=$behandlingId")
+        val søkerPersonresultater = vilkårsvurdering.personResultater.single { it.aktør == søker.aktør }
 
         val erAnnenForelderOmfattetAvNorskLovgivingTidslinjeMedKunPerioderSomStrekkerSegOver1MånedForskyvetTidslinje =
             søkerPersonresultater.vilkårResultater

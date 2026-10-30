@@ -9,13 +9,13 @@ import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingKategori
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Regelverk
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.UtdypendeVilkårsvurdering
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkår
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.VilkårsvurderingRepository
 import no.nav.familie.ks.sak.kjerne.brev.lagPersonResultat
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
@@ -30,7 +30,7 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class VilkårsvurderingTidslinjeServiceTest {
     val personopplysningGrunnlagRepository = mockk<PersonopplysningGrunnlagRepository>()
-    val vilkårsvurderingService = mockk<VilkårsvurderingService>()
+    val vilkårsvurderingRepository = mockk<VilkårsvurderingRepository>()
     val adopsjonService = mockk<AdopsjonService>()
 
     private lateinit var vilkårsvurderingTidslinjeService: VilkårsvurderingTidslinjeService
@@ -40,7 +40,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
         vilkårsvurderingTidslinjeService =
             VilkårsvurderingTidslinjeService(
                 personopplysningGrunnlagRepository = personopplysningGrunnlagRepository,
-                vilkårsvurderingService = vilkårsvurderingService,
+                vilkårsvurderingRepository = vilkårsvurderingRepository,
                 adopsjonService = adopsjonService,
             )
     }
@@ -71,7 +71,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerAktør = søker.aktør,
             )
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
+        every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
 
         val faktiskTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(
@@ -140,7 +140,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerAktør = søker.aktør,
             )
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
+        every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
 
         val faktiskTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(
@@ -185,7 +185,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerAktør = søker.aktør,
             )
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
+        every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
 
         val faktiskTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(
@@ -220,7 +220,7 @@ internal class VilkårsvurderingTidslinjeServiceTest {
                 søkerAktør = søker.aktør,
             )
 
-        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
+        every { vilkårsvurderingRepository.finnAktivForBehandling(behandlingId = behandling.id) } returns vilkårsvurdering
 
         val faktiskTidslinje =
             vilkårsvurderingTidslinjeService.hentAnnenForelderOmfattetAvNorskLovgivningTidslinje(

@@ -37,6 +37,12 @@ class KompetanseService(
         kompetanseSkjemaService.endreSkjemaer(behandlingId, oppdateresKompetanse)
     }
 
+    @Transactional
+    fun oppdaterKompetanse(
+        behandlingId: BehandlingId,
+        oppdatertKompetanse: Kompetanse,
+    ) = kompetanseSkjemaService.endreSkjemaer(behandlingId, oppdatertKompetanse)
+
     // Oppretter kompetanse skjema i behandlingsresultat
     // når vilkårer er vurdert etter EØS forordningen i vilkårsvurdering for det første gang
     // Tilpasser kompetanse skjema basert på endringer i vilkårsvurdering deretter
