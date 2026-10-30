@@ -5,7 +5,7 @@ import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Tema
-import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
@@ -84,6 +84,10 @@ class InnkommendeJournalføringService(
         val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonKlient.hentJournalpost(journalpostId)
 
+        // Oppdateres før klage eller behandling opprettes, slik at en feil her ikke etterlater en klagebehandling i familie-klage.
+        // Trygt å gjenta ved nytt forsøk, siden vi sammenligner med journalposten i Joark og erstatter hele listen.
+        oppdaterLogiskeVedlegg(request.dokumenter, journalpost)
+
         if (request.opprettOgKnyttTilNyBehandling) {
             if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
                 val klageMottattDato = request.datoMottatt?.toLocalDate() ?: throw Feil("Dato mottatt ikke satt ved journalføring av journalpost med id=$journalpostId")
@@ -118,8 +122,6 @@ class InnkommendeJournalføringService(
             kontantstøtteBehandlinger = kontantstøtteBehandlinger,
             journalpost = journalpost,
         )
-
-        oppdaterLogiskeVedlegg(request.dokumenter)
 
         oppdaterOgFerdigstill(
             oppdaterJournalPostRequest =
@@ -242,23 +244,31 @@ class InnkommendeJournalføringService(
         }
     }
 
-    private fun oppdaterLogiskeVedlegg(dokumenter: List<JournalpostDokumentDto>) {
+    private fun oppdaterLogiskeVedlegg(
+        dokumenter: List<JournalpostDokumentDto>,
+        journalpost: Journalpost,
+    ) {
         dokumenter.forEach { dokument ->
-            val eksisterendeLogiskeVedlegg = dokument.eksisterendeLogiskeVedlegg ?: emptyList()
-            val logiskeVedlegg = dokument.logiskeVedlegg ?: emptyList()
+            val nyeTitler = dokument.hentTitlerPåLogiskeVedlegg() ?: return@forEach
+            val eksisterendeTitler = journalpost.hentTitlerPåLogiskeVedlegg(dokument.dokumentInfoId)
 
-            val fjernedeVedlegg = eksisterendeLogiskeVedlegg.filter { !logiskeVedlegg.contains(it) }
-            val nyeVedlegg = logiskeVedlegg.filter { !eksisterendeLogiskeVedlegg.contains(it) }
-
-            fjernedeVedlegg.forEach {
-                integrasjonKlient.slettLogiskVedlegg(it.logiskVedleggId, dokument.dokumentInfoId)
-            }
-
-            nyeVedlegg.forEach {
-                integrasjonKlient.leggTilLogiskVedlegg(LogiskVedleggRequest(it.tittel), dokument.dokumentInfoId)
+            if (nyeTitler != eksisterendeTitler) {
+                integrasjonKlient.oppdaterLogiskeVedlegg(
+                    dokumentInfoId = dokument.dokumentInfoId,
+                    request = BulkOppdaterLogiskVedleggRequest(titler = nyeTitler),
+                )
             }
         }
     }
+
+    private fun JournalpostDokumentDto.hentTitlerPåLogiskeVedlegg(): List<String>? = logiskeVedlegg?.map { it.tittel }
+
+    private fun Journalpost.hentTitlerPåLogiskeVedlegg(dokumentInfoId: String): List<String> =
+        dokumenter
+            ?.find { it.dokumentInfoId == dokumentInfoId }
+            ?.logiskeVedlegg
+            .orEmpty()
+            .map { it.tittel }
 
     private fun oppdaterOgFerdigstill(
         oppdaterJournalPostRequest: OppdaterJournalpostRequestDto,
