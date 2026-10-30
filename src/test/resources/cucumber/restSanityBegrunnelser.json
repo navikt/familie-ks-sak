@@ -51,6 +51,88 @@
     "visningsnavn": "45. 13 mnd samme måned som barnehageplass 08.24"
   },
   {
+    "_createdAt": "2026-09-28T13:08:14Z",
+    "_id": "ksBegrunnelse-2f41a932-210f-409a-ac79-02003df0799c",
+    "_rev": "Ug2YipB3zxa4TlDWVWPGKG",
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-09-28T13:24:37Z",
+    "apiNavn": "avslagAdoptertBarnEngangsstonadSoktForTidlig",
+    "bokmaal": [
+      {
+        "_key": "eb722fb277e8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "99c33d8c5ad8",
+            "_type": "span",
+            "marks": [],
+            "text": ""
+          },
+          {
+            "_key": "822c66d839bd",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "d84f781f-c3b7-41c0-bdd4-35669c71318c",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "fb07c08a22a5",
+            "_type": "span",
+            "marks": [],
+            "text": " er adoptert og du har søkt om engangsstønad. Du kan tidligst få kontantstøtte fra og med kalendermåneden etter at stønadsperioden for fulle foreldrepenger ved adopsjon ville vært utløpt. Derfor kan vi ikke vurdere om vilkårene er oppfylt ennå. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "8"
+    ],
+    "navnISystem": "Adoptert barn engangsstønad - søkt for tidlig",
+    "nynorsk": [
+      {
+        "_key": "8dbb2a684f54",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "99c33d8c5ad8",
+            "_type": "span",
+            "marks": [],
+            "text": ""
+          },
+          {
+            "_key": "822c66d839bd",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "d84f781f-c3b7-41c0-bdd4-35669c71318c",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "fb07c08a22a5",
+            "_type": "span",
+            "marks": [],
+            "text": " er adoptert og du har søkt om eingangsstønad. Du kan tidlegst få kontantstøtte frå og med kalendermåneden etter at stønadsperioden for fulle foreldrepengar ved adopsjon ville vært utløpt. Derfor kan vi ikkje vurdere om vilkåra er oppfylt enno. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "AVSLAG",
+    "tema": "NASJONAL",
+    "type": "STANDARD",
+    "vilkaar": [
+      "BARNETS_ALDER"
+    ],
+    "visningsnavn": "48. Adoptert barn engangsstønad - søkt for tidlig"
+  },
+  {
     "_createdAt": "2024-10-17T15:26:09Z",
     "_id": "ksBegrunnelse-82e7aed8-d0f8-4cc5-b3de-269514386c12",
     "_rev": "rDrsfSpfDS3z8a4my6vTDm",
@@ -485,9 +567,15 @@
   {
     "_createdAt": "2025-03-21T07:44:15Z",
     "_id": "ksBegrunnelse-ebb653d4-86a4-41d0-bd06-b414ceacb64a",
-    "_rev": "rG2v652lf3fXH2CAdZ8RDb",
+    "_rev": "Ug2YipB3zxa4TlDWVWH0gy",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-ebb653d4-86a4-41d0-bd06-b414ceacb64a",
+        "rev": "qx1qZVfBCfX7J6LGvonbIi"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-04-10T13:03:05Z",
+    "_updatedAt": "2026-09-28T13:18:10Z",
     "apiNavn": "avslagBarnUnder12maaneder",
     "bokmaal": [
       {
@@ -498,7 +586,52 @@
             "_key": "2e2427e5b98b",
             "_type": "span",
             "marks": [],
-            "text": "Barnet ditt er under 12 måneder. Du kan tidligst få kontantstøtte fra måneden etter at barnet ditt er 12 måneder. Derfor kan vi ikke vurdere om vilkårene er oppfylt ennå. Du kan søke om kontantstøtte på nytt den måneden barnet fyller 12 måneder."
+            "text": ""
+          },
+          {
+            "_key": "d0fe312e18df",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": true,
+            "valgReferanse": {
+              "_ref": "d84f781f-c3b7-41c0-bdd4-35669c71318c",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "ece4a7d2b04a",
+            "_type": "span",
+            "marks": [],
+            "text": " er under 12 måneder. Du kan tidligst få kontantstøtte fra måneden etter at "
+          },
+          {
+            "_key": "11e0acd353c8",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "5de0b0ea51f5",
+            "_type": "span",
+            "marks": [],
+            "text": " er 12 måneder. Derfor kan vi ikke vurdere om vilkårene er oppfylt ennå. Du kan søke om kontantstøtte på nytt den måneden "
+          },
+          {
+            "_key": "86b6049dbb73",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "a69ee7835a2e",
+            "_type": "span",
+            "marks": [],
+            "text": " fyller 12 måneder."
           }
         ],
         "markDefs": [],
@@ -516,10 +649,25 @@
         "_type": "block",
         "children": [
           {
-            "_key": "6d9d29b90728",
+            "_key": "2e2427e5b98b",
             "_type": "span",
             "marks": [],
-            "text": "Barnet ditt er under 12 månader. Du kan tidlegast få kontantstøtte fra månaden etter at barnet ditt er 12 månader. Derfor kan vi ikkje vurdere om vilkåra er oppfylt enno. Du kan søke om kontantstøtte på nytt den månaden barnet fyller 12 månader."
+            "text": ""
+          },
+          {
+            "_key": "d0fe312e18df",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": true,
+            "valgReferanse": {
+              "_ref": "d84f781f-c3b7-41c0-bdd4-35669c71318c",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "ece4a7d2b04a",
+            "_type": "span",
+            "marks": [],
+            "text": " er under 12 månader. Du kan tidlegast få kontantstøtte frå månaden etter at barnet ditt er 12 månader. Derfor kan vi ikkje vurdere om vilkåra er oppfylt enno. Du kan søke om kontantstøtte på nytt den månaden barnet fyller 12 månader."
           }
         ],
         "markDefs": [],
@@ -828,9 +976,15 @@
   {
     "_createdAt": "2023-05-04T06:18:08Z",
     "_id": "ksBegrunnelse-5c99bd93-e6ff-42df-bb6f-35efc7982281",
-    "_rev": "YRNBz1kCMXDmdsBv3VBVqo",
+    "_rev": "O3wP3abNbPmMgi45XLwzPV",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-5c99bd93-e6ff-42df-bb6f-35efc7982281",
+        "rev": "uY7uo3WRjgPsUg8ywhMX99"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-02-04T12:20:47Z",
+    "_updatedAt": "2025-12-18T13:22:16Z",
     "apiNavn": "avslagBrukerMelderFulltidsplassIBarnehage",
     "bokmaal": [
       {
@@ -855,7 +1009,7 @@
             "text": " er tildelt fulltidsplass i barnehage "
           },
           {
-            "_key": "859dc94e7361",
+            "_key": "134320e83a1d",
             "_type": "valgfeltV2",
             "skalHaStorForbokstav": false,
             "valgReferanse": {
@@ -864,7 +1018,7 @@
             }
           },
           {
-            "_key": "5e628e66efd6",
+            "_key": "4fe2fee020c8",
             "_type": "span",
             "marks": [],
             "text": ". Når barnet er tildelt barnehageplass med 33 timer eller mer i uka, regnes dette som fulltidsplass."
@@ -900,7 +1054,7 @@
             "_key": "878f82abaa16",
             "_type": "span",
             "marks": [],
-            "text": " er tildelt fulltidsplass i barnehage "
+            "text": " er tildelt fulltidsplass i barnehage"
           },
           {
             "_key": "e7964830f107",
@@ -3362,9 +3516,15 @@
   {
     "_createdAt": "2023-05-04T06:21:32Z",
     "_id": "ksBegrunnelse-6218b529-561a-417d-be63-324a21dec010",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "O3wP3abNbPmMgi45XLx2gC",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-6218b529-561a-417d-be63-324a21dec010",
+        "rev": "uY7uo3WRjgPsUg8ywhMSsx"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2023-05-04T06:21:32Z",
+    "_updatedAt": "2025-12-18T13:23:25Z",
     "apiNavn": "avslagKommunenMelderFulltidsplassIBarnehage",
     "bokmaal": [
       {
@@ -3386,15 +3546,19 @@
             "_key": "922c7f244b11",
             "_type": "span",
             "marks": [],
-            "text": " er tildelt fulltidsplass i barnehage fra "
+            "text": " er tildelt fulltidsplass i barnehage "
           },
           {
-            "_key": "a82c92607c77",
-            "_type": "flettefelt",
-            "flettefelt": "maanedOgAarBegrunnelsenGjelderFor"
+            "_key": "0f82da0c35a0",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "06fffef6-ae9a-47e4-8399-b034d86d0c0d",
+              "_type": "reference"
+            }
           },
           {
-            "_key": "31b9c1759102",
+            "_key": "c159d64d00b6",
             "_type": "span",
             "marks": [],
             "text": ". Når barnet er tildelt barnehageplass med 33 timer eller mer i uka, regnes dette som fulltidsplass."
@@ -3430,18 +3594,22 @@
             "_key": "0a2306d4802a",
             "_type": "span",
             "marks": [],
-            "text": " er tildelt fulltidsplass i barnehage frå "
+            "text": " er tildelt fulltidsplass i barnehage "
           },
           {
-            "_key": "d06b06fb2780",
-            "_type": "flettefelt",
-            "flettefelt": "maanedOgAarBegrunnelsenGjelderFor"
+            "_key": "ae312d13627b",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "06fffef6-ae9a-47e4-8399-b034d86d0c0d",
+              "_type": "reference"
+            }
           },
           {
-            "_key": "7bd3980434ff",
+            "_key": "6a0040e9d0f4",
             "_type": "span",
             "marks": [],
-            "text": ". Når barnet er tildelt barnehageplass med 33 timar eller meir i veka, er dette rekna som fulltidsplass."
+            "text": ". Når barnet er tildelt barnehageplass med 33 timar eller meir i veka, er dette rekna som fulltidsplass."
           }
         ],
         "markDefs": [],
@@ -3945,6 +4113,103 @@
     "visningsnavn": "39. Ikke oppholdsrett EØS-borger"
   },
   {
+    "_createdAt": "2026-09-28T12:33:37Z",
+    "_id": "ksBegrunnelse-e278f1a2-a807-4398-aebf-348ae3c78059",
+    "_rev": "Cc31nkYzpyqeZtAYJx5ylC",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-e278f1a2-a807-4398-aebf-348ae3c78059",
+        "rev": "sSGLDhGor2TqLAAtm3MSu1"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-10-01T10:49:46Z",
+    "apiNavn": "avslagSekundarlandIngenAvForeldreneJobber",
+    "bokmaal": [
+      {
+        "_key": "a196cf3d2b22",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "ac8be5f4854a",
+            "_type": "span",
+            "marks": [],
+            "text": "Du og den andre forelderen jobber ikke og får ikke pensjon. Dere bor i hvert deres EØS-land og "
+          },
+          {
+            "_key": "c52080ba9aa3",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "75e341c39e10",
+            "_type": "span",
+            "marks": [],
+            "text": " bor ikke i Norge. Etter EØS-reglene er det landet som barnet bor i som har hovedansvar for å utbetale kontantstøtten. Norge utbetaler ikke kontantstøtte i slike tilfeller."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "eosVilkaar": [
+      "BOSATT_I_RIKET"
+    ],
+    "hjemler": [
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "navnISystem": "Sekundærland: Ingen av foreldrene jobber",
+    "nynorsk": [
+      {
+        "_key": "4a0573e877c0",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "594fb1a68ba3",
+            "_type": "span",
+            "marks": [],
+            "text": "Du og den andre forelderen jobbar ikkje og får ikkje pensjon. De bur i kvart dykkar EØS-land og "
+          },
+          {
+            "_key": "358d10e46b41",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "79e2173ffc69",
+            "_type": "span",
+            "marks": [],
+            "text": " bur ikkje i Noreg. Etter EØS-reglane er det landet som barnet bur i som har hovudansvar for å utbetale kontantstøtta. Noreg utbetalar ikkje kontantstøtte i slike tilfeller."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "AVSLAG",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "VILKÅRSVURDERING"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "22. Sekundærland: Ingen av foreldrene jobber"
+  },
+  {
     "_createdAt": "2024-01-09T16:56:46Z",
     "_id": "ksBegrunnelse-cce67da3-31ea-4ae9-ad51-1a7e6ec67a07",
     "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
@@ -4089,9 +4354,15 @@
   {
     "_createdAt": "2024-01-09T17:03:51Z",
     "_id": "ksBegrunnelse-55d02c3c-8e39-4fd0-bd1a-aee04b8c9488",
-    "_rev": "prTyRcozQrrTfNiwLYWZ2I",
+    "_rev": "glEZ3Tl77ZDURfdZmcRacR",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-55d02c3c-8e39-4fd0-bd1a-aee04b8c9488",
+        "rev": "prTyRcozQrrTfNiwLYWZ2I"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-07-22T10:29:57Z",
+    "_updatedAt": "2026-07-12T15:13:01Z",
     "apiNavn": "avslagSelvstendigRettForeldreneBorSammen",
     "bokmaal": [
       {
@@ -4561,6 +4832,111 @@
     "tema": "NASJONAL",
     "type": "TILLEGGSTEKST",
     "visningsnavn": "avslagTillegsTekstEksempel"
+  },
+  {
+    "_createdAt": "2026-02-16T14:04:50Z",
+    "_id": "ksBegrunnelse-6a312c30-b1d3-4c1e-bd4a-40679e017646",
+    "_rev": "B9kRQgcKxpBP87saUGzhWx",
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-02-16T14:24:08Z",
+    "apiNavn": "avslagUnder12ManederOgFullBarnehageplass",
+    "bokmaal": [
+      {
+        "_key": "47a0dd4c78b7",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "25c9c3b31553",
+            "_type": "span",
+            "marks": [],
+            "text": "Barn født "
+          },
+          {
+            "_key": "8eb000a6e205",
+            "_type": "flettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "b9ec9d2b4ac9",
+            "_type": "span",
+            "marks": [],
+            "text": " er tildelt full barnehageplass fra barnet var under 12 måneder,  "
+          },
+          {
+            "_key": "b975f784a299",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "06fffef6-ae9a-47e4-8399-b034d86d0c0d",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "9205411cb4f1",
+            "_type": "span",
+            "marks": [],
+            "text": " . Du kan tidligst få kontantstøtte fra måneden etter at barnet ditt er 12 måneder, hvis barnet ikke har fulltidsplass i barnehage. Når barnet er tildelt barnehageplass med 33 timer eller mer i uka, regnes dette som fulltidsplass."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "7",
+      "8"
+    ],
+    "navnISystem": "Under 12 måneder og full barnehageplass",
+    "nynorsk": [
+      {
+        "_key": "47a0dd4c78b7",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "25c9c3b31553",
+            "_type": "span",
+            "marks": [],
+            "text": "Barn fødd "
+          },
+          {
+            "_key": "8eb000a6e205",
+            "_type": "flettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "b9ec9d2b4ac9",
+            "_type": "span",
+            "marks": [],
+            "text": " er tildelt full barnehageplass frå barnet var under 12 månader, "
+          },
+          {
+            "_key": "b975f784a299",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "06fffef6-ae9a-47e4-8399-b034d86d0c0d",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "78ad902e4009",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du kan tidlegast få kontantstøtte frå månaden etter at barnet ditt er 12 månader, dersom barnet ikkje har fulltidsplass i barnehage. Når barnet er tildelt barnehageplass med 33 timar eller meir i veka, er dette rekna som fulltidsplass."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "AVSLAG",
+    "tema": "NASJONAL",
+    "type": "STANDARD",
+    "vilkaar": [
+      "BARNEHAGEPLASS"
+    ],
+    "visningsnavn": "47. Under 12 måneder og full barnehageplass"
   },
   {
     "_createdAt": "2022-11-17T13:10:47Z",
@@ -9758,9 +10134,15 @@
   {
     "_createdAt": "2024-03-15T12:25:50Z",
     "_id": "ksBegrunnelse-0d38c043-5546-4223-a6a5-3210f9fc86c0",
-    "_rev": "cQ31NmjbTNjUaGKuTzbWRx",
+    "_rev": "glEZ3Tl77ZDURfdZmcTvxj",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-0d38c043-5546-4223-a6a5-3210f9fc86c0",
+        "rev": "cQ31NmjbTNjUaGKuTzbWRx"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-07-22T10:29:57Z",
+    "_updatedAt": "2026-07-12T15:20:49Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -13216,9 +13598,9 @@
   {
     "_createdAt": "2024-03-15T12:54:08Z",
     "_id": "ksBegrunnelse-d4f4bfb7-c931-4796-9dba-353349c60129",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDJN",
+    "_rev": "S9fBEIMaK7WltAECUGqhTf",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-03-15T12:54:08Z",
+    "_updatedAt": "2025-12-08T22:33:27Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -13259,7 +13641,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst full utbetaling",
     "nynorsk": [
@@ -13300,9 +13683,9 @@
   {
     "_createdAt": "2024-03-15T12:51:28Z",
     "_id": "ksBegrunnelse-7587fce7-d55f-4d99-b233-385bee72ddbb",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "h3c25rXrzs7hqATV36Oa4O",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-03-15T12:51:28Z",
+    "_updatedAt": "2025-12-08T22:33:17Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -13343,7 +13726,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst nullutbetaling",
     "nynorsk": [
@@ -13384,9 +13768,9 @@
   {
     "_createdAt": "2024-03-15T14:35:55Z",
     "_id": "ksBegrunnelse-8322ecc4-dbfe-4923-8f75-49b2eb892e87",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "LdgtvZpX3BxCIBxBqHmjjv",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-03-15T14:35:55Z",
+    "_updatedAt": "2025-12-08T22:33:19Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -13462,7 +13846,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær ikke fått svar på SED",
     "nynorsk": [
@@ -13525,9 +13910,9 @@
   {
     "_createdAt": "2024-03-15T14:31:07Z",
     "_id": "ksBegrunnelse-62943960-aaac-4c27-b6b8-ef2f3495b2f0",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "bQ7VJbxBXwjPPxNvrUDiWN",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-04-08T11:15:40Z",
+    "_updatedAt": "2025-12-08T22:33:16Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -13587,7 +13972,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær ikke rett full utbetaling",
     "nynorsk": [
@@ -13628,9 +14014,9 @@
   {
     "_createdAt": "2024-03-15T14:12:47Z",
     "_id": "ksBegrunnelse-a28e35a2-d346-4dcb-8899-7373c3f655b3",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "LdgtvZpX3BxCIBxBqHmjwJ",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-03-15T14:12:47Z",
+    "_updatedAt": "2025-12-08T22:33:22Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_PENSJON"
@@ -13656,7 +14042,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst to arbeidsland full utbetaling ",
     "nynorsk": [
@@ -15586,9 +15973,15 @@
   {
     "_createdAt": "2022-12-08T11:24:59Z",
     "_id": "ksBegrunnelse-51705c19-961a-4c42-b5f2-aa4ce0d157d6",
-    "_rev": "0wHhFxcM1ho7vP5lGcREKD",
+    "_rev": "C6rajL5smjkyg2t8gKAgzr",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-51705c19-961a-4c42-b5f2-aa4ce0d157d6",
+        "rev": "0wHhFxcM1ho7vP5lGcREKD"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2023-01-10T07:57:23Z",
+    "_updatedAt": "2026-07-12T15:16:48Z",
     "apiNavn": "innvilgetErklaringOmMotregning",
     "bokmaal": [
       {
@@ -15616,7 +16009,7 @@
             "_key": "e43efa457ae20",
             "_type": "span",
             "marks": [],
-            "text": "Du har tidligare fått utbetalt for mykje kontantstøtte. Du har no rett til etterbetaling av kontantstøtte. Vi kjem til å redusere etterbetalinga med det du har fått for mykje."
+            "text": "Du har tidligare fått utbetalt for mykje kontantstøtte. Du har no rett til etterbetaling av barnetrygd. Vi kjem til å redusere etterbetalinga med det du har fått for mykje."
           }
         ],
         "markDefs": [],
@@ -17625,6 +18018,1892 @@
       "MEDLEMSKAP_ANNEN_FORELDER"
     ],
     "visningsnavn": "8. Medlemskap  folketrygden"
+  },
+  {
+    "_createdAt": "2026-02-18T14:19:34Z",
+    "_id": "ksBegrunnelse-78289df9-9815-401b-a3c0-38cd4d655f9c",
+    "_rev": "xanuAPzY2tDeM9UOtmhtkM",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-78289df9-9815-401b-a3c0-38cd4d655f9c",
+        "rev": "Ls2b9zrnkmFQ1OegrwwvBk"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-02-23T09:08:23Z",
+    "annenForeldersAktivitet": [
+      "IKKE_AKTUELT"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarAleneansvarFaarPengerSomErstatterLonn",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "167a1bd739f5",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "e93360152ddc",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får penger som erstatter lønn i "
+          },
+          {
+            "_key": "a18a8e537dd8",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "e9d7e216c392",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "186a6b3d27b6",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "08b31c0d5688",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge, og du har ansvar for barnet alene. "
+          },
+          {
+            "_key": "07a89bac771b",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "685606ea5bd8",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler derfor forskjellen mellom kontantstøtten i "
+          },
+          {
+            "_key": "d3470127b5d0",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "658acbece8f0",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett – sekundær - aleneansvar - får penger som erstatter lønn fra annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "78d1dd067d7a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "4fbb9f429b88",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pengar som erstattar lønn i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "54fd541149b4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bbef668cecc2",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg, og du har ansvar for barnet åleine. "
+          },
+          {
+            "_key": "d0a2fabf1b16",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "42ebe7757a04",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetaler derfor skilnaden mellom kontantstøtta i "
+          },
+          {
+            "_key": "9763db1a7bbd",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cc408f1c59fd",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "85. Nasjonal rett – sekundær - aleneansvar - får penger som erstatter lønn fra annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2026-02-18T14:37:12Z",
+    "_id": "ksBegrunnelse-14184140-76f3-4f55-a13f-e80c2ad241c7",
+    "_rev": "xanuAPzY2tDeM9UOtmhsGE",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-14184140-76f3-4f55-a13f-e80c2ad241c7",
+        "rev": "Ls2b9zrnkmFQ1Oegrwx1rr"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-02-23T09:08:17Z",
+    "annenForeldersAktivitet": [
+      "IKKE_AKTUELT"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarAleneansvarFaarPensjonFraAnnetLand",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "167a1bd739f5",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "e93360152ddc",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pensjon i "
+          },
+          {
+            "_key": "a18a8e537dd8",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "e9d7e216c392",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "186a6b3d27b6",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "08b31c0d5688",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge, og du har ansvar for barnet alene. "
+          },
+          {
+            "_key": "07a89bac771b",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "685606ea5bd8",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler derfor forskjellen mellom kontantstøtten i "
+          },
+          {
+            "_key": "d3470127b5d0",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "658acbece8f0",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": " Nasjonal rett – sekundær - aleneansvar - får pensjon fra annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "78d1dd067d7a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "4fbb9f429b88",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pensjon i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "54fd541149b4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bbef668cecc2",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg, og du har ansvar for barnet åleine. "
+          },
+          {
+            "_key": "d0a2fabf1b16",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "42ebe7757a04",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetaler derfor skilnaden mellom kontantstøtta i "
+          },
+          {
+            "_key": "9763db1a7bbd",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cc408f1c59fd",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "86. Nasjonal rett – sekundær - aleneansvar - får pensjon fra annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2026-01-20T09:46:02Z",
+    "_id": "ksBegrunnelse-ac838fa7-421c-4331-8eaf-12ec5d385ce7",
+    "_rev": "FS2z9CVXh5PVJmv412Xizv",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-ac838fa7-421c-4331-8eaf-12ec5d385ce7",
+        "rev": "hu2ZRh00t0moAlc6LdVkYY"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-07-12T15:21:42Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarSokerFarPengerSomErstatterLonn",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "5e7bb6b4bad6",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "7ed8640ff111",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "58c3dcb06943",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får penger som erstatter lønn i "
+          },
+          {
+            "_key": "cca72e340796",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "f48a0e8f9bea",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "d5191a5cd7e4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bdd69c591d02",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge. Den andre forelderen "
+          },
+          {
+            "_key": "af230eaa5638",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "44a17a41-a760-44f7-8d7d-a3cf1676b85a",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "753c5fdc5a0d",
+            "_type": "span",
+            "marks": [],
+            "text": " i "
+          },
+          {
+            "_key": "10b438f5411b",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "fd41357f1b15",
+            "_type": "span",
+            "marks": [],
+            "text": ". "
+          },
+          {
+            "_key": "e522d5bfef58",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cbcbfbcd97fd",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler derfor forskjellen mellom kontantstøtten i "
+          },
+          {
+            "_key": "12204e43297f",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "8a95a640c699",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett – sekundær søker får penger som erstatter lønn fra annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "78d1dd067d7a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "4fbb9f429b88",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pengar som erstattar lønn i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "54fd541149b4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bbef668cecc2",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg. Den andre forelderen "
+          },
+          {
+            "_key": "97d714b753d2",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "44a17a41-a760-44f7-8d7d-a3cf1676b85a",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "077b9d258f42",
+            "_type": "span",
+            "marks": [],
+            "text": "  i "
+          },
+          {
+            "_key": "d6a7c4f4888c",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "3d8fb231b874",
+            "_type": "span",
+            "marks": [],
+            "text": ". "
+          },
+          {
+            "_key": "d0a2fabf1b16",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "42ebe7757a04",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetaler derfor skilnaden mellom kontantstøtta i "
+          },
+          {
+            "_key": "9763db1a7bbd",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cc408f1c59fd",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "80. Nasjonal rett – sekundær søker får penger som erstatter lønn fra annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2026-01-20T10:35:03Z",
+    "_id": "ksBegrunnelse-6cd6b73e-ac0d-4f0e-bf5e-66de35cc942c",
+    "_rev": "ynjhDpifB7UIQJsaCYNiHd",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-6cd6b73e-ac0d-4f0e-bf5e-66de35cc942c",
+        "rev": "ynjhDpifB7UIQJsaCYMvpR"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-01-26T07:54:30Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarSokerFarPensjonFraAnnetLand",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "167a1bd739f5",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "e93360152ddc",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pensjon i "
+          },
+          {
+            "_key": "a18a8e537dd8",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "e9d7e216c392",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "186a6b3d27b6",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "08b31c0d5688",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge. Den andre forelderen "
+          },
+          {
+            "_key": "e910a7f1b268",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "44a17a41-a760-44f7-8d7d-a3cf1676b85a",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "5f58258cb48a",
+            "_type": "span",
+            "marks": [],
+            "text": "  i "
+          },
+          {
+            "_key": "bdd97f264824",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "a29cdf16fbb5",
+            "_type": "span",
+            "marks": [],
+            "text": ". "
+          },
+          {
+            "_key": "07a89bac771b",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "685606ea5bd8",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler derfor forskjellen mellom kontantstøtten i "
+          },
+          {
+            "_key": "d3470127b5d0",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "658acbece8f0",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett – sekundær søker får pensjon fra annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "78d1dd067d7a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "4fbb9f429b88",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pensjon i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "54fd541149b4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bbef668cecc2",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg. Den andre forelderen "
+          },
+          {
+            "_key": "01583331e57c",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "44a17a41-a760-44f7-8d7d-a3cf1676b85a",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "f1e6d09d17e2",
+            "_type": "span",
+            "marks": [],
+            "text": "  i "
+          },
+          {
+            "_key": "d6a7c4f4888c",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "3d8fb231b874",
+            "_type": "span",
+            "marks": [],
+            "text": ". "
+          },
+          {
+            "_key": "d0a2fabf1b16",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "42ebe7757a04",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetaler derfor skilnaden mellom kontantstøtta i "
+          },
+          {
+            "_key": "9763db1a7bbd",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cc408f1c59fd",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "81. Nasjonal rett – sekundær søker får pensjon fra annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2026-02-12T14:45:28Z",
+    "_id": "ksBegrunnelse-a89b5823-957a-4712-9d43-23e14843d553",
+    "_rev": "tRN9uvvHc1yiIeTwOH9Nus",
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-02-12T14:48:03Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarToArbeidslandSokerFarPensjonFraAnnetLand",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "08ca011c4ef8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e9f00da3946f",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "084d2cf62289",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "fbd8a872b1bd",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pensjon i "
+          },
+          {
+            "_key": "cca72e340796",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "f48a0e8f9bea",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "d7aeee219cea",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "c7da41456f26",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge. Den andre forelderen jobber i "
+          },
+          {
+            "_key": "32afef570d27",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "239c15c03171",
+            "_type": "span",
+            "marks": [],
+            "text": ". De to andre EØS-landene har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler forskjellen mellom norsk kontantstøtte og kontantstøtten i de to andre EØS landene."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett- sekundær to arbeidsland - søker får pensjon fra annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "08ca011c4ef8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e9f00da3946f",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "dd3def01548a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "f3aca34e7889",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pensjon i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "dd7c3efea4bd",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "2886a1bab655",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg. Den andre forelderen jobbar i "
+          },
+          {
+            "_key": "923c9bd7623d",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "45c92bb90252",
+            "_type": "span",
+            "marks": [],
+            "text": ". Dei to andre EØS-landa har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetalar skilnaden mellom norsk kontantstøtte og kontantstøtta i dei to andre EØS landa."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "83. Nasjonal rett- sekundær to arbeidsland - søker får pensjon fra annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2026-02-12T14:26:55Z",
+    "_id": "ksBegrunnelse-24849bdb-dda4-44f3-afdb-30d0e3c233e9",
+    "_rev": "2L2KRq9jpMRh27EV2q7fpu",
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-02-12T14:32:42Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarToArbeidslandSokerPengerSomErstatterLonn",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "08ca011c4ef8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e9f00da3946f",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "084d2cf62289",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "fbd8a872b1bd",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får penger som erstatter lønn i "
+          },
+          {
+            "_key": "cca72e340796",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "f48a0e8f9bea",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "d7aeee219cea",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "c7da41456f26",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge. Den andre forelderen jobber i "
+          },
+          {
+            "_key": "32afef570d27",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "239c15c03171",
+            "_type": "span",
+            "marks": [],
+            "text": ". De to andre EØS-landene har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler forskjellen mellom norsk kontantstøtte og kontantstøtten i de to andre EØS landene."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett- sekundær to arbeidsland - søker får penger som erstatter lønn fra annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "08ca011c4ef8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e9f00da3946f",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "dd3def01548a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "f3aca34e7889",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du får pengar som erstattar lønn i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "dd7c3efea4bd",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "2886a1bab655",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg. Den andre forelderen jobbar i "
+          },
+          {
+            "_key": "923c9bd7623d",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "45c92bb90252",
+            "_type": "span",
+            "marks": [],
+            "text": ". Dei to andre EØS-landa har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetalar skilnaden mellom norsk kontantstøtte og kontantstøtta i dei to andre EØS landa."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "82. Nasjonal rett- sekundær to arbeidsland - søker får penger som erstatter lønn fra annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2026-02-18T14:13:19Z",
+    "_id": "ksBegrunnelse-9fb079f6-f939-4139-b5c7-9e8358681f51",
+    "_rev": "ztsa9QQ5fSUX4G3suUPbQK",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-9fb079f6-f939-4139-b5c7-9e8358681f51",
+        "rev": "jQ7yL0TvBVIh0lR7v7rcGZ"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-02-23T09:36:58Z",
+    "annenForeldersAktivitet": [
+      "IKKE_AKTUELT"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarlandAleneansvarArbeidAnnetLand",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "167a1bd739f5",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "e93360152ddc",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du "
+          },
+          {
+            "_key": "d4c7cb97c882",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "c76d7bb2-2871-492f-8c13-95c31d2dd0cb",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "1af0102d69cc",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "186a6b3d27b6",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "08b31c0d5688",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge, og du har ansvar for barnet alene. "
+          },
+          {
+            "_key": "07a89bac771b",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "685606ea5bd8",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler derfor forskjellen mellom kontantstøtten i "
+          },
+          {
+            "_key": "d3470127b5d0",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "658acbece8f0",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett – sekundær - aleneansvar - arbeider i annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "78d1dd067d7a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "4fbb9f429b88",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du "
+          },
+          {
+            "_key": "d38f59fc2964",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "c76d7bb2-2871-492f-8c13-95c31d2dd0cb",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "827e02687d84",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "54fd541149b4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bbef668cecc2",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg, og du har ansvar for barnet åleine. "
+          },
+          {
+            "_key": "d0a2fabf1b16",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "42ebe7757a04",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetaler derfor skilnaden mellom kontantstøtta i "
+          },
+          {
+            "_key": "9763db1a7bbd",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cc408f1c59fd",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "84. Nasjonal rett – sekundær - aleneansvar - arbeider i annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2025-12-10T07:38:49Z",
+    "_id": "ksBegrunnelse-444d630d-142c-4b5b-8577-5e8baa4fc7cb",
+    "_rev": "QyYQe0kjZCVFDGhLeQoGWt",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-444d630d-142c-4b5b-8577-5e8baa4fc7cb",
+        "rev": "MAlH2kUtuUjvZt28P5oUgG"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-01-27T10:08:33Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetNasjonalRettSekundarlandToArbeidsland",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "08ca011c4ef8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e9f00da3946f",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "084d2cf62289",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "fbd8a872b1bd",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du jobber i "
+          },
+          {
+            "_key": "043c5c0b1d86",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "b986def6b6a2",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "d7aeee219cea",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "c7da41456f26",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge. Den andre forelderen jobber i "
+          },
+          {
+            "_key": "32afef570d27",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "239c15c03171",
+            "_type": "span",
+            "marks": [],
+            "text": ". De to andre EØS-landene har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler forskjellen mellom norsk kontantstøtte og kontantstøtten i de to andre EØS landene."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett- sekundær to arbeidsland - søker arbeider i annet land (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "08ca011c4ef8",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e9f00da3946f",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "dd3def01548a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "f3aca34e7889",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du jobbar i "
+          },
+          {
+            "_key": "6f5f7289d072",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cf9976941609",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "dd7c3efea4bd",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "2886a1bab655",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg. Den andre forelderen jobbar i "
+          },
+          {
+            "_key": "923c9bd7623d",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "45c92bb90252",
+            "_type": "span",
+            "marks": [],
+            "text": ". Dei to andre EØS-landa har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetalar skilnaden mellom norsk kontantstøtte og kontantstøtta i dei to andre EØS landa."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "76. Nasjonal rett- sekundær to arbeidsland - søker arbeider i annet land (Bosmann)"
+  },
+  {
+    "_createdAt": "2025-11-21T14:02:00Z",
+    "_id": "ksBegrunnelse-755e9e72-dca9-4d3e-8613-d489e8dbcde9",
+    "_rev": "Doyf3a8OIqPpax8M4I8h3E",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-755e9e72-dca9-4d3e-8613-d489e8dbcde9",
+        "rev": "MAlH2kUtuUjvZt28P5oGmy"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-01-27T10:08:05Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetNasjonalRettsekundarlandStandardBosmann",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske regler for barn født "
+          },
+          {
+            "_key": "167a1bd739f5",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "e93360152ddc",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du jobber i "
+          },
+          {
+            "_key": "a18a8e537dd8",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "e9d7e216c392",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "186a6b3d27b6",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "08b31c0d5688",
+            "_type": "span",
+            "marks": [],
+            "text": " bor i Norge. Den andre forelderen jobber i "
+          },
+          {
+            "_key": "bdd97f264824",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "a29cdf16fbb5",
+            "_type": "span",
+            "marks": [],
+            "text": ". "
+          },
+          {
+            "_key": "07a89bac771b",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "685606ea5bd8",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Norge utbetaler derfor forskjellen mellom kontantstøtten i "
+          },
+          {
+            "_key": "d3470127b5d0",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "658acbece8f0",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "2",
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Nasjonal rett- sekundær - søker arbeider i annet land standard (Bosmann)",
+    "nynorsk": [
+      {
+        "_key": "19fe6aa3e92c",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "169eb28442a1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får kontantstøtte etter norske reglar for barn fødd "
+          },
+          {
+            "_key": "78d1dd067d7a",
+            "_type": "eosFlettefelt",
+            "flettefelt": "barnasFodselsdatoer"
+          },
+          {
+            "_key": "4fbb9f429b88",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du jobbar i "
+          },
+          {
+            "_key": "3f9647345575",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "67af238a1bc8",
+            "_type": "span",
+            "marks": [],
+            "text": ". Du og "
+          },
+          {
+            "_key": "54fd541149b4",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "bbef668cecc2",
+            "_type": "span",
+            "marks": [],
+            "text": " bur i Noreg. Den andre forelderen jobbar i "
+          },
+          {
+            "_key": "d6a7c4f4888c",
+            "_type": "eosFlettefelt",
+            "flettefelt": "annenForeldersAktivitetsland"
+          },
+          {
+            "_key": "3d8fb231b874",
+            "_type": "span",
+            "marks": [],
+            "text": ". "
+          },
+          {
+            "_key": "d0a2fabf1b16",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "42ebe7757a04",
+            "_type": "span",
+            "marks": [],
+            "text": " har hovedansvaret for utbetaling av kontantstøtte. Noreg utbetaler derfor skilnaden mellom kontantstøtta i "
+          },
+          {
+            "_key": "9763db1a7bbd",
+            "_type": "eosFlettefelt",
+            "flettefelt": "sokersAktivitetsland"
+          },
+          {
+            "_key": "cc408f1c59fd",
+            "_type": "span",
+            "marks": [],
+            "text": " og norsk kontantstøtte. "
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "75. Nasjonal rett- sekundær - søker arbeider i annet land (Bosmann) "
   },
   {
     "_createdAt": "2022-12-07T17:53:48Z",
@@ -27155,13 +29434,14 @@
   {
     "_createdAt": "2024-01-08T22:23:50Z",
     "_id": "ksBegrunnelse-869b5525-4e5c-484d-8174-5ff61a3902aa",
-    "_rev": "prTyRcozQrrTfNiwLYWZ2I",
+    "_rev": "qypddNyszy7Ai3MDWWV85D",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-07-22T10:29:57Z",
+    "_updatedAt": "2025-11-26T10:52:25Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
       "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
       "INAKTIV",
       "IKKE_AKTUELT",
       "UTSENDT_ARBEIDSTAKER",
@@ -27303,8 +29583,7 @@
     ],
     "hjemler": [
       "2",
-      "3",
-      "8"
+      "3"
     ],
     "hjemlerEOSForordningen883": [
       "2",
@@ -30053,9 +32332,9 @@
   {
     "_createdAt": "2024-01-08T23:38:27Z",
     "_id": "ksBegrunnelse-f664f7ba-846c-4bab-b4e9-83de00930921",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDJN",
+    "_rev": "S9fBEIMaK7WltAECUGqi5t",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-02-12T17:21:57Z",
+    "_updatedAt": "2025-12-08T22:33:32Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30115,7 +32394,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst ikke kontantstøtte i annet land",
     "nynorsk": [
@@ -30156,9 +32436,9 @@
   {
     "_createdAt": "2024-01-08T23:28:28Z",
     "_id": "ksBegrunnelse-e952bb00-5fa6-49f2-841b-fad15214bb07",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDJN",
+    "_rev": "vZOYCzVVZ5HSrgun6XBIeb",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-02-12T17:17:53Z",
+    "_updatedAt": "2025-12-08T22:33:30Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30217,7 +32497,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst nullutbetaling",
     "nynorsk": [
@@ -30258,9 +32539,9 @@
   {
     "_createdAt": "2025-06-02T12:33:41Z",
     "_id": "ksBegrunnelse-34b3836a-6e95-47ad-9750-5bc3af81d631",
-    "_rev": "X62tb0uIYIIxMt3nlmMba1",
+    "_rev": "LdgtvZpX3BxCIBxBqHmj8l",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-06-02T12:37:00Z",
+    "_updatedAt": "2025-12-08T22:33:11Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30319,7 +32600,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst sekundær får ikke ks i annet land",
     "nynorsk": [
@@ -30360,9 +32642,9 @@
   {
     "_createdAt": "2024-01-08T23:25:14Z",
     "_id": "ksBegrunnelse-fad7019a-5798-4ebb-8a64-2abce9852f73",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDJN",
+    "_rev": "S9fBEIMaK7WltAECUGqiLB",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-02-12T17:20:41Z",
+    "_updatedAt": "2025-12-08T22:33:33Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30422,7 +32704,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst sekundær full utbetaling",
     "nynorsk": [
@@ -30463,9 +32746,9 @@
   {
     "_createdAt": "2025-06-02T12:43:38Z",
     "_id": "ksBegrunnelse-fbeaf434-d6d2-432a-8d38-075a825f1088",
-    "_rev": "U8DAykcBRf6EY9QkjOuVtO",
+    "_rev": "LdgtvZpX3BxCIBxBqHmlmt",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-06-02T12:46:31Z",
+    "_updatedAt": "2025-12-08T22:33:35Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30547,7 +32830,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst sekundær info om mulig refusjon",
     "nynorsk": [
@@ -30610,9 +32894,9 @@
   {
     "_createdAt": "2024-01-08T23:33:06Z",
     "_id": "ksBegrunnelse-c53ebacf-d950-4144-aefb-a13579e87653",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "h3c25rXrzs7hqATV36OatU",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-02-12T17:14:52Z",
+    "_updatedAt": "2025-12-08T22:33:25Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30693,7 +32977,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst sekundær ikke fått svar på SED",
     "nynorsk": [
@@ -30756,9 +33041,9 @@
   {
     "_createdAt": "2025-01-31T12:45:47Z",
     "_id": "ksBegrunnelse-fefdc9e5-959a-4c85-9efc-d17dbfb13ebd",
-    "_rev": "MhpPGiXxzwjagi5Q3ETp3k",
+    "_rev": "bQ7VJbxBXwjPPxNvrUDk91",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-02-02T20:38:22Z",
+    "_updatedAt": "2025-12-08T22:33:36Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -30808,7 +33093,8 @@
     ],
     "kompetanseResultat": [
       "NORGE_ER_PRIMÆRLAND",
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Selvstendig rett tilleggstekst to arbeidsland mer enn 25% i Norge",
     "nynorsk": [
@@ -30838,9 +33124,15 @@
   {
     "_createdAt": "2024-01-05T16:08:55Z",
     "_id": "ksBegrunnelse-cb15b866-4b84-4504-b2c2-64692e7dc955",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "glEZ3Tl77ZDURfdZmcTbYZ",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-cb15b866-4b84-4504-b2c2-64692e7dc955",
+        "rev": "cQ31NmjbTNjUaGKuTzbDNH"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-09T11:50:46Z",
+    "_updatedAt": "2026-07-12T15:17:50Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31238,9 +33530,9 @@
   {
     "_createdAt": "2024-01-08T14:44:55Z",
     "_id": "ksBegrunnelse-d42865ed-a073-457e-bcdf-d0c087dc79da",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "vZOYCzVVZ5HSrgun6XBIM9",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T14:44:55Z",
+    "_updatedAt": "2025-12-08T22:33:26Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31300,7 +33592,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst nullutbetaling",
     "nynorsk": [
@@ -31428,9 +33721,9 @@
   {
     "_createdAt": "2024-01-08T21:14:50Z",
     "_id": "ksBegrunnelse-c4bb3966-9e3d-4b5b-8949-83c5d6797836",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "vZOYCzVVZ5HSrgun6XBIF3",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T21:14:50Z",
+    "_updatedAt": "2025-12-08T22:33:24Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31473,7 +33766,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst satsendring",
     "nynorsk": [
@@ -31503,9 +33797,9 @@
   {
     "_createdAt": "2024-01-08T21:19:34Z",
     "_id": "ksBegrunnelse-4e471f13-5aa7-46f0-9d07-f0db1c334258",
-    "_rev": "0wHhFxcM1ho7vP5lGcREKD",
+    "_rev": "LdgtvZpX3BxCIBxBqHmjL9",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T21:19:34Z",
+    "_updatedAt": "2025-12-08T22:33:13Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31548,7 +33842,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst satsendring og valutajustering",
     "nynorsk": [
@@ -31578,9 +33873,9 @@
   {
     "_createdAt": "2024-01-08T21:53:27Z",
     "_id": "ksBegrunnelse-8064f722-006e-4f9d-a8cf-7c7c05af2197",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "bQ7VJbxBXwjPPxNvrUDj5b",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T21:53:27Z",
+    "_updatedAt": "2025-12-08T22:33:18Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31635,7 +33930,8 @@
       "9"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær avtale delt bosted",
     "nynorsk": [
@@ -31687,9 +33983,9 @@
   {
     "_createdAt": "2024-01-08T21:53:54Z",
     "_id": "ksBegrunnelse-fbce7060-fb5b-4693-998c-ee2f1c47220a",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDJN",
+    "_rev": "bQ7VJbxBXwjPPxNvrUDjot",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-26T09:43:07Z",
+    "_updatedAt": "2025-12-08T22:33:34Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31733,7 +34029,8 @@
       "9"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær delt bosted annen forelder ikke rett",
     "nynorsk": [
@@ -31851,9 +34148,9 @@
   {
     "_createdAt": "2025-06-02T12:28:26Z",
     "_id": "ksBegrunnelse-e7ac8d32-343f-4bea-8b5a-6b295feea78a",
-    "_rev": "X62tb0uIYIIxMt3nlmL6Fw",
+    "_rev": "h3c25rXrzs7hqATV36ObRY",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-06-02T12:31:37Z",
+    "_updatedAt": "2025-12-08T22:33:29Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -31913,7 +34210,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær får ikke ks i annet land",
     "nynorsk": [
@@ -31954,9 +34252,9 @@
   {
     "_createdAt": "2024-01-08T21:36:00Z",
     "_id": "ksBegrunnelse-e138b332-8c73-452c-8470-16cd4849d671",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDJN",
+    "_rev": "LdgtvZpX3BxCIBxBqHmkzL",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T21:36:00Z",
+    "_updatedAt": "2025-12-08T22:33:28Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -32016,7 +34314,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær full utbetaling",
     "nynorsk": [
@@ -32057,9 +34356,9 @@
   {
     "_createdAt": "2024-01-08T14:06:36Z",
     "_id": "ksBegrunnelse-8f6da75b-5b1f-4544-85cf-2ca3d8162151",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "S9fBEIMaK7WltAECUGqgQg",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T22:04:47Z",
+    "_updatedAt": "2025-12-08T22:33:20Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -32146,7 +34445,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær ikke fått svar på SED",
     "nynorsk": [
@@ -32209,9 +34509,9 @@
   {
     "_createdAt": "2024-01-08T21:47:48Z",
     "_id": "ksBegrunnelse-39799142-e932-41ee-b30c-a11cc20d78a7",
-    "_rev": "0wHhFxcM1ho7vP5lGcREKD",
+    "_rev": "S9fBEIMaK7WltAECUGqg3k",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T21:47:48Z",
+    "_updatedAt": "2025-12-08T22:33:12Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -32271,7 +34571,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær ikke kontantstøtte i annet land ",
     "nynorsk": [
@@ -32312,9 +34613,9 @@
   {
     "_createdAt": "2025-06-02T12:38:14Z",
     "_id": "ksBegrunnelse-02aba48e-6f84-4dca-b590-6fa7cbefc901",
-    "_rev": "IqeyIZFstYJUXIlCpXLM3J",
+    "_rev": "vZOYCzVVZ5HSrgun6XBHsL",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-06-02T12:41:46Z",
+    "_updatedAt": "2025-12-08T22:33:10Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -32396,7 +34697,8 @@
       "68"
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst sekundær info om mulig refusjon",
     "nynorsk": [
@@ -32459,9 +34761,9 @@
   {
     "_createdAt": "2025-01-31T12:40:42Z",
     "_id": "ksBegrunnelse-5d82ad93-a765-49ba-9ba7-66e1fc413ec1",
-    "_rev": "1xKkJ1kKUjDFNHpoSF25Pd",
+    "_rev": "bQ7VJbxBXwjPPxNvrUDi7D",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2025-02-02T20:38:04Z",
+    "_updatedAt": "2025-12-08T22:33:15Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -32511,7 +34813,8 @@
     ],
     "kompetanseResultat": [
       "NORGE_ER_PRIMÆRLAND",
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst to arbeidsland mer enn 25% arbeid i Norge",
     "nynorsk": [
@@ -32539,11 +34842,278 @@
     "visningsnavn": "59. Tilleggstekst to arbeidsland mer enn 25% arbeid i Norge"
   },
   {
+    "_createdAt": "2025-12-15T15:08:34Z",
+    "_id": "ksBegrunnelse-4391125a-e83e-485c-a8c6-1a17007b0aa4",
+    "_rev": "SX1yCd5WTWRgdKyjlMFPFu",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-4391125a-e83e-485c-a8c6-1a17007b0aa4",
+        "rev": "GN3UztMTKvka3TuUyUsEJP"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-01-02T09:01:54Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetTilleggstekstToArbeidslandSekundarlandFaarIkkeKsIAnnetLand",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "d295fe6bd690",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "17dc980d76c1",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får full kontantstøtte fra Norge fordi det ikke er rett til kontantstøtte fra de to andre EØS-landene."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Tilleggstekst to arbeidsland sekundærland får ikke ba i annet land",
+    "nynorsk": [
+      {
+        "_key": "d0a8a27eaf3f",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "c2927e0fbb7b",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får full kontantstøtte frå Noreg fordi det ikkje er rett til kontantstøtte frå dei to andre EØS-landa."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "78. Tilleggstekst to arbeidsland sekundærland får ikke ks i annet land"
+  },
+  {
+    "_createdAt": "2025-12-15T15:05:19Z",
+    "_id": "ksBegrunnelse-6c7738c9-dc20-43fd-8321-c67718745284",
+    "_rev": "xvOu4D3iPQFMVJqJLeLH6d",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-6c7738c9-dc20-43fd-8321-c67718745284",
+        "rev": "Re57x7XO6mGx813IxC8Okk"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-01-02T09:01:10Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetTilleggstekstToArbeidslandSekundarlandFullUtbetaling",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "882cc1b08795",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "1fae1cd56b30",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får full kontantstøtte fra Norge fordi det ikke utbetales kontantstøtte fra de to andre EØS-landene."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Tilleggstekst to arbeidsland sekundærland full utbetaling",
+    "nynorsk": [
+      {
+        "_key": "882cc1b08795",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "1fae1cd56b30",
+            "_type": "span",
+            "marks": [],
+            "text": "Du får full kontantstøtte frå Noreg fordi det ikkje vert utbetalt kontantstøtte frå dei to andre EØS-landa."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "77. Tilleggstekst to arbeidsland sekundærland full utbetaling"
+  },
+  {
+    "_createdAt": "2025-12-15T15:12:35Z",
+    "_id": "ksBegrunnelse-a57be438-61f6-4819-85e9-72fab0ea30e8",
+    "_rev": "axBy3VO0u7uzLvmlyhST9A",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-a57be438-61f6-4819-85e9-72fab0ea30e8",
+        "rev": "3q6sWSazojLupiKWNfIWQp"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-01-02T09:01:57Z",
+    "annenForeldersAktivitet": [
+      "I_ARBEID",
+      "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
+      "FORSIKRET_I_BOSTEDSLAND",
+      "MOTTAR_PENSJON",
+      "INAKTIV",
+      "IKKE_AKTUELT",
+      "UTSENDT_ARBEIDSTAKER",
+      "ARBEIDER",
+      "SELVSTENDIG_NÆRINGSDRIVENDE",
+      "UTSENDT_ARBEIDSTAKER_FRA_NORGE",
+      "MOTTAR_UFØRETRYGD",
+      "ARBEIDER_PÅ_NORSKREGISTRERT_SKIP",
+      "ARBEIDER_PÅ_NORSK_SOKKEL",
+      "ARBEIDER_FOR_ET_NORSK_FLYSELSKAP",
+      "ARBEIDER_VED_UTENLANDSK_UTENRIKSSTASJON",
+      "MOTTAR_UTBETALING_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_UFØRETRYGD_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET",
+      "MOTTAR_PENSJON_FRA_NAV_UNDER_OPPHOLD_I_UTLANDET"
+    ],
+    "apiNavn": "innvilgetTilleggstekstToArbeidslandSekundarlandNullUtbetaling",
+    "barnetsBostedsland": [
+      "NORGE"
+    ],
+    "bokmaal": [
+      {
+        "_key": "76eee665361d",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "724a49de59dc",
+            "_type": "span",
+            "marks": [],
+            "text": "Kontantstøtten i EØS-landet som har høyest utbetaling er høyere enn norsk kontantstøtte. Derfor får du ikke utbetalt kontantstøtte fra Norge."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "hjemler": [
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "kompetanseResultat": [
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
+    ],
+    "navnISystem": "Tilleggstekst to arbeidsland sekundær nullutbetaling",
+    "nynorsk": [
+      {
+        "_key": "861920a3180f",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "f1695c2c5b03",
+            "_type": "span",
+            "marks": [],
+            "text": "Kontantstøtta i EØS-landet som har høgast utbetaling er høgare enn norsk kontantstøtte. Derfor får du ikkje utbetalt kontantstøtte frå Noreg."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "INNVILGET",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "KOMPETANSE"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "79. Tilleggstekst to arbeidsland sekundær nullutbetaling"
+  },
+  {
     "_createdAt": "2024-01-08T21:17:23Z",
     "_id": "ksBegrunnelse-554708b5-57ae-41dc-943a-00bc5a31d455",
-    "_rev": "0wHhFxcM1ho7vP5lGcREKD",
+    "_rev": "LdgtvZpX3BxCIBxBqHmjRL",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2024-01-08T21:17:23Z",
+    "_updatedAt": "2025-12-08T22:33:14Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -32586,7 +35156,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst valutajustering",
     "nynorsk": [
@@ -36119,9 +38690,15 @@
   {
     "_createdAt": "2023-03-22T18:57:04Z",
     "_id": "ksBegrunnelse-9ab6e557-650d-47fe-be65-e94041d1c90e",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "xdx1BYhjWLERF2LrYHYSot",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-9ab6e557-650d-47fe-be65-e94041d1c90e",
+        "rev": "xdx1BYhjWLERF2LrYHTCb5"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2023-03-30T13:42:59Z",
+    "_updatedAt": "2026-05-28T10:31:09Z",
     "apiNavn": "opphorFulltidsplassIBarnehagenForstePeriode",
     "bokmaal": [
       {
@@ -36166,7 +38743,7 @@
       "7",
       "8"
     ],
-    "navnISystem": "Fulltidsplass i barnehagen",
+    "navnISystem": "Barnet hadde fulltidsplass i barnehagen",
     "nynorsk": [
       {
         "_key": "9b0a7bbb7482",
@@ -36212,9 +38789,10 @@
     ],
     "type": "STANDARD",
     "vilkaar": [
-      "BARNEHAGEPLASS"
+      "BARNEHAGEPLASS",
+      "BARNETS_ALDER"
     ],
-    "visningsnavn": "38. Fulltidsplass i barnehagen"
+    "visningsnavn": "38. Barnet hadde fulltidsplass i barnehagen"
   },
   {
     "_createdAt": "2023-12-19T14:56:56Z",
@@ -38229,6 +40807,103 @@
     "tema": "EØS",
     "type": "STANDARD",
     "visningsnavn": "26. Overgangsordning opphør EØS"
+  },
+  {
+    "_createdAt": "2026-09-28T12:48:46Z",
+    "_id": "ksBegrunnelse-0627fa6b-02bb-41c4-8696-0d1f9a6c7f64",
+    "_rev": "Cc31nkYzpyqeZtAYJx6gbV",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-0627fa6b-02bb-41c4-8696-0d1f9a6c7f64",
+        "rev": "tAWb2MoZWRqkbTmWHyhhSn"
+      }
+    },
+    "_type": "ksBegrunnelse",
+    "_updatedAt": "2026-10-01T10:50:44Z",
+    "apiNavn": "opphorSekundarlandIngenAvForeldreneJobber",
+    "bokmaal": [
+      {
+        "_key": "875f7e32e77a",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "e2fb2276aced",
+            "_type": "span",
+            "marks": [],
+            "text": ""
+          },
+          {
+            "_key": "6531c5c30ba0",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "5fc788f4648c",
+            "_type": "span",
+            "marks": [],
+            "text": " bor ikke i Norge. Du og den andre forelderen jobber ikke og får ikke pensjon, og norske regler for kontantstøtte gjelder ikke lenger for dere. Etter EØS-reglene er det landet som barnet bor i som har hovedansvar for å utbetale kontantstøtten. Norge utbetaler ikke kontantstøtte i slike tilfeller."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "eosVilkaar": [
+      "BOSATT_I_RIKET"
+    ],
+    "hjemler": [
+      "3",
+      "8"
+    ],
+    "hjemlerEOSForordningen883": [
+      "2",
+      "11-16",
+      "67",
+      "68"
+    ],
+    "navnISystem": "Sekundærland: Ingen av foreldrene jobber",
+    "nynorsk": [
+      {
+        "_key": "34dab3382ac1",
+        "_type": "block",
+        "children": [
+          {
+            "_key": "2d3f9c443839",
+            "_type": "span",
+            "marks": [],
+            "text": ""
+          },
+          {
+            "_key": "d95cf862c304",
+            "_type": "valgfeltV2",
+            "skalHaStorForbokstav": false,
+            "valgReferanse": {
+              "_ref": "df8dc282-2637-4047-a656-8527205dc364",
+              "_type": "reference"
+            }
+          },
+          {
+            "_key": "974d2e1b553b",
+            "_type": "span",
+            "marks": [],
+            "text": " bur ikkje i Noreg. Du og den andre forelderen jobbar ikkje og får ikkje pensjon, og norske reglar for kontantstøtte gjeld ikkje lenger for dykk. Etter EØS-reglane er det landet som barnet bur i som har hovudansvar for å utbetale kontantstøtta. Noreg utbetalar ikkje kontantstøtte i slike tilfeller."
+          }
+        ],
+        "markDefs": [],
+        "style": "normal"
+      }
+    ],
+    "resultat": "OPPHØR",
+    "tema": "EØS",
+    "triggereIBruk": [
+      "VILKÅRSVURDERING"
+    ],
+    "type": "STANDARD",
+    "visningsnavn": "27. Sekundærland: Ingen av foreldrene jobber"
   },
   {
     "_createdAt": "2023-12-19T13:40:59Z",
@@ -41561,9 +44236,15 @@
   {
     "_createdAt": "2023-05-03T16:00:38Z",
     "_id": "ksBegrunnelse-8d4308a5-827b-4a1e-8a40-65f5385e4a7d",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "FS2z9CVXh5PVJmv412WpTL",
+    "_system": {
+      "base": {
+        "id": "ksBegrunnelse-8d4308a5-827b-4a1e-8a40-65f5385e4a7d",
+        "rev": "cQ31NmjbTNjUaGKuTzbDNH"
+      }
+    },
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2023-05-03T16:00:38Z",
+    "_updatedAt": "2026-07-12T15:21:20Z",
     "apiNavn": "reduksjonDenAndreForelderenHarFottFraSammeTidsrom",
     "bokmaal": [
       {
@@ -43021,9 +45702,9 @@
   {
     "_createdAt": "2023-12-19T16:33:40Z",
     "_id": "ksBegrunnelse-bf776cab-9655-45f0-a8a1-259159d9d8ca",
-    "_rev": "cQ31NmjbTNjUaGKuTzbDNH",
+    "_rev": "LdgtvZpX3BxCIBxBqHmk5b",
     "_type": "ksBegrunnelse",
-    "_updatedAt": "2023-12-19T16:33:40Z",
+    "_updatedAt": "2025-12-08T22:33:23Z",
     "annenForeldersAktivitet": [
       "I_ARBEID",
       "MOTTAR_UTBETALING_SOM_ERSTATTER_LØNN",
@@ -43066,7 +45747,8 @@
       }
     ],
     "kompetanseResultat": [
-      "NORGE_ER_SEKUNDÆRLAND"
+      "NORGE_ER_SEKUNDÆRLAND",
+      "NASJONAL_RETT_DIFFERANSEBEREGNING"
     ],
     "navnISystem": "Tilleggstekst valutajustering",
     "nynorsk": [
