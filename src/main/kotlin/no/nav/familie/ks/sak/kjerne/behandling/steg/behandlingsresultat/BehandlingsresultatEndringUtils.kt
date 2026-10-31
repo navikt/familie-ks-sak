@@ -104,11 +104,11 @@ object BehandlingsresultatEndringUtils {
 
                 if (erMinstEnEndringForPerson) {
                     logger.info(
-                        "Endringer: " +
-                            "erEndringIBeløp=$erEndringIBeløpForPerson for aktør ${aktør.aktørId}," +
-                            "erEndringIKompetanse=$erEndringIKompetanseForPerson for aktør ${aktør.aktørId}, " +
-                            "erEndringIVilkårsvurdering=$erEndringIVilkårsvurderingForPerson for aktør ${aktør.aktørId}, " +
-                            "erEndringIEndretUtbetalingAndeler=$erEndringIEndretUtbetalingAndelerForPerson for aktør ${aktør.aktørId}",
+                        "Endringer for person: " +
+                            "erEndringIBeløp=$erEndringIBeløpForPerson, " +
+                            "erEndringIKompetanse=$erEndringIKompetanseForPerson, " +
+                            "erEndringIVilkårsvurdering=$erEndringIVilkårsvurderingForPerson, " +
+                            "erEndringIEndretUtbetalingAndeler=$erEndringIEndretUtbetalingAndelerForPerson",
                     )
 
                     val endredeAndelTilkjentYtelseForPerson = if (erEndringIBeløpForPerson) "nye AndelerTilkjentYtelse for aktør ${aktør.aktørId}: $nåværendeAndeler , " else ""
@@ -117,7 +117,7 @@ object BehandlingsresultatEndringUtils {
                     val endredeEndretUtbetalingAndelerForPerson = if (erEndringIEndretUtbetalingAndelerForPerson) "nye endretUtbetalingAndeler for aktør ${aktør.aktørId}: $nåværendeEndretAndeler" else ""
 
                     secureLogger.info(
-                        "Endringer: $endredeAndelTilkjentYtelseForPerson $endredeKompetanserForPerson $endredeVilkårsvurderingerForPerson $endredeEndretUtbetalingAndelerForPerson",
+                        "Endringer for aktør ${aktør.aktørId}: $endredeAndelTilkjentYtelseForPerson $endredeKompetanserForPerson $endredeVilkårsvurderingerForPerson $endredeEndretUtbetalingAndelerForPerson",
                     )
                 }
 

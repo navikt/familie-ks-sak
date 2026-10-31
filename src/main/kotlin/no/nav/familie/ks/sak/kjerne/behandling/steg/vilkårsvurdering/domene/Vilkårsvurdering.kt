@@ -41,7 +41,7 @@ data class Vilkårsvurdering(
 ) : BaseEntitet() {
     fun hentPersonResultaterTilAktør(aktørId: String): List<VilkårResultat> =
         personResultater.find { it.aktør.aktørId == aktørId }?.vilkårResultater?.toList()
-            ?: throw Feil("Fant ikke personresultat for $aktørId")
+            ?: throw Feil("Fant ikke personresultat i vilkårsvurdering $id på behandling ${behandling.id}")
 
     fun finnOpplysningspliktVilkår(): AnnenVurdering? =
         personResultater

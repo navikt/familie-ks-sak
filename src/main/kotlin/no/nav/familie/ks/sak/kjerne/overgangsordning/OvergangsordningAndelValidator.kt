@@ -65,7 +65,7 @@ object OvergangsordningAndelValidator {
                     if (it.verdi == true) {
                         val fødselsdato = barna.first { it.aktør == aktør }.fødselsdato.tilKortString()
                         throw FunksjonellFeil(
-                            melding = "Det er endringer i ordinære andeler for aktør med id ${aktør.aktørId} i behandling med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024}.",
+                            melding = "Det er endringer i ordinære andeler for barn født $fødselsdato i behandling med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024}.",
                             frontendFeilmelding =
                                 "Det er ikke mulig å gjøre andre endringer i behandlinger med årsak ${BehandlingÅrsak.OVERGANGSORDNING_2024.visningsnavn}. " +
                                     "Det er lagt inn endringer for barn født $fødselsdato i perioden ${it.fom?.tilDagMånedÅrKort()} til ${it.tom?.tilDagMånedÅrKort()}. " +
