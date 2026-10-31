@@ -142,7 +142,7 @@ class PersonidentService(
         if (aktiveAktørerForHistoriskAktørIder.isNotEmpty()) {
             secureLogger.warn("Potensielt merget ident for $alleHistoriskeIdenterFraPdl")
             throw Feil(
-                message = "Mottok potensielt en hendelse på en merget ident for aktørId=${alleHistoriskeIdenterFraPdl.hentAktivAktørId()}. Sjekk securelogger for liste med identer. Sjekk om identen har flere saker. Disse må løses manuelt.",
+                message = "Mottok potensielt en hendelse på en merget ident. Sjekk securelogger for liste med identer. Sjekk om identen har flere saker. Disse må løses manuelt.",
             )
         }
     }
