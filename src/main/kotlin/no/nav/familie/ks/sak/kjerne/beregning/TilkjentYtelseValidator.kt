@@ -83,10 +83,14 @@ object TilkjentYtelseValidator {
                 val antallMånederUtbetalt = diff.toTotalMonths() + 1
 
                 if (antallMånederUtbetalt > maksAntallMånederMedUtbetaling) {
-                    val feilmelding =
-                        "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
-                            "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
-                    throw FunksjonellFeil(frontendFeilmelding = feilmelding, melding = feilmelding)
+                    throw FunksjonellFeil(
+                        frontendFeilmelding =
+                            "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
+                                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+                        melding =
+                            "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for et barn. " +
+                                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+                    )
                 }
 
                 if (stønadFom > dagensDato.toYearMonth().plusMonths(1)) {
