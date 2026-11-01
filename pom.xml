@@ -64,7 +64,7 @@
 
         <!-- Test -->
         <cucumber.version>8.0.4</cucumber.version>
-        <rest-assured.version>6.2.0</rest-assured.version>
+        <rest-assured.version>6.3.0</rest-assured.version>
         <mock-oauth2-server.version>6.1.2</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
         <mockk.version>1.14.11</mockk.version>
@@ -74,7 +74,7 @@
         <!-- Plugin -->
         <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
         <ktlint-cli.version>1.8.0</ktlint-cli.version>
-        <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
