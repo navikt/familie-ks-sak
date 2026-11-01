@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version> <!-- Skal samsvare med spring-boot-dependencies -->
+        <version>4.1.2</version> <!-- Skal samsvare med spring-boot-dependencies -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -30,7 +30,7 @@
         <kotlinx.version>1.11.0</kotlinx.version>
 
         <!-- Spring -->
-        <spring-boot-dependencies.version>4.1.1</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
+        <spring-boot-dependencies.version>4.1.2</spring-boot-dependencies.version> <!-- Skal samsvare med spring-boot-starter-parent -->
         <springdoc.version>3.1.1</springdoc.version>
 
         <!-- Nav felles -->
