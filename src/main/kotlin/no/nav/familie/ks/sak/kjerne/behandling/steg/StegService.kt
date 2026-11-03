@@ -17,6 +17,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDT
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VILKÅRSVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
@@ -89,6 +90,12 @@ class StegService(
             }
 
             BehandlingStegStatus.UTFØRT -> {
+                // Endringer i grunnlaget tilbakestiller behandlingen til steget, så et utført steg rekjøres ikke.
+                if (behandlingSteg in setOf(VILKÅRSVURDERING, BEHANDLINGSRESULTAT)) {
+                    logger.info("Rekjører ikke $behandlingSteg på behandling $behandlingId siden steget allerede er utført")
+                    return
+                }
+
                 // tilbakefører alle stegene som er etter behandlede steg
                 behandling.behandlingStegTilstand
                     .filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
