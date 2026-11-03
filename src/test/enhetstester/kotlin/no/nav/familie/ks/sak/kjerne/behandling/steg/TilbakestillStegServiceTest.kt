@@ -92,6 +92,39 @@ class TilbakestillStegServiceTest {
         verify(exactly = 0) { mockedBehandlingRepository.saveAndFlush(any()) }
     }
 
+    @Test
+    fun `tilbakeførSteg skal ikke flytte behandlingen fram når den allerede står på et tidligere steg`() {
+        // Arrange
+        val behandling =
+            lagBehandling(
+                lagBehandlingStegTilstander = {
+                    setOf(
+                        lagBehandlingStegTilstand(
+                            behandling = it,
+                            behandlingSteg = BehandlingSteg.VILKÅRSVURDERING,
+                            behandlingStegStatus = BehandlingStegStatus.KLAR,
+                        ),
+                        lagBehandlingStegTilstand(
+                            behandling = it,
+                            behandlingSteg = BehandlingSteg.BEHANDLINGSRESULTAT,
+                            behandlingStegStatus = BehandlingStegStatus.TILBAKEFØRT,
+                        ),
+                    )
+                },
+            )
+
+        every { mockedBehandlingRepository.hentAktivBehandling(behandling.id) }.returns(behandling)
+        every { mockedBehandlingRepository.saveAndFlush(behandling) }.returns(behandling)
+
+        // Act
+        tilbakestillStegService.tilbakeførSteg(behandling.id, BehandlingSteg.BEHANDLINGSRESULTAT)
+
+        // Assert
+        assertBehandlingHarStegMedStatus(behandling, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.KLAR)
+        assertBehandlingHarStegMedStatus(behandling, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.TILBAKEFØRT)
+        verify(exactly = 0) { mockedBehandlingRepository.saveAndFlush(any()) }
+    }
+
     private fun assertBehandlingHarStegMedStatus(
         behandling: Behandling,
         behandlingSteg: BehandlingSteg,
