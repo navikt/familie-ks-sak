@@ -117,7 +117,7 @@ under actions på GitHub, finn byggejobben du vil gå tilbake til, og kopier tag
 ### Kafka Manager
 familie-baks-kafka-manager er en applikasjon for å administrere Kafka-topics. Den kan deployes manuelt ved behov.
 
-Mer info om hvordan deploye app på [Kafka Manager](.nais/kafka-manager/README.md) 
+Appen ligger i eget repo: [navikt/familie-baks-kafka-manager](https://github.com/navikt/familie-baks-kafka-manager)
 
 ## Kontaktinformasjon
 
