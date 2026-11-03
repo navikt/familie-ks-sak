@@ -82,7 +82,7 @@ class HåndterNyIdentService(
                 .singleOrNull { it.aktør.aktørId in aktørIder }
                 ?.aktør
                 ?.aktivFødselsnummer()
-                ?: throw Feil("Fant ikke gammel ident for aktør på fagsak $fagsakId")
+                ?: throw Feil("Fant ikke gammel ident for aktør ${identerFraPdl.hentAktivAktørId()} på fagsak $fagsakId")
 
         val task =
             PatchMergetIdentTask.opprettTask(

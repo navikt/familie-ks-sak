@@ -31,6 +31,7 @@ internal enum class Endringsresultat {
 
 object BehandlingsresultatEndringUtils {
     internal fun utledEndringsresultat(
+        behandlingId: Long,
         nåværendeAndeler: List<AndelTilkjentYtelse>,
         forrigeAndeler: List<AndelTilkjentYtelse>,
         personerFremstiltKravFor: List<Aktør>,
@@ -104,7 +105,7 @@ object BehandlingsresultatEndringUtils {
 
                 if (erMinstEnEndringForPerson) {
                     logger.info(
-                        "Endringer for person: " +
+                        "Endringer for person i behandling $behandlingId: " +
                             "erEndringIBeløp=$erEndringIBeløpForPerson, " +
                             "erEndringIKompetanse=$erEndringIKompetanseForPerson, " +
                             "erEndringIVilkårsvurdering=$erEndringIVilkårsvurderingForPerson, " +

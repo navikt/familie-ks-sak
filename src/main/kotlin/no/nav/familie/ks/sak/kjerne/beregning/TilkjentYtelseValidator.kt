@@ -87,9 +87,7 @@ object TilkjentYtelseValidator {
                         frontendFeilmelding =
                             "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for barn med fnr ${aktør.aktivFødselsnummer()}. " +
                                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
-                        melding =
-                            "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder. Du er i ferd med å utbetale $antallMånederUtbetalt måneder for et barn. " +
-                                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+                        melding = "Kontantstøtte kan maks utbetales for $maksAntallMånederMedUtbetaling måneder, men det er $antallMånederUtbetalt måneder med utbetaling for barn med personId ${relevantBarn.id} i behandling ${tilkjentYtelse.behandling.id}",
                     )
                 }
 

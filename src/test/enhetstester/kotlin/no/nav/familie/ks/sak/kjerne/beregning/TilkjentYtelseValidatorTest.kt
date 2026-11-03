@@ -131,8 +131,7 @@ internal class TilkjentYtelseValidatorTest {
         // Assert
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(
-            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale 12 måneder for et barn. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+            "Kontantstøtte kan maks utbetales for 11 måneder, men det er 12 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
             exception.message,
         )
     }
@@ -187,8 +186,7 @@ internal class TilkjentYtelseValidatorTest {
         // Assert
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(
-            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale 8 måneder for et barn. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+            "Kontantstøtte kan maks utbetales for 7 måneder, men det er 8 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
             exception.message,
         )
     }
@@ -235,8 +233,7 @@ internal class TilkjentYtelseValidatorTest {
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
         assertEquals(
-            "Kontantstøtte kan maks utbetales for 11 måneder. Du er i ferd med å utbetale 12 måneder for et barn. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+            "Kontantstøtte kan maks utbetales for 11 måneder, men det er 12 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
             exception.message,
         )
     }
@@ -842,8 +839,7 @@ internal class TilkjentYtelseValidatorTest {
                 )
             }
         assertEquals(
-            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale 8 måneder for et barn. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+            "Kontantstøtte kan maks utbetales for 7 måneder, men det er 8 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
             feil.melding,
         )
     }
