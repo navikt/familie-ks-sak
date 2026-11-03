@@ -9,6 +9,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.StegService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -31,7 +32,9 @@ class BehandlingStegController(
         @PathVariable behandlingId: Long,
         @RequestBody registerSøknadDto: RegistrerSøknadDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "registrere søknad",
         )
@@ -44,7 +47,9 @@ class BehandlingStegController(
     fun utførVilkårsvurdering(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "utfør vilkårsvurdering",
         )
@@ -58,7 +63,9 @@ class BehandlingStegController(
     fun utledBehandlingsresultat(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "vurdere behandlingsresultat",
         )
@@ -72,7 +79,9 @@ class BehandlingStegController(
         @PathVariable behandlingId: Long,
         @RequestBody tilbakekrevingRequestDto: TilbakekrevingRequestDto?,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "fullfør simulering",
         )
@@ -86,7 +95,9 @@ class BehandlingStegController(
         @PathVariable behandlingId: Long,
         @RequestParam behandlendeEnhet: String,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "foreslå vedtak",
         )
@@ -100,7 +111,9 @@ class BehandlingStegController(
         @PathVariable behandlingId: Long,
         @RequestBody besluttVedtakDto: BesluttVedtakDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.BESLUTTER,
             handling = "beslutt vedtak",
         )
