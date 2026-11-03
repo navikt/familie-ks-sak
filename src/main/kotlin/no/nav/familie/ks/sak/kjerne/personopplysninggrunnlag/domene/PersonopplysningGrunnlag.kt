@@ -41,4 +41,12 @@ data class PersonopplysningGrunnlag(
         get() =
             personer.singleOrNull { it.type == PersonType.SØKER }
                 ?: throw Feil("Persongrunnlag mangler søker eller det finnes flere personer i grunnlaget med type=SØKER")
+
+    fun harRelevantEndring(annetPersonopplysningGrunnlag: PersonopplysningGrunnlag): Boolean {
+        if (personer.toSet() != annetPersonopplysningGrunnlag.personer.toSet()) return true
+        return personer.any { person ->
+            val annenPerson = annetPersonopplysningGrunnlag.personer.find { it.aktør == person.aktør }
+            annenPerson == null || !person.personopplysningerErLike(annenPerson)
+        }
+    }
 }

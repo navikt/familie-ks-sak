@@ -103,6 +103,25 @@ data class Person(
     fun erDød(): Boolean = dødsfall != null
 
     fun hentAlder(): Int = Period.between(fødselsdato, LocalDate.now()).years
+
+    fun personopplysningerErLike(other: Person): Boolean {
+        if (aktør != other.aktør) return false
+        if (navn != other.navn) return false
+        if (fødselsdato != other.fødselsdato) return false
+        if (kjønn != other.kjønn) return false
+        if (målform != other.målform) return false
+        if (type != other.type) return false
+        if (dødsfall != other.dødsfall) return false
+
+        if (opphold.toSet() != other.opphold.toSet()) return false
+        if (bostedsadresser.map { it.tilAdresse() }.toSet() != other.bostedsadresser.map { it.tilAdresse() }.toSet()) return false
+        if (oppholdsadresser.map { it.tilAdresse() }.toSet() != other.oppholdsadresser.map { it.tilAdresse() }.toSet()) return false
+        if (sivilstander.toSet() != other.sivilstander.toSet()) return false
+        if (statsborgerskap.toSet() != other.statsborgerskap.toSet()) return false
+        if (arbeidsforhold.toSet() != other.arbeidsforhold.toSet()) return false
+
+        return true
+    }
 }
 
 enum class Kjønn {

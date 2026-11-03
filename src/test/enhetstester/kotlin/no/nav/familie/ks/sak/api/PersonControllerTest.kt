@@ -1,19 +1,25 @@
 package no.nav.familie.ks.sak.api
 
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyOrder
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
+import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
@@ -28,6 +34,7 @@ class PersonControllerTest {
     private val personTilgangService = mockk<PersonTilgangService>()
     private val behandlingService = mockk<BehandlingService>()
     private val tilgangService = mockk<TilgangService>()
+    private val tilbakestillBehandlingService = mockk<TilbakestillBehandlingService>()
     private val personController =
         PersonController(
             personidentService = personidentService,
@@ -36,6 +43,7 @@ class PersonControllerTest {
             personTilgangService = personTilgangService,
             tilgangService = tilgangService,
             behandlingService = behandlingService,
+            tilbakestillBehandlingService = tilbakestillBehandlingService,
         )
 
     @Nested
@@ -128,6 +136,48 @@ class PersonControllerTest {
 
             val data: PersonInfoDto = respons.body!!.data!!
             assertThat(data).isEqualTo(restPersonInfo)
+        }
+    }
+
+    @Nested
+    inner class HentOgOppdaterRegisteropplysningerPåBehandling {
+        @Test
+        fun `skal tilbakestille behandlingen til vilkårsvurdering når registeropplysningene er endret`() {
+            // Arrange
+            val behandling = lagBehandling(id = 1)
+            justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
+            every { behandlingService.hentBehandling(behandling.id) } returns behandling
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns PersonopplysningGrunnlag(id = 1, behandlingId = behandling.id)
+            every { personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling) } returns PersonopplysningGrunnlag(id = 2, behandlingId = behandling.id)
+            justRun { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
+            every { behandlingService.lagBehandlingRespons(behandling.id) } returns mockk()
+
+            // Act
+            personController.hentOgOppdaterRegisteropplysningerPåBehandling(behandling.id)
+
+            // Assert
+            verifyOrder {
+                personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling)
+                tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id)
+            }
+        }
+
+        @Test
+        fun `skal ikke tilbakestille behandlingen når registeropplysningene er uendret`() {
+            // Arrange
+            val behandling = lagBehandling(id = 1)
+            val personopplysningGrunnlag = PersonopplysningGrunnlag(id = 1, behandlingId = behandling.id)
+            justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
+            every { behandlingService.hentBehandling(behandling.id) } returns behandling
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag
+            every { personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling) } returns personopplysningGrunnlag
+            every { behandlingService.lagBehandlingRespons(behandling.id) } returns mockk()
+
+            // Act
+            personController.hentOgOppdaterRegisteropplysningerPåBehandling(behandling.id)
+
+            // Assert
+            verify(exactly = 0) { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(any()) }
         }
     }
 }

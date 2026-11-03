@@ -28,7 +28,7 @@ class StatsborgerskapService(
                         DatoIntervallEntitet(
                             fom = statsborgerskap.hentFom(),
                             tom = statsborgerskap.gyldigTilOgMed,
-                        ),
+                        ).takeIf { it.fom != null || it.tom != null },
                     landkode = statsborgerskap.land,
                     medlemskap = Medlemskap.NORDEN,
                     person = person,

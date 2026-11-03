@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.api.dto.tilPersonInfoDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -32,6 +33,7 @@ class PersonController(
     val personTilgangService: PersonTilgangService,
     val tilgangService: TilgangService,
     val behandlingService: BehandlingService,
+    val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
     @PostMapping
     fun hentPerson(
@@ -76,7 +78,12 @@ class PersonController(
 
         val behandling = behandlingService.hentBehandling(behandlingId)
 
-        personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling)
+        val grunnlagFørOppdatering = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId)
+        val personopplysningGrunnlag = personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling)
+        val registeropplysningerErEndret = personopplysningGrunnlag.id != grunnlagFørOppdatering.id
+        if (registeropplysningerErEndret) {
+            tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
+        }
 
         return ResponseEntity.ok(
             Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandling.id)),

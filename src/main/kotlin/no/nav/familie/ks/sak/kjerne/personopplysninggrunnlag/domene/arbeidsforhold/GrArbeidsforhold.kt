@@ -14,6 +14,7 @@ import jakarta.persistence.Table
 import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
+import java.util.Objects
 
 @Entity(name = "GrArbeidsforhold")
 @Table(name = "PO_ARBEIDSFORHOLD")
@@ -36,4 +37,20 @@ data class GrArbeidsforhold(
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_po_person_id", nullable = false, updatable = false)
     val person: Person,
-) : BaseEntitet()
+) : BaseEntitet() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as GrArbeidsforhold
+
+        if (periode != other.periode) return false
+        if (arbeidsgiverId != other.arbeidsgiverId) return false
+        if (arbeidsgiverType != other.arbeidsgiverType) return false
+        if (person != other.person) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = Objects.hash(periode, arbeidsgiverId, arbeidsgiverType, person)
+}

@@ -11,6 +11,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -29,6 +30,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -463,5 +466,29 @@ class StegServiceUnitTest {
 
         // Assert
         assertThat(nesteSteg).isEqualTo(BehandlingSteg.JOURNALFØR_VEDTAKSBREV)
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BehandlingSteg::class, names = ["VILKÅRSVURDERING", "BEHANDLINGSRESULTAT"])
+    fun `skal ikke rekjøre steget når det allerede er utført`(behandlingSteg: BehandlingSteg) {
+        // Arrange
+        val behandling =
+            lagBehandling(id = 2) {
+                setOf(
+                    lagBehandlingStegTilstand(it, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.SIMULERING, BehandlingStegStatus.KLAR),
+                )
+            }
+        every { behandlingRepository.hentAktivBehandling(behandling.id) } returns behandling
+
+        // Act
+        stegService.utførSteg(behandling.id, behandlingSteg)
+
+        // Assert
+        verify(exactly = 0) { behandlingRepository.saveAndFlush(any()) }
+        assertThat(behandling.behandlingStegTilstand.filter { it.behandlingStegStatus == BehandlingStegStatus.KLAR }.map { it.behandlingSteg })
+            .containsExactly(BehandlingSteg.SIMULERING)
     }
 }
