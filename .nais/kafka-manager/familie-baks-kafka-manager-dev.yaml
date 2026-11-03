@@ -97,6 +97,12 @@ spec:
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "teamfamilie.ferdigstilt-behandling-for-pensjon-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
             }
           ]
         }
