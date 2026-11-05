@@ -38,8 +38,8 @@
         <nav-foedselsnummer.version>1.0-SNAPSHOT.6</nav-foedselsnummer.version>
 
         <!-- Nav Familie-->
-        <prosessering.version>2.20261027150838_57ccae7</prosessering.version>
-        <felles-kontrakter.version>4.0_20261026123216_8087cb5</felles-kontrakter.version>
+        <prosessering.version>2.20261102130928_50eba5f</prosessering.version>
+        <felles-kontrakter.version>4.0_20261103100223_424278c</felles-kontrakter.version>
         <felles.version>4.20261026180911_c3ff6d9</felles.version>
         <eksterne-kontrakter-bisys.version>2.0_20261026123216_f55dd20</eksterne-kontrakter-bisys.version>
         <familie.kontrakter.stønadsstatistikk>2.0_20261026123216_f55dd20</familie.kontrakter.stønadsstatistikk>
