@@ -60,6 +60,7 @@ class AzureAdAuthenticationManager(
                 if (grupper.contains(rolleConfig.BESLUTTER_ROLLE)) add(Rolle.BESLUTTER)
                 if (grupper.contains(rolleConfig.FORVALTER_ROLLE)) add(Rolle.FORVALTER)
 
+                // familie-klage kaller alltid med brukertoken (OBO), ikke maskintoken
                 if (appNavn.matches(klageRegex)) add(Rolle.KLAGE_APPLIKASJON)
 
                 if (SikkerhetContext.erMaskinTilMaskinToken(jwt)) {
