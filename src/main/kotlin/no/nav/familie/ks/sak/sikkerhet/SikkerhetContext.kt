@@ -13,11 +13,7 @@ object SikkerhetContext {
 
     fun erMaskinTilMaskinToken(): Boolean = hentJwt()?.let { erMaskinTilMaskinToken(it) } ?: false
 
-    fun erMaskinTilMaskinToken(jwt: Jwt): Boolean {
-        val oid = jwt.getClaimAsString("oid")
-        val roles = runCatching { jwt.getClaimAsStringList("roles") }.getOrNull().orEmpty()
-        return oid != null && oid == jwt.subject && roles.contains("access_as_application")
-    }
+    fun erMaskinTilMaskinToken(jwt: Jwt): Boolean = jwt.getClaimAsString("idtyp") == "app"
 
     fun harInnloggetBrukerForvalterRolle(): Boolean = harRolle(Rolle.FORVALTER)
 

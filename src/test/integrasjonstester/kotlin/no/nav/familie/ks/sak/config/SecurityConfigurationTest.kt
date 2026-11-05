@@ -27,8 +27,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
         lokalTestToken(
             mapOf(
                 "azp_name" to azpName,
-                "oid" to "subject1",
-                "roles" to listOf("access_as_application"),
+                "idtyp" to "app",
             ),
         )
 
@@ -36,7 +35,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
         azpName: String,
         behandlerRolle: BehandlerRolle? = null,
     ) = lokalTestToken(
-        claims = mapOf("azp_name" to azpName, "oid" to "brukerens-oid"),
+        claims = mapOf("azp_name" to azpName),
         behandlerRolle = behandlerRolle,
     )
 
