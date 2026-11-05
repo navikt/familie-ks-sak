@@ -58,7 +58,6 @@ data class OvergangsordningAndel(
         "OvergangsordningAndel(" +
             "id=$id, " +
             "behandling=$behandlingId, " +
-            "aktør=$aktør, " +
             "antallTimer=$antallTimer, " +
             "deltBosted=$deltBosted, " +
             "fom=$fom, " +

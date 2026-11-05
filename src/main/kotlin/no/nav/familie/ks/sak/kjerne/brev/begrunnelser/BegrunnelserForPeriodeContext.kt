@@ -454,7 +454,7 @@ class BegrunnelserForPeriodeContext(
 
     private fun List<no.nav.familie.tidslinje.Periode<List<VilkårResultat>?>>.tilInnholdForMåned(dato: LocalDate?): List<VilkårResultat> = this.singleOrNull { it.fom != null && it.fom!! <= dato && (it.tom == null || it.tom!! >= dato) }?.verdi ?: emptyList()
 
-    private fun Aktør.hentPerson() = (personopplysningGrunnlag.personer.singleOrNull { it.aktør.aktivFødselsnummer() == aktivFødselsnummer() } ?: throw Feil("Aktør $this finnes ikke i personGrunnlaget."))
+    private fun Aktør.hentPerson() = (personopplysningGrunnlag.personer.singleOrNull { it.aktør.aktivFødselsnummer() == aktivFødselsnummer() } ?: throw Feil("Fant ikke person i personopplysningsgrunnlag ${personopplysningGrunnlag.id} på behandling ${personopplysningGrunnlag.behandlingId}"))
 
     private fun finnPersonerMedVilkårResultaterSomGjelderIPeriode(): Map<Person, List<VilkårResultat>> =
         personResultater
