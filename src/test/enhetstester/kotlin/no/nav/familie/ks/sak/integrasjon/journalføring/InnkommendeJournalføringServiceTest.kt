@@ -12,6 +12,8 @@ import io.mockk.verifyOrder
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.OppdaterJournalpostResponse
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
@@ -20,6 +22,8 @@ import no.nav.familie.ks.sak.api.dto.JournalføringRequestDto
 import no.nav.familie.ks.sak.api.dto.NavnOgIdentDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagFagsak
 import no.nav.familie.ks.sak.data.lagMinimalFagsakResponsDto
@@ -56,6 +60,7 @@ class InnkommendeJournalføringServiceTest {
     private val loggService: LoggService = mockk()
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService = mockk()
     private val klageService: KlageService = mockk()
+    private val featureToggleService: FeatureToggleService = mockk()
     private val innkommendeJournalføringService: InnkommendeJournalføringService =
         InnkommendeJournalføringService(
             integrasjonKlient = integrasjonKlient,
@@ -66,6 +71,7 @@ class InnkommendeJournalføringServiceTest {
             loggService = loggService,
             behandlingSøknadsinfoService = behandlingSøknadsinfoService,
             klageService = klageService,
+            featureToggleService = featureToggleService,
         )
 
     @Test
@@ -288,6 +294,24 @@ class InnkommendeJournalføringServiceTest {
             every { integrasjonKlient.ferdigstillJournalpost(any(), any()) } just runs
             every { integrasjonKlient.ferdigstillOppgave(any()) } just runs
             every { klageService.opprettKlage(any<Long>(), any<LocalDate>()) } returns UUID.randomUUID()
+            every { featureToggleService.isEnabled(FeatureToggle.BULK_OPPDATER_LOGISKE_VEDLEGG) } returns true
+        }
+
+        @Test
+        fun `skal ikke legge til eller slette logiske vedlegg enkeltvis når bulk-oppdatering er skrudd på`() {
+            // Arrange
+            val request =
+                lagJournalføringRequestDtoMedLogiskeVedlegg(
+                    logiskeVedleggDokument1 = listOf(LogiskVedlegg(logiskVedleggId = "0", tittel = "Vigselsattest")),
+                    logiskeVedleggDokument2 = emptyList(),
+                )
+
+            // Act
+            innkommendeJournalføringService.journalfør(request, journalpostId, oppgaveId)
+
+            // Assert
+            verify(exactly = 0) { integrasjonKlient.leggTilLogiskVedlegg(any(), any()) }
+            verify(exactly = 0) { integrasjonKlient.slettLogiskVedlegg(any(), any()) }
         }
 
         @Test
@@ -503,6 +527,110 @@ class InnkommendeJournalføringServiceTest {
                     listOf(
                         journalføringRequestDto.dokumenter[0].copy(logiskeVedlegg = logiskeVedleggDokument1),
                         journalføringRequestDto.dokumenter[1].copy(logiskeVedlegg = logiskeVedleggDokument2),
+                    ),
+            )
+        }
+    }
+
+    @Nested
+    inner class LeggTilOgSlettLogiskeVedlegg {
+        private val journalpostId = "123"
+        private val oppgaveId = "1"
+        private val journalpost = lagJournalpost(personIdent = randomFnr(), journalpostId = journalpostId)
+        private val fagsak = lagFagsak()
+
+        @BeforeEach
+        fun setUp() {
+            every { fagsakService.hentEllerOpprettFagsak(any()) } returns
+                lagMinimalFagsakResponsDto(
+                    opprettetTidspunkt = fagsak.opprettetTidspunkt,
+                    id = fagsak.id,
+                    søkerFødselsnummer = fagsak.aktør.aktivFødselsnummer(),
+                    status = fagsak.status,
+                )
+            every { integrasjonKlient.hentJournalpost(journalpostId) } returns journalpost
+            every { integrasjonKlient.leggTilLogiskVedlegg(any(), any()) } returns LogiskVedleggResponse(1L)
+            every { integrasjonKlient.slettLogiskVedlegg(any(), any()) } returns LogiskVedleggResponse(1L)
+            every { integrasjonKlient.oppdaterJournalpost(any(), any()) } returns OppdaterJournalpostResponse(journalpostId)
+            every { integrasjonKlient.ferdigstillJournalpost(any(), any()) } just runs
+            every { integrasjonKlient.ferdigstillOppgave(any()) } just runs
+            every { featureToggleService.isEnabled(FeatureToggle.BULK_OPPDATER_LOGISKE_VEDLEGG) } returns false
+        }
+
+        @Test
+        fun `skal legge til nye og slette fjernede logiske vedlegg når bulk-oppdatering er skrudd av`() {
+            // Arrange
+            val request =
+                lagJournalføringRequestDtoMedLogiskeVedlegg(
+                    eksisterendeLogiskeVedlegg = listOf(LogiskVedlegg("1", "Oppholdstillatelse"), LogiskVedlegg("2", "Pass")),
+                    logiskeVedlegg = listOf(LogiskVedlegg("1", "Oppholdstillatelse"), LogiskVedlegg("0", "Vigselsattest")),
+                )
+
+            // Act
+            innkommendeJournalføringService.journalfør(request, journalpostId, oppgaveId)
+
+            // Assert
+            verify(exactly = 1) { integrasjonKlient.slettLogiskVedlegg("2", "1") }
+            verify(exactly = 1) { integrasjonKlient.leggTilLogiskVedlegg(LogiskVedleggRequest("Vigselsattest"), "1") }
+            verify(exactly = 0) { integrasjonKlient.leggTilLogiskVedlegg(LogiskVedleggRequest("Oppholdstillatelse"), any()) }
+            verify(exactly = 0) { integrasjonKlient.oppdaterLogiskeVedlegg(any(), any()) }
+        }
+
+        @Test
+        fun `skal ikke legge til eller slette logiske vedlegg når de er uendret`() {
+            // Arrange
+            val logiskeVedlegg = listOf(LogiskVedlegg("1", "Oppholdstillatelse"), LogiskVedlegg("2", "Pass"))
+            val request =
+                lagJournalføringRequestDtoMedLogiskeVedlegg(
+                    eksisterendeLogiskeVedlegg = logiskeVedlegg,
+                    logiskeVedlegg = logiskeVedlegg,
+                )
+
+            // Act
+            innkommendeJournalføringService.journalfør(request, journalpostId, oppgaveId)
+
+            // Assert
+            verify(exactly = 0) { integrasjonKlient.slettLogiskVedlegg(any(), any()) }
+            verify(exactly = 0) { integrasjonKlient.leggTilLogiskVedlegg(any(), any()) }
+            verify(exactly = 0) { integrasjonKlient.oppdaterLogiskeVedlegg(any(), any()) }
+        }
+
+        @Test
+        fun `skal legge til og slette logiske vedlegg før journalposten oppdateres og ferdigstilles`() {
+            // Arrange
+            val request =
+                lagJournalføringRequestDtoMedLogiskeVedlegg(
+                    eksisterendeLogiskeVedlegg = listOf(LogiskVedlegg("2", "Pass")),
+                    logiskeVedlegg = listOf(LogiskVedlegg("0", "Vigselsattest")),
+                )
+
+            // Act
+            innkommendeJournalføringService.journalfør(request, journalpostId, oppgaveId)
+
+            // Assert
+            verifyOrder {
+                integrasjonKlient.slettLogiskVedlegg("2", "1")
+                integrasjonKlient.leggTilLogiskVedlegg(LogiskVedleggRequest("Vigselsattest"), "1")
+                integrasjonKlient.oppdaterJournalpost(any(), journalpostId)
+                integrasjonKlient.ferdigstillJournalpost(journalpostId, "4820")
+                integrasjonKlient.ferdigstillOppgave(oppgaveId.toLong())
+            }
+        }
+
+        private fun lagJournalføringRequestDtoMedLogiskeVedlegg(
+            eksisterendeLogiskeVedlegg: List<LogiskVedlegg>,
+            logiskeVedlegg: List<LogiskVedlegg>,
+        ): JournalføringRequestDto {
+            val journalføringRequestDto = lagJournalføringRequestDto(bruker = NavnOgIdentDto("Mock", randomFnr()))
+            return journalføringRequestDto.copy(
+                opprettOgKnyttTilNyBehandling = false,
+                dokumenter =
+                    listOf(
+                        journalføringRequestDto.dokumenter[0].copy(
+                            logiskeVedlegg = logiskeVedlegg,
+                            eksisterendeLogiskeVedlegg = eksisterendeLogiskeVedlegg,
+                        ),
+                        journalføringRequestDto.dokumenter[1].copy(logiskeVedlegg = null, eksisterendeLogiskeVedlegg = null),
                     ),
             )
         }

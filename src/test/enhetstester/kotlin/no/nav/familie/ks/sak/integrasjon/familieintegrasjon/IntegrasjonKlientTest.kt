@@ -17,6 +17,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.DokarkivBruker
 import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.ArkiverDokumentRequest
 import no.nav.familie.kontrakter.felles.dokdist.Distribusjonstype
 import no.nav.familie.kontrakter.felles.journalpost.AvsenderMottakerIdType
@@ -388,6 +389,40 @@ internal class IntegrasjonKlientTest {
                 )
             }
         assertThat(feil.message).contains("dokarkiv", "Kan ikke bulk oppdatere logiske vedlegg")
+    }
+
+    @Test
+    fun `leggTilLogiskVedlegg skal returnere id på vedlegg som ble lagt til`() {
+        // Arrange
+        val request = LogiskVedleggRequest("testtittel")
+
+        wiremockServerItem.stubFor(
+            WireMock
+                .post(urlEqualTo("/arkiv/dokument/testid/logiskVedlegg"))
+                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+        )
+
+        // Act
+        val fordeltOppgave = integrasjonKlient.leggTilLogiskVedlegg(request, "testid")
+
+        // Assert
+        assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
+    }
+
+    @Test
+    fun `slettLogiskVedlegg skal returnere id på vedlegg som ble slettet til`() {
+        // Arrange
+        wiremockServerItem.stubFor(
+            WireMock
+                .delete(urlEqualTo("/arkiv/dokument/testDokumentId/logiskVedlegg/testId"))
+                .willReturn(okJson(readFile("logiskVedleggEnkelResponse.json"))),
+        )
+
+        // Act
+        val fordeltOppgave = integrasjonKlient.slettLogiskVedlegg("testId", "testDokumentId")
+
+        // Assert
+        assertThat(fordeltOppgave.logiskVedleggId).isEqualTo(200)
     }
 
     @Test

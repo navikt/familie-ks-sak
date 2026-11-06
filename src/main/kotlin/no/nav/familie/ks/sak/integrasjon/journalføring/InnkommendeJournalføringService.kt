@@ -6,6 +6,7 @@ import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
@@ -21,6 +22,8 @@ import no.nav.familie.ks.sak.api.dto.Sakstype
 import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.api.dto.tilOppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
@@ -52,6 +55,7 @@ class InnkommendeJournalføringService(
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
     private val klageService: KlageService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
         integrasjonKlient
@@ -83,10 +87,13 @@ class InnkommendeJournalføringService(
         val fagsakId = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
         val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonKlient.hentJournalpost(journalpostId)
+        val skalBulkOppdatereLogiskeVedlegg = featureToggleService.isEnabled(FeatureToggle.BULK_OPPDATER_LOGISKE_VEDLEGG)
 
-        // Oppdateres før klage eller behandling opprettes, slik at en feil her ikke etterlater en klagebehandling i familie-klage.
-        // Trygt å gjenta ved nytt forsøk, siden vi sammenligner med journalposten i Joark og erstatter hele listen.
-        oppdaterLogiskeVedlegg(request.dokumenter, journalpost)
+        if (skalBulkOppdatereLogiskeVedlegg) {
+            // Oppdateres før klage eller behandling opprettes, slik at en feil her ikke etterlater en klagebehandling i familie-klage.
+            // Trygt å gjenta ved nytt forsøk, siden vi sammenligner med journalposten i Joark og erstatter hele listen.
+            oppdaterLogiskeVedlegg(request.dokumenter, journalpost)
+        }
 
         if (request.opprettOgKnyttTilNyBehandling) {
             if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
@@ -122,6 +129,10 @@ class InnkommendeJournalføringService(
             kontantstøtteBehandlinger = kontantstøtteBehandlinger,
             journalpost = journalpost,
         )
+
+        if (!skalBulkOppdatereLogiskeVedlegg) {
+            leggTilOgSlettLogiskeVedlegg(request.dokumenter)
+        }
 
         oppdaterOgFerdigstill(
             oppdaterJournalPostRequest =
@@ -240,6 +251,24 @@ class InnkommendeJournalføringService(
                         ),
                     behandling = it,
                 )
+            }
+        }
+    }
+
+    private fun leggTilOgSlettLogiskeVedlegg(dokumenter: List<JournalpostDokumentDto>) {
+        dokumenter.forEach { dokument ->
+            val eksisterendeLogiskeVedlegg = dokument.eksisterendeLogiskeVedlegg ?: emptyList()
+            val logiskeVedlegg = dokument.logiskeVedlegg ?: emptyList()
+
+            val fjernedeVedlegg = eksisterendeLogiskeVedlegg.filter { !logiskeVedlegg.contains(it) }
+            val nyeVedlegg = logiskeVedlegg.filter { !eksisterendeLogiskeVedlegg.contains(it) }
+
+            fjernedeVedlegg.forEach {
+                integrasjonKlient.slettLogiskVedlegg(it.logiskVedleggId, dokument.dokumentInfoId)
+            }
+
+            nyeVedlegg.forEach {
+                integrasjonKlient.leggTilLogiskVedlegg(LogiskVedleggRequest(it.tittel), dokument.dokumentInfoId)
             }
         }
     }
