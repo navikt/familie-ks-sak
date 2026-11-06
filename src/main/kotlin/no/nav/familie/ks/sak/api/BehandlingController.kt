@@ -15,6 +15,8 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.LeggTilBarnService
 import no.nav.familie.ks.sak.kjerne.behandling.OpprettBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.SettBehandlingPåVentService
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingService
 import no.nav.familie.ks.sak.kjerne.beregning.TilkjentYtelseValideringService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -41,6 +43,7 @@ class BehandlingController(
     private val henleggBehandlingService: HenleggBehandlingService,
     private val tilkjentYtelseValideringService: TilkjentYtelseValideringService,
     private val leggTilBarnService: LeggTilBarnService,
+    private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun opprettBehandling(
@@ -217,10 +220,18 @@ class BehandlingController(
             handling = "Endre behandlingstema på behandling",
         )
 
+        // Behandlingstema utledes i vilkårsvurderingssteget, så en endring tilbakestiller behandlingen dit
+        val behandlingFørEndring = behandlingService.hentBehandling(behandlingId)
+        val skalTilbakestilles = behandlingFørEndring.status == BehandlingStatus.UTREDES && behandlingFørEndring.kategori != endreBehandlingstemaDto.behandlingKategori
+
         behandlingService.endreBehandlingstemaPåBehandling(
             behandlingId = behandlingId,
             overstyrtKategori = endreBehandlingstemaDto.behandlingKategori,
         )
+
+        if (skalTilbakestilles) {
+            tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
+        }
 
         return ResponseEntity.ok(
             Ressurs.success(
