@@ -7,6 +7,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.okJson
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.NavIdent
@@ -29,6 +32,8 @@ import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveRequest
 import no.nav.familie.ks.sak.api.dto.JournalpostBrukerDto
 import no.nav.familie.ks.sak.api.dto.OppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.common.exception.IntegrasjonException
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.randomFnr
 import no.nav.familie.ks.sak.integrasjon.lagAvsenderMottaker
 import no.nav.familie.ks.sak.integrasjon.lagJournalpost
@@ -39,6 +44,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import java.net.URI
@@ -46,6 +53,7 @@ import java.time.LocalDateTime
 
 internal class IntegrasjonKlientTest {
     private val restClient: RestClient = RestClient.builder().build()
+    private val featureToggleService = mockk<FeatureToggleService>()
     private lateinit var integrasjonKlient: IntegrasjonKlient
     private lateinit var wiremockServerItem: WireMockServer
 
@@ -53,12 +61,73 @@ internal class IntegrasjonKlientTest {
     fun initClass() {
         wiremockServerItem = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServerItem.start()
-        integrasjonKlient = IntegrasjonKlient(URI.create(wiremockServerItem.baseUrl()), restClient)
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_INTEGRASJONER_I_GCP, defaultValue = false) } returns false
+        integrasjonKlient =
+            IntegrasjonKlient(
+                integrasjonFssUri = URI.create(wiremockServerItem.baseUrl()),
+                restClientFss = restClient.mutate().defaultHeader("X-Test-Cluster", "fss").build(),
+                integrasjonGcpUri = URI.create("${wiremockServerItem.baseUrl()}/gcp"),
+                restClientGcp = restClient.mutate().defaultHeader("X-Test-Cluster", "gcp").build(),
+                featureToggleService = featureToggleService,
+            )
     }
 
     @AfterEach
     fun tearDown() {
         wiremockServerItem.stop()
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `skal velge URL og klient fra samme cluster ut fra toggelen`(brukGcp: Boolean) {
+        // Arrange
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_INTEGRASJONER_I_GCP, defaultValue = false) } returns brukGcp
+        val sti = if (brukGcp) "/gcp/oppgave/200" else "/oppgave/200"
+        val cluster = if (brukGcp) "gcp" else "fss"
+        wiremockServerItem.stubFor(
+            get(urlEqualTo(sti))
+                .withHeader("X-Test-Cluster", WireMock.equalTo(cluster))
+                .willReturn(okJson(readFile("finnOppgaveMedIdEnkelResponse.json"))),
+        )
+
+        // Act
+        val oppgave = integrasjonKlient.finnOppgaveMedId(200)
+
+        // Assert
+        assertThat(oppgave.id).isEqualTo(200)
+        wiremockServerItem.verify(getRequestedFor(urlEqualTo(sti)).withHeader("X-Test-Cluster", WireMock.equalTo(cluster)))
+        verify(exactly = 1) { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_INTEGRASJONER_I_GCP, defaultValue = false) }
+    }
+
+    @Test
+    fun `skal kunne bytte til GCP og tilbake til FSS uten omstart`() {
+        // Arrange
+        every {
+            featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_INTEGRASJONER_I_GCP, defaultValue = false)
+        } returnsMany listOf(false, true, false)
+        listOf("/oppgave/200", "/gcp/oppgave/200").forEach { sti ->
+            wiremockServerItem.stubFor(get(urlEqualTo(sti)).willReturn(okJson(readFile("finnOppgaveMedIdEnkelResponse.json"))))
+        }
+
+        // Act
+        repeat(3) { integrasjonKlient.finnOppgaveMedId(200) }
+
+        // Assert
+        wiremockServerItem.verify(2, getRequestedFor(urlEqualTo("/oppgave/200")).withHeader("X-Test-Cluster", WireMock.equalTo("fss")))
+        wiremockServerItem.verify(1, getRequestedFor(urlEqualTo("/gcp/oppgave/200")).withHeader("X-Test-Cluster", WireMock.equalTo("gcp")))
+        verify(exactly = 3) { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_INTEGRASJONER_I_GCP, defaultValue = false) }
+    }
+
+    @Test
+    fun `skal ikke falle tilbake til FSS når et kall til GCP feiler`() {
+        // Arrange
+        every { featureToggleService.isEnabled(FeatureToggle.BRUK_FAMILIE_INTEGRASJONER_I_GCP, defaultValue = false) } returns true
+        wiremockServerItem.stubFor(get(urlEqualTo("/gcp/oppgave/200")).willReturn(WireMock.serverError()))
+
+        // Act & Assert
+        assertThrows<IntegrasjonException> { integrasjonKlient.finnOppgaveMedId(200) }
+        wiremockServerItem.verify(0, getRequestedFor(urlEqualTo("/oppgave/200")))
+        wiremockServerItem.verify(1, getRequestedFor(urlEqualTo("/gcp/oppgave/200")))
     }
 
     @Test

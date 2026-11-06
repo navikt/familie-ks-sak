@@ -26,6 +26,14 @@ class RestClientConfig(
             SikkerhetContext.hentJwt()?.tokenValue
         }
 
+    @Bean("integrasjonerGcpRestClient")
+    fun integrasjonerGcpRestClient(
+        @Value("\${FAMILIE_INTEGRASJONER_GCP_SCOPE}") scope: String,
+    ): RestClient =
+        entraIDRestClientFactory.lagHybridRestKlient(scope) {
+            SikkerhetContext.hentJwt()?.tokenValue
+        }
+
     @Bean("klageRestClient")
     fun klageRestClient(
         @Value("\${FAMILIE_KLAGE_SCOPE}") scope: String,

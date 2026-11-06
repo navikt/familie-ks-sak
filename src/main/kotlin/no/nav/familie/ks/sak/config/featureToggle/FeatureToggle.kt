@@ -4,6 +4,7 @@ enum class FeatureToggle(
     val navn: String,
 ) {
     // Operasjonelle
+    BRUK_FAMILIE_INTEGRASJONER_I_GCP("familie-ks-sak.bruk-familie-integrasjoner-i-gcp"),
     TEKNISK_VEDLIKEHOLD_HENLEGGELSE("familie-ks-sak.teknisk-vedlikehold-henleggelse.tilgangsstyring"),
     TEKNISK_ENDRING("familie-ks-sak.behandling.teknisk-endring"),
     KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER("familie-ks-sak.kan-opprette-og-endre-sammensatte-kontrollsaker"),

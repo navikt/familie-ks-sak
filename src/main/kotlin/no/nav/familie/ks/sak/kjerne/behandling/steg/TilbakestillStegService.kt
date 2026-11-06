@@ -19,7 +19,11 @@ class TilbakestillStegService(
         val behandlingStegTilstand = behandling.behandlingStegTilstand.single { it.behandlingSteg == behandlingSteg }
 
         val erAlleredeTilbakeført = behandlingStegTilstand.behandlingStegStatus == BehandlingStegStatus.KLAR
-        if (erAlleredeTilbakeført) {
+        val erAlleredeTilbakeførtTilTidligereSteg =
+            behandling.behandlingStegTilstand.any {
+                it.behandlingSteg.sekvens < behandlingSteg.sekvens && it.behandlingStegStatus == BehandlingStegStatus.KLAR
+            }
+        if (erAlleredeTilbakeført || erAlleredeTilbakeførtTilTidligereSteg) {
             return
         }
 
