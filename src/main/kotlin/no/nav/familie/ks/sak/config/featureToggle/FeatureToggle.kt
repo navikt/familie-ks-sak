@@ -19,4 +19,7 @@ enum class FeatureToggle(
     // NAV-30112
     FAGSAKLÅSING_SCHEDULER("familie-ks-sak.fagsaklaasing-scheduler"),
     KAN_LÅSE_FAGSAK("familie-ks-sak.kan-laase-fagsak"),
+
+    // NAV-31651
+    BULK_OPPDATER_LOGISKE_VEDLEGG("familie-ks-sak.bulk-oppdater-logiske-vedlegg"),
 }

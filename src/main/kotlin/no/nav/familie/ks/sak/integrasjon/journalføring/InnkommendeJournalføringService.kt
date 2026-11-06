@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional
 import no.nav.familie.kontrakter.felles.BrukerIdType
 import no.nav.familie.kontrakter.felles.Fagsystem
 import no.nav.familie.kontrakter.felles.Tema
+import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.journalpost.Bruker
 import no.nav.familie.kontrakter.felles.journalpost.Journalpost
@@ -21,6 +22,8 @@ import no.nav.familie.ks.sak.api.dto.Sakstype
 import no.nav.familie.ks.sak.api.dto.TilknyttetBehandling
 import no.nav.familie.ks.sak.api.dto.tilOppdaterJournalpostRequestDto
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
+import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpost
 import no.nav.familie.ks.sak.integrasjon.journalføring.domene.DbJournalpostType
@@ -52,6 +55,7 @@ class InnkommendeJournalføringService(
     private val loggService: LoggService,
     private val behandlingSøknadsinfoService: BehandlingSøknadsinfoService,
     private val klageService: KlageService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     fun hentJournalposterForBruker(brukerId: String): List<TilgangsstyrtJournalpost> =
         integrasjonKlient
@@ -83,6 +87,13 @@ class InnkommendeJournalføringService(
         val fagsakId = fagsakService.hentEllerOpprettFagsak(FagsakRequestDto(request.bruker.id)).id
         val tilknyttedeBehandlinger = request.tilknyttedeBehandlinger.toMutableList()
         val journalpost = integrasjonKlient.hentJournalpost(journalpostId)
+        val skalBulkOppdatereLogiskeVedlegg = featureToggleService.isEnabled(FeatureToggle.BULK_OPPDATER_LOGISKE_VEDLEGG)
+
+        if (skalBulkOppdatereLogiskeVedlegg) {
+            // Oppdateres før klage eller behandling opprettes, slik at en feil her ikke etterlater en klagebehandling i familie-klage.
+            // Trygt å gjenta ved nytt forsøk, siden vi sammenligner med journalposten i Joark og erstatter hele listen.
+            oppdaterLogiskeVedlegg(request.dokumenter, journalpost)
+        }
 
         if (request.opprettOgKnyttTilNyBehandling) {
             if (request.nyBehandlingstype == JournalføringBehandlingstype.KLAGE) {
@@ -119,7 +130,9 @@ class InnkommendeJournalføringService(
             journalpost = journalpost,
         )
 
-        oppdaterLogiskeVedlegg(request.dokumenter)
+        if (!skalBulkOppdatereLogiskeVedlegg) {
+            leggTilOgSlettLogiskeVedlegg(request.dokumenter)
+        }
 
         oppdaterOgFerdigstill(
             oppdaterJournalPostRequest =
@@ -242,7 +255,7 @@ class InnkommendeJournalføringService(
         }
     }
 
-    private fun oppdaterLogiskeVedlegg(dokumenter: List<JournalpostDokumentDto>) {
+    private fun leggTilOgSlettLogiskeVedlegg(dokumenter: List<JournalpostDokumentDto>) {
         dokumenter.forEach { dokument ->
             val eksisterendeLogiskeVedlegg = dokument.eksisterendeLogiskeVedlegg ?: emptyList()
             val logiskeVedlegg = dokument.logiskeVedlegg ?: emptyList()
@@ -259,6 +272,32 @@ class InnkommendeJournalføringService(
             }
         }
     }
+
+    private fun oppdaterLogiskeVedlegg(
+        dokumenter: List<JournalpostDokumentDto>,
+        journalpost: Journalpost,
+    ) {
+        dokumenter.forEach { dokument ->
+            val nyeTitler = dokument.hentTitlerPåLogiskeVedlegg() ?: return@forEach
+            val eksisterendeTitler = journalpost.hentTitlerPåLogiskeVedlegg(dokument.dokumentInfoId)
+
+            if (nyeTitler != eksisterendeTitler) {
+                integrasjonKlient.oppdaterLogiskeVedlegg(
+                    dokumentInfoId = dokument.dokumentInfoId,
+                    request = BulkOppdaterLogiskVedleggRequest(titler = nyeTitler),
+                )
+            }
+        }
+    }
+
+    private fun JournalpostDokumentDto.hentTitlerPåLogiskeVedlegg(): List<String>? = logiskeVedlegg?.map { it.tittel }
+
+    private fun Journalpost.hentTitlerPåLogiskeVedlegg(dokumentInfoId: String): List<String> =
+        dokumenter
+            ?.find { it.dokumentInfoId == dokumentInfoId }
+            ?.logiskeVedlegg
+            .orEmpty()
+            .map { it.tittel }
 
     private fun oppdaterOgFerdigstill(
         oppdaterJournalPostRequest: OppdaterJournalpostRequestDto,
