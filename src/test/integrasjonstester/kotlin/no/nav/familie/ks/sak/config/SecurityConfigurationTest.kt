@@ -23,6 +23,22 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
     }
 
+    private fun maskinTilMaskinToken(azpName: String) =
+        lokalTestToken(
+            mapOf(
+                "azp_name" to azpName,
+                "idtyp" to "app",
+            ),
+        )
+
+    private fun brukerToken(
+        azpName: String,
+        behandlerRolle: BehandlerRolle? = null,
+    ) = lokalTestToken(
+        claims = mapOf("azp_name" to azpName),
+        behandlerRolle = behandlerRolle,
+    )
+
     @Nested
     inner class PermitAll {
         @Test
@@ -81,15 +97,7 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
         @Test
         fun `m2m-token fra teamfamilie-app har tilgang til interne endepunkter`() {
             Given {
-                header(
-                    "Authorization",
-                    "Bearer ${lokalTestToken(
-                        mapOf(
-                            "azp_name" to "dev-gcp:teamfamilie:tilfeldig-applikasjon",
-                            "roles" to "access_as_application",
-                        ),
-                    )}",
-                )
+                header("Authorization", "Bearer ${maskinTilMaskinToken("dev-gcp:teamfamilie:tilfeldig-applikasjon")}")
             } When {
                 get("/sok/fagsaker-hvor-person-er-deltaker")
             } Then {
@@ -100,24 +108,87 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
         @Test
         fun `m2m-token uten teamfamilie-namespace har ikke tilgang til interne endepunkter`() {
             Given {
-                header("Authorization", "Bearer ${lokalTestToken(mapOf("azp_name" to "dev-gcp:ukjent-namespace:ukjent-applikasjon"))}")
+                header("Authorization", "Bearer ${maskinTilMaskinToken("dev-gcp:ukjent-namespace:ukjent-applikasjon")}")
             } When {
                 get("/api/fagsaker/minimal/1")
             } Then {
                 statusCode(403)
             }
         }
+
+        @ParameterizedTest
+        @ValueSource(
+            strings = [
+                "dev-gcp:teamfamilie:familie-ks-sak-frontend",
+                "dev-gcp:teamfamilie:familie-ks-sak",
+                "dev-gcp:teamfamilie:familie-prosessering",
+            ],
+        )
+        fun `skal ikke gi tilgang til brukertoken fra teamfamilie-app når bruker mangler kontantstøtte-rolle`(azpName: String) {
+            Given {
+                header("Authorization", "Bearer ${brukerToken(azpName)}")
+                contentType("application/json")
+                body("""["en-toggle"]""")
+            } When {
+                post("/api/featuretoggles")
+            } Then {
+                statusCode(403)
+            }
+        }
+
+        @Test
+        fun `skal gi tilgang til brukertoken fra frontend når bruker har kontantstøtte-rolle`() {
+            Given {
+                header(
+                    "Authorization",
+                    "Bearer ${brukerToken("dev-gcp:teamfamilie:familie-ks-sak-frontend", BehandlerRolle.SAKSBEHANDLER)}",
+                )
+                contentType("application/json")
+                body("""["en-toggle"]""")
+            } When {
+                post("/api/featuretoggles")
+            } Then {
+                statusCode(200)
+            }
+        }
     }
 
     @Nested
     inner class BisysTilgang {
-        private fun bisysToken(applikasjonNavn: String) =
-            lokalTestToken(
-                mapOf(
-                    "azp_name" to "dev-gcp:bidrag:$applikasjonNavn",
-                    "roles" to "access_as_application",
-                ),
-            )
+        private fun bisysToken(applikasjonNavn: String) = maskinTilMaskinToken("dev-gcp:bidrag:$applikasjonNavn")
+
+        @Test
+        fun `skal ikke gi tilgang til bisys-endepunkt for brukertoken fra bisys-app`() {
+            Given {
+                header("Authorization", "Bearer ${brukerToken("dev-gcp:bidrag:bidrag-grunnlag")}")
+            } When {
+                post("/api/bisys/hent-utbetalingsinfo")
+            } Then {
+                statusCode(403)
+            }
+        }
+
+        @Test
+        fun `skal ikke gi tilgang til bisys-endepunkt for brukertoken fra ef-sak`() {
+            Given {
+                header("Authorization", "Bearer ${brukerToken("dev-gcp:teamfamilie:familie-ef-sak")}")
+            } When {
+                post("/api/bisys/hent-utbetalingsinfo")
+            } Then {
+                statusCode(403)
+            }
+        }
+
+        @Test
+        fun `ef-sak-token har tilgang til bisys-endepunkt`() {
+            Given {
+                header("Authorization", "Bearer ${maskinTilMaskinToken("dev-gcp:teamfamilie:familie-ef-sak")}")
+            } When {
+                post("/api/bisys/hent-utbetalingsinfo")
+            } Then {
+                statusCode(not(anyOf(equalTo(401), equalTo(403))))
+            }
+        }
 
         @Test
         fun `bisys-token har ikke tilgang til generelt api-endepunkt`() {

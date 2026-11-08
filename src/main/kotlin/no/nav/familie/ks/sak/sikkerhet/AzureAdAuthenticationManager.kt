@@ -60,10 +60,14 @@ class AzureAdAuthenticationManager(
                 if (grupper.contains(rolleConfig.BESLUTTER_ROLLE)) add(Rolle.BESLUTTER)
                 if (grupper.contains(rolleConfig.FORVALTER_ROLLE)) add(Rolle.FORVALTER)
 
-                if (appNavn.matches(teamfamilieRegex)) add(Rolle.TEAMFAMILIE_APPLIKASJON)
+                // familie-klage kaller alltid med brukertoken (OBO), ikke maskintoken
                 if (appNavn.matches(klageRegex)) add(Rolle.KLAGE_APPLIKASJON)
-                if (appNavn.matches(bisysRegex)) add(Rolle.BISYS_APPLIKASJON)
-                if (appNavn.matches(efSakRegex)) add(Rolle.EF_APPLIKASJON)
+
+                if (SikkerhetContext.erMaskinTilMaskinToken(jwt)) {
+                    if (appNavn.matches(teamfamilieRegex)) add(Rolle.TEAMFAMILIE_APPLIKASJON)
+                    if (appNavn.matches(bisysRegex)) add(Rolle.BISYS_APPLIKASJON)
+                    if (appNavn.matches(efSakRegex)) add(Rolle.EF_APPLIKASJON)
+                }
             }
 
         if (roller.isEmpty()) {
