@@ -29,21 +29,32 @@ class JournalføringController(
     @PostMapping(path = ["/bruker"])
     fun hentJournalposterForBruker(
         @RequestBody personIdentBody: PersonIdent,
-    ): ResponseEntity<Ressurs<List<TilgangsstyrtJournalpost>>> =
-        ResponseEntity.ok(
+    ): ResponseEntity<Ressurs<List<TilgangsstyrtJournalpost>>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente journalposter for bruker",
+        )
+
+        return ResponseEntity.ok(
             Ressurs.success(
                 innkommendeJournalføringService.hentJournalposterForBruker(
                     personIdentBody.ident,
                 ),
             ),
         )
+    }
 
     @GetMapping("/{journalpostId}/dokument/{dokumentId}")
     fun hentDokumentIJournalpost(
         @PathVariable journalpostId: String,
         @PathVariable dokumentId: String,
-    ): ResponseEntity<Ressurs<ByteArray>> =
-        ResponseEntity.ok(
+    ): ResponseEntity<Ressurs<ByteArray>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente dokument",
+        )
+
+        return ResponseEntity.ok(
             Ressurs.success(
                 innkommendeJournalføringService.hentDokumentIJournalpost(
                     journalpostId,
@@ -51,6 +62,7 @@ class JournalføringController(
                 ),
             ),
         )
+    }
 
     @GetMapping(
         path = ["/{journalpostId}/dokument/{dokumentId}/pdf"],
@@ -59,7 +71,14 @@ class JournalføringController(
     fun hentDokumentIJournalpostSomPdf(
         @PathVariable journalpostId: String,
         @PathVariable dokumentId: String,
-    ): ResponseEntity<ByteArray> = ResponseEntity.ok(innkommendeJournalføringService.hentDokumentIJournalpost(journalpostId, dokumentId))
+    ): ResponseEntity<ByteArray> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente dokument",
+        )
+
+        return ResponseEntity.ok(innkommendeJournalføringService.hentDokumentIJournalpost(journalpostId, dokumentId))
+    }
 
     @PostMapping(path = ["/{journalpostId}/journalfør/{oppgaveId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun journalførOppgave(
