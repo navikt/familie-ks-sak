@@ -52,6 +52,8 @@ funksjonsbrytere:
 
 management:
   endpoint:
+    info:
+      access: none
     health:
       show-details: always
       group:
@@ -59,8 +61,11 @@ management:
           include: db
         liveness:
           include: db
+  info:
+    defaults:
+      enabled: false
   endpoints.web:
-    exposure.include: info, health, metrics, prometheus
+    exposure.include: health, metrics, prometheus
     base-path: "/internal"
   metrics.export.prometheus.enabled: true
   health:
