@@ -7,6 +7,7 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.Tema
 import no.nav.familie.kontrakter.felles.dokarkiv.ArkiverDokumentResponse
 import no.nav.familie.kontrakter.felles.dokarkiv.AvsluttSakRequest
+import no.nav.familie.kontrakter.felles.dokarkiv.BulkOppdaterLogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.GjenåpneSakRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggRequest
 import no.nav.familie.kontrakter.felles.dokarkiv.LogiskVedleggResponse
@@ -411,6 +412,27 @@ class IntegrasjonKlient(
                 .body(oppgaveOppdatering)
                 .retrieve()
                 .body<Ressurs<OppgaveResponse>>()!!
+        }
+    }
+
+    fun oppdaterLogiskeVedlegg(
+        dokumentInfoId: String,
+        request: BulkOppdaterLogiskVedleggRequest,
+    ) {
+        val (integrasjonUri, restClient) = hentIntegrasjonKlient()
+        val uri = URI.create("$integrasjonUri/arkiv/dokument/$dokumentInfoId/logiskVedlegg")
+
+        kallEksternTjenesteRessurs(
+            tjeneste = "dokarkiv",
+            uri = uri,
+            formål = "Oppdater logiske vedlegg på dokument $dokumentInfoId",
+        ) {
+            restClient
+                .put()
+                .uri(uri)
+                .body(request)
+                .retrieve()
+                .body<Ressurs<String>>()!!
         }
     }
 
