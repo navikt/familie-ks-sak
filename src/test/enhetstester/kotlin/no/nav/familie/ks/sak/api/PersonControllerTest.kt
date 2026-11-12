@@ -11,6 +11,7 @@ import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADE
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlPersonInfo
@@ -19,7 +20,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlag
 import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
@@ -147,8 +147,8 @@ class PersonControllerTest {
             val behandling = lagBehandling(id = 1)
             justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
             every { behandlingService.hentBehandling(behandling.id) } returns behandling
-            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns PersonopplysningGrunnlag(id = 1, behandlingId = behandling.id)
-            every { personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling) } returns PersonopplysningGrunnlag(id = 2, behandlingId = behandling.id)
+            every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns lagPersonopplysningGrunnlag(id = 1, behandlingId = behandling.id)
+            every { personopplysningGrunnlagService.oppdaterRegisteropplysningerPåBehandling(behandling) } returns lagPersonopplysningGrunnlag(id = 2, behandlingId = behandling.id)
             justRun { tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandling.id) }
             every { behandlingService.lagBehandlingRespons(behandling.id) } returns mockk()
 
@@ -166,7 +166,7 @@ class PersonControllerTest {
         fun `skal ikke tilbakestille behandlingen når registeropplysningene er uendret`() {
             // Arrange
             val behandling = lagBehandling(id = 1)
-            val personopplysningGrunnlag = PersonopplysningGrunnlag(id = 1, behandlingId = behandling.id)
+            val personopplysningGrunnlag = lagPersonopplysningGrunnlag(id = 1, behandlingId = behandling.id)
             justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
             every { behandlingService.hentBehandling(behandling.id) } returns behandling
             every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) } returns personopplysningGrunnlag

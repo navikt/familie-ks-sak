@@ -3,13 +3,14 @@ package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene
 import no.nav.familie.kontrakter.felles.personopplysning.OPPHOLDSTILLATELSE
 import no.nav.familie.kontrakter.felles.personopplysning.SIVILSTANDTYPE
 import no.nav.familie.ks.sak.common.entitet.DatoIntervallEntitet
+import no.nav.familie.ks.sak.data.lagDødsfall
 import no.nav.familie.ks.sak.data.lagPerson
+import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.datagenerator.lagGrUkjentAdresseOppholdsadresse
 import no.nav.familie.ks.sak.datagenerator.lagGrVegadresseBostedsadresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.arbeidsforhold.GrArbeidsforhold
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.bostedsadresse.GrBostedsadresse
-import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.dødsfall.Dødsfall
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.opphold.GrOpphold
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.sivilstand.GrSivilstand
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.statsborgerskap.GrStatsborgerskap
@@ -30,7 +31,7 @@ class PersonTest {
                 type = PersonType.SØKER,
                 fødselsdato = LocalDate.of(1990, 1, 1),
                 navn = "Navn",
-                personopplysningGrunnlag = PersonopplysningGrunnlag(id = id, behandlingId = 1),
+                personopplysningGrunnlag = lagPersonopplysningGrunnlag(id = id, behandlingId = 1),
                 aktør = aktør,
                 bostedsadresser = { listOf(lagGrVegadresseBostedsadresse().medPeriode(periode)) },
                 oppholdsadresser = { listOf(lagGrUkjentAdresseOppholdsadresse(periode = periode)) },
@@ -39,20 +40,15 @@ class PersonTest {
                 arbeidsforhold = { listOf(GrArbeidsforhold(id = id, periode = periode, arbeidsgiverId = "123", arbeidsgiverType = "Organisasjon", person = it)) },
                 sivilstander = { listOf(GrSivilstand(id = id, fom = LocalDate.of(2015, 1, 1), type = SIVILSTANDTYPE.GIFT, person = it)) },
             ).also {
-                it.dødsfall = lagDødsfall(id = id, person = it)
+                it.dødsfall =
+                    lagDødsfall(
+                        person = it,
+                        dødsfallDato = LocalDate.of(2024, 1, 1),
+                        dødsfallAdresse = "Adresse",
+                        dødsfallPostnummer = "0001",
+                        dødsfallPoststed = "Oslo",
+                    ).copy(id = id)
             }
-
-        private fun lagDødsfall(
-            id: Long,
-            person: Person,
-        ) = Dødsfall(
-            id = id,
-            person = person,
-            dødsfallDato = LocalDate.of(2024, 1, 1),
-            dødsfallAdresse = "Adresse",
-            dødsfallPostnummer = "0001",
-            dødsfallPoststed = "Oslo",
-        )
 
         private fun GrBostedsadresse.medPeriode(nyPeriode: DatoIntervallEntitet) = also { it.periode = nyPeriode }
 
@@ -60,6 +56,7 @@ class PersonTest {
 
         @Test
         fun `skal returnere true når alle felter er identiske selv om id-ene er forskjellige`() {
+            // Act & Assert
             assertThat(person.personopplysningerErLike(lagPersonMedRegisteropplysninger(id = 2))).isTrue()
         }
 
@@ -190,6 +187,18 @@ class PersonTest {
         fun `skal returnere false når statsborgerskap er forskjellige`() {
             // Arrange
             val nyPerson = lagPersonMedRegisteropplysninger(id = 2).apply { statsborgerskap = mutableListOf() }
+
+            // Act & Assert
+            assertThat(person.personopplysningerErLike(nyPerson)).isFalse()
+        }
+
+        @Test
+        fun `skal returnere false når medlemskap i statsborgerskap er forskjellig`() {
+            // Arrange
+            val nyPerson =
+                lagPersonMedRegisteropplysninger(id = 2).apply {
+                    statsborgerskap = statsborgerskap.map { it.copy(medlemskap = Medlemskap.EØS) }.toMutableList()
+                }
 
             // Act & Assert
             assertThat(person.personopplysningerErLike(nyPerson)).isFalse()

@@ -161,13 +161,12 @@ class PersonopplysningGrunnlagService(
 
         return if (aktivtPersonopplysningGrunnlag == null || personopplysningGrunnlag.harRelevantEndring(aktivtPersonopplysningGrunnlag)) {
             lagreOgSlettGammelt(personopplysningGrunnlag).also {
-                /*
-                 * For sikkerhetsskyld fastsetter vi alltid behandlende enhet når nytt personopplysningsgrunnlag opprettes.
-                 * Dette gjør vi fordi det kan ha blitt introdusert personer med fortrolig adresse.
-                 */
+                // Det kan ha blitt introdusert personer med fortrolig adresse.
                 arbeidsfordelingService.fastsettBehandlendeEnhet(behandling)
             }
         } else {
+            // Adressebeskyttelse lagres ikke i personopplysningsgrunnlaget, så den kan være endret selv om grunnlaget er uendret.
+            arbeidsfordelingService.fastsettBehandlendeEnhet(behandling)
             personopplysningGrunnlagRepository.save(aktivtPersonopplysningGrunnlag.apply { endretTidspunkt = LocalDateTime.now() })
         }
     }

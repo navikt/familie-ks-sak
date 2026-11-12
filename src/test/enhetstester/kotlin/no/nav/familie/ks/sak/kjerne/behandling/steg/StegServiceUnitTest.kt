@@ -7,11 +7,13 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
+import no.nav.familie.ks.sak.api.dto.tilSøknadGrunnlag
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBehandlingStegTilstand
+import no.nav.familie.ks.sak.data.lagRegistrerSøknadDto
 import no.nav.familie.ks.sak.data.lagVedtak
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -19,6 +21,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
@@ -45,6 +48,7 @@ class StegServiceUnitTest {
     private val andelTilkjentYtelseRepository = mockk<AndelTilkjentYtelseRepository>()
     private val behandlingService = mockk<BehandlingService>()
     private val loggService = mockk<LoggService>()
+    private val søknadGrunnlagService = mockk<SøknadGrunnlagService>()
 
     private val stegService =
         StegService(
@@ -57,6 +61,7 @@ class StegServiceUnitTest {
             loggService = loggService,
             behandlingService = behandlingService,
             andelTilkjentYtelseRepository = andelTilkjentYtelseRepository,
+            søknadGrunnlagService = søknadGrunnlagService,
         )
 
     private val behandling = lagBehandling(id = 1, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
@@ -490,5 +495,57 @@ class StegServiceUnitTest {
         verify(exactly = 0) { behandlingRepository.saveAndFlush(any()) }
         assertThat(behandling.behandlingStegTilstand.filter { it.behandlingStegStatus == BehandlingStegStatus.KLAR }.map { it.behandlingSteg })
             .containsExactly(BehandlingSteg.SIMULERING)
+    }
+
+    @Test
+    fun `skal ikke tilbakeføre senere steg når søknaden som registreres er identisk med aktiv søknad`() {
+        // Arrange
+        val behandling =
+            lagBehandling(id = 3, opprettetÅrsak = BehandlingÅrsak.SØKNAD) {
+                setOf(
+                    lagBehandlingStegTilstand(it, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.REGISTRERE_SØKNAD, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.BEHANDLINGSRESULTAT, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.VEDTAK, BehandlingStegStatus.KLAR),
+                )
+            }
+        val registrerSøknadDto = lagRegistrerSøknadDto()
+        every { behandlingRepository.hentAktivBehandling(behandling.id) } returns behandling
+        every { søknadGrunnlagService.finnAktiv(behandling.id) } returns registrerSøknadDto.søknad.tilSøknadGrunnlag(behandling.id)
+
+        // Act
+        stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_SØKNAD, registrerSøknadDto)
+
+        // Assert
+        verify(exactly = 0) { behandlingRepository.saveAndFlush(any()) }
+        assertThat(behandling.behandlingStegTilstand.filter { it.behandlingStegStatus == BehandlingStegStatus.KLAR }.map { it.behandlingSteg })
+            .containsExactly(BehandlingSteg.VEDTAK)
+    }
+
+    @Test
+    fun `skal tilbakeføre senere steg når søknaden som registreres er endret`() {
+        // Arrange
+        val behandling =
+            lagBehandling(id = 4, opprettetÅrsak = BehandlingÅrsak.SØKNAD) {
+                setOf(
+                    lagBehandlingStegTilstand(it, BehandlingSteg.REGISTRERE_PERSONGRUNNLAG, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.REGISTRERE_SØKNAD, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.VILKÅRSVURDERING, BehandlingStegStatus.UTFØRT),
+                    lagBehandlingStegTilstand(it, BehandlingSteg.VEDTAK, BehandlingStegStatus.KLAR),
+                )
+            }
+        val registrerSøknadDto = lagRegistrerSøknadDto()
+        every { behandlingRepository.hentAktivBehandling(behandling.id) } returns behandling
+        every { søknadGrunnlagService.finnAktiv(behandling.id) } returns
+            registrerSøknadDto.søknad.copy(endringAvOpplysningerBegrunnelse = "Endret").tilSøknadGrunnlag(behandling.id)
+        every { behandlingRepository.saveAndFlush(any()) } throws IllegalStateException("Senere steg ble tilbakeført")
+
+        // Act & Assert
+        assertThrows<IllegalStateException> {
+            stegService.utførSteg(behandling.id, BehandlingSteg.REGISTRERE_SØKNAD, registrerSøknadDto)
+        }
+        assertThat(behandling.behandlingStegTilstand.single { it.behandlingSteg == BehandlingSteg.VILKÅRSVURDERING }.behandlingStegStatus)
+            .isEqualTo(BehandlingStegStatus.TILBAKEFØRT)
     }
 }

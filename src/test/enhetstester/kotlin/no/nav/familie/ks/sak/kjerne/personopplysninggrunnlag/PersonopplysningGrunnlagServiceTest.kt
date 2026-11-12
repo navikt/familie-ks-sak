@@ -165,7 +165,7 @@ internal class PersonopplysningGrunnlagServiceTest {
     }
 
     @Test
-    fun `lagreSøkerOgBarnINyttGrunnlag skal ikke lagre nytt grunnlag når registeropplysningene er uendret`() {
+    fun `lagreSøkerOgBarnINyttGrunnlag skal fastsette behandlende enhet uten å lagre nytt grunnlag når registeropplysningene er uendret`() {
         // Arrange
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val opprinneligEndretTidspunkt = LocalDateTime.of(2020, 1, 1, 12, 0, 0)
@@ -194,7 +194,7 @@ internal class PersonopplysningGrunnlagServiceTest {
         assertThat(oppdatertGrunnlag.endretTidspunkt).isAfter(opprinneligEndretTidspunkt)
         verify(exactly = 1) { personopplysningGrunnlagRepository.save(aktivtGrunnlag) }
         verify(exactly = 0) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
-        verify(exactly = 0) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
+        verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
     }
 
     @Test
