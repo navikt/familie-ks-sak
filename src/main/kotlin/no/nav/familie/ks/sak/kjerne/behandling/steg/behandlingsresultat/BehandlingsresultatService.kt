@@ -92,6 +92,7 @@ class BehandlingsresultatService(
                 val forrigeKompetanser = kompetanseService.hentKompetanser(behandlingId = BehandlingId(forrigeBehandling.id))
 
                 BehandlingsresultatEndringUtils.utledEndringsresultat(
+                    behandlingId = behandlingId,
                     nåværendeAndeler = andelerTilkjentYtelse,
                     forrigeAndeler = forrigeAndelerTilkjentYtelse,
                     nåværendeEndretAndeler = endretUtbetalingAndeler,

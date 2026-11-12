@@ -151,7 +151,7 @@ class VilkårsvurderingService(
                         .hentAktivPersonopplysningGrunnlagThrows(behandlingId)
                         .barna
                         .firstOrNull { it.aktør == personResultat.aktør }
-                        ?.fødselsdato ?: throw Feil("Finner ikke barn med aktørId ${personResultat.aktør} i personopplysningsgrunnlaget"),
+                        ?.fødselsdato ?: throw Feil("Finner ikke barn for personResultat ${personResultat.id} i personopplysningsgrunnlaget på behandling $behandlingId"),
             )
             adopsjonService.oppdaterAdopsjonsdato(behandlingId = BehandlingId(behandlingId), aktør = personResultat.aktør, nyAdopsjonsdato = endreVilkårResultatDto.adopsjonsdato)
         }
