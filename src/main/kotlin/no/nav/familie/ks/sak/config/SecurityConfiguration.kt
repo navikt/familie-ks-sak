@@ -40,7 +40,10 @@ class SecurityConfiguration(
         http {
             csrf { disable() }
             securityMatcher(
-                "/internal/**",
+                "/internal",
+                "/internal/health/**",
+                "/internal/metrics/**",
+                "/internal/prometheus",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
