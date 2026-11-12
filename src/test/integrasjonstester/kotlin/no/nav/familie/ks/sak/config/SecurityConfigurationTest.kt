@@ -41,12 +41,21 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
 
     @Nested
     inner class PermitAll {
-        @Test
-        fun `internal liveness-endepunkt er tilgjengelig uten token`() {
+        @ParameterizedTest
+        @ValueSource(
+            strings = [
+                "/internal",
+                "/internal/health/liveness",
+                "/internal/metrics",
+                "/internal/metrics/jvm.memory.used",
+                "/internal/prometheus",
+            ],
+        )
+        fun `skal tillate offentlige internal-endepunkter uten token`(path: String) {
             Given {
                 this
             } When {
-                get("/internal/health/liveness")
+                get(path)
             } Then {
                 statusCode(200)
             }
@@ -66,6 +75,19 @@ class SecurityConfigurationTest : OppslagSpringRunnerTest() {
 
     @Nested
     inner class UtenToken {
+        @ParameterizedTest
+        @ValueSource(strings = ["/internal/info", "/internal/mappings", "/internal/status/isAlive", "/internal/healthcheck", "/internal/prometheus/other"])
+        fun `skal avvise øvrige internal-endepunkter uten token`(path: String) {
+            // Act & Assert
+            Given {
+                this
+            } When {
+                get(path)
+            } Then {
+                statusCode(401)
+            }
+        }
+
         @Test
         fun `api-kall uten token returnerer 401 med Ressurs-body`() {
             Given {
