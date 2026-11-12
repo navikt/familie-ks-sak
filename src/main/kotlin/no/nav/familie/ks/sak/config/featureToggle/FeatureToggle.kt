@@ -4,6 +4,7 @@ enum class FeatureToggle(
     val navn: String,
 ) {
     // Operasjonelle
+    BRUK_FAMILIE_INTEGRASJONER_I_GCP("familie-ks-sak.bruk-familie-integrasjoner-i-gcp"),
     TEKNISK_VEDLIKEHOLD_HENLEGGELSE("familie-ks-sak.teknisk-vedlikehold-henleggelse.tilgangsstyring"),
     TEKNISK_ENDRING("familie-ks-sak.behandling.teknisk-endring"),
     KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER("familie-ks-sak.kan-opprette-og-endre-sammensatte-kontrollsaker"),
@@ -18,4 +19,7 @@ enum class FeatureToggle(
     // NAV-30112
     FAGSAKLÅSING_SCHEDULER("familie-ks-sak.fagsaklaasing-scheduler"),
     KAN_LÅSE_FAGSAK("familie-ks-sak.kan-laase-fagsak"),
+
+    // NAV-31651
+    BULK_OPPDATER_LOGISKE_VEDLEGG("familie-ks-sak.bulk-oppdater-logiske-vedlegg"),
 }

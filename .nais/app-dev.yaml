@@ -17,7 +17,7 @@ spec:
     initialDelay: 35
     failureThreshold: 10
   readiness:
-    path: /internal/health/readyness
+    path: /internal/health/readiness
     initialDelay: 35
     failureThreshold: 10
   prometheus:
@@ -82,6 +82,8 @@ spec:
           cluster: dev-gcp
         - application: familie-integrasjoner
           cluster: dev-fss
+        - application: familie-integrasjoner
+          cluster: dev-gcp
         - application: populasjonstilgangskontroll
           namespace: tilgangsmaskin
           cluster: dev-gcp

@@ -34,19 +34,37 @@ class EksternKlageController(
     @GetMapping("fagsaker/{fagsakId}/kan-opprette-revurdering-klage")
     fun kanOppretteRevurderingKlage(
         @PathVariable fagsakId: Long,
-    ): Ressurs<KanOppretteRevurderingResponse> = Ressurs.success(opprettBehandlingService.kanOppretteRevurdering(fagsakId))
+    ): Ressurs<KanOppretteRevurderingResponse> {
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            handling = "Valider vi kan opprette revurdering med årsak klage på fagsak=$fagsakId",
+            event = AuditLoggerEvent.CREATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+        )
+
+        return Ressurs.success(opprettBehandlingService.kanOppretteRevurdering(fagsakId))
+    }
 
     @PostMapping("fagsak/{fagsakId}/klagebehandling/{klagebehandlingId}/opprett-revurdering-klage")
     fun opprettRevurderingKlage(
         @PathVariable fagsakId: Long,
         @PathVariable klagebehandlingId: UUID,
-    ): Ressurs<OpprettRevurderingResponse> =
-        Ressurs.success(
+    ): Ressurs<OpprettRevurderingResponse> {
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            handling = "Opprett revurdering med årsak klage på fagsak=$fagsakId",
+            event = AuditLoggerEvent.CREATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+        )
+
+        val opprettRevurderingResponse =
             opprettBehandlingService.validerOgOpprettRevurderingKlage(
                 fagsakId = fagsakId,
                 klagebehandlingId = klagebehandlingId,
-            ),
-        )
+            )
+
+        return Ressurs.success(opprettRevurderingResponse)
+    }
 
     @GetMapping("fagsaker/{fagsakId}/vedtak")
     fun hentVedtak(

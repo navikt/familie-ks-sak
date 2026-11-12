@@ -52,17 +52,25 @@ funksjonsbrytere:
 
 management:
   endpoint:
+    info:
+      access: none
     health:
       show-details: always
+      probes.enabled: true
       group:
-        readyness:
-          include: db
+        readiness:
+          include:
+            - readinessState
+            - db
         liveness:
-          include: db
+          include:
+            - livenessState
+  info:
+    defaults:
+      enabled: false
   endpoints.web:
-    exposure.include: info, health, metrics, prometheus
+    exposure.include: health, metrics, prometheus
     base-path: "/internal"
-  metrics.export.prometheus.enabled: true
   health:
     livenessstate:
       enabled: true
@@ -70,12 +78,10 @@ management:
       enabled: true
     db:
       enabled: true
-  metrics:
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 springdoc:
   packages-to-scan: "no.nav.familie.ks.sak"

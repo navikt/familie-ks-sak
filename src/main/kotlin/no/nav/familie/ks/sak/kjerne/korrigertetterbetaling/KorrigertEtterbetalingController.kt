@@ -73,8 +73,8 @@ class KorrigertEtterbetalingController(
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
-            event = AuditLoggerEvent.ACCESS,
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Oppdater korrigert etterbetaling",
         )
 

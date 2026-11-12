@@ -39,6 +39,11 @@ class PersonController(
     fun hentPerson(
         @RequestBody personIdentDto: PersonIdent,
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente person",
+        )
+
         val personIdent = personIdentDto.ident
 
         val aktør = personidentService.hentAktør(personIdent)
@@ -54,6 +59,11 @@ class PersonController(
     fun hentPersonEnkel(
         @RequestBody personIdentDto: PersonIdent,
     ): ResponseEntity<Ressurs<PersonInfoDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente person",
+        )
+
         val personIdent = personIdentDto.ident
 
         val aktør = personidentService.hentAktør(personIdent)
