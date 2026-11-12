@@ -22,6 +22,7 @@ import no.nav.familie.ks.sak.barnehagelister.BarnehagelisteVarslingService
 import no.nav.familie.ks.sak.barnehagelister.domene.BarnehagebarnVisningDto
 import no.nav.familie.ks.sak.common.EnvService
 import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.SpringProfile
@@ -34,7 +35,9 @@ import no.nav.familie.ks.sak.kjerne.avstemming.GrensesnittavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingKjøreplanService
 import no.nav.familie.ks.sak.kjerne.avstemming.KonsistensavstemmingTask
 import no.nav.familie.ks.sak.kjerne.avstemming.domene.KonsistensavstemmingTaskDto
+import no.nav.familie.ks.sak.kjerne.behandling.TilbakestillBehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingRepository
+import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.steg.henleggbehandling.HenleggBehandlingTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakStatusScheduler
@@ -89,6 +92,7 @@ class ForvaltningController(
     private val barnehagebarnService: BarnehagebarnService,
     private val barnehagelisteVarslingService: BarnehagelisteVarslingService,
     private val fagsakStatusScheduler: FagsakStatusScheduler,
+    private val tilbakestillBehandlingService: TilbakestillBehandlingService,
 ) {
     private val logger = LoggerFactory.getLogger(ForvaltningController::class.java)
 
@@ -241,7 +245,13 @@ class ForvaltningController(
             handling = "Fyll ut vilkårsvurderingen automatisk",
         )
 
+        val behandling = behandlingRepository.hentBehandling(behandlingId)
+        if (behandling.status != BehandlingStatus.UTREDES) {
+            throw FunksjonellFeil("Behandlingen er låst for videre redigering (${behandling.status})")
+        }
+
         vilkårsvurderingService.fyllUtVilkårsvurdering(behandlingId)
+        tilbakestillBehandlingService.tilbakestillBehandlingTilVilkårsvurdering(behandlingId)
 
         return ResponseEntity.ok(Ressurs.success("Oppdaterte vilkårsvurdering"))
     }

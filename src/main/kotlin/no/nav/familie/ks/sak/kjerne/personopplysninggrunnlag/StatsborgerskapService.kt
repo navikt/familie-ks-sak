@@ -28,7 +28,7 @@ class StatsborgerskapService(
                         DatoIntervallEntitet(
                             fom = statsborgerskap.hentFom(),
                             tom = statsborgerskap.gyldigTilOgMed,
-                        ),
+                        ).takeIf { it.fom != null || it.tom != null },
                     landkode = statsborgerskap.land,
                     medlemskap = Medlemskap.NORDEN,
                     person = person,
@@ -42,20 +42,15 @@ class StatsborgerskapService(
         val datoFra = statsborgerskap.hentFom()
 
         return if (datoFra == null && statsborgerskap.gyldigTilOgMed == null) {
-            val idag = LocalDate.now()
             listOf(
                 GrStatsborgerskap(
-                    gyldigPeriode =
-                        DatoIntervallEntitet(
-                            fom = idag,
-                            tom = null,
-                        ),
+                    gyldigPeriode = null,
                     landkode = statsborgerskap.land,
                     medlemskap =
                         finnMedlemskap(
                             statsborgerskap = statsborgerskap,
                             eøsMedlemskapsperioderForValgtLand = eøsMedlemskapsPerioderForValgtLand,
-                            gyldigFraOgMed = idag,
+                            gyldigFraOgMed = LocalDate.now(),
                         ),
                     person = person,
                 ),

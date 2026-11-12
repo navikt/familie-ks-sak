@@ -28,7 +28,7 @@ object RegisterHistorikkMapper {
         return RegisterHistorikkResponsDto(
             statsborgerskap = statsborgerskap,
             dødsboadresse = dødsboadresse,
-            hentetTidspunkt = person.personopplysningGrunnlag.opprettetTidspunkt,
+            hentetTidspunkt = person.personopplysningGrunnlag.endretTidspunkt,
             oppholdstillatelse = person.opphold.map { lagRegisterOpplysningDto(it) },
             bostedsadresse = person.bostedsadresser.map { lagRegisterOpplysningDto(it) },
             oppholdsadresse = person.oppholdsadresser.map { lagRegisterOpplysningDto(it) },

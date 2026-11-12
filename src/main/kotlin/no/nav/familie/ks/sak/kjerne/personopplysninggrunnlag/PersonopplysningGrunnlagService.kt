@@ -22,6 +22,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class PersonopplysningGrunnlagService(
@@ -156,12 +157,17 @@ class PersonopplysningGrunnlagService(
             }
         personopplysningGrunnlag.personer.addAll(barna)
 
-        return lagreOgSlettGammelt(personopplysningGrunnlag).also {
-            /*
-             * For sikkerhetsskyld fastsetter vi alltid behandlende enhet når nytt personopplysningsgrunnlag opprettes.
-             * Dette gjør vi fordi det kan ha blitt introdusert personer med fortrolig adresse.
-             */
+        val aktivtPersonopplysningGrunnlag = finnAktivPersonopplysningGrunnlag(behandling.id)
+
+        return if (aktivtPersonopplysningGrunnlag == null || personopplysningGrunnlag.harRelevantEndring(aktivtPersonopplysningGrunnlag)) {
+            lagreOgSlettGammelt(personopplysningGrunnlag).also {
+                // Det kan ha blitt introdusert personer med fortrolig adresse.
+                arbeidsfordelingService.fastsettBehandlendeEnhet(behandling)
+            }
+        } else {
+            // Adressebeskyttelse lagres ikke i personopplysningsgrunnlaget, så den kan være endret selv om grunnlaget er uendret.
             arbeidsfordelingService.fastsettBehandlendeEnhet(behandling)
+            personopplysningGrunnlagRepository.save(aktivtPersonopplysningGrunnlag.apply { endretTidspunkt = LocalDateTime.now() })
         }
     }
 

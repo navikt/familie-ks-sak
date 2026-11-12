@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
+import java.time.LocalDateTime
 import org.hamcrest.CoreMatchers.`is` as Is
 
 internal class PersonopplysningGrunnlagServiceTest {
@@ -77,6 +78,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                 søkerAktør = behandling.fagsak.aktør,
             )
         val lagretGrunnlag = slot<PersonopplysningGrunnlag>()
+        every { personopplysningGrunnlagRepository.findByBehandling(behandling.id) } returns null
         every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(capture(lagretGrunnlag)) } returnsArgument 0
         every { personService.lagPerson(any(), any(), any(), any(), any()) } returns personopplysningGrunnlag.søker
 
@@ -111,7 +113,7 @@ internal class PersonopplysningGrunnlagServiceTest {
                 barnasIdenter = listOf(barnAktør.aktivFødselsnummer()),
             )
         every { personopplysningGrunnlagRepository.hentByBehandling(any()) } returns personopplysningGrunnlag
-        every { personopplysningGrunnlagRepository.findByBehandling(any()) } returns personopplysningGrunnlag
+        every { personopplysningGrunnlagRepository.findByBehandling(revurdering.id) } returns null
         val lagretGrunnlag = slot<PersonopplysningGrunnlag>()
         every { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(capture(lagretGrunnlag)) } returnsArgument 0
         every {
@@ -160,6 +162,39 @@ internal class PersonopplysningGrunnlagServiceTest {
         }
         verify(exactly = 0) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         verify(exactly = 0) { arbeidsfordelingService.fastsettBehandlendeEnhet(any(), any()) }
+    }
+
+    @Test
+    fun `lagreSøkerOgBarnINyttGrunnlag skal fastsette behandlende enhet uten å lagre nytt grunnlag når registeropplysningene er uendret`() {
+        // Arrange
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val opprinneligEndretTidspunkt = LocalDateTime.of(2020, 1, 1, 12, 0, 0)
+        val aktivtGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = behandling.fagsak.aktør.aktivFødselsnummer(),
+                søkerAktør = behandling.fagsak.aktør,
+            ).apply { endretTidspunkt = opprinneligEndretTidspunkt }
+
+        every { personopplysningGrunnlagRepository.findByBehandling(behandling.id) } returns aktivtGrunnlag
+        every { personopplysningGrunnlagRepository.save(any()) } returnsArgument 0
+        every { personService.lagPerson(any(), any(), any(), any(), any()) } returns aktivtGrunnlag.søker
+
+        // Act
+        val oppdatertGrunnlag =
+            personopplysningGrunnlagService.lagreSøkerOgBarnINyttGrunnlag(
+                aktør = behandling.fagsak.aktør,
+                behandling = behandling,
+                målform = Målform.NB,
+                barnasAktør = emptyList(),
+            )
+
+        // Assert
+        assertThat(oppdatertGrunnlag).isSameAs(aktivtGrunnlag)
+        assertThat(oppdatertGrunnlag.endretTidspunkt).isAfter(opprinneligEndretTidspunkt)
+        verify(exactly = 1) { personopplysningGrunnlagRepository.save(aktivtGrunnlag) }
+        verify(exactly = 0) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
+        verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
     }
 
     @Test
@@ -376,7 +411,7 @@ internal class PersonopplysningGrunnlagServiceTest {
             personopplysningGrunnlagService.leggTilBarnIPersonopplysningGrunnlagOgOpprettLogg(behandling, barn1.aktivFødselsnummer())
         }
         verify(exactly = 1) { personidentService.hentOgLagreAktør(any(), any()) }
-        verify(exactly = 1) { personopplysningGrunnlagRepository.findByBehandling(behandling.id) }
+        verify(exactly = 2) { personopplysningGrunnlagRepository.findByBehandling(behandling.id) }
         verify(exactly = 1) { personopplysningGrunnlagLagreService.lagreOgSlettGammelt(any()) }
         verify(exactly = 1) { arbeidsfordelingService.fastsettBehandlendeEnhet(behandling) }
         verify(exactly = 3) { personService.lagPerson(any(), any(), any(), any(), any()) }
