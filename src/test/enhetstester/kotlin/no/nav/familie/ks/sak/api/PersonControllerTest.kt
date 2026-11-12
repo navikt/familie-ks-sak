@@ -1,11 +1,15 @@
 package no.nav.familie.ks.sak.api
 
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.familie.kontrakter.felles.PersonIdent
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.personopplysning.ADRESSEBESKYTTELSEGRADERING
 import no.nav.familie.ks.sak.api.dto.PersonInfoDto
+import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
+import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagPerson
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.FalskIdentitetPersonInfo
@@ -17,8 +21,10 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.sikkerhet.PersonTilgangService
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus
 
 class PersonControllerTest {
@@ -37,6 +43,11 @@ class PersonControllerTest {
             tilgangService = tilgangService,
             behandlingService = behandlingService,
         )
+
+    @BeforeEach
+    fun setUp() {
+        justRun { tilgangService.validerTilgangTilHandling(any(), any()) }
+    }
 
     @Nested
     inner class HentPerson {
@@ -128,6 +139,54 @@ class PersonControllerTest {
 
             val data: PersonInfoDto = respons.body!!.data!!
             assertThat(data).isEqualTo(restPersonInfo)
+        }
+    }
+
+    @Nested
+    inner class Tilgangskontroll {
+        private val person = lagPerson()
+        private val personIdent = PersonIdent(person.aktør.aktivFødselsnummer())
+
+        @BeforeEach
+        fun setUp() {
+            every { personidentService.hentAktør(personIdent.ident) } returns person.aktør
+            every { personTilgangService.hentMaskertPersonInfoVedManglendeTilgang(person.aktør) } returns null
+            every { personopplysningerService.hentPdlPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør) } returns
+                PdlPersonInfo.Person(personInfo = PersonInfo(fødselsdato = person.fødselsdato, navn = person.navn, kjønn = person.kjønn))
+            every { personopplysningerService.hentPersoninfoEnkel(person.aktør) } returns
+                PersonInfo(fødselsdato = person.fødselsdato, navn = person.navn, kjønn = person.kjønn)
+        }
+
+        @Test
+        fun `skal kreve veilederrolle ved henting av person`() {
+            // Act
+            personController.hentPerson(personIdent)
+
+            // Assert
+            verify(exactly = 1) { tilgangService.validerTilgangTilHandling(minimumBehandlerRolle = BehandlerRolle.VEILEDER, handling = "Hente person") }
+        }
+
+        @Test
+        fun `skal kreve veilederrolle ved enkel henting av person`() {
+            // Act
+            personController.hentPersonEnkel(personIdent)
+
+            // Assert
+            verify(exactly = 1) { tilgangService.validerTilgangTilHandling(minimumBehandlerRolle = BehandlerRolle.VEILEDER, handling = "Hente person") }
+        }
+
+        @Test
+        fun `skal ikke slå opp person når kaller mangler veilederrolle`() {
+            // Arrange
+            every {
+                tilgangService.validerTilgangTilHandling(minimumBehandlerRolle = BehandlerRolle.VEILEDER, handling = "Hente person")
+            } throws RolleTilgangskontrollFeil("Krever VEILEDER")
+
+            // Act & Assert
+            assertThrows<RolleTilgangskontrollFeil> { personController.hentPerson(personIdent) }
+            assertThrows<RolleTilgangskontrollFeil> { personController.hentPersonEnkel(personIdent) }
+
+            verify(exactly = 0) { personidentService.hentAktør(any()) }
         }
     }
 }

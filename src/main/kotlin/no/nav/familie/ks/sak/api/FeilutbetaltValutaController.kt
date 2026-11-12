@@ -8,6 +8,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -38,8 +39,10 @@ class FeilutbetaltValutaController(
         @PathVariable behandlingId: Long,
         @RequestBody feilutbetaltValutaDto: FeilutbetaltValutaDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.CREATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "legg til feilutbetalt valuta med periode til behandling",
         )
 
@@ -65,8 +68,10 @@ class FeilutbetaltValutaController(
         @PathVariable feilutbetaltValutaId: Long,
         @RequestBody feilutbetaltValuta: FeilutbetaltValutaDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdater feilutbetalt valuta i behandling",
         )
 
@@ -83,8 +88,10 @@ class FeilutbetaltValutaController(
         @PathVariable behandlingId: Long,
         @PathVariable feilutbetaltValutaId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
-            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.DELETE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Fjerner feilutbetalt valuta i behandling",
         )
         feilutbetaltValutaService.fjernFeilutbetaltValuta(id = feilutbetaltValutaId)
@@ -96,7 +103,9 @@ class FeilutbetaltValutaController(
     fun hentAlleFeilutbetaltValutaForBehandling(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<List<FeilutbetaltValutaDto>?>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "henter alle feilutbetalt valuta for behandling",
         )

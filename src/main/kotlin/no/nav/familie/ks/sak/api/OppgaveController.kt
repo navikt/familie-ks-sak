@@ -47,13 +47,19 @@ class OppgaveController(
     )
     fun hentOppgaver(
         @RequestBody finnOppgaveDto: FinnOppgaveDto,
-    ): ResponseEntity<Ressurs<FinnOppgaveResponseDto>> =
-        try {
+    ): ResponseEntity<Ressurs<FinnOppgaveResponseDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente oppgaver",
+        )
+
+        return try {
             val oppgaver = oppgaveService.hentOppgaver(finnOppgaveDto.tilFinnOppgaveRequest())
             ResponseEntity.ok().body(Ressurs.success(oppgaver, "Finn oppgaver OK"))
         } catch (e: Throwable) {
             illegalState("Henting av oppgaver feilet", e)
         }
+    }
 
     @PostMapping(path = ["/{oppgaveId}/fordel"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun fordelOppgave(
@@ -112,6 +118,11 @@ class OppgaveController(
     fun hentDataForManuellJournalføring(
         @PathVariable oppgaveId: Long,
     ): ResponseEntity<Ressurs<DataForManuellJournalføringDto>> {
+        tilgangService.validerTilgangTilHandling(
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "Hente data for manuell journalføring",
+        )
+
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
         val aktør = oppgave.aktoerId?.let { personidentService.hentAktør(it) }
         val journalpost = oppgave.journalpostId?.let { integrasjonService.hentJournalpost(it) }
