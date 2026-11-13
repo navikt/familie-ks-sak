@@ -90,8 +90,8 @@ spec:
         - application: populasjonstilgangskontroll
           namespace: tilgangsmaskin
           cluster: prod-gcp
-        - application: familie-ks-infotrygd
-          cluster: prod-fss
+        - application: familie-ks-infotrygd-replika
+          cluster: prod-gcp
         - application: familie-ef-sak
           cluster: prod-gcp
         - application: familie-tilbake
@@ -112,7 +112,6 @@ spec:
         - host: xsrv1mh6.api.sanity.io
         - host: pdl-api.prod-fss-pub.nais.io
         - host: familie-integrasjoner.prod-fss-pub.nais.io
-        - host: familie-ks-infotrygd.prod-fss-pub.nais.io
         - host: data-api.ecb.europa.eu
         - host: data-nbr.udir.no
         - host: teamfamilie-unleash-api.nav.cloud.nais.io

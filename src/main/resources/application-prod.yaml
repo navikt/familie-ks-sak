@@ -33,8 +33,8 @@ FAMILIE_INTEGRASJONER_GCP_SCOPE: api://prod-gcp.teamfamilie.familie-integrasjone
 TILGANGSMASKIN_SCOPE: api://prod-gcp.tilgangsmaskin.populasjonstilgangskontroll/.default
 
 
-FAMILIE_KS_INFOTRYGD_SCOPE: api://prod-fss.teamfamilie.familie-ks-infotrygd/.default
-FAMILIE_KS_INFOTRYGD_API_URL: https://familie-ks-infotrygd.prod-fss-pub.nais.io/api
+FAMILIE_KS_INFOTRYGD_SCOPE: api://prod-gcp.teamfamilie.familie-ks-infotrygd-replika/.default
+FAMILIE_KS_INFOTRYGD_API_URL: http://familie-ks-infotrygd-replika/api
 
 FAMILIE_OPPDRAG_BACKEND_SCOPE: api://prod-gcp.teamfamilie.familie-oppdrag-backend/.default
 
