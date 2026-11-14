@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag
 
 import no.nav.familie.ks.sak.api.dto.SøknadDto
+import no.nav.familie.ks.sak.api.dto.hentIdenterTilValgteBarn
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.arbeidsfordeling.ArbeidsfordelingService
@@ -72,9 +73,8 @@ class PersonopplysningGrunnlagService(
                 ?: throw Feil("Det finnes ikke noe aktivt personopplysningsgrunnlag for ${behandling.id}")
 
         val valgteBarnAktører =
-            søknadDto.barnaMedOpplysninger
-                .filter { it.inkludertISøknaden && it.erFolkeregistrert }
-                .mapNotNull { it.personnummer }
+            søknadDto
+                .hentIdenterTilValgteBarn()
                 .map { personidentService.hentOgLagreAktør(it, true) }
 
         val barnAktører =
