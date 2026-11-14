@@ -1,5 +1,6 @@
 package no.nav.familie.ks.sak.api.dto
 
+import no.nav.familie.kontrakter.felles.Fødselsnummer
 import no.nav.familie.kontrakter.felles.jsonMapper
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandlingsresultat
@@ -15,7 +16,12 @@ abstract class BehandlingStegDto
 data class RegistrerSøknadDto(
     val søknad: SøknadDto,
     val bekreftEndringerViaFrontend: Boolean,
-) : BehandlingStegDto()
+) : BehandlingStegDto() {
+    // Bruker init til å validere personidentene
+    init {
+        søknad.hentIdenterTilValgteBarn().forEach { Fødselsnummer(it) }
+    }
+}
 
 data class JournalførVedtaksbrevDTO(
     val vedtakId: Long,
@@ -40,6 +46,11 @@ data class SøknadDto(
 )
 
 fun SøknadDto.writeValueAsString(): String = jsonMapper.writeValueAsString(this)
+
+fun SøknadDto.hentIdenterTilValgteBarn(): List<String> =
+    barnaMedOpplysninger
+        .filter { it.inkludertISøknaden && it.erFolkeregistrert }
+        .mapNotNull { it.personnummer }
 
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
