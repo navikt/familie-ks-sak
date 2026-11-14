@@ -41,6 +41,11 @@ data class SøknadDto(
 
 fun SøknadDto.writeValueAsString(): String = jsonMapper.writeValueAsString(this)
 
+fun SøknadDto.hentIdenterTilValgteBarn(): List<String> =
+    barnaMedOpplysninger
+        .filter { it.inkludertISøknaden && it.erFolkeregistrert }
+        .mapNotNull { it.personnummer }
+
 fun SøknadDto.tilSøknadGrunnlag(behandlingId: Long): SøknadGrunnlag =
     SøknadGrunnlag(
         behandlingId = behandlingId,

@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifyOrder
 import no.nav.familie.kontrakter.felles.oppgave.FinnOppgaveResponseDto
 import no.nav.familie.ks.sak.api.dto.FinnOppgaveDto
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
@@ -18,6 +19,7 @@ import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PersonInfo
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -47,6 +49,7 @@ class OppgaveControllerTest {
     @BeforeEach
     fun setUp() {
         justRun { tilgangService.validerTilgangTilHandling(any(), any()) }
+        justRun { tilgangService.validerTilgangTilHandlingOgPersoner(any(), any(), any(), any()) }
     }
 
     @Nested
@@ -137,6 +140,46 @@ class OppgaveControllerTest {
             assertThrows<RolleTilgangskontrollFeil> { oppgaveController.hentDataForManuellJournalføring(1L) }
 
             verify(exactly = 0) { oppgaveService.hentOppgave(any()) }
+        }
+
+        @Test
+        fun `skal sjekke tilgang til personen på oppgaven før data for manuell journalføring hentes`() {
+            // Act
+            oppgaveController.hentDataForManuellJournalføring(1L)
+
+            // Assert
+            verifyOrder {
+                tilgangService.validerTilgangTilHandlingOgPersoner(
+                    personIdenter = listOf(person.aktør.aktivFødselsnummer()),
+                    event = AuditLoggerEvent.ACCESS,
+                    minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+                    handling = "Hente data for manuell journalføring",
+                )
+                integrasjonService.hentJournalpost(oppgave.journalpostId!!)
+                personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(person.aktør)
+                fagsakService.finnMinimalFagsakForPerson(person.aktør.aktørId)
+            }
+        }
+
+        @Test
+        fun `skal ikke hente data for manuell journalføring når saksbehandler mangler tilgang til personen på oppgaven`() {
+            // Arrange
+            every {
+                tilgangService.validerTilgangTilHandlingOgPersoner(
+                    personIdenter = listOf(person.aktør.aktivFødselsnummer()),
+                    event = AuditLoggerEvent.ACCESS,
+                    minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+                    handling = "Hente data for manuell journalføring",
+                )
+            } throws RolleTilgangskontrollFeil("Mangler tilgang til personen")
+
+            // Act & Assert
+            val feilmelding = assertThrows<RolleTilgangskontrollFeil> { oppgaveController.hentDataForManuellJournalføring(1L) }.message
+
+            assertThat(feilmelding).isEqualTo("Mangler tilgang til personen")
+            verify(exactly = 0) { integrasjonService.hentJournalpost(any()) }
+            verify(exactly = 0) { personOpplysningerService.hentPersonInfoMedRelasjonerOgRegisterinformasjon(any()) }
+            verify(exactly = 0) { fagsakService.finnMinimalFagsakForPerson(any()) }
         }
     }
 }

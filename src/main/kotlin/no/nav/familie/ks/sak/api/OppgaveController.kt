@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.oppgave.OppgaveService
 import no.nav.familie.ks.sak.integrasjon.pdl.PersonopplysningerService
 import no.nav.familie.ks.sak.kjerne.fagsak.FagsakService
 import no.nav.familie.ks.sak.kjerne.personident.PersonidentService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -125,6 +126,16 @@ class OppgaveController(
 
         val oppgave = oppgaveService.hentOppgave(oppgaveId)
         val aktør = oppgave.aktoerId?.let { personidentService.hentAktør(it) }
+
+        if (aktør != null) {
+            tilgangService.validerTilgangTilHandlingOgPersoner(
+                personIdenter = listOf(aktør.aktivFødselsnummer()),
+                event = AuditLoggerEvent.ACCESS,
+                minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+                handling = "Hente data for manuell journalføring",
+            )
+        }
+
         val journalpost = oppgave.journalpostId?.let { integrasjonService.hentJournalpost(it) }
 
         val dataForManuellJournalføringDto =
