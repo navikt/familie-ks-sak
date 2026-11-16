@@ -34,7 +34,6 @@ TILGANGSMASKIN_SCOPE: api://prod-gcp.tilgangsmaskin.populasjonstilgangskontroll/
 
 
 FAMILIE_KS_INFOTRYGD_SCOPE: api://prod-gcp.teamfamilie.familie-ks-infotrygd-replika/.default
-FAMILIE_KS_INFOTRYGD_API_URL: http://familie-ks-infotrygd-replika/api
 
 FAMILIE_OPPDRAG_BACKEND_SCOPE: api://prod-gcp.teamfamilie.familie-oppdrag-backend/.default
 
