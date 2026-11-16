@@ -67,7 +67,7 @@
         <rest-assured.version>6.3.0</rest-assured.version>
         <mock-oauth2-server.version>6.1.4</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
-        <mockk.version>1.14.11</mockk.version>
+        <mockk.version>1.14.12</mockk.version>
         <wiremock.version>3.13.2</wiremock.version>
         <springmockk.version>4.0.2</springmockk.version>
 
