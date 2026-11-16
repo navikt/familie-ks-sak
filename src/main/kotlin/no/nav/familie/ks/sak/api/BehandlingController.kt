@@ -201,6 +201,12 @@ class BehandlingController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "legge til barn",
         )
+        tilgangService.validerTilgangTilHandlingOgPersoner(
+            personIdenter = listOf(leggTilBarnDto.barnIdent),
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "legge til barn",
+        )
         leggTilBarnService.leggTilBarn(behandlingId, leggTilBarnDto.barnIdent)
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
