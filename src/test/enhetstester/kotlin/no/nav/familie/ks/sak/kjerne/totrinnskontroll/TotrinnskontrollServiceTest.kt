@@ -5,19 +5,48 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
+import no.nav.familie.ks.sak.data.BrukerContextUtil
+import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class TotrinnskontrollServiceTest {
     private val totrinnskontrollRepository = mockk<TotrinnskontrollRepository>()
+    private val kode6GruppeId = "kode6GruppeId"
+    private val saksbehandlerContext = SaksbehandlerContext(kode6GruppeId, mockk<IntegrasjonKlient>())
 
-    private val totrinnskontrollService = TotrinnskontrollService(totrinnskontrollRepository)
+    private val totrinnskontrollService = TotrinnskontrollService(totrinnskontrollRepository, saksbehandlerContext)
+
+    @AfterEach
+    fun afterEach() {
+        BrukerContextUtil.clearBrukerContext()
+    }
+
+    @Test
+    fun `opprettTotrinnskontrollMedSaksbehandler skal lagre tom signatur dersom saksbehandler har kode 6`() {
+        // Arrange
+        BrukerContextUtil.mockBrukerContext(preferredUsername = "Z999999", groups = listOf(kode6GruppeId))
+        val behandling = lagBehandling()
+        every { totrinnskontrollRepository.findByBehandlingAndAktiv(behandling.id) } returns null
+        every { totrinnskontrollRepository.save(any()) } answers { firstArg() }
+
+        // Act
+        val totrinnskontroll = totrinnskontrollService.opprettTotrinnskontrollMedSaksbehandler(behandling)
+
+        // Assert
+        assertThat(totrinnskontroll.saksbehandler).isEmpty()
+        assertThat(totrinnskontroll.saksbehandlerId).isEqualTo("Z999999")
+    }
 
     @Test
     fun `finnAktivForBehandling skal returnere null dersom det ikke finnes aktiv totrinnskontroll for behandling`() {
