@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.kjerne.brev.mottaker.BrevmottakerService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -44,6 +45,7 @@ class BeslutteVedtakSteg(
     private val brevmottakerService: BrevmottakerService,
     private val tilbakekrevingService: TilbakekrevingService,
     private val simuleringService: SimuleringService,
+    private val saksbehandlerContext: SaksbehandlerContext,
 ) : IBehandlingSteg {
     override fun getBehandlingssteg(): BehandlingSteg = BehandlingSteg.BESLUTTE_VEDTAK
 
@@ -75,7 +77,7 @@ class BeslutteVedtakSteg(
         val totrinnskontroll =
             totrinnskontrollService.besluttTotrinnskontroll(
                 behandlingId = behandling.id,
-                beslutter = SikkerhetContext.hentSaksbehandlerNavn(),
+                beslutter = saksbehandlerContext.hentSaksbehandlerSignaturTilBrev(),
                 beslutterId = SikkerhetContext.hentSaksbehandler(),
                 beslutning = besluttVedtakDto.beslutning,
                 kontrollerteSider = besluttVedtakDto.kontrollerteSider,

@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Beslutning
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.domene.Totrinnskontroll
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class TotrinnskontrollService(
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
+    private val saksbehandlerContext: SaksbehandlerContext,
 ) {
     fun finnAktivForBehandling(behandlingId: Long): Totrinnskontroll? = totrinnskontrollRepository.findByBehandlingAndAktiv(behandlingId)
 
@@ -36,16 +38,12 @@ class TotrinnskontrollService(
         )
     }
 
-    fun opprettTotrinnskontrollMedSaksbehandler(
-        behandling: Behandling,
-        saksbehandler: String = SikkerhetContext.hentSaksbehandlerNavn(),
-        saksbehandlerId: String = SikkerhetContext.hentSaksbehandler(),
-    ): Totrinnskontroll =
+    fun opprettTotrinnskontrollMedSaksbehandler(behandling: Behandling): Totrinnskontroll =
         lagreOgDeaktiverGammel(
             Totrinnskontroll(
                 behandling = behandling,
-                saksbehandler = saksbehandler,
-                saksbehandlerId = saksbehandlerId,
+                saksbehandler = saksbehandlerContext.hentSaksbehandlerSignaturTilBrev(),
+                saksbehandlerId = SikkerhetContext.hentSaksbehandler(),
             ),
         )
 

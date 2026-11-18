@@ -5,14 +5,17 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.saksbehandler.Saksbehandler
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
+import no.nav.familie.ks.sak.data.BrukerContextUtil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagBrevmottakerDto
+import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
@@ -27,13 +30,16 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollService
+import no.nav.familie.ks.sak.sikkerhet.SaksbehandlerContext
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.math.BigDecimal
+import java.util.UUID
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class BeslutteVedtakStegTest {
@@ -49,6 +55,9 @@ class BeslutteVedtakStegTest {
     private val brevmottakerService = mockk<BrevmottakerService>()
     private val tilbakekrevingService = mockk<TilbakekrevingService>()
     private val simuleringService = mockk<SimuleringService>()
+    private val integrasjonKlient = mockk<IntegrasjonKlient>()
+    private val kode6GruppeId = "kode6GruppeId"
+    private val saksbehandlerContext = SaksbehandlerContext(kode6GruppeId, integrasjonKlient)
 
     private val beslutteVedtakSteg =
         BeslutteVedtakSteg(
@@ -63,6 +72,7 @@ class BeslutteVedtakStegTest {
             brevmottakerService = brevmottakerService,
             tilbakekrevingService = tilbakekrevingService,
             simuleringService = simuleringService,
+            saksbehandlerContext = saksbehandlerContext,
         )
 
     private val underkjentVedtakDto = BesluttVedtakDto(Beslutning.UNDERKJENT, "UNDERKJENT")
@@ -74,6 +84,40 @@ class BeslutteVedtakStegTest {
         every { loggService.opprettBeslutningOmVedtakLogg(any(), any(), any()) } returns mockk()
         every { taskService.save(any()) } returns mockk()
         every { genererBrevService.genererBrevForBehandling(any()) } returns ByteArray(200)
+        every { integrasjonKlient.hentSaksbehandler(any()) } returns
+            Saksbehandler(azureId = UUID.randomUUID(), navIdent = "Z999999", fornavn = "Fornavn", etternavn = "Etternavn", enhet = "4812")
+    }
+
+    @AfterEach
+    fun afterEach() {
+        BrukerContextUtil.clearBrukerContext()
+    }
+
+    @Test
+    fun `utførSteg skal lagre tom signatur for beslutter dersom beslutter har kode 6`() {
+        // Arrange
+        BrukerContextUtil.mockBrukerContext(preferredUsername = "Z999999", groups = listOf(kode6GruppeId))
+        every {
+            totrinnskontrollService.besluttTotrinnskontroll(any(), any(), any(), any(), any())
+        } returns mockk(relaxed = true)
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
+        every { vilkårsvurderingService.oppdater(any()) } returns mockk()
+        every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
+        every { brevmottakerService.hentBrevmottakere(any()) } returns emptyList()
+
+        // Act
+        beslutteVedtakSteg.utførSteg(200, underkjentVedtakDto)
+
+        // Assert
+        verify(exactly = 1) {
+            totrinnskontrollService.besluttTotrinnskontroll(
+                behandlingId = any(),
+                beslutter = "",
+                beslutterId = "Z999999",
+                beslutning = Beslutning.UNDERKJENT,
+                kontrollerteSider = emptyList(),
+            )
+        }
     }
 
     @Test
