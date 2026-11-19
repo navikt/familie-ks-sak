@@ -30,6 +30,8 @@ import no.nav.familie.ks.sak.kjerne.beregning.BeregningService
 import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.eøs.vilkårsvurdering.VilkårsvurderingTidslinjer
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.kjerne.lovverk.Lovverk
+import no.nav.familie.ks.sak.kjerne.lovverk.LovverkUtleder
 import no.nav.familie.ks.sak.kjerne.overgangsordning.beregnGyldigFom
 import no.nav.familie.ks.sak.kjerne.overgangsordning.beregnGyldigTom
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -149,7 +151,7 @@ class VilkårsvurderingSteg(
         validerAtAlleVilkårHarGyldigFomDato(vilkårsvurdering, personopplysningGrunnlag)
         validerAtDetIkkeErOverlappMellomGradertBarnehageplassOgDeltBosted(vilkårsvurdering)
         validerAtPerioderIBarnehageplassSamsvarerMedPeriodeIBarnetsAlderVilkår(vilkårsvurdering, personopplysningGrunnlag)
-        validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering)
+        validerAtDetIkkeFinnesForMangeEndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering, personopplysningGrunnlag)
         barnetsVilkårValidator.validerAtDatoErKorrektIBarnasVilkår(vilkårsvurdering = vilkårsvurdering, barna = personopplysningGrunnlag.barna)
         validerIkkeBlandetRegelverk(personopplysningGrunnlag, vilkårsvurdering)
     }
@@ -329,14 +331,31 @@ class VilkårsvurderingSteg(
             tom?.isSameOrBefore(barn23Måneder) == true && tom.isSameOrBefore(april2025)
     }
 
-    private fun validerAtDetIkkeFinnesMerEnn2EndringerISammeMånedIBarnehageplassVilkår(vilkårsvurdering: Vilkårsvurdering) {
+    private fun validerAtDetIkkeFinnesForMangeEndringerISammeMånedIBarnehageplassVilkår(
+        vilkårsvurdering: Vilkårsvurdering,
+        personopplysningGrunnlag: PersonopplysningGrunnlag,
+    ) {
+        val adopsjonerIBehandling = adopsjonService.hentAlleAdopsjonerForBehandling(behandlingId = vilkårsvurdering.behandling.behandlingId)
+
         vilkårsvurdering.personResultater.filter { !it.erSøkersResultater() }.forEach { personResultat ->
+            val lovverk =
+                LovverkUtleder.utledLovverkForBarn(
+                    fødselsdato = personopplysningGrunnlag.barna.single { it.aktør == personResultat.aktør }.fødselsdato,
+                    adopsjonsdato = adopsjonerIBehandling.firstOrNull { it.aktør == personResultat.aktør }?.adopsjonsdato,
+                )
+
+            val maksAntallEndringerISammeMåned =
+                when (lovverk) {
+                    Lovverk.FØR_LOVENDRING_2025 -> 2
+                    Lovverk.LOVENDRING_FEBRUAR_2025 -> 3
+                }
+
             if (personResultat.tilPeriodeResultater().any { periodeResultat ->
-                    periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > 2
+                    periodeResultat.vilkårResultater.count { it.vilkårType == Vilkår.BARNEHAGEPLASS } > maksAntallEndringerISammeMåned
                 }
             ) {
                 throw FunksjonellFeil(
-                    "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
+                    "Du har lagt inn flere enn $maksAntallEndringerISammeMåned endringer i barnehagevilkåret i samme måned. " +
                         "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
                 )
             }

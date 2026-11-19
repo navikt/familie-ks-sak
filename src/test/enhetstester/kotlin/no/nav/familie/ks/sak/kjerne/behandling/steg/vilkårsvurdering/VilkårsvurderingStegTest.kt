@@ -23,6 +23,7 @@ import no.nav.familie.ks.sak.data.lagVilkårResultat
 import no.nav.familie.ks.sak.data.lagVilkårResultaterForBarn
 import no.nav.familie.ks.sak.data.lagVilkårsvurderingMedSøkersVilkår
 import no.nav.familie.ks.sak.data.randomAktør
+import no.nav.familie.ks.sak.kjerne.adopsjon.Adopsjon
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonService
 import no.nav.familie.ks.sak.kjerne.adopsjon.AdopsjonValidator
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
@@ -48,6 +49,8 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.KompetanseService
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import org.assertj.core.api.Assertions.assertThatCode
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -525,6 +528,339 @@ class VilkårsvurderingStegTest {
                 "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
             exception.message,
         )
+    }
+
+    @Test
+    fun `utførSteg - skal ikke kaste feil hvis det finnes 3 barnehageplass vilkår i en måned for barn som følger lovverket fra februar 2025`() {
+        // Arrange
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2025, 6, 2))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barn.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barn.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2025, 6, 2), LocalDate.of(2026, 8, 17)) to null,
+                                        NullablePeriode(LocalDate.of(2026, 8, 18), LocalDate.of(2026, 8, 20)) to BigDecimal(27),
+                                        NullablePeriode(LocalDate.of(2026, 8, 21), null) to null,
+                                    ),
+                            )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
+
+        // Act & Assert
+        assertThatCode { vilkårsvurderingSteg.utførSteg(behandling.id) }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `utførSteg - skal kaste feil hvis det finnes mer enn 3 barnehageplass vilkår i en måned for barn som følger lovverket fra februar 2025`() {
+        // Arrange
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2025, 6, 2))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barn.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barn.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2025, 6, 2), LocalDate.of(2026, 8, 5)) to null,
+                                        NullablePeriode(LocalDate.of(2026, 8, 6), LocalDate.of(2026, 8, 10)) to BigDecimal(27),
+                                        NullablePeriode(LocalDate.of(2026, 8, 11), LocalDate.of(2026, 8, 15)) to BigDecimal(10),
+                                        NullablePeriode(LocalDate.of(2026, 8, 16), null) to null,
+                                    ),
+                            )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+
+        // Act & Assert
+        assertThatThrownBy { vilkårsvurderingSteg.utførSteg(behandling.id) }
+            .isInstanceOf(FunksjonellFeil::class.java)
+            .hasMessage(
+                "Du har lagt inn flere enn 3 endringer i barnehagevilkåret i samme måned. " +
+                    "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
+            )
+    }
+
+    @Test
+    fun `utførSteg - skal ikke kaste feil hvis det finnes 3 barnehageplass vilkår i en måned for adoptert barn som følger lovverket fra februar 2025`() {
+        // Arrange
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2023, 5, 1))
+        val adopsjon = Adopsjon(behandlingId = behandling.id, aktør = barn.aktør, adopsjonsdato = LocalDate.of(2024, 3, 1))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barn.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barn.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2023, 5, 1), LocalDate.of(2024, 8, 17)) to null,
+                                        NullablePeriode(LocalDate.of(2024, 8, 18), LocalDate.of(2024, 8, 20)) to BigDecimal(27),
+                                        NullablePeriode(LocalDate.of(2024, 8, 21), null) to null,
+                                    ),
+                            ).filterNot { vilkårResultat -> vilkårResultat.vilkårType == Vilkår.BARNETS_ALDER }.toSet() +
+                                lagAutomatiskGenererteVilkårForBarnetsAlder(
+                                    personResultat = it,
+                                    behandlingId = behandling.id,
+                                    fødselsdato = barn.fødselsdato,
+                                    adopsjonsdato = adopsjon.adopsjonsdato,
+                                )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+        every { adopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns listOf(adopsjon)
+        every { adopsjonService.finnAdopsjonForAktørIBehandling(any(), any()) } returns adopsjon
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
+
+        // Act & Assert
+        assertThatCode { vilkårsvurderingSteg.utførSteg(behandling.id) }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned for barn som følger lovverket før 2025 selv om et annet barn følger lovverket fra februar 2025`() {
+        // Arrange
+        val barnLovverk2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2025, 6, 2))
+        val barnLovverkFør2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barnLovverk2025.aktør, barnLovverkFør2025.aktør),
+                barnasFødselsdatoer = listOf(barnLovverk2025.fødselsdato, barnLovverkFør2025.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barnLovverk2025.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barnLovverk2025.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2025, 6, 2), null) to null,
+                                    ),
+                            )
+                        },
+                    ) +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barnLovverkFør2025.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barnLovverkFør2025.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2022, 2, 10), LocalDate.of(2023, 6, 8)) to null,
+                                        NullablePeriode(LocalDate.of(2023, 6, 9), LocalDate.of(2023, 6, 15)) to BigDecimal(30),
+                                        NullablePeriode(LocalDate.of(2023, 6, 16), null) to BigDecimal(16),
+                                    ),
+                            )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+
+        // Act & Assert
+        assertThatThrownBy { vilkårsvurderingSteg.utførSteg(behandling.id) }
+            .isInstanceOf(FunksjonellFeil::class.java)
+            .hasMessage(
+                "Du har lagt inn flere enn 2 endringer i barnehagevilkåret i samme måned. " +
+                    "Dette er ikke støttet enda. Ta kontakt med Team BAKS.",
+            )
+    }
+
+    @Test
+    fun `utførSteg - skal ikke kaste feil hvis det finnes 2 barnehageplass vilkår i en måned for barn som følger lovverket før 2025`() {
+        // Arrange
+        val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barn.aktør),
+                barnasFødselsdatoer = listOf(barn.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barn.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barn.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2022, 2, 10), LocalDate.of(2023, 6, 8)) to null,
+                                        NullablePeriode(LocalDate.of(2023, 6, 9), null) to BigDecimal(16),
+                                    ),
+                            )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
+
+        // Act & Assert
+        assertThatCode { vilkårsvurderingSteg.utførSteg(behandling.id) }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `utførSteg - skal ikke kaste feil hvis det finnes 3 barnehageplass vilkår i en måned for barn som følger lovverket fra februar 2025 selv om et annet barn følger lovverket før 2025`() {
+        // Arrange
+        val barnLovverk2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2025, 6, 2))
+        val barnLovverkFør2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
+        val personopplysningGrunnlag =
+            lagPersonopplysningGrunnlag(
+                behandlingId = behandling.id,
+                søkerPersonIdent = søker.aktør.aktivFødselsnummer(),
+                søkerAktør = søker.aktør,
+                barnAktør = listOf(barnLovverk2025.aktør, barnLovverkFør2025.aktør),
+                barnasFødselsdatoer = listOf(barnLovverk2025.fødselsdato, barnLovverkFør2025.fødselsdato),
+            )
+
+        val vilkårsvurdering =
+            lagVilkårsvurderingMedSøkersVilkår(
+                søkerAktør = søker.aktør,
+                behandling = behandling,
+            ).apply {
+                personResultater = personResultater +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barnLovverk2025.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barnLovverk2025.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2025, 6, 2), LocalDate.of(2026, 8, 17)) to null,
+                                        NullablePeriode(LocalDate.of(2026, 8, 18), LocalDate.of(2026, 8, 20)) to BigDecimal(27),
+                                        NullablePeriode(LocalDate.of(2026, 8, 21), null) to null,
+                                    ),
+                            )
+                        },
+                    ) +
+                    lagPersonResultat(
+                        vilkårsvurdering = this,
+                        aktør = barnLovverkFør2025.aktør,
+                        lagVilkårResultater = {
+                            lagVilkårResultaterForBarn(
+                                behandlingId = behandling.id,
+                                personResultat = it,
+                                barnFødselsdato = barnLovverkFør2025.fødselsdato,
+                                barnehageplassPerioder =
+                                    listOf(
+                                        NullablePeriode(LocalDate.of(2022, 2, 10), null) to null,
+                                    ),
+                            )
+                        },
+                    )
+            }
+
+        every { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(any()) } returns personopplysningGrunnlag
+        every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) } returns vilkårsvurdering
+        every { behandlingService.hentSisteBehandlingSomErVedtatt(behandling.fagsak.id) } returns null
+        every { behandlingService.endreBehandlingstemaPåBehandling(any(), any()) } returns behandling
+        every { kompetanseService.hentKompetanser(BehandlingId(behandling.id)) } returns emptyList()
+
+        // Act & Assert
+        assertThatCode { vilkårsvurderingSteg.utførSteg(behandling.id) }.doesNotThrowAnyException()
     }
 
     @Test
