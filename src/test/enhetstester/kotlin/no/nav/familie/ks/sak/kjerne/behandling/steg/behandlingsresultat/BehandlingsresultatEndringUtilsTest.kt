@@ -47,6 +47,7 @@ class BehandlingsresultatEndringUtilsTest {
         val endringsresultat =
             // Arrange
             utledEndringsresultat(
+                behandlingId = 1L,
                 nåværendeAndeler = emptyList(),
                 forrigeAndeler = emptyList(),
                 personerFremstiltKravFor = emptyList(),
@@ -77,6 +78,7 @@ class BehandlingsresultatEndringUtilsTest {
 
         val endringsresultat =
             utledEndringsresultat(
+                behandlingId = 1L,
                 forrigeAndeler = listOf(forrigeAndel),
                 nåværendeAndeler = listOf(forrigeAndel.copy(kalkulertUtbetalingsbeløp = 40)),
                 personerFremstiltKravFor = emptyList(),
@@ -168,6 +170,7 @@ class BehandlingsresultatEndringUtilsTest {
         // Act
         val endringsresultat =
             utledEndringsresultat(
+                behandlingId = 1L,
                 forrigeAndeler = forrigeAndeler,
                 nåværendeAndeler = nåværendeAndeler,
                 personerFremstiltKravFor = emptyList(),
@@ -209,6 +212,7 @@ class BehandlingsresultatEndringUtilsTest {
         // Act
         val endringsresultat =
             utledEndringsresultat(
+                behandlingId = 1L,
                 nåværendeAndeler = emptyList(),
                 forrigeAndeler = emptyList(),
                 personerFremstiltKravFor = emptyList(),
@@ -247,6 +251,7 @@ class BehandlingsresultatEndringUtilsTest {
 
         val endringsresultat =
             utledEndringsresultat(
+                behandlingId = 1L,
                 nåværendeAndeler = emptyList(),
                 forrigeAndeler = emptyList(),
                 personerFremstiltKravFor = emptyList(),

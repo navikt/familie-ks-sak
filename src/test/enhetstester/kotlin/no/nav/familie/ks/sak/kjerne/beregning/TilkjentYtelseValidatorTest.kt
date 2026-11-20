@@ -130,7 +130,10 @@ internal class TilkjentYtelseValidatorTest {
 
         // Assert
         assertEquals(feilmelding, exception.frontendFeilmelding)
-        assertEquals(feilmelding, exception.message)
+        assertEquals(
+            "Kontantstøtte kan maks utbetales for 11 måneder, men det er 12 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
+            exception.message,
+        )
     }
 
     @Test
@@ -182,7 +185,10 @@ internal class TilkjentYtelseValidatorTest {
 
         // Assert
         assertEquals(feilmelding, exception.frontendFeilmelding)
-        assertEquals(feilmelding, exception.message)
+        assertEquals(
+            "Kontantstøtte kan maks utbetales for 7 måneder, men det er 8 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
+            exception.message,
+        )
     }
 
     @Test
@@ -226,7 +232,10 @@ internal class TilkjentYtelseValidatorTest {
                 "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS"
 
         assertEquals(feilmelding, exception.frontendFeilmelding)
-        assertEquals(feilmelding, exception.message)
+        assertEquals(
+            "Kontantstøtte kan maks utbetales for 11 måneder, men det er 12 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
+            exception.message,
+        )
     }
 
     @Test
@@ -830,8 +839,7 @@ internal class TilkjentYtelseValidatorTest {
                 )
             }
         assertEquals(
-            "Kontantstøtte kan maks utbetales for 7 måneder. Du er i ferd med å utbetale 8 måneder for barn med fnr ${barn.aktør.aktivFødselsnummer()}. " +
-                "Kontroller datoene på vilkårene eller ta kontakt med Team BAKS",
+            "Kontantstøtte kan maks utbetales for 7 måneder, men det er 8 måneder med utbetaling for barn med personId ${barn.id} i behandling ${behandling.id}",
             feil.melding,
         )
     }

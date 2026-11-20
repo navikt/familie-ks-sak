@@ -43,6 +43,7 @@ class EndretUtbetalingAndelService(
     private val loggService: LoggService,
 ) {
     private val logger = LoggerFactory.getLogger(EndretUtbetalingAndelService::class.java)
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     fun hentEndredeUtbetalingAndeler(behandlingId: Long) = endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(behandlingId)
 
@@ -171,9 +172,14 @@ class EndretUtbetalingAndelService(
 
         if (droppedeAktørIder.isNotEmpty()) {
             logger.warn(
-                "Dropper person(er) med aktørId ${droppedeAktørIder.joinToString(", ")} fra EndretUtbetalingAndel " +
+                "Dropper ${droppedeAktørIder.size} person(er) fra EndretUtbetalingAndel " +
                     "${forrigeEndretUtbetalingAndel.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
                     "til behandling ${behandling.id}: finnes ikke i det nye persongrunnlaget",
+            )
+            secureLogger.warn(
+                "Dropper person(er) med aktørId ${droppedeAktørIder.joinToString(", ")} fra EndretUtbetalingAndel " +
+                    "${forrigeEndretUtbetalingAndel.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
+                    "til behandling ${behandling.id}",
             )
         }
 

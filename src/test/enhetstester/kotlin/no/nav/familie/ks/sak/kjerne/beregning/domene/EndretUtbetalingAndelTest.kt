@@ -6,6 +6,8 @@ import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -16,6 +18,24 @@ class EndretUtbetalingAndelTest {
     val søker = randomAktør()
 
     val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+    @Test
+    fun `toString skal ikke inneholde aktørId`() {
+        // Arrange
+        val endretUtbetalingAndel =
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                aktører = setOf(søker),
+                prosent = BigDecimal(50),
+            )
+
+        // Act
+        val tekst = endretUtbetalingAndel.toString()
+
+        // Assert
+        assertFalse(tekst.contains(søker.aktørId))
+        assertTrue(tekst.contains("behandlingId=${behandling.id}"))
+    }
 
     @Test
     fun `validerUtfyltEndring skal ikke kaste feil når EndretUtbetalingAndel er riktig fylt ut`() {

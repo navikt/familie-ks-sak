@@ -35,6 +35,7 @@ class OvergangsordningAndelService(
     private val overgangsordningAndelOppdatertAbonnementer: List<OvergangsordningAndelerOppdatertAbonnent> = emptyList(),
 ) {
     private val logger = LoggerFactory.getLogger(OvergangsordningAndelService::class.java)
+    private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
     fun hentOvergangsordningAndeler(behandlingId: Long) = overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(behandlingId)
 
@@ -151,6 +152,10 @@ class OvergangsordningAndelService(
 
             if (forrigeAktør != null && nyAktør == null) {
                 logger.warn(
+                    "Dropper OvergangsordningAndel ${forrige.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
+                        "til behandling ${behandling.id}: personen finnes ikke i det nye persongrunnlaget",
+                )
+                secureLogger.warn(
                     "Dropper OvergangsordningAndel ${forrige.id} ved kopiering fra behandling ${forrigeBehandling.id} " +
                         "til behandling ${behandling.id}: person med aktørId ${forrigeAktør.aktørId} finnes ikke i det nye persongrunnlaget",
                 )
