@@ -14,6 +14,7 @@ import no.nav.familie.ks.sak.common.entitet.BaseEntitet
 import no.nav.familie.ks.sak.integrasjon.pdl.domene.PdlKontaktinformasjonForDødsboAdresse
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
+import java.util.Objects
 
 @Entity(name = "Dødsfall")
 @Table(name = "po_doedsfall")
@@ -36,6 +37,23 @@ data class Dødsfall(
     val dødsfallPoststed: String?,
 ) : BaseEntitet() {
     fun hentAdresseToString(): String = """$dødsfallAdresse, $dødsfallPostnummer $dødsfallPoststed"""
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Dødsfall
+
+        if (dødsfallDato != other.dødsfallDato) return false
+        if (dødsfallAdresse != other.dødsfallAdresse) return false
+        if (dødsfallPostnummer != other.dødsfallPostnummer) return false
+        if (dødsfallPoststed != other.dødsfallPoststed) return false
+        if (person != other.person) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = Objects.hash(dødsfallDato, dødsfallAdresse, dødsfallPostnummer, dødsfallPoststed, person)
 
     companion object {
         fun lagDødsfall(

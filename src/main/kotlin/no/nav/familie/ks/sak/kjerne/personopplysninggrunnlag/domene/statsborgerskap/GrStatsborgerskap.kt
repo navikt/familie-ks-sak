@@ -20,6 +20,7 @@ import no.nav.familie.ks.sak.common.util.erInnenfor
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import java.time.LocalDate
+import java.util.Objects
 
 @Entity(name = "GrStatsborgerskap")
 @Table(name = "PO_STATSBORGERSKAP")
@@ -54,11 +55,12 @@ data class GrStatsborgerskap(
 
         if (gyldigPeriode != other.gyldigPeriode) return false
         if (landkode != other.landkode) return false
+        if (medlemskap != other.medlemskap) return false
 
         return true
     }
 
-    override fun hashCode(): Int = 31 * gyldigPeriode.hashCode() + landkode.hashCode()
+    override fun hashCode(): Int = Objects.hash(gyldigPeriode, landkode, medlemskap)
 
     companion object {
         fun fraStatsborgerskap(

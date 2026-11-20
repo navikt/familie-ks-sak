@@ -56,7 +56,7 @@ data class GrOpphold(
             opphold: Opphold,
             person: Person,
         ) = GrOpphold(
-            gyldigPeriode = DatoIntervallEntitet(fom = opphold.oppholdFra, tom = opphold.oppholdTil),
+            gyldigPeriode = DatoIntervallEntitet(fom = opphold.oppholdFra, tom = opphold.oppholdTil).takeIf { it.fom != null || it.tom != null },
             type = opphold.type,
             person = person,
         )
