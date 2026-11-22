@@ -369,6 +369,50 @@ class ForskyvBarnehageplass2025Test {
     }
 
     @Test
+    fun `forskyvBarnehageplassVilkår skal støtte at barnet har deltids barnehageplass noen dager midt i en måned`() {
+        // Arrange
+        val vilkårResultater =
+            listOf(
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = LocalDate.of(2025, 6, 2),
+                    periodeTom = LocalDate.of(2026, 8, 17),
+                    antallTimer = null,
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = LocalDate.of(2026, 8, 18),
+                    periodeTom = LocalDate.of(2026, 8, 20),
+                    antallTimer = BigDecimal.valueOf(27),
+                ),
+                lagVilkårResultat(
+                    vilkårType = Vilkår.BARNEHAGEPLASS,
+                    periodeFom = LocalDate.of(2026, 8, 21),
+                    periodeTom = null,
+                    antallTimer = null,
+                ),
+            )
+
+        // Act
+        val forskjøvedeVilkårResultater = forskyvBarnehageplassVilkår(vilkårResultater)
+
+        // Assert
+        assertThat(forskjøvedeVilkårResultater).hasSize(3)
+
+        assertThat(forskjøvedeVilkårResultater[0].fom).isEqualTo(LocalDate.of(2025, 7, 1))
+        assertThat(forskjøvedeVilkårResultater[0].tom).isEqualTo(LocalDate.of(2026, 7, 31))
+        assertThat(forskjøvedeVilkårResultater[0].verdi.antallTimer).isNull()
+
+        assertThat(forskjøvedeVilkårResultater[1].fom).isEqualTo(LocalDate.of(2026, 8, 1))
+        assertThat(forskjøvedeVilkårResultater[1].tom).isEqualTo(LocalDate.of(2026, 8, 31))
+        assertThat(forskjøvedeVilkårResultater[1].verdi.antallTimer).isEqualTo(BigDecimal.valueOf(27))
+
+        assertThat(forskjøvedeVilkårResultater[2].fom).isEqualTo(LocalDate.of(2026, 9, 1))
+        assertThat(forskjøvedeVilkårResultater[2].tom).isNull()
+        assertThat(forskjøvedeVilkårResultater[2].verdi.antallTimer).isNull()
+    }
+
+    @Test
     fun `Scenario 1 fra rundskrivet - Endring i KS skjer fra og med samme måned som en økning i barnehageplass - test 1`() {
         // Arrange
         val vilkårResultaterForBarn =
