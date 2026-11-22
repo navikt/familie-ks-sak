@@ -52,7 +52,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
-import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -89,7 +88,6 @@ class BehandlingServiceTest {
     private val mockOvergangsordningAndelService = mockk<OvergangsordningAndelService>()
     private val mockOppgaveService = mockk<OppgaveService>()
     private val mockSakStatistikkService = mockk<SakStatistikkService>()
-    private val mockKorrigertVedtakRepository = mockk<KorrigertVedtakRepository>()
     private val mockAdopsjonService = mockk<AdopsjonService>()
     private val mockEndringstidspunktService = mockk<EndringstidspunktService>()
 
@@ -117,7 +115,6 @@ class BehandlingServiceTest {
             overgangsordningAndelService = mockOvergangsordningAndelService,
             oppgaveService = mockOppgaveService,
             sakStatistikkService = mockSakStatistikkService,
-            korrigertVedtakRepository = mockKorrigertVedtakRepository,
             adopsjonService = mockAdopsjonService,
             endringstidspunktService = mockEndringstidspunktService,
         )
@@ -186,7 +183,6 @@ class BehandlingServiceTest {
         every { mockRefusjonEøsService.hentRefusjonEøsPerioder(any()) } returns emptyList()
         every { mockUtenlandskPeriodebeløpRepository.findByBehandlingId(behandling.id) } returns emptyList()
         every { mockValutakursRepository.findByBehandlingId(behandling.id) } returns emptyList()
-        every { mockKorrigertVedtakRepository.finnAktivtKorrigertVedtakPåBehandling(behandling.id) } returns null
         every { mockBrevmottakerService.hentBrevmottakere(any()) } returns emptyList()
         every { mockOvergangsordningAndelService.hentOvergangsordningAndeler(any()) } returns emptyList()
         every { mockAdopsjonService.hentAlleAdopsjonerForBehandling(any()) } returns emptyList()

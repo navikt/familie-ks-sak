@@ -18,7 +18,6 @@ import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
 import no.nav.familie.ks.sak.api.dto.YtelsePerioderDto
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
-import no.nav.familie.ks.sak.api.dto.tilKorrigertVedtakResponsDto
 import no.nav.familie.ks.sak.api.dto.tilUtenlandskPeriodebeløpDto
 import no.nav.familie.ks.sak.api.dto.tilValutakursDto
 import no.nav.familie.ks.sak.api.mapper.RegisterHistorikkMapper.lagRegisterHistorikkResponsDto
@@ -37,7 +36,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.Utenland
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
-import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtak
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -61,7 +59,6 @@ object BehandlingMapper {
         refusjonEøs: List<RefusjonEøsDto>,
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
         valutakurser: List<Valutakurs>,
-        korrigertVedtak: KorrigertVedtak?,
         brevmottakere: List<BrevmottakerDto>,
         manglendeSvalbardmerking: List<ManglendeSvalbardmerkingDto>,
     ) = BehandlingResponsDto(
@@ -111,7 +108,6 @@ object BehandlingMapper {
         utenlandskePeriodebeløp = utenlandskePeriodebeløp.map { it.tilUtenlandskPeriodebeløpDto() },
         valutakurser = valutakurser.map { it.tilValutakursDto() },
         refusjonEøs = refusjonEøs,
-        korrigertVedtak = korrigertVedtak?.tilKorrigertVedtakResponsDto(),
         brevmottakere = brevmottakere,
         manglendeSvalbardmerking = manglendeSvalbardmerking,
     )

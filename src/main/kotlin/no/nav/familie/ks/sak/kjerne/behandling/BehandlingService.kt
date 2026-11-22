@@ -50,7 +50,6 @@ import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGru
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
-import no.nav.familie.ks.sak.korrigertvedtak.KorrigertVedtakRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.slf4j.Logger
@@ -86,7 +85,6 @@ class BehandlingService(
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val oppgaveService: OppgaveService,
     private val sakStatistikkService: SakStatistikkService,
-    private val korrigertVedtakRepository: KorrigertVedtakRepository,
     private val adopsjonService: AdopsjonService,
     private val endringstidspunktService: EndringstidspunktService,
 ) {
@@ -192,7 +190,6 @@ class BehandlingService(
 
         val utenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
         val valutakurser = valutakursRepository.findByBehandlingId(behandlingId)
-        val korrigertVedtak = korrigertVedtakRepository.finnAktivtKorrigertVedtakPåBehandling(behandlingId)
 
         val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId)
 
@@ -217,7 +214,6 @@ class BehandlingService(
             refusjonEøs = refusjonEøs,
             utenlandskePeriodebeløp = utenlandskePeriodebeløp,
             valutakurser = valutakurser,
-            korrigertVedtak = korrigertVedtak,
             brevmottakere = brevmottakere,
             manglendeSvalbardmerking = manglendeSvalbardmerking,
         )
