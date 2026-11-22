@@ -687,7 +687,7 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned for barn som følger lovverket før 2025 selv om et annet barn følger lovverket fra februar 2025`() {
+    fun `utførSteg - skal kaste feil hvis det finnes mer enn 2 barnehageplass vilkår i en måned for barn som følger lovverket fra før februar 2025 selv om et annet barn følger lovverket fra februar 2025`() {
         // Arrange
         val barnLovverk2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2025, 6, 2))
         val barnLovverkFør2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
@@ -753,7 +753,7 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal ikke kaste feil hvis det finnes 2 barnehageplass vilkår i en måned for barn som følger lovverket før 2025`() {
+    fun `utførSteg - skal ikke kaste feil hvis det finnes 2 barnehageplass vilkår i en måned for barn som følger lovverket fra før februar 2025`() {
         // Arrange
         val barn = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
         val personopplysningGrunnlag =
@@ -800,7 +800,7 @@ class VilkårsvurderingStegTest {
     }
 
     @Test
-    fun `utførSteg - skal ikke kaste feil hvis det finnes 3 barnehageplass vilkår i en måned for barn som følger lovverket fra februar 2025 selv om et annet barn følger lovverket før 2025`() {
+    fun `utførSteg - skal ikke kaste feil hvis det finnes 3 barnehageplass vilkår i en måned for barn som følger lovverket fra februar 2025 selv om et annet barn følger lovverket fra før februar 2025`() {
         // Arrange
         val barnLovverk2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2025, 6, 2))
         val barnLovverkFør2025 = lagPerson(personType = PersonType.BARN, aktør = randomAktør(), fødselsdato = LocalDate.of(2022, 2, 10))
