@@ -3,7 +3,6 @@ package no.nav.familie.ks.sak.kjerne.behandling
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
-import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.tilManglendeSvalbardmerkingDto
 import no.nav.familie.ks.sak.api.dto.tilTotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.tilUtbetalingsperiodeResponsDto
@@ -32,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatValideringUtils
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -81,7 +79,6 @@ class BehandlingService(
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
     private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sanityService: SanityService,
-    private val feilutbetaltValutaService: FeilutbetaltValutaService,
     private val kompetanseRepository: KompetanseRepository,
     private val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository,
     private val valutakursRepository: ValutakursRepository,
@@ -191,11 +188,6 @@ class BehandlingService(
 
         val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
 
-        val feilutbetalteValuta =
-            feilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(behandlingId).map {
-                it.tilFeilutbetaltValutaDto()
-            }
-
         val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
 
         val refusjonEøs = refusjonEøsService.hentRefusjonEøsPerioder(behandlingId)
@@ -224,7 +216,6 @@ class BehandlingService(
             endringstidspunkt = endringstidspunkt,
             tilbakekreving = tilbakekreving,
             sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
-            feilutbetalteValuta = feilutbetalteValuta,
             kompetanser = kompetanser,
             refusjonEøs = refusjonEøs,
             utenlandskePeriodebeløp = utenlandskePeriodebeløp,

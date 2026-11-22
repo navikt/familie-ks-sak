@@ -46,7 +46,6 @@ data class BehandlingResponsDto(
     val kompetanser: List<KompetanseDto>,
     val utenlandskePeriodebeløp: List<UtenlandskPeriodebeløpDto>,
     val valutakurser: List<ValutakursDto>,
-    val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
     val refusjonEøs: List<RefusjonEøsDto> = emptyList(),
     val korrigertEtterbetaling: KorrigertEtterbetalingResponsDto?,
     val korrigertVedtak: KorrigertVedtakResponsDto?,

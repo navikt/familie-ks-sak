@@ -36,7 +36,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrun
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.domene.SøknadGrunnlag
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
@@ -83,7 +82,6 @@ class BehandlingServiceTest {
     private val mockTotrinnskontrollRepository = mockk<TotrinnskontrollRepository>()
     private val mockTilbakekrevingRepository = mockk<TilbakekrevingRepository>()
     private val mockSanityService = mockk<SanityService>()
-    private val mockFeilutbetaltValutaService = mockk<FeilutbetaltValutaService>()
     private val mockKompetanseRepository = mockk<KompetanseRepository>()
     private val mockRefusjonEøsService = mockk<RefusjonEøsService>()
     private val mockUtenlandskPeriodebeløpRepository = mockk<UtenlandskPeriodebeløpRepository>()
@@ -113,7 +111,6 @@ class BehandlingServiceTest {
             totrinnskontrollRepository = mockTotrinnskontrollRepository,
             tilbakekrevingRepository = mockTilbakekrevingRepository,
             sanityService = mockSanityService,
-            feilutbetaltValutaService = mockFeilutbetaltValutaService,
             kompetanseRepository = mockKompetanseRepository,
             refusjonEøsService = mockRefusjonEøsService,
             utenlandskPeriodebeløpRepository = mockUtenlandskPeriodebeløpRepository,
@@ -187,7 +184,6 @@ class BehandlingServiceTest {
         every { mockTotrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
         every { mockTilbakekrevingRepository.findByBehandlingId(any()) } returns null
         every { mockVedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(any()) } returns null
-        every { mockFeilutbetaltValutaService.hentAlleFeilutbetaltValutaForBehandling(any()) } returns emptyList()
         every { mockSanityService.hentSanityBegrunnelser() } returns emptyList()
         every { mockKompetanseRepository.findByBehandlingId(any()) } returns emptyList()
         every { mockRefusjonEøsService.hentRefusjonEøsPerioder(any()) } returns emptyList()

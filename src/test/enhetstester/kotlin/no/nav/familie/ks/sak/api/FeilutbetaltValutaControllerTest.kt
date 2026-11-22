@@ -8,7 +8,6 @@ import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -24,12 +23,10 @@ import java.util.stream.Stream
 class FeilutbetaltValutaControllerTest {
     private val tilgangService = mockk<TilgangService>()
     private val feilutbetaltValutaService = mockk<FeilutbetaltValutaService>(relaxed = true)
-    private val behandlingService = mockk<BehandlingService>()
     private val feilutbetaltValutaController =
         FeilutbetaltValutaController(
             tilgangService = tilgangService,
             feilutbetaltValutaService = feilutbetaltValutaService,
-            behandlingService = behandlingService,
         )
 
     private val behandlingId = 1L
@@ -37,7 +34,6 @@ class FeilutbetaltValutaControllerTest {
     @BeforeEach
     fun setUp() {
         justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
-        every { behandlingService.lagBehandlingRespons(any()) } returns mockk()
     }
 
     @ParameterizedTest(name = "{0}")
