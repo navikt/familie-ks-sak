@@ -70,6 +70,7 @@ object BehandlingMapper {
         brevmottakere: List<BrevmottakerDto>,
         manglendeSvalbardmerking: List<ManglendeSvalbardmerkingDto>,
     ) = BehandlingResponsDto(
+        fagsakId = behandling.fagsak.id,
         behandlingId = behandling.id,
         steg = behandling.steg,
         stegTilstand =

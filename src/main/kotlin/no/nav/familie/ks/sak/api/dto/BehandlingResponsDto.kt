@@ -18,6 +18,7 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 
 data class BehandlingResponsDto(
+    val fagsakId: Long,
     val behandlingId: Long,
     val steg: BehandlingSteg,
     val stegTilstand: List<BehandlingStegTilstandResponsDto>,
