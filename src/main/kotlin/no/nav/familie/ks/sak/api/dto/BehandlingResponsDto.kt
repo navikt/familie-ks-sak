@@ -48,7 +48,6 @@ data class BehandlingResponsDto(
     val utenlandskePeriodebeløp: List<UtenlandskPeriodebeløpDto>,
     val valutakurser: List<ValutakursDto>,
     val refusjonEøs: List<RefusjonEøsDto> = emptyList(),
-    val korrigertVedtak: KorrigertVedtakResponsDto?,
     val brevmottakere: List<BrevmottakerDto> = emptyList(),
     val søknadMottattDato: LocalDateTime?,
     val manglendeSvalbardmerking: List<ManglendeSvalbardmerkingDto>,
