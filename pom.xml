@@ -63,7 +63,7 @@
         <azure-identity.version>1.19.0</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>8.0.4</cucumber.version>
+        <cucumber.version>8.1.0</cucumber.version>
         <rest-assured.version>6.3.0</rest-assured.version>
         <mock-oauth2-server.version>6.1.5</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
@@ -81,7 +81,7 @@
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
 
         <!-- Sonar -->
-        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.9.0.7382</sonar-maven-plugin.version>
         <sonar.organization>navikt</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.sources>src/main</sonar.sources>
