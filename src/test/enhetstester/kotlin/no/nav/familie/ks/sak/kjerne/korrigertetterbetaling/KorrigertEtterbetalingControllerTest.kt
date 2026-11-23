@@ -4,8 +4,10 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
+import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -27,13 +29,47 @@ class KorrigertEtterbetalingControllerTest {
         )
 
     private val behandlingId = 1L
+    private val korrigertEtterbetaling =
+        lagKorrigertEtterbetaling(
+            behandling = lagBehandling(id = behandlingId),
+            begrunnelse = "Motregnet mot feilutbetaling",
+            beløp = 2500,
+        )
 
     @BeforeEach
     fun setUp() {
         justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
         every { behandlingService.hentBehandling(behandlingId) } returns mockk()
         every { korrigertEtterbetalingService.settKorrigeringPåBehandlingTilInaktiv(any()) } returns null
-        every { behandlingService.lagBehandlingRespons(behandlingId) } returns mockk()
+    }
+
+    @Nested
+    inner class HentKorrigertEtterbetalingPåBehandling {
+        @Test
+        fun `skal returnere aktiv korrigert etterbetaling på behandlingen`() {
+            // Arrange
+            every { korrigertEtterbetalingService.finnAktivtKorrigeringPåBehandling(behandlingId) } returns korrigertEtterbetaling
+
+            // Act
+            val respons = korrigertEtterbetalingController.hentKorrigertEtterbetalingPåBehandling(behandlingId)
+
+            // Assert
+            assertThat(respons.body?.data?.beløp).isEqualTo(korrigertEtterbetaling.beløp)
+            assertThat(respons.body?.data?.begrunnelse).isEqualTo(korrigertEtterbetaling.begrunnelse)
+        }
+
+        @Test
+        fun `skal returnere null når behandlingen ikke har aktiv korrigert etterbetaling`() {
+            // Arrange
+            every { korrigertEtterbetalingService.finnAktivtKorrigeringPåBehandling(behandlingId) } returns null
+
+            // Act
+            val respons = korrigertEtterbetalingController.hentKorrigertEtterbetalingPåBehandling(behandlingId)
+
+            // Assert
+            assertThat(respons.body?.status).isEqualTo(Ressurs.Status.SUKSESS)
+            assertThat(respons.body?.data).isNull()
+        }
     }
 
     @Nested

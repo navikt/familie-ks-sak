@@ -44,7 +44,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.UtenlandskPerio
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.ValutakursRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.Fagsak
 import no.nav.familie.ks.sak.kjerne.forrigebehandling.EndringstidspunktService
-import no.nav.familie.ks.sak.kjerne.korrigertetterbetaling.KorrigertEtterbetalingRepository
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
@@ -83,7 +82,6 @@ class BehandlingService(
     private val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository,
     private val valutakursRepository: ValutakursRepository,
     private val refusjonEøsService: RefusjonEøsService,
-    private val korrigertEtterbetalingRepository: KorrigertEtterbetalingRepository,
     private val brevmottakerService: BrevmottakerService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val oppgaveService: OppgaveService,
@@ -194,7 +192,6 @@ class BehandlingService(
 
         val utenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
         val valutakurser = valutakursRepository.findByBehandlingId(behandlingId)
-        val korrigertEtterbetaling = korrigertEtterbetalingRepository.finnAktivtKorrigeringPåBehandling(behandlingId)
         val korrigertVedtak = korrigertVedtakRepository.finnAktivtKorrigertVedtakPåBehandling(behandlingId)
 
         val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId)
@@ -220,7 +217,6 @@ class BehandlingService(
             refusjonEøs = refusjonEøs,
             utenlandskePeriodebeløp = utenlandskePeriodebeløp,
             valutakurser = valutakurser,
-            korrigertEtterbetaling = korrigertEtterbetaling,
             korrigertVedtak = korrigertVedtak,
             brevmottakere = brevmottakere,
             manglendeSvalbardmerking = manglendeSvalbardmerking,
