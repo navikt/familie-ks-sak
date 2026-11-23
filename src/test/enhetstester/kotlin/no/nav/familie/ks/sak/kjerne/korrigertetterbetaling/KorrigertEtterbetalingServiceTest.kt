@@ -38,28 +38,6 @@ internal class KorrigertEtterbetalingServiceTest {
     }
 
     @Test
-    fun `finnAlleKorrigeringerPåBehandling skal hente alle korrigering fra repository hvis de finnes`() {
-        // Arrange
-        val behandling = lagBehandling()
-        val korrigertEtterbetaling = lagKorrigertEtterbetaling(behandling)
-
-        // Act
-        every { korrigertEtterbetalingRepository.finnAlleKorrigeringerPåBehandling(behandling.id) } returns
-            listOf(
-                korrigertEtterbetaling,
-                korrigertEtterbetaling,
-            )
-
-        val hentetKorrigertEtterbetaling =
-            korrigertEtterbetalingService.finnAlleKorrigeringerPåBehandling(behandling.id)
-
-        // Assert
-        assertThat(hentetKorrigertEtterbetaling.size, Is(2))
-
-        verify(exactly = 1) { korrigertEtterbetalingRepository.finnAlleKorrigeringerPåBehandling(behandling.id) }
-    }
-
-    @Test
     fun `lagreKorrigertEtterbetaling skal lagre korrigering på behandling og logg på dette`() {
         // Arrange
         val behandling = lagBehandling()

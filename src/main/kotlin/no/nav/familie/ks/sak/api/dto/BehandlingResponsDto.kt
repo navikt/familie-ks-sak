@@ -49,7 +49,6 @@ data class BehandlingResponsDto(
     val valutakurser: List<ValutakursDto>,
     val feilutbetaltValuta: List<FeilutbetaltValutaDto> = emptyList(),
     val refusjonEøs: List<RefusjonEøsDto> = emptyList(),
-    val korrigertEtterbetaling: KorrigertEtterbetalingResponsDto?,
     val korrigertVedtak: KorrigertVedtakResponsDto?,
     val brevmottakere: List<BrevmottakerDto> = emptyList(),
     val søknadMottattDato: LocalDateTime?,
