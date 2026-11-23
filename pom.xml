@@ -63,7 +63,7 @@
         <azure-identity.version>1.19.0</azure-identity.version>
 
         <!-- Test -->
-        <cucumber.version>8.0.4</cucumber.version>
+        <cucumber.version>8.1.0</cucumber.version>
         <rest-assured.version>6.3.0</rest-assured.version>
         <mock-oauth2-server.version>7.0.0</mock-oauth2-server.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
