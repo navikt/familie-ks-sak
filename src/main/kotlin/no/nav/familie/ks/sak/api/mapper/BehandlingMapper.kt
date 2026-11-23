@@ -6,7 +6,6 @@ import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.BehandlingStegTilstandResponsDto
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelResponsDto
-import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.ManglendeSvalbardmerkingDto
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
@@ -60,7 +59,6 @@ object BehandlingMapper {
         endringstidspunkt: LocalDate,
         tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
-        feilutbetalteValuta: List<FeilutbetaltValutaDto>,
         kompetanser: List<Kompetanse>,
         refusjonEøs: List<RefusjonEøsDto>,
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
@@ -112,7 +110,6 @@ object BehandlingMapper {
         endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
         tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
         sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
-        feilutbetaltValuta = feilutbetalteValuta,
         kompetanser = kompetanser.map { it.tilKompetanseDto() },
         utenlandskePeriodebeløp = utenlandskePeriodebeløp.map { it.tilUtenlandskPeriodebeløpDto() },
         valutakurser = valutakurser.map { it.tilValutakursDto() },

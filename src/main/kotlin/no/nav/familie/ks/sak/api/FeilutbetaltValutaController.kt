@@ -1,11 +1,9 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.api.dto.tilFeilutbetaltValutaDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValuta
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta.FeilutbetaltValutaService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController
 class FeilutbetaltValutaController(
     private val tilgangService: TilgangService,
     private val feilutbetaltValutaService: FeilutbetaltValutaService,
-    private val behandlingService: BehandlingService,
 ) {
     @PostMapping(
         path = ["/behandlinger/{behandlingId}"],
@@ -38,7 +35,7 @@ class FeilutbetaltValutaController(
     fun leggTilFeilutbetaltValuta(
         @PathVariable behandlingId: Long,
         @RequestBody feilutbetaltValutaDto: FeilutbetaltValutaDto,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<FeilutbetaltValutaDto>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,
@@ -55,7 +52,7 @@ class FeilutbetaltValutaController(
             ),
         )
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+        return ResponseEntity.ok(Ressurs.success(hentFeilutbetaltValutaPerioder(behandlingId = behandlingId)))
     }
 
     @PutMapping(
@@ -67,7 +64,7 @@ class FeilutbetaltValutaController(
         @PathVariable behandlingId: Long,
         @PathVariable feilutbetaltValutaId: Long,
         @RequestBody feilutbetaltValuta: FeilutbetaltValutaDto,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<FeilutbetaltValutaDto>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
@@ -80,14 +77,14 @@ class FeilutbetaltValutaController(
             id = feilutbetaltValutaId,
         )
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+        return ResponseEntity.ok(Ressurs.success(hentFeilutbetaltValutaPerioder(behandlingId = behandlingId)))
     }
 
     @DeleteMapping(path = ["/behandlinger/{behandlingId}/{feilutbetaltValutaId}"])
     fun fjernFeilutbetaltValuta(
         @PathVariable behandlingId: Long,
         @PathVariable feilutbetaltValutaId: Long,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<FeilutbetaltValutaDto>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.DELETE,
@@ -96,7 +93,7 @@ class FeilutbetaltValutaController(
         )
         feilutbetaltValutaService.fjernFeilutbetaltValuta(id = feilutbetaltValutaId)
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+        return ResponseEntity.ok(Ressurs.success(hentFeilutbetaltValutaPerioder(behandlingId = behandlingId)))
     }
 
     @GetMapping(path = ["/behandlinger/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -109,13 +106,11 @@ class FeilutbetaltValutaController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "henter alle feilutbetalt valuta for behandling",
         )
-        return ResponseEntity.ok(
-            Ressurs.success(
-                feilutbetaltValutaService
-                    .hentAlleFeilutbetaltValutaForBehandling(
-                        behandlingId = behandlingId,
-                    ).map { it.tilFeilutbetaltValutaDto() },
-            ),
-        )
+        return ResponseEntity.ok(Ressurs.success(hentFeilutbetaltValutaPerioder(behandlingId = behandlingId)))
     }
+
+    private fun hentFeilutbetaltValutaPerioder(behandlingId: Long): List<FeilutbetaltValutaDto> =
+        feilutbetaltValutaService
+            .hentAlleFeilutbetaltValutaForBehandling(behandlingId = behandlingId)
+            .map { it.tilFeilutbetaltValutaDto() }
 }
