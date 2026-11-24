@@ -10,7 +10,6 @@ import no.nav.familie.ks.sak.api.dto.ManglendeSvalbardmerkingDto
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
-import no.nav.familie.ks.sak.api.dto.RefusjonEøsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingResponsDto
 import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
@@ -56,7 +55,6 @@ object BehandlingMapper {
         tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
         kompetanser: List<Kompetanse>,
-        refusjonEøs: List<RefusjonEøsDto>,
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
         valutakurser: List<Valutakurs>,
         brevmottakere: List<BrevmottakerDto>,
@@ -107,7 +105,6 @@ object BehandlingMapper {
         kompetanser = kompetanser.map { it.tilKompetanseDto() },
         utenlandskePeriodebeløp = utenlandskePeriodebeløp.map { it.tilUtenlandskPeriodebeløpDto() },
         valutakurser = valutakurser.map { it.tilValutakursDto() },
-        refusjonEøs = refusjonEøs,
         brevmottakere = brevmottakere,
         manglendeSvalbardmerking = manglendeSvalbardmerking,
     )
