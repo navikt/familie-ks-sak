@@ -85,7 +85,15 @@ class BrevController(
         @RequestBody manueltBrevDto: ManueltBrevDto,
     ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} genererer og sender brev på fagsak $fagsakId: ${manueltBrevDto.brevmal}")
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = "sende brev",
+        )
+        tilgangService.validerTilgangTilHandlingOgPersoner(
+            personIdenter = listOf(manueltBrevDto.mottakerIdent),
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "sende brev",
         )
