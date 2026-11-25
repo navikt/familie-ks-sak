@@ -103,7 +103,7 @@ internal class ValutakursServiceTest {
                 ).single()
 
         // Act
-        valutakursService.slettValutakurs(lagretValutakurs.id)
+        valutakursService.slettValutakurs(behandlingId, lagretValutakurs.id)
 
         // Assert
         val faktiskValutakurs = valutakursService.hentValutakurser(behandlingId).single()

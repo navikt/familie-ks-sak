@@ -43,9 +43,18 @@ class BrevmottakerService(
     }
 
     @Transactional
-    fun fjernBrevmottaker(id: Long) {
+    fun fjernBrevmottaker(
+        id: Long,
+        behandlingId: Long,
+    ) {
         val brevmottaker =
             brevmottakerRepository.findByIdOrNull(id) ?: throw Feil("Finner ikke brevmottaker med id=$id")
+        if (brevmottaker.behandlingId != behandlingId) {
+            throw Feil(
+                message = "Brevmottaker $id er ikke koblet til behandling $behandlingId",
+                frontendFeilmelding = "Brevmottakeren er ikke koblet til behandlingen man sender inn",
+            )
+        }
 
         loggService.opprettBrevmottakerLogg(
             brevmottaker = brevmottaker,

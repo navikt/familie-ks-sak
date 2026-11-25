@@ -3,9 +3,11 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.feilutbetaltvaluta
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.familie.ks.sak.api.dto.FeilutbetaltValutaDto
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
+import org.assertj.core.api.Assertions
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -86,5 +88,35 @@ class FeilutbetaltValutaServiceTest {
 
         verify(exactly = 1) { feilutbetaltValutaRepository.save(any()) }
         verify(exactly = 1) { loggService.opprettFeilutbetaltValutaLagtTilLogg(feilutbetaltValuta) }
+    }
+
+    @Test
+    fun `fjernFeilutbetaltValuta - skal kaste feil og ikke slette når perioden tilhører en annen behandling`() {
+        // Arrange
+        every { feilutbetaltValutaRepository.finnFeilutbetaltValuta(0) } returns
+            FeilutbetaltValuta(behandlingId = 2L, fom = LocalDate.now(), tom = LocalDate.now(), feilutbetaltBeløp = 100)
+
+        // Act & Assert
+        val feil = assertThrows<Feil> { feilutbetaltValutaService.fjernFeilutbetaltValuta(id = 0, behandlingId = 1L) }
+
+        Assertions.assertThat(feil.frontendFeilmelding).isEqualTo("Feilutbetalt valuta-perioden er ikke koblet til behandlingen man sender inn")
+        verify(exactly = 0) { feilutbetaltValutaRepository.deleteById(any()) }
+    }
+
+    @Test
+    fun `oppdaterFeilutbetaltValuta - skal kaste feil og ikke endre når perioden tilhører en annen behandling`() {
+        // Arrange
+        val feilutbetaltValutaPåAnnenBehandling =
+            FeilutbetaltValuta(behandlingId = 2L, fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 31), feilutbetaltBeløp = 100)
+        every { feilutbetaltValutaRepository.finnFeilutbetaltValuta(0) } returns feilutbetaltValutaPåAnnenBehandling
+
+        val oppdatering = FeilutbetaltValutaDto(id = 0, fom = LocalDate.of(2025, 1, 1), tom = LocalDate.of(2025, 1, 31), feilutbetaltBeløp = 1)
+
+        // Act & Assert
+        assertThrows<Feil> {
+            feilutbetaltValutaService.oppdaterFeilutbetaltValuta(oppdatertFeilutbetaltValuta = oppdatering, id = 0, behandlingId = 1L)
+        }
+
+        Assertions.assertThat(feilutbetaltValutaPåAnnenBehandling.feilutbetaltBeløp).isEqualTo(100)
     }
 }

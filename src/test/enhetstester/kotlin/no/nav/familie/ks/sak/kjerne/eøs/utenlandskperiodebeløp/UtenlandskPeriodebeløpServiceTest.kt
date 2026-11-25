@@ -98,7 +98,7 @@ internal class UtenlandskPeriodebeløpServiceTest {
                 .single()
 
         // Act
-        utenlandskPeriodebeløpService.slettUtenlandskPeriodebeløp(lagretUtenlandskPeriodebeløp.id)
+        utenlandskPeriodebeløpService.slettUtenlandskPeriodebeløp(behandlingId, lagretUtenlandskPeriodebeløp.id)
 
         // Assert
         val faktiskUtenlandskPeriodebeløp =

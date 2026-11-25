@@ -36,8 +36,9 @@ class UtenlandskPeriodebeløpService(
     }
 
     fun slettUtenlandskPeriodebeløp(
+        behandlingId: BehandlingId,
         utenlandskPeriodebeløpId: Long,
-    ) = skjemaService.slettSkjema(utenlandskPeriodebeløpId)
+    ) = skjemaService.slettSkjema(behandlingId, utenlandskPeriodebeløpId)
 
     @Transactional
     fun kopierOgErstattUtenlandskPeriodebeløp(
