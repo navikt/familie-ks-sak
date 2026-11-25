@@ -31,7 +31,6 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg
 import no.nav.familie.ks.sak.kjerne.behandling.steg.behandlingsresultat.BehandlingsresultatValideringUtils
 import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
-import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
 import no.nav.familie.ks.sak.kjerne.beregning.AndelerTilkjentYtelseOgEndreteUtbetalingerService
@@ -80,7 +79,6 @@ class BehandlingService(
     private val kompetanseRepository: KompetanseRepository,
     private val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository,
     private val valutakursRepository: ValutakursRepository,
-    private val refusjonEøsService: RefusjonEøsService,
     private val brevmottakerService: BrevmottakerService,
     private val overgangsordningAndelService: OvergangsordningAndelService,
     private val oppgaveService: OppgaveService,
@@ -186,8 +184,6 @@ class BehandlingService(
 
         val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
 
-        val refusjonEøs = refusjonEøsService.hentRefusjonEøsPerioder(behandlingId)
-
         val utenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
         val valutakurser = valutakursRepository.findByBehandlingId(behandlingId)
 
@@ -211,7 +207,6 @@ class BehandlingService(
             tilbakekreving = tilbakekreving,
             sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
             kompetanser = kompetanser,
-            refusjonEøs = refusjonEøs,
             utenlandskePeriodebeløp = utenlandskePeriodebeløp,
             valutakurser = valutakurser,
             brevmottakere = brevmottakere,
