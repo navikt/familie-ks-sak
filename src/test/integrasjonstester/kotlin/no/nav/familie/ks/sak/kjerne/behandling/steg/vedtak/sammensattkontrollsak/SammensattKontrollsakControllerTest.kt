@@ -84,13 +84,15 @@ class SammensattKontrollsakControllerTest : OppslagSpringRunnerTest() {
         @Test
         fun `skal håndtere tilfeller hvor ingen sammensatt kontrollsak er funnet for behandlingId`() {
             // Arrange
+            opprettSøkerFagsakOgBehandling()
+
             val token = lokalTestToken(behandlerRolle = BehandlerRolle.BESLUTTER)
 
             // Act & assert
             Given {
                 header("Authorization", "Bearer $token")
             } When {
-                get("$controllerUrl/123")
+                get("$controllerUrl/${behandling.id}")
             } Then {
                 statusCode(HttpStatus.OK.value())
                 body("data", nullValue())

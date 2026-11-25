@@ -31,7 +31,7 @@ class SammensattKontrollsakController(
     fun hentSammensattKontrollsak(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<SammensattKontrollsakDto?>> {
-        sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
+        sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang(behandlingId = behandlingId)
 
         val sammensattKontrollsak =
             sammensattKontrollsakService.finnSammensattKontrollsakForBehandling(
@@ -48,7 +48,7 @@ class SammensattKontrollsakController(
     fun opprettSammensattKontrollsak(
         @RequestBody opprettSammensattKontrollsakDto: OpprettSammensattKontrollsakDto,
     ): ResponseEntity<Ressurs<SammensattKontrollsakDto>> {
-        sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
+        sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang(behandlingId = opprettSammensattKontrollsakDto.behandlingId)
 
         sammensattKontrollsakValidator.validerRedigerbarBehandlingForBehandlingId(
             behandlingId = opprettSammensattKontrollsakDto.behandlingId,
@@ -69,7 +69,7 @@ class SammensattKontrollsakController(
     fun oppdaterSammensattKontrollsak(
         @RequestBody oppdaterSammensattKontrollsakDto: OppdaterSammensattKontrollsakDto,
     ): ResponseEntity<Ressurs<SammensattKontrollsakDto>> {
-        sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
+        sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang(sammensattKontrollsakId = oppdaterSammensattKontrollsakDto.id)
 
         sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
             sammensattKontrollsakId = oppdaterSammensattKontrollsakDto.id,
@@ -89,7 +89,7 @@ class SammensattKontrollsakController(
     fun slettSammensattKontrollsak(
         @RequestBody slettSammensattKontrollsakDto: SlettSammensattKontrollsakDto,
     ): ResponseEntity<Ressurs<Long>> {
-        sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
+        sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang(sammensattKontrollsakId = slettSammensattKontrollsakDto.id)
 
         sammensattKontrollsakValidator.validerRedigerbarBehandlingForSammensattKontrollsakId(
             sammensattKontrollsakId = slettSammensattKontrollsakDto.id,
