@@ -44,8 +44,12 @@ class FagsakController(
     ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} henter eller oppretter ny fagsak")
 
+        val personIdent =
+            fagsakRequest.personIdent
+                ?: fagsakRequest.aktørId?.let { personidentService.hentAktør(it).aktivFødselsnummer() }
+
         tilgangService.validerTilgangTilHandlingOgPersoner(
-            personIdenter = listOfNotNull(fagsakRequest.personIdent),
+            personIdenter = listOfNotNull(personIdent),
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             event = AuditLoggerEvent.CREATE,
             handling = "Opprett fagsak",
