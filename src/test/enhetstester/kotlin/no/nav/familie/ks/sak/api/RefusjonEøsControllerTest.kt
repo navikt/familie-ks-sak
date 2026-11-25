@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -30,10 +31,52 @@ class RefusjonEøsControllerTest {
         )
 
     private val behandlingId = 1L
+    private val lagredePerioder =
+        listOf(
+            refusjonEøsDto.copy(id = 2L, refusjonsbeløp = 700),
+            refusjonEøsDto.copy(id = 3L, refusjonsbeløp = 900, land = "DK"),
+        )
 
     @BeforeEach
     fun setUp() {
         justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `skal returnere oppdaterte perioder etter oppretting`() {
+        // Arrange
+        every { refusjonEøsService.hentRefusjonEøsPerioder(behandlingId) } returns lagredePerioder
+
+        // Act
+        val respons = refusjonEøsController.leggTilRefusjonEøsPeriode(behandlingId, refusjonEøsDto)
+
+        // Assert
+        assertThat(respons.body?.data).isEqualTo(lagredePerioder)
+    }
+
+    @Test
+    fun `skal returnere oppdaterte perioder etter oppdatering`() {
+        // Arrange
+        every { refusjonEøsService.hentRefusjonEøsPerioder(behandlingId) } returns lagredePerioder
+
+        // Act
+        val respons = refusjonEøsController.oppdaterRefusjonEøsPeriode(behandlingId, 2L, refusjonEøsDto)
+
+        // Assert
+        assertThat(respons.body?.data).isEqualTo(lagredePerioder)
+    }
+
+    @Test
+    fun `skal returnere gjenværende perioder etter sletting`() {
+        // Arrange
+        val gjenværendePerioder = lagredePerioder.drop(1)
+        every { refusjonEøsService.hentRefusjonEøsPerioder(behandlingId) } returns gjenværendePerioder
+
+        // Act
+        val respons = refusjonEøsController.fjernRefusjonEøsPeriode(behandlingId, 2L)
+
+        // Assert
+        assertThat(respons.body?.data).isEqualTo(gjenværendePerioder)
     }
 
     @ParameterizedTest(name = "{0}")
