@@ -6,6 +6,7 @@ import no.nav.familie.ks.sak.api.dto.GenererVedtaksperioderForOverstyrtEndringst
 import no.nav.familie.ks.sak.api.dto.UtvidetVedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedBegrunnelserDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedFriteksterDto
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
@@ -38,11 +39,11 @@ class VedtaksperiodeMedBegrunnelserController(
         @PathVariable vedtaksperiodeId: Long,
         @RequestBody vedtaksperiodeMedBegrunnelserDto: VedtaksperiodeMedBegrunnelserDto,
     ): ResponseEntity<Ressurs<List<UtvidetVedtaksperiodeMedBegrunnelserDto>>> {
+        val behandlingId =
+            vedtaksperiodeHentOgPersisterService.finnBehandlingIdFor(vedtaksperiodeId)
+                ?: throw FunksjonellFeil("Vedtaksperiodene har blitt oppdatert. Oppdater siden og forsøk å legge til begrunnelser på nytt.")
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
-            behandlingId =
-                vedtaksperiodeHentOgPersisterService
-                    .hentVedtaksperiodeThrows(vedtaksperiodeId)
-                    .vedtak.behandling.id,
+            behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdatere vedtaksperiode med begrunnelser",
@@ -72,11 +73,11 @@ class VedtaksperiodeMedBegrunnelserController(
         @PathVariable vedtaksperiodeId: Long,
         @RequestBody vedtaksperiodeMedFriteksterDto: VedtaksperiodeMedFriteksterDto,
     ): ResponseEntity<Ressurs<List<UtvidetVedtaksperiodeMedBegrunnelserDto>>> {
+        val behandlingId =
+            vedtaksperiodeHentOgPersisterService.finnBehandlingIdFor(vedtaksperiodeId)
+                ?: throw FunksjonellFeil("Vedtaksperiodene har blitt oppdatert. Oppdater siden og forsøk å legge til fritekst på nytt.")
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
-            behandlingId =
-                vedtaksperiodeHentOgPersisterService
-                    .hentVedtaksperiodeThrows(vedtaksperiodeId)
-                    .vedtak.behandling.id,
+            behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdatere vedtaksperiode med fritekster",
@@ -113,7 +114,7 @@ class VedtaksperiodeMedBegrunnelserController(
             behandlingId = genererVedtaksperioderForOverstyrtEndringstidspunktDto.behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "Generer vedtaksperioder",
+            handling = "generere vedtaksperioder",
         )
 
         vedtaksperiodeService.genererVedtaksperiodeForOverstyrtEndringstidspunkt(

@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.Vedtak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.domene.VedtaksperiodeRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import org.assertj.core.api.Assertions
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -69,6 +70,27 @@ class VedtaksperiodeRepositoryTest : OppslagSpringRunnerTest() {
 
         // Assert
         assertThat(vedtaksperioderForVedtak.size, Is(1))
+    }
+
+    @Test
+    fun `finnBehandlingIdForVedtaksperiode skal returnere behandlingId for vedtaket vedtaksperioden tilhører`() {
+        // Arrange
+        val vedtaksperiodeId = opprettOgLagVedtaksperiode().id
+
+        // Act
+        val behandlingId = vedtaksperiodeRepository.finnBehandlingIdForVedtaksperiode(vedtaksperiodeId)
+
+        // Assert
+        Assertions.assertThat(behandlingId).isEqualTo(behandling.id)
+    }
+
+    @Test
+    fun `finnBehandlingIdForVedtaksperiode skal returnere null dersom vedtaksperioden ikke finnes`() {
+        // Act
+        val behandlingId = vedtaksperiodeRepository.finnBehandlingIdForVedtaksperiode(404)
+
+        // Assert
+        Assertions.assertThat(behandlingId).isNull()
     }
 
     private fun opprettOgLagVedtaksperiode(): VedtaksperiodeMedBegrunnelser {

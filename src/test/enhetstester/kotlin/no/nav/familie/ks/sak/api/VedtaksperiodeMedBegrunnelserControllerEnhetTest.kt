@@ -6,11 +6,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.GenererVedtaksperioderForOverstyrtEndringstidspunktDto
 import no.nav.familie.ks.sak.api.dto.VedtaksperiodeMedFriteksterDto
+import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.lagVedtak
-import no.nav.familie.ks.sak.data.lagVedtaksperiodeMedBegrunnelser
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeHentOgPersisterService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.vedtaksperiode.VedtaksperiodeService
@@ -42,7 +42,7 @@ class VedtaksperiodeMedBegrunnelserControllerEnhetTest {
     @BeforeEach
     fun setUp() {
         justRun { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
-        every { vedtaksperiodeHentOgPersisterService.hentVedtaksperiodeThrows(vedtaksperiodeId) } returns lagVedtaksperiodeMedBegrunnelser(vedtak = vedtak)
+        every { vedtaksperiodeHentOgPersisterService.finnBehandlingIdFor(vedtaksperiodeId) } returns behandling.id
         every { vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(vedtaksperiodeId, any()) } returns vedtak
         every { vedtaksperiodeService.hentUtvidetVedtaksperiodeMedBegrunnelserDto(behandlingId = behandling.id) } returns emptyList()
         justRun { vedtaksperiodeService.genererVedtaksperiodeForOverstyrtEndringstidspunkt(any(), any()) }
@@ -81,6 +81,20 @@ class VedtaksperiodeMedBegrunnelserControllerEnhetTest {
     }
 
     @Test
+    fun `skal gi funksjonell feil og ikke oppdatere når vedtaksperioden ikke finnes`() {
+        // Arrange
+        every { vedtaksperiodeHentOgPersisterService.finnBehandlingIdFor(vedtaksperiodeId) } returns null
+
+        // Act & Assert
+        assertThrows<FunksjonellFeil> {
+            vedtaksperiodeMedBegrunnelserController.oppdaterVedtaksperiodeMedFritekster(vedtaksperiodeId, VedtaksperiodeMedFriteksterDto(fritekster = listOf("Fritekst")))
+        }
+
+        verify(exactly = 0) { tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(any(), any(), any(), any()) }
+        verify(exactly = 0) { vedtaksperiodeService.oppdaterVedtaksperiodeMedFritekster(any(), any()) }
+    }
+
+    @Test
     fun `skal kreve saksbehandlerrolle og tilgang til behandlingen for å generere vedtaksperioder`() {
         // Act
         vedtaksperiodeMedBegrunnelserController.genererVedtaksperioderTilOgMedFørsteEndringstidspunkt(
@@ -93,7 +107,7 @@ class VedtaksperiodeMedBegrunnelserControllerEnhetTest {
                 behandlingId = behandling.id,
                 event = AuditLoggerEvent.UPDATE,
                 minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-                handling = "Generer vedtaksperioder",
+                handling = "generere vedtaksperioder",
             )
         }
     }
