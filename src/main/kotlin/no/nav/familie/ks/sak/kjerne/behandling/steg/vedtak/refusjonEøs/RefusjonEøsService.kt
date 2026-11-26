@@ -74,7 +74,6 @@ class RefusjonEøsService(
         behandlingId: Long,
     ) = hentRefusjonEøs(id, behandlingId).apply {
         fom = refusjonEøs.fom
-        fom = refusjonEøs.fom
         tom = refusjonEøs.tom
         refusjonsbeløp = refusjonEøs.refusjonsbeløp
         land = refusjonEøs.land

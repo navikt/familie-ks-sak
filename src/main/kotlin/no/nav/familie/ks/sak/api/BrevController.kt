@@ -89,13 +89,13 @@ class BrevController(
             fagsakId = fagsakId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sende brev",
+            handling = SENDE_BREV_HANDLING,
         )
         tilgangService.validerTilgangTilHandlingOgPersoner(
             personIdenter = listOf(manueltBrevDto.mottakerIdent),
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sende brev",
+            handling = SENDE_BREV_HANDLING,
         )
 
         val fagsak = fagsakService.hentFagsak(fagsakId)
@@ -118,7 +118,7 @@ class BrevController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sende brev",
+            handling = SENDE_BREV_HANDLING,
         )
 
         brevService.genererOgSendBrev(behandlingId = behandlingId, manueltBrevDto = manueltBrevDto)
@@ -174,6 +174,7 @@ class BrevController(
     }
 
     companion object {
+        private const val SENDE_BREV_HANDLING = "sende brev"
         private val logger = LoggerFactory.getLogger(BrevController::class.java)
     }
 }
