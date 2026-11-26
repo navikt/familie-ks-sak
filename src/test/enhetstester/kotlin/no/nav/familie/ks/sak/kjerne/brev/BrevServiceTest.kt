@@ -73,9 +73,9 @@ class BrevServiceTest {
     private val brevmottakerService =
         spyk(
             BrevmottakerService(
-                brevmottakerRepository = mockk(relaxed = true),
-                loggService = mockk(),
-                validerBrevmottakerService = mockk(),
+                brevmottakerHenter = mockk(relaxed = true),
+                brevmottakerOppretter = mockk(),
+                brevmottakerSletter = mockk(),
             ),
         )
     private val saksbehandlerContext = mockk<SaksbehandlerContext>(relaxed = true)
@@ -298,7 +298,7 @@ class BrevServiceTest {
 
             val tasks = mutableListOf<Task>()
             every { behandlingRepository.hentBehandling(any()) } returns behandling
-            every { brevmottakerService.hentBrevmottakere(behandling.id) } returns listOf(brevmottakerDto)
+            every { brevmottakerService.hentBrevmottakere(behandling.id) } returns listOf(brevmottakerDto.tilDomene(behandling.id))
             every { brevmottakerService.lagMottakereFraBrevMottakere(any()) } answers { callOriginal() }
             every { taskService.save(capture(tasks)) } returnsArgument 0
 

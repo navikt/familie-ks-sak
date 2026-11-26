@@ -7,266 +7,237 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.Bruker
-import no.nav.familie.ks.sak.common.exception.Feil
+import no.nav.familie.ks.sak.api.dto.BrukerMedUtenlandskAdresse
+import no.nav.familie.ks.sak.api.dto.Dødsbo
+import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
-import no.nav.familie.ks.sak.kjerne.logg.LoggService
+import no.nav.familie.ks.sak.data.lagBrevmottakerDto
+import no.nav.familie.ks.sak.datagenerator.lagBrevmottakerDb
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.data.repository.findByIdOrNull
 
-internal class BrevmottakerServiceTest {
-    private val brevmottakerRepository = mockk<BrevmottakerRepository>()
-    private val validerBrevmottakerService = mockk<ValiderBrevmottakerService>()
-    private val loggService = mockk<LoggService>()
-
+class BrevmottakerServiceTest {
+    private val brevmottakerHenter = mockk<BrevmottakerHenter>()
+    private val brevmottakerOppretter = mockk<BrevmottakerOppretter>()
+    private val brevmottakerSletter = mockk<BrevmottakerSletter>()
     private val brevmottakerService =
         BrevmottakerService(
-            loggService = loggService,
-            validerBrevmottakerService = validerBrevmottakerService,
-            brevmottakerRepository = brevmottakerRepository,
+            brevmottakerHenter = brevmottakerHenter,
+            brevmottakerOppretter = brevmottakerOppretter,
+            brevmottakerSletter = brevmottakerSletter,
         )
 
-    private val søkersnavn = "Test søker"
+    @Nested
+    inner class OpprettBrevmottaker {
+        @Test
+        fun `skal opprette brevmottaker og returnere lagret brevmottaker`() {
+            // Arrange
+            val brevmottaker = lagBrevmottakerDb(behandlingId = 1)
+            val lagretBrevmottaker = brevmottaker.copy(id = 1)
+            every { brevmottakerOppretter.opprettBrevmottaker(brevmottaker) } returns lagretBrevmottaker
 
-    @Test
-    fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har norsk adresse`() {
-        // Arrange
-        val brevmottakere = listOf(lagBrevMottaker(søkersnavn, mottakerType = MottakerType.FULLMEKTIG))
+            // Act
+            val resultat = brevmottakerService.opprettBrevmottaker(brevmottaker)
 
-        // Act
-        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
-
-        // Assert
-        assertTrue { mottakerInfo.size == 2 }
-
-        assertTrue(mottakerInfo.first() is Bruker)
-        assertTrue { mottakerInfo.first().manuellAdresseInfo == null }
-
-        assertEquals(søkersnavn, mottakerInfo.last().navn)
-        assertTrue { mottakerInfo.last().manuellAdresseInfo != null }
-    }
-
-    @Test
-    fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har utenlandsk adresse`() {
-        // Arrange
-        val brevmottakere =
-            listOf(
-                lagBrevMottaker(mottakerType = MottakerType.FULLMEKTIG, navn = "Fullmektig navn"),
-                lagBrevMottaker(
-                    navn = søkersnavn,
-                    mottakerType = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
-                    poststed = "Munchen",
-                    landkode = "DE",
-                ),
-            )
-        // every { brevmottakerRepository.finnBrevMottakereForBehandling(any()) } returns brevmottakere.map { it.tilBrevMottakerDb(1) }
-
-        // Act
-        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
-
-        // Assert
-        assertTrue { mottakerInfo.size == 2 }
-
-        assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen til bruker som overstyres)
-        assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
-        assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
-
-        assertEquals("Fullmektig navn", mottakerInfo.last().navn)
-        assertTrue { mottakerInfo.last().manuellAdresseInfo != null }
-    }
-
-    @Test
-    fun `lagMottakereFraBrevMottakere skal lage mottakere når brevmottaker er VERGE og bruker har utenlandsk adresse`() {
-        // Arrange
-        val brevmottakere =
-            listOf(
-                lagBrevMottaker(mottakerType = MottakerType.VERGE, navn = "Verge navn"),
-                lagBrevMottaker(
-                    navn = søkersnavn,
-                    mottakerType = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
-                    poststed = "Munchen",
-                    landkode = "DE",
-                ),
-            )
-
-        // Act
-        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
-
-        // Assert
-        assertTrue { mottakerInfo.size == 2 }
-
-        assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen til bruker som overstyres)
-        assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
-        assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
-
-        assertEquals("Verge navn", mottakerInfo.last().navn)
-        assertTrue { mottakerInfo.last().manuellAdresseInfo != null }
-    }
-
-    @Test
-    fun `lagMottakereFraBrevMottakere skal lage mottakere når bruker har utenlandsk adresse`() {
-        // Arrange
-        val brevmottakere =
-            listOf(
-                lagBrevMottaker(
-                    navn = søkersnavn,
-                    mottakerType = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
-                    poststed = "Munchen",
-                    landkode = "DE",
-                ),
-            )
-
-        // Act
-        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
-
-        // Assert
-        assertTrue { mottakerInfo.size == 1 }
-
-        assertTrue(mottakerInfo.first().navn.isEmpty()) // (kun adressen som overstyrers)
-        assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
-        assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
-    }
-
-    @Test
-    fun `lagMottakereFraBrevMottakere skal lage mottakere når bruker har dødsbo`() {
-        // Arrange
-        val brevmottakere =
-            listOf(
-                lagBrevMottaker(
-                    navn = søkersnavn,
-                    mottakerType = MottakerType.DØDSBO,
-                    poststed = "Munchen",
-                    landkode = "DE",
-                ),
-            )
-
-        // Act
-        val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
-
-        // Assert
-        assertTrue { mottakerInfo.size == 1 }
-
-        assertEquals(søkersnavn, mottakerInfo.first().navn)
-        assertTrue { mottakerInfo.first().manuellAdresseInfo != null }
-        assertTrue { mottakerInfo.first().manuellAdresseInfo!!.landkode == "DE" }
-    }
-
-    @Test
-    fun `lagMottakereFraBrevMottakere skal kaste feil når brevmottakere inneholder ugyldig kombinasjon`() {
-        // Arrange
-        val brevmottakere =
-            listOf(
-                lagBrevMottaker(
-                    navn = "Verge navn",
-                    mottakerType = MottakerType.VERGE,
-                    poststed = "Munchen",
-                    landkode = "DE",
-                ),
-                lagBrevMottaker(
-                    navn = "Fullmektig navn",
-                    mottakerType = MottakerType.FULLMEKTIG,
-                    poststed = "Munchen",
-                    landkode = "DE",
-                ),
-            )
-
-        // Act & Assert
-        assertThrows<FunksjonellFeil> {
-            brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
-        }.also {
-            assertTrue(it.frontendFeilmelding!!.contains("kan ikke kombineres"))
+            // Assert
+            assertThat(resultat).isEqualTo(lagretBrevmottaker)
+            verify(exactly = 1) { brevmottakerOppretter.opprettBrevmottaker(brevmottaker) }
         }
     }
 
-    @Test
-    fun `leggTilBrevmottaker skal lagre logg på at brevmottaker legges til`() {
-        // Arrange
-        val brevmottakerDto = mockk<BrevmottakerDto>(relaxed = true)
+    @Nested
+    inner class SlettBrevmottaker {
+        @Test
+        fun `skal slette brevmottaker på angitt behandling`() {
+            // Arrange
+            every { brevmottakerSletter.slettBrevmottaker(behandlingId = 2, id = 1) } just runs
 
-        every {
-            validerBrevmottakerService.validerAtBehandlingIkkeInneholderStrengtFortroligePersonerMedManuelleBrevmottakere(
-                any(),
-                any(),
-                any(),
-            )
-        } just runs
-        every { loggService.opprettBrevmottakerLogg(any(), false) } just runs
-        every { brevmottakerRepository.save(any()) } returns mockk()
+            // Act
+            brevmottakerService.slettBrevmottaker(behandlingId = 2, id = 1)
 
-        // Act
-        brevmottakerService.leggTilBrevmottaker(brevmottakerDto, 200)
-
-        // Assert
-        verify { loggService.opprettBrevmottakerLogg(any(), false) }
-        verify { brevmottakerRepository.save(any()) }
+            // Assert
+            verify(exactly = 1) { brevmottakerSletter.slettBrevmottaker(behandlingId = 2, id = 1) }
+        }
     }
 
-    @Test
-    fun `fjernBrevmottaker skal kaste feil dersom brevmottakeren ikke finnes`() {
-        // Arrange
-        every { brevmottakerRepository.findByIdOrNull(404) } returns null
+    @Nested
+    inner class HentBrevmottakere {
+        @Test
+        fun `skal hente brevmottakere for behandling`() {
+            // Arrange
+            val brevmottakere = listOf(lagBrevmottakerDb(behandlingId = 1))
+            every { brevmottakerHenter.hentBrevmottakere(1) } returns brevmottakere
 
-        // Act & Assert
-        assertThrows<Feil> {
-            brevmottakerService.fjernBrevmottaker(id = 404, behandlingId = 1)
+            // Act
+            val resultat = brevmottakerService.hentBrevmottakere(1)
+
+            // Assert
+            assertThat(resultat).isEqualTo(brevmottakere)
+            verify(exactly = 1) { brevmottakerHenter.hentBrevmottakere(1) }
+        }
+    }
+
+    @Nested
+    inner class LagMottakereFraBrevMottakere {
+        @Test
+        fun `skal returnere bruker når det ikke finnes manuelle brevmottakere`() {
+            // Arrange
+            val brevmottakere = emptyList<BrevmottakerDto>()
+
+            // Act
+            val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
+            // Assert
+            assertThat(mottakerInfo).singleElement().isInstanceOf(Bruker::class.java)
+            assertThat(mottakerInfo.single().manuellAdresseInfo).isNull()
         }
 
-        verify { brevmottakerRepository.findByIdOrNull(404) }
+        @Test
+        fun `skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har norsk adresse`() {
+            // Arrange
+            val brevmottakere = listOf(lagBrevmottakerDto(type = MottakerType.FULLMEKTIG, navn = "Fullmektig navn"))
+
+            // Act
+            val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
+            // Assert
+            assertThat(mottakerInfo).hasSize(2)
+            assertThat(mottakerInfo.first()).isInstanceOf(Bruker::class.java)
+            assertThat(mottakerInfo.first().manuellAdresseInfo).isNull()
+            assertThat(mottakerInfo.last()).isInstanceOf(FullmektigEllerVerge::class.java)
+            assertThat(mottakerInfo.last().navn).isEqualTo("Fullmektig navn")
+            assertThat(mottakerInfo.last().manuellAdresseInfo).isNotNull()
+        }
+
+        @Test
+        fun `skal lage mottakere når brevmottaker er FULLMEKTIG og bruker har utenlandsk adresse`() {
+            // Arrange
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(type = MottakerType.FULLMEKTIG, navn = "Fullmektig navn"),
+                    lagBrevmottakerDto(
+                        type = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
+                        poststed = "Munchen",
+                        landkode = "DE",
+                    ),
+                )
+
+            // Act
+            val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
+            // Assert
+            assertThat(mottakerInfo).hasSize(2)
+            assertThat(mottakerInfo.first()).isInstanceOf(BrukerMedUtenlandskAdresse::class.java)
+            assertThat(mottakerInfo.first().navn).isEmpty()
+            assertThat(mottakerInfo.first().manuellAdresseInfo?.landkode).isEqualTo("DE")
+            assertThat(mottakerInfo.last().navn).isEqualTo("Fullmektig navn")
+            assertThat(mottakerInfo.last().manuellAdresseInfo).isNotNull()
+        }
+
+        @Test
+        fun `skal lage mottakere når brevmottaker er VERGE og bruker har utenlandsk adresse`() {
+            // Arrange
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(type = MottakerType.VERGE, navn = "Verge navn"),
+                    lagBrevmottakerDto(
+                        type = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
+                        poststed = "Munchen",
+                        landkode = "DE",
+                    ),
+                )
+
+            // Act
+            val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
+            // Assert
+            assertThat(mottakerInfo).hasSize(2)
+            assertThat(mottakerInfo.first()).isInstanceOf(BrukerMedUtenlandskAdresse::class.java)
+            assertThat(mottakerInfo.first().navn).isEmpty()
+            assertThat(mottakerInfo.first().manuellAdresseInfo?.landkode).isEqualTo("DE")
+            assertThat(mottakerInfo.last().navn).isEqualTo("Verge navn")
+            assertThat(mottakerInfo.last().manuellAdresseInfo).isNotNull()
+        }
+
+        @Test
+        fun `skal lage mottakere når bruker har utenlandsk adresse`() {
+            // Arrange
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(
+                        type = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE,
+                        poststed = "Munchen",
+                        landkode = "DE",
+                    ),
+                )
+
+            // Act
+            val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
+            // Assert
+            assertThat(mottakerInfo).hasSize(1)
+            assertThat(mottakerInfo.single()).isInstanceOf(BrukerMedUtenlandskAdresse::class.java)
+            assertThat(mottakerInfo.single().navn).isEmpty()
+            assertThat(mottakerInfo.single().manuellAdresseInfo?.landkode).isEqualTo("DE")
+        }
+
+        @Test
+        fun `skal lage mottakere når bruker har dødsbo`() {
+            // Arrange
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(
+                        type = MottakerType.DØDSBO,
+                        navn = "Dødsbo navn",
+                        poststed = "Munchen",
+                        landkode = "DE",
+                    ),
+                )
+
+            // Act
+            val mottakerInfo = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+
+            // Assert
+            assertThat(mottakerInfo).hasSize(1)
+            assertThat(mottakerInfo.single()).isInstanceOf(Dødsbo::class.java)
+            assertThat(mottakerInfo.single().navn).isEqualTo("Dødsbo navn")
+            assertThat(mottakerInfo.single().manuellAdresseInfo?.landkode).isEqualTo("DE")
+        }
+
+        @Test
+        fun `skal kaste feil når brevmottakere inneholder ugyldig kombinasjon`() {
+            // Arrange
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(type = MottakerType.VERGE),
+                    lagBrevmottakerDto(type = MottakerType.FULLMEKTIG),
+                )
+
+            // Act & Assert
+            val feil =
+                assertThrows<FunksjonellFeil> {
+                    brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+                }
+            assertThat(feil.frontendFeilmelding).contains("kan ikke kombineres")
+        }
+
+        @Test
+        fun `skal kaste feil når bruker har flere utenlandske adresser`() {
+            // Arrange
+            val brevmottakere =
+                listOf(
+                    lagBrevmottakerDto(type = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE, landkode = "DE"),
+                    lagBrevmottakerDto(type = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE, landkode = "SE"),
+                )
+
+            // Act & Assert
+            val feil =
+                assertThrows<FunksjonellFeil> {
+                    brevmottakerService.lagMottakereFraBrevMottakere(brevmottakere)
+                }
+            assertThat(feil.frontendFeilmelding).isEqualTo("Mottakerfeil: Det er registrert mer enn en utenlandsk adresse tilhørende bruker")
+        }
     }
-
-    @Test
-    fun `fjernBrevmottaker skal lagre logg på at brevmottaker fjernes`() {
-        // Arrange
-        val mocketBrevmottaker = mockk<BrevmottakerDb>()
-
-        every { mocketBrevmottaker.behandlingId } returns 1
-        every { brevmottakerRepository.findByIdOrNull(200) } returns mocketBrevmottaker
-        every { loggService.opprettBrevmottakerLogg(mocketBrevmottaker, true) } just runs
-        every { brevmottakerRepository.deleteById(200) } just runs
-
-        // Act
-        brevmottakerService.fjernBrevmottaker(id = 200, behandlingId = 1)
-
-        // Assert
-        verify { brevmottakerRepository.findByIdOrNull(200) }
-        verify { loggService.opprettBrevmottakerLogg(mocketBrevmottaker, true) }
-        verify { brevmottakerRepository.deleteById(200) }
-    }
-
-    @Test
-    fun `fjernBrevmottaker skal kaste feil og ikke slette når brevmottakeren tilhører en annen behandling`() {
-        // Arrange
-        val mocketBrevmottaker = mockk<BrevmottakerDb>()
-
-        every { mocketBrevmottaker.behandlingId } returns 2
-        every { brevmottakerRepository.findByIdOrNull(200) } returns mocketBrevmottaker
-
-        // Act & Assert
-        val feil =
-            assertThrows<Feil> {
-                brevmottakerService.fjernBrevmottaker(id = 200, behandlingId = 1)
-            }
-
-        assertThat(feil.frontendFeilmelding).isEqualTo("Brevmottakeren er ikke koblet til behandlingen man sender inn")
-        verify(exactly = 0) { brevmottakerRepository.deleteById(any()) }
-    }
-
-    private fun lagBrevMottaker(
-        navn: String,
-        mottakerType: MottakerType,
-        poststed: String = "Oslo",
-        landkode: String = "NO",
-    ) = BrevmottakerDto(
-        id = 1,
-        type = mottakerType,
-        navn = navn,
-        adresselinje1 = "adresse 1",
-        adresselinje2 = "adresse 2",
-        postnummer = "000",
-        poststed = poststed,
-        landkode = landkode,
-    )
 }
