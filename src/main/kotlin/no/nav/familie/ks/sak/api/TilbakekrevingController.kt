@@ -52,7 +52,9 @@ class TilbakekrevingController(
         @PathVariable behandlingId: Long,
         @RequestBody forhåndsvisTilbakekrevingVarselbrevDto: ForhåndsvisTilbakekrevingVarselbrevDto,
     ): ResponseEntity<Ressurs<ByteArray>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente forhåndsvisning av varselbrev for tilbakekreving",
         )
