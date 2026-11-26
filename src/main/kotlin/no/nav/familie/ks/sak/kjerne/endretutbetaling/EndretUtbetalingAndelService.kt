@@ -147,7 +147,6 @@ class EndretUtbetalingAndelService(
         }
     }
 
-    @Transactional
     private fun validerAtEndretUtbetalingAndelTilhørerBehandling(
         endretUtbetalingAndel: EndretUtbetalingAndel,
         behandling: Behandling,
@@ -160,6 +159,7 @@ class EndretUtbetalingAndelService(
         }
     }
 
+    @Transactional
     fun opprettTomEndretUtbetalingAndel(behandling: Behandling) = endretUtbetalingAndelRepository.save(EndretUtbetalingAndel(behandlingId = behandling.id))
 
     @Transactional
