@@ -75,6 +75,7 @@ class FeilutbetaltValutaController(
         feilutbetaltValutaService.oppdaterFeilutbetaltValuta(
             oppdatertFeilutbetaltValuta = feilutbetaltValuta,
             id = feilutbetaltValutaId,
+            behandlingId = behandlingId,
         )
 
         return ResponseEntity.ok(Ressurs.success(hentFeilutbetaltValutaPerioder(behandlingId = behandlingId)))
@@ -91,7 +92,7 @@ class FeilutbetaltValutaController(
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Fjerner feilutbetalt valuta i behandling",
         )
-        feilutbetaltValutaService.fjernFeilutbetaltValuta(id = feilutbetaltValutaId)
+        feilutbetaltValutaService.fjernFeilutbetaltValuta(id = feilutbetaltValutaId, behandlingId = behandlingId)
 
         return ResponseEntity.ok(Ressurs.success(hentFeilutbetaltValutaPerioder(behandlingId = behandlingId)))
     }

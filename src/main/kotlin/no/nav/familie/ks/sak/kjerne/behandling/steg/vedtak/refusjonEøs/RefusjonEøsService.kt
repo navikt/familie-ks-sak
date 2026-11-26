@@ -14,9 +14,21 @@ class RefusjonEøsService(
     @Autowired
     private val loggService: LoggService,
 ) {
-    private fun hentRefusjonEøs(id: Long): RefusjonEøs =
-        refusjonEøsRepository.finnRefusjonEøs(id)
-            ?: throw Feil("Finner ikke refusjon eøs med id=$id")
+    private fun hentRefusjonEøs(
+        id: Long,
+        behandlingId: Long,
+    ): RefusjonEøs {
+        val refusjonEøs =
+            refusjonEøsRepository.finnRefusjonEøs(id)
+                ?: throw Feil("Finner ikke refusjon eøs med id=$id")
+        if (refusjonEøs.behandlingId != behandlingId) {
+            throw Feil(
+                message = "Refusjon EØS-periode $id er ikke koblet til behandling $behandlingId",
+                frontendFeilmelding = "Refusjon EØS-perioden er ikke koblet til behandlingen man sender inn",
+            )
+        }
+        return refusjonEøs
+    }
 
     @Transactional
     fun leggTilRefusjonEøsPeriode(
@@ -45,7 +57,7 @@ class RefusjonEøsService(
         behandlingId: Long,
     ) {
         loggService.loggRefusjonEøsPeriodeFjernet(
-            refusjonEøs = hentRefusjonEøs(id),
+            refusjonEøs = hentRefusjonEøs(id, behandlingId),
         )
         refusjonEøsRepository.deleteById(id)
     }
@@ -59,8 +71,8 @@ class RefusjonEøsService(
     fun oppdaterRefusjonEøsPeriode(
         refusjonEøs: RefusjonEøsDto,
         id: Long,
-    ) = hentRefusjonEøs(id).apply {
-        fom = refusjonEøs.fom
+        behandlingId: Long,
+    ) = hentRefusjonEøs(id, behandlingId).apply {
         fom = refusjonEøs.fom
         tom = refusjonEøs.tom
         refusjonsbeløp = refusjonEøs.refusjonsbeløp

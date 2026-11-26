@@ -50,7 +50,10 @@ class KompetanseService(
     fun tilpassKompetanse(behandlingId: BehandlingId) = tilpassKompetanserService.tilpassKompetanser(behandlingId)
 
     @Transactional
-    fun slettKompetanse(kompetanseId: Long) = kompetanseSkjemaService.slettSkjema(kompetanseId)
+    fun slettKompetanse(
+        behandlingId: BehandlingId,
+        kompetanseId: Long,
+    ) = kompetanseSkjemaService.slettSkjema(behandlingId, kompetanseId)
 
     @Transactional
     fun kopierOgErstattKompetanser(

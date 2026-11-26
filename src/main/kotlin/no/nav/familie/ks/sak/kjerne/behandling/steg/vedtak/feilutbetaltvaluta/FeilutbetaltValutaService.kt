@@ -30,9 +30,26 @@ class FeilutbetaltValutaService(
         return lagretFeilutbetaltValuta
     }
 
+    private fun hentFeilutbetaltValutaPåBehandling(
+        id: Long,
+        behandlingId: Long,
+    ): FeilutbetaltValuta {
+        val feilutbetaltValuta = hentFeilutbetaltValuta(id)
+        if (feilutbetaltValuta.behandlingId != behandlingId) {
+            throw Feil(
+                message = "Feilutbetalt valuta $id er ikke koblet til behandling $behandlingId",
+                frontendFeilmelding = "Feilutbetalt valuta-perioden er ikke koblet til behandlingen man sender inn",
+            )
+        }
+        return feilutbetaltValuta
+    }
+
     @Transactional
-    fun fjernFeilutbetaltValuta(id: Long) {
-        loggService.opprettFeilutbetaltValutaFjernetLogg(feilutbetaltValuta = hentFeilutbetaltValuta(id))
+    fun fjernFeilutbetaltValuta(
+        id: Long,
+        behandlingId: Long,
+    ) {
+        loggService.opprettFeilutbetaltValutaFjernetLogg(feilutbetaltValuta = hentFeilutbetaltValutaPåBehandling(id, behandlingId))
 
         feilutbetaltValutaRepository.deleteById(id)
     }
@@ -43,8 +60,9 @@ class FeilutbetaltValutaService(
     fun oppdaterFeilutbetaltValuta(
         oppdatertFeilutbetaltValuta: FeilutbetaltValutaDto,
         id: Long,
+        behandlingId: Long,
     ): FeilutbetaltValuta {
-        val feilutbetaltValuta = hentFeilutbetaltValuta(id)
+        val feilutbetaltValuta = hentFeilutbetaltValutaPåBehandling(id, behandlingId)
 
         feilutbetaltValuta.fom = oppdatertFeilutbetaltValuta.fom
         feilutbetaltValuta.tom = oppdatertFeilutbetaltValuta.tom

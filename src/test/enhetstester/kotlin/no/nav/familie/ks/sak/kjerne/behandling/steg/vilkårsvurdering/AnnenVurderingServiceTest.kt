@@ -3,7 +3,9 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import no.nav.familie.ks.sak.api.dto.AnnenVurderingDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.data.randomAktør
@@ -14,6 +16,7 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Ann
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.PersonResultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Resultat
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.domene.Vilkårsvurdering
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -36,7 +39,8 @@ class AnnenVurderingServiceTest {
             // Assert
             assertThrows<FunksjonellFeil> {
                 annenVurderingService.endreAnnenVurdering(
-                    annenVurderingDto,
+                    behandlingId = 1L,
+                    annenVurderingDto = annenVurderingDto,
                 )
             }
 
@@ -47,12 +51,13 @@ class AnnenVurderingServiceTest {
     fun `endreAnnenVurdering - endre AnnenVurdering med forespurt id`() {
         // Arrange
         val endretAnnenVurderingSlot = slot<AnnenVurdering>()
+        val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val eksisterendeAnnenVurdering =
             // Act
             AnnenVurdering(
                 200L,
                 PersonResultat(
-                    vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
+                    vilkårsvurdering = Vilkårsvurdering(behandling = behandling),
                     aktør = randomAktør(),
                 ),
                 type = AnnenVurderingType.OPPLYSNINGSPLIKT,
@@ -66,7 +71,8 @@ class AnnenVurderingServiceTest {
             AnnenVurderingDto(200L, Resultat.OPPFYLT, AnnenVurderingType.OPPLYSNINGSPLIKT, "Begrunnelse")
 
         annenVurderingService.endreAnnenVurdering(
-            annenVurderingDto,
+            behandlingId = behandling.id,
+            annenVurderingDto = annenVurderingDto,
         )
 
         val endretAnnenVurdering = endretAnnenVurderingSlot.captured
@@ -74,5 +80,38 @@ class AnnenVurderingServiceTest {
         // Assert
         assertEquals(Resultat.OPPFYLT, endretAnnenVurdering.resultat)
         assertEquals("Begrunnelse", endretAnnenVurdering.begrunnelse)
+    }
+
+    @Test
+    fun `endreAnnenVurdering - skal kaste feil og ikke lagre når annen vurdering tilhører en annen behandling`() {
+        // Arrange
+        val behandling = lagBehandling(id = 1L, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+        val annenVurderingPåAnnenBehandling =
+            AnnenVurdering(
+                200L,
+                PersonResultat(
+                    vilkårsvurdering = Vilkårsvurdering(behandling = lagBehandling(id = 2L, opprettetÅrsak = BehandlingÅrsak.SØKNAD)),
+                    aktør = randomAktør(),
+                ),
+                type = AnnenVurderingType.OPPLYSNINGSPLIKT,
+                resultat = Resultat.IKKE_VURDERT,
+                begrunnelse = null,
+            )
+        every { annenVurderingRepository.findById(200L) } returns Optional.of(annenVurderingPåAnnenBehandling)
+
+        val annenVurderingDto =
+            AnnenVurderingDto(200L, Resultat.OPPFYLT, AnnenVurderingType.OPPLYSNINGSPLIKT, "Begrunnelse")
+
+        // Act & Assert
+        val feil =
+            assertThrows<Feil> {
+                annenVurderingService.endreAnnenVurdering(
+                    behandlingId = behandling.id,
+                    annenVurderingDto = annenVurderingDto,
+                )
+            }
+
+        assertThat(feil.frontendFeilmelding).isEqualTo("Annen vurdering er ikke koblet til behandlingen man sender inn")
+        verify(exactly = 0) { annenVurderingRepository.save(any()) }
     }
 }

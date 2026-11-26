@@ -8,6 +8,7 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifyOrder
 import no.nav.familie.ks.sak.api.dto.EndretUtbetalingAndelRequestDto
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
@@ -493,6 +494,36 @@ class EndretUtbetalingAndelServiceTest {
             // Assert
             verify(exactly = 1) { endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId) }
             verify(exactly = 0) { loggService.loggEndretUtbetalingAndelFjernet(any()) }
+        }
+
+        @Test
+        fun `skal kaste feil og ikke lagre når endret utbetalingsperiode tilhører en annen behandling`() {
+            // Arrange
+            every { endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelId) } returns
+                EndretUtbetalingAndel(id = endretUtbetalingAndelId, behandlingId = behandling.id + 1)
+
+            // Act & Assert
+            val feil =
+                assertThrows<Feil> {
+                    endretUtbetalingAndelService.oppdaterEndretUtbetalingAndelOgOppdaterTilkjentYtelse(behandling, lagUtfyltEndretUtbetalingAndelRequestDto())
+                }
+
+            assertThat(feil.frontendFeilmelding).isEqualTo("Endret utbetalingsperiode er ikke koblet til behandlingen man sender inn")
+            verify(exactly = 0) { endretUtbetalingAndelRepository.saveAndFlush(any<EndretUtbetalingAndel>()) }
+        }
+
+        @Test
+        fun `skal kaste feil og ikke slette når endret utbetalingsperiode tilhører en annen behandling`() {
+            // Arrange
+            every { endretUtbetalingAndelRepository.findById(endretUtbetalingAndelId) } returns
+                Optional.of(EndretUtbetalingAndel(id = endretUtbetalingAndelId, behandlingId = behandling.id + 1))
+
+            // Act & Assert
+            assertThrows<Feil> {
+                endretUtbetalingAndelService.fjernEndretUtbetalingAndelOgOppdaterTilkjentYtelse(behandling, endretUtbetalingAndelId)
+            }
+
+            verify(exactly = 0) { endretUtbetalingAndelRepository.deleteById(any()) }
         }
     }
 }

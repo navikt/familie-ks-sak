@@ -118,6 +118,7 @@ class VilkårsvurderingController(
         )
 
         annenVurderingService.endreAnnenVurdering(
+            behandlingId = behandlingId,
             annenVurderingDto = annenVurderingDto,
         )
 

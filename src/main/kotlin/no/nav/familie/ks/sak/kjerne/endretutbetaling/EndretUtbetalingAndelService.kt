@@ -53,6 +53,7 @@ class EndretUtbetalingAndelService(
         endretUtbetalingAndelRequestDto: EndretUtbetalingAndelRequestDto,
     ) {
         val endretUtbetalingAndel = endretUtbetalingAndelRepository.getReferenceById(endretUtbetalingAndelRequestDto.id)
+        validerAtEndretUtbetalingAndelTilhørerBehandling(endretUtbetalingAndel, behandling)
         val erNyEndretUtbetalingAndel = endretUtbetalingAndel.manglerObligatoriskFelt()
         val vilkårsvurdering = vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id)
         val personopplysningGrunnlag =
@@ -118,8 +119,9 @@ class EndretUtbetalingAndelService(
         behandling: Behandling,
         endretUtbetalingAndelId: Long,
     ) {
-        val erUtfyltEndretUtbetalingAndel =
-            endretUtbetalingAndelRepository.findByIdOrNull(endretUtbetalingAndelId)?.manglerObligatoriskFelt() == false
+        val endretUtbetalingAndel = endretUtbetalingAndelRepository.findByIdOrNull(endretUtbetalingAndelId)
+        endretUtbetalingAndel?.let { validerAtEndretUtbetalingAndelTilhørerBehandling(it, behandling) }
+        val erUtfyltEndretUtbetalingAndel = endretUtbetalingAndel?.manglerObligatoriskFelt() == false
 
         endretUtbetalingAndelRepository.deleteById(endretUtbetalingAndelId)
 
@@ -142,6 +144,18 @@ class EndretUtbetalingAndelService(
 
         if (erUtfyltEndretUtbetalingAndel) {
             loggService.loggEndretUtbetalingAndelFjernet(behandling.id)
+        }
+    }
+
+    private fun validerAtEndretUtbetalingAndelTilhørerBehandling(
+        endretUtbetalingAndel: EndretUtbetalingAndel,
+        behandling: Behandling,
+    ) {
+        if (endretUtbetalingAndel.behandlingId != behandling.id) {
+            throw Feil(
+                message = "Endret utbetalingsperiode ${endretUtbetalingAndel.id} er ikke koblet til behandling ${behandling.id}",
+                frontendFeilmelding = "Endret utbetalingsperiode er ikke koblet til behandlingen man sender inn",
+            )
         }
     }
 

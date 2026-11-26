@@ -2,6 +2,7 @@ package no.nav.familie.ks.sak.kjerne.overgangsordning
 
 import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.toYearMonth
 import no.nav.familie.ks.sak.kjerne.behandling.domene.Behandling
@@ -62,6 +63,7 @@ class OvergangsordningAndelService(
         overgangsordningAndelRequestDto: OvergangsordningAndelDto,
     ) {
         val overgangsordningAndel = finnOvergangsordningAndel(overgangsordningAndelId)
+        validerAtOvergangsordningAndelTilhørerBehandling(overgangsordningAndel, behandling)
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id)
         val person = personopplysningGrunnlag.personer.single { it.aktør.aktivFødselsnummer() == overgangsordningAndelRequestDto.personIdent }
         val vilkårsvurdering by lazy { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
@@ -120,6 +122,10 @@ class OvergangsordningAndelService(
         behandling: Behandling,
         overgangsordningAndelId: Long,
     ) {
+        overgangsordningAndelRepository
+            .finnOvergangsordningAndel(overgangsordningAndelId)
+            ?.let { validerAtOvergangsordningAndelTilhørerBehandling(it, behandling) }
+
         overgangsordningAndelRepository.deleteById(overgangsordningAndelId)
 
         val personopplysningGrunnlag = personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandlingId = behandling.id)
@@ -164,6 +170,18 @@ class OvergangsordningAndelService(
 
             overgangsordningAndelRepository.save(
                 forrige.copy(id = 0, behandlingId = behandling.id, aktør = nyAktør),
+            )
+        }
+    }
+
+    private fun validerAtOvergangsordningAndelTilhørerBehandling(
+        overgangsordningAndel: OvergangsordningAndel,
+        behandling: Behandling,
+    ) {
+        if (overgangsordningAndel.behandlingId != behandling.id) {
+            throw Feil(
+                message = "Overgangsordningandel ${overgangsordningAndel.id} er ikke koblet til behandling ${behandling.id}",
+                frontendFeilmelding = "Overgangsordningsperioden er ikke koblet til behandlingen man sender inn",
             )
         }
     }

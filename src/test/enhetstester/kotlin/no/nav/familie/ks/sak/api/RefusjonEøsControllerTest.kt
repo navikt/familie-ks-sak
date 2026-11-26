@@ -79,6 +79,17 @@ class RefusjonEøsControllerTest {
         assertThat(respons.body?.data).isEqualTo(gjenværendePerioder)
     }
 
+    @Test
+    fun `skal sende behandlingId videre slik at perioden kan knyttes til behandlingen`() {
+        // Act
+        refusjonEøsController.oppdaterRefusjonEøsPeriode(behandlingId, 2L, refusjonEøsDto)
+        refusjonEøsController.fjernRefusjonEøsPeriode(behandlingId, 2L)
+
+        // Assert
+        verify(exactly = 1) { refusjonEøsService.oppdaterRefusjonEøsPeriode(refusjonEøs = refusjonEøsDto, id = 2L, behandlingId = behandlingId) }
+        verify(exactly = 1) { refusjonEøsService.fjernRefusjonEøsPeriode(id = 2L, behandlingId = behandlingId) }
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("endepunkter")
     fun `skal validere rolle og tilgang til fagsaken for handlingen`(

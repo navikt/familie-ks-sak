@@ -5,6 +5,7 @@ import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -16,14 +17,16 @@ class SammensattKontrollsakValidator(
     private val sammensattKontrollsakService: SammensattKontrollsakService,
     private val behandlingService: BehandlingService,
 ) {
-    fun validerHentSammensattKontrollsakTilgang() {
-        tilgangService.validerTilgangTilHandling(
+    fun validerHentSammensattKontrollsakTilgang(behandlingId: Long) {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "Hent SammensattKontrollsak",
         )
     }
 
-    fun validerOpprettSammensattKontrollsakTilgang() {
+    fun validerOpprettSammensattKontrollsakTilgang(behandlingId: Long) {
         if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å opprette sammensatt kontrollsak.",
@@ -31,13 +34,15 @@ class SammensattKontrollsakValidator(
             )
         }
 
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.CREATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Opprett SammensattKontrollsak",
         )
     }
 
-    fun validerOppdaterSammensattKontrollsakTilgang() {
+    fun validerOppdaterSammensattKontrollsakTilgang(sammensattKontrollsakId: Long) {
         if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å oppdatere sammensatt kontrollsak.",
@@ -45,13 +50,15 @@ class SammensattKontrollsakValidator(
             )
         }
 
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = hentSammensattKontrollsak(sammensattKontrollsakId).behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Oppdater SammensattKontrollsak",
         )
     }
 
-    fun validerSlettSammensattKontrollsakTilgang() {
+    fun validerSlettSammensattKontrollsakTilgang(sammensattKontrollsakId: Long) {
         if (!featureToggleService.isEnabled(FeatureToggle.KAN_OPPRETTE_OG_ENDRE_SAMMENSATTE_KONTROLLSAKER)) {
             throw FunksjonellFeil(
                 melding = "Mangler tilgang for å slette sammensatt kontrollsak.",
@@ -59,7 +66,9 @@ class SammensattKontrollsakValidator(
             )
         }
 
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = hentSammensattKontrollsak(sammensattKontrollsakId).behandlingId,
+            event = AuditLoggerEvent.DELETE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "Slett SammensattKontrollsak",
         )
@@ -68,15 +77,16 @@ class SammensattKontrollsakValidator(
     fun validerRedigerbarBehandlingForSammensattKontrollsakId(
         sammensattKontrollsakId: Long,
     ) {
-        val sammensattKontrollsak =
-            sammensattKontrollsakService.finnSammensattKontrollsak(
-                sammensattKontrollsakId = sammensattKontrollsakId,
-            ) ?: throw FunksjonellFeil(
-                melding = "Fant ingen sammensatt kontrollsak for id=$sammensattKontrollsakId.",
-                httpStatus = HttpStatus.BAD_REQUEST,
-            )
-        validerRedigerbarBehandlingForBehandlingId(sammensattKontrollsak.behandlingId)
+        validerRedigerbarBehandlingForBehandlingId(hentSammensattKontrollsak(sammensattKontrollsakId).behandlingId)
     }
+
+    private fun hentSammensattKontrollsak(sammensattKontrollsakId: Long): SammensattKontrollsak =
+        sammensattKontrollsakService.finnSammensattKontrollsak(
+            sammensattKontrollsakId = sammensattKontrollsakId,
+        ) ?: throw FunksjonellFeil(
+            melding = "Fant ingen sammensatt kontrollsak for id=$sammensattKontrollsakId.",
+            httpStatus = HttpStatus.BAD_REQUEST,
+        )
 
     fun validerRedigerbarBehandlingForBehandlingId(
         behandlingId: Long,

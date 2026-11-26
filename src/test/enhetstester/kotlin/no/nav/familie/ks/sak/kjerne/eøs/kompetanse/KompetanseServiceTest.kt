@@ -5,6 +5,7 @@ import io.mockk.mockk
 import no.nav.familie.ks.sak.api.dto.tilKompetanseDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.TestClockProvider
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.util.Periode
 import no.nav.familie.ks.sak.common.util.førsteDagIInneværendeMåned
 import no.nav.familie.ks.sak.common.util.sisteDagIMåned
@@ -44,6 +45,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -199,11 +201,33 @@ internal class KompetanseServiceTest {
             kompetanseService
                 .hentKompetanser(behandlingId)
                 .first { it == oppdateresKompetanse }
-        kompetanseService.slettKompetanse(kompetanseSomSkalSlettes.id)
+        kompetanseService.slettKompetanse(behandlingId, kompetanseSomSkalSlettes.id)
 
         assertThat(listOf(eksisterendeKompetanse)).containsExactlyInAnyOrderElementsOf(
             kompetanseService.hentKompetanser(behandlingId),
         )
+    }
+
+    @Test
+    fun `skal kaste feil og ikke slette når kompetansen tilhører en annen behandling`() {
+        // Arrange
+        val annenBehandlingId = BehandlingId(behandlingId.id + 1)
+        val kompetansePåAnnenBehandling =
+            lagKompetanse(
+                behandlingId = annenBehandlingId.id,
+                fom = YearMonth.of(2022, 1),
+                tom = YearMonth.of(2022, 12),
+                barnAktører = setOf(randomAktør()),
+            ).lagreTil(kompetanseRepository)
+
+        // Act & Assert
+        val feil =
+            assertThrows<Feil> {
+                kompetanseService.slettKompetanse(behandlingId, kompetansePåAnnenBehandling.id)
+            }
+
+        assertThat(feil.frontendFeilmelding).isEqualTo("Prøver å slette et skjema som ikke er koblet til behandlingen man sender inn")
+        assertThat(kompetanseService.hentKompetanser(annenBehandlingId)).containsExactly(kompetansePåAnnenBehandling)
     }
 
     @Test

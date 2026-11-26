@@ -110,7 +110,9 @@ class BehandlingController(
         @PathVariable behandlingId: Long,
         @RequestBody behandlingPåVentDto: BehandlingPåVentDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "sette behandling på vent",
         )
@@ -127,7 +129,9 @@ class BehandlingController(
         @PathVariable behandlingId: Long,
         @RequestBody behandlingPåVentDto: BehandlingPåVentDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "oppdatere frist på ventende behandling",
         )
@@ -143,7 +147,9 @@ class BehandlingController(
     fun gjenopptaBehandlingPåVent(
         @PathVariable behandlingId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "gjenoppta behandling",
         )
@@ -156,7 +162,9 @@ class BehandlingController(
         @PathVariable behandlingId: Long,
         @RequestBody henleggBehandlingDto: HenleggBehandlingDto,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
             handling = "henlegg behandling",
         )

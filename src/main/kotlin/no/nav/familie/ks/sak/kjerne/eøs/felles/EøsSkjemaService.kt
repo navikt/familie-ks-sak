@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.eøs.felles
 
 import no.nav.familie.ks.sak.common.BehandlingId
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.tidslinje.utvidelser.slåSammen
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaEntitet
 import no.nav.familie.ks.sak.kjerne.eøs.felles.domene.EøsSkjemaRepository
@@ -31,9 +32,17 @@ class EøsSkjemaService<T : EøsSkjemaEntitet<T>>(
         lagreDifferanseOgVarsleAbonnenter(behandlingId, skjemaer, oppdaterteSkjemaer.medBehandlingId(behandlingId))
     }
 
-    fun slettSkjema(skjemaId: Long) {
+    fun slettSkjema(
+        behandlingId: BehandlingId,
+        skjemaId: Long,
+    ) {
         val skjemaTilSletting = hentMedId(skjemaId)
-        val behandlingId = BehandlingId(skjemaTilSletting.behandlingId)
+        if (skjemaTilSletting.behandlingId != behandlingId.id) {
+            throw Feil(
+                message = "Skjema $skjemaId er ikke koblet til behandling ${behandlingId.id}",
+                frontendFeilmelding = "Prøver å slette et skjema som ikke er koblet til behandlingen man sender inn",
+            )
+        }
         val eksisterendeSkjemaer = hentMedBehandlingId(behandlingId)
         val blanktSkjema = skjemaTilSletting.utenInnhold()
 

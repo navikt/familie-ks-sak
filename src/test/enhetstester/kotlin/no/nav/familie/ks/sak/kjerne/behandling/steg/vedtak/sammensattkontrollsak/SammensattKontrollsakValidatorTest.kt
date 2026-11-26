@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.verify
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.exception.RolleTilgangskontrollFeil
 import no.nav.familie.ks.sak.config.BehandlerRolle
@@ -12,8 +13,10 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.lagBehandling
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
+import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -36,13 +39,23 @@ class SammensattKontrollsakValidatorTest {
             behandlingService = behandlingService,
         )
 
+    private val behandlingId = 1L
+    private val sammensattKontrollsak = SammensattKontrollsak(id = 2L, behandlingId = behandlingId, fritekst = "")
+
+    @BeforeEach
+    fun setUp() {
+        every { sammensattKontrollsakService.finnSammensattKontrollsak(sammensattKontrollsakId = sammensattKontrollsak.id) } returns sammensattKontrollsak
+    }
+
     @Nested
     inner class ValiderHentSammensattKontrollsakTilgangTest {
         @Test
         fun `skal ikke kaste feil om valideringen er godkjent`() {
             // Arrange
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.VEILEDER,
                     any(),
                 )
@@ -50,7 +63,15 @@ class SammensattKontrollsakValidatorTest {
 
             // Act & assert
             assertDoesNotThrow {
-                sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang()
+                sammensattKontrollsakValidator.validerHentSammensattKontrollsakTilgang(behandlingId)
+            }
+            verify(exactly = 1) {
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    behandlingId = behandlingId,
+                    event = AuditLoggerEvent.ACCESS,
+                    minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+                    handling = any(),
+                )
             }
         }
     }
@@ -67,7 +88,7 @@ class SammensattKontrollsakValidatorTest {
             // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
-                    sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
+                    sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang(behandlingId)
                 }
             assertThat(exception.melding).isEqualTo("Mangler tilgang for å opprette sammensatt kontrollsak.")
             assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
@@ -81,7 +102,9 @@ class SammensattKontrollsakValidatorTest {
             } returns true
 
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                     any(),
                 )
@@ -90,7 +113,7 @@ class SammensattKontrollsakValidatorTest {
             // Act & assert
             val exception =
                 assertThrows<RolleTilgangskontrollFeil> {
-                    sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
+                    sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang(behandlingId)
                 }
             assertThat(exception.melding).isEqualTo("Mangler tilgang")
             assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
@@ -104,7 +127,9 @@ class SammensattKontrollsakValidatorTest {
             } returns true
 
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                     any(),
                 )
@@ -112,7 +137,15 @@ class SammensattKontrollsakValidatorTest {
 
             // Act & assert
             assertDoesNotThrow {
-                sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang()
+                sammensattKontrollsakValidator.validerOpprettSammensattKontrollsakTilgang(behandlingId)
+            }
+            verify(exactly = 1) {
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    behandlingId = behandlingId,
+                    event = AuditLoggerEvent.CREATE,
+                    minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+                    handling = any(),
+                )
             }
         }
     }
@@ -129,7 +162,7 @@ class SammensattKontrollsakValidatorTest {
             // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
-                    sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
+                    sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang(sammensattKontrollsak.id)
                 }
             assertThat(exception.melding).isEqualTo("Mangler tilgang for å oppdatere sammensatt kontrollsak.")
             assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
@@ -143,7 +176,9 @@ class SammensattKontrollsakValidatorTest {
             } returns true
 
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                     any(),
                 )
@@ -152,7 +187,7 @@ class SammensattKontrollsakValidatorTest {
             // Act & assert
             val exception =
                 assertThrows<RolleTilgangskontrollFeil> {
-                    sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
+                    sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang(sammensattKontrollsak.id)
                 }
             assertThat(exception.melding).isEqualTo("Mangler tilgang")
             assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
@@ -166,7 +201,9 @@ class SammensattKontrollsakValidatorTest {
             } returns true
 
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                     any(),
                 )
@@ -174,7 +211,15 @@ class SammensattKontrollsakValidatorTest {
 
             // Act & assert
             assertDoesNotThrow {
-                sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang()
+                sammensattKontrollsakValidator.validerOppdaterSammensattKontrollsakTilgang(sammensattKontrollsak.id)
+            }
+            verify(exactly = 1) {
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    behandlingId = behandlingId,
+                    event = AuditLoggerEvent.UPDATE,
+                    minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+                    handling = any(),
+                )
             }
         }
     }
@@ -191,7 +236,7 @@ class SammensattKontrollsakValidatorTest {
             // Act & assert
             val exception =
                 assertThrows<FunksjonellFeil> {
-                    sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
+                    sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang(sammensattKontrollsak.id)
                 }
             assertThat(exception.melding).isEqualTo("Mangler tilgang for å slette sammensatt kontrollsak.")
             assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
@@ -205,7 +250,9 @@ class SammensattKontrollsakValidatorTest {
             } returns true
 
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                     any(),
                 )
@@ -214,7 +261,7 @@ class SammensattKontrollsakValidatorTest {
             // Act & assert
             val exception =
                 assertThrows<RolleTilgangskontrollFeil> {
-                    sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
+                    sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang(sammensattKontrollsak.id)
                 }
             assertThat(exception.melding).isEqualTo("Mangler tilgang")
             assertThat(exception.httpStatus).isEqualTo(HttpStatus.FORBIDDEN)
@@ -228,7 +275,9 @@ class SammensattKontrollsakValidatorTest {
             } returns true
 
             every {
-                tilgangService.validerTilgangTilHandling(
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    any(),
+                    any(),
                     minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
                     any(),
                 )
@@ -236,7 +285,15 @@ class SammensattKontrollsakValidatorTest {
 
             // Act & assert
             assertDoesNotThrow {
-                sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang()
+                sammensattKontrollsakValidator.validerSlettSammensattKontrollsakTilgang(sammensattKontrollsak.id)
+            }
+            verify(exactly = 1) {
+                tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+                    behandlingId = behandlingId,
+                    event = AuditLoggerEvent.DELETE,
+                    minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+                    handling = any(),
+                )
             }
         }
     }

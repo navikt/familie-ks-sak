@@ -85,9 +85,17 @@ class BrevController(
         @RequestBody manueltBrevDto: ManueltBrevDto,
     ): ResponseEntity<Ressurs<MinimalFagsakResponsDto>> {
         logger.info("${SikkerhetContext.hentSaksbehandlerNavn()} genererer og sender brev på fagsak $fagsakId: ${manueltBrevDto.brevmal}")
-        tilgangService.validerTilgangTilHandling(
+        tilgangService.validerTilgangTilHandlingOgFagsak(
+            fagsakId = fagsakId,
+            event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sende brev",
+            handling = SENDE_BREV_HANDLING,
+        )
+        tilgangService.validerTilgangTilHandlingOgPersoner(
+            personIdenter = listOf(manueltBrevDto.mottakerIdent),
+            event = AuditLoggerEvent.UPDATE,
+            minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
+            handling = SENDE_BREV_HANDLING,
         )
 
         val fagsak = fagsakService.hentFagsak(fagsakId)
@@ -110,7 +118,7 @@ class BrevController(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
             minimumBehandlerRolle = BehandlerRolle.SAKSBEHANDLER,
-            handling = "sende brev",
+            handling = SENDE_BREV_HANDLING,
         )
 
         brevService.genererOgSendBrev(behandlingId = behandlingId, manueltBrevDto = manueltBrevDto)
@@ -166,6 +174,7 @@ class BrevController(
     }
 
     companion object {
+        private const val SENDE_BREV_HANDLING = "sende brev"
         private val logger = LoggerFactory.getLogger(BrevController::class.java)
     }
 }

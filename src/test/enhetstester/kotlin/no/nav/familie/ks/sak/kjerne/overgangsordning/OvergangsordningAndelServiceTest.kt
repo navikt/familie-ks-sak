@@ -5,6 +5,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.common.util.tilKortString
 import no.nav.familie.ks.sak.common.util.toYearMonth
@@ -296,6 +297,7 @@ class OvergangsordningAndelServiceTest {
     fun `fjernOvergangsordningAndelOgOppdaterTilkjentYtelse - skal slette overgangsordningandeler og oppdatere tilkjent ytelse`() {
         val behandling = lagBehandling()
 
+        every { overgangsordningAndelRepository.finnOvergangsordningAndel(200) } returns OvergangsordningAndel(id = 200, behandlingId = behandling.id)
         every { overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(any()) } returns emptyList()
 
         overgangsordningAndelService.fjernOvergangsordningAndelOgOppdaterTilkjentYtelse(behandling, 200)
@@ -304,6 +306,23 @@ class OvergangsordningAndelServiceTest {
         verify(exactly = 1) { personopplysningGrunnlagService.hentAktivPersonopplysningGrunnlagThrows(behandling.id) }
         verify(exactly = 1) { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(behandling.id) }
         verify(exactly = 1) { beregningService.oppdaterTilkjentYtelsePåBehandling(behandling, any(), any()) }
+    }
+
+    @Test
+    fun `skal kaste feil og ikke slette når overgangsordningandel tilhører en annen behandling`() {
+        // Arrange
+        val behandling = lagBehandling(id = 1L)
+
+        every { overgangsordningAndelRepository.finnOvergangsordningAndel(200) } returns OvergangsordningAndel(id = 200, behandlingId = 2L)
+
+        // Act & Assert
+        val feil =
+            assertThrows<Feil> {
+                overgangsordningAndelService.fjernOvergangsordningAndelOgOppdaterTilkjentYtelse(behandling, 200)
+            }
+
+        assertThat(feil.frontendFeilmelding).isEqualTo("Overgangsordningsperioden er ikke koblet til behandlingen man sender inn")
+        verify(exactly = 0) { overgangsordningAndelRepository.deleteById(any()) }
     }
 
     @Test
