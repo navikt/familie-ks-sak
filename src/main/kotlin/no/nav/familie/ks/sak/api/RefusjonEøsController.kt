@@ -1,10 +1,8 @@
 package no.nav.familie.ks.sak.api
 
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.RefusjonEøsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
-import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.refusjonEøs.RefusjonEøsService
 import no.nav.familie.ks.sak.sikkerhet.AuditLoggerEvent
 import no.nav.familie.ks.sak.sikkerhet.TilgangService
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController
 class RefusjonEøsController(
     private val tilgangService: TilgangService,
     private val refusjonEøsService: RefusjonEøsService,
-    private val behandlingService: BehandlingService,
 ) {
     @PostMapping(
         path = ["behandlinger/{behandlingId}"],
@@ -36,7 +33,7 @@ class RefusjonEøsController(
     fun leggTilRefusjonEøsPeriode(
         @PathVariable behandlingId: Long,
         @RequestBody refusjonEøs: RefusjonEøsDto,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<RefusjonEøsDto>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.CREATE,
@@ -49,7 +46,7 @@ class RefusjonEøsController(
             behandlingId = behandlingId,
         )
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+        return ResponseEntity.ok(Ressurs.success(refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandlingId)))
     }
 
     @PutMapping(
@@ -61,7 +58,7 @@ class RefusjonEøsController(
         @PathVariable behandlingId: Long,
         @PathVariable id: Long,
         @RequestBody refusjonEøs: RefusjonEøsDto,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<RefusjonEøsDto>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.UPDATE,
@@ -71,14 +68,14 @@ class RefusjonEøsController(
 
         refusjonEøsService.oppdaterRefusjonEøsPeriode(refusjonEøs = refusjonEøs, id = id, behandlingId = behandlingId)
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+        return ResponseEntity.ok(Ressurs.success(refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandlingId)))
     }
 
     @DeleteMapping(path = ["behandlinger/{behandlingId}/perioder/{id}"])
     fun fjernRefusjonEøsPeriode(
         @PathVariable behandlingId: Long,
         @PathVariable id: Long,
-    ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
+    ): ResponseEntity<Ressurs<List<RefusjonEøsDto>>> {
         tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
             behandlingId = behandlingId,
             event = AuditLoggerEvent.DELETE,
@@ -88,7 +85,7 @@ class RefusjonEøsController(
 
         refusjonEøsService.fjernRefusjonEøsPeriode(id = id, behandlingId = behandlingId)
 
-        return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
+        return ResponseEntity.ok(Ressurs.success(refusjonEøsService.hentRefusjonEøsPerioder(behandlingId = behandlingId)))
     }
 
     @GetMapping(path = ["behandlinger/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
