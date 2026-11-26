@@ -49,7 +49,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
 import org.assertj.core.api.Assertions.assertThat
@@ -77,7 +76,6 @@ class BehandlingServiceTest {
     private val mockVedtaksperiodeService = mockk<VedtaksperiodeService>()
     private val mockVedtakRepository = mockk<VedtakRepository>()
     private val mockTotrinnskontrollRepository = mockk<TotrinnskontrollRepository>()
-    private val mockTilbakekrevingRepository = mockk<TilbakekrevingRepository>()
     private val mockSanityService = mockk<SanityService>()
     private val mockKompetanseRepository = mockk<KompetanseRepository>()
     private val mockUtenlandskPeriodebeløpRepository = mockk<UtenlandskPeriodebeløpRepository>()
@@ -103,7 +101,6 @@ class BehandlingServiceTest {
             vedtaksperiodeService = mockVedtaksperiodeService,
             vedtakRepository = mockVedtakRepository,
             totrinnskontrollRepository = mockTotrinnskontrollRepository,
-            tilbakekrevingRepository = mockTilbakekrevingRepository,
             sanityService = mockSanityService,
             kompetanseRepository = mockKompetanseRepository,
             utenlandskPeriodebeløpRepository = mockUtenlandskPeriodebeløpRepository,
@@ -173,7 +170,6 @@ class BehandlingServiceTest {
                 .finnEndreteUtbetalingerMedAndelerTilkjentYtelse(behandling.id)
         } returns emptyList()
         every { mockTotrinnskontrollRepository.findByBehandlingAndAktiv(any()) } returns mockk(relaxed = true)
-        every { mockTilbakekrevingRepository.findByBehandlingId(any()) } returns null
         every { mockVedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(any()) } returns null
         every { mockSanityService.hentSanityBegrunnelser() } returns emptyList()
         every { mockKompetanseRepository.findByBehandlingId(any()) } returns emptyList()
@@ -201,7 +197,6 @@ class BehandlingServiceTest {
         verify(exactly = 1) { mockSøknadGrunnlagService.finnAktiv(behandling.id) }
         verify(exactly = 1) { mockAndelTilkjentYtelseRepository.finnAndelerTilkjentYtelseForBehandling(behandling.id) }
         verify(exactly = 1) { mockEndringstidspunktService.finnEndringstidspunktForBehandling(behandling) }
-        verify(exactly = 1) { mockTilbakekrevingRepository.findByBehandlingId(behandling.id) }
         verify(exactly = 1) { mockVedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id) }
         verify(exactly = 1) { mockKompetanseRepository.findByBehandlingId(behandling.id) }
         verify(exactly = 1) { mockBrevmottakerService.hentBrevmottakere(behandling.id) }

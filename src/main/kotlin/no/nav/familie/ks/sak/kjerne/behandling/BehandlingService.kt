@@ -47,7 +47,6 @@ import no.nav.familie.ks.sak.kjerne.logg.LoggService
 import no.nav.familie.ks.sak.kjerne.overgangsordning.OvergangsordningAndelService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.PersonopplysningGrunnlagService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.TilbakekrevingRepository
 import no.nav.familie.ks.sak.kjerne.totrinnskontroll.TotrinnskontrollRepository
 import no.nav.familie.ks.sak.sikkerhet.SikkerhetContext
 import no.nav.familie.ks.sak.statistikk.saksstatistikk.SakStatistikkService
@@ -74,7 +73,6 @@ class BehandlingService(
     private val vedtakRepository: VedtakRepository,
     private val vedtaksperiodeService: VedtaksperiodeService,
     private val totrinnskontrollRepository: TotrinnskontrollRepository,
-    private val tilbakekrevingRepository: TilbakekrevingRepository,
     private val sanityService: SanityService,
     private val kompetanseRepository: KompetanseRepository,
     private val utenlandskPeriodebeløpRepository: UtenlandskPeriodebeløpRepository,
@@ -180,8 +178,6 @@ class BehandlingService(
         val sisteVedtaksperiodeVisningDato =
             vedtaksperiodeService.finnSisteVedtaksperiodeVisningsdatoForBehandling(behandling.id)
 
-        val tilbakekreving = tilbakekrevingRepository.findByBehandlingId(behandlingId)
-
         val kompetanser = kompetanseRepository.findByBehandlingId(behandlingId)
 
         val utenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
@@ -204,7 +200,6 @@ class BehandlingService(
             endretUtbetalingAndeler = endreteUtbetalingerMedAndeler,
             overgangsordningAndeler = overgangsordningAndeler,
             endringstidspunkt = endringstidspunkt,
-            tilbakekreving = tilbakekreving,
             sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
             kompetanser = kompetanser,
             utenlandskePeriodebeløp = utenlandskePeriodebeløp,
