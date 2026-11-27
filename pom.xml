@@ -58,7 +58,7 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <unleash.version>12.3.2</unleash.version>
-        <microsoft-graph.version>6.72.0</microsoft-graph.version>
+        <microsoft-graph.version>6.74.0</microsoft-graph.version>
         <okhttp-jvm.version>5.5.1</okhttp-jvm.version>
         <azure-identity.version>1.19.0</azure-identity.version>
 
