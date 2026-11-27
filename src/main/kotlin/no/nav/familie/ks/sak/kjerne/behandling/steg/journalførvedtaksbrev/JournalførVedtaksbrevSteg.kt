@@ -5,6 +5,7 @@ import no.nav.familie.kontrakter.felles.dokarkiv.Dokumenttype
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Dokument
 import no.nav.familie.kontrakter.felles.dokarkiv.v2.Filtype
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.DistribuerBrevDto
 import no.nav.familie.ks.sak.api.dto.FullmektigEllerVerge
 import no.nav.familie.ks.sak.api.dto.JournalførVedtaksbrevDTO
@@ -56,7 +57,7 @@ class JournalførVedtaksbrevSteg(
         val behandlendeEnhet = arbeidsfordelingService.hentArbeidsfordelingPåBehandling(behandlingId).behandlendeEnhetId
 
         val søkersident = fagsak.aktør.aktivFødselsnummer()
-        val manueltRegistrerteMottakere = brevmottakerService.hentBrevmottakere(behandlingId)
+        val manueltRegistrerteMottakere = brevmottakerService.hentBrevmottakere(behandlingId).map { BrevmottakerDto.fra(it) }
 
         val mottakere =
             brevmottakerService.lagMottakereFraBrevMottakere(

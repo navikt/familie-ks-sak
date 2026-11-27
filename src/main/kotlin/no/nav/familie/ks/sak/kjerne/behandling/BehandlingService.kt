@@ -1,6 +1,7 @@
 package no.nav.familie.ks.sak.kjerne.behandling
 
 import no.nav.familie.ks.sak.api.dto.BehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.EndreBehandlendeEnhetDto
 import no.nav.familie.ks.sak.api.dto.MinimalBehandlingResponsDto
 import no.nav.familie.ks.sak.api.dto.tilManglendeSvalbardmerkingDto
@@ -187,7 +188,7 @@ class BehandlingService(
         val utenlandskePeriodebeløp = utenlandskPeriodebeløpRepository.findByBehandlingId(behandlingId)
         val valutakurser = valutakursRepository.findByBehandlingId(behandlingId)
 
-        val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId)
+        val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId).map { BrevmottakerDto.fra(it) }
 
         val manglendeSvalbardmerking = personer.tilManglendeSvalbardmerkingDto(personResultater)
 

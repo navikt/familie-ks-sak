@@ -4,6 +4,7 @@ import no.nav.familie.kontrakter.felles.oppgave.Oppgavetype
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.common.BehandlingId
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
@@ -151,7 +152,7 @@ class BeslutteVedtakSteg(
         behandlingId: BehandlingId,
         totrinnskontrollErGodkjent: Boolean,
     ) {
-        val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId.id)
+        val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId.id).map { BrevmottakerDto.fra(it) }
         if (totrinnskontrollErGodkjent && !BrevmottakerAdresseValidering.harBrevmottakereGyldigAddresse(brevmottakere)) {
             throw FunksjonellFeil(
                 melding = "Det finnes ugyldige brevmottakere, vi kan ikke beslutte vedtaket",

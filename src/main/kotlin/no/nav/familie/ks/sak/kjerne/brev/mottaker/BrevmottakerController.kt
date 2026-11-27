@@ -39,13 +39,13 @@ class BrevmottakerController(
             handling = "legge til brevmottaker",
         )
         validerKanRedigereBehandling(behandlingId)
-        brevmottakerService.leggTilBrevmottaker(brevmottaker, behandlingId)
+        brevmottakerService.opprettBrevmottaker(brevmottaker.tilDomene(behandlingId))
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
 
     @DeleteMapping(path = ["{behandlingId}/{mottakerId}"])
-    fun fjernBrevmottaker(
+    fun slettBrevmottaker(
         @PathVariable behandlingId: Long,
         @PathVariable mottakerId: Long,
     ): ResponseEntity<Ressurs<BehandlingResponsDto>> {
@@ -56,7 +56,7 @@ class BrevmottakerController(
             handling = "fjerne brevmottaker",
         )
         validerKanRedigereBehandling(behandlingId)
-        brevmottakerService.fjernBrevmottaker(id = mottakerId, behandlingId = behandlingId)
+        brevmottakerService.slettBrevmottaker(id = mottakerId, behandlingId = behandlingId)
 
         return ResponseEntity.ok(Ressurs.success(behandlingService.lagBehandlingRespons(behandlingId = behandlingId)))
     }
@@ -71,7 +71,9 @@ class BrevmottakerController(
             minimumBehandlerRolle = BehandlerRolle.VEILEDER,
             handling = "hente brevmottakere",
         )
-        return ResponseEntity.ok(Ressurs.success(brevmottakerService.hentBrevmottakere(behandlingId = behandlingId)))
+        val brevmottakere = brevmottakerService.hentBrevmottakere(behandlingId).map { BrevmottakerDto.fra(it) }
+
+        return ResponseEntity.ok(Ressurs.success(brevmottakere))
     }
 
     private fun validerKanRedigereBehandling(behandlingId: Long) {

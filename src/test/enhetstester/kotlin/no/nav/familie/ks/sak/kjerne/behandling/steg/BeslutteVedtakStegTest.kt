@@ -14,7 +14,7 @@ import no.nav.familie.ks.sak.config.featureToggle.FeatureToggle
 import no.nav.familie.ks.sak.config.featureToggle.FeatureToggleService
 import no.nav.familie.ks.sak.data.BrukerContextUtil
 import no.nav.familie.ks.sak.data.lagBehandling
-import no.nav.familie.ks.sak.data.lagBrevmottakerDto
+import no.nav.familie.ks.sak.datagenerator.lagBrevmottakerDb
 import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.behandling.BehandlingService
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
@@ -158,7 +158,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
-        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDb(id = 123))
 
         beslutteVedtakSteg.utførSteg(200, underkjentVedtakDto)
 
@@ -193,7 +193,7 @@ class BeslutteVedtakStegTest {
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
-        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDb(id = 123))
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(any()) } returns false
         every { tilbakekrevingService.finnTilbakekrevingsbehandling(any()) } returns null
         every { simuleringService.hentFeilutbetaling(any()) } returns BigDecimal.ZERO
@@ -244,7 +244,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
-        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDb(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
 
         // Act & assert
         val exception =
@@ -270,7 +270,7 @@ class BeslutteVedtakStegTest {
         every { vilkårsvurderingService.hentAktivVilkårsvurderingForBehandling(any()) } returns mockk()
         every { vilkårsvurderingService.oppdater(any()) } returns mockk()
         every { vedtakService.opprettOgInitierNyttVedtakForBehandling(any(), any()) } just runs
-        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDb(id = 123, postnummer = "0661", poststed = "Stockholm", landkode = "SE"))
 
         // Act
         beslutteVedtakSteg.utførSteg(200, underkjentVedtakDto)
@@ -307,7 +307,7 @@ class BeslutteVedtakStegTest {
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
-        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDb(id = 123))
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(any()) } returns false
         every { tilbakekrevingService.finnTilbakekrevingsbehandling(any()) } returns null
         every { simuleringService.hentFeilutbetaling(any()) } returns BigDecimal.valueOf(50000)
@@ -342,7 +342,7 @@ class BeslutteVedtakStegTest {
 
         every { vedtakService.hentAktivVedtakForBehandling(any()) } returns mockk(relaxed = true)
         every { vedtakService.oppdaterVedtakMedDatoOgStønadsbrev(any()) } returns mockk()
-        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDto(id = 123))
+        every { brevmottakerService.hentBrevmottakere(any()) } returns listOf(lagBrevmottakerDb(id = 123))
         every { tilbakekrevingService.harÅpenTilbakekrevingsbehandling(any()) } returns false
         every { tilbakekrevingService.finnTilbakekrevingsbehandling(any()) } returns mocketTilbakekreving
         every { simuleringService.hentFeilutbetaling(any()) } returns BigDecimal.ZERO

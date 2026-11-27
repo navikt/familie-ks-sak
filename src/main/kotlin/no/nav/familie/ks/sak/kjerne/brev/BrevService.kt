@@ -10,6 +10,7 @@ import no.nav.familie.kontrakter.felles.journalpost.Journalpost
 import no.nav.familie.kontrakter.felles.journalpost.JournalposterForBrukerRequest
 import no.nav.familie.kontrakter.felles.journalpost.Journalposttype
 import no.nav.familie.kontrakter.felles.journalpost.Journalstatus
+import no.nav.familie.ks.sak.api.dto.BrevmottakerDto
 import no.nav.familie.ks.sak.api.dto.ManuellAdresseInfo
 import no.nav.familie.ks.sak.api.dto.ManueltBrevDto
 import no.nav.familie.ks.sak.common.exception.Feil
@@ -136,7 +137,7 @@ class BrevService(
 
         val behandling = behandlingId?.let { behandlingRepository.hentBehandling(behandlingId) }
 
-        val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id) } ?: emptyList()
+        val brevmottakereFraBehandling = behandling?.let { brevmottakerService.hentBrevmottakere(it.id).map(BrevmottakerDto::fra) } ?: emptyList()
         val brevmottakerDtoListe = manueltBrevDto.manuelleBrevmottakere + brevmottakereFraBehandling
         val mottakere = brevmottakerService.lagMottakereFraBrevMottakere(brevmottakerDtoListe)
 
