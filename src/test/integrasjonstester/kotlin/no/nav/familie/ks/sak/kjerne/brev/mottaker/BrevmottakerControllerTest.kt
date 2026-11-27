@@ -54,7 +54,7 @@ class BrevmottakerControllerTest : OppslagSpringRunnerTest() {
 
             // Assert
             assertThat(brevmottakerService.hentBrevmottakere(behandling.id).map { it.type })
-                .containsExactlyInAnyOrder(MottakerType.FULLMEKTIG, MottakerType.VERGE)
+                .containsExactly(MottakerType.FULLMEKTIG, MottakerType.VERGE)
         }
 
         @Test
