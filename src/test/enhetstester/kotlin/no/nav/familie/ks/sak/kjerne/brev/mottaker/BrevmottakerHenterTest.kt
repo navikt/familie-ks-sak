@@ -22,7 +22,7 @@ class BrevmottakerHenterTest {
                     lagBrevmottakerDb(behandlingId = behandlingId, type = MottakerType.FULLMEKTIG),
                     lagBrevmottakerDb(behandlingId = behandlingId, type = MottakerType.BRUKER_MED_UTENLANDSK_ADRESSE),
                 )
-            every { brevmottakerRepository.finnBrevMottakereForBehandling(behandlingId) } returns brevmottakere
+            every { brevmottakerRepository.finnBrevmottakerePåBehandling(behandlingId) } returns brevmottakere
 
             // Act
             val resultat = brevmottakerHenter.hentBrevmottakere(behandlingId)
@@ -35,7 +35,7 @@ class BrevmottakerHenterTest {
         fun `skal returnere tom liste når behandlingen ikke har brevmottakere`() {
             // Arrange
             val behandlingId = 1L
-            every { brevmottakerRepository.finnBrevMottakereForBehandling(behandlingId) } returns emptyList()
+            every { brevmottakerRepository.finnBrevmottakerePåBehandling(behandlingId) } returns emptyList()
 
             // Act
             val resultat = brevmottakerHenter.hentBrevmottakere(behandlingId)

@@ -376,7 +376,7 @@ internal class TilbakekrevingServiceTest {
 
         every { tilbakekrevingRepository.findByBehandlingId(behandling.id) } returns
             lagTilbakekreving(Tilbakekrevingsvalg.OPPRETT_TILBAKEKREVING_MED_VARSEL, "test")
-        every { brevmottakerRepository.finnBrevMottakereForBehandling(behandling.id) } returns
+        every { brevmottakerRepository.finnBrevmottakerePåBehandling(behandling.id) } returns
             listOf(brevmottaker)
 
         tilbakekrevingService.sendOpprettTilbakekrevingRequest(behandling)
