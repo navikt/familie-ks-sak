@@ -91,6 +91,16 @@ internal class PersonopplysningGrunnlagServiceTest {
     }
 
     @Test
+    fun `opprettPersonopplysningGrunnlag skal kaste feil for revurdering uten vedtatt behandling`() {
+        // Arrange
+        val revurdering = lagBehandling(type = BehandlingType.REVURDERING, opprettetÅrsak = BehandlingÅrsak.SØKNAD)
+
+        // Act & Assert
+        val feil = assertThrows<Feil> { personopplysningGrunnlagService.opprettPersonopplysningGrunnlag(revurdering, null) }
+        assertThat(feil.message).isEqualTo("Kan ikke behandle REVURDERING uten minst en vedtatt behandling")
+    }
+
+    @Test
     fun `opprettPersonopplysningGrunnlag skal opprette personopplysninggrunnlag for revurdering`() {
         val behandling = lagBehandling(opprettetÅrsak = BehandlingÅrsak.SØKNAD)
         val revurdering =
