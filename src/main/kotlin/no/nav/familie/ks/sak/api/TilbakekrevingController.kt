@@ -3,7 +3,9 @@ package no.nav.familie.ks.sak.api
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.ks.sak.api.dto.FagsakIdDto
 import no.nav.familie.ks.sak.api.dto.ForhåndsvisTilbakekrevingVarselbrevDto
+import no.nav.familie.ks.sak.api.dto.TilbakekrevingResponsDto
 import no.nav.familie.ks.sak.api.dto.TilbakekrevingsbehandlingResponsDto
+import no.nav.familie.ks.sak.api.dto.tilTilbakekrevingResponsDto
 import no.nav.familie.ks.sak.api.dto.tilTilbakekrevingsbehandlingResponsDto
 import no.nav.familie.ks.sak.config.BehandlerRolle
 import no.nav.familie.ks.sak.kjerne.tilbakekreving.TilbakekrevingService
@@ -45,6 +47,22 @@ class TilbakekrevingController(
                 .map { it.tilTilbakekrevingsbehandlingResponsDto() }
 
         return Ressurs.success(tilbakekrevingsbehandlinger)
+    }
+
+    @GetMapping(path = ["/behandling/{behandlingId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentTilbakekrevingPåBehandling(
+        @PathVariable behandlingId: Long,
+    ): ResponseEntity<Ressurs<TilbakekrevingResponsDto?>> {
+        tilgangService.validerTilgangTilHandlingOgFagsakForBehandling(
+            behandlingId = behandlingId,
+            event = AuditLoggerEvent.ACCESS,
+            minimumBehandlerRolle = BehandlerRolle.VEILEDER,
+            handling = "hente tilbakekreving",
+        )
+
+        val tilbakekreving = tilbakekrevingService.finnTilbakekrevingsbehandling(behandlingId)
+
+        return ResponseEntity.ok(Ressurs.success(tilbakekreving?.tilTilbakekrevingResponsDto()))
     }
 
     @PostMapping("/{behandlingId}/forhaandsvis-tilbakekreving-varselbrev")

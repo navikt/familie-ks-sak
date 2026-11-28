@@ -11,7 +11,6 @@ import no.nav.familie.ks.sak.api.dto.OvergangsordningAndelDto
 import no.nav.familie.ks.sak.api.dto.PersonResponsDto
 import no.nav.familie.ks.sak.api.dto.PersonerMedAndelerResponsDto
 import no.nav.familie.ks.sak.api.dto.SøknadDto
-import no.nav.familie.ks.sak.api.dto.TilbakekrevingResponsDto
 import no.nav.familie.ks.sak.api.dto.TotrinnskontrollDto
 import no.nav.familie.ks.sak.api.dto.UtbetalingsperiodeResponsDto
 import no.nav.familie.ks.sak.api.dto.VedtakDto
@@ -34,7 +33,6 @@ import no.nav.familie.ks.sak.kjerne.eøs.kompetanse.domene.Kompetanse
 import no.nav.familie.ks.sak.kjerne.eøs.utenlandskperiodebeløp.domene.UtenlandskPeriodebeløp
 import no.nav.familie.ks.sak.kjerne.eøs.valutakurs.domene.Valutakurs
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Person
-import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -52,7 +50,6 @@ object BehandlingMapper {
         endretUtbetalingAndeler: List<EndretUtbetalingAndelResponsDto>,
         overgangsordningAndeler: List<OvergangsordningAndelDto>,
         endringstidspunkt: LocalDate,
-        tilbakekreving: Tilbakekreving?,
         sisteVedtaksperiodeVisningDato: LocalDate?,
         kompetanser: List<Kompetanse>,
         utenlandskePeriodebeløp: List<UtenlandskPeriodebeløp>,
@@ -100,7 +97,6 @@ object BehandlingMapper {
         endretUtbetalingAndeler = endretUtbetalingAndeler,
         overgangsordningAndeler = overgangsordningAndeler,
         endringstidspunkt = utledEndringstidpunkt(endringstidspunkt, behandling),
-        tilbakekreving = tilbakekreving?.let { lagTilbakekrevingRespons(it) },
         sisteVedtaksperiodeVisningDato = sisteVedtaksperiodeVisningDato,
         kompetanser = kompetanser.map { it.tilKompetanseDto() },
         utenlandskePeriodebeløp = utenlandskePeriodebeløp.map { it.tilUtenlandskPeriodebeløpDto() },
@@ -175,12 +171,4 @@ object BehandlingMapper {
         endringstidspunkt == TIDENES_MORGEN || endringstidspunkt == TIDENES_ENDE -> null
         else -> endringstidspunkt
     }
-
-    private fun lagTilbakekrevingRespons(tilbakekreving: Tilbakekreving) =
-        TilbakekrevingResponsDto(
-            valg = tilbakekreving.valg,
-            varsel = tilbakekreving.varsel,
-            begrunnelse = tilbakekreving.begrunnelse,
-            tilbakekrevingsbehandlingId = tilbakekreving.tilbakekrevingsbehandlingId,
-        )
 }

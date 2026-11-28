@@ -13,6 +13,7 @@ import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Kjønn
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
+import no.nav.familie.ks.sak.kjerne.tilbakekreving.domene.Tilbakekreving
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -43,7 +44,6 @@ data class BehandlingResponsDto(
     val totrinnskontroll: TotrinnskontrollDto?,
     val endringstidspunkt: LocalDate?,
     val sisteVedtaksperiodeVisningDato: LocalDate?,
-    val tilbakekreving: TilbakekrevingResponsDto?,
     val kompetanser: List<KompetanseDto>,
     val utenlandskePeriodebeløp: List<UtenlandskPeriodebeløpDto>,
     val valutakurser: List<ValutakursDto>,
@@ -115,3 +115,11 @@ data class TilbakekrevingResponsDto(
     val begrunnelse: String,
     val tilbakekrevingsbehandlingId: String? = null,
 )
+
+fun Tilbakekreving.tilTilbakekrevingResponsDto() =
+    TilbakekrevingResponsDto(
+        valg = valg,
+        varsel = varsel,
+        begrunnelse = begrunnelse,
+        tilbakekrevingsbehandlingId = tilbakekrevingsbehandlingId,
+    )
