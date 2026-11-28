@@ -1,7 +1,10 @@
 package no.nav.familie.ks.sak.kjerne.behandling.steg
 
 import no.nav.familie.ks.sak.OppslagSpringRunnerTest
+import no.nav.familie.ks.sak.data.lagAndelTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagBehandling
+import no.nav.familie.ks.sak.data.lagEndretUtbetalingAndel
+import no.nav.familie.ks.sak.data.lagInitieltTilkjentYtelse
 import no.nav.familie.ks.sak.data.lagPersonopplysningGrunnlag
 import no.nav.familie.ks.sak.data.randomAktør
 import no.nav.familie.ks.sak.data.randomFnr
@@ -11,16 +14,24 @@ import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingStatus
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingType
 import no.nav.familie.ks.sak.kjerne.behandling.domene.BehandlingÅrsak
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vilkårsvurdering.VilkårsvurderingService
+import no.nav.familie.ks.sak.kjerne.beregning.domene.TilkjentYtelseRepository
+import no.nav.familie.ks.sak.kjerne.beregning.domene.YtelseType
+import no.nav.familie.ks.sak.kjerne.endretutbetaling.domene.EndretUtbetalingAndelRepository
 import no.nav.familie.ks.sak.kjerne.fagsak.domene.FagsakStatus
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndel
+import no.nav.familie.ks.sak.kjerne.overgangsordning.domene.OvergangsordningAndelRepository
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Målform
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonType
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.PersonopplysningGrunnlagRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.beans.factory.annotation.Autowired
+import java.math.BigDecimal
+import java.time.YearMonth
 
 class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
     @Autowired
@@ -34,6 +45,15 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
 
     @Autowired
     private lateinit var vilkårsvurderingService: VilkårsvurderingService
+
+    @Autowired
+    private lateinit var tilkjentYtelseRepository: TilkjentYtelseRepository
+
+    @Autowired
+    private lateinit var overgangsordningAndelRepository: OvergangsordningAndelRepository
+
+    @Autowired
+    private lateinit var endretUtbetalingAndelRepository: EndretUtbetalingAndelRepository
 
     @BeforeEach
     fun init() {
@@ -161,5 +181,79 @@ class RegistrerPersonGrunnlagStegTest : OppslagSpringRunnerTest() {
         assertTrue(søker.statsborgerskap.isEmpty())
 
         assertTrue { vilkårsvurderingService.finnAktivVilkårsvurdering(revurdering.id) != null }
+    }
+
+    @Test
+    fun `utførSteg skal ta med barn med tilkjent ytelse og kopiere andelene deres i ny førstegangsbehandling`() {
+        // Arrange
+        opprettPersonopplysningGrunnlagOgPersonForBehandling(behandlingId = behandling.id, lagBarn = true)
+
+        val tilkjentYtelse = lagInitieltTilkjentYtelse(behandling)
+        tilkjentYtelse.andelerTilkjentYtelse.add(
+            lagAndelTilkjentYtelse(
+                tilkjentYtelse = tilkjentYtelse,
+                behandling = behandling,
+                aktør = barn,
+                stønadFom = YearMonth.of(2024, 8),
+                stønadTom = YearMonth.of(2024, 11),
+                ytelseType = YtelseType.OVERGANGSORDNING,
+            ),
+        )
+        tilkjentYtelseRepository.saveAndFlush(tilkjentYtelse)
+
+        overgangsordningAndelRepository.saveAndFlush(
+            OvergangsordningAndel(
+                behandlingId = behandling.id,
+                aktør = barn,
+                fom = YearMonth.of(2024, 8),
+                tom = YearMonth.of(2024, 11),
+            ),
+        )
+
+        endretUtbetalingAndelRepository.saveAndFlush(
+            lagEndretUtbetalingAndel(
+                behandlingId = behandling.id,
+                aktører = setOf(barn),
+                prosent = BigDecimal.ZERO,
+                periodeFom = YearMonth.of(2024, 1),
+                periodeTom = YearMonth.of(2024, 3),
+            ),
+        )
+
+        lagreBehandling(
+            behandling.also {
+                it.status = BehandlingStatus.AVSLUTTET
+                it.aktiv = false
+            },
+        )
+
+        val nyFørstegangsbehandling =
+            behandlingRepository.saveAndFlush(
+                lagBehandling(
+                    fagsak = behandling.fagsak,
+                    type = BehandlingType.FØRSTEGANGSBEHANDLING,
+                    opprettetÅrsak = BehandlingÅrsak.SØKNAD,
+                ),
+            )
+
+        // Act
+        registrerPersonGrunnlagSteg.utførSteg(nyFørstegangsbehandling.id)
+
+        // Assert
+        val personopplysningGrunnlag =
+            personopplysningGrunnlagRepository.findByBehandling(nyFørstegangsbehandling.id).shouldNotBeNull()
+        assertThat(personopplysningGrunnlag.barna.map { it.aktør }).containsExactly(barn)
+
+        val kopierteOvergangsordningAndeler =
+            overgangsordningAndelRepository.hentOvergangsordningAndelerForBehandling(nyFørstegangsbehandling.id)
+        assertThat(kopierteOvergangsordningAndeler)
+            .singleElement()
+            .satisfies({ assertThat(it.aktør).isEqualTo(barn) })
+
+        val kopierteEndretUtbetalingAndeler =
+            endretUtbetalingAndelRepository.hentEndretUtbetalingerForBehandling(nyFørstegangsbehandling.id)
+        assertThat(kopierteEndretUtbetalingAndeler)
+            .singleElement()
+            .satisfies({ assertThat(it.aktører).containsExactly(barn) })
     }
 }

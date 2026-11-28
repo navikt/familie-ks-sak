@@ -39,20 +39,14 @@ class PersonopplysningGrunnlagService(
         behandling: Behandling,
         sisteVedtattBehandling: Behandling?,
     ) {
-        val søkersAktør = behandling.fagsak.aktør
-        val barnasAktørFraSisteVedtattBehandling =
-            when (behandling.type) {
-                BehandlingType.FØRSTEGANGSBEHANDLING -> {
-                    emptyList()
-                }
+        if (behandling.type != BehandlingType.FØRSTEGANGSBEHANDLING && sisteVedtattBehandling == null) {
+            throw Feil("Kan ikke behandle ${behandling.type} uten minst en vedtatt behandling")
+        }
 
-                BehandlingType.REVURDERING, BehandlingType.TEKNISK_ENDRING -> {
-                    if (sisteVedtattBehandling == null) {
-                        throw Feil("Kan ikke behandle ${behandling.type} uten minst en vedtatt behandling")
-                    }
-                    beregningService.finnBarnFraBehandlingMedTilkjentYtelse(sisteVedtattBehandling.id)
-                }
-            }
+        val søkersAktør = behandling.fagsak.aktør
+        // Barn med tilkjent ytelse i forrige vedtatte behandling må med, ellers droppes andelene deres ved kopiering
+        val barnasAktørFraSisteVedtattBehandling =
+            sisteVedtattBehandling?.let { beregningService.finnBarnFraBehandlingMedTilkjentYtelse(it.id) } ?: emptyList()
         val målform = sisteVedtattBehandling?.let { hentSøkersMålform(behandlingId = it.id) } ?: Målform.NB
         lagreSøkerOgBarnINyttGrunnlag(
             aktør = søkersAktør,
