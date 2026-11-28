@@ -16,6 +16,7 @@ import no.nav.familie.ks.sak.integrasjon.familieintegrasjon.IntegrasjonKlient
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.Norden
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.StatsborgerskapService
 import no.nav.familie.ks.sak.kjerne.personopplysninggrunnlag.domene.Medlemskap
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -103,6 +104,30 @@ class StatsborgerskapServiceTest {
         assertEquals(1, grStatsborgerskapUtenPeriode.size)
         assertEquals(Medlemskap.TREDJELANDSBORGER, grStatsborgerskapUtenPeriode.single().medlemskap)
         assertTrue(grStatsborgerskapUtenPeriode.single().gjeldendeNå())
+    }
+
+    @Test
+    fun `hentStatsborgerskapMedMedlemskap skal ikke sette periode for ikke-nordisk statsborgerskap uten datoer`() {
+        // Arrange
+        val statsborgerskapUtenPeriode =
+            Statsborgerskap(
+                "POL",
+                gyldigFraOgMed = null,
+                gyldigTilOgMed = null,
+                bekreftelsesdato = null,
+            )
+
+        // Act
+        val grStatsborgerskap =
+            statsborgerskapService.hentStatsborgerskapMedMedlemskap(
+                statsborgerskap = statsborgerskapUtenPeriode,
+                person = lagPerson(aktør = randomAktør()),
+            )
+
+        // Assert
+        assertThat(grStatsborgerskap).hasSize(1)
+        assertThat(grStatsborgerskap.single().gyldigPeriode).isNull()
+        assertThat(grStatsborgerskap.single().medlemskap).isEqualTo(Medlemskap.EØS)
     }
 
     @Test

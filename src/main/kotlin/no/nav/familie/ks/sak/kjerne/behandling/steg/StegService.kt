@@ -3,6 +3,8 @@ package no.nav.familie.ks.sak.kjerne.behandling.steg
 import no.nav.familie.kontrakter.felles.tilbakekreving.Tilbakekrevingsvalg
 import no.nav.familie.ks.sak.api.dto.BehandlingStegDto
 import no.nav.familie.ks.sak.api.dto.BesluttVedtakDto
+import no.nav.familie.ks.sak.api.dto.RegistrerSøknadDto
+import no.nav.familie.ks.sak.api.dto.writeValueAsString
 import no.nav.familie.ks.sak.common.exception.Feil
 import no.nav.familie.ks.sak.common.exception.FunksjonellFeil
 import no.nav.familie.ks.sak.config.TaskRepositoryWrapper
@@ -16,9 +18,12 @@ import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BEHANDLINGSRE
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.BESLUTTE_VEDTAK
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.IVERKSETT_MOT_OPPDRAG
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.JOURNALFØR_VEDTAKSBREV
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.REGISTRERE_SØKNAD
 import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VEDTAK
+import no.nav.familie.ks.sak.kjerne.behandling.steg.BehandlingSteg.VILKÅRSVURDERING
 import no.nav.familie.ks.sak.kjerne.behandling.steg.iverksettmotoppdrag.IverksettMotOppdragTask
 import no.nav.familie.ks.sak.kjerne.behandling.steg.journalførvedtaksbrev.JournalførVedtaksbrevTask
+import no.nav.familie.ks.sak.kjerne.behandling.steg.registrersøknad.SøknadGrunnlagService
 import no.nav.familie.ks.sak.kjerne.behandling.steg.vedtak.domene.VedtakRepository
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelse
 import no.nav.familie.ks.sak.kjerne.beregning.domene.AndelTilkjentYtelseRepository
@@ -48,6 +53,7 @@ class StegService(
     private val loggService: LoggService,
     private val behandlingService: BehandlingService,
     private val andelTilkjentYtelseRepository: AndelTilkjentYtelseRepository,
+    private val søknadGrunnlagService: SøknadGrunnlagService,
 ) {
     @Transactional
     fun utførSteg(
@@ -89,6 +95,17 @@ class StegService(
             }
 
             BehandlingStegStatus.UTFØRT -> {
+                // Endringer i grunnlaget tilbakestiller behandlingen til steget, så et utført steg rekjøres ikke.
+                if (behandlingSteg in setOf(VILKÅRSVURDERING, BEHANDLINGSRESULTAT)) {
+                    logger.info("Rekjører ikke $behandlingSteg på behandling $behandlingId siden steget allerede er utført")
+                    return
+                }
+
+                if (behandlingSteg == REGISTRERE_SØKNAD && erSøknadUendret(behandlingId, behandlingStegDto)) {
+                    logger.info("Rekjører ikke $behandlingSteg på behandling $behandlingId siden søknaden er uendret")
+                    return
+                }
+
                 // tilbakefører alle stegene som er etter behandlede steg
                 behandling.behandlingStegTilstand
                     .filter { it.behandlingSteg.sekvens > behandlingSteg.sekvens }
@@ -123,6 +140,14 @@ class StegService(
         }
         // statistikk til datavarehus
         sakStatistikkService.opprettSendingAvBehandlingensTilstand(behandlingId, behandlingSteg)
+    }
+
+    private fun erSøknadUendret(
+        behandlingId: Long,
+        behandlingStegDto: BehandlingStegDto?,
+    ): Boolean {
+        val registrerSøknadDto = behandlingStegDto as? RegistrerSøknadDto ?: return false
+        return søknadGrunnlagService.finnAktiv(behandlingId)?.søknad == registrerSøknadDto.søknad.writeValueAsString()
     }
 
     private fun valider(
